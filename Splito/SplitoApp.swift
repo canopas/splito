@@ -9,9 +9,9 @@ import SwiftUI
 
 @main
 struct SplitoApp: App {
-    
+
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()
