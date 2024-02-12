@@ -2,6 +2,12 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:UI/UI.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Data/Data.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:Splito.xcodeproj">
    </FileRef>
    <FileRef
