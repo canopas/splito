@@ -10,8 +10,12 @@
 		5BC459F422F2A0D750ACF4E7 /* Pods_Splito.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39224D114840C45FEB625628 /* Pods_Splito.framework */; };
 		8E3228D89DB8C5A6C3025576 /* Pods_SplitoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2A368F56740CC352800594 /* Pods_SplitoTests.framework */; };
 		C056C127DA375885D47B5B65 /* Pods_Splito_SplitoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 11DED773106933B741C874E9 /* Pods_Splito_SplitoUITests.framework */; };
+		D8015C052B7A47CF0002886A /* Data.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8015C042B7A47CF0002886A /* Data.framework */; };
+		D8015C062B7A47CF0002886A /* Data.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8015C042B7A47CF0002886A /* Data.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D8015C092B7A47D80002886A /* UI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8015C082B7A47D80002886A /* UI.framework */; };
+		D8015C0A2B7A47D80002886A /* UI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8015C082B7A47D80002886A /* UI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D889F5B82B7A521F008C6A43 /* SplashView.storyboard */; };
 		D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89684442B722D3400D5F721 /* SplitoApp.swift */; };
-		D89684472B722D3400D5F721 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89684462B722D3400D5F721 /* ContentView.swift */; };
 		D89684492B722D3700D5F721 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D89684482B722D3700D5F721 /* Assets.xcassets */; };
 		D896844C2B722D3700D5F721 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D896844B2B722D3700D5F721 /* Preview Assets.xcassets */; };
 		D89684562B722D3700D5F721 /* SplitoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89684552B722D3700D5F721 /* SplitoTests.swift */; };
@@ -38,6 +42,21 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		D8015C072B7A47D00002886A /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D8015C0A2B7A47D80002886A /* UI.framework in Embed Frameworks */,
+				D8015C062B7A47CF0002886A /* Data.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		11DED773106933B741C874E9 /* Pods_Splito_SplitoUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splito_SplitoUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F0EAA76EA4080D4B60C4EE3 /* Pods-Splito.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito.release.xcconfig"; path = "Target Support Files/Pods-Splito/Pods-Splito.release.xcconfig"; sourceTree = "<group>"; };
@@ -46,9 +65,12 @@
 		6E2A368F56740CC352800594 /* Pods_SplitoTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SplitoTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		924B3CD151035D386A7ACE76 /* Pods-Splito-SplitoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito-SplitoUITests.release.xcconfig"; path = "Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests.release.xcconfig"; sourceTree = "<group>"; };
 		A404FB16E4A80EE0FB38FE80 /* Pods-SplitoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SplitoTests.release.xcconfig"; path = "Target Support Files/Pods-SplitoTests/Pods-SplitoTests.release.xcconfig"; sourceTree = "<group>"; };
+		D8015C042B7A47CF0002886A /* Data.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Data.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8015C082B7A47D80002886A /* UI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = UI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D889F5B82B7A521F008C6A43 /* SplashView.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SplashView.storyboard; sourceTree = "<group>"; };
+		D889F5BA2B7A5419008C6A43 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D89684412B722D3400D5F721 /* Splito.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Splito.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89684442B722D3400D5F721 /* SplitoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitoApp.swift; sourceTree = "<group>"; };
-		D89684462B722D3400D5F721 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D89684482B722D3700D5F721 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D896844B2B722D3700D5F721 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		D89684512B722D3700D5F721 /* SplitoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SplitoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -67,6 +89,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8015C092B7A47D80002886A /* UI.framework in Frameworks */,
+				D8015C052B7A47CF0002886A /* Data.framework in Frameworks */,
 				5BC459F422F2A0D750ACF4E7 /* Pods_Splito.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -93,6 +117,8 @@
 		7530D0A01F0D8D2C363B2A6E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D8015C082B7A47D80002886A /* UI.framework */,
+				D8015C042B7A47CF0002886A /* Data.framework */,
 				39224D114840C45FEB625628 /* Pods_Splito.framework */,
 				11DED773106933B741C874E9 /* Pods_Splito_SplitoUITests.framework */,
 				6E2A368F56740CC352800594 /* Pods_SplitoTests.framework */,
@@ -138,11 +164,10 @@
 		D89684432B722D3400D5F721 /* Splito */ = {
 			isa = PBXGroup;
 			children = (
-				D896846E2B722FD200D5F721 /* Resource */,
 				D89684442B722D3400D5F721 /* SplitoApp.swift */,
 				D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */,
-				D89684462B722D3400D5F721 /* ContentView.swift */,
-				D896846F2B72392600D5F721 /* GoogleService-Info.plist */,
+				D8AC25D12B7F43EA00CEAAD3 /* Plist */,
+				D896846E2B722FD200D5F721 /* Resource */,
 				D896844A2B722D3700D5F721 /* Preview Content */,
 			);
 			path = Splito;
@@ -177,8 +202,18 @@
 			isa = PBXGroup;
 			children = (
 				D89684482B722D3700D5F721 /* Assets.xcassets */,
+				D889F5B82B7A521F008C6A43 /* SplashView.storyboard */,
 			);
 			path = Resource;
+			sourceTree = "<group>";
+		};
+		D8AC25D12B7F43EA00CEAAD3 /* Plist */ = {
+			isa = PBXGroup;
+			children = (
+				D889F5BA2B7A5419008C6A43 /* Info.plist */,
+				D896846F2B72392600D5F721 /* GoogleService-Info.plist */,
+			);
+			path = Plist;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -194,6 +229,7 @@
 				D896843F2B722D3400D5F721 /* Resources */,
 				907A4BF71D4988DA0728BA70 /* [CP] Embed Pods Frameworks */,
 				D8DF8B3C2B7A238000165138 /* SwiftLint */,
+				D8015C072B7A47D00002886A /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -293,6 +329,7 @@
 			files = (
 				D896844C2B722D3700D5F721 /* Preview Assets.xcassets in Resources */,
 				D89684492B722D3700D5F721 /* Assets.xcassets in Resources */,
+				D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */,
 				D89684702B72392600D5F721 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -441,7 +478,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8D6C3A02B79F8110023CF08 /* AppDelegate.swift in Sources */,
-				D89684472B722D3400D5F721 /* ContentView.swift in Sources */,
 				D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -611,9 +647,10 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Splito/Plist/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = SplashView;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
@@ -644,9 +681,10 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Splito/Plist/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = SplashView;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
