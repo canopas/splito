@@ -3,6 +3,7 @@ platform :ios, '16'
 
 workspace 'Splito.xcworkspace'
 project 'Splito.xcodeproj'
+
 use_frameworks!
 
 def data_pods
@@ -13,21 +14,18 @@ def data_pods
   pod 'FirebaseFirestore'
 end
 
-def ui_pods
-  pod 'UIPilot'
-  pod 'Swinject'
+def base_style_pods
   pod 'SwiftLint'
 end
 
 def splito_pods
-  ui_pods
   data_pods
+  base_style_pods
 end
 
 target 'Data' do
-  project 'Data/Data.project'
-  # MARK: Builders Pod
-  data_pods
+  project 'Data/Data'
+    data_pods
   
   target 'DataTests' do
     inherit! :search_paths
@@ -35,13 +33,11 @@ target 'Data' do
   end
 end
 
-target 'UI' do
-  project 'UI/UI.project'
-  # MARK: Builders Pod
-  ui_pods
-  data_pods
-  
-  target 'UITests' do
+target 'BaseStyle' do
+  project 'BaseStyle/BaseStyle'
+    base_style_pods
+    
+  target 'BaseStyleTests' do
     inherit! :search_paths
     # Pods for testing
   end
@@ -49,7 +45,6 @@ end
 
 target 'Splito' do
   
-  # MARK: - Tools + Builders
   splito_pods
   
   target 'SplitoTests' do

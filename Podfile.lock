@@ -757,7 +757,6 @@ PODS:
   - RecaptchaInterop (100.0.0)
   - SwiftLint (0.54.0)
   - Swinject (2.8.3)
-  - UIPilot (2.0.2)
 
 DEPENDENCIES:
   - FirebaseAuth
@@ -765,7 +764,6 @@ DEPENDENCIES:
   - FirebaseFirestore
   - SwiftLint
   - Swinject
-  - UIPilot
 
 SPEC REPOS:
   trunk:
@@ -789,7 +787,6 @@ SPEC REPOS:
     - RecaptchaInterop
     - SwiftLint
     - Swinject
-    - UIPilot
 
 SPEC CHECKSUMS:
   abseil: 926fb7a82dc6d2b8e1f2ed7f3a718bce691d1e46
@@ -812,8 +809,7 @@ SPEC CHECKSUMS:
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
   SwiftLint: c1de071d9d08c8aba837545f6254315bc900e211
   Swinject: 893c9a543000ac2f10ee4cbaf0933c6992c935d5
-  UIPilot: dec727d11749dcb34654df4f8c94b98b29903566
 
-PODFILE CHECKSUM: 802a63640db20cfa1461ccfb290166d6d32807af
+PODFILE CHECKSUM: 7abce27e2fc70fba3299829af76cf1ec7c248261
 
 COCOAPODS: 1.15.0

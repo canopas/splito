@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Data
-import UI
 
 @main
 struct SplitoApp: App {
