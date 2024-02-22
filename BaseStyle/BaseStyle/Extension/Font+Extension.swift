@@ -108,3 +108,33 @@ public extension Font {
         .custom(style.name, fixedSize: fixedSize)
     }
 }
+
+extension Font {
+    private static func registerFont(withName name: String, fileExtension: String, bundle: Bundle? = Bundle.baseUIBundle) {
+        let frameworkBundle = bundle ?? Bundle.baseUIBundle
+        let pathForResourceString = frameworkBundle.path(forResource: name, ofType: fileExtension)
+        let fontData = NSData(contentsOfFile: pathForResourceString!)
+        let dataProvider = CGDataProvider(data: fontData!)
+        let fontRef = CGFont(dataProvider!)
+        var errorRef: Unmanaged<CFError>?
+
+        if CTFontManagerRegisterGraphicsFont(fontRef!, &errorRef) == false {
+            print("Error registering font")
+        }
+    }
+
+    // Register all font to use in frame work
+    public static func loadFonts() {
+        registerFont(withName: "Inter-Regular", fileExtension: "ttf")
+        registerFont(withName: "Inter-Bold", fileExtension: "ttf")
+        registerFont(withName: "Inter-Thin", fileExtension: "ttf")
+        registerFont(withName: "Inter-SemiBold", fileExtension: "ttf")
+        registerFont(withName: "Inter-Medium", fileExtension: "ttf")
+        registerFont(withName: "Inter-Light", fileExtension: "ttf")
+        registerFont(withName: "Acme-Regular", fileExtension: "ttf")
+        registerFont(withName: "Inter-Italic", fileExtension: "ttf")
+        registerFont(withName: "inter-medium-italic", fileExtension: "ttf")
+        registerFont(withName: "inter-heavy-italic", fileExtension: "otf")
+        registerFont(withName: "inter-semi-bold-italic", fileExtension: "ttf")
+    }
+}

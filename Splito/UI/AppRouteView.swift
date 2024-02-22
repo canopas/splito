@@ -6,6 +6,7 @@
 //
 
 import Data
+import BaseStyle
 import SwiftUI
 
 public enum AppRootRoute: Equatable {
@@ -19,6 +20,10 @@ public struct AppRouteView: View {
     var router = Router<AppRootRoute>(root: .Onboard)
 
     @Inject var preference: SplitoPreference
+
+    init() {
+        Font.loadFonts()
+    }
 
     public var body: some View {
         RouterView(router: router) { route in
