@@ -11,11 +11,16 @@ def data_pods
   pod 'SwiftLint'
   pod 'FirebaseCore'
   pod 'FirebaseAuth'
+  pod 'GoogleSignIn'
   pod 'FirebaseFirestore'
+  
+  pod 'SSZipArchive'
+  pod 'CocoaLumberjack/Swift'
 end
 
 def base_style_pods
   pod 'SwiftLint'
+  pod 'CocoaLumberjack/Swift'
 end
 
 def splito_pods

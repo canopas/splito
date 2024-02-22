@@ -1,0 +1,86 @@
+//
+//  BaseViewModel.swift
+//  Data
+//
+//  Created by Amisha Italiya on 22/02/24.
+//
+
+import Combine
+import BaseStyle
+
+open class BaseViewModel {
+
+    @Published public var currentErrorState: BaseErrorState = .noError
+
+    @Published public var toast: ToastPrompt?
+
+    @Published public var alert: AlertPrompt = .init(message: "")
+    @Published public var showAlert: Bool = false
+
+    public var cancelables = Set<AnyCancellable>()
+
+    public init() { }
+
+    /// This will take error as argument and show error's description text as message with ok button.
+//    open func showAlertFor(_ error: ServiceError) {
+//        alert = .init(message: error.descriptionText)
+//        showAlert = true
+//    }
+
+    /// Use this method when you want to show alert with title and message and default title is empty **""**.
+    public func showAlertFor(title: String = "", message: String) {
+        alert = .init(title: title, message: message)
+        showAlert = true
+    }
+
+    /// This will take AlertPrompt as argument in which you can manage buttons and it's actions.
+    public func showAlertFor(alert item: AlertPrompt) {
+        alert = item
+        showAlert = true
+    }
+
+    /// This will handle error state from error provided in argument.
+//    public func handleStateFor(_ error: ServiceError) {
+//        switch error {
+//        case .serverError:
+//            currentErrorState = .somethingWentWrong
+//        case .networkError:
+//            currentErrorState = .noInternet
+//        default:
+//            return
+//        }
+//    }
+
+    /// Use this method to show error toast, pass an error as argument and it will show toast with title **Error** and message will be error's descriptionText.
+//    public func showToastFor(_ error: ServiceError) {
+//        toast = .init(type: .error, title: R.string.authErrors.error_toast_title.localized(), message: error.descriptionText)
+//    }
+
+    /// Use this method to show toast with custom specificatons like title message and duration for toast.
+    public func showToastFor(toast item: ToastPrompt) {
+        toast = item
+    }
+}
+
+public extension BaseViewModel {
+    enum BaseErrorState: Equatable {
+        public static func == (lhs: BaseViewModel.BaseErrorState, rhs: BaseViewModel.BaseErrorState) -> Bool {
+            return lhs.key == rhs.key
+        }
+
+        case somethingWentWrong
+        case noInternet
+        case noError
+
+        public var key: String {
+            switch self {
+            case .somethingWentWrong:
+                return "somethingWentWrong"
+            case .noInternet:
+                return "noInternet"
+            case .noError:
+                return "noError"
+            }
+        }
+    }
+}

@@ -11,11 +11,11 @@ import SwiftUI
 struct LoginView: View {
 
     @Environment(\.colorScheme) var colorScheme
-	@ObservedObject var viewModel: LoginViewModel
+    @ObservedObject var viewModel: LoginViewModel
 
-	public init(viewModel: LoginViewModel) {
-		self.viewModel = viewModel
-	}
+    public init(viewModel: LoginViewModel) {
+        self.viewModel = viewModel
+    }
 
     var body: some View {
         GeometryReader { proxy in
@@ -44,6 +44,7 @@ struct LoginView: View {
                 .frame(minHeight: proxy.size.height, alignment: .center)
                 .padding(.horizontal, 20)
             }
+            .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
             .background(
                 LinearGradient(colors: colorScheme == .dark ? [surfaceDarkColor] :
                                 [primaryColor.opacity(0), primaryColor.opacity(0.16), primaryColor.opacity(0)],
@@ -63,7 +64,7 @@ private struct LoginOptionsView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            LoginOptionsButtonView(image: .googleIcon, buttonName: "Sign in with Google", bgColor: surfaceLightColor, buttonTextColor: surfaceDarkColor, onClick: onAppleLoginClick)
+            LoginOptionsButtonView(image: .googleIcon, buttonName: "Sign in with Google", bgColor: surfaceLightColor, buttonTextColor: surfaceDarkColor, onClick: onGoogleLoginClick)
             LoginOptionsButtonView(image: .appleIcon, buttonName: "Sign in with Apple", bgColor: inverseSurfaceColor, buttonTextColor: backgroundColor, onClick: onAppleLoginClick)
             LoginOptionsButtonView(image: .phoneLoginIcon, buttonName: "Sign in with Phone Number", bgColor: primaryColor, onClick: onPhoneLoginClick)
         }
@@ -117,5 +118,5 @@ private struct LoginOptionsButtonView: View {
 }
 
 #Preview {
-	LoginView(viewModel: LoginViewModel())
+    LoginView(viewModel: LoginViewModel())
 }

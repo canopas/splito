@@ -30,12 +30,17 @@
 		D8D42A7C2B85CFEC009B345D /* LoaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A7B2B85CFEC009B345D /* LoaderViewModel.swift */; };
 		D8D42A812B85D07C009B345D /* SecondaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A7D2B85D07C009B345D /* SecondaryButton.swift */; };
 		D8D42A822B85D07C009B345D /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A7E2B85D07C009B345D /* PrimaryButton.swift */; };
-		D8D42A832B85D07C009B345D /* View.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A7F2B85D07C009B345D /* View.swift */; };
+		D8D42A832B85D07C009B345D /* View+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A7F2B85D07C009B345D /* View+Extension.swift */; };
 		D8D42A842B85D07C009B345D /* Spacers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A802B85D07C009B345D /* Spacers.swift */; };
 		D8D42A862B85D08F009B345D /* Font+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A852B85D08F009B345D /* Font+Extension.swift */; };
 		D8D42A8A2B85D525009B345D /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A892B85D525009B345D /* AppColors.swift */; };
-		D8D42A922B85F23C009B345D /* Color+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A912B85F23C009B345D /* Color+Extension.swift */; };
 		D8D42A952B85F8A2009B345D /* Bundle+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A942B85F8A2009B345D /* Bundle+Extension.swift */; };
+		D8D42A992B870961009B345D /* AlertPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A982B870961009B345D /* AlertPrompt.swift */; };
+		D8D42A9D2B870A5D009B345D /* ToastPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A9C2B870A5D009B345D /* ToastPrompt.swift */; };
+		D8D42AA32B8715B4009B345D /* TopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42AA22B8715B4009B345D /* TopViewController.swift */; };
+		D8D42AAC2B872A7C009B345D /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42AAB2B872A7C009B345D /* ToastView.swift */; };
+		D8D42AAE2B872B27009B345D /* DismissButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42AAD2B872B27009B345D /* DismissButton.swift */; };
+		D8D42AB02B872E44009B345D /* LoaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42AAF2B872E44009B345D /* LoaderView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,12 +81,17 @@
 		D8D42A7B2B85CFEC009B345D /* LoaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoaderViewModel.swift; sourceTree = "<group>"; };
 		D8D42A7D2B85D07C009B345D /* SecondaryButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecondaryButton.swift; sourceTree = "<group>"; };
 		D8D42A7E2B85D07C009B345D /* PrimaryButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
-		D8D42A7F2B85D07C009B345D /* View.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = View.swift; sourceTree = "<group>"; };
+		D8D42A7F2B85D07C009B345D /* View+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "View+Extension.swift"; sourceTree = "<group>"; };
 		D8D42A802B85D07C009B345D /* Spacers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Spacers.swift; sourceTree = "<group>"; };
 		D8D42A852B85D08F009B345D /* Font+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Font+Extension.swift"; sourceTree = "<group>"; };
 		D8D42A892B85D525009B345D /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
-		D8D42A912B85F23C009B345D /* Color+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extension.swift"; sourceTree = "<group>"; };
 		D8D42A942B85F8A2009B345D /* Bundle+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+Extension.swift"; sourceTree = "<group>"; };
+		D8D42A982B870961009B345D /* AlertPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPrompt.swift; sourceTree = "<group>"; };
+		D8D42A9C2B870A5D009B345D /* ToastPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastPrompt.swift; sourceTree = "<group>"; };
+		D8D42AA22B8715B4009B345D /* TopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopViewController.swift; sourceTree = "<group>"; };
+		D8D42AAB2B872A7C009B345D /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
+		D8D42AAD2B872B27009B345D /* DismissButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissButton.swift; sourceTree = "<group>"; };
+		D8D42AAF2B872E44009B345D /* LoaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoaderView.swift; sourceTree = "<group>"; };
 		E0B1A6930B9FF35E9142463B /* Pods-BaseStyle.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyle.debug.xcconfig"; path = "Target Support Files/Pods-BaseStyle/Pods-BaseStyle.debug.xcconfig"; sourceTree = "<group>"; };
 		E4AFAF996FB5C233D40D81D5 /* Pods_BaseStyleTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BaseStyleTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -153,9 +163,11 @@
 			children = (
 				D8D42A782B85CE81009B345D /* Info.plist */,
 				D8D42A402B85CC85009B345D /* BaseStyle.h */,
+				D8D42AAA2B872A6D009B345D /* CustomUI */,
 				D8D42A752B85CE02009B345D /* Views */,
 				D8D42A932B85F60C009B345D /* Helper */,
 				D8D42A552B85CD0E009B345D /* Resource */,
+				D8D42AA42B8723BE009B345D /* Modifier */,
 				D8D42A742B85CDF9009B345D /* Extension */,
 			);
 			path = BaseStyle;
@@ -210,8 +222,8 @@
 			isa = PBXGroup;
 			children = (
 				D8D42A852B85D08F009B345D /* Font+Extension.swift */,
+				D8D42A7F2B85D07C009B345D /* View+Extension.swift */,
 				D8D42A942B85F8A2009B345D /* Bundle+Extension.swift */,
-				D8D42A912B85F23C009B345D /* Color+Extension.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -219,12 +231,12 @@
 		D8D42A752B85CE02009B345D /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				D8D42A7F2B85D07C009B345D /* View.swift */,
 				D8D42A802B85D07C009B345D /* Spacers.swift */,
+				D8D42A982B870961009B345D /* AlertPrompt.swift */,
+				D8D42A9C2B870A5D009B345D /* ToastPrompt.swift */,
 				D8D42A7E2B85D07C009B345D /* PrimaryButton.swift */,
 				D8D42A7D2B85D07C009B345D /* SecondaryButton.swift */,
 				D8D42A7B2B85CFEC009B345D /* LoaderViewModel.swift */,
-				D8D42A762B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -233,8 +245,27 @@
 			isa = PBXGroup;
 			children = (
 				D8D42A892B85D525009B345D /* AppColors.swift */,
+				D8D42AA22B8715B4009B345D /* TopViewController.swift */,
 			);
 			path = Helper;
+			sourceTree = "<group>";
+		};
+		D8D42AA42B8723BE009B345D /* Modifier */ = {
+			isa = PBXGroup;
+			children = (
+				D8D42A762B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift */,
+			);
+			path = Modifier;
+			sourceTree = "<group>";
+		};
+		D8D42AAA2B872A6D009B345D /* CustomUI */ = {
+			isa = PBXGroup;
+			children = (
+				D8D42AAB2B872A7C009B345D /* ToastView.swift */,
+				D8D42AAF2B872E44009B345D /* LoaderView.swift */,
+				D8D42AAD2B872B27009B345D /* DismissButton.swift */,
+			);
+			path = CustomUI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -429,15 +460,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8D42AAE2B872B27009B345D /* DismissButton.swift in Sources */,
 				D8D42A812B85D07C009B345D /* SecondaryButton.swift in Sources */,
+				D8D42AB02B872E44009B345D /* LoaderView.swift in Sources */,
+				D8D42A9D2B870A5D009B345D /* ToastPrompt.swift in Sources */,
 				D8D42A772B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift in Sources */,
-				D8D42A832B85D07C009B345D /* View.swift in Sources */,
+				D8D42A832B85D07C009B345D /* View+Extension.swift in Sources */,
 				D8D42A822B85D07C009B345D /* PrimaryButton.swift in Sources */,
 				D8D42A7C2B85CFEC009B345D /* LoaderViewModel.swift in Sources */,
 				D8D42A8A2B85D525009B345D /* AppColors.swift in Sources */,
+				D8D42AAC2B872A7C009B345D /* ToastView.swift in Sources */,
 				D8D42A952B85F8A2009B345D /* Bundle+Extension.swift in Sources */,
 				D8D42A862B85D08F009B345D /* Font+Extension.swift in Sources */,
-				D8D42A922B85F23C009B345D /* Color+Extension.swift in Sources */,
+				D8D42A992B870961009B345D /* AlertPrompt.swift in Sources */,
+				D8D42AA32B8715B4009B345D /* TopViewController.swift in Sources */,
 				D8D42A842B85D07C009B345D /* Spacers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

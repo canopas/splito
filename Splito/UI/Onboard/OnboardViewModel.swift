@@ -27,7 +27,7 @@ class OnboardViewModel: ObservableObject {
             guard let self, let user = result?.user else { return }
             let isAnonymous = user.isAnonymous
             self.preference.isOnboardShown = isAnonymous
-            appRouter.push(.Login)
+            appRouter.root = .Login
         }
     }
 }

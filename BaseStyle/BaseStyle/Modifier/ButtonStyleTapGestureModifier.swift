@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-private struct ButtonStyleTapGestureModifier: ViewModifier {
+struct ButtonStyleTapGestureModifier: ViewModifier {
 
     let action: () -> Void
 
@@ -30,11 +30,5 @@ public struct ScaleButtonStyle: ButtonStyle {
 public extension ButtonStyle where Self == ScaleButtonStyle {
     static var scale: Self {
         return .init()
-    }
-}
-
-public extension View {
-    func onTouchGesture(_ action: @escaping () -> Void) -> some View {
-        self.modifier(ButtonStyleTapGestureModifier(action: action))
     }
 }
