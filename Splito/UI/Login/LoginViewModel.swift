@@ -10,15 +10,17 @@ import BaseStyle
 import GoogleSignIn
 import FirebaseCore
 import FirebaseAuth
+import AuthenticationServices
 
 public class LoginViewModel: ObservableObject {
 
     @Published var showAlert: Bool = false
     @Published private(set) var alert: AlertPrompt = .init(title: "", message: "")
+    @Published private(set) var currentState: ViewState = .initial
 
-    func onAppleLoginView() {
+    private var currentNonce: String = ""
 
-    }
+    var appleSignInDelegates: SignInWithAppleDelegates! = nil
 
     func onGoogleLoginClick() {
         if GIDSignIn.sharedInstance.hasPreviousSignIn() {
@@ -44,17 +46,45 @@ public class LoginViewModel: ObservableObject {
                 guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
 
                 let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-
-                Auth.auth().signIn(with: credential) { authResult, error in
-                    if error != nil {
-                        self.alert = .init(message: "Server error")
-                        self.showAlert = true
-                    } else if let authResult {
-                        print("XXX --- User: \(authResult.user)")
-                    }
-                }
+                self.performFirebaseLogin(credential: credential)
             }
         }
+    }
+
+    func onAppleLoginView() {
+        self.currentNonce = NonceGenerator.randomNonceString()
+        let request = ASAuthorizationAppleIDProvider().createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = NonceGenerator.sha256(currentNonce)
+
+        appleSignInDelegates = SignInWithAppleDelegates { (token, _, _) in
+            let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: token, rawNonce: self.currentNonce)
+            self.performFirebaseLogin(credential: credential)
+        }
+
+        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+        authorizationController.delegate = appleSignInDelegates
+        authorizationController.performRequests()
+    }
+
+    private func performFirebaseLogin(credential: AuthCredential) {
+        currentState = .loading
+        FirebaseProvider.auth
+            .signIn(with: credential) { [weak self] result, error in
+                guard let self = self else { return }
+                if let error {
+                    self.currentState = .initial
+                    print("LoginViewModel: Firebase Error: \(error), with type Apple login.")
+                    self.alert = .init(message: "Server error")
+                    self.showAlert = true
+                } else if let result {
+                    self.currentState = .initial
+                    print("LoginViewModel: Logged in User: \(result.user)")
+                } else {
+                    self.alert = .init(message: "Contact Support")
+                    self.showAlert = true
+                }
+            }
     }
 
     func onPhoneLoginClick() {

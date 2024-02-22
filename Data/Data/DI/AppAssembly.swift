@@ -18,5 +18,9 @@ public class AppAssembly: Assembly {
             SplitoPreference.init()
         }.inObjectScope(.container)
         
+        container.register(DDLoggerProvider.self) { _ in
+            DDLoggerProvider.init()
+        }.inObjectScope(.container)
+        
     }
 }

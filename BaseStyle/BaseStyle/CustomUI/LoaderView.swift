@@ -9,19 +9,19 @@ import SwiftUI
 
 public struct LoaderView: View {
     @StateObject private var viewModel: LoaderViewModel = .init()
-    
+
     private let tintColor: Color
     private let scaleSize: CGFloat
     private let withDarkBG: Bool
     private let showLoader: Bool
-    
+
     public init(tintColor: Color = primaryColor, scaleSize: CGFloat = 1.0, withDarkBg: Bool = false, showLoader: Bool = false) {
         self.tintColor = tintColor
         self.scaleSize = scaleSize
         self.withDarkBG = withDarkBg
         self.showLoader = showLoader
     }
-    
+
     public var body: some View {
         ZStack {
             if viewModel.isStillLoading {
@@ -31,7 +31,7 @@ public struct LoaderView: View {
                 } else {
                     Color.clear.ignoresSafeArea()
                 }
-                
+
                 ProgressView()
                     .scaleEffect(scaleSize, anchor: .center)
                     .progressViewStyle(CircularProgressViewStyle(tint: tintColor))
@@ -45,9 +45,9 @@ public struct LoaderView: View {
 
 public struct ImageLoaderView: View {
     @StateObject var viewModel: LoaderViewModel = .init()
-    
+
     public init() { }
-    
+
     public var body: some View {
         ZStack {
             if viewModel.isStillLoading {
@@ -63,12 +63,12 @@ public struct ImageLoaderView: View {
 public struct LoaderCellView: View {
     private var tintColor: Color
     private var isLoading: Bool
-    
+
     public init(tintColor: Color = secondaryText, isLoading: Bool = false) {
         self.tintColor = tintColor
         self.isLoading = isLoading
     }
-    
+
     public var body: some View {
         VStack(spacing: 0) {
             Color.clear.ignoresSafeArea()
@@ -81,4 +81,3 @@ public struct LoaderCellView: View {
         .frame(height: 40)
     }
 }
-

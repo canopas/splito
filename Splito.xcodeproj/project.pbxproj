@@ -19,6 +19,7 @@
 		D89684562B722D3700D5F721 /* SplitoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89684552B722D3700D5F721 /* SplitoTests.swift */; };
 		D89684602B722D3700D5F721 /* SplitoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D896845F2B722D3700D5F721 /* SplitoUITests.swift */; };
 		D89684622B722D3700D5F721 /* SplitoUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89684612B722D3700D5F721 /* SplitoUITestsLaunchTests.swift */; };
+		D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */; };
 		D8AC26F12B84B12800CEAAD3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E42B84B12800CEAAD3 /* HomeView.swift */; };
 		D8AC26F22B84B12800CEAAD3 /* AppRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E52B84B12800CEAAD3 /* AppRouteView.swift */; };
 		D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E72B84B12800CEAAD3 /* OnboardView.swift */; };
@@ -87,6 +88,8 @@
 		D896845B2B722D3700D5F721 /* SplitoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SplitoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D896845F2B722D3700D5F721 /* SplitoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitoUITests.swift; sourceTree = "<group>"; };
 		D89684612B722D3700D5F721 /* SplitoUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitoUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInWithAppleDelegate.swift; sourceTree = "<group>"; };
+		D89DBE202B87433B00E5F1BD /* Splito.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Splito.entitlements; sourceTree = "<group>"; };
 		D8AC26DF2B84B07700CEAAD3 /* BaseUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8AC26E42B84B12800CEAAD3 /* HomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		D8AC26E52B84B12800CEAAD3 /* AppRouteView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppRouteView.swift; sourceTree = "<group>"; };
@@ -187,6 +190,7 @@
 		D89684432B722D3400D5F721 /* Splito */ = {
 			isa = PBXGroup;
 			children = (
+				D89DBE202B87433B00E5F1BD /* Splito.entitlements */,
 				D89684442B722D3400D5F721 /* SplitoApp.swift */,
 				D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */,
 				D8AC25D12B7F43EA00CEAAD3 /* Plist */,
@@ -272,9 +276,10 @@
 		D8AC26EB2B84B12800CEAAD3 /* Login */ = {
 			isa = PBXGroup;
 			children = (
+				D8AC26EE2B84B12800CEAAD3 /* LogInRouteView.swift */,
 				D8AC26ED2B84B12800CEAAD3 /* LoginView.swift */,
 				D8AC26EC2B84B12800CEAAD3 /* LoginViewModel.swift */,
-				D8AC26EE2B84B12800CEAAD3 /* LogInRouteView.swift */,
+				D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -549,6 +554,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8AC27E92B84C58900CEAAD3 /* Router.swift in Sources */,
+				D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */,
 				D8AC26F22B84B12800CEAAD3 /* AppRouteView.swift in Sources */,
 				D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */,
 				D8AC26F12B84B12800CEAAD3 /* HomeView.swift in Sources */,
@@ -720,6 +726,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Splito/Splito.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Splito/Preview Content\"";
@@ -754,6 +761,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Splito/Splito.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Splito/Preview Content\"";

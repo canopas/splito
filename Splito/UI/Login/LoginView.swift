@@ -18,38 +18,42 @@ struct LoginView: View {
     }
 
     var body: some View {
-        GeometryReader { proxy in
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .center, spacing: 0) {
-                    VSpacer(20)
+        if case .loading = viewModel.currentState {
+            LoaderView(tintColor: primaryColor, scaleSize: 2)
+        } else {
+            GeometryReader { proxy in
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .center, spacing: 0) {
+                        VSpacer(20)
 
-                    Image(.splito)
-                        .resizable()
-                        .frame(width: 160, height: 160, alignment: .center)
+                        Image(.splito)
+                            .resizable()
+                            .frame(width: 160, height: 160, alignment: .center)
 
-                    VSpacer(30)
+                        VSpacer(30)
 
-                    Text("Sign up in the app to use amazing spliting features")
-                        .font(.inter(.bold, size: 22).bold())
-                        .foregroundColor(inverseSurfaceColor)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 20)
+                        Text("Sign up in the app to use amazing spliting features")
+                            .font(.inter(.bold, size: 22).bold())
+                            .foregroundColor(inverseSurfaceColor)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 20)
 
-                    VSpacer(30)
+                        VSpacer(30)
 
-                    LoginOptionsView(onGoogleLoginClick: viewModel.onGoogleLoginClick, onAppleLoginClick: viewModel.onAppleLoginView, onPhoneLoginClick: viewModel.onPhoneLoginClick)
+                        LoginOptionsView(onGoogleLoginClick: viewModel.onGoogleLoginClick, onAppleLoginClick: viewModel.onAppleLoginView, onPhoneLoginClick: viewModel.onPhoneLoginClick)
 
-                    VSpacer(30)
+                        VSpacer(30)
+                    }
+                    .frame(minHeight: proxy.size.height, alignment: .center)
+                    .padding(.horizontal, 20)
                 }
-                .frame(minHeight: proxy.size.height, alignment: .center)
-                .padding(.horizontal, 20)
+                .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+                .background(
+                    LinearGradient(colors: colorScheme == .dark ? [surfaceDarkColor] :
+                                    [primaryColor.opacity(0), primaryColor.opacity(0.16), primaryColor.opacity(0)],
+                                   startPoint: .top, endPoint: .bottom)
+                )
             }
-            .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-            .background(
-                LinearGradient(colors: colorScheme == .dark ? [surfaceDarkColor] :
-                                [primaryColor.opacity(0), primaryColor.opacity(0.16), primaryColor.opacity(0)],
-                               startPoint: .top, endPoint: .bottom)
-            )
         }
     }
 }
