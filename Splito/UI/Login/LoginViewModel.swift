@@ -12,15 +12,19 @@ import FirebaseCore
 import FirebaseAuth
 import AuthenticationServices
 
-public class LoginViewModel: ObservableObject {
+public class LoginViewModel: BaseViewModel, ObservableObject {
 
-    @Published var showAlert: Bool = false
-    @Published private(set) var alert: AlertPrompt = .init(title: "", message: "")
     @Published private(set) var currentState: ViewState = .initial
 
     private var currentNonce: String = ""
 
     var appleSignInDelegates: SignInWithAppleDelegates! = nil
+
+    private let router: Router<AppRoute>
+
+    init(router: Router<AppRoute>) {
+        self.router = router
+    }
 
     func onGoogleLoginClick() {
         if GIDSignIn.sharedInstance.hasPreviousSignIn() {
@@ -88,7 +92,7 @@ public class LoginViewModel: ObservableObject {
     }
 
     func onPhoneLoginClick() {
-
+        router.push(.PhoneLoginView)
     }
 }
 

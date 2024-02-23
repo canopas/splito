@@ -44,7 +44,7 @@ struct LoginView: View {
 
                         VSpacer(30)
                     }
-                    .frame(minHeight: proxy.size.height, alignment: .center)
+                    .frame(minHeight: proxy.size.height - 80, alignment: .center)
                     .padding(.horizontal, 20)
                 }
                 .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
@@ -122,5 +122,5 @@ private struct LoginOptionsButtonView: View {
 }
 
 #Preview {
-    LoginView(viewModel: LoginViewModel())
+    LoginView(viewModel: LoginViewModel(router: .init(root: .LoginView)))
 }

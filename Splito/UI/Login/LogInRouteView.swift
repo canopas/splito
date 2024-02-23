@@ -12,7 +12,7 @@ import BaseStyle
 enum AppRoute {
 
     case LoginView
-//    case PhoneLoginView
+    case PhoneLoginView
 //    case VerifyOTPView
 
 }
@@ -25,7 +25,9 @@ public struct LogInRouteView: View {
         RouterView(router: router) { route in
             switch route {
             case .LoginView:
-                LoginView(viewModel: LoginViewModel())
+                LoginView(viewModel: LoginViewModel(router: router))
+            case .PhoneLoginView:
+                PhoneLoginView(viewModel: PhoneLoginViewModel(router: router))
             }
         }
     }

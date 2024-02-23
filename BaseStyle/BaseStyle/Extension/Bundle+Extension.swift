@@ -8,7 +8,7 @@
 private class UIBundleFakeClass {}
 
 public extension Bundle {
-    static var baseUIBundle: Bundle {
+    static var baseBundle: Bundle {
         return Bundle(for: UIBundleFakeClass.self)
     }
 }

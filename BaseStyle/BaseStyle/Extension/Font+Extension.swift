@@ -110,8 +110,8 @@ public extension Font {
 }
 
 extension Font {
-    private static func registerFont(withName name: String, fileExtension: String, bundle: Bundle? = Bundle.baseUIBundle) {
-        let frameworkBundle = bundle ?? Bundle.baseUIBundle
+    private static func registerFont(withName name: String, fileExtension: String, bundle: Bundle? = Bundle.baseBundle) {
+        let frameworkBundle = bundle ?? Bundle.baseBundle
         let pathForResourceString = frameworkBundle.path(forResource: name, ofType: fileExtension)
         let fontData = NSData(contentsOfFile: pathForResourceString!)
         let dataProvider = CGDataProvider(data: fontData!)

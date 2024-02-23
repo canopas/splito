@@ -20,6 +20,8 @@
 		D89684602B722D3700D5F721 /* SplitoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D896845F2B722D3700D5F721 /* SplitoUITests.swift */; };
 		D89684622B722D3700D5F721 /* SplitoUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89684612B722D3700D5F721 /* SplitoUITestsLaunchTests.swift */; };
 		D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */; };
+		D89DBE232B875C2200E5F1BD /* PhoneLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE222B875C2200E5F1BD /* PhoneLoginView.swift */; };
+		D89DBE252B875C3000E5F1BD /* PhoneLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE242B875C3000E5F1BD /* PhoneLoginViewModel.swift */; };
 		D8AC26F12B84B12800CEAAD3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E42B84B12800CEAAD3 /* HomeView.swift */; };
 		D8AC26F22B84B12800CEAAD3 /* AppRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E52B84B12800CEAAD3 /* AppRouteView.swift */; };
 		D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E72B84B12800CEAAD3 /* OnboardView.swift */; };
@@ -90,6 +92,8 @@
 		D89684612B722D3700D5F721 /* SplitoUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitoUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInWithAppleDelegate.swift; sourceTree = "<group>"; };
 		D89DBE202B87433B00E5F1BD /* Splito.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Splito.entitlements; sourceTree = "<group>"; };
+		D89DBE222B875C2200E5F1BD /* PhoneLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneLoginView.swift; sourceTree = "<group>"; };
+		D89DBE242B875C3000E5F1BD /* PhoneLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneLoginViewModel.swift; sourceTree = "<group>"; };
 		D8AC26DF2B84B07700CEAAD3 /* BaseUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8AC26E42B84B12800CEAAD3 /* HomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		D8AC26E52B84B12800CEAAD3 /* AppRouteView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppRouteView.swift; sourceTree = "<group>"; };
@@ -236,6 +240,15 @@
 			path = Resource;
 			sourceTree = "<group>";
 		};
+		D89DBE212B875C1000E5F1BD /* PhoneLogin */ = {
+			isa = PBXGroup;
+			children = (
+				D89DBE222B875C2200E5F1BD /* PhoneLoginView.swift */,
+				D89DBE242B875C3000E5F1BD /* PhoneLoginViewModel.swift */,
+			);
+			path = PhoneLogin;
+			sourceTree = "<group>";
+		};
 		D8AC25D12B7F43EA00CEAAD3 /* Plist */ = {
 			isa = PBXGroup;
 			children = (
@@ -280,6 +293,7 @@
 				D8AC26ED2B84B12800CEAAD3 /* LoginView.swift */,
 				D8AC26EC2B84B12800CEAAD3 /* LoginViewModel.swift */,
 				D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */,
+				D89DBE212B875C1000E5F1BD /* PhoneLogin */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -564,6 +578,8 @@
 				D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */,
 				D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */,
 				D8AC26F82B84B12800CEAAD3 /* LogInRouteView.swift in Sources */,
+				D89DBE252B875C3000E5F1BD /* PhoneLoginViewModel.swift in Sources */,
+				D89DBE232B875C2200E5F1BD /* PhoneLoginView.swift in Sources */,
 				D8AC26F62B84B12800CEAAD3 /* LoginViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

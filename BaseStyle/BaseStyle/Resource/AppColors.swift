@@ -13,6 +13,7 @@ public let containerHigh = Color.containerHigh
 public let containerLow = Color.containerLow
 public let containerNormal = Color.containerNormal
 
+public let outlineColor = Color.outline
 public let primaryColor = Color.mainPrimary
 
 public let disableText = Color.disableText

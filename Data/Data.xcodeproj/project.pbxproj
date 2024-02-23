@@ -10,6 +10,9 @@
 		64E499C5CFAEA368EC21313F /* Pods_DataTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */; };
 		7EF3A291581F7EA20CB1042D /* Pods_Data.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E91B3E23688435064A60C0C4 /* Pods_Data.framework */; };
 		D89DBE1D2B872F0B00E5F1BD /* NonceGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE1C2B872F0B00E5F1BD /* NonceGenerator.swift */; };
+		D89DBE282B88802800E5F1BD /* Country.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE272B88802800E5F1BD /* Country.swift */; };
+		D89DBE2B2B88817E00E5F1BD /* JSONUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE2A2B88817E00E5F1BD /* JSONUtils.swift */; };
+		D89DBE2F2B88846C00E5F1BD /* LoaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE2E2B88846C00E5F1BD /* LoaderViewModel.swift */; };
 		D8AC25BB2B7F327A00CEAAD3 /* SplitoPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC25BA2B7F327A00CEAAD3 /* SplitoPreference.swift */; };
 		D8AC25BE2B7F359B00CEAAD3 /* FirebaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC25BD2B7F359B00CEAAD3 /* FirebaseProvider.swift */; };
 		D8AC25C12B7F38D300CEAAD3 /* Injector.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC25C02B7F38D300CEAAD3 /* Injector.swift */; };
@@ -53,6 +56,9 @@
 		803094012FE4C155F2A347B6 /* Pods-DataTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DataTests.release.xcconfig"; path = "Target Support Files/Pods-DataTests/Pods-DataTests.release.xcconfig"; sourceTree = "<group>"; };
 		BED6C37AA3F8FD2A6350DE1C /* Pods-Data.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Data.debug.xcconfig"; path = "Target Support Files/Pods-Data/Pods-Data.debug.xcconfig"; sourceTree = "<group>"; };
 		D89DBE1C2B872F0B00E5F1BD /* NonceGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonceGenerator.swift; sourceTree = "<group>"; };
+		D89DBE272B88802800E5F1BD /* Country.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Country.swift; sourceTree = "<group>"; };
+		D89DBE2A2B88817E00E5F1BD /* JSONUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONUtils.swift; sourceTree = "<group>"; };
+		D89DBE2E2B88846C00E5F1BD /* LoaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoaderViewModel.swift; sourceTree = "<group>"; };
 		D8AC25BA2B7F327A00CEAAD3 /* SplitoPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitoPreference.swift; sourceTree = "<group>"; };
 		D8AC25BD2B7F359B00CEAAD3 /* FirebaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseProvider.swift; sourceTree = "<group>"; };
 		D8AC25C02B7F38D300CEAAD3 /* Injector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Injector.swift; sourceTree = "<group>"; };
@@ -110,6 +116,23 @@
 				1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D89DBE262B88801F00E5F1BD /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				D89DBE272B88802800E5F1BD /* Country.swift */,
+				D89DBE2E2B88846C00E5F1BD /* LoaderViewModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		D89DBE292B88817200E5F1BD /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				D89DBE2A2B88817E00E5F1BD /* JSONUtils.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 		D8AC25B92B7F326B00CEAAD3 /* Store */ = {
@@ -189,8 +212,10 @@
 			children = (
 				D8DF8BB92B7A315000165138 /* Data.h */,
 				D8AC25BF2B7F38C800CEAAD3 /* DI */,
-				D8AC25BC2B7F357A00CEAAD3 /* Helper */,
+				D89DBE262B88801F00E5F1BD /* Model */,
+				D89DBE292B88817200E5F1BD /* Utils */,
 				D8AC25B92B7F326B00CEAAD3 /* Store */,
+				D8AC25BC2B7F357A00CEAAD3 /* Helper */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -367,7 +392,10 @@
 				D8D42A9B2B8709FD009B345D /* BaseViewModel.swift in Sources */,
 				D8AC25C32B7F390B00CEAAD3 /* AppAssembly.swift in Sources */,
 				D8AC25C12B7F38D300CEAAD3 /* Injector.swift in Sources */,
+				D89DBE2B2B88817E00E5F1BD /* JSONUtils.swift in Sources */,
+				D89DBE282B88802800E5F1BD /* Country.swift in Sources */,
 				D8AC25BE2B7F359B00CEAAD3 /* FirebaseProvider.swift in Sources */,
+				D89DBE2F2B88846C00E5F1BD /* LoaderViewModel.swift in Sources */,
 				D89DBE1D2B872F0B00E5F1BD /* NonceGenerator.swift in Sources */,
 				D8D42AA92B872726009B345D /* DDLogProvider.swift in Sources */,
 			);
