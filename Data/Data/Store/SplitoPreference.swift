@@ -11,7 +11,8 @@ public class SplitoPreference {
     
     enum Key: String {
         case isOnboardShown = "is_onboard_shown"
-        case isLoggedIn = "is_logged_in"
+        case isVerifiedUser = "is_verified_user"
+        case user           = "user"
     }
     
     private let userDefaults: UserDefaults
@@ -29,12 +30,34 @@ public class SplitoPreference {
         }
     }
     
-    public var isLoggedIn: Bool {
+    public var isVerifiedUser: Bool {
         get {
-            return userDefaults.bool(forKey: Key.isLoggedIn.rawValue)
+            return userDefaults.bool(forKey: Key.isVerifiedUser.rawValue)
         } set {
-            userDefaults.set(newValue, forKey: Key.isLoggedIn.rawValue)
+            userDefaults.set(newValue, forKey: Key.isVerifiedUser.rawValue)
             userDefaults.synchronize()
+        }
+    }
+    
+    public var user: AppUser? {
+        get {
+            do {
+                let data = userDefaults.data(forKey: Key.user.rawValue)
+                if let data {
+                    let user = try JSONDecoder().decode(AppUser.self, from: data)
+                    return user
+                }
+            } catch let error {
+                LogE("AppPreferences \(#function) json decode error: \(error.localizedDescription)")
+            }
+            return nil
+        } set {
+            do {
+                let data = try JSONEncoder().encode(newValue)
+                userDefaults.set(data, forKey: Key.user.rawValue)
+            } catch let error {
+                LogE("AppPreferences \(#function) json encode error: \(error.localizedDescription)")
+            }
         }
     }
 }

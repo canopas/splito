@@ -3,6 +3,7 @@ disabled_rules: # rule identifiers to exclude from running
   - type_name
   - force_cast
   - line_length
+  - large_tuple
   - identifier_name
   - function_body_length
   - type_body_length

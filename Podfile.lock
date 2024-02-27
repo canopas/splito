@@ -628,12 +628,21 @@ PODS:
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/meta/type_traits
+  - AppAuth (1.6.2):
+    - AppAuth/Core (= 1.6.2)
+    - AppAuth/ExternalUserAgent (= 1.6.2)
+  - AppAuth/Core (1.6.2)
+  - AppAuth/ExternalUserAgent (1.6.2):
+    - AppAuth/Core
   - BoringSSL-GRPC (0.0.24):
     - BoringSSL-GRPC/Implementation (= 0.0.24)
     - BoringSSL-GRPC/Interface (= 0.0.24)
   - BoringSSL-GRPC/Implementation (0.0.24):
     - BoringSSL-GRPC/Interface (= 0.0.24)
   - BoringSSL-GRPC/Interface (0.0.24)
+  - CocoaLumberjack/Core (3.8.4)
+  - CocoaLumberjack/Swift (3.8.4):
+    - CocoaLumberjack/Core
   - FirebaseAppCheckInterop (10.21.0)
   - FirebaseAuth (10.21.0):
     - FirebaseAppCheckInterop (~> 10.17)
@@ -670,6 +679,10 @@ PODS:
     - leveldb-library (~> 1.22)
     - nanopb (< 2.30910.0, >= 2.30908.0)
   - FirebaseSharedSwift (10.21.0)
+  - GoogleSignIn (7.0.0):
+    - AppAuth (~> 1.5)
+    - GTMAppAuth (< 3.0, >= 1.3)
+    - GTMSessionFetcher/Core (< 4.0, >= 1.1)
   - GoogleUtilities/AppDelegateSwizzler (7.12.0):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -746,6 +759,9 @@ PODS:
     - BoringSSL-GRPC (= 0.0.24)
     - gRPC-Core/Interface (= 1.49.1)
   - gRPC-Core/Interface (1.49.1)
+  - GTMAppAuth (2.0.0):
+    - AppAuth/Core (~> 1.6)
+    - GTMSessionFetcher/Core (< 4.0, >= 1.5)
   - GTMSessionFetcher/Core (3.3.1)
   - leveldb-library (1.22.3)
   - nanopb (2.30909.1):
@@ -755,22 +771,26 @@ PODS:
   - nanopb/encode (2.30909.1)
   - PromisesObjC (2.3.1)
   - RecaptchaInterop (100.0.0)
+  - SSZipArchive (2.5.5)
   - SwiftLint (0.54.0)
   - Swinject (2.8.3)
-  - UIPilot (2.0.2)
 
 DEPENDENCIES:
+  - CocoaLumberjack/Swift
   - FirebaseAuth
   - FirebaseCore
   - FirebaseFirestore
+  - GoogleSignIn
+  - SSZipArchive
   - SwiftLint
   - Swinject
-  - UIPilot
 
 SPEC REPOS:
   trunk:
     - abseil
+    - AppAuth
     - BoringSSL-GRPC
+    - CocoaLumberjack
     - FirebaseAppCheckInterop
     - FirebaseAuth
     - FirebaseCore
@@ -779,21 +799,25 @@ SPEC REPOS:
     - FirebaseFirestore
     - FirebaseFirestoreInternal
     - FirebaseSharedSwift
+    - GoogleSignIn
     - GoogleUtilities
     - "gRPC-C++"
     - gRPC-Core
+    - GTMAppAuth
     - GTMSessionFetcher
     - leveldb-library
     - nanopb
     - PromisesObjC
     - RecaptchaInterop
+    - SSZipArchive
     - SwiftLint
     - Swinject
-    - UIPilot
 
 SPEC CHECKSUMS:
   abseil: 926fb7a82dc6d2b8e1f2ed7f3a718bce691d1e46
+  AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
   BoringSSL-GRPC: 3175b25143e648463a56daeaaa499c6cb86dad33
+  CocoaLumberjack: df59726690390bb8aaaa585938564ba1c8dbbb44
   FirebaseAppCheckInterop: 69fc7d8f6a1cbfa973efb8d1723651de30d12525
   FirebaseAuth: 42f07198c4ed6b55643a147ae682d32200f3ff6d
   FirebaseCore: 74f647ad9739ea75112ce6c3b3b91f5488ce1122
@@ -802,18 +826,20 @@ SPEC CHECKSUMS:
   FirebaseFirestore: cadbbc63223d27fdbdaca7cbdae2a6dc809a3929
   FirebaseFirestoreInternal: 7ac1e0c5b4e75aeb898dfe4b1d6d77abbac9eca3
   FirebaseSharedSwift: 19b3f709993d6fa1d84941d41c01e3c4c11eab93
+  GoogleSignIn: b232380cf495a429b8095d3178a8d5855b42e842
   GoogleUtilities: 0759d1a57ebb953965c2dfe0ba4c82e95ccc2e34
   "gRPC-C++": 2df8cba576898bdacd29f0266d5236fa0e26ba6a
   gRPC-Core: a21a60aefc08c68c247b439a9ef97174b0c54f96
+  GTMAppAuth: 99fb010047ba3973b7026e45393f51f27ab965ae
   GTMSessionFetcher: 8a1b34ad97ebe6f909fb8b9b77fba99943007556
   leveldb-library: e74c27d8fbd22854db7cb467968a0b8aa1db7126
   nanopb: d4d75c12cd1316f4a64e3c6963f879ecd4b5e0d5
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
+  SSZipArchive: c69881e8ac5521f0e622291387add5f60f30f3c4
   SwiftLint: c1de071d9d08c8aba837545f6254315bc900e211
   Swinject: 893c9a543000ac2f10ee4cbaf0933c6992c935d5
-  UIPilot: dec727d11749dcb34654df4f8c94b98b29903566
 
-PODFILE CHECKSUM: 802a63640db20cfa1461ccfb290166d6d32807af
+PODFILE CHECKSUM: 0f55d966745fa7c2d63fc25a2b7e38474f1b9102
 
 COCOAPODS: 1.15.0
