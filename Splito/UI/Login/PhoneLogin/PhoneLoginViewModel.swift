@@ -12,7 +12,7 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
 
     let MAX_NUMBER_LENGTH: Int = 20
 
-    @Inject var router: Router<AppRoute>
+    @Inject var router: Router<MainRoute>
 
     @Published var countries = [Country]()
     @Published var currentCountry: Country
@@ -59,7 +59,7 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
 extension PhoneLoginViewModel {
 
     func openVerifyOtpView() {
-        router.push(.VerifyOTPView(phoneNumber: phoneNumber, verificationId: verificationId))
+        router.push(.VerifyOTP(phoneNumber: phoneNumber, verificationId: verificationId))
     }
 
     func handleFirebaseAuthErrors(_ error: Error) {

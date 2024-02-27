@@ -13,11 +13,12 @@
 		D89DBE282B88802800E5F1BD /* Country.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE272B88802800E5F1BD /* Country.swift */; };
 		D89DBE2B2B88817E00E5F1BD /* JSONUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE2A2B88817E00E5F1BD /* JSONUtils.swift */; };
 		D89DBE2F2B88846C00E5F1BD /* LoaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE2E2B88846C00E5F1BD /* LoaderViewModel.swift */; };
-		D89DBE402B8C9E7400E5F1BD /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE3F2B8C9E7400E5F1BD /* AppRoute.swift */; };
+		D89DBE402B8C9E7400E5F1BD /* RouterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE3F2B8C9E7400E5F1BD /* RouterView.swift */; };
 		D89DBE442B8CB11600E5F1BD /* AuthHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE432B8CB11600E5F1BD /* AuthHandler.swift */; };
 		D89DBE462B8CBE0F00E5F1BD /* FirestoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE452B8CBE0F00E5F1BD /* FirestoreManager.swift */; };
 		D89DBE482B8CBE4C00E5F1BD /* AppUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE472B8CBE4C00E5F1BD /* AppUser.swift */; };
 		D89DBE4A2B8CBEAE00E5F1BD /* ServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE492B8CBEAE00E5F1BD /* ServiceError.swift */; };
+		D89DBE532B8DC9F700E5F1BD /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE522B8DC9F700E5F1BD /* AppRoute.swift */; };
 		D8AC25BB2B7F327A00CEAAD3 /* SplitoPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC25BA2B7F327A00CEAAD3 /* SplitoPreference.swift */; };
 		D8AC25BE2B7F359B00CEAAD3 /* FirebaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC25BD2B7F359B00CEAAD3 /* FirebaseProvider.swift */; };
 		D8AC25C12B7F38D300CEAAD3 /* Injector.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC25C02B7F38D300CEAAD3 /* Injector.swift */; };
@@ -64,11 +65,12 @@
 		D89DBE272B88802800E5F1BD /* Country.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Country.swift; sourceTree = "<group>"; };
 		D89DBE2A2B88817E00E5F1BD /* JSONUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONUtils.swift; sourceTree = "<group>"; };
 		D89DBE2E2B88846C00E5F1BD /* LoaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoaderViewModel.swift; sourceTree = "<group>"; };
-		D89DBE3F2B8C9E7400E5F1BD /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
+		D89DBE3F2B8C9E7400E5F1BD /* RouterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterView.swift; sourceTree = "<group>"; };
 		D89DBE432B8CB11600E5F1BD /* AuthHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthHandler.swift; sourceTree = "<group>"; };
 		D89DBE452B8CBE0F00E5F1BD /* FirestoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreManager.swift; sourceTree = "<group>"; };
 		D89DBE472B8CBE4C00E5F1BD /* AppUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUser.swift; sourceTree = "<group>"; };
 		D89DBE492B8CBEAE00E5F1BD /* ServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceError.swift; sourceTree = "<group>"; };
+		D89DBE522B8DC9F700E5F1BD /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
 		D8AC25BA2B7F327A00CEAAD3 /* SplitoPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitoPreference.swift; sourceTree = "<group>"; };
 		D8AC25BD2B7F359B00CEAAD3 /* FirebaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseProvider.swift; sourceTree = "<group>"; };
 		D8AC25C02B7F38D300CEAAD3 /* Injector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Injector.swift; sourceTree = "<group>"; };
@@ -159,7 +161,8 @@
 		D89DBE512B8DC4ED00E5F1BD /* Router */ = {
 			isa = PBXGroup;
 			children = (
-				D89DBE3F2B8C9E7400E5F1BD /* AppRoute.swift */,
+				D89DBE3F2B8C9E7400E5F1BD /* RouterView.swift */,
+				D89DBE522B8DC9F700E5F1BD /* AppRoute.swift */,
 			);
 			path = Router;
 			sourceTree = "<group>";
@@ -428,7 +431,8 @@
 				D8AC25C12B7F38D300CEAAD3 /* Injector.swift in Sources */,
 				D89DBE2B2B88817E00E5F1BD /* JSONUtils.swift in Sources */,
 				D89DBE282B88802800E5F1BD /* Country.swift in Sources */,
-				D89DBE402B8C9E7400E5F1BD /* AppRoute.swift in Sources */,
+				D89DBE532B8DC9F700E5F1BD /* AppRoute.swift in Sources */,
+				D89DBE402B8C9E7400E5F1BD /* RouterView.swift in Sources */,
 				D8AC25BE2B7F359B00CEAAD3 /* FirebaseProvider.swift in Sources */,
 				D89DBE442B8CB11600E5F1BD /* AuthHandler.swift in Sources */,
 				D89DBE2F2B88846C00E5F1BD /* LoaderViewModel.swift in Sources */,

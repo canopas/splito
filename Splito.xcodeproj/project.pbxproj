@@ -26,12 +26,11 @@
 		D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE392B88A6B400E5F1BD /* VerifyOtpViewModel.swift */; };
 		D89DBE422B8CA72700E5F1BD /* HomeRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */; };
 		D8AC26F12B84B12800CEAAD3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E42B84B12800CEAAD3 /* HomeView.swift */; };
-		D8AC26F22B84B12800CEAAD3 /* AppRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E52B84B12800CEAAD3 /* AppRouteView.swift */; };
+		D8AC26F22B84B12800CEAAD3 /* MainRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E52B84B12800CEAAD3 /* MainRouteView.swift */; };
 		D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E72B84B12800CEAAD3 /* OnboardView.swift */; };
 		D8AC26F42B84B12800CEAAD3 /* OnboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E82B84B12800CEAAD3 /* OnboardViewModel.swift */; };
 		D8AC26F62B84B12800CEAAD3 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26EC2B84B12800CEAAD3 /* LoginViewModel.swift */; };
 		D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26ED2B84B12800CEAAD3 /* LoginView.swift */; };
-		D8AC26F82B84B12800CEAAD3 /* LogInRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26EE2B84B12800CEAAD3 /* LogInRouteView.swift */; };
 		D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC27142B84B72F00CEAAD3 /* PageControl.swift */; };
 		D8AC27E22B84C06500CEAAD3 /* BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */; };
 		D8AC27E32B84C06500CEAAD3 /* BaseStyle.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -101,12 +100,11 @@
 		D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRouteView.swift; sourceTree = "<group>"; };
 		D8AC26DF2B84B07700CEAAD3 /* BaseUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8AC26E42B84B12800CEAAD3 /* HomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		D8AC26E52B84B12800CEAAD3 /* AppRouteView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppRouteView.swift; sourceTree = "<group>"; };
+		D8AC26E52B84B12800CEAAD3 /* MainRouteView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainRouteView.swift; sourceTree = "<group>"; };
 		D8AC26E72B84B12800CEAAD3 /* OnboardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardView.swift; sourceTree = "<group>"; };
 		D8AC26E82B84B12800CEAAD3 /* OnboardViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardViewModel.swift; sourceTree = "<group>"; };
 		D8AC26EC2B84B12800CEAAD3 /* LoginViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		D8AC26ED2B84B12800CEAAD3 /* LoginView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
-		D8AC26EE2B84B12800CEAAD3 /* LogInRouteView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogInRouteView.swift; sourceTree = "<group>"; };
 		D8AC27142B84B72F00CEAAD3 /* PageControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageControl.swift; sourceTree = "<group>"; };
 		D8AC27992B84BDB000CEAAD3 /* Style.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Style.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseStyle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -273,7 +271,7 @@
 		D8AC26E22B84B12800CEAAD3 /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				D8AC26E52B84B12800CEAAD3 /* AppRouteView.swift */,
+				D8AC26E52B84B12800CEAAD3 /* MainRouteView.swift */,
 				D8AC26E62B84B12800CEAAD3 /* Onboard */,
 				D8AC26EB2B84B12800CEAAD3 /* Login */,
 				D8AC26E32B84B12800CEAAD3 /* Home */,
@@ -303,7 +301,6 @@
 		D8AC26EB2B84B12800CEAAD3 /* Login */ = {
 			isa = PBXGroup;
 			children = (
-				D8AC26EE2B84B12800CEAAD3 /* LogInRouteView.swift */,
 				D8AC26ED2B84B12800CEAAD3 /* LoginView.swift */,
 				D8AC26EC2B84B12800CEAAD3 /* LoginViewModel.swift */,
 				D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */,
@@ -574,7 +571,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */,
-				D8AC26F22B84B12800CEAAD3 /* AppRouteView.swift in Sources */,
+				D8AC26F22B84B12800CEAAD3 /* MainRouteView.swift in Sources */,
 				D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */,
 				D8AC26F12B84B12800CEAAD3 /* HomeView.swift in Sources */,
 				D8D6C3A02B79F8110023CF08 /* AppDelegate.swift in Sources */,
@@ -583,7 +580,6 @@
 				D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */,
 				D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */,
 				D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */,
-				D8AC26F82B84B12800CEAAD3 /* LogInRouteView.swift in Sources */,
 				D89DBE382B88A6A800E5F1BD /* VerifyOtpView.swift in Sources */,
 				D89DBE422B8CA72700E5F1BD /* HomeRouteView.swift in Sources */,
 				D89DBE252B875C3000E5F1BD /* PhoneLoginViewModel.swift in Sources */,

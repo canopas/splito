@@ -9,13 +9,17 @@ import Foundation
 import Swinject
 
 public class AppAssembly: Assembly {
-
+    
     public init() { }
-
+    
     public func assemble(container: Container) {
         
+        container.register(Router<MainRoute>.self) { _ in
+                .init(root: .Onboard)
+        }.inObjectScope(.container)
+        
         container.register(Router<AppRoute>.self) { _ in
-                .init(root: .OnboardView)
+                .init(root: .Home)
         }.inObjectScope(.container)
         
         container.register(SplitoPreference.self) { _ in
@@ -29,9 +33,5 @@ public class AppAssembly: Assembly {
         container.register(FirestoreManager.self) { _ in
             FirestoreManager.init()
         }.inObjectScope(.container)
-        
-//        container.register(AuthHandler.self) { _ in
-//            AuthHandlerImpl.init()
-//        }.inObjectScope(.container)
     }
 }

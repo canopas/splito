@@ -1,5 +1,5 @@
 //
-//  AppRouteView.swift
+//  MainRouteView.swift
 //  Splito
 //
 //  Created by Amisha Italiya on 16/02/24.
@@ -9,9 +9,9 @@ import Data
 import BaseStyle
 import SwiftUI
 
-public struct AppRouteView: View {
+public struct MainRouteView: View {
 
-    @Inject var router: Router<AppRoute>
+    @Inject var router: Router<MainRoute>
     @Inject var preference: SplitoPreference
 
     init() {
@@ -21,24 +21,24 @@ public struct AppRouteView: View {
     public var body: some View {
         RouterView(router: router) { route in
             switch route {
-            case .OnboardView:
+            case .Onboard:
                 OnboardView(viewModel: OnboardViewModel())
-            case .LoginView:
+            case .Login:
                 LoginView(viewModel: LoginViewModel())
-            case .PhoneLoginView:
+            case .PhoneLogin:
                 PhoneLoginView(viewModel: PhoneLoginViewModel())
-            case .VerifyOTPView(let phoneNumber, let verificationId):
+            case .VerifyOTP(let phoneNumber, let verificationId):
                 VerifyOtpView(viewModel: VerifyOtpViewModel(phoneNumber: phoneNumber, verificationId: verificationId))
-            case .Home:
-                HomeView()
+            case .HomeRoute:
+                HomeRouteView()
             }
         }
         .onAppear {
             if preference.isOnboardShown {
                 if preference.isVerifiedUser {
-                    router.updateRoot(root: .Home)
+                    router.updateRoot(root: .HomeRoute)
                 } else {
-                    router.updateRoot(root: .LoginView)
+                    router.updateRoot(root: .Login)
                 }
             }
         }

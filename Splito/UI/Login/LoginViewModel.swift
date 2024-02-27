@@ -17,7 +17,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var currentState: ViewState = .initial
 
-    @Inject var router: Router<AppRoute>
+    @Inject var router: Router<MainRoute>
     @Inject var firestore: FirestoreManager
     @Inject var preference: SplitoPreference
 
@@ -102,11 +102,12 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
             .sink { _ in
 
             } receiveValue: { [weak self] users in
-                guard let self = self else { return }
+                guard let self else { return }
                 let searchedUser = users.first(where: { $0.id == user.id })
 
                 if let searchedUser {
                     self.preference.user = searchedUser
+                    self.preference.isVerifiedUser = true
                     self.goToHome()
                 } else {
                     self.firestore.addUser(user: user)
@@ -130,11 +131,12 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
     }
 
     private func goToHome() {
-        router.updateRoot(root: .Home)
+        router.popToRoot()
+        router.updateRoot(root: .HomeRoute)
     }
 
     func onPhoneLoginClick() {
-        router.push(.PhoneLoginView)
+        router.push(.PhoneLogin)
     }
 }
 

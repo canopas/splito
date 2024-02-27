@@ -18,7 +18,8 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var showLoader: Bool = false
     @Published private(set) var currentState: ViewState = .initial
 
-    @Inject var router: Router<AppRoute>
+    @Inject var router: Router<MainRoute>
+
     @Inject var firestore: FirestoreManager
     @Inject var preference: SplitoPreference
 
@@ -55,10 +56,6 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
                 self?.onLoginError()
             }
         }
-    }
-
-    private func phoneLogin(authIdToken: String) {
-        router.updateRoot(root: .Home)
     }
 
     func resendOtp() {
@@ -114,7 +111,7 @@ extension VerifyOtpViewModel {
         firestore.fetchUsers()
             .sink { _ in
             } receiveValue: { [weak self] users in
-                guard let self = self else { return }
+                guard let self else { return }
                 let searchedUser = users.first(where: { $0.id == user.id })
 
                 if let searchedUser {
@@ -148,7 +145,7 @@ extension VerifyOtpViewModel {
 
     private func goToHome() {
         router.popToRoot()
-        router.updateRoot(root: .Home)
+        router.updateRoot(root: .HomeRoute)
     }
 }
 
