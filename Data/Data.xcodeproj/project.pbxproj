@@ -156,6 +156,14 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		D89DBE512B8DC4ED00E5F1BD /* Router */ = {
+			isa = PBXGroup;
+			children = (
+				D89DBE3F2B8C9E7400E5F1BD /* AppRoute.swift */,
+			);
+			path = Router;
+			sourceTree = "<group>";
+		};
 		D8AC25B92B7F326B00CEAAD3 /* Store */ = {
 			isa = PBXGroup;
 			children = (
@@ -232,7 +240,7 @@
 			isa = PBXGroup;
 			children = (
 				D8DF8BB92B7A315000165138 /* Data.h */,
-				D89DBE3F2B8C9E7400E5F1BD /* AppRoute.swift */,
+				D89DBE512B8DC4ED00E5F1BD /* Router */,
 				D8AC25BF2B7F38C800CEAAD3 /* DI */,
 				D89DBE262B88801F00E5F1BD /* Model */,
 				D89DBE4B2B8CBEB500E5F1BD /* Services */,

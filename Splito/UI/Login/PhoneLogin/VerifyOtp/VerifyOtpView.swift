@@ -98,7 +98,7 @@ private struct PhoneLoginOtpView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .center, spacing: 0) {
-                
+
                 CustomTextField(text: $otp, selectedField: $selectedField, placeholder: "Enter code", font: .inter(.medium, size: 34),
                                 placeholderFont: .inter(.medium, size: 16), tag: 1, isDisabled: showLoader, keyboardType: .numberPad,
                                 returnKey: .default, textAlignment: .center, characterLimit: 6, textContentType: .oneTimeCode)

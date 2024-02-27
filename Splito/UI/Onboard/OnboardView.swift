@@ -110,5 +110,5 @@ public struct OnboardItem: Hashable {
 }
 
 #Preview {
-    OnboardView(viewModel: OnboardViewModel(appRouter: Router<AppRoute>(root: .OnboardView)))
+    OnboardView(viewModel: OnboardViewModel())
 }

@@ -12,6 +12,8 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
 
     let MAX_NUMBER_LENGTH: Int = 20
 
+    @Inject var router: Router<AppRoute>
+
     @Published var countries = [Country]()
     @Published var currentCountry: Country
 
@@ -29,11 +31,7 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private let router: Router<AppRoute>
-
-    init(router: Router<AppRoute>) {
-        self.router = router
-
+    override init() {
         let allCountries = JSONUtils.readJSONFromFile(fileName: "Countries", type: [Country].self, bundle: .baseBundle) ?? []
         let currentLocal = Locale.current.region?.identifier
         self.countries = allCountries

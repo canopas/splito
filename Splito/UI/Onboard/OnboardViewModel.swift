@@ -14,20 +14,16 @@ class OnboardViewModel: ObservableObject {
 
     @Published var currentPageIndex = 0
 
-    let appRouter: Router<AppRoute>
+    @Inject var router: Router<AppRoute>
 
     @Inject var preference: SplitoPreference
-
-    init(appRouter: Router<AppRoute>) {
-        self.appRouter = appRouter
-    }
 
     func loginAnonymous() {
         Auth.auth().signInAnonymously { [weak self] result, _ in
             guard let self, let user = result?.user else { return }
             let isAnonymous = user.isAnonymous
             self.preference.isOnboardShown = isAnonymous
-            appRouter.root = .LoginView
+            router.updateRoot(root: .LoginView)
         }
     }
 }

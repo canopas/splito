@@ -122,5 +122,5 @@ private struct LoginOptionsButtonView: View {
 }
 
 #Preview {
-    LoginView(viewModel: LoginViewModel(router: .init(root: .LoginView)))
+    LoginView(viewModel: LoginViewModel())
 }

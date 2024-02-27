@@ -11,8 +11,7 @@ import SwiftUI
 
 public struct AppRouteView: View {
 
-    var router = Router<AppRoute>(root: .OnboardView)
-
+    @Inject var router: Router<AppRoute>
     @Inject var preference: SplitoPreference
 
     init() {
@@ -23,13 +22,13 @@ public struct AppRouteView: View {
         RouterView(router: router) { route in
             switch route {
             case .OnboardView:
-                OnboardView(viewModel: OnboardViewModel(appRouter: router))
+                OnboardView(viewModel: OnboardViewModel())
             case .LoginView:
-                LoginView(viewModel: LoginViewModel(router: router))
+                LoginView(viewModel: LoginViewModel())
             case .PhoneLoginView:
-                PhoneLoginView(viewModel: PhoneLoginViewModel(router: router))
+                PhoneLoginView(viewModel: PhoneLoginViewModel())
             case .VerifyOTPView(let phoneNumber, let verificationId):
-                VerifyOtpView(viewModel: VerifyOtpViewModel(router: router, phoneNumber: phoneNumber, verificationId: verificationId))
+                VerifyOtpView(viewModel: VerifyOtpViewModel(phoneNumber: phoneNumber, verificationId: verificationId))
             case .Home:
                 HomeView()
             }

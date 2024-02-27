@@ -35,7 +35,6 @@
 		D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC27142B84B72F00CEAAD3 /* PageControl.swift */; };
 		D8AC27E22B84C06500CEAAD3 /* BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */; };
 		D8AC27E32B84C06500CEAAD3 /* BaseStyle.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		D8AC27E92B84C58900CEAAD3 /* Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC27E82B84C58900CEAAD3 /* Router.swift */; };
 		D8D42A972B86FBF8009B345D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A962B86FBF8009B345D /* GoogleService-Info.plist */; };
 		D8D6C3A02B79F8110023CF08 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
@@ -111,7 +110,6 @@
 		D8AC27142B84B72F00CEAAD3 /* PageControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageControl.swift; sourceTree = "<group>"; };
 		D8AC27992B84BDB000CEAAD3 /* Style.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Style.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseStyle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		D8AC27E82B84C58900CEAAD3 /* Router.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
 		D8D42A962B86FBF8009B345D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E2B50BB1EB5D94FCB24EA9BA /* Pods_Splito.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splito.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -205,7 +203,6 @@
 				D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */,
 				D8AC25D12B7F43EA00CEAAD3 /* Plist */,
 				D896846E2B722FD200D5F721 /* Resource */,
-				D8AC27E72B84C58900CEAAD3 /* Router */,
 				D8AC26E22B84B12800CEAAD3 /* UI */,
 				D896844A2B722D3700D5F721 /* Preview Content */,
 			);
@@ -313,14 +310,6 @@
 				D89DBE212B875C1000E5F1BD /* PhoneLogin */,
 			);
 			path = Login;
-			sourceTree = "<group>";
-		};
-		D8AC27E72B84C58900CEAAD3 /* Router */ = {
-			isa = PBXGroup;
-			children = (
-				D8AC27E82B84C58900CEAAD3 /* Router.swift */,
-			);
-			path = Router;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -584,7 +573,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8AC27E92B84C58900CEAAD3 /* Router.swift in Sources */,
 				D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */,
 				D8AC26F22B84B12800CEAAD3 /* AppRouteView.swift in Sources */,
 				D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */,

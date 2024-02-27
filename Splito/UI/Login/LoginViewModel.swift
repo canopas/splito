@@ -17,18 +17,14 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var currentState: ViewState = .initial
 
+    @Inject var router: Router<AppRoute>
     @Inject var firestore: FirestoreManager
     @Inject var preference: SplitoPreference
 
     private var currentNonce: String = ""
     private var cancellable = Set<AnyCancellable>()
 
-    private let router: Router<AppRoute>
     var appleSignInDelegates: SignInWithAppleDelegates! = nil
-
-    init(router: Router<AppRoute>) {
-        self.router = router
-    }
 
     func onGoogleLoginClick() {
         if GIDSignIn.sharedInstance.hasPreviousSignIn() {
