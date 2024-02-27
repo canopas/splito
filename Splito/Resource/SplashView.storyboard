@@ -47,7 +47,7 @@
                             </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Ta-40-yoQ"/>
-                        <color key="backgroundColor" name="IntroBGColor"/>
+                        <color key="backgroundColor" name="Background"/>
                         <constraints>
                             <constraint firstItem="Yab-Cx-FOg" firstAttribute="leading" secondItem="6Ta-40-yoQ" secondAttribute="leading" id="AkA-z9-Oet"/>
                             <constraint firstItem="6Ta-40-yoQ" firstAttribute="bottom" secondItem="Yab-Cx-FOg" secondAttribute="bottom" id="KD4-f4-hDP"/>
@@ -63,8 +63,8 @@
     </scenes>
     <resources>
         <image name="AppLogo" width="512" height="512"/>
-        <namedColor name="IntroBGColor">
-            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <namedColor name="Background">
+            <color red="0.99607843137254903" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>

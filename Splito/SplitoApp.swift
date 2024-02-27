@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Data
-import UI
 
 @main
 struct SplitoApp: App {
@@ -20,7 +19,7 @@ struct SplitoApp: App {
 
     var body: some Scene {
         WindowGroup {
-            AppRouteView()
+            MainRouteView()
         }
     }
 }
