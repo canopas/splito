@@ -22,5 +22,12 @@ public class AppAssembly: Assembly {
             DDLoggerProvider.init()
         }.inObjectScope(.container)
         
+        container.register(FirestoreManager.self) { _ in
+            FirestoreManager.init()
+        }.inObjectScope(.container)
+        
+//        container.register(AuthHandler.self) { _ in
+//            AuthHandlerImpl.init()
+//        }.inObjectScope(.container)
     }
 }

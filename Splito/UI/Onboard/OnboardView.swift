@@ -7,6 +7,7 @@
 
 import BaseStyle
 import SwiftUI
+import Data
 
 struct OnboardView: View {
 
@@ -109,5 +110,5 @@ public struct OnboardItem: Hashable {
 }
 
 #Preview {
-    OnboardView(viewModel: OnboardViewModel(appRouter: Router<AppRootRoute>(root: .Onboard)))
+    OnboardView(viewModel: OnboardViewModel(appRouter: Router<AppRoute>(root: .OnboardView)))
 }

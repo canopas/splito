@@ -11,7 +11,8 @@ import FirebaseAuth
 
 public class FirebaseProvider {
 
-    static public let auth: Auth = .auth()
+    public static var auth: Auth = .auth()
+    public static var phoneAuthProvider: PhoneAuthProvider = .provider()
 
     static public func configureFirebase() {
         FirebaseApp.configure()

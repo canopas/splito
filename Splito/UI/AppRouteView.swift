@@ -9,15 +9,9 @@ import Data
 import BaseStyle
 import SwiftUI
 
-public enum AppRootRoute: Equatable {
-    case Onboard
-    case Login
-    case Home
-}
-
 public struct AppRouteView: View {
 
-    var router = Router<AppRootRoute>(root: .Onboard)
+    var router = Router<AppRoute>(root: .OnboardView)
 
     @Inject var preference: SplitoPreference
 
@@ -28,20 +22,24 @@ public struct AppRouteView: View {
     public var body: some View {
         RouterView(router: router) { route in
             switch route {
-            case .Onboard:
+            case .OnboardView:
                 OnboardView(viewModel: OnboardViewModel(appRouter: router))
-            case .Login:
-                LogInRouteView()
+            case .LoginView:
+                LoginView(viewModel: LoginViewModel(router: router))
+            case .PhoneLoginView:
+                PhoneLoginView(viewModel: PhoneLoginViewModel(router: router))
+            case .VerifyOTPView(let phoneNumber, let verificationId):
+                VerifyOtpView(viewModel: VerifyOtpViewModel(router: router, phoneNumber: phoneNumber, verificationId: verificationId))
             case .Home:
                 HomeView()
             }
         }
         .onAppear {
             if preference.isOnboardShown {
-                if preference.isLoggedIn {
+                if preference.isVerifiedUser {
                     router.updateRoot(root: .Home)
                 } else {
-                    router.updateRoot(root: .Login)
+                    router.updateRoot(root: .LoginView)
                 }
             }
         }

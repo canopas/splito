@@ -13,6 +13,8 @@
 		D89DBE312B8884E300E5F1BD /* SectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE302B8884E300E5F1BD /* SectionHeaderView.swift */; };
 		D89DBE332B888F2D00E5F1BD /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE322B888F2D00E5F1BD /* SearchBar.swift */; };
 		D89DBE352B88A05F00E5F1BD /* UIApplication+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE342B88A05F00E5F1BD /* UIApplication+Extension.swift */; };
+		D89DBE3C2B88AA1500E5F1BD /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE3B2B88AA1500E5F1BD /* CustomTextField.swift */; };
+		D89DBE3E2B8C67CE00E5F1BD /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE3D2B8C67CE00E5F1BD /* String+Extension.swift */; };
 		D8D42A462B85CC85009B345D /* BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8D42A3D2B85CC85009B345D /* BaseStyle.framework */; };
 		D8D42A4B2B85CC85009B345D /* BaseStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A4A2B85CC85009B345D /* BaseStyleTests.swift */; };
 		D8D42A4C2B85CC85009B345D /* BaseStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = D8D42A402B85CC85009B345D /* BaseStyle.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -66,6 +68,8 @@
 		D89DBE302B8884E300E5F1BD /* SectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeaderView.swift; sourceTree = "<group>"; };
 		D89DBE322B888F2D00E5F1BD /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		D89DBE342B88A05F00E5F1BD /* UIApplication+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+Extension.swift"; sourceTree = "<group>"; };
+		D89DBE3B2B88AA1500E5F1BD /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
+		D89DBE3D2B8C67CE00E5F1BD /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		D8D42A3D2B85CC85009B345D /* BaseStyle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BaseStyle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8D42A402B85CC85009B345D /* BaseStyle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseStyle.h; sourceTree = "<group>"; };
 		D8D42A452B85CC85009B345D /* BaseStyleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BaseStyleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -234,6 +238,7 @@
 				D8D42A852B85D08F009B345D /* Font+Extension.swift */,
 				D8D42A7F2B85D07C009B345D /* View+Extension.swift */,
 				D8D42A942B85F8A2009B345D /* Bundle+Extension.swift */,
+				D89DBE3D2B8C67CE00E5F1BD /* String+Extension.swift */,
 				D89DBE342B88A05F00E5F1BD /* UIApplication+Extension.swift */,
 			);
 			path = Extension;
@@ -244,9 +249,9 @@
 			children = (
 				D8D42A802B85D07C009B345D /* Spacers.swift */,
 				D8D42A982B870961009B345D /* AlertPrompt.swift */,
-				D89DBE302B8884E300E5F1BD /* SectionHeaderView.swift */,
 				D8D42A9C2B870A5D009B345D /* ToastPrompt.swift */,
 				D8D42A7B2B85CFEC009B345D /* LoaderViewModel.swift */,
+				D89DBE302B8884E300E5F1BD /* SectionHeaderView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -276,6 +281,7 @@
 				D8D42AAD2B872B27009B345D /* DismissButton.swift */,
 				D8D42A7E2B85D07C009B345D /* PrimaryButton.swift */,
 				D8D42A7D2B85D07C009B345D /* SecondaryButton.swift */,
+				D89DBE3B2B88AA1500E5F1BD /* CustomTextField.swift */,
 			);
 			path = CustomUI;
 			sourceTree = "<group>";
@@ -478,8 +484,10 @@
 				D8D42AB02B872E44009B345D /* LoaderView.swift in Sources */,
 				D8D42A9D2B870A5D009B345D /* ToastPrompt.swift in Sources */,
 				D89DBE352B88A05F00E5F1BD /* UIApplication+Extension.swift in Sources */,
+				D89DBE3C2B88AA1500E5F1BD /* CustomTextField.swift in Sources */,
 				D8D42A772B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift in Sources */,
 				D8D42A832B85D07C009B345D /* View+Extension.swift in Sources */,
+				D89DBE3E2B8C67CE00E5F1BD /* String+Extension.swift in Sources */,
 				D8D42A822B85D07C009B345D /* PrimaryButton.swift in Sources */,
 				D8D42A7C2B85CFEC009B345D /* LoaderViewModel.swift in Sources */,
 				D8D42A8A2B85D525009B345D /* AppColors.swift in Sources */,

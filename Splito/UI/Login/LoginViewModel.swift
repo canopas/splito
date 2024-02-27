@@ -6,6 +6,7 @@
 //
 
 import Data
+import Combine
 import BaseStyle
 import GoogleSignIn
 import FirebaseCore
@@ -16,11 +17,14 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var currentState: ViewState = .initial
 
-    private var currentNonce: String = ""
+    @Inject var firestore: FirestoreManager
+    @Inject var preference: SplitoPreference
 
-    var appleSignInDelegates: SignInWithAppleDelegates! = nil
+    private var currentNonce: String = ""
+    private var cancellable = Set<AnyCancellable>()
 
     private let router: Router<AppRoute>
+    var appleSignInDelegates: SignInWithAppleDelegates! = nil
 
     init(router: Router<AppRoute>) {
         self.router = router
@@ -49,8 +53,12 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
                 }
                 guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
 
+                let firstName = user.profile?.givenName ?? ""
+                let lastName = user.profile?.familyName ?? ""
+                let email = user.profile?.email ?? ""
+
                 let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-                self.performFirebaseLogin(credential: credential)
+                self.performFirebaseLogin(credential: credential, loginType: .Google, userData: (firstName, lastName, email))
             }
         }
     }
@@ -61,9 +69,9 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         request.requestedScopes = [.fullName, .email]
         request.nonce = NonceGenerator.sha256(currentNonce)
 
-        appleSignInDelegates = SignInWithAppleDelegates { (token, _, _) in
+        appleSignInDelegates = SignInWithAppleDelegates { (token, fName, lName, email)  in
             let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: token, rawNonce: self.currentNonce)
-            self.performFirebaseLogin(credential: credential)
+            self.performFirebaseLogin(credential: credential, loginType: .Apple, userData: (fName, lName, email))
         }
 
         let authorizationController = ASAuthorizationController(authorizationRequests: [request])
@@ -71,7 +79,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         authorizationController.performRequests()
     }
 
-    private func performFirebaseLogin(credential: AuthCredential) {
+    private func performFirebaseLogin(credential: AuthCredential, loginType: LoginType, userData: (String, String, String)) {
         currentState = .loading
         FirebaseProvider.auth
             .signIn(with: credential) { [weak self] result, error in
@@ -83,12 +91,50 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
                     self.showAlert = true
                 } else if let result {
                     self.currentState = .initial
+                    let user = AppUser(id: result.user.uid, firstName: userData.0, lastName: userData.1, emailId: userData.2, phoneNumber: nil, loginType: loginType)
+                    self.storeUser(user: user)
                     print("LoginViewModel: Logged in User: \(result.user)")
                 } else {
                     self.alert = .init(message: "Contact Support")
                     self.showAlert = true
                 }
             }
+    }
+
+    private func storeUser(user: AppUser) {
+        firestore.fetchUsers()
+            .sink { _ in
+
+            } receiveValue: { [weak self] users in
+                guard let self = self else { return }
+                let searchedUser = users.first(where: { $0.id == user.id })
+
+                if let searchedUser {
+                    self.preference.user = searchedUser
+                    self.goToHome()
+                } else {
+                    self.firestore.addUser(user: user)
+                        .receive(on: DispatchQueue.main)
+                        .sink { completion in
+                            switch completion {
+                            case .failure(let error):
+                                self.alert = .init(message: error.localizedDescription)
+                                self.showAlert = true
+                            case .finished:
+                                self.preference.user = user
+                                self.preference.isVerifiedUser = true
+                            }
+                        } receiveValue: { [weak self] _ in
+                            self?.goToHome()
+                        }
+                        .store(in: &self.cancellable)
+                }
+            }
+            .store(in: &cancellable)
+    }
+
+    private func goToHome() {
+        router.updateRoot(root: .Home)
     }
 
     func onPhoneLoginClick() {

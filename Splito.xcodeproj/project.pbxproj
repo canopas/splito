@@ -22,6 +22,9 @@
 		D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */; };
 		D89DBE232B875C2200E5F1BD /* PhoneLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE222B875C2200E5F1BD /* PhoneLoginView.swift */; };
 		D89DBE252B875C3000E5F1BD /* PhoneLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE242B875C3000E5F1BD /* PhoneLoginViewModel.swift */; };
+		D89DBE382B88A6A800E5F1BD /* VerifyOtpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE372B88A6A800E5F1BD /* VerifyOtpView.swift */; };
+		D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE392B88A6B400E5F1BD /* VerifyOtpViewModel.swift */; };
+		D89DBE422B8CA72700E5F1BD /* HomeRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */; };
 		D8AC26F12B84B12800CEAAD3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E42B84B12800CEAAD3 /* HomeView.swift */; };
 		D8AC26F22B84B12800CEAAD3 /* AppRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E52B84B12800CEAAD3 /* AppRouteView.swift */; };
 		D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E72B84B12800CEAAD3 /* OnboardView.swift */; };
@@ -94,6 +97,9 @@
 		D89DBE202B87433B00E5F1BD /* Splito.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Splito.entitlements; sourceTree = "<group>"; };
 		D89DBE222B875C2200E5F1BD /* PhoneLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneLoginView.swift; sourceTree = "<group>"; };
 		D89DBE242B875C3000E5F1BD /* PhoneLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneLoginViewModel.swift; sourceTree = "<group>"; };
+		D89DBE372B88A6A800E5F1BD /* VerifyOtpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyOtpView.swift; sourceTree = "<group>"; };
+		D89DBE392B88A6B400E5F1BD /* VerifyOtpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyOtpViewModel.swift; sourceTree = "<group>"; };
+		D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRouteView.swift; sourceTree = "<group>"; };
 		D8AC26DF2B84B07700CEAAD3 /* BaseUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8AC26E42B84B12800CEAAD3 /* HomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		D8AC26E52B84B12800CEAAD3 /* AppRouteView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppRouteView.swift; sourceTree = "<group>"; };
@@ -245,8 +251,18 @@
 			children = (
 				D89DBE222B875C2200E5F1BD /* PhoneLoginView.swift */,
 				D89DBE242B875C3000E5F1BD /* PhoneLoginViewModel.swift */,
+				D89DBE362B88A69E00E5F1BD /* VerifyOtp */,
 			);
 			path = PhoneLogin;
+			sourceTree = "<group>";
+		};
+		D89DBE362B88A69E00E5F1BD /* VerifyOtp */ = {
+			isa = PBXGroup;
+			children = (
+				D89DBE372B88A6A800E5F1BD /* VerifyOtpView.swift */,
+				D89DBE392B88A6B400E5F1BD /* VerifyOtpViewModel.swift */,
+			);
+			path = VerifyOtp;
 			sourceTree = "<group>";
 		};
 		D8AC25D12B7F43EA00CEAAD3 /* Plist */ = {
@@ -272,6 +288,7 @@
 			isa = PBXGroup;
 			children = (
 				D8AC26E42B84B12800CEAAD3 /* HomeView.swift */,
+				D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -574,10 +591,13 @@
 				D8AC26F12B84B12800CEAAD3 /* HomeView.swift in Sources */,
 				D8D6C3A02B79F8110023CF08 /* AppDelegate.swift in Sources */,
 				D8AC26F42B84B12800CEAAD3 /* OnboardViewModel.swift in Sources */,
+				D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */,
 				D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */,
 				D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */,
 				D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */,
 				D8AC26F82B84B12800CEAAD3 /* LogInRouteView.swift in Sources */,
+				D89DBE382B88A6A800E5F1BD /* VerifyOtpView.swift in Sources */,
+				D89DBE422B8CA72700E5F1BD /* HomeRouteView.swift in Sources */,
 				D89DBE252B875C3000E5F1BD /* PhoneLoginViewModel.swift in Sources */,
 				D89DBE232B875C2200E5F1BD /* PhoneLoginView.swift in Sources */,
 				D8AC26F62B84B12800CEAAD3 /* LoginViewModel.swift in Sources */,

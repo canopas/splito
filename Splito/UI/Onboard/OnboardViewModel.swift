@@ -14,11 +14,11 @@ class OnboardViewModel: ObservableObject {
 
     @Published var currentPageIndex = 0
 
-    let appRouter: Router<AppRootRoute>
+    let appRouter: Router<AppRoute>
 
     @Inject var preference: SplitoPreference
 
-    init(appRouter: Router<AppRootRoute>) {
+    init(appRouter: Router<AppRoute>) {
         self.appRouter = appRouter
     }
 
@@ -27,7 +27,7 @@ class OnboardViewModel: ObservableObject {
             guard let self, let user = result?.user else { return }
             let isAnonymous = user.isAnonymous
             self.preference.isOnboardShown = isAnonymous
-            appRouter.root = .Login
+            appRouter.root = .LoginView
         }
     }
 }

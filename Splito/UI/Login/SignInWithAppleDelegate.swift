@@ -10,9 +10,9 @@ import AuthenticationServices
 
 class SignInWithAppleDelegates: NSObject {
 
-    private let signInSucceeded: (String, String, String) -> Void
+    private let signInSucceeded: (String, String, String, String) -> Void
 
-    init(signInSucceeded: @escaping (String, String, String) -> Void) {
+    init(signInSucceeded: @escaping (String, String, String, String) -> Void) {
         self.signInSucceeded = signInSucceeded
     }
 }
@@ -33,8 +33,9 @@ extension SignInWithAppleDelegates: ASAuthorizationControllerDelegate {
 
             let firstName = appleIDCredential.fullName?.givenName ?? ""
             let lastName = appleIDCredential.fullName?.familyName ?? ""
+            let email = appleIDCredential.email ?? ""
 
-            self.signInSucceeded(idTokenString, firstName, lastName)
+            self.signInSucceeded(idTokenString, firstName, lastName, email)
         }
     }
 

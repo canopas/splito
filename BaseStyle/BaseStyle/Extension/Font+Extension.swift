@@ -109,6 +109,33 @@ public extension Font {
     }
 }
 
+public extension UIFont {
+    static func inter(_ style: InterFontStyle, size: CGFloat) -> UIFont? {
+        switch style {
+        case .regular:
+            return UIFont(name: InterFontStyle.regular.name, size: size)
+        case .medium:
+            return UIFont(name: InterFontStyle.medium.name, size: size)
+        case .bold:
+            return UIFont(name: InterFontStyle.bold.name, size: size)
+        case .semiBold:
+            return UIFont(name: InterFontStyle.semiBold.name, size: size)
+        case .thin:
+            return UIFont(name: InterFontStyle.thin.name, size: size)
+        case .light:
+            return UIFont(name: InterFontStyle.light.name, size: size)
+        case .italic:
+            return UIFont(name: InterFontStyle.italic.name, size: size)
+        case .mediumItalic:
+            return UIFont(name: InterFontStyle.mediumItalic.name, size: size)
+        case .semiBoldItalic:
+            return UIFont(name: InterFontStyle.semiBoldItalic.name, size: size)
+        case .heavyItalic:
+            return UIFont(name: InterFontStyle.heavyItalic.name, size: size)
+        }
+    }
+}
+
 extension Font {
     private static func registerFont(withName name: String, fileExtension: String, bundle: Bundle? = Bundle.baseBundle) {
         let frameworkBundle = bundle ?? Bundle.baseBundle

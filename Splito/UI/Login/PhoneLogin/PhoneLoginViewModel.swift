@@ -6,14 +6,16 @@
 //
 
 import Data
+import FirebaseAuth
 
 public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
 
     let MAX_NUMBER_LENGTH: Int = 20
 
-    @Published private(set) var verificationId = ""
     @Published var countries = [Country]()
     @Published var currentCountry: Country
+
+    @Published private(set) var verificationId = ""
     @Published private(set) var showLoader: Bool = false
     @Published private(set) var currentState: ViewState = .initial
 
@@ -40,7 +42,18 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
     }
 
     func verifyAndSendOtp() {
-
+        FirebaseProvider.phoneAuthProvider
+            .verifyPhoneNumber((currentCountry.dialCode + phoneNumber.getNumbersOnly()), uiDelegate: nil) { [weak self] (verificationID, error) in
+                self?.showLoader = false
+                if let error {
+                    self?.handleFirebaseAuthErrors(error)
+                    self?.currentState = .initial
+                } else {
+                    self?.currentState = .initial
+                    self?.verificationId = verificationID ?? ""
+                    self?.openVerifyOtpView()
+                }
+            }
     }
 }
 
@@ -48,22 +61,22 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
 extension PhoneLoginViewModel {
 
     func openVerifyOtpView() {
-
+        router.push(.VerifyOTPView(phoneNumber: phoneNumber, verificationId: verificationId))
     }
 
     func handleFirebaseAuthErrors(_ error: Error) {
-//        if (error as NSError).code == FirebaseAuth.AuthErrorCode.webContextCancelled.rawValue {
-//            showAlertFor(message: R.string.common.alert_message_something_went_wrong.localized())
-//        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.tooManyRequests.rawValue {
-//            showAlertFor(message: R.string.common.alert_message_too_many_attempts.localized())
-//        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.missingPhoneNumber.rawValue {
-//            showAlertFor(message: R.string.common.alert_message_enter_valid_number.localized())
-//        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.invalidPhoneNumber.rawValue {
-//            showAlertFor(message: R.string.common.alert_message_enter_valid_number.localized())
-//        } else {
-//            LogE("Firebase: Phone login fail with error: \(error.localizedDescription)")
-//            showAlertFor(title: R.string.common.authentication_failed_title.localized(), message: R.string.common.alert_message_authentication_failed.localized())
-//        }
+        if (error as NSError).code == FirebaseAuth.AuthErrorCode.webContextCancelled.rawValue {
+            showAlertFor(message: "Something went wrong! Please try after some time.")
+        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.tooManyRequests.rawValue {
+            showAlertFor(message: "Too many attempts, please try after some time")
+        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.missingPhoneNumber.rawValue {
+            showAlertFor(message: "Enter a valid phone number")
+        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.invalidPhoneNumber.rawValue {
+            showAlertFor(message: "Enter a valid phone number")
+        } else {
+            LogE("Firebase: Phone login fail with error: \(error.localizedDescription)")
+            showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
+        }
     }
 }
 
