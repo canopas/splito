@@ -8,8 +8,11 @@
 import SwiftUI
 
 struct HomeView: View {
+
     var body: some View {
-        Text("Hello, Welcome to Home screen")
+        VStack(spacing: 40) {
+            Text("Hello, Welcome to Home screen")
+        }
     }
 }
 
