@@ -6,28 +6,75 @@
 //
 
 import Data
+import BaseStyle
 import SwiftUI
 
 struct HomeRouteView: View {
-    
+
     @Inject var appRouter: Router<AppRoute>
-    
-    public var body: some View {
-        TabView {
-            HomeView()
-                .tabItem {
-                    Label("Menu", systemImage: "list.dash")
+
+    var body: some View {
+        ZStack {
+            TabView {
+                HomeView()
+                    .tabItem {
+                        Label("Friends", systemImage: "person")
+                    }
+                    .tag(0)
+
+                HomeView()
+                    .tabItem {
+                        Label("Groups", systemImage: "person.2")
+                    }
+                    .tag(1)
+
+                HomeView()
+                    .tabItem {
+//                        Label("", systemImage: "plus.circle.fill")
+                    }
+                    .tag(1)
+
+                HomeView()
+                    .tabItem {
+                        Label("Activity", systemImage: "chart.line.uptrend.xyaxis.circle")
+                    }
+                    .tag(3)
+
+                HomeView()
+                    .tabItem {
+                        Label("Account", systemImage: "person.crop.square")
+                    }
+                    .tag(4)
+            }
+            .tint(primaryColor)
+            .toolbarColorScheme(.light, for: .tabBar)
+
+            CenterFabButton()
+        }
+    }
+}
+
+struct CenterFabButton: View {
+    var body: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+
+                Button {
+                    // Open screen
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .resizable()
+                        .frame(width: 50, height: 50)
+                        .tint(primaryColor)
+                        .background(backgroundColor)
+                        .clipShape(Circle())
+                        .shadow(radius: 2)
                 }
-            
-            HomeView()
-                .tabItem {
-                    Label("Order", systemImage: "square.and.pencil")
-                }
-            
-            HomeView()
-                .tabItem {
-                    Label("Menu", systemImage: "list.dash")
-                }
+
+                Spacer()
+            }
         }
     }
 }

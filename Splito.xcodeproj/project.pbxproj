@@ -25,6 +25,10 @@
 		D89DBE382B88A6A800E5F1BD /* VerifyOtpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE372B88A6A800E5F1BD /* VerifyOtpView.swift */; };
 		D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE392B88A6B400E5F1BD /* VerifyOtpViewModel.swift */; };
 		D89DBE422B8CA72700E5F1BD /* HomeRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */; };
+		D89DBE592B8DE91D00E5F1BD /* FriendRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE582B8DE91D00E5F1BD /* FriendRouteView.swift */; };
+		D89DBE5B2B8DE97000E5F1BD /* GroupRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE5A2B8DE97000E5F1BD /* GroupRouteView.swift */; };
+		D89DBE5D2B8DE97B00E5F1BD /* ActivityRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE5C2B8DE97B00E5F1BD /* ActivityRouteView.swift */; };
+		D89DBE5F2B8DE98600E5F1BD /* AccountRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE5E2B8DE98600E5F1BD /* AccountRouteView.swift */; };
 		D8AC26F12B84B12800CEAAD3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E42B84B12800CEAAD3 /* HomeView.swift */; };
 		D8AC26F22B84B12800CEAAD3 /* MainRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E52B84B12800CEAAD3 /* MainRouteView.swift */; };
 		D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E72B84B12800CEAAD3 /* OnboardView.swift */; };
@@ -98,6 +102,10 @@
 		D89DBE372B88A6A800E5F1BD /* VerifyOtpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyOtpView.swift; sourceTree = "<group>"; };
 		D89DBE392B88A6B400E5F1BD /* VerifyOtpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyOtpViewModel.swift; sourceTree = "<group>"; };
 		D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRouteView.swift; sourceTree = "<group>"; };
+		D89DBE582B8DE91D00E5F1BD /* FriendRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRouteView.swift; sourceTree = "<group>"; };
+		D89DBE5A2B8DE97000E5F1BD /* GroupRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupRouteView.swift; sourceTree = "<group>"; };
+		D89DBE5C2B8DE97B00E5F1BD /* ActivityRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityRouteView.swift; sourceTree = "<group>"; };
+		D89DBE5E2B8DE98600E5F1BD /* AccountRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRouteView.swift; sourceTree = "<group>"; };
 		D8AC26DF2B84B07700CEAAD3 /* BaseUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8AC26E42B84B12800CEAAD3 /* HomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		D8AC26E52B84B12800CEAAD3 /* MainRouteView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainRouteView.swift; sourceTree = "<group>"; };
@@ -260,6 +268,38 @@
 			path = VerifyOtp;
 			sourceTree = "<group>";
 		};
+		D89DBE542B8DE8B200E5F1BD /* Friends */ = {
+			isa = PBXGroup;
+			children = (
+				D89DBE582B8DE91D00E5F1BD /* FriendRouteView.swift */,
+			);
+			path = Friends;
+			sourceTree = "<group>";
+		};
+		D89DBE552B8DE8C600E5F1BD /* Groups */ = {
+			isa = PBXGroup;
+			children = (
+				D89DBE5A2B8DE97000E5F1BD /* GroupRouteView.swift */,
+			);
+			path = Groups;
+			sourceTree = "<group>";
+		};
+		D89DBE562B8DE8CF00E5F1BD /* Activity */ = {
+			isa = PBXGroup;
+			children = (
+				D89DBE5C2B8DE97B00E5F1BD /* ActivityRouteView.swift */,
+			);
+			path = Activity;
+			sourceTree = "<group>";
+		};
+		D89DBE572B8DE8D400E5F1BD /* Account */ = {
+			isa = PBXGroup;
+			children = (
+				D89DBE5E2B8DE98600E5F1BD /* AccountRouteView.swift */,
+			);
+			path = Account;
+			sourceTree = "<group>";
+		};
 		D8AC25D12B7F43EA00CEAAD3 /* Plist */ = {
 			isa = PBXGroup;
 			children = (
@@ -284,6 +324,10 @@
 			children = (
 				D8AC26E42B84B12800CEAAD3 /* HomeView.swift */,
 				D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */,
+				D89DBE542B8DE8B200E5F1BD /* Friends */,
+				D89DBE552B8DE8C600E5F1BD /* Groups */,
+				D89DBE562B8DE8CF00E5F1BD /* Activity */,
+				D89DBE572B8DE8D400E5F1BD /* Account */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -572,13 +616,17 @@
 			files = (
 				D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */,
 				D8AC26F22B84B12800CEAAD3 /* MainRouteView.swift in Sources */,
+				D89DBE592B8DE91D00E5F1BD /* FriendRouteView.swift in Sources */,
+				D89DBE5D2B8DE97B00E5F1BD /* ActivityRouteView.swift in Sources */,
 				D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */,
 				D8AC26F12B84B12800CEAAD3 /* HomeView.swift in Sources */,
 				D8D6C3A02B79F8110023CF08 /* AppDelegate.swift in Sources */,
 				D8AC26F42B84B12800CEAAD3 /* OnboardViewModel.swift in Sources */,
 				D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */,
+				D89DBE5F2B8DE98600E5F1BD /* AccountRouteView.swift in Sources */,
 				D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */,
 				D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */,
+				D89DBE5B2B8DE97000E5F1BD /* GroupRouteView.swift in Sources */,
 				D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */,
 				D89DBE382B88A6A800E5F1BD /* VerifyOtpView.swift in Sources */,
 				D89DBE422B8CA72700E5F1BD /* HomeRouteView.swift in Sources */,
