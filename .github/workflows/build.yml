@@ -16,7 +16,7 @@ jobs:
 
       - name: Install pods
         run: |
-          arch -x86_64 pod install --repo-update
+          pod install --repo-update
 
       - name: Run lint
         run: |
