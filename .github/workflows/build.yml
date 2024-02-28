@@ -6,8 +6,8 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v4
-        name: Checkout repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
       
       - name: Install the Apple Certificate and Provisioning Profile
         run: |
@@ -23,7 +23,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
 
-      - name: Install Pods
+      - name: Install CocoaPods
         run: |
           if [ -f "Podfile.lock" ] && [ -f "${{ runner.workspace }}/Podfile.lock" ] && cmp -s Podfile.lock "${{ runner.workspace }}/Podfile.lock"; then
             echo "Podfile.lock unchanged. Skipping pod installs."
