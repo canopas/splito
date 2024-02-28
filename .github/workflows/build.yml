@@ -6,9 +6,8 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout repository
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
+        name: Checkout repository
       
       - name: Install the Apple certificate and provisioning profile
         env:
