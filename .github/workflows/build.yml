@@ -9,20 +9,33 @@ jobs:
       - uses: actions/checkout@v4
         name: Checkout repository
       
-      - name: Install the Apple certificate and provisioning profile
+      - name: Install the Apple Certificate and Provisioning Profile
         run: |
           chmod +x install_dist_certs.sh && ./install_dist_certs.sh
           chmod +x install_dist_profile.sh && ./install_dist_profile.sh
 
-      - name: Install pods
-        run: |
-          pod install --repo-update
+      - name: Cache CocoaPods
+        uses: actions/cache@v2
+        with:
+          path: |
+            Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
 
-      - name: Run lint
+      - name: Install Pods
+        run: |
+          if [ -f "Podfile.lock" ] && [ -f "${{ runner.workspace }}/Podfile.lock" ] && cmp -s Podfile.lock "${{ runner.workspace }}/Podfile.lock"; then
+            echo "Podfile.lock unchanged. Skipping pod installs."
+          else
+            pod install --repo-update
+          fi
+
+      - name: Run Lint
         run: |
           Pods/SwiftLint/swiftlint Splito
 
-      - name: Archive project
+      - name: Archive Project
         run: |
           ARCHIVE_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}.xcarchive"
           xcodebuild -workspace Splito.xcworkspace -scheme "Splito" clean archive -sdk iphoneos -archivePath $ARCHIVE_PATH | xcpretty --color
