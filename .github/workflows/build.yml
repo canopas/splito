@@ -1,28 +1,31 @@
-name: CI
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+name: App build
+on: push
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
+      - name: Checkout repository
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-
-      # Runs a single command using the runner's shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runner's shell
-      - name: Run a multi-line script
+      - uses: actions/checkout@v4
+      
+      - name: Install the Apple certificate and provisioning profile
+        env:
+          BUILD_CERTIFICATE_KEY: ${{ secrets.BUILD_CERTIFICATE_KEY }}
+          BUILD_CERTIFICATE_PASSWORD: ${{ secrets.BUILD_CERTIFICATE_PASSWORD }}
+          BUILD_PROVISION_PROFILE: ${{ secrets.BUILD_PROVISION_PROFILE }}
+          BUILD_PROVISION_UUID: ${{ secrets.BUILD_PROVISION_UUID }}
+          BUILD_KEYCHAIN: ${{ secrets.BUILD_KEYCHAIN }}
+          BUILD_KEYCHAIN_PASSWORD: ${{ secrets.BUILD_KEYCHAIN_PASSWORD }}
+          
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          chmod +x install_dist_certs.sh && ./install_dist_certs.sh
+          chmod +x install_dist_profile.sh && ./install_dist_profile.sh
+          
+          arch -x86_64 pod install --repo-update
+          Pods/SwiftLint/swiftlint Splito
+          
+          ARCHIVE_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}.xcarchive"
+          xcodebuild -workspace Splito.xcworkspace -scheme "Splito" clean archive -sdk iphoneos -archivePath $ARCHIVE_PATH | xcpretty --color
+          rm -rf $ARCHIVE_PATH
