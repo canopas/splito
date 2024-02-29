@@ -14,6 +14,11 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
+      - name: List and Select Xcode
+        run: |
+          sudo ls -1 /Applications | grep "Xcode"
+          sudo xcode-select -s /Applications/Xcode_15.1.app/Contents/Developer
+
       - name: Running Xcode version Is?
         run: /usr/bin/xcodebuild -version
       
