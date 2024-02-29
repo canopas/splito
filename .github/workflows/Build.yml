@@ -15,7 +15,9 @@ jobs:
           access_token: ${{ github.token }}
 
       - name: Set up Xcode Version
-        run: sudo xcode-select -switch /Applications/Xcode_15.0.app
+        uses: actions/setup-xcode@v2
+        with:
+          xcode-version: '15.0'
 
       - name: Running Xcode version Is?
         run: /usr/bin/xcodebuild -version
