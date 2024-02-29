@@ -14,14 +14,8 @@ jobs:
           chmod +x install_dist_certs.sh && ./install_dist_certs.sh
           chmod +x install_dist_profile.sh && ./install_dist_profile.sh
 
-      - name: Cache CocoaPods
-        uses: actions/cache@v2
-        with:
-          path: |
-            Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
+      - name: Resolve CocoaPods dependencies
+        uses: CocoaPods/cocoapods-resolve-action@v2
 
       - name: Install CocoaPods
         run: |
