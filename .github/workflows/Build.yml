@@ -14,11 +14,8 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
-      - name: Set up Xcode
-        uses: xcodesetup/setup-xcode@v3
-        with:
-          xcode-version: 15.0
-          install-deps: true
+      - name: Set up Xcode Version
+        run: sudo xcode-select -switch /Applications/Xcode_15.0.app
 
       - name: Running Xcode version Is?
         run: /usr/bin/xcodebuild -version
