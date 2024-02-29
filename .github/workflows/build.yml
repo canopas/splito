@@ -8,9 +8,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Set Xcode Version
-        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
       
       - name: Install the Apple Certificate and Provisioning Profile
         run: |
@@ -41,5 +38,5 @@ jobs:
       - name: Archive Project
         run: |
           ARCHIVE_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}.xcarchive"
-          xcodebuild -workspace Splito.xcworkspace -scheme "Splito" clean archive -sdk iphoneos -destination 'platform=iOS Simulator,name=iPhone 12' -archivePath $ARCHIVE_PATH | xcpretty --color
+          xcodebuild -workspace Splito.xcworkspace -scheme "Splito" clean archive -sdk iphoneos -destination 'platform=iOS Simulator,name=iPhone 14' -archivePath $ARCHIVE_PATH | xcpretty --color
           rm -rf $ARCHIVE_PATH
