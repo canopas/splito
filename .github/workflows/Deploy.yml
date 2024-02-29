@@ -1,13 +1,29 @@
 name: Deploy
-on: push
+
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  build:
+  deploy:
     runs-on: macos-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Running Xcode version Is?
+        run: /usr/bin/xcodebuild -version
       
       - name: Install the Apple Certificate and Provisioning Profile
         run: |
@@ -35,25 +51,37 @@ jobs:
         run: |
           Pods/SwiftLint/swiftlint Splito
 
+      - name: Get Build Version
+        run: |
+          file='NoLonely/VERSION'
+          fileData=`cat $file`
+          IFS='.'
+          read -a versionValue <<< "$fileData"
+          buildNumber=$(expr `expr ${versionValue[0]} \* 1000000` + `expr ${versionValue[1]} \* 10000` + ${CI_PIPELINE_IID})
+          IFS=''
+          buildName="${versionValue[0]}.${versionValue[1]}.$CI_PIPELINE_IID"
+          echo "Uploading build $buildName"
+
       - name: Build and Archive Project
         run: |
           ARCHIVE_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}.xcarchive"
-          xcodebuild -workspace Splito.xcworkspace -scheme "Splito" clean archive -sdk iphoneos -destination 'platform=iOS Simulator,name=iPhone 13' -archivePath $ARCHIVE_PATH | xcpretty --color
+          xcodebuild app_version_code=${buildNumber} app_version_name=${buildName} -workspace Splito.xcworkspace -scheme "Splito" clean archive -sdk iphoneos -destination 'platform=iOS Simulator,name=iPhone 13' -archivePath $ARCHIVE_PATH | xcpretty --color
 
       - name: Export Archive
         run: |
           EXPORT_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}"
           xcodebuild -exportArchive -archivePath $ARCHIVE_PATH -exportPath $EXPORT_PATH -exportOptionsPlist ExportOptions.plist | xcpretty --color
 
-      - name: Deploy to App Store Connect
+      - name: Store IPA
         run: |
           echo "Collecting artifacts.."
           cp -R "${ARCHIVE_PATH}/dSYMs" .
-          IPA="${EXPORT_PATH}Justly.ipa"
+          IPA="${EXPORT_PATH}Splito.ipa"
           echo $IPA
-          echo "Uploading app to iTC..."
 
+      - name: Deploy to App Store Connect
+        run: |
           rm -rf $ARCHIVE_PATH
           rm -rf $EXPORT_PATH
-          
+          echo "Uploading app to iTC..."
           xcrun altool --upload-app -t ios -f $IPA -u $ITC_USER_NAME -p $ITC_USER_PASSWORD
