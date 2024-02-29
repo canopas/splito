@@ -44,10 +44,6 @@ jobs:
         run: |
           Pods/SwiftLint/swiftlint Splito
 
-      - name: Build Cleanup
-        run: |
-          xcodebuild clean -workspace Splito.xcworkspace -scheme Splito | xcpretty
-
       - name: Archive Project
         run: |
           ARCHIVE_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}.xcarchive"
