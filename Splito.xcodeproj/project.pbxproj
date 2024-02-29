@@ -87,6 +87,7 @@
 		D8015C042B7A47CF0002886A /* Data.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Data.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8015C082B7A47D80002886A /* UI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = UI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D863857A2B908AB600A8C6EB /* VERSION */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VERSION; sourceTree = "<group>"; };
+		D863857E2B909A5A00A8C6EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D889F5B82B7A521F008C6A43 /* SplashView.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SplashView.storyboard; sourceTree = "<group>"; };
 		D89684412B722D3400D5F721 /* Splito.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Splito.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89684442B722D3400D5F721 /* SplitoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitoApp.swift; sourceTree = "<group>"; };
@@ -306,6 +307,7 @@
 		D8AC25D12B7F43EA00CEAAD3 /* Plist */ = {
 			isa = PBXGroup;
 			children = (
+				D863857E2B909A5A00A8C6EB /* Info.plist */,
 				D8D42A962B86FBF8009B345D /* GoogleService-Info.plist */,
 			);
 			path = Plist;
@@ -807,7 +809,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Splito/Plist/Info.plist;
+				INFOPLIST_FILE = /Users/amisha/Documents/Splito/Splito/Plist/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = SplashView;
@@ -825,6 +827,8 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				app_version_code = 1000000;
+				app_version_name = 1.0.0;
 			};
 			name = Debug;
 		};
@@ -844,7 +848,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Splito/Plist/Info.plist;
+				INFOPLIST_FILE = /Users/amisha/Documents/Splito/Splito/Plist/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = SplashView;
@@ -864,6 +868,8 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				app_version_code = 1000000;
+				app_version_name = 1.0.0;
 			};
 			name = Release;
 		};
