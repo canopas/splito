@@ -28,7 +28,7 @@ jobs:
           if [ -f "Podfile.lock" ] && [ -f "${{ runner.workspace }}/Podfile.lock" ] && cmp -s Podfile.lock "${{ runner.workspace }}/Podfile.lock"; then
             echo "Podfile.lock unchanged. Skipping pod installs."
           else
-            pod install --repo-update | xcpretty
+            pod install --repo-update
           fi
 
       - name: Run Lint
