@@ -67,5 +67,11 @@ post_install do |installer|
     target.build_configurations.each do |config|
       config.build_settings.delete 'IPHONEOS_DEPLOYMENT_TARGET'
     end
+    
+    target.build_phases.each do |build_phase|
+      if build_phase.respond_to?(:name) && ["Create Symlinks to Header Folders"].include?(build_phase.name)
+        build_phase.output_paths = ["$(DERIVED_FILE_DIR)/header_symlinks_created"]
+      end
+    end
   end
 end
