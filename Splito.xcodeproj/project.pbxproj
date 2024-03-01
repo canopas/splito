@@ -366,8 +366,8 @@
 			buildConfigurationList = D89684652B722D3700D5F721 /* Build configuration list for PBXNativeTarget "Splito" */;
 			buildPhases = (
 				7EA397BB91DF2F3109DE3869 /* [CP] Check Pods Manifest.lock */,
-				D8DF8B3C2B7A238000165138 /* SwiftLint */,
 				D896843D2B722D3400D5F721 /* Sources */,
+				D8DF8B3C2B7A238000165138 /* SwiftLint */,
 				D896843E2B722D3400D5F721 /* Frameworks */,
 				D896843F2B722D3400D5F721 /* Resources */,
 				D8015C072B7A47D00002886A /* Embed Frameworks */,
