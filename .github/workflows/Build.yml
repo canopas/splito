@@ -18,10 +18,18 @@ jobs:
         run: |
           sudo xcode-select -switch /Applications/Xcode_15.2.app
 
-      - name: Running Xcode version Is?
+      - name: Display Xcode Version
         run: /usr/bin/xcodebuild -version
+
+      - name: Cache Derived Data
+        uses: actions/cache@v2
+        with:
+          path: |
+            DerivedData
+          key: ${{ runner.os }}-derived-data-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: ${{ runner.os }}-derived-data-
       
-      - name: Install the Apple Certificate and Provisioning Profile
+      - name: Install Apple Certificate and Provisioning Profile
         run: |
           chmod +x install_dist_certs.sh && ./install_dist_certs.sh
           chmod +x install_dist_profile.sh && ./install_dist_profile.sh
@@ -44,7 +52,7 @@ jobs:
             pod install --repo-update
           fi
 
-      - name: Run Lint
+      - name: Run SwiftLint
         run: |
           Pods/SwiftLint/swiftlint Splito
 
