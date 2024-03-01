@@ -1,31 +1,40 @@
 name: Build
+
 on: push
 
 jobs:
   build:
     runs-on: macos-13
-
+    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
+        
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.9.1
         with:
           access_token: ${{ github.token }}
-
+          
       - name: Set Xcode Version
         run: |
           sudo xcode-select -switch /Applications/Xcode_15.2.app
-
+          
       - name: Display Xcode Version
         run: /usr/bin/xcodebuild -version
+
+      - name: Cache Derived Data
+        uses: actions/cache@v2
+        with:
+          path: |
+            DerivedData
+          key: ${{ runner.os }}-derived-data-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: ${{ runner.os }}-derived-data-
 
       - name: Install Apple Certificate and Provisioning Profile
         run: |
           chmod +x install_dist_certs.sh && ./install_dist_certs.sh
           chmod +x install_dist_profile.sh && ./install_dist_profile.sh
-
+          
       - name: Cache CocoaPods
         uses: actions/cache@v2
         with:
@@ -34,7 +43,7 @@ jobs:
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-
-
+            
       - name: Install CocoaPods
         run: |
           if [ -f "Podfile.lock" ] && [ -f "${{ runner.workspace }}/Podfile.lock" ] && cmp -s Podfile.lock "${{ runner.workspace }}/Podfile.lock"; then
@@ -43,11 +52,11 @@ jobs:
             gem install cocoapods
             pod install --repo-update
           fi
-
+          
       - name: Run SwiftLint
         run: |
           Pods/SwiftLint/swiftlint Splito
-
+          
       - name: Archive Project
         run: |
           ARCHIVE_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}.xcarchive"
