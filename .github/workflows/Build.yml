@@ -44,10 +44,14 @@ jobs:
             gem install cocoapods
             pod install --repo-update
           fi
-          
-      - name: Run SwiftLint
+
+      - name: Run SwiftLint if Changes
         run: |
-          Pods/SwiftLint/swiftlint Splito
+          if git diff --name-only ${{ github.sha }} | grep -q '\.swift$'; then
+            Pods/SwiftLint/swiftlint Splito
+          else
+            echo "No Swift files changed. Skipping SwiftLint."
+          fi
           
       - name: Archive Project
         run: |
