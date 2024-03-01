@@ -21,6 +21,11 @@ jobs:
       - name: Display Xcode Version
         run: /usr/bin/xcodebuild -version
 
+      - name: Install Apple Certificate and Provisioning Profile
+        run: |
+          chmod +x install_dist_certs.sh && ./install_dist_certs.sh
+          chmod +x install_dist_profile.sh && ./install_dist_profile.sh
+
       - name: Cache Derived Data
         uses: actions/cache@v2
         with:
@@ -28,11 +33,6 @@ jobs:
             DerivedData
           key: ${{ runner.os }}-derived-data-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: ${{ runner.os }}-derived-data-
-
-      - name: Install Apple Certificate and Provisioning Profile
-        run: |
-          chmod +x install_dist_certs.sh && ./install_dist_certs.sh
-          chmod +x install_dist_profile.sh && ./install_dist_profile.sh
 
       - name: Cache CocoaPods
         uses: actions/cache@v2
@@ -59,6 +59,5 @@ jobs:
       - name: Archive Project
         run: |
           ARCHIVE_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}.xcarchive"
-          # xcodebuild -scheme "Splito" -archivePath $ARCHIVE_PATH -sdk iphoneos -configuration Debug -destination generic/platform=iOS clean archive
           xcodebuild -workspace Splito.xcworkspace -scheme "Splito" clean archive -sdk iphonesimulator -archivePath $ARCHIVE_PATH | xcpretty --color
           rm -rf $ARCHIVE_PATH
