@@ -52,7 +52,5 @@ jobs:
       - name: Archive Project
         run: |
           ARCHIVE_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}.xcarchive"
-          xcodebuild -workspace Splito.xcworkspace -scheme "Splito" -archivePath $ARCHIVE_PATH -sdk iphoneos -destination generic/platform=iOS clean archive
-          # xcodebuild -workspace Splito.xcworkspace -scheme "Splito" clean archive -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=17.2,name=iPhone 14' ONLY_ACTIVE_ARCH=NO -archivePath $ARCHIVE_PATH | xcpretty --color
-          # xcodebuild -workspace Splito.xcworkspace -scheme "Splito" clean archive -sdk iphonesimulator -archivePath $ARCHIVE_PATH | xcpretty --color
+          xcodebuild clean build -workspace Splito.xcworkspace -scheme "Splito" -archivePath $ARCHIVE_PATH clean archive -sdk iphoneos -destination generic/platform=iOS
           rm -rf $ARCHIVE_PATH
