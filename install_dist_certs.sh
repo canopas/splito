@@ -2,9 +2,6 @@
 
 CERTIFICATE_P12=dist_certificate.p12
 
-echo "Keychain: $BUILD_KEYCHAIN"
-echo "Keychain Password: $BUILD_KEYCHAIN_PASSWORD"
-
 # Recreate the certificate from the secure environment variable
 echo $BUILD_CERTIFICATE_KEY | base64 --decode > $CERTIFICATE_P12
 
