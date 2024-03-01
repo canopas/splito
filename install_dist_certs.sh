@@ -6,19 +6,13 @@ CERTIFICATE_P12=dist_certificate.p12
 # Recreate the certificate from the secure environment variable
 echo $BUILD_CERTIFICATE_KEY | base64 --decode > $CERTIFICATE_P12
 
-# Create keychain
-security create-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
-
-# Make it default keychain
-security default-keychain -s $BUILD_KEYCHAIN
+# Set keychain settings
+security set-keychain-settings $BUILD_KEYCHAIN
 
 # Unlock the keychain
 security unlock-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
 
-# Set keychain settings
-security set-keychain-settings $BUILD_KEYCHAIN
-
-# Import the certificate into the keychain
+# Import the certificate to the keychain
 security import $CERTIFICATE_P12 -k $BUILD_KEYCHAIN -P $BUILD_CERTIFICATE_PASSWORD -T /usr/bin/codesign;
 
 # Set key partition list
