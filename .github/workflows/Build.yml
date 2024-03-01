@@ -6,6 +6,16 @@ jobs:
   build:
     runs-on: macos-13
     
+    env:
+      BUILD_KEYCHAIN: ${{ secrets.BUILD_KEYCHAIN }}
+      BUILD_KEYCHAIN_PASSWORD: ${{ secrets.BUILD_KEYCHAIN_PASSWORD }}
+      BUILD_CERTIFICATE_KEY: ${{ secrets.BUILD_CERTIFICATE_KEY }}
+      BUILD_CERTIFICATE_PASSWORD: ${{ secrets.BUILD_CERTIFICATE_PASSWORD }}
+      BUILD_PROVISION_PROFILE: ${{ secrets.BUILD_PROVISION_PROFILE }}
+      BUILD_PROVISION_UUID: ${{ secrets.BUILD_PROVISION_UUID }}
+      ITC_USER_NAME: ${{ secrets.ITC_USER_NAME }}
+      ITC_USER_PASSWORD: ${{ secrets.ITC_USER_PASSWORD }}
+    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
