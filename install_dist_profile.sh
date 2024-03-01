@@ -5,9 +5,6 @@ DIST_PROFILE_FILE=${BUILD_PROVISION_UUID}.mobileprovision
 # Recreate the certificate from the secure environment variable
 echo $BUILD_PROVISION_PROFILE | base64 --decode > $DIST_PROFILE_FILE
 
-# Create keychain
-security create-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
-
 # Unlock the keychain
 security unlock-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
 
