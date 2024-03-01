@@ -2,6 +2,12 @@
 
 DIST_PROFILE_FILE=${BUILD_PROVISION_UUID}.mobileprovision
 
+# Create keychain
+security create-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
+
+# Make it default keychain
+security default-keychain -s $BUILD_KEYCHAIN
+
 # Unlock the keychain
 security unlock-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
 
