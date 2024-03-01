@@ -12,7 +12,7 @@ security create-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
 security unlock-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
 
 # Create a directory for provisioning profiles
-mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles/${BUILD_PROVISION_UUID}.mobileprovision"
+mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
 
 # Copy the provisioning profile where Xcode can find it
 cp ${DIST_PROFILE_FILE} "$HOME/Library/MobileDevice/Provisioning Profiles/${BUILD_PROVISION_UUID}.mobileprovision"
