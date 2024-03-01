@@ -21,14 +21,6 @@ jobs:
       - name: Display Xcode Version
         run: /usr/bin/xcodebuild -version
 
-      - name: Cache Derived Data
-        uses: actions/cache@v2
-        with:
-          path: |
-            DerivedData
-          key: ${{ runner.os }}-derived-data-${{ hashFiles('**/Podfile.lock') }}
-          restore-keys: ${{ runner.os }}-derived-data-
-
       - name: Install Apple Certificate and Provisioning Profile
         run: |
           chmod +x install_dist_certs.sh && ./install_dist_certs.sh
