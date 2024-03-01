@@ -52,5 +52,5 @@ jobs:
       - name: Archive Project
         run: |
           ARCHIVE_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}.xcarchive"
-          xcodebuild -workspace Splito.xcworkspace -scheme "Splito" -archivePath $ARCHIVE_PATH clean archive -sdk iphoneos -destination generic/platform=iOS
+          xcodebuild -workspace Splito.xcworkspace -scheme "Splito" -archivePath $ARCHIVE_PATH -sdk iphoneos -destination generic/platform=iOS clean archive
           rm -rf $ARCHIVE_PATH
