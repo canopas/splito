@@ -21,18 +21,6 @@ jobs:
           
       - name: Display Xcode Version
         run: /usr/bin/xcodebuild -version
-
-      - name: Install Apple Certificate and Provisioning Profile
-        env:
-          BUILD_KEYCHAIN: ${{ secrets.BUILD_KEYCHAIN }}
-          BUILD_KEYCHAIN_PASSWORD: ${{ secrets.BUILD_KEYCHAIN_PASSWORD }}
-          BUILD_CERTIFICATE_KEY: ${{ secrets.BUILD_CERTIFICATE_KEY }}
-          BUILD_CERTIFICATE_PASSWORD: ${{ secrets.BUILD_CERTIFICATE_PASSWORD }}
-          BUILD_PROVISION_PROFILE: ${{ secrets.BUILD_PROVISION_PROFILE }}
-          BUILD_PROVISION_UUID: ${{ secrets.BUILD_PROVISION_UUID }}
-        run: |
-          chmod +x install_dist_certs.sh && ./install_dist_certs.sh
-          chmod +x install_dist_profile.sh && ./install_dist_profile.sh
           
       - name: Cache CocoaPods
         uses: actions/cache@v2
@@ -60,8 +48,6 @@ jobs:
             echo "No Swift files changed. Skipping SwiftLint."
           fi
           
-      - name: Archive Project
+      - name: Build Project
         run: |
-          ARCHIVE_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}.xcarchive"
-          xcodebuild -workspace Splito.xcworkspace -scheme "Splito" -archivePath $ARCHIVE_PATH -sdk iphoneos -destination generic/platform=iOS clean archive | xcpretty --color
-          rm -rf $ARCHIVE_PATH
+          xcodebuild clean build -workspace Splito.xcworkspace -scheme "Splito" | xcpretty --color
