@@ -6,8 +6,8 @@ CERTIFICATE_P12=dist_certificate.p12
 # Recreate the certificate from the secure environment variable
 echo $BUILD_CERTIFICATE_KEY | base64 --decode > $CERTIFICATE_P12
 
-# Set keychain settings
-security set-keychain-settings $BUILD_KEYCHAIN
+echo "XXX --- Set default keychain"
+security default-keychain -s $BUILD_KEYCHAIN
 
 echo "XXX --- Unlocking keychain..."
 # Unlock the keychain
@@ -16,6 +16,9 @@ security unlock-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
 echo "XXX --- Find password"
 security list-keychains
 security find-generic-password -s $BUILD_KEYCHAIN
+
+# Set keychain settings
+security set-keychain-settings $BUILD_KEYCHAIN
 
 echo "XXX --- Import the certificate to the keychain"
 # Import the certificate to the keychain
