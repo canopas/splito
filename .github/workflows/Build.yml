@@ -50,4 +50,4 @@ jobs:
           
       - name: Build Project
         run: |
-          xcodebuild -workspace Splito.xcworkspace -scheme "Splito" -sdk iphoneos -destination generic/platform=iOS clean build
+          xcodebuild -workspace Splito.xcworkspace -scheme "Splito" -sdk iphoneos -destination generic/platform=iOS -allowProvisioningUpdates clean build
