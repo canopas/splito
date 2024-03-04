@@ -13,8 +13,8 @@ echo "XXX --- Unlocking keychain..."
 # Unlock the keychain
 security unlock-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
 
-echo "XXX --- Keychain status after unlocking:"
-security show-keychain-info $BUILD_KEYCHAIN
+echo "XXX --- Find password"
+security find-generic-password -s $BUILD_KEYCHAIN
 
 echo "XXX --- Import the certificate to the keychain"
 # Import the certificate to the keychain
@@ -23,9 +23,6 @@ security import $CERTIFICATE_P12 -k $BUILD_KEYCHAIN -P $BUILD_CERTIFICATE_PASSWO
 echo "XXX --- Set key partition list"
 # Set key partition list
 security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
-
-echo "XXX --- Keychain status after setting key partition list:"
-security show-keychain-info $BUILD_KEYCHAIN
 
 echo "XXX --- Locking the keychain"
 # Lock the keychain

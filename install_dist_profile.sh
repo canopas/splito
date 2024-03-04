@@ -14,8 +14,8 @@ echo "XXX --- Unlocking keychain..."
 # Unlock the keychain
 security unlock-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
 
-echo "XXX --- Keychain status after unlocking:"
-security show-keychain-info $BUILD_KEYCHAIN
+echo "XXX --- Find password"
+security find-generic-password -s $BUILD_KEYCHAIN
 
 echo "XXX --- Create a directory for provisioning profiles"
 # Create a directory for provisioning profiles
