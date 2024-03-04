@@ -7,10 +7,10 @@ CERTIFICATE_P12=dist_certificate.p12
 echo $BUILD_CERTIFICATE_KEY | base64 --decode > $CERTIFICATE_P12
 
 # Lock the keychain
-security lock-keychain $BUILD_KEYCHAIN
+#security lock-keychain $BUILD_KEYCHAIN
 
 # Unlock the keychain
-security unlock-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
+#security unlock-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
 
 # Set keychain settings
 security set-keychain-settings $BUILD_KEYCHAIN
