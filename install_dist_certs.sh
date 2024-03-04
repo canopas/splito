@@ -13,10 +13,6 @@ echo "XXX --- Unlocking keychain..."
 # Unlock the keychain
 security unlock-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
 
-echo "XXX --- Find password"
-security list-keychains
-security find-generic-password -s $BUILD_KEYCHAIN
-
 # Set keychain settings
 security set-keychain-settings $BUILD_KEYCHAIN
 
