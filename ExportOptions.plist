@@ -9,10 +9,10 @@
 	<key>provisioningProfiles</key>
 	<dict>
 		<key>com.canopas.splito</key>
-		<string>c84367d3-9c3d-4b3f-8111-f9881ea768b3</string>
+		<string>d2191150-0eff-4808-a10a-232c2b48cfb3</string>
 	</dict>
 	<key>signingCertificate</key>
-	<string>3B44E7174A268C68667CE39EFCB90DB6DEFD44C3</string>
+	<string>EC6D008B1B33BDFDF4B61D6FCC24E214A75C4B0E</string>
 	<key>signingStyle</key>
 	<string>manual</string>
 	<key>stripSwiftSymbols</key>
