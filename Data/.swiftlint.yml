@@ -1,0 +1,14 @@
+disabled_rules: # rule identifiers to exclude from running
+  - nesting
+  - type_name
+  - force_cast
+  - line_length
+  - large_tuple
+  - identifier_name
+  - function_body_length
+  - type_body_length
+  - void_function_in_ternary
+  
+file_length:
+  warning: 400
+  error: 500
