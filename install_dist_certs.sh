@@ -14,6 +14,7 @@ echo "XXX --- Unlocking keychain..."
 security unlock-keychain -p $BUILD_KEYCHAIN_PASSWORD $BUILD_KEYCHAIN
 
 echo "XXX --- Find password"
+security list-keychains
 security find-generic-password -s $BUILD_KEYCHAIN
 
 echo "XXX --- Import the certificate to the keychain"
