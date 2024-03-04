@@ -50,4 +50,4 @@ jobs:
           
       - name: Build Project
         run: |
-          xcodebuild clean build -workspace Splito.xcworkspace -scheme "Splito" | xcpretty --color
+          xcodebuild clean build -workspace Splito.xcworkspace -scheme "Splito" -sdk iphoneos -destination generic/platform=iOS | xcpretty --color
