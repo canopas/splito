@@ -7,11 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		30515125B05289A6456C72BE /* Pods_Splito_SplitoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16A58FFA0121DBF48E4EDED9 /* Pods_Splito_SplitoUITests.framework */; };
-		5641C3ACEE7C531DEC725117 /* Pods_Splito.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2B50BB1EB5D94FCB24EA9BA /* Pods_Splito.framework */; };
-		6DCCE5CB9951DE09E400A58F /* Pods_SplitoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B788E31C598AACC0E413EFE /* Pods_SplitoTests.framework */; };
+		229C1134A678C1E63F56237A /* Pods_SplitoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 590D65F43211234CE0B8577D /* Pods_SplitoTests.framework */; };
+		3BC568907377816CF2DBBD19 /* Pods_Splito_SplitoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F3250DFA698064E351112A85 /* Pods_Splito_SplitoUITests.framework */; };
 		D8015C052B7A47CF0002886A /* Data.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8015C042B7A47CF0002886A /* Data.framework */; };
-		D8015C062B7A47CF0002886A /* Data.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8015C042B7A47CF0002886A /* Data.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D863857B2B908AB600A8C6EB /* VERSION in Resources */ = {isa = PBXBuildFile; fileRef = D863857A2B908AB600A8C6EB /* VERSION */; };
 		D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D889F5B82B7A521F008C6A43 /* SplashView.storyboard */; };
 		D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89684442B722D3400D5F721 /* SplitoApp.swift */; };
 		D89684492B722D3700D5F721 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D89684482B722D3700D5F721 /* Assets.xcassets */; };
@@ -37,9 +36,9 @@
 		D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26ED2B84B12800CEAAD3 /* LoginView.swift */; };
 		D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC27142B84B72F00CEAAD3 /* PageControl.swift */; };
 		D8AC27E22B84C06500CEAAD3 /* BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */; };
-		D8AC27E32B84C06500CEAAD3 /* BaseStyle.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8D42A972B86FBF8009B345D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A962B86FBF8009B345D /* GoogleService-Info.plist */; };
 		D8D6C3A02B79F8110023CF08 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */; };
+		F1B29DB9FD88F3957B6A9DA3 /* Pods_Splito.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB74A14C9198B44CD1501702 /* Pods_Splito.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,32 +58,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		D8015C072B7A47D00002886A /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				D8015C062B7A47CF0002886A /* Data.framework in Embed Frameworks */,
-				D8AC27E32B84C06500CEAAD3 /* BaseStyle.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
-		16A58FFA0121DBF48E4EDED9 /* Pods_Splito_SplitoUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splito_SplitoUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		179C77B27ADDDC9F5BF1CA10 /* Pods-SplitoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SplitoTests.debug.xcconfig"; path = "Target Support Files/Pods-SplitoTests/Pods-SplitoTests.debug.xcconfig"; sourceTree = "<group>"; };
-		56987BECBE572A879D696BB2 /* Pods-SplitoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SplitoTests.release.xcconfig"; path = "Target Support Files/Pods-SplitoTests/Pods-SplitoTests.release.xcconfig"; sourceTree = "<group>"; };
-		5B788E31C598AACC0E413EFE /* Pods_SplitoTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SplitoTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		5BA7E992B10D661238B15AEA /* Pods-Splito.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito.release.xcconfig"; path = "Target Support Files/Pods-Splito/Pods-Splito.release.xcconfig"; sourceTree = "<group>"; };
-		8B50D355E3E3806CE075FD35 /* Pods-Splito-SplitoUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito-SplitoUITests.debug.xcconfig"; path = "Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests.debug.xcconfig"; sourceTree = "<group>"; };
-		8E0FA9DAC1D9F21F3EA38DFF /* Pods-Splito-SplitoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito-SplitoUITests.release.xcconfig"; path = "Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests.release.xcconfig"; sourceTree = "<group>"; };
-		C93A295F066152A1AB2719FA /* Pods-Splito.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito.debug.xcconfig"; path = "Target Support Files/Pods-Splito/Pods-Splito.debug.xcconfig"; sourceTree = "<group>"; };
+		328FA3BD79A0C02BD95C0D18 /* Pods-Splito.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito.release.xcconfig"; path = "Target Support Files/Pods-Splito/Pods-Splito.release.xcconfig"; sourceTree = "<group>"; };
+		590D65F43211234CE0B8577D /* Pods_SplitoTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SplitoTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5D9976EF7FD476F63099E094 /* Pods-Splito.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito.debug.xcconfig"; path = "Target Support Files/Pods-Splito/Pods-Splito.debug.xcconfig"; sourceTree = "<group>"; };
+		6AD61D26FB1A0DAD18D11CD4 /* Pods-Splito-SplitoUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito-SplitoUITests.debug.xcconfig"; path = "Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		A43ED5B12ED9A893E69F700A /* Pods-SplitoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SplitoTests.release.xcconfig"; path = "Target Support Files/Pods-SplitoTests/Pods-SplitoTests.release.xcconfig"; sourceTree = "<group>"; };
+		CB74A14C9198B44CD1501702 /* Pods_Splito.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splito.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D00D9C8E9C9D67B1F5171F51 /* Pods-SplitoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SplitoTests.debug.xcconfig"; path = "Target Support Files/Pods-SplitoTests/Pods-SplitoTests.debug.xcconfig"; sourceTree = "<group>"; };
+		D65AF4437E878FD0ABA95F13 /* Pods-Splito-SplitoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito-SplitoUITests.release.xcconfig"; path = "Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests.release.xcconfig"; sourceTree = "<group>"; };
 		D8015C042B7A47CF0002886A /* Data.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Data.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8015C082B7A47D80002886A /* UI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = UI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D863857A2B908AB600A8C6EB /* VERSION */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VERSION; sourceTree = "<group>"; };
+		D863857E2B909A5A00A8C6EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D889F5B82B7A521F008C6A43 /* SplashView.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SplashView.storyboard; sourceTree = "<group>"; };
 		D89684412B722D3400D5F721 /* Splito.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Splito.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89684442B722D3400D5F721 /* SplitoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitoApp.swift; sourceTree = "<group>"; };
@@ -118,7 +104,7 @@
 		D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseStyle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8D42A962B86FBF8009B345D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		E2B50BB1EB5D94FCB24EA9BA /* Pods_Splito.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splito.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F3250DFA698064E351112A85 /* Pods_Splito_SplitoUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splito_SplitoUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,7 +114,7 @@
 			files = (
 				D8015C052B7A47CF0002886A /* Data.framework in Frameworks */,
 				D8AC27E22B84C06500CEAAD3 /* BaseStyle.framework in Frameworks */,
-				5641C3ACEE7C531DEC725117 /* Pods_Splito.framework in Frameworks */,
+				F1B29DB9FD88F3957B6A9DA3 /* Pods_Splito.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,7 +122,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6DCCE5CB9951DE09E400A58F /* Pods_SplitoTests.framework in Frameworks */,
+				229C1134A678C1E63F56237A /* Pods_SplitoTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -144,7 +130,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				30515125B05289A6456C72BE /* Pods_Splito_SplitoUITests.framework in Frameworks */,
+				3BC568907377816CF2DBBD19 /* Pods_Splito_SplitoUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -159,9 +145,9 @@
 				D8AC26DF2B84B07700CEAAD3 /* BaseUI.framework */,
 				D8015C082B7A47D80002886A /* UI.framework */,
 				D8015C042B7A47CF0002886A /* Data.framework */,
-				E2B50BB1EB5D94FCB24EA9BA /* Pods_Splito.framework */,
-				16A58FFA0121DBF48E4EDED9 /* Pods_Splito_SplitoUITests.framework */,
-				5B788E31C598AACC0E413EFE /* Pods_SplitoTests.framework */,
+				CB74A14C9198B44CD1501702 /* Pods_Splito.framework */,
+				F3250DFA698064E351112A85 /* Pods_Splito_SplitoUITests.framework */,
+				590D65F43211234CE0B8577D /* Pods_SplitoTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -169,12 +155,12 @@
 		BAA91BB875B265C15A963001 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				C93A295F066152A1AB2719FA /* Pods-Splito.debug.xcconfig */,
-				5BA7E992B10D661238B15AEA /* Pods-Splito.release.xcconfig */,
-				8B50D355E3E3806CE075FD35 /* Pods-Splito-SplitoUITests.debug.xcconfig */,
-				8E0FA9DAC1D9F21F3EA38DFF /* Pods-Splito-SplitoUITests.release.xcconfig */,
-				179C77B27ADDDC9F5BF1CA10 /* Pods-SplitoTests.debug.xcconfig */,
-				56987BECBE572A879D696BB2 /* Pods-SplitoTests.release.xcconfig */,
+				5D9976EF7FD476F63099E094 /* Pods-Splito.debug.xcconfig */,
+				328FA3BD79A0C02BD95C0D18 /* Pods-Splito.release.xcconfig */,
+				6AD61D26FB1A0DAD18D11CD4 /* Pods-Splito-SplitoUITests.debug.xcconfig */,
+				D65AF4437E878FD0ABA95F13 /* Pods-Splito-SplitoUITests.release.xcconfig */,
+				D00D9C8E9C9D67B1F5171F51 /* Pods-SplitoTests.debug.xcconfig */,
+				A43ED5B12ED9A893E69F700A /* Pods-SplitoTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -205,6 +191,7 @@
 			isa = PBXGroup;
 			children = (
 				D89DBE202B87433B00E5F1BD /* Splito.entitlements */,
+				D863857A2B908AB600A8C6EB /* VERSION */,
 				D89684442B722D3400D5F721 /* SplitoApp.swift */,
 				D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */,
 				D8AC25D12B7F43EA00CEAAD3 /* Plist */,
@@ -303,6 +290,7 @@
 		D8AC25D12B7F43EA00CEAAD3 /* Plist */ = {
 			isa = PBXGroup;
 			children = (
+				D863857E2B909A5A00A8C6EB /* Info.plist */,
 				D8D42A962B86FBF8009B345D /* GoogleService-Info.plist */,
 			);
 			path = Plist;
@@ -360,13 +348,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D89684652B722D3700D5F721 /* Build configuration list for PBXNativeTarget "Splito" */;
 			buildPhases = (
-				A810618F94EB2CFF7A640FE4 /* [CP] Check Pods Manifest.lock */,
-				D8DF8B3C2B7A238000165138 /* SwiftLint */,
+				7EA397BB91DF2F3109DE3869 /* [CP] Check Pods Manifest.lock */,
 				D896843D2B722D3400D5F721 /* Sources */,
+				D8DF8B3C2B7A238000165138 /* SwiftLint */,
 				D896843E2B722D3400D5F721 /* Frameworks */,
 				D896843F2B722D3400D5F721 /* Resources */,
-				D8015C072B7A47D00002886A /* Embed Frameworks */,
-				70A034B4CE0BA96B32D01377 /* [CP] Embed Pods Frameworks */,
+				8C3E193364425E64FA41521B /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -381,7 +368,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D89684682B722D3700D5F721 /* Build configuration list for PBXNativeTarget "SplitoTests" */;
 			buildPhases = (
-				EC1304C623E7BFCEBDC368E1 /* [CP] Check Pods Manifest.lock */,
+				65A26FB61A4A2D4438DA593D /* [CP] Check Pods Manifest.lock */,
 				D896844D2B722D3700D5F721 /* Sources */,
 				D896844E2B722D3700D5F721 /* Frameworks */,
 				D896844F2B722D3700D5F721 /* Resources */,
@@ -400,11 +387,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D896846B2B722D3700D5F721 /* Build configuration list for PBXNativeTarget "SplitoUITests" */;
 			buildPhases = (
-				42B08446C2D5BED0B5F21E60 /* [CP] Check Pods Manifest.lock */,
+				BEE564C54684C0A37CAEFFDE /* [CP] Check Pods Manifest.lock */,
 				D89684572B722D3700D5F721 /* Sources */,
 				D89684582B722D3700D5F721 /* Frameworks */,
 				D89684592B722D3700D5F721 /* Resources */,
-				9B0634E05002621A96AA5B4F /* [CP] Embed Pods Frameworks */,
+				F73BF53E04099C2D3501CF98 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -468,6 +455,7 @@
 				D89684492B722D3700D5F721 /* Assets.xcassets in Resources */,
 				D8D42A972B86FBF8009B345D /* GoogleService-Info.plist in Resources */,
 				D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */,
+				D863857B2B908AB600A8C6EB /* VERSION in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -488,7 +476,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		42B08446C2D5BED0B5F21E60 /* [CP] Check Pods Manifest.lock */ = {
+		65A26FB61A4A2D4438DA593D /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -503,14 +491,36 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Splito-SplitoUITests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-SplitoTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		70A034B4CE0BA96B32D01377 /* [CP] Embed Pods Frameworks */ = {
+		7EA397BB91DF2F3109DE3869 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Splito-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8C3E193364425E64FA41521B /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -527,24 +537,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Splito/Pods-Splito-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		9B0634E05002621A96AA5B4F /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A810618F94EB2CFF7A640FE4 /* [CP] Check Pods Manifest.lock */ = {
+		BEE564C54684C0A37CAEFFDE /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -559,7 +552,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Splito-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-Splito-SplitoUITests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -585,26 +578,21 @@
 			shellPath = /bin/sh;
 			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${PODS_ROOT}/SwiftLint/swiftlint\" --fix Splito\n\"${PODS_ROOT}/SwiftLint/swiftlint\" Splito\n";
 		};
-		EC1304C623E7BFCEBDC368E1 /* [CP] Check Pods Manifest.lock */ = {
+		F73BF53E04099C2D3501CF98 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
+			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-SplitoTests-checkManifestLockResult.txt",
+				"${PODS_ROOT}/Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -790,19 +778,20 @@
 		};
 		D89684662B722D3700D5F721 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C93A295F066152A1AB2719FA /* Pods-Splito.debug.xcconfig */;
+			baseConfigurationReference = 5D9976EF7FD476F63099E094 /* Pods-Splito.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Splito/Splito.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 10000000;
 				DEVELOPMENT_ASSET_PATHS = "\"Splito/Preview Content\"";
 				DEVELOPMENT_TEAM = S985H2T7J8;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Splito/Plist/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Splito/Plist/Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = SplashView;
@@ -815,29 +804,95 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					"\"AppAuth\"",
+					"-framework",
+					"\"CocoaLumberjack\"",
+					"-framework",
+					"\"CoreGraphics\"",
+					"-framework",
+					"\"CoreText\"",
+					"-framework",
+					"\"FBLPromises\"",
+					"-framework",
+					"\"FirebaseAppCheckInterop\"",
+					"-framework",
+					"\"FirebaseAuth\"",
+					"-framework",
+					"\"FirebaseCore\"",
+					"-framework",
+					"\"FirebaseCoreExtension\"",
+					"-framework",
+					"\"FirebaseCoreInternal\"",
+					"-framework",
+					"\"FirebaseFirestore\"",
+					"-framework",
+					"\"FirebaseFirestoreInternal\"",
+					"-framework",
+					"\"FirebaseSharedSwift\"",
+					"-framework",
+					"\"Foundation\"",
+					"-framework",
+					"\"GTMAppAuth\"",
+					"-framework",
+					"\"GTMSessionFetcher\"",
+					"-framework",
+					"\"GoogleSignIn\"",
+					"-framework",
+					"\"GoogleUtilities\"",
+					"-framework",
+					"\"LocalAuthentication\"",
+					"-framework",
+					"\"RecaptchaInterop\"",
+					"-framework",
+					"\"SSZipArchive\"",
+					"-framework",
+					"\"SafariServices\"",
+					"-framework",
+					"\"Security\"",
+					"-framework",
+					"\"Swinject\"",
+					"-framework",
+					"\"SystemConfiguration\"",
+					"-framework",
+					"\"UIKit\"",
+					"-framework",
+					"\"openssl_grpc\"",
+					"-weak_framework",
+					"\"AuthenticationServices\"",
+					"-Wl",
+					"-Wno-deprecated-declarations",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.canopas.splito;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				app_version_code = 1000000;
+				app_version_name = 1.0.0;
 			};
 			name = Debug;
 		};
 		D89684672B722D3700D5F721 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5BA7E992B10D661238B15AEA /* Pods-Splito.release.xcconfig */;
+			baseConfigurationReference = 328FA3BD79A0C02BD95C0D18 /* Pods-Splito.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Splito/Splito.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution: CANOPAS SOFTWARE LLP (S985H2T7J8)";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 10000000;
 				DEVELOPMENT_ASSET_PATHS = "\"Splito/Preview Content\"";
-				DEVELOPMENT_TEAM = S985H2T7J8;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = S985H2T7J8;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Splito/Plist/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Splito/Plist/Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = SplashView;
@@ -850,17 +905,82 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					"\"AppAuth\"",
+					"-framework",
+					"\"CocoaLumberjack\"",
+					"-framework",
+					"\"CoreGraphics\"",
+					"-framework",
+					"\"CoreText\"",
+					"-framework",
+					"\"FBLPromises\"",
+					"-framework",
+					"\"FirebaseAppCheckInterop\"",
+					"-framework",
+					"\"FirebaseAuth\"",
+					"-framework",
+					"\"FirebaseCore\"",
+					"-framework",
+					"\"FirebaseCoreExtension\"",
+					"-framework",
+					"\"FirebaseCoreInternal\"",
+					"-framework",
+					"\"FirebaseFirestore\"",
+					"-framework",
+					"\"FirebaseFirestoreInternal\"",
+					"-framework",
+					"\"FirebaseSharedSwift\"",
+					"-framework",
+					"\"Foundation\"",
+					"-framework",
+					"\"GTMAppAuth\"",
+					"-framework",
+					"\"GTMSessionFetcher\"",
+					"-framework",
+					"\"GoogleSignIn\"",
+					"-framework",
+					"\"GoogleUtilities\"",
+					"-framework",
+					"\"LocalAuthentication\"",
+					"-framework",
+					"\"RecaptchaInterop\"",
+					"-framework",
+					"\"SSZipArchive\"",
+					"-framework",
+					"\"SafariServices\"",
+					"-framework",
+					"\"Security\"",
+					"-framework",
+					"\"Swinject\"",
+					"-framework",
+					"\"SystemConfiguration\"",
+					"-framework",
+					"\"UIKit\"",
+					"-framework",
+					"\"openssl_grpc\"",
+					"-weak_framework",
+					"\"AuthenticationServices\"",
+					"-Wl",
+					"-Wno-deprecated-declarations",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.canopas.splito;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "provision-splito-distribution-2024-03-04";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				app_version_code = 1000000;
+				app_version_name = 1.0.0;
 			};
 			name = Release;
 		};
 		D89684692B722D3700D5F721 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 179C77B27ADDDC9F5BF1CA10 /* Pods-SplitoTests.debug.xcconfig */;
+			baseConfigurationReference = D00D9C8E9C9D67B1F5171F51 /* Pods-SplitoTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -881,7 +1001,7 @@
 		};
 		D896846A2B722D3700D5F721 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 56987BECBE572A879D696BB2 /* Pods-SplitoTests.release.xcconfig */;
+			baseConfigurationReference = A43ED5B12ED9A893E69F700A /* Pods-SplitoTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -902,7 +1022,7 @@
 		};
 		D896846C2B722D3700D5F721 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8B50D355E3E3806CE075FD35 /* Pods-Splito-SplitoUITests.debug.xcconfig */;
+			baseConfigurationReference = 6AD61D26FB1A0DAD18D11CD4 /* Pods-Splito-SplitoUITests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				CODE_SIGN_STYLE = Automatic;
@@ -921,7 +1041,7 @@
 		};
 		D896846D2B722D3700D5F721 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8E0FA9DAC1D9F21F3EA38DFF /* Pods-Splito-SplitoUITests.release.xcconfig */;
+			baseConfigurationReference = D65AF4437E878FD0ABA95F13 /* Pods-Splito-SplitoUITests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				CODE_SIGN_STYLE = Automatic;

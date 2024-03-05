@@ -9,13 +9,13 @@ import Foundation
 import SwiftUI
 
 public enum MainRoute: Hashable {
-    
+
     case Onboard
     case Login
     case PhoneLogin
     case VerifyOTP(phoneNumber: String, verificationId: String)
     case HomeRoute
-    
+
     var key: String {
         switch self {
         case .Onboard:
@@ -37,7 +37,7 @@ public struct RouterView<T: Hashable, Content: View>: View {
     @ObservedObject var router: Router<T>
 
     @ViewBuilder var buildView: (T) -> Content
-    
+
     public init(router: Router<T>, @ViewBuilder buildView: @escaping (T) -> Content) {
         self.router = router
         self.buildView = buildView

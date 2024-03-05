@@ -25,7 +25,6 @@
 		D8AC25C32B7F390B00CEAAD3 /* AppAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC25C22B7F390B00CEAAD3 /* AppAssembly.swift */; };
 		D8D42A9B2B8709FD009B345D /* BaseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A9A2B8709FD009B345D /* BaseViewModel.swift */; };
 		D8D42A9F2B870BBA009B345D /* BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8D42A9E2B870BBA009B345D /* BaseStyle.framework */; };
-		D8D42AA02B870BBA009B345D /* BaseStyle.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8D42A9E2B870BBA009B345D /* BaseStyle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8D42AA92B872726009B345D /* DDLogProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42AA82B872726009B345D /* DDLogProvider.swift */; };
 		D8DF8BBF2B7A315100165138 /* Data.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8DF8BB62B7A315000165138 /* Data.framework */; };
 		D8DF8BC42B7A315100165138 /* DataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DF8BC32B7A315100165138 /* DataTests.swift */; };
@@ -41,20 +40,6 @@
 			remoteInfo = Data;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		D8D42AA12B870BBA009B345D /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				D8D42AA02B870BBA009B345D /* BaseStyle.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DataTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -283,9 +268,9 @@
 				927C69B32FF9F96F90F46B00 /* [CP] Check Pods Manifest.lock */,
 				D8DF8BB12B7A315000165138 /* Headers */,
 				D8DF8BB22B7A315000165138 /* Sources */,
+				D863857F2B91DBF000A8C6EB /* Swiftlint */,
 				D8DF8BB32B7A315000165138 /* Frameworks */,
 				D8DF8BB42B7A315000165138 /* Resources */,
-				D8D42AA12B870BBA009B345D /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -414,6 +399,25 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
+		};
+		D863857F2B91DBF000A8C6EB /* Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${PODS_ROOT}/SwiftLint/swiftlint\" --fix Data\n\"${PODS_ROOT}/SwiftLint/swiftlint\" Data\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -590,14 +594,15 @@
 			baseConfigurationReference = BED6C37AA3F8FD2A6350DE1C /* Pods-Data.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = S985H2T7J8;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -610,8 +615,70 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					"\"AppAuth\"",
+					"-framework",
+					"\"CocoaLumberjack\"",
+					"-framework",
+					"\"CoreGraphics\"",
+					"-framework",
+					"\"CoreText\"",
+					"-framework",
+					"\"FBLPromises\"",
+					"-framework",
+					"\"FirebaseAppCheckInterop\"",
+					"-framework",
+					"\"FirebaseAuth\"",
+					"-framework",
+					"\"FirebaseCore\"",
+					"-framework",
+					"\"FirebaseCoreExtension\"",
+					"-framework",
+					"\"FirebaseCoreInternal\"",
+					"-framework",
+					"\"FirebaseFirestore\"",
+					"-framework",
+					"\"FirebaseFirestoreInternal\"",
+					"-framework",
+					"\"FirebaseSharedSwift\"",
+					"-framework",
+					"\"Foundation\"",
+					"-framework",
+					"\"GTMAppAuth\"",
+					"-framework",
+					"\"GTMSessionFetcher\"",
+					"-framework",
+					"\"GoogleSignIn\"",
+					"-framework",
+					"\"GoogleUtilities\"",
+					"-framework",
+					"\"LocalAuthentication\"",
+					"-framework",
+					"\"RecaptchaInterop\"",
+					"-framework",
+					"\"SSZipArchive\"",
+					"-framework",
+					"\"SafariServices\"",
+					"-framework",
+					"\"Security\"",
+					"-framework",
+					"\"Swinject\"",
+					"-framework",
+					"\"SystemConfiguration\"",
+					"-framework",
+					"\"UIKit\"",
+					"-framework",
+					"\"openssl_grpc\"",
+					"-weak_framework",
+					"\"AuthenticationServices\"",
+					"-Wl",
+					"-Wno-deprecated-declarations",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.canopas.splito.Data;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -625,14 +692,15 @@
 			baseConfigurationReference = E03ED35E1B582FED247ACC38 /* Pods-Data.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = S985H2T7J8;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -645,8 +713,70 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					"\"AppAuth\"",
+					"-framework",
+					"\"CocoaLumberjack\"",
+					"-framework",
+					"\"CoreGraphics\"",
+					"-framework",
+					"\"CoreText\"",
+					"-framework",
+					"\"FBLPromises\"",
+					"-framework",
+					"\"FirebaseAppCheckInterop\"",
+					"-framework",
+					"\"FirebaseAuth\"",
+					"-framework",
+					"\"FirebaseCore\"",
+					"-framework",
+					"\"FirebaseCoreExtension\"",
+					"-framework",
+					"\"FirebaseCoreInternal\"",
+					"-framework",
+					"\"FirebaseFirestore\"",
+					"-framework",
+					"\"FirebaseFirestoreInternal\"",
+					"-framework",
+					"\"FirebaseSharedSwift\"",
+					"-framework",
+					"\"Foundation\"",
+					"-framework",
+					"\"GTMAppAuth\"",
+					"-framework",
+					"\"GTMSessionFetcher\"",
+					"-framework",
+					"\"GoogleSignIn\"",
+					"-framework",
+					"\"GoogleUtilities\"",
+					"-framework",
+					"\"LocalAuthentication\"",
+					"-framework",
+					"\"RecaptchaInterop\"",
+					"-framework",
+					"\"SSZipArchive\"",
+					"-framework",
+					"\"SafariServices\"",
+					"-framework",
+					"\"Security\"",
+					"-framework",
+					"\"Swinject\"",
+					"-framework",
+					"\"SystemConfiguration\"",
+					"-framework",
+					"\"UIKit\"",
+					"-framework",
+					"\"openssl_grpc\"",
+					"-weak_framework",
+					"\"AuthenticationServices\"",
+					"-Wl",
+					"-Wno-deprecated-declarations",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.canopas.splito.Data;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

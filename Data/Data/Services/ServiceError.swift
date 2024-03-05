@@ -21,7 +21,7 @@ public enum ServiceError: LocalizedError, Equatable {
             return ""
         case .unauthorized:
             return "You are an unauthorised user."
-        case .serverError(let statusCode):
+        case .serverError:
             return "Server error encountered."
         case .networkError:
             return "No internet connection!"
