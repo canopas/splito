@@ -8,19 +8,19 @@
 import Foundation
 
 public class SplitoPreference {
-    
+
     enum Key: String {
         case isOnboardShown = "is_onboard_shown"
         case isVerifiedUser = "is_verified_user"
         case user           = "user"
     }
-    
+
     private let userDefaults: UserDefaults
-    
+
     init() {
         self.userDefaults = UserDefaults.standard
     }
-    
+
     public var isOnboardShown: Bool {
         get {
             return userDefaults.bool(forKey: Key.isOnboardShown.rawValue)
@@ -29,7 +29,7 @@ public class SplitoPreference {
             userDefaults.synchronize()
         }
     }
-    
+
     public var isVerifiedUser: Bool {
         get {
             return userDefaults.bool(forKey: Key.isVerifiedUser.rawValue)
@@ -38,7 +38,7 @@ public class SplitoPreference {
             userDefaults.synchronize()
         }
     }
-    
+
     public var user: AppUser? {
         get {
             do {

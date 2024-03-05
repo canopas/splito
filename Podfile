@@ -9,7 +9,7 @@ use_frameworks!
 def data_pods
   pod 'Swinject'
   pod 'SwiftLint'
-  pod 'FirebaseCore'
+  
   pod 'FirebaseAuth'
   pod 'GoogleSignIn'
   pod 'FirebaseFirestore'
@@ -66,6 +66,15 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings.delete 'IPHONEOS_DEPLOYMENT_TARGET'
+      config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ""
+      config.build_settings['CODE_SIGNING_REQUIRED'] = "NO"
+      config.build_settings['CODE_SIGNING_ALLOWED'] = "NO"
+    end
+    
+    target.build_phases.each do |build_phase|
+      if build_phase.respond_to?(:name) && ["Create Symlinks to Header Folders"].include?(build_phase.name)
+        build_phase.output_paths = ["$(DERIVED_FILE_DIR)/header_symlinks_created"]
+      end
     end
   end
 end

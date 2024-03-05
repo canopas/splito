@@ -9,9 +9,9 @@ import CocoaLumberjack
 import SSZipArchive
 
 public class DDLoggerProvider {
-    
+
     public init() { }
-    
+
     public func provideLogger() -> DDFileLogger {
         return DDFileLogger()
     }
@@ -46,20 +46,20 @@ public func addDDLoggers() {
 }
 
 public extension DDFileLogger {
-    
+
     func zipLogs() -> URL {
         removeAllZipLogs()
         createZipDirectory()
-        
+
         let df = DateFormatter()
         df.dateFormat = "yyyy-MM-dd-hh-mm a"
-        
+
         let now = df.string(from: Date())
         let destination = FileManager.default.temporaryDirectory.appendingPathComponent("Logs/\(now).zip")
         SSZipArchive.createZipFile(atPath: destination.path, withContentsOfDirectory: self.logFileManager.logsDirectory)
         return destination
     }
-    
+
     func createZipDirectory() {
         let path = NSTemporaryDirectory() + "/Logs"
         if !FileManager.default.fileExists(atPath: path) {
@@ -70,19 +70,17 @@ public extension DDFileLogger {
             }
         }
     }
-    
+
     func removeAllZipLogs() {
         let fileManager = FileManager.default
-        
+
         let logsDir = fileManager.temporaryDirectory.appendingPathComponent("Logs")
         do {
             let fileURLs = try fileManager.contentsOfDirectory(at: logsDir,
                                                                includingPropertiesForKeys: nil,
                                                                options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants])
-            for fileURL in fileURLs {
-                if fileURL.pathExtension == "zip" {
-                    try FileManager.default.removeItem(at: fileURL)
-                }
+            for fileURL in fileURLs where fileURL.pathExtension == "zip" {
+                try FileManager.default.removeItem(at: fileURL)
             }
         } catch {
             LogE("DDFileLogger: remove all zip error \(error)")
