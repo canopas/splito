@@ -674,6 +674,7 @@
 					"-weak_framework",
 					"\"AuthenticationServices\"",
 					"-Wl",
+					"-Wno-deprecated-declarations",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.canopas.splito.Data;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -771,6 +772,7 @@
 					"-weak_framework",
 					"\"AuthenticationServices\"",
 					"-Wl",
+					"-Wno-deprecated-declarations",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.canopas.splito.Data;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
