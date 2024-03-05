@@ -9,7 +9,7 @@ use_frameworks!
 def data_pods
   pod 'Swinject'
   pod 'SwiftLint'
-  pod 'FirebaseCore'
+  
   pod 'FirebaseAuth'
   pod 'GoogleSignIn'
   pod 'FirebaseFirestore'
