@@ -27,7 +27,7 @@ jobs:
         with:
           path: |
             DerivedData
-          key: ${{ runner.os }}-derived-data-${{ hashFiles('**/Podfile.lock') }}
+          key: ${{ runner.os }}-derived-data-${{ hashFiles('**/*.xcworkspace') }}
           restore-keys: |
             ${{ runner.os }}-derived-data-
           
