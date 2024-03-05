@@ -5,97 +5,97 @@ on:
     branches:
       - main
 
-# jobs:
-#   deploy:
-#     runs-on: macos-13
+jobs:
+  deploy:
+    runs-on: macos-13
 
-#     steps:
-#       - name: Checkout Repository
-#         uses: actions/checkout@v4
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-#       - name: Cancel Previous Runs
-#         uses: styfle/cancel-workflow-action@0.9.1
-#         with:
-#           access_token: ${{ github.token }}
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
 
-#       - name: Set Xcode Version
-#         run: |
-#           sudo xcode-select -switch /Applications/Xcode_15.2.app
+      - name: Set Xcode Version
+        run: |
+          sudo xcode-select -switch /Applications/Xcode_15.2.app
           
-#       - name: Display Xcode Version
-#         run: /usr/bin/xcodebuild -version
+      - name: Display Xcode Version
+        run: /usr/bin/xcodebuild -version
       
-#       - name: Install Apple Certificate and Provisioning Profile
-#         run: |
-#           chmod +x install_dist_certs.sh && ./install_dist_certs.sh
-#           chmod +x install_dist_profile.sh && ./install_dist_profile.sh
+      # - name: Install Apple Certificate and Provisioning Profile
+      #   run: |
+      #     chmod +x install_dist_certs.sh && ./install_dist_certs.sh
+      #     chmod +x install_dist_profile.sh && ./install_dist_profile.sh
 
-#       - name: Cache DerivedData
-#         uses: actions/cache@v2
-#         with:
-#           path: |
-#             DerivedData
-#           key: ${{ runner.os }}-derived-data-${{ hashFiles('**/*.xcworkspace') }}
-#           restore-keys: |
-#             ${{ runner.os }}-derived-data-
+      # - name: Cache DerivedData
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: |
+      #       DerivedData
+      #     key: ${{ runner.os }}-derived-data-${{ hashFiles('**/*.xcworkspace') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-derived-data-
 
-#       - name: Cache CocoaPods
-#         uses: actions/cache@v2
-#         with:
-#           path: |
-#             Pods
-#           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-#           restore-keys: |
-#             ${{ runner.os }}-pods-
+      # - name: Cache CocoaPods
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: |
+      #       Pods
+      #     key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pods-
 
-#       - name: Install CocoaPods
-#         run: |
-#           if [ -f "Podfile.lock" ] && [ -f "${{ runner.workspace }}/Podfile.lock" ] && cmp -s Podfile.lock "${{ runner.workspace }}/Podfile.lock"; then
-#             echo "Podfile.lock unchanged. Skipping pod installs."
-#           else
-#             gem install cocoapods
-#             pod install --repo-update
-#           fi
+      # - name: Install CocoaPods
+      #   run: |
+      #     if [ -f "Podfile.lock" ] && [ -f "${{ runner.workspace }}/Podfile.lock" ] && cmp -s Podfile.lock "${{ runner.workspace }}/Podfile.lock"; then
+      #       echo "Podfile.lock unchanged. Skipping pod installs."
+      #     else
+      #       gem install cocoapods
+      #       pod install --repo-update
+      #     fi
 
-#       - name: Run SwiftLint
-#         run: |
-#           if git diff --name-only ${{ github.sha }} | grep -q '\.swift$'; then
-#             Pods/SwiftLint/swiftlint Splito
-#           else
-#             echo "No Swift files changed. Skipping SwiftLint."
-#           fi
+      # - name: Run SwiftLint
+      #   run: |
+      #     if git diff --name-only ${{ github.sha }} | grep -q '\.swift$'; then
+      #       Pods/SwiftLint/swiftlint Splito
+      #     else
+      #       echo "No Swift files changed. Skipping SwiftLint."
+      #     fi
 
-#       - name: Get Build Version
-#         run: |
-#           file='Splito/VERSION'
-#           fileData=`cat $file`
-#           IFS='.'
-#           read -a versionValue <<< "$fileData"
-#           buildNumber=$(expr `expr ${versionValue[0]} \* 1000000` + `expr ${versionValue[1]} \* 10000` + ${CI_PIPELINE_IID})
-#           IFS=''
-#           buildName="${versionValue[0]}.${versionValue[1]}.$CI_PIPELINE_IID"
-#           echo "Uploading build $buildName"
+      # - name: Get Build Version
+      #   run: |
+      #     file='Splito/VERSION'
+      #     fileData=`cat $file`
+      #     IFS='.'
+      #     read -a versionValue <<< "$fileData"
+      #     buildNumber=$(expr `expr ${versionValue[0]} \* 1000000` + `expr ${versionValue[1]} \* 10000` + ${CI_PIPELINE_IID})
+      #     IFS=''
+      #     buildName="${versionValue[0]}.${versionValue[1]}.$CI_PIPELINE_IID"
+      #     echo "Uploading build $buildName"
 
-#       - name: Build and Archive Project
-#         run: |
-#           ARCHIVE_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}.xcarchive"
-#           xcodebuild app_version_code=${buildNumber} app_version_name=${buildName} -workspace Splito.xcworkspace -scheme "Splito" clean archive -sdk iphoneos -archivePath $ARCHIVE_PATH | xcpretty --color
+      # - name: Build and Archive Project
+      #   run: |
+      #     ARCHIVE_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}.xcarchive"
+      #     xcodebuild app_version_code=${buildNumber} app_version_name=${buildName} -workspace Splito.xcworkspace -scheme "Splito" clean archive -sdk iphoneos -archivePath $ARCHIVE_PATH | xcpretty --color
 
-#       - name: Export Archive
-#         run: |
-#           EXPORT_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}"
-#           xcodebuild -exportArchive -archivePath $ARCHIVE_PATH -exportPath $EXPORT_PATH -exportOptionsPlist ExportOptions.plist | xcpretty --color
+      # - name: Export Archive
+      #   run: |
+      #     EXPORT_PATH="$HOME/Library/Developer/Xcode/Archives/Splito/${CI_COMMIT_SHA}/${CI_JOB_ID}"
+      #     xcodebuild -exportArchive -archivePath $ARCHIVE_PATH -exportPath $EXPORT_PATH -exportOptionsPlist ExportOptions.plist | xcpretty --color
 
-#       - name: Store IPA
-#         run: |
-#           echo "Collecting artifacts.."
-#           cp -R "${ARCHIVE_PATH}/dSYMs" .
-#           IPA="${EXPORT_PATH}Splito.ipa"
-#           echo $IPA
+      # - name: Store IPA
+      #   run: |
+      #     echo "Collecting artifacts.."
+      #     cp -R "${ARCHIVE_PATH}/dSYMs" .
+      #     IPA="${EXPORT_PATH}Splito.ipa"
+      #     echo $IPA
 
-#       - name: Deploy to App Store Connect
-#         run: |
-#           rm -rf $ARCHIVE_PATH
-#           rm -rf $EXPORT_PATH
-#           echo "Uploading app to iTC..."
-#           xcrun altool --upload-app -t ios -f $IPA -u $ITC_USER_NAME -p $ITC_USER_PASSWORD
+      # - name: Deploy to App Store Connect
+      #   run: |
+      #     rm -rf $ARCHIVE_PATH
+      #     rm -rf $EXPORT_PATH
+      #     echo "Uploading app to iTC..."
+      #     xcrun altool --upload-app -t ios -f $IPA -u $ITC_USER_NAME -p $ITC_USER_PASSWORD
