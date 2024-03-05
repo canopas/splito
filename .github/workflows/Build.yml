@@ -50,4 +50,4 @@ jobs:
           
       - name: Build Project
         run: |
-          xcodebuild -workspace Splito.xcworkspace -scheme "Splito" -sdk iphoneos CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO" -destination generic/platform=iOS clean build | xcpretty --color
+          xcodebuild -workspace Splito.xcworkspace -scheme "Splito" clean build -sdk iphoneos CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO" -destination generic/platform=iOS OTHER_SWIFT_FLAGS="-Wno-deprecated-declarations" | xcpretty --color
