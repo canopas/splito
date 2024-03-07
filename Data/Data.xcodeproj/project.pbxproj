@@ -23,8 +23,6 @@
 		D8AC25BE2B7F359B00CEAAD3 /* FirebaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC25BD2B7F359B00CEAAD3 /* FirebaseProvider.swift */; };
 		D8AC25C12B7F38D300CEAAD3 /* Injector.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC25C02B7F38D300CEAAD3 /* Injector.swift */; };
 		D8AC25C32B7F390B00CEAAD3 /* AppAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC25C22B7F390B00CEAAD3 /* AppAssembly.swift */; };
-		D8D42A9B2B8709FD009B345D /* BaseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A9A2B8709FD009B345D /* BaseViewModel.swift */; };
-		D8D42A9F2B870BBA009B345D /* BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8D42A9E2B870BBA009B345D /* BaseStyle.framework */; };
 		D8D42AA92B872726009B345D /* DDLogProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42AA82B872726009B345D /* DDLogProvider.swift */; };
 		D8DF8BBF2B7A315100165138 /* Data.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8DF8BB62B7A315000165138 /* Data.framework */; };
 		D8DF8BC42B7A315100165138 /* DataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DF8BC32B7A315100165138 /* DataTests.swift */; };
@@ -60,7 +58,6 @@
 		D8AC25BD2B7F359B00CEAAD3 /* FirebaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseProvider.swift; sourceTree = "<group>"; };
 		D8AC25C02B7F38D300CEAAD3 /* Injector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Injector.swift; sourceTree = "<group>"; };
 		D8AC25C22B7F390B00CEAAD3 /* AppAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAssembly.swift; sourceTree = "<group>"; };
-		D8D42A9A2B8709FD009B345D /* BaseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewModel.swift; sourceTree = "<group>"; };
 		D8D42A9E2B870BBA009B345D /* BaseStyle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseStyle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8D42AA82B872726009B345D /* DDLogProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DDLogProvider.swift; sourceTree = "<group>"; };
 		D8DF8BB62B7A315000165138 /* Data.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Data.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -77,7 +74,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				7EF3A291581F7EA20CB1042D /* Pods_Data.framework in Frameworks */,
-				D8D42A9F2B870BBA009B345D /* BaseStyle.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -165,7 +161,6 @@
 			children = (
 				D8D42AA72B87271A009B345D /* Logger */,
 				D8D42AA62B872710009B345D /* Firebase */,
-				D8D42AA52B872704009B345D /* ViewModel */,
 				D89DBE1C2B872F0B00E5F1BD /* NonceGenerator.swift */,
 			);
 			path = Helper;
@@ -178,14 +173,6 @@
 				D8AC25C22B7F390B00CEAAD3 /* AppAssembly.swift */,
 			);
 			path = DI;
-			sourceTree = "<group>";
-		};
-		D8D42AA52B872704009B345D /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				D8D42A9A2B8709FD009B345D /* BaseViewModel.swift */,
-			);
-			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		D8D42AA62B872710009B345D /* Firebase */ = {
@@ -430,7 +417,6 @@
 				D89DBE482B8CBE4C00E5F1BD /* AppUser.swift in Sources */,
 				D89DBE462B8CBE0F00E5F1BD /* FirestoreManager.swift in Sources */,
 				D8AC25BB2B7F327A00CEAAD3 /* SplitoPreference.swift in Sources */,
-				D8D42A9B2B8709FD009B345D /* BaseViewModel.swift in Sources */,
 				D8AC25C32B7F390B00CEAAD3 /* AppAssembly.swift in Sources */,
 				D8AC25C12B7F38D300CEAAD3 /* Injector.swift in Sources */,
 				D89DBE2B2B88817E00E5F1BD /* JSONUtils.swift in Sources */,

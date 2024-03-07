@@ -8,15 +8,39 @@
 import Foundation
 
 public enum AppRoute: Hashable {
-    case Home
-    case Profile
+
+    public static func == (lhs: AppRoute, rhs: AppRoute) -> Bool {
+        return lhs.key == rhs.key
+    }
+
+    // MARK: - Friends Tab
+    case FriendsHome
+
+    // MARK: - Groups Tab
+    case GroupHome
+    case CreateGroup
+
+    // MARK: - Activity Tab
+    case ActivityHome
+
+    // MARK: - Account Tab
+    case AccountHome
 
     var key: String {
         switch self {
-        case .Home:
+        case .FriendsHome:
             "home"
-        case .Profile:
-            "profile"
+
+        case .ActivityHome:
+            "activityHome"
+
+        case .GroupHome:
+            "groupHome"
+        case .CreateGroup:
+            "createGroup"
+
+        case .AccountHome:
+            "accountHome"
         }
     }
 }

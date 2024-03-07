@@ -38,6 +38,26 @@ public enum InterFontStyle {
 
 public extension Font {
 
+    /// It's default **size: 28** and weight is **Semi bold**
+    static func H1Text(_ size: CGFloat = 28) -> Font {
+        .custom(InterFontStyle.semiBold.name, size: size)
+    }
+
+    /// It's default **size: 24** and weight is **Semi bold**
+    static func H2Text(_ size: CGFloat = 24) -> Font {
+        .custom(InterFontStyle.semiBold.name, size: size)
+    }
+
+    /// It's default **size: 20** and weight is **Medium**
+    static func H3Text(_ size: CGFloat = 20) -> Font {
+        .custom(InterFontStyle.medium.name, size: size)
+    }
+
+    /// It's default **size: 24** and weight is **Bold**
+    static func Header(_ size: CGFloat = 24) -> Font {
+        .custom(InterFontStyle.bold.name, size: size)
+    }
+
     /// It's default **size: 24** and weight is **Semi bold**
     static func Header1(_ size: CGFloat = 24) -> Font {
         .custom(InterFontStyle.semiBold.name, size: size)
@@ -71,6 +91,16 @@ public extension Font {
     /// It's default **size: 16** and weight is **Medium**
     static func subTitle2(_ size: CGFloat = 16) -> Font {
         .custom(InterFontStyle.medium.name, size: size)
+    }
+
+    /// It's default **size: 14** and weight is **Medium**
+    static func subTitle3(_ size: CGFloat = 14) -> Font {
+        .custom(InterFontStyle.medium.name, size: size)
+    }
+
+    /// It's default **size: 12** and weight is **Bold**
+    static func subTitle4(_ size: CGFloat = 12) -> Font {
+        .custom(InterFontStyle.bold.name, size: size)
     }
 
     /// It's default **size: 12** and weight is **Medium**

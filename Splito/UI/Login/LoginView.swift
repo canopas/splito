@@ -54,6 +54,7 @@ struct LoginView: View {
                                    startPoint: .top, endPoint: .bottom)
                 )
             }
+            .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         }
     }
 }

@@ -1,0 +1,37 @@
+//
+//  UIImage+Extension.swift
+//  BaseStyle
+//
+//  Created by Amisha Italiya on 06/03/24.
+//
+
+import UIKit
+
+public extension UIImage {
+    func resizeImageIfNeededWhilePreservingAspectRatio(maxWidth: CGFloat = 1920, maxHeight: CGFloat = 1080) -> UIImage {
+        if size.width < maxWidth && size.height < maxHeight { return self }
+
+        let widthRatio = maxWidth / size.width
+        let heightRatio = maxHeight / size.height
+
+        let scaleFactor = min(widthRatio, heightRatio)
+        let scaledImageSize = CGSize(
+            width: size.width * scaleFactor,
+            height: size.height * scaleFactor)
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+
+        let renderer = UIGraphicsImageRenderer(
+            size: scaledImageSize,
+            format: format)
+
+        let scaledImage = renderer.image { _ in
+            self.draw(in: CGRect(
+                origin: .zero,
+                size: scaledImageSize
+            ))
+        }
+        return scaledImage
+    }
+}

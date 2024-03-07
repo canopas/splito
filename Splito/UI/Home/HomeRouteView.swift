@@ -11,8 +11,6 @@ import SwiftUI
 
 struct HomeRouteView: View {
 
-    @Inject var appRouter: Router<AppRoute>
-
     var body: some View {
         ZStack {
             TabView {
@@ -22,7 +20,7 @@ struct HomeRouteView: View {
                     }
                     .tag(0)
 
-                HomeView()
+                GroupRouteView()
                     .tabItem {
                         Label("Groups", systemImage: "person.2")
                     }
@@ -76,5 +74,6 @@ struct CenterFabButton: View {
                 Spacer()
             }
         }
+        .padding(.vertical, 1)
     }
 }
