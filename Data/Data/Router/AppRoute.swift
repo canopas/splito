@@ -13,34 +13,63 @@ public enum AppRoute: Hashable {
         return lhs.key == rhs.key
     }
 
+    case OnboardView
+    case LoginView
+    case PhoneLoginView
+    case VerifyOTPView(phoneNumber: String, verificationId: String)
+    case ProfileView
+    case HomeView
+
     // MARK: - Friends Tab
-    case FriendsHome
+    case FriendsHomeView
 
     // MARK: - Groups Tab
-    case GroupHome
-    case CreateGroup
+    case GroupListView
+    case GroupHomeView(groupId: String)
+    case CreateGroupView
+    case InviteMemberView(groupId: String)
+    case JoinMemberView
 
     // MARK: - Activity Tab
-    case ActivityHome
+    case ActivityHomeView
 
     // MARK: - Account Tab
-    case AccountHome
+    case AccountHomeView
 
     var key: String {
         switch self {
-        case .FriendsHome:
-            "home"
+        case .OnboardView:
+            "onboardView"
+        case .LoginView:
+            "loginView"
+        case .PhoneLoginView:
+            "phoneLoginView"
+        case .VerifyOTPView:
+            "verifyOTPView"
+        case .HomeView:
+            "homeView"
 
-        case .ActivityHome:
-            "activityHome"
+        case .FriendsHomeView:
+            "friendsHomeView"
 
-        case .GroupHome:
-            "groupHome"
-        case .CreateGroup:
-            "createGroup"
+        case .ActivityHomeView:
+            "activityHomeView"
 
-        case .AccountHome:
-            "accountHome"
+        case .GroupListView:
+            "groupListView"
+        case .GroupHomeView:
+            "groupHomeView"
+        case .CreateGroupView:
+            "createGroupView"
+        case .InviteMemberView:
+            "inviteMemberView"
+        case .JoinMemberView:
+            "joinMemberView"
+        case .ProfileView:
+            "userProfileView"
+
+        case .AccountHomeView:
+            "accountHomeView"
         }
     }
 }

@@ -64,16 +64,16 @@ struct CenterFabButton: View {
                 } label: {
                     Image(systemName: "plus.circle.fill")
                         .resizable()
-                        .frame(width: 50, height: 50)
+                        .frame(width: 43, height: 43)
                         .tint(primaryColor)
                         .background(backgroundColor)
                         .clipShape(Circle())
                         .shadow(radius: 2)
                 }
+                .padding(.vertical, 1)
 
                 Spacer()
             }
         }
-        .padding(.vertical, 1)
     }
 }

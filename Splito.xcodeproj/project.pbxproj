@@ -10,7 +10,11 @@
 		07BE3EA39C276BF8B8A47841 /* Pods_SplitoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA3D6F970A1B86FF3657777F /* Pods_SplitoTests.framework */; };
 		0E8518C2A50B4013739F462C /* Pods_Splito.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED68AA3D71C6AAF6B6DDE27 /* Pods_Splito.framework */; };
 		1AA0888605B3C007D521672B /* Pods_Splito_SplitoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F43B44CC4843658DFC543F9 /* Pods_Splito_SplitoUITests.framework */; };
+		D8302DA02B9F282F005ACA13 /* InviteMemberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8302D9F2B9F282F005ACA13 /* InviteMemberView.swift */; };
+		D8302DA22B9F284D005ACA13 /* InviteMemberViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8302DA12B9F284D005ACA13 /* InviteMemberViewModel.swift */; };
 		D863857B2B908AB600A8C6EB /* VERSION in Resources */ = {isa = PBXBuildFile; fileRef = D863857A2B908AB600A8C6EB /* VERSION */; };
+		D88721452B9B2C78009DC5BE /* GroupListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721442B9B2C78009DC5BE /* GroupListView.swift */; };
+		D88721472B9B2C97009DC5BE /* GroupListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */; };
 		D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D889F5B82B7A521F008C6A43 /* SplashView.storyboard */; };
 		D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89684442B722D3400D5F721 /* SplitoApp.swift */; };
 		D89684492B722D3700D5F721 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D89684482B722D3700D5F721 /* Assets.xcassets */; };
@@ -28,6 +32,9 @@
 		D89DBE5B2B8DE97000E5F1BD /* GroupRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE5A2B8DE97000E5F1BD /* GroupRouteView.swift */; };
 		D89DBE5D2B8DE97B00E5F1BD /* ActivityRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE5C2B8DE97B00E5F1BD /* ActivityRouteView.swift */; };
 		D89DBE5F2B8DE98600E5F1BD /* AccountRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE5E2B8DE98600E5F1BD /* AccountRouteView.swift */; };
+		D8A7CA6E2BA483F60014EC67 /* GroupHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A7CA6D2BA483F60014EC67 /* GroupHomeView.swift */; };
+		D8A7CA702BA484370014EC67 /* GroupSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A7CA6F2BA484370014EC67 /* GroupSettingView.swift */; };
+		D8A7CA722BA486250014EC67 /* GroupSettingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A7CA712BA486250014EC67 /* GroupSettingViewModel.swift */; };
 		D8AC26F12B84B12800CEAAD3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E42B84B12800CEAAD3 /* HomeView.swift */; };
 		D8AC26F22B84B12800CEAAD3 /* MainRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E52B84B12800CEAAD3 /* MainRouteView.swift */; };
 		D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E72B84B12800CEAAD3 /* OnboardView.swift */; };
@@ -35,6 +42,14 @@
 		D8AC26F62B84B12800CEAAD3 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26EC2B84B12800CEAAD3 /* LoginViewModel.swift */; };
 		D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26ED2B84B12800CEAAD3 /* LoginView.swift */; };
 		D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC27142B84B72F00CEAAD3 /* PageControl.swift */; };
+		D8D14A4E2BA0688A00F45FF2 /* FloatingGroupMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A4D2BA0688A00F45FF2 /* FloatingGroupMenu.swift */; };
+		D8D14A562BA189EC00F45FF2 /* JoinMemberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A552BA189EC00F45FF2 /* JoinMemberView.swift */; };
+		D8D14A582BA189F800F45FF2 /* JoinMemberViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A572BA189F800F45FF2 /* JoinMemberViewModel.swift */; };
+		D8D14A602BA2DCDB00F45FF2 /* UserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A5F2BA2DCDB00F45FF2 /* UserProfileView.swift */; };
+		D8D14A622BA2DCE700F45FF2 /* UserProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A612BA2DCE700F45FF2 /* UserProfileViewModel.swift */; };
+		D8D14A652BA2DD7300F45FF2 /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A642BA2DD7300F45FF2 /* ProfileImageView.swift */; };
+		D8D14A672BA2E25100F45FF2 /* UserProfileList.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A662BA2E25100F45FF2 /* UserProfileList.swift */; };
+		D8D14A692BA3133500F45FF2 /* OnboardRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A682BA3133500F45FF2 /* OnboardRouteView.swift */; };
 		D8D42A972B86FBF8009B345D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A962B86FBF8009B345D /* GoogleService-Info.plist */; };
 		D8D6C3A02B79F8110023CF08 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */; };
 		D8DB68DE2B98AF7600329D51 /* BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */; };
@@ -42,7 +57,6 @@
 		D8DB68E12B98AF7800329D51 /* Data.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8015C042B7A47CF0002886A /* Data.framework */; };
 		D8DB68E22B98AF7800329D51 /* Data.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8015C042B7A47CF0002886A /* Data.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8E244B72B972BE700C6C82A /* BaseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244B62B972BE700C6C82A /* BaseViewModel.swift */; };
-		D8E244B92B972D9B00C6C82A /* GroupHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244B82B972D9B00C6C82A /* GroupHomeView.swift */; };
 		D8E244BB2B9843A100C6C82A /* CreateGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244BA2B9843A100C6C82A /* CreateGroupView.swift */; };
 		D8E244BD2B98444900C6C82A /* CreateGroupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244BC2B98444900C6C82A /* CreateGroupViewModel.swift */; };
 		D8E244BF2B98592C00C6C82A /* GroupHomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244BE2B98592C00C6C82A /* GroupHomeViewModel.swift */; };
@@ -90,8 +104,12 @@
 		D7D95533332DF3C305CBF7CC /* Pods-Splito.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito.release.xcconfig"; path = "Target Support Files/Pods-Splito/Pods-Splito.release.xcconfig"; sourceTree = "<group>"; };
 		D8015C042B7A47CF0002886A /* Data.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Data.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8015C082B7A47D80002886A /* UI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = UI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8302D9F2B9F282F005ACA13 /* InviteMemberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteMemberView.swift; sourceTree = "<group>"; };
+		D8302DA12B9F284D005ACA13 /* InviteMemberViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteMemberViewModel.swift; sourceTree = "<group>"; };
 		D863857A2B908AB600A8C6EB /* VERSION */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VERSION; sourceTree = "<group>"; };
 		D863857E2B909A5A00A8C6EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D88721442B9B2C78009DC5BE /* GroupListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListView.swift; sourceTree = "<group>"; };
+		D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListViewModel.swift; sourceTree = "<group>"; };
 		D889F5B82B7A521F008C6A43 /* SplashView.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SplashView.storyboard; sourceTree = "<group>"; };
 		D89684412B722D3400D5F721 /* Splito.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Splito.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89684442B722D3400D5F721 /* SplitoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitoApp.swift; sourceTree = "<group>"; };
@@ -113,6 +131,9 @@
 		D89DBE5A2B8DE97000E5F1BD /* GroupRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupRouteView.swift; sourceTree = "<group>"; };
 		D89DBE5C2B8DE97B00E5F1BD /* ActivityRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityRouteView.swift; sourceTree = "<group>"; };
 		D89DBE5E2B8DE98600E5F1BD /* AccountRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRouteView.swift; sourceTree = "<group>"; };
+		D8A7CA6D2BA483F60014EC67 /* GroupHomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupHomeView.swift; sourceTree = "<group>"; };
+		D8A7CA6F2BA484370014EC67 /* GroupSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSettingView.swift; sourceTree = "<group>"; };
+		D8A7CA712BA486250014EC67 /* GroupSettingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSettingViewModel.swift; sourceTree = "<group>"; };
 		D8AC26DF2B84B07700CEAAD3 /* BaseUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8AC26E42B84B12800CEAAD3 /* HomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		D8AC26E52B84B12800CEAAD3 /* MainRouteView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainRouteView.swift; sourceTree = "<group>"; };
@@ -123,10 +144,17 @@
 		D8AC27142B84B72F00CEAAD3 /* PageControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageControl.swift; sourceTree = "<group>"; };
 		D8AC27992B84BDB000CEAAD3 /* Style.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Style.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseStyle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8D14A4D2BA0688A00F45FF2 /* FloatingGroupMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingGroupMenu.swift; sourceTree = "<group>"; };
+		D8D14A552BA189EC00F45FF2 /* JoinMemberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinMemberView.swift; sourceTree = "<group>"; };
+		D8D14A572BA189F800F45FF2 /* JoinMemberViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinMemberViewModel.swift; sourceTree = "<group>"; };
+		D8D14A5F2BA2DCDB00F45FF2 /* UserProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileView.swift; sourceTree = "<group>"; };
+		D8D14A612BA2DCE700F45FF2 /* UserProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewModel.swift; sourceTree = "<group>"; };
+		D8D14A642BA2DD7300F45FF2 /* ProfileImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageView.swift; sourceTree = "<group>"; };
+		D8D14A662BA2E25100F45FF2 /* UserProfileList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileList.swift; sourceTree = "<group>"; };
+		D8D14A682BA3133500F45FF2 /* OnboardRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardRouteView.swift; sourceTree = "<group>"; };
 		D8D42A962B86FBF8009B345D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D8E244B62B972BE700C6C82A /* BaseViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseViewModel.swift; sourceTree = "<group>"; };
-		D8E244B82B972D9B00C6C82A /* GroupHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupHomeView.swift; sourceTree = "<group>"; };
 		D8E244BA2B9843A100C6C82A /* CreateGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGroupView.swift; sourceTree = "<group>"; };
 		D8E244BC2B98444900C6C82A /* CreateGroupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGroupViewModel.swift; sourceTree = "<group>"; };
 		D8E244BE2B98592C00C6C82A /* GroupHomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupHomeViewModel.swift; sourceTree = "<group>"; };
@@ -190,6 +218,26 @@
 				793653EBCA3CC65682066781 /* Pods-SplitoTests.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		D8302D9D2B9F2770005ACA13 /* Create Group */ = {
+			isa = PBXGroup;
+			children = (
+				D8E244BA2B9843A100C6C82A /* CreateGroupView.swift */,
+				D8E244BC2B98444900C6C82A /* CreateGroupViewModel.swift */,
+			);
+			path = "Create Group";
+			sourceTree = "<group>";
+		};
+		D8302D9E2B9F2810005ACA13 /* Add Member */ = {
+			isa = PBXGroup;
+			children = (
+				D8302D9F2B9F282F005ACA13 /* InviteMemberView.swift */,
+				D8302DA12B9F284D005ACA13 /* InviteMemberViewModel.swift */,
+				D8D14A552BA189EC00F45FF2 /* JoinMemberView.swift */,
+				D8D14A572BA189F800F45FF2 /* JoinMemberViewModel.swift */,
+			);
+			path = "Add Member";
 			sourceTree = "<group>";
 		};
 		D89684382B722D3400D5F721 = {
@@ -294,10 +342,12 @@
 			isa = PBXGroup;
 			children = (
 				D89DBE5A2B8DE97000E5F1BD /* GroupRouteView.swift */,
-				D8E244B82B972D9B00C6C82A /* GroupHomeView.swift */,
-				D8E244BE2B98592C00C6C82A /* GroupHomeViewModel.swift */,
-				D8E244BA2B9843A100C6C82A /* CreateGroupView.swift */,
-				D8E244BC2B98444900C6C82A /* CreateGroupViewModel.swift */,
+				D88721442B9B2C78009DC5BE /* GroupListView.swift */,
+				D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */,
+				D8D14A4D2BA0688A00F45FF2 /* FloatingGroupMenu.swift */,
+				D8A7CA6C2BA483BC0014EC67 /* Group */,
+				D8302D9D2B9F2770005ACA13 /* Create Group */,
+				D8302D9E2B9F2810005ACA13 /* Add Member */,
 			);
 			path = Groups;
 			sourceTree = "<group>";
@@ -318,6 +368,25 @@
 			path = Account;
 			sourceTree = "<group>";
 		};
+		D8A7CA6C2BA483BC0014EC67 /* Group */ = {
+			isa = PBXGroup;
+			children = (
+				D8A7CA6D2BA483F60014EC67 /* GroupHomeView.swift */,
+				D8E244BE2B98592C00C6C82A /* GroupHomeViewModel.swift */,
+				D8A7CA732BA486290014EC67 /* Group Setting */,
+			);
+			path = Group;
+			sourceTree = "<group>";
+		};
+		D8A7CA732BA486290014EC67 /* Group Setting */ = {
+			isa = PBXGroup;
+			children = (
+				D8A7CA6F2BA484370014EC67 /* GroupSettingView.swift */,
+				D8A7CA712BA486250014EC67 /* GroupSettingViewModel.swift */,
+			);
+			path = "Group Setting";
+			sourceTree = "<group>";
+		};
 		D8AC25D12B7F43EA00CEAAD3 /* Plist */ = {
 			isa = PBXGroup;
 			children = (
@@ -334,6 +403,7 @@
 				D8E244B62B972BE700C6C82A /* BaseViewModel.swift */,
 				D8AC26E62B84B12800CEAAD3 /* Onboard */,
 				D8AC26EB2B84B12800CEAAD3 /* Login */,
+				D8D14A632BA2DD5C00F45FF2 /* User Profile */,
 				D8AC26E32B84B12800CEAAD3 /* Home */,
 			);
 			path = UI;
@@ -355,9 +425,10 @@
 		D8AC26E62B84B12800CEAAD3 /* Onboard */ = {
 			isa = PBXGroup;
 			children = (
-				D8AC27142B84B72F00CEAAD3 /* PageControl.swift */,
+				D8D14A682BA3133500F45FF2 /* OnboardRouteView.swift */,
 				D8AC26E72B84B12800CEAAD3 /* OnboardView.swift */,
 				D8AC26E82B84B12800CEAAD3 /* OnboardViewModel.swift */,
+				D8AC27142B84B72F00CEAAD3 /* PageControl.swift */,
 			);
 			path = Onboard;
 			sourceTree = "<group>";
@@ -371,6 +442,17 @@
 				D89DBE212B875C1000E5F1BD /* PhoneLogin */,
 			);
 			path = Login;
+			sourceTree = "<group>";
+		};
+		D8D14A632BA2DD5C00F45FF2 /* User Profile */ = {
+			isa = PBXGroup;
+			children = (
+				D8D14A662BA2E25100F45FF2 /* UserProfileList.swift */,
+				D8D14A5F2BA2DCDB00F45FF2 /* UserProfileView.swift */,
+				D8D14A612BA2DCE700F45FF2 /* UserProfileViewModel.swift */,
+				D8D14A642BA2DD7300F45FF2 /* ProfileImageView.swift */,
+			);
+			path = "User Profile";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -635,28 +717,42 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8D14A692BA3133500F45FF2 /* OnboardRouteView.swift in Sources */,
 				D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */,
 				D8E244B72B972BE700C6C82A /* BaseViewModel.swift in Sources */,
 				D8AC26F22B84B12800CEAAD3 /* MainRouteView.swift in Sources */,
 				D89DBE592B8DE91D00E5F1BD /* FriendRouteView.swift in Sources */,
+				D88721472B9B2C97009DC5BE /* GroupListViewModel.swift in Sources */,
+				D8D14A622BA2DCE700F45FF2 /* UserProfileViewModel.swift in Sources */,
+				D8A7CA6E2BA483F60014EC67 /* GroupHomeView.swift in Sources */,
+				D8302DA22B9F284D005ACA13 /* InviteMemberViewModel.swift in Sources */,
 				D89DBE5D2B8DE97B00E5F1BD /* ActivityRouteView.swift in Sources */,
 				D8E244BF2B98592C00C6C82A /* GroupHomeViewModel.swift in Sources */,
+				D8D14A562BA189EC00F45FF2 /* JoinMemberView.swift in Sources */,
 				D8E244BD2B98444900C6C82A /* CreateGroupViewModel.swift in Sources */,
 				D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */,
 				D8AC26F12B84B12800CEAAD3 /* HomeView.swift in Sources */,
 				D8D6C3A02B79F8110023CF08 /* AppDelegate.swift in Sources */,
 				D8AC26F42B84B12800CEAAD3 /* OnboardViewModel.swift in Sources */,
 				D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */,
-				D8E244B92B972D9B00C6C82A /* GroupHomeView.swift in Sources */,
 				D89DBE5F2B8DE98600E5F1BD /* AccountRouteView.swift in Sources */,
+				D8D14A652BA2DD7300F45FF2 /* ProfileImageView.swift in Sources */,
+				D8D14A672BA2E25100F45FF2 /* UserProfileList.swift in Sources */,
+				D8302DA02B9F282F005ACA13 /* InviteMemberView.swift in Sources */,
 				D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */,
 				D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */,
+				D8A7CA702BA484370014EC67 /* GroupSettingView.swift in Sources */,
+				D8A7CA722BA486250014EC67 /* GroupSettingViewModel.swift in Sources */,
+				D8D14A4E2BA0688A00F45FF2 /* FloatingGroupMenu.swift in Sources */,
 				D89DBE5B2B8DE97000E5F1BD /* GroupRouteView.swift in Sources */,
 				D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */,
 				D8E244BB2B9843A100C6C82A /* CreateGroupView.swift in Sources */,
 				D89DBE382B88A6A800E5F1BD /* VerifyOtpView.swift in Sources */,
 				D89DBE422B8CA72700E5F1BD /* HomeRouteView.swift in Sources */,
 				D89DBE252B875C3000E5F1BD /* PhoneLoginViewModel.swift in Sources */,
+				D8D14A602BA2DCDB00F45FF2 /* UserProfileView.swift in Sources */,
+				D88721452B9B2C78009DC5BE /* GroupListView.swift in Sources */,
+				D8D14A582BA189F800F45FF2 /* JoinMemberViewModel.swift in Sources */,
 				D89DBE232B875C2200E5F1BD /* PhoneLoginView.swift in Sources */,
 				D8AC26F62B84B12800CEAAD3 /* LoginViewModel.swift in Sources */,
 			);

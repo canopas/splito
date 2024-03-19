@@ -13,19 +13,25 @@ struct CreateGroupView: View {
     @ObservedObject var viewModel: CreateGroupViewModel
 
     var body: some View {
-        VStack(spacing: 40) {
-            VSpacer(20)
+        VStack {
+            if case .loading = viewModel.currentState {
+                LoaderView(tintColor: primaryColor, scaleSize: 2)
+            } else {
+                VStack(spacing: 40) {
+                    VSpacer(30)
 
-            AddGroupNameView(image: viewModel.profileImage, groupName: $viewModel.groupName, handleProfileTap: viewModel.handleProfileTap)
+                    AddGroupNameView(image: viewModel.profileImage, groupName: $viewModel.groupName, handleProfileTap: viewModel.handleProfileTap)
 
-            GroupTypeSelectionView()
-
-            Spacer()
-
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+                .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+                .navigationBarTitle("Create a group", displayMode: .inline)
+            }
         }
-        .padding(.horizontal, 20)
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .navigationBarTitle("Create a group", displayMode: .inline)
+        .background(surfaceColor)
+        .toastView(toast: $viewModel.toast)
+        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .onTapGesture {
             UIApplication.shared.endEditing()
         }
@@ -36,7 +42,7 @@ struct CreateGroupView: View {
             Button("Choose from Library") {
                 viewModel.handleActionSelection(.gallery)
             }
-            if viewModel.profileImageUrl != "" || viewModel.profileImage != nil {
+            if viewModel.profileImage != nil {
                 Button("Remove") {
                     viewModel.handleActionSelection(.remove)
                 }
@@ -46,8 +52,7 @@ struct CreateGroupView: View {
         .sheet(isPresented: $viewModel.showImagePicker) {
             ImagePickerView(cropOption: .square,
                             sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
-                            image: $viewModel.profileImage, fileName: $viewModel.imageName,
-                            isPresented: $viewModel.showImagePicker)
+                            image: $viewModel.profileImage, isPresented: $viewModel.showImagePicker)
         }
         .navigationBarItems(
             trailing: Button("Done") {
@@ -55,6 +60,7 @@ struct CreateGroupView: View {
             }
             .font(.subTitle2())
             .tint(primaryColor)
+            .disabled(viewModel.groupName.count < 3 || viewModel.currentState == .loading)
         )
     }
 }
@@ -126,8 +132,8 @@ private struct GroupTypeSelectionView: View {
                             Text(type.rawValue)
                                 .font(.subTitle3())
                                 .foregroundColor(secondaryText)
-                            //                            .foregroundColor(viewModel.selectedGroupType == type ? .white : .primary)
-                            //                            .background(viewModel.selectedGroupType == type ? Color.blue : Color.clear)
+//                                .foregroundColor(viewModel.selectedGroupType == type ? .white : .primary)
+//                                .background(viewModel.selectedGroupType == type ? Color.blue : Color.clear)
                         }
                         .padding(.vertical, 10)
                         .padding(.horizontal, 20)
@@ -144,5 +150,5 @@ private struct GroupTypeSelectionView: View {
 }
 
 #Preview {
-    CreateGroupView(viewModel: CreateGroupViewModel())
+    CreateGroupView(viewModel: CreateGroupViewModel(router: .init(root: .CreateGroupView)))
 }

@@ -11,11 +11,8 @@ import SwiftUI
 struct LoginView: View {
 
     @Environment(\.colorScheme) var colorScheme
-    @ObservedObject var viewModel: LoginViewModel
 
-    public init(viewModel: LoginViewModel) {
-        self.viewModel = viewModel
-    }
+    @ObservedObject var viewModel: LoginViewModel
 
     var body: some View {
         if case .loading = viewModel.currentState {
@@ -40,7 +37,9 @@ struct LoginView: View {
 
                         VSpacer(30)
 
-                        LoginOptionsView(onGoogleLoginClick: viewModel.onGoogleLoginClick, onAppleLoginClick: viewModel.onAppleLoginView, onPhoneLoginClick: viewModel.onPhoneLoginClick)
+                        LoginOptionsView(onGoogleLoginClick: viewModel.onGoogleLoginClick,
+                                         onAppleLoginClick: viewModel.onAppleLoginClick,
+                                         onPhoneLoginClick: viewModel.onPhoneLoginClick)
 
                         VSpacer(30)
                     }
@@ -123,5 +122,5 @@ private struct LoginOptionsButtonView: View {
 }
 
 #Preview {
-    LoginView(viewModel: LoginViewModel())
+    LoginView(viewModel: LoginViewModel(router: .init(root: .LoginView)))
 }

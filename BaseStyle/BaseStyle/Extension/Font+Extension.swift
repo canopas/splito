@@ -40,7 +40,7 @@ public extension Font {
 
     /// It's default **size: 28** and weight is **Semi bold**
     static func H1Text(_ size: CGFloat = 28) -> Font {
-        .custom(InterFontStyle.semiBold.name, size: size)
+        .custom(InterFontStyle.bold.name, size: size)
     }
 
     /// It's default **size: 24** and weight is **Semi bold**

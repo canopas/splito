@@ -18,17 +18,17 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var showLoader: Bool = false
     @Published private(set) var currentState: ViewState = .initial
 
-    @Inject var router: Router<MainRoute>
-
-    @Inject var firestore: FirestoreManager
     @Inject var preference: SplitoPreference
+    @Inject var userRepository: UserRepository
 
     var resendTimer: Timer?
     var phoneNumber: String
     var verificationId: String
-    var cancellable = Set<AnyCancellable>()
 
-    init(phoneNumber: String, verificationId: String) {
+    private let router: Router<AppRoute>
+
+    init(router: Router<AppRoute>, phoneNumber: String, verificationId: String) {
+        self.router = router
         self.phoneNumber = phoneNumber
         self.verificationId = verificationId
 
@@ -108,44 +108,34 @@ extension VerifyOtpViewModel {
     }
 
     private func storeUser(user: AppUser) {
-        firestore.fetchUsers()
-            .sink { _ in
-            } receiveValue: { [weak self] users in
+        userRepository.storeUser(user: user)
+            .sink { [weak self] completion in
                 guard let self else { return }
-                let searchedUser = users.first(where: { $0.id == user.id })
-
-                if let searchedUser {
-                    self.preference.user = searchedUser
+                switch completion {
+                case .failure(let error):
+                    self.alert = .init(message: error.localizedDescription)
+                    self.showAlert = true
+                case .finished:
+                    self.preference.user = user
                     self.preference.isVerifiedUser = true
-                    self.goToHome()
-                } else {
-                    self.firestore.addUser(user: user)
-                        .receive(on: DispatchQueue.main)
-                        .sink { completion in
-                            switch completion {
-                            case .failure(let error):
-                                self.alert = .init(message: error.localizedDescription)
-                                self.showAlert = true
-                            case .finished:
-                                self.preference.user = user
-                                self.preference.isVerifiedUser = true
-                            }
-                        } receiveValue: { [weak self] _ in
-                            self?.goToHome()
-                        }
-                        .store(in: &self.cancellable)
                 }
-            }
-            .store(in: &cancellable)
+            } receiveValue: { [weak self] _ in
+                guard let self else { return }
+                self.onLoginSuccess()
+            }.store(in: &cancelables)
     }
 
     func editButtonAction() {
         router.pop()
     }
 
-    private func goToHome() {
+    func onLoginSuccess() {
         router.popToRoot()
-        router.updateRoot(root: .HomeRoute)
+        if let user = preference.user, let username = user.firstName, !username.isEmpty {
+            router.updateRoot(root: .HomeView)
+        } else {
+            router.updateRoot(root: .ProfileView)
+        }
     }
 }
 

@@ -15,23 +15,27 @@ public extension UIImage {
         let heightRatio = maxHeight / size.height
 
         let scaleFactor = min(widthRatio, heightRatio)
-        let scaledImageSize = CGSize(
-            width: size.width * scaleFactor,
-            height: size.height * scaleFactor)
+        let scaledImageSize = CGSize(width: size.width * scaleFactor, height: size.height * scaleFactor)
 
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
 
-        let renderer = UIGraphicsImageRenderer(
-            size: scaledImageSize,
-            format: format)
+        let renderer = UIGraphicsImageRenderer(size: scaledImageSize, format: format)
 
         let scaledImage = renderer.image { _ in
-            self.draw(in: CGRect(
-                origin: .zero,
-                size: scaledImageSize
-            ))
+            self.draw(in: CGRect(origin: .zero, size: scaledImageSize))
         }
         return scaledImage
+    }
+
+    func aspectFittedToHeight(_ newHeight: CGFloat) -> UIImage {
+        let scale = newHeight / self.size.height
+        let newWidth = self.size.width * scale
+        let newSize = CGSize(width: newWidth, height: newHeight)
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+
+        return renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: newSize))
+        }
     }
 }

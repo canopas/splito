@@ -43,7 +43,7 @@ public struct SubtitleTextView: View {
     private let lineLimit: Int?
     private let letterTracking: CGFloat
 
-    public init(text: String, fontSize: Font, fontColor: Color, lineLimit: Int? = nil, letterTracking: CGFloat = -0.4) {
+    public init(text: String, fontSize: Font = .subTitle2(), fontColor: Color = secondaryText, lineLimit: Int? = nil, letterTracking: CGFloat = -0.4) {
         self.text = text
         self.fontSize = fontSize
         self.fontColor = fontColor
