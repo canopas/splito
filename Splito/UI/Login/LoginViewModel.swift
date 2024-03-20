@@ -17,18 +17,22 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var currentState: ViewState = .initial
 
-    @Inject var router: Router<MainRoute>
-    @Inject var firestore: FirestoreManager
     @Inject var preference: SplitoPreference
+    @Inject var userRepository: UserRepository
 
     private var currentNonce: String = ""
-    private var cancellable = Set<AnyCancellable>()
 
     var appleSignInDelegates: SignInWithAppleDelegates! = nil
 
+    private let router: Router<AppRoute>
+
+    init(router: Router<AppRoute>) {
+        self.router = router
+    }
+
     func onGoogleLoginClick() {
         if GIDSignIn.sharedInstance.hasPreviousSignIn() {
-            LogE("LoginViewModel: Alreday signed in.")
+            LogE("LoginViewModel :: Alreday signed in.")
 //            GIDSignIn.sharedInstance.restorePreviousSignIn { _, _ in }
         } else {
             guard let clientID = FirebaseApp.app()?.options.clientID else { return }
@@ -38,13 +42,13 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
             GIDSignIn.sharedInstance.configuration = config
 
             guard let controller = TopViewController.shared.topViewController() else {
-                LogE("LoginViewModel: Top Controller not found.")
+                LogE("LoginViewModel :: Top Controller not found.")
                 return
             }
 
             GIDSignIn.sharedInstance.signIn(withPresenting: controller) { [unowned self] result, error in
                 guard error == nil else {
-                    LogE("LoginViewModel: Google Login Error: \(String(describing: error))")
+                    LogE("LoginViewModel :: Google Login Error: \(String(describing: error))")
                     return
                 }
                 guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
@@ -59,7 +63,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func onAppleLoginView() {
+    func onAppleLoginClick() {
         self.currentNonce = NonceGenerator.randomNonceString()
         let request = ASAuthorizationAppleIDProvider().createRequest()
         request.requestedScopes = [.fullName, .email]
@@ -82,14 +86,14 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
                 guard let self = self else { return }
                 if let error {
                     self.currentState = .initial
-                    print("LoginViewModel: Firebase Error: \(error), with type Apple login.")
+                    print("LoginViewModel :: Firebase Error: \(error), with type Apple login.")
                     self.alert = .init(message: "Server error")
                     self.showAlert = true
                 } else if let result {
                     self.currentState = .initial
                     let user = AppUser(id: result.user.uid, firstName: userData.0, lastName: userData.1, emailId: userData.2, phoneNumber: nil, loginType: loginType)
                     self.storeUser(user: user)
-                    print("LoginViewModel: Logged in User: \(result.user)")
+                    print("LoginViewModel :: Logged in User: \(result.user)")
                 } else {
                     self.alert = .init(message: "Contact Support")
                     self.showAlert = true
@@ -98,45 +102,34 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
     }
 
     private func storeUser(user: AppUser) {
-        firestore.fetchUsers()
-            .sink { _ in
-
-            } receiveValue: { [weak self] users in
+        userRepository.storeUser(user: user)
+            .sink { [weak self] completion in
                 guard let self else { return }
-                let searchedUser = users.first(where: { $0.id == user.id })
-
-                if let searchedUser {
-                    self.preference.user = searchedUser
+                switch completion {
+                case .failure(let error):
+                    self.alert = .init(message: error.localizedDescription)
+                    self.showAlert = true
+                case .finished:
+                    self.preference.user = user
                     self.preference.isVerifiedUser = true
-                    self.goToHome()
-                } else {
-                    self.firestore.addUser(user: user)
-                        .receive(on: DispatchQueue.main)
-                        .sink { completion in
-                            switch completion {
-                            case .failure(let error):
-                                self.alert = .init(message: error.localizedDescription)
-                                self.showAlert = true
-                            case .finished:
-                                self.preference.user = user
-                                self.preference.isVerifiedUser = true
-                            }
-                        } receiveValue: { [weak self] _ in
-                            self?.goToHome()
-                        }
-                        .store(in: &self.cancellable)
                 }
-            }
-            .store(in: &cancellable)
+            } receiveValue: { [weak self] _ in
+                guard let self else { return }
+                self.onLoginSuccess()
+            }.store(in: &cancelables)
     }
 
-    private func goToHome() {
+    func onLoginSuccess() {
         router.popToRoot()
-        router.updateRoot(root: .HomeRoute)
+        if let user = preference.user, let username = user.firstName, !username.isEmpty {
+            router.updateRoot(root: .HomeView)
+        } else {
+            router.updateRoot(root: .ProfileView)
+        }
     }
 
     func onPhoneLoginClick() {
-        router.push(.PhoneLogin)
+        router.push(.PhoneLoginView)
     }
 }
 

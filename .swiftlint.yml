@@ -5,8 +5,9 @@ disabled_rules: # rule identifiers to exclude from running
   - line_length
   - large_tuple
   - identifier_name
-  - function_body_length
   - type_body_length
+  - function_body_length
+  - orphaned_doc_comment
   - void_function_in_ternary
   
 file_length:

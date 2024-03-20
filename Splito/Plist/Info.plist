@@ -6,6 +6,8 @@
 	<string>$(app_version_code)</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(app_version_name)</string>
+	<key>NSCameraUsageDescription</key>
+	<string>$(app_name) uses camera for capturing profile image.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

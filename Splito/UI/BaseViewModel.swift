@@ -5,6 +5,7 @@
 //  Created by Amisha Italiya on 22/02/24.
 //
 
+import Data
 import Combine
 import BaseStyle
 
@@ -22,10 +23,10 @@ open class BaseViewModel {
     public init() { }
 
     /// This will take error as argument and show error's description text as message with ok button.
-//    open func showAlertFor(_ error: ServiceError) {
-//        alert = .init(message: error.descriptionText)
-//        showAlert = true
-//    }
+    open func showAlertFor(_ error: ServiceError) {
+        alert = .init(message: error.descriptionText)
+        showAlert = true
+    }
 
     /// Use this method when you want to show alert with title and message and default title is empty **""**.
     public func showAlertFor(title: String = "", message: String) {
@@ -40,21 +41,21 @@ open class BaseViewModel {
     }
 
     /// This will handle error state from error provided in argument.
-//    public func handleStateFor(_ error: ServiceError) {
-//        switch error {
-//        case .serverError:
-//            currentErrorState = .somethingWentWrong
-//        case .networkError:
-//            currentErrorState = .noInternet
-//        default:
-//            return
-//        }
-//    }
+    public func handleStateFor(_ error: ServiceError) {
+        switch error {
+        case .serverError:
+            currentErrorState = .somethingWentWrong
+        case .networkError:
+            currentErrorState = .noInternet
+        default:
+            return
+        }
+    }
 
     /// Use this method to show error toast, pass an error as argument and it will show toast with title **Error** and message will be error's descriptionText.
-//    public func showToastFor(_ error: ServiceError) {
-//        toast = .init(type: .error, title: R.string.authErrors.error_toast_title.localized(), message: error.descriptionText)
-//    }
+    public func showToastFor(_ error: ServiceError) {
+        toast = .init(type: .error, title: "Error", message: error.descriptionText)
+    }
 
     /// Use this method to show toast with custom specificatons like title message and duration for toast.
     public func showToastFor(toast item: ToastPrompt) {

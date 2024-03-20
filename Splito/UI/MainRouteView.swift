@@ -11,8 +11,9 @@ import SwiftUI
 
 public struct MainRouteView: View {
 
-    @Inject var router: Router<MainRoute>
     @Inject var preference: SplitoPreference
+
+    @StateObject var router = Router(root: AppRoute.OnboardView)
 
     init() {
         Font.loadFonts()
@@ -21,25 +22,17 @@ public struct MainRouteView: View {
     public var body: some View {
         RouterView(router: router) { route in
             switch route {
-            case .Onboard:
-                OnboardView(viewModel: OnboardViewModel())
-            case .Login:
-                LoginView(viewModel: LoginViewModel())
-            case .PhoneLogin:
-                PhoneLoginView(viewModel: PhoneLoginViewModel())
-            case .VerifyOTP(let phoneNumber, let verificationId):
-                VerifyOtpView(viewModel: VerifyOtpViewModel(phoneNumber: phoneNumber, verificationId: verificationId))
-            case .HomeRoute:
+            case .OnboardView:
+                OnboardRouteView()
+            case .HomeView:
                 HomeRouteView()
+            default:
+                EmptyRouteView(routeName: self)
             }
         }
         .onAppear {
-            if preference.isOnboardShown {
-                if preference.isVerifiedUser {
-                    router.updateRoot(root: .HomeRoute)
-                } else {
-                    router.updateRoot(root: .Login)
-                }
+            if preference.isVerifiedUser, let userName = preference.user?.firstName, !userName.isEmpty {
+                router.updateRoot(root: .HomeView)
             }
         }
     }

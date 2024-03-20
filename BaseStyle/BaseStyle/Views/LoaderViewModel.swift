@@ -1,6 +1,6 @@
 //
 //  LoaderViewModel.swift
-//  UI
+//  BaseStyle
 //
 //  Created by Amisha Italiya on 13/02/24.
 //

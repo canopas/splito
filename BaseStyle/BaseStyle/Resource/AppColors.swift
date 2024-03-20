@@ -8,10 +8,11 @@
 import SwiftUI
 
 public let backgroundColor = Color.background
+public let awarenessColor = Color.awareness
 
-public let containerHigh = Color.containerHigh
-public let containerLow = Color.containerLow
-public let containerNormal = Color.containerNormal
+public let containerHighColor = Color.containerHigh
+public let containerLowColor = Color.containerLow
+public let containerNormalColor = Color.containerNormal
 
 public let outlineColor = Color.outline
 public let primaryColor = Color.mainPrimary

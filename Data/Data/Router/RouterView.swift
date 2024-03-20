@@ -8,30 +8,6 @@
 import Foundation
 import SwiftUI
 
-public enum MainRoute: Hashable {
-
-    case Onboard
-    case Login
-    case PhoneLogin
-    case VerifyOTP(phoneNumber: String, verificationId: String)
-    case HomeRoute
-
-    var key: String {
-        switch self {
-        case .Onboard:
-            "onboard"
-        case .Login:
-            "login"
-        case .PhoneLogin:
-            "phoneLogin"
-        case .VerifyOTP:
-            "verifyOTP"
-        case .HomeRoute:
-            "homeRoute"
-        }
-    }
-}
-
 public struct RouterView<T: Hashable, Content: View>: View {
 
     @ObservedObject var router: Router<T>

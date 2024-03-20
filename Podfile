@@ -10,8 +10,9 @@ def data_pods
   pod 'Swinject'
   pod 'SwiftLint'
   
-  pod 'FirebaseAuth'
   pod 'GoogleSignIn'
+  pod 'FirebaseAuth'
+  pod 'FirebaseStorage'
   pod 'FirebaseFirestore'
   
   pod 'SSZipArchive'
@@ -20,6 +21,7 @@ end
 
 def base_style_pods
   pod 'SwiftLint'
+  pod 'Kingfisher'
   pod 'CocoaLumberjack/Swift'
 end
 

@@ -31,7 +31,7 @@ struct PageControl: View {
 
     func roundPageIndicationView() -> some View {
         Circle()
-            .fill(containerHigh)
+            .fill(containerHighColor)
             .frame(width: 10, height: 10, alignment: .center)
     }
 
