@@ -9,6 +9,8 @@ import Combine
 
 public class ShareCodeRepository: ObservableObject {
 
+    public let CODE_EXPIRATION_LIMIT = 2 /// 2 days
+    
     @Inject private var store: ShareCodeStore
 
     private var cancelables = Set<AnyCancellable>()

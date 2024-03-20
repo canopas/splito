@@ -37,12 +37,14 @@ struct OnboardRouteView: View {
         .onAppear {
             if preference.isOnboardShown {
                 if preference.isVerifiedUser {
-                    router.updateRoot(root: .ProfileView)
+                    if let user = preference.user, let username = user.firstName, !username.isEmpty {
+                        router.updateRoot(root: .HomeView)
+                    } else {
+                        router.updateRoot(root: .ProfileView)
+                    }
                 } else {
                     router.updateRoot(root: .LoginView)
                 }
-            } else {
-                router.updateRoot(root: .OnboardView)
             }
         }
     }

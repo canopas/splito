@@ -15,4 +15,4 @@ cp ${DIST_PROFILE_FILE} "$HOME/Library/MobileDevice/Provisioning Profiles/${BUIL
 security lock-keychain "$BUILD_KEYCHAIN"
 
 # clean
-rm -fr *.mobileprovision
+rm -fr -- *.mobileprovision

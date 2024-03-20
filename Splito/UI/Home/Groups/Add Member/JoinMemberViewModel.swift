@@ -40,15 +40,28 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
                 guard let self else { return }
 
                 guard let code else {
-                    self.showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Your entered code not exists."))
+                    self.showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Entered code not exists."))
                     return
                 }
 
-                self.addMember(groupId: code.groupId) {
-                    _ = self.codeRepository.deleteSharedCode(documentId: code.id ?? "")
-                    self.goToGroupHome()
-                }
+                self.addMemberIfCodeExists(code: code)
             }.store(in: &cancelables)
+    }
+
+    func addMemberIfCodeExists(code: SharedCode) {
+        let expireDate = code.expireDate.dateValue()
+        let daysDifference = Calendar.current.dateComponents([.day], from: expireDate, to: Date()).day
+
+        // Code will be valid until 2 days, so check for the day difference
+        guard let daysDifference, daysDifference <= codeRepository.CODE_EXPIRATION_LIMIT else {
+            showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Entered code is expired."))
+            return
+        }
+
+        addMember(groupId: code.groupId) {
+            _ = self.codeRepository.deleteSharedCode(documentId: code.id ?? "")
+            self.goToGroupHome()
+        }
     }
 
     // Add member to the collection

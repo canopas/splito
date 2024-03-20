@@ -25,4 +25,4 @@ security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$BUILD_KE
 security lock-keychain "$BUILD_KEYCHAIN"
 
 # remove certs
-rm -fr *.p12
+rm -fr -- *.p12

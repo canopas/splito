@@ -13,7 +13,7 @@ public class UserRepository: ObservableObject {
 
     private var cancelables = Set<AnyCancellable>()
 
-    public func storeUser(user: AppUser) -> AnyPublisher<Void, ServiceError> {
+    public func storeUser(user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
         Future { [weak self] promise in
 
             guard let self else {
@@ -25,7 +25,7 @@ public class UserRepository: ObservableObject {
                 .sink { completion in
                     switch completion {
                     case .finished:
-                        LogE("UserRepository :: \(#function) storeUser finished.")
+                        LogD("UserRepository :: \(#function) storeUser finished.")
                     case .failure(let error):
                         LogE("UserRepository :: \(#function) storeUser failed, error: \(error.localizedDescription).")
                         promise(.failure(error))
@@ -34,8 +34,8 @@ public class UserRepository: ObservableObject {
                     guard let self else { return }
                     let searchedUser = users.first(where: { $0.id == user.id })
 
-                    if searchedUser != nil {
-                        promise(.success(()))
+                    if let searchedUser {
+                        promise(.success(searchedUser))
                     } else {
                         self.store.addUser(user: user)
                             .receive(on: DispatchQueue.main)
@@ -45,10 +45,10 @@ public class UserRepository: ObservableObject {
                                     LogE("UserRepository :: \(#function) addUser failed, error: \(error.localizedDescription).")
                                     promise(.failure(error))
                                 case .finished:
-                                    LogE("UserRepository :: \(#function) addUser finished.")
+                                    LogD("UserRepository :: \(#function) addUser finished.")
                                 }
                             } receiveValue: { _ in
-                                promise(.success(()))
+                                promise(.success(user))
                             }.store(in: &cancelables)
                     }
                 }.store(in: &cancelables)

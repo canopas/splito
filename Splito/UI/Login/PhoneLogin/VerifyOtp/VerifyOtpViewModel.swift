@@ -116,11 +116,11 @@ extension VerifyOtpViewModel {
                     self.alert = .init(message: error.localizedDescription)
                     self.showAlert = true
                 case .finished:
-                    self.preference.user = user
                     self.preference.isVerifiedUser = true
                 }
-            } receiveValue: { [weak self] _ in
+            } receiveValue: { [weak self] user in
                 guard let self else { return }
+                self.preference.user = user
                 self.onLoginSuccess()
             }.store(in: &cancelables)
     }
