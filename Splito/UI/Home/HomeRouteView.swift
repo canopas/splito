@@ -11,8 +11,6 @@ import SwiftUI
 
 struct HomeRouteView: View {
 
-    @Inject var appRouter: Router<AppRoute>
-
     var body: some View {
         ZStack {
             TabView {
@@ -22,7 +20,7 @@ struct HomeRouteView: View {
                     }
                     .tag(0)
 
-                HomeView()
+                GroupRouteView()
                     .tabItem {
                         Label("Groups", systemImage: "person.2")
                     }
@@ -66,12 +64,13 @@ struct CenterFabButton: View {
                 } label: {
                     Image(systemName: "plus.circle.fill")
                         .resizable()
-                        .frame(width: 50, height: 50)
+                        .frame(width: 43, height: 43)
                         .tint(primaryColor)
                         .background(backgroundColor)
                         .clipShape(Circle())
                         .shadow(radius: 2)
                 }
+                .padding(.vertical, 1)
 
                 Spacer()
             }

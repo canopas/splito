@@ -13,10 +13,6 @@ public struct PhoneLoginView: View {
 
     @ObservedObject var viewModel: PhoneLoginViewModel
 
-    public init(viewModel: PhoneLoginViewModel) {
-        self.viewModel = viewModel
-    }
-
     public var body: some View {
         VStack(spacing: 0) {
             if case .loading = viewModel.currentState {
@@ -124,7 +120,7 @@ private struct PhoneLoginContentView: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(lineWidth: 1)
-                    .foregroundColor(containerHigh)
+                    .foregroundColor(containerHighColor)
             )
             .padding(.horizontal, 20)
             .frame(maxWidth: .infinity, alignment: .leading)

@@ -12,8 +12,6 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
 
     let MAX_NUMBER_LENGTH: Int = 20
 
-    @Inject var router: Router<MainRoute>
-
     @Published var countries = [Country]()
     @Published var currentCountry: Country
 
@@ -31,7 +29,10 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    override init() {
+    private let router: Router<AppRoute>
+
+    init(router: Router<AppRoute>) {
+        self.router = router
         let allCountries = JSONUtils.readJSONFromFile(fileName: "Countries", type: [Country].self, bundle: .baseBundle) ?? []
         let currentLocal = Locale.current.region?.identifier
         self.countries = allCountries
@@ -40,14 +41,14 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
     }
 
     func verifyAndSendOtp() {
+        currentState = .loading
         FirebaseProvider.phoneAuthProvider
             .verifyPhoneNumber((currentCountry.dialCode + phoneNumber.getNumbersOnly()), uiDelegate: nil) { [weak self] (verificationID, error) in
                 self?.showLoader = false
                 if let error {
+                    self?.currentState = .initial
                     self?.handleFirebaseAuthErrors(error)
-                    self?.currentState = .initial
                 } else {
-                    self?.currentState = .initial
                     self?.verificationId = verificationID ?? ""
                     self?.openVerifyOtpView()
                 }
@@ -59,7 +60,8 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
 extension PhoneLoginViewModel {
 
     func openVerifyOtpView() {
-        router.push(.VerifyOTP(phoneNumber: phoneNumber, verificationId: verificationId))
+        router.push(.VerifyOTPView(phoneNumber: phoneNumber, verificationId: verificationId))
+        currentState = .initial
     }
 
     func handleFirebaseAuthErrors(_ error: Error) {

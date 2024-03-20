@@ -13,7 +13,11 @@ public enum ServiceError: LocalizedError, Equatable {
     case unauthorized
     case serverError(statusCode: Int? = nil)
     case networkError
+    case decodingError
+    case databaseError
+    case unexpectedError
     case validationFailed
+    case dataNotFound
 
     public var descriptionText: String {
         switch self {
@@ -25,6 +29,14 @@ public enum ServiceError: LocalizedError, Equatable {
             return "Server error encountered."
         case .networkError:
             return "No internet connection!"
+        case .databaseError:
+            return "Failed to perform database operation."
+        case .decodingError:
+            return "Couldn't decode the response."
+        case .unexpectedError:
+            return "Something went wrong."
+        case .dataNotFound:
+            return "Your requested data not found."
         default:
             return "Oops"
         }
@@ -40,8 +52,16 @@ public enum ServiceError: LocalizedError, Equatable {
             return "networkError"
         case .serverError:
             return "serverError"
+        case .databaseError:
+            return "databaseError"
+        case .decodingError:
+            return "decodingError"
+        case .unexpectedError:
+            return "unexpectedError"
         case .validationFailed:
             return "validationFailed"
+        case .dataNotFound:
+            return "dataNotFound"
         }
     }
 }

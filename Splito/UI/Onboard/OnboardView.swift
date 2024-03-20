@@ -44,7 +44,8 @@ struct OnboardView: View {
 							viewModel.currentPageIndex += 1
 						}
 					}
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
+                    .foregroundColor(primaryText)
 				}
 				.padding(.horizontal, 30)
 				.opacity(viewModel.currentPageIndex == (onboardItems.count - 1) ? 0 : 1)
@@ -66,13 +67,13 @@ struct OnboardPageView: View {
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .center, spacing: 10) {
+            VStack(alignment: .center, spacing: 12) {
                 VSpacer(20)
 
                 Image(items[index].image)
                     .resizable()
                     .scaledToFit()
-                    .foregroundColor(primaryText)
+                    .foregroundColor(primaryColor.opacity(0.4))
                     .frame(width: 200, height: 200, alignment: .center)
 
                 VSpacer(20)
@@ -80,10 +81,10 @@ struct OnboardPageView: View {
                 Text(items[index].title)
                     .font(.largeTitle)
                     .fontWeight(.heavy)
-                    .foregroundColor(primaryText)
+                    .foregroundColor(primaryColor)
 
                 Text(items[index].description)
-                    .font(.title2)
+                    .font(.title3)
                     .foregroundColor(secondaryText)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 20)
@@ -110,5 +111,5 @@ public struct OnboardItem: Hashable {
 }
 
 #Preview {
-    OnboardView(viewModel: OnboardViewModel())
+    OnboardView(viewModel: OnboardViewModel(router: .init(root: .OnboardView)))
 }
