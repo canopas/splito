@@ -20,7 +20,7 @@ public class ShareCodeStore: ObservableObject {
             completion(code.documentID)
             return
         } catch {
-            print("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
+            LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
         }
         completion(nil)
     }
@@ -34,13 +34,13 @@ public class ShareCodeStore: ObservableObject {
 
             self.database.collection(DATABASE_NAME).whereField("code", isEqualTo: code).getDocuments { snapshot, error in
                 if let error {
-                    print("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
+                    LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.networkError))
                     return
                 }
 
                 guard let document = snapshot?.documents.first else {
-                    print("ShareCodeStore :: \(#function) The document is not available.")
+                    LogD("ShareCodeStore :: \(#function) The document is not available.")
                     promise(.success(nil))
                     return
                 }
@@ -49,7 +49,7 @@ public class ShareCodeStore: ObservableObject {
                     let sharedCode = try document.data(as: SharedCode.self)
                     promise(.success(sharedCode))
                 } catch {
-                    print("ShareCodeStore :: \(#function) Decode error: \(error.localizedDescription)")
+                    LogE("ShareCodeStore :: \(#function) Decode error: \(error.localizedDescription)")
                     promise(.failure(.decodingError))
                 }
             }
@@ -68,7 +68,7 @@ public class ShareCodeStore: ObservableObject {
                     LogE("ShareCodeStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
                     promise(.failure(.databaseError))
                 } else {
-                    LogE("ShareCodeStore :: \(#function): code deleted successfully.")
+                    LogD("ShareCodeStore :: \(#function): code deleted successfully.")
                     promise(.success(()))
                 }
             }

@@ -69,12 +69,6 @@ public class ImagePickerViewCoordinator: NSObject, UINavigationControllerDelegat
         let image = info[infoKey] as? UIImage
 
         updateImageCallBack(image)
-
-//        if cropOption == .custom {
-//            let viewController = UIHostingController(rootView: ImageCropView(image: image, fileName: fileName, isDarkModeEnabled: isDarkMode, updateImageCallBack: updateImageCallBack(_:_:)))
-//
-//            picker.present(viewController, animated: true)
-//        }
     }
 
     func updateImageCallBack(_ image: UIImage?) {
