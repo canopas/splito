@@ -1,9 +1,6 @@
 name: Deploy
 
-on:
-  push:
-    branches:
-      - main
+on: push
 
 jobs:
   deploy:
@@ -86,7 +83,7 @@ jobs:
       - name: Build and Archive Project
         run: |
           ARCHIVE_PATH=$RUNNER_TEMP/Splito.xcarchive
-          xcodebuild app_version_code=${buildNumber} app_version_name=${buildName} -workspace Splito.xcworkspace -scheme "Splito" -archivePath $ARCHIVE_PATH -destination generic/platform=iOS clean archive | xcpretty --color
+          xcodebuild app_version_code=${buildNumber} app_version_name=${buildName} -workspace Splito.xcworkspace -scheme "Splito" -archivePath $ARCHIVE_PATH -destination generic/platform=iOS clean archive
 
       - name: Export Archive
         run: |
