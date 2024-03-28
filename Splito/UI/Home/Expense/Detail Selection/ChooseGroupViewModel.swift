@@ -38,7 +38,7 @@ class ChooseGroupViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] groups in
-                self?.currentViewState = .success(groups: groups)
+                self?.currentViewState = groups.isEmpty ? .noGroups : .hasGroups(groups: groups)
                 self?.groups = groups
             }
             .store(in: &cancelables)
@@ -54,6 +54,7 @@ extension ChooseGroupViewModel {
     enum ViewState {
         case initial
         case loading
-        case success(groups: [Groups])
+        case hasGroups(groups: [Groups])
+        case noGroups
     }
 }

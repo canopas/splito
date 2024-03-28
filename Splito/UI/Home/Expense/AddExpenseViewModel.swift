@@ -14,7 +14,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published var expenseAmount = ""
     @Published var expenseDate = Date()
 
-    @Published var paidByMember: Member?
     @Published var selectedGroup: Groups?
 
     @Published var showGroupSelection = false

@@ -55,7 +55,7 @@ struct CreateGroupView: View {
                             image: $viewModel.profileImage, isPresented: $viewModel.showImagePicker)
         }
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     viewModel.handleDoneAction()
                 } label: {

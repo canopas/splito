@@ -12,7 +12,6 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
 
     @Inject var preference: SplitoPreference
     @Inject var groupRepository: GroupRepository
-    @Inject var memberRepository: MemberRepository
     @Inject var codeRepository: ShareCodeRepository
 
     @Published var code = ""
@@ -64,32 +63,21 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    // Add member to the collection
     func addMember(groupId: String, completion: @escaping () -> Void) {
         guard let userId = preference.user?.id else { return }
         currentState = .loading
 
-        let member = Member(userId: userId, groupId: groupId)
-
-        memberRepository.addMemberToMembers(member: member) { [weak self] memberId in
-            guard let self, let memberId else {
-                self?.showAlertFor(message: "Something went wrong")
-                return
-            }
-            self.groupRepository.addMemberToGroup(groupId: groupId, memberId: memberId)
-                .sink { [weak self] result in
-                    switch result {
-                    case .failure(let error):
-                        self?.currentState = .initial
-                        self?.showToastFor(error)
-                        completion()
-                    case .finished:
-                        self?.currentState = .initial
-                    }
-                } receiveValue: { _ in
+        groupRepository.addMemberToGroup(memberId: userId, groupId: groupId)
+            .sink { [weak self] result in
+                if case .failure(let error) = result {
+                    self?.currentState = .initial
+                    self?.showToastFor(error)
                     completion()
-                }.store(in: &self.cancelables)
-        }
+                }
+            } receiveValue: { _ in
+                self.currentState = .initial
+                completion()
+            }.store(in: &cancelables)
     }
 
     func goToGroupHome() {

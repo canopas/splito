@@ -39,10 +39,6 @@ public class AppAssembly: Assembly {
             GroupStore.init()
         }.inObjectScope(.container)
 
-        container.register(MemberStore.self) { _ in
-            MemberStore.init()
-        }.inObjectScope(.container)
-
         container.register(ShareCodeStore.self) { _ in
             ShareCodeStore.init()
         }.inObjectScope(.container)
@@ -53,10 +49,6 @@ public class AppAssembly: Assembly {
 
         container.register(GroupRepository.self) { _ in
             GroupRepository.init()
-        }.inObjectScope(.container)
-
-        container.register(MemberRepository.self) { _ in
-            MemberRepository.init()
         }.inObjectScope(.container)
 
         container.register(ShareCodeRepository.self) { _ in

@@ -15,10 +15,10 @@ public struct Expense: Codable {
     let amount: Double
     let date: Date
     let paidBy: AppUser
-    let splitTo: [Member] // Reference to users involved in the split
+    let splitTo: [String] // Reference to users involved in the split
     let splitType: SplitType
 
-    public init(name: String, amount: Double, date: Date, paidBy: AppUser, splitTo: [Member], splitType: SplitType) {
+    public init(name: String, amount: Double, date: Date, paidBy: AppUser, splitTo: [String], splitType: SplitType) {
         self.name = name
         self.amount = amount
         self.date = date

@@ -17,13 +17,19 @@ struct ChooseGroupView: View {
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        VStack(alignment: .center, spacing: 0) {
+        VStack(alignment: .center, spacing: 20) {
             if case .loading = viewModel.currentViewState {
                 LoaderView(tintColor: primaryColor, scaleSize: 2)
-            } else if case .success(let groups) = viewModel.currentViewState {
-                ScrollView(showsIndicators: false) {
-                    VSpacer(30)
+            } else if case .noGroups = viewModel.currentViewState {
+                NoGroupFoundView()
+            } else if case .hasGroups(let groups) = viewModel.currentViewState {
+                VSpacer(10)
 
+                Text("Choose Group")
+                    .font(.Header3())
+                    .foregroundColor(.primary)
+
+                ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 16) {
                         ForEach(groups) { group in
                             GroupCellView(group: group, isSelected: group.id == viewModel.selectedGroup?.id)
@@ -48,6 +54,17 @@ struct ChooseGroupView: View {
                     Text("Cancel")
                 }
             }
+        }
+    }
+}
+
+struct NoGroupFoundView: View {
+
+    var body: some View {
+        VStack {
+            Text("You are not part of any group.")
+                .font(.subTitle1())
+                .foregroundColor(primaryColor)
         }
     }
 }
