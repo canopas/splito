@@ -54,14 +54,18 @@ struct CreateGroupView: View {
                             sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
                             image: $viewModel.profileImage, isPresented: $viewModel.showImagePicker)
         }
-        .navigationBarItems(
-            trailing: Button("Done") {
-                viewModel.handleDoneAction()
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    viewModel.handleDoneAction()
+                } label: {
+                    Text("Done")
+                }
+                .font(.subTitle2())
+                .tint(primaryColor)
+                .disabled(viewModel.groupName.count < 3 || viewModel.currentState == .loading)
             }
-            .font(.subTitle2())
-            .tint(primaryColor)
-            .disabled(viewModel.groupName.count < 3 || viewModel.currentState == .loading)
-        )
+        }
     }
 }
 

@@ -11,6 +11,8 @@
 		7EF3A291581F7EA20CB1042D /* Pods_Data.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E91B3E23688435064A60C0C4 /* Pods_Data.framework */; };
 		D83B15052B9996C0004A5F4F /* Groups.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83B15042B9996C0004A5F4F /* Groups.swift */; };
 		D83B15092B999789004A5F4F /* GroupRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83B15082B999789004A5F4F /* GroupRepository.swift */; };
+		D85E86DE2BAB0292002EDF76 /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86DD2BAB0292002EDF76 /* Expense.swift */; };
+		D85E86E52BAB088F002EDF76 /* ExpenseRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86E42BAB088F002EDF76 /* ExpenseRepository.swift */; };
 		D88721432B99F133009DC5BE /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721422B99F133009DC5BE /* StorageManager.swift */; };
 		D89DBE1D2B872F0B00E5F1BD /* NonceGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE1C2B872F0B00E5F1BD /* NonceGenerator.swift */; };
 		D89DBE282B88802800E5F1BD /* Country.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE272B88802800E5F1BD /* Country.swift */; };
@@ -56,6 +58,8 @@
 		BED6C37AA3F8FD2A6350DE1C /* Pods-Data.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Data.debug.xcconfig"; path = "Target Support Files/Pods-Data/Pods-Data.debug.xcconfig"; sourceTree = "<group>"; };
 		D83B15042B9996C0004A5F4F /* Groups.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Groups.swift; sourceTree = "<group>"; };
 		D83B15082B999789004A5F4F /* GroupRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupRepository.swift; sourceTree = "<group>"; };
+		D85E86DD2BAB0292002EDF76 /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
+		D85E86E42BAB088F002EDF76 /* ExpenseRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseRepository.swift; sourceTree = "<group>"; };
 		D88721422B99F133009DC5BE /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 		D89DBE1C2B872F0B00E5F1BD /* NonceGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonceGenerator.swift; sourceTree = "<group>"; };
 		D89DBE272B88802800E5F1BD /* Country.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Country.swift; sourceTree = "<group>"; };
@@ -137,6 +141,7 @@
 				D89DBE452B8CBE0F00E5F1BD /* UserRepository.swift */,
 				D83B15082B999789004A5F4F /* GroupRepository.swift */,
 				D8D14A592BA1E6E400F45FF2 /* MemberRepository.swift */,
+				D85E86E42BAB088F002EDF76 /* ExpenseRepository.swift */,
 				D8D14A532BA092F400F45FF2 /* ShareCodeRepository.swift */,
 			);
 			path = Repository;
@@ -149,6 +154,7 @@
 				D89DBE472B8CBE4C00E5F1BD /* AppUser.swift */,
 				D83B15042B9996C0004A5F4F /* Groups.swift */,
 				D8D14A5B2BA1E73600F45FF2 /* Member.swift */,
+				D85E86DD2BAB0292002EDF76 /* Expense.swift */,
 				D8D14A512BA0917D00F45FF2 /* SharedCode.swift */,
 			);
 			path = Model;
@@ -478,11 +484,13 @@
 				D89DBE532B8DC9F700E5F1BD /* AppRoute.swift in Sources */,
 				D8A7CA752BA5AB670014EC67 /* UserStore.swift in Sources */,
 				D89DBE402B8C9E7400E5F1BD /* RouterView.swift in Sources */,
+				D85E86E52BAB088F002EDF76 /* ExpenseRepository.swift in Sources */,
 				D8A7CA772BA5AB800014EC67 /* GroupStore.swift in Sources */,
 				D8AC25BE2B7F359B00CEAAD3 /* FirebaseProvider.swift in Sources */,
 				D89DBE1D2B872F0B00E5F1BD /* NonceGenerator.swift in Sources */,
 				D8D14A5C2BA1E73600F45FF2 /* Member.swift in Sources */,
 				D8A7CA792BA5AB920014EC67 /* MemberStore.swift in Sources */,
+				D85E86DE2BAB0292002EDF76 /* Expense.swift in Sources */,
 				D8D42AA92B872726009B345D /* DDLogProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -559,7 +567,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -619,7 +627,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -648,7 +656,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -746,7 +754,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

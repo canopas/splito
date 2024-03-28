@@ -9,8 +9,8 @@ import Combine
 
 public class ShareCodeRepository: ObservableObject {
 
-    public let CODE_EXPIRATION_LIMIT = 2 /// 2 days
-    
+    public let CODE_EXPIRATION_LIMIT = 2 /// Limit for code expiration, in days.
+
     @Inject private var store: ShareCodeStore
 
     private var cancelables = Set<AnyCancellable>()
@@ -39,6 +39,5 @@ public class ShareCodeRepository: ObservableObject {
             } receiveValue: { code in
                 completion(code == nil)
             }.store(in: &cancelables)
-
     }
 }

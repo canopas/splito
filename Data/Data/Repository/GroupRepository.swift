@@ -197,7 +197,21 @@ public class GroupRepository: ObservableObject {
     }
 
     public func fetchGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
-        store.fetchGroups(userId: userId)
+        Future { [weak self] promise in
+            guard let self else { return }
+            self.store.fetchGroups(userId: userId)
+                .sink { completion in
+                    if case .failure(let error) = completion {
+                        promise(.failure(error))
+                    }
+                } receiveValue: { [weak self] groups in
+                    guard let self else { return }
+                    // Show only those groups in which the user is part of
+                    let filteredGroups = groups.filter { $0.createdBy == userId || $0.members.contains(where: { $0.userId == userId }) }
+                    promise(.success(filteredGroups))
+                }.store(in: &self.cancelables)
+
+        }.eraseToAnyPublisher()
     }
 
     public func fetchGroupBy(id: String) -> AnyPublisher<Groups?, ServiceError> {

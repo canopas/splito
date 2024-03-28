@@ -71,4 +71,73 @@ class MemberStore: ObservableObject {
             }
         }.eraseToAnyPublisher()
     }
+
+    func fetchMembers() -> AnyPublisher<[Member], ServiceError> {
+        Future { [weak self] promise in
+            guard let self else {
+                promise(.failure(.unexpectedError))
+                return
+            }
+
+            self.database.collection(DATABASE_NAME).getDocuments { snapshot, error in
+                if let error {
+                    LogE("MemberStore :: \(#function) error: \(error.localizedDescription)")
+                    promise(.failure(.unexpectedError))
+                    return
+                }
+
+                guard let snapshot else {
+                    LogE("MemberStore :: \(#function) The document is not available.")
+                    promise(.failure(.databaseError))
+                    return
+                }
+
+                do {
+                    let members = try snapshot.documents.compactMap { document -> Member? in
+                        try document.data(as: Member.self)
+                    }
+                    promise(.success(members))
+                } catch {
+                    LogE("MemberStore :: \(#function) Decode error: \(error.localizedDescription)")
+                    promise(.failure(.decodingError))
+                }
+            }
+        }.eraseToAnyPublisher()
+    }
+
+    func fetchMembersByGroup(id: String) -> AnyPublisher<[Member], ServiceError> {
+        Future { [weak self] promise in
+            guard let self else {
+                promise(.failure(.unexpectedError))
+                return
+            }
+
+            // Construct a Firestore query to fetch documents where group_id matches the provided groupId
+            self.database.collection(DATABASE_NAME)
+                .whereField("group_id", isEqualTo: id)
+                .getDocuments { snapshot, error in
+                    if let error {
+                        LogE("MemberStore :: \(#function) error: \(error.localizedDescription)")
+                        promise(.failure(.unexpectedError))
+                        return
+                    }
+
+                    guard let snapshot else {
+                        LogE("MemberStore :: \(#function) The document is not available.")
+                        promise(.failure(.databaseError))
+                        return
+                    }
+
+                    do {
+                        let members = try snapshot.documents.compactMap { document -> Member? in
+                            try document.data(as: Member.self)
+                        }
+                        promise(.success(members))
+                    } catch {
+                        LogE("MemberStore :: \(#function) Decode error: \(error.localizedDescription)")
+                        promise(.failure(.decodingError))
+                    }
+                }
+        }.eraseToAnyPublisher()
+    }
 }

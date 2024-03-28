@@ -27,4 +27,12 @@ public class MemberRepository: ObservableObject {
     public func fetchMemberBy(id: String) -> AnyPublisher<Member?, ServiceError> {
         store.fetchMemberBy(id: id)
     }
+
+    public func fetchMembers() -> AnyPublisher<[Member], ServiceError> {
+        store.fetchMembers()
+    }
+
+    public func fetchMembersByGroup(id: String) -> AnyPublisher<[Member], ServiceError> {
+        store.fetchMembersByGroup(id: id)
+    }
 }
