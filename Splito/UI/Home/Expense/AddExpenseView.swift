@@ -16,27 +16,33 @@ struct AddExpenseView: View {
 
     var body: some View {
         VStack(spacing: 25) {
-            GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Group") {
-                viewModel.showGroupSelection = true
-            }
+            if case .loading = viewModel.currentViewState {
+                LoaderView(tintColor: primaryColor, scaleSize: 2)
+            } else {
+                GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Group") {
+                    viewModel.showGroupSelection = true
+                }
 
-            VStack(spacing: 16) {
-                ExpenseDetailRow(imageName: "note.text", placeholder: "Enter a description",
-                                 text: $viewModel.expenseName, date: $viewModel.expenseDate)
-                ExpenseDetailRow(imageName: "indianrupeesign.square", placeholder: "0.00",
-                                 text: $viewModel.expenseAmount, date: $viewModel.expenseDate, keyboardType: .numberPad)
-                ExpenseDetailRow(imageName: "calendar", placeholder: "Expense date", forDatePicker: true,
-                                 text: .constant(""), date: $viewModel.expenseDate)
-            }
-            .padding(.trailing, 20)
+                VStack(spacing: 16) {
+                    ExpenseDetailRow(imageName: "note.text", placeholder: "Enter a description",
+                                     name: $viewModel.expenseName, amount: .constant(0), date: $viewModel.expenseDate)
+                    ExpenseDetailRow(imageName: "indianrupeesign.square", placeholder: "0.00",
+                                     name: .constant(""), amount: $viewModel.expenseAmount, date: $viewModel.expenseDate, keyboardType: .numberPad)
+                    ExpenseDetailRow(imageName: "calendar", placeholder: "Expense date", forDatePicker: true,
+                                     name: .constant(""), amount: .constant(0), date: $viewModel.expenseDate)
+                }
+                .padding(.trailing, 20)
 
-            PaidByView(payerName: viewModel.payerName) {
-                viewModel.showPayerSelection = viewModel.selectedGroup != nil
+                PaidByView(payerName: viewModel.payerName) {
+                    viewModel.showPayerSelection = viewModel.selectedGroup != nil
+                }
             }
         }
         .padding(.horizontal, 20)
         .background(backgroundColor)
         .navigationBarTitle("Add an expense", displayMode: .inline)
+        .toastView(toast: $viewModel.toast)
+        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showGroupSelection) {
             ChooseGroupView(viewModel: ChooseGroupViewModel(selectedGroup: viewModel.selectedGroup) { group in
                 viewModel.selectedGroup = group
@@ -50,17 +56,15 @@ struct AddExpenseView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button {
+                Button("Cancel") {
                     dismiss()
-                } label: {
-                    Text("Cancel")
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    dismiss()
-                } label: {
-                    Text("Save")
+                Button("Add") {
+                    viewModel.saveExpense {
+                        dismiss()
+                    }
                 }
                 .foregroundColor(primaryColor)
             }
@@ -68,13 +72,19 @@ struct AddExpenseView: View {
     }
 }
 
-struct ExpenseDetailRow: View {
+private struct ExpenseDetail: Codable {
+    var name: String
+    var amount: Double
+}
+
+private struct ExpenseDetailRow: View {
 
     var imageName: String
     var placeholder: String
     var forDatePicker: Bool = false
 
-    @Binding var text: String
+    @Binding var name: String
+    @Binding var amount: Double
     @Binding var date: Date
 
     var keyboardType: UIKeyboardType = .default
@@ -96,9 +106,14 @@ struct ExpenseDetailRow: View {
                     .font(.subTitle2())
             } else {
                 VStack {
-                    TextField(placeholder, text: $text)
-                        .font(.subTitle2())
-                        .keyboardType(keyboardType)
+                    if keyboardType == .default {
+                        TextField(placeholder, text: $name)
+                            .font(.subTitle2())
+                    } else {
+                        TextField("Amount", value: $amount, formatter: NumberFormatter())
+                            .font(.subTitle2())
+                            .keyboardType(keyboardType)
+                    }
 
                     Divider()
                         .background(Color.gray)
@@ -109,7 +124,7 @@ struct ExpenseDetailRow: View {
     }
 }
 
-struct GroupSelectionView: View {
+private struct GroupSelectionView: View {
 
     var name: String
     var onTap: () -> Void
@@ -138,7 +153,7 @@ struct GroupSelectionView: View {
     }
 }
 
-struct PaidByView: View {
+private struct PaidByView: View {
 
     let payerName: String
     var onTap: () -> Void

@@ -13,17 +13,20 @@ public struct Expense: Codable {
 
     let name: String
     let amount: Double
-    let date: Date
-    let paidBy: AppUser
-    let splitTo: [String] // Reference to users involved in the split
+    let date: Timestamp
+    let paidBy: String
+    let splitTo: [String] // Reference to user ids involved in the split
+    let groupId: String
     let splitType: SplitType
 
-    public init(name: String, amount: Double, date: Date, paidBy: AppUser, splitTo: [String], splitType: SplitType) {
+    public init(name: String, amount: Double, date: Timestamp, paidBy: String,
+                splitTo: [String], groupId: String, splitType: SplitType = .equally) {
         self.name = name
         self.amount = amount
         self.date = date
         self.paidBy = paidBy
         self.splitTo = splitTo
+        self.groupId = groupId
         self.splitType = splitType
     }
 
@@ -31,8 +34,9 @@ public struct Expense: Codable {
         case name
         case amount
         case date
-        case paidBy = "paied_by"
+        case paidBy = "paid_by"
         case splitTo = "split_to"
+        case groupId = "group_id"
         case splitType = "split_type"
     }
 }

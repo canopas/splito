@@ -42,7 +42,7 @@ class GroupStore: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    func fetchGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
+    func fetchGroups() -> AnyPublisher<[Groups], ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
@@ -56,9 +56,9 @@ class GroupStore: ObservableObject {
                     return
                 }
 
-                guard let snapshot else {
-                    LogE("GroupStore :: \(#function) The document is not available.")
-                    promise(.failure(.databaseError))
+                guard let snapshot, !snapshot.documents.isEmpty else {
+                    LogD("GroupStore :: \(#function) The document is not available.")
+                    promise(.success([]))
                     return
                 }
 

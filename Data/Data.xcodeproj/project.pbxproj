@@ -14,6 +14,7 @@
 		D85E86DE2BAB0292002EDF76 /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86DD2BAB0292002EDF76 /* Expense.swift */; };
 		D85E86E52BAB088F002EDF76 /* ExpenseRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86E42BAB088F002EDF76 /* ExpenseRepository.swift */; };
 		D88721432B99F133009DC5BE /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721422B99F133009DC5BE /* StorageManager.swift */; };
+		D8910E382BB6D1D300877CE0 /* ExpenseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8910E372BB6D1D300877CE0 /* ExpenseStore.swift */; };
 		D89DBE1D2B872F0B00E5F1BD /* NonceGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE1C2B872F0B00E5F1BD /* NonceGenerator.swift */; };
 		D89DBE282B88802800E5F1BD /* Country.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE272B88802800E5F1BD /* Country.swift */; };
 		D89DBE2B2B88817E00E5F1BD /* JSONUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE2A2B88817E00E5F1BD /* JSONUtils.swift */; };
@@ -58,6 +59,7 @@
 		D85E86DD2BAB0292002EDF76 /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
 		D85E86E42BAB088F002EDF76 /* ExpenseRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseRepository.swift; sourceTree = "<group>"; };
 		D88721422B99F133009DC5BE /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
+		D8910E372BB6D1D300877CE0 /* ExpenseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseStore.swift; sourceTree = "<group>"; };
 		D89DBE1C2B872F0B00E5F1BD /* NonceGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonceGenerator.swift; sourceTree = "<group>"; };
 		D89DBE272B88802800E5F1BD /* Country.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Country.swift; sourceTree = "<group>"; };
 		D89DBE2A2B88817E00E5F1BD /* JSONUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONUtils.swift; sourceTree = "<group>"; };
@@ -191,6 +193,7 @@
 				D8AC25BA2B7F327A00CEAAD3 /* SplitoPreference.swift */,
 				D8A7CA742BA5AB670014EC67 /* UserStore.swift */,
 				D8A7CA762BA5AB800014EC67 /* GroupStore.swift */,
+				D8910E372BB6D1D300877CE0 /* ExpenseStore.swift */,
 				D8A7CA7A2BA5B6AC0014EC67 /* ShareCodeStore.swift */,
 			);
 			path = Store;
@@ -259,8 +262,8 @@
 				D89DBE512B8DC4ED00E5F1BD /* Router */,
 				D8AC25BF2B7F38C800CEAAD3 /* DI */,
 				D89DBE292B88817200E5F1BD /* Utils */,
-				D8AC25B92B7F326B00CEAAD3 /* Store */,
 				D89DBE262B88801F00E5F1BD /* Model */,
+				D8AC25B92B7F326B00CEAAD3 /* Store */,
 				D83B15072B99976F004A5F4F /* Repository */,
 				D8A7CA7E2BA867C80014EC67 /* Extension */,
 				D89DBE4B2B8CBEB500E5F1BD /* Services */,
@@ -470,6 +473,7 @@
 				D89DBE2B2B88817E00E5F1BD /* JSONUtils.swift in Sources */,
 				D8A7CA802BA867F80014EC67 /* String+Extension.swift in Sources */,
 				D89DBE282B88802800E5F1BD /* Country.swift in Sources */,
+				D8910E382BB6D1D300877CE0 /* ExpenseStore.swift in Sources */,
 				D83B15092B999789004A5F4F /* GroupRepository.swift in Sources */,
 				D89DBE532B8DC9F700E5F1BD /* AppRoute.swift in Sources */,
 				D8A7CA752BA5AB670014EC67 /* UserStore.swift in Sources */,

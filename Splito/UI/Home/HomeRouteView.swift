@@ -16,32 +16,17 @@ struct HomeRouteView: View {
     var body: some View {
         ZStack {
             TabView {
-                HomeView()
-                    .tabItem {
-                        Label("Friends", systemImage: "person")
-                    }
-                    .tag(0)
-
                 GroupRouteView()
                     .tabItem {
                         Label("Groups", systemImage: "person.2")
                     }
-                    .tag(1)
-
-                InvisibleView()
-                    .hidden()
-
-                HomeView()
-                    .tabItem {
-                        Label("Activity", systemImage: "chart.line.uptrend.xyaxis.circle")
-                    }
-                    .tag(3)
+                    .tag(0)
 
                 HomeView()
                     .tabItem {
                         Label("Account", systemImage: "person.crop.square")
                     }
-                    .tag(4)
+                    .tag(1)
             }
             .tint(primaryColor)
             .overlay(
@@ -56,18 +41,9 @@ struct HomeRouteView: View {
     }
 }
 
-struct InvisibleView: View {
-    var body: some View {
-        Color.clear // Invisible color
-            .contentShape(Rectangle()) // Intercepts taps
-            .allowsHitTesting(false) // Disables hit testing
-            .disabled(true)
-    }
-}
-
 struct CenterFabButton: View {
 
-    var onclick: () -> Void
+    var onClick: () -> Void
 
     var body: some View {
         VStack {
@@ -76,7 +52,7 @@ struct CenterFabButton: View {
                 Spacer()
 
                 Button {
-                    onclick()
+                    onClick()
                 } label: {
                     Image(systemName: "plus.circle.fill")
                         .resizable()

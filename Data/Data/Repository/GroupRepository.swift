@@ -56,7 +56,7 @@ public class GroupRepository: ObservableObject {
         Future { [weak self] promise in
             guard let self else { return }
 
-            self.store.fetchGroups(userId: userId)
+            self.store.fetchGroups()
                 .sink { completion in
                     if case .failure(let error) = completion {
                         promise(.failure(error))

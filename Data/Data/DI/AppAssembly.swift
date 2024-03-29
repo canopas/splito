@@ -31,6 +31,8 @@ public class AppAssembly: Assembly {
             StorageManager.init()
         }.inObjectScope(.container)
 
+        // MARK: - Stores
+
         container.register(UserStore.self) { _ in
             UserStore.init()
         }.inObjectScope(.container)
@@ -43,6 +45,12 @@ public class AppAssembly: Assembly {
             ShareCodeStore.init()
         }.inObjectScope(.container)
 
+        container.register(ExpenseStore.self) { _ in
+            ExpenseStore.init()
+        }.inObjectScope(.container)
+
+        // MARK: - Repositories
+
         container.register(UserRepository.self) { _ in
             UserRepository.init()
         }.inObjectScope(.container)
@@ -53,6 +61,10 @@ public class AppAssembly: Assembly {
 
         container.register(ShareCodeRepository.self) { _ in
             ShareCodeRepository.init()
+        }.inObjectScope(.container)
+
+        container.register(ExpenseRepository.self) { _ in
+            ExpenseRepository.init()
         }.inObjectScope(.container)
     }
 }
