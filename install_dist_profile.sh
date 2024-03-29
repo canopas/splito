@@ -11,8 +11,5 @@ mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
 # Copy the provisioning profile where Xcode can find it
 cp "${DIST_PROFILE_FILE}" "$HOME/Library/MobileDevice/Provisioning Profiles/${BUILD_PROVISION_UUID}.mobileprovision"
 
-# Lock the keychain
-security lock-keychain "$BUILD_KEYCHAIN"
-
 # clean
-rm -fr -- *.mobileprovision
+rm -fr -- ./*.mobileprovision
