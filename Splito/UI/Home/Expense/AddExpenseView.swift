@@ -72,11 +72,6 @@ struct AddExpenseView: View {
     }
 }
 
-private struct ExpenseDetail: Codable {
-    var name: String
-    var amount: Double
-}
-
 private struct ExpenseDetailRow: View {
 
     var imageName: String
