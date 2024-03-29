@@ -64,6 +64,8 @@ private struct NoMemberFoundView: View {
 
 private struct MemberCellView: View {
 
+    @Inject var preference: SplitoPreference
+
     var member: AppUser
     var isSelected: Bool
 
@@ -72,7 +74,11 @@ private struct MemberCellView: View {
     init(member: AppUser, isSelected: Bool) {
         self.member = member
         self.isSelected = isSelected
-        self.userName = (member.firstName ?? "") + " " + (member.lastName ?? "")
+        if let user = preference.user, member.id == user.id {
+            self.userName = "You"
+        } else {
+            self.userName = (member.firstName ?? "") + " " + (member.lastName ?? "")
+        }
     }
 
     var body: some View {

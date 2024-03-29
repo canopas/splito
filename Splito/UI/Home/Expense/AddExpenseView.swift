@@ -30,7 +30,7 @@ struct AddExpenseView: View {
             }
             .padding(.trailing, 20)
 
-            PaidByView(payerName: viewModel.selectedPayer?.firstName ?? "You") {
+            PaidByView(payerName: viewModel.payerName) {
                 viewModel.showPayerSelection = viewModel.selectedGroup != nil
             }
         }
