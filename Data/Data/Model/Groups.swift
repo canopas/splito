@@ -13,11 +13,11 @@ public struct Groups: Codable, Identifiable {
 
     public var name: String
     public var createdBy: String
-    public var members: [Member]
+    public var members: [String]
     public var imageUrl: String?
     public var createdAt: Timestamp
 
-    public init(name: String, createdBy: String, members: [Member], imageUrl: String? = nil, createdAt: Timestamp) {
+    public init(name: String, createdBy: String, members: [String], imageUrl: String? = nil, createdAt: Timestamp) {
         self.name = name
         self.createdBy = createdBy
         self.members = members

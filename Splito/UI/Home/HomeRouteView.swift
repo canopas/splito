@@ -11,48 +11,40 @@ import SwiftUI
 
 struct HomeRouteView: View {
 
+    @State private var openExpenseSheet = false
+
     var body: some View {
         ZStack {
             TabView {
-                HomeView()
-                    .tabItem {
-                        Label("Friends", systemImage: "person")
-                    }
-                    .tag(0)
-
                 GroupRouteView()
                     .tabItem {
                         Label("Groups", systemImage: "person.2")
                     }
-                    .tag(1)
-
-                HomeView()
-                    .tabItem {
-//                        Label("", systemImage: "plus.circle.fill")
-                    }
-                    .tag(1)
-
-                HomeView()
-                    .tabItem {
-                        Label("Activity", systemImage: "chart.line.uptrend.xyaxis.circle")
-                    }
-                    .tag(3)
+                    .tag(0)
 
                 HomeView()
                     .tabItem {
                         Label("Account", systemImage: "person.crop.square")
                     }
-                    .tag(4)
+                    .tag(1)
             }
             .tint(primaryColor)
-            .toolbarColorScheme(.light, for: .tabBar)
-
-            CenterFabButton()
+            .overlay(
+                CenterFabButton {
+                    openExpenseSheet = true
+                }
+            )
+            .fullScreenCover(isPresented: $openExpenseSheet) {
+                ExpenseRouteView()
+            }
         }
     }
 }
 
 struct CenterFabButton: View {
+
+    var onClick: () -> Void
+
     var body: some View {
         VStack {
             Spacer()
@@ -60,7 +52,7 @@ struct CenterFabButton: View {
                 Spacer()
 
                 Button {
-                    // Open screen
+                    onClick()
                 } label: {
                     Image(systemName: "plus.circle.fill")
                         .resizable()

@@ -57,7 +57,7 @@ public class ShareCodeStore: ObservableObject {
     }
 
     public func deleteSharedCode(documentId: String) -> AnyPublisher<Void, ServiceError> {
-        return Future { [weak self] promise in
+        Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return

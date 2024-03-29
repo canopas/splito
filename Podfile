@@ -1,5 +1,5 @@
 # Uncomment the next line to define a global platform for your project
-platform :ios, '16'
+platform :ios, '16.4'
 
 workspace 'Splito.xcworkspace'
 project 'Splito.xcodeproj'

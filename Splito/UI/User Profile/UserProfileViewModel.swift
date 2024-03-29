@@ -124,7 +124,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                     if self.isOpenedFromOnboard {
                         self.goToHome()
                     }
-                }.store(in: &cancelables)
+                }.store(in: &cancelable)
         }
     }
 
@@ -146,7 +146,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                     }
                 } receiveValue: { _ in
                     print("UserProfileViewModel :: user deleted.")
-                }.store(in: &cancelables)
+                }.store(in: &cancelable)
         } else {
             print("UserProfileViewModel :: user not exists.")
         }

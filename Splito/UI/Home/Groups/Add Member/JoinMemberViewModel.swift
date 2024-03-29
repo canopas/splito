@@ -12,7 +12,6 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
 
     @Inject var preference: SplitoPreference
     @Inject var groupRepository: GroupRepository
-    @Inject var memberRepository: MemberRepository
     @Inject var codeRepository: ShareCodeRepository
 
     @Published var code = ""
@@ -40,43 +39,45 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
                 guard let self else { return }
 
                 guard let code else {
-                    self.showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Your entered code not exists."))
+                    self.showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Entered code not exists."))
                     return
                 }
 
-                self.addMember(groupId: code.groupId) {
-                    _ = self.codeRepository.deleteSharedCode(documentId: code.id ?? "")
-                    self.goToGroupHome()
-                }
-            }.store(in: &cancelables)
+                self.addMemberIfCodeExists(code: code)
+            }.store(in: &cancelable)
     }
 
-    // Add member to the collection
+    func addMemberIfCodeExists(code: SharedCode) {
+        let expireDate = code.expireDate.dateValue()
+        let daysDifference = Calendar.current.dateComponents([.day], from: expireDate, to: Date()).day
+
+        // Code will be valid until 2 days, so check for the day difference
+        guard let daysDifference, daysDifference <= codeRepository.CODE_EXPIRATION_LIMIT else {
+            showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Entered code is expired."))
+            return
+        }
+
+        addMember(groupId: code.groupId) {
+            _ = self.codeRepository.deleteSharedCode(documentId: code.id ?? "")
+            self.goToGroupHome()
+        }
+    }
+
     func addMember(groupId: String, completion: @escaping () -> Void) {
         guard let userId = preference.user?.id else { return }
         currentState = .loading
 
-        let member = Member(userId: userId, groupId: groupId)
-
-        memberRepository.addMemberToMembers(member: member) { [weak self] memberId in
-            guard let self, let memberId else {
-                self?.showAlertFor(message: "Something went wrong")
-                return
-            }
-            self.groupRepository.addMemberToGroup(groupId: groupId, memberId: memberId)
-                .sink { [weak self] result in
-                    switch result {
-                    case .failure(let error):
-                        self?.currentState = .initial
-                        self?.showToastFor(error)
-                        completion()
-                    case .finished:
-                        self?.currentState = .initial
-                    }
-                } receiveValue: { _ in
+        groupRepository.addMemberToGroup(memberId: userId, groupId: groupId)
+            .sink { [weak self] result in
+                if case .failure(let error) = result {
+                    self?.currentState = .initial
+                    self?.showToastFor(error)
                     completion()
-                }.store(in: &self.cancelables)
-        }
+                }
+            } receiveValue: { _ in
+                self.currentState = .initial
+                completion()
+            }.store(in: &cancelable)
     }
 
     func goToGroupHome() {

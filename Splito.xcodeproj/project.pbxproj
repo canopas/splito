@@ -12,6 +12,13 @@
 		1AA0888605B3C007D521672B /* Pods_Splito_SplitoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F43B44CC4843658DFC543F9 /* Pods_Splito_SplitoUITests.framework */; };
 		D8302DA02B9F282F005ACA13 /* InviteMemberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8302D9F2B9F282F005ACA13 /* InviteMemberView.swift */; };
 		D8302DA22B9F284D005ACA13 /* InviteMemberViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8302DA12B9F284D005ACA13 /* InviteMemberViewModel.swift */; };
+		D85E86E02BAB06A3002EDF76 /* AddExpenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86DF2BAB06A3002EDF76 /* AddExpenseView.swift */; };
+		D85E86E32BAB06D9002EDF76 /* AddExpenseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86E22BAB06D9002EDF76 /* AddExpenseViewModel.swift */; };
+		D85E86E72BB2E189002EDF76 /* ExpenseRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86E62BB2E189002EDF76 /* ExpenseRouteView.swift */; };
+		D85E86E92BB3FD49002EDF76 /* ChoosePayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86E82BB3FD49002EDF76 /* ChoosePayerView.swift */; };
+		D85E86EB2BB3FD59002EDF76 /* ChoosePayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86EA2BB3FD59002EDF76 /* ChoosePayerViewModel.swift */; };
+		D85E86ED2BB41B87002EDF76 /* ChooseGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86EC2BB41B87002EDF76 /* ChooseGroupView.swift */; };
+		D85E86EF2BB41B9F002EDF76 /* ChooseGroupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86EE2BB41B9F002EDF76 /* ChooseGroupViewModel.swift */; };
 		D863857B2B908AB600A8C6EB /* VERSION in Resources */ = {isa = PBXBuildFile; fileRef = D863857A2B908AB600A8C6EB /* VERSION */; };
 		D88721452B9B2C78009DC5BE /* GroupListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721442B9B2C78009DC5BE /* GroupListView.swift */; };
 		D88721472B9B2C97009DC5BE /* GroupListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */; };
@@ -106,6 +113,13 @@
 		D8015C082B7A47D80002886A /* UI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = UI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8302D9F2B9F282F005ACA13 /* InviteMemberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteMemberView.swift; sourceTree = "<group>"; };
 		D8302DA12B9F284D005ACA13 /* InviteMemberViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteMemberViewModel.swift; sourceTree = "<group>"; };
+		D85E86DF2BAB06A3002EDF76 /* AddExpenseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseView.swift; sourceTree = "<group>"; };
+		D85E86E22BAB06D9002EDF76 /* AddExpenseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseViewModel.swift; sourceTree = "<group>"; };
+		D85E86E62BB2E189002EDF76 /* ExpenseRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseRouteView.swift; sourceTree = "<group>"; };
+		D85E86E82BB3FD49002EDF76 /* ChoosePayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoosePayerView.swift; sourceTree = "<group>"; };
+		D85E86EA2BB3FD59002EDF76 /* ChoosePayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoosePayerViewModel.swift; sourceTree = "<group>"; };
+		D85E86EC2BB41B87002EDF76 /* ChooseGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseGroupView.swift; sourceTree = "<group>"; };
+		D85E86EE2BB41B9F002EDF76 /* ChooseGroupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseGroupViewModel.swift; sourceTree = "<group>"; };
 		D863857A2B908AB600A8C6EB /* VERSION */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VERSION; sourceTree = "<group>"; };
 		D863857E2B909A5A00A8C6EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D88721442B9B2C78009DC5BE /* GroupListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListView.swift; sourceTree = "<group>"; };
@@ -238,6 +252,28 @@
 				D8D14A572BA189F800F45FF2 /* JoinMemberViewModel.swift */,
 			);
 			path = "Add Member";
+			sourceTree = "<group>";
+		};
+		D85E86E12BAB06BC002EDF76 /* Expense */ = {
+			isa = PBXGroup;
+			children = (
+				D85E86E62BB2E189002EDF76 /* ExpenseRouteView.swift */,
+				D85E86DF2BAB06A3002EDF76 /* AddExpenseView.swift */,
+				D85E86E22BAB06D9002EDF76 /* AddExpenseViewModel.swift */,
+				D85E86F02BB41CBA002EDF76 /* Detail Selection */,
+			);
+			path = Expense;
+			sourceTree = "<group>";
+		};
+		D85E86F02BB41CBA002EDF76 /* Detail Selection */ = {
+			isa = PBXGroup;
+			children = (
+				D85E86EC2BB41B87002EDF76 /* ChooseGroupView.swift */,
+				D85E86EE2BB41B9F002EDF76 /* ChooseGroupViewModel.swift */,
+				D85E86E82BB3FD49002EDF76 /* ChoosePayerView.swift */,
+				D85E86EA2BB3FD59002EDF76 /* ChoosePayerViewModel.swift */,
+			);
+			path = "Detail Selection";
 			sourceTree = "<group>";
 		};
 		D89684382B722D3400D5F721 = {
@@ -414,10 +450,11 @@
 			children = (
 				D8AC26E42B84B12800CEAAD3 /* HomeView.swift */,
 				D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */,
-				D89DBE542B8DE8B200E5F1BD /* Friends */,
 				D89DBE552B8DE8C600E5F1BD /* Groups */,
-				D89DBE562B8DE8CF00E5F1BD /* Activity */,
+				D85E86E12BAB06BC002EDF76 /* Expense */,
 				D89DBE572B8DE8D400E5F1BD /* Account */,
+				D89DBE562B8DE8CF00E5F1BD /* Activity */,
+				D89DBE542B8DE8B200E5F1BD /* Friends */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -719,12 +756,15 @@
 			files = (
 				D8D14A692BA3133500F45FF2 /* OnboardRouteView.swift in Sources */,
 				D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */,
+				D85E86EF2BB41B9F002EDF76 /* ChooseGroupViewModel.swift in Sources */,
 				D8E244B72B972BE700C6C82A /* BaseViewModel.swift in Sources */,
 				D8AC26F22B84B12800CEAAD3 /* MainRouteView.swift in Sources */,
 				D89DBE592B8DE91D00E5F1BD /* FriendRouteView.swift in Sources */,
+				D85E86E02BAB06A3002EDF76 /* AddExpenseView.swift in Sources */,
 				D88721472B9B2C97009DC5BE /* GroupListViewModel.swift in Sources */,
 				D8D14A622BA2DCE700F45FF2 /* UserProfileViewModel.swift in Sources */,
 				D8A7CA6E2BA483F60014EC67 /* GroupHomeView.swift in Sources */,
+				D85E86ED2BB41B87002EDF76 /* ChooseGroupView.swift in Sources */,
 				D8302DA22B9F284D005ACA13 /* InviteMemberViewModel.swift in Sources */,
 				D89DBE5D2B8DE97B00E5F1BD /* ActivityRouteView.swift in Sources */,
 				D8E244BF2B98592C00C6C82A /* GroupHomeViewModel.swift in Sources */,
@@ -738,12 +778,15 @@
 				D89DBE5F2B8DE98600E5F1BD /* AccountRouteView.swift in Sources */,
 				D8D14A652BA2DD7300F45FF2 /* ProfileImageView.swift in Sources */,
 				D8D14A672BA2E25100F45FF2 /* UserProfileList.swift in Sources */,
+				D85E86E72BB2E189002EDF76 /* ExpenseRouteView.swift in Sources */,
 				D8302DA02B9F282F005ACA13 /* InviteMemberView.swift in Sources */,
 				D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */,
 				D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */,
+				D85E86E32BAB06D9002EDF76 /* AddExpenseViewModel.swift in Sources */,
 				D8A7CA702BA484370014EC67 /* GroupSettingView.swift in Sources */,
 				D8A7CA722BA486250014EC67 /* GroupSettingViewModel.swift in Sources */,
 				D8D14A4E2BA0688A00F45FF2 /* FloatingGroupMenu.swift in Sources */,
+				D85E86EB2BB3FD59002EDF76 /* ChoosePayerViewModel.swift in Sources */,
 				D89DBE5B2B8DE97000E5F1BD /* GroupRouteView.swift in Sources */,
 				D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */,
 				D8E244BB2B9843A100C6C82A /* CreateGroupView.swift in Sources */,
@@ -754,6 +797,7 @@
 				D88721452B9B2C78009DC5BE /* GroupListView.swift in Sources */,
 				D8D14A582BA189F800F45FF2 /* JoinMemberViewModel.swift in Sources */,
 				D89DBE232B875C2200E5F1BD /* PhoneLoginView.swift in Sources */,
+				D85E86E92BB3FD49002EDF76 /* ChoosePayerView.swift in Sources */,
 				D8AC26F62B84B12800CEAAD3 /* LoginViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -843,7 +887,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -900,7 +944,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -934,7 +978,7 @@
 				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1038,7 +1082,7 @@
 				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1129,7 +1173,7 @@
 				DEVELOPMENT_TEAM = S985H2T7J8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.project.SplitoTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1151,7 +1195,7 @@
 				DEVELOPMENT_TEAM = S985H2T7J8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.project.SplitoTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";

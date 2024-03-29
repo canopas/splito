@@ -30,6 +30,9 @@ public enum AppRoute: Hashable {
     case InviteMemberView(groupId: String)
     case JoinMemberView
 
+    // MARK: - Expense Button
+    case AddExpenseView
+
     // MARK: - Activity Tab
     case ActivityHomeView
 
@@ -67,6 +70,9 @@ public enum AppRoute: Hashable {
             "joinMemberView"
         case .ProfileView:
             "userProfileView"
+
+        case .AddExpenseView:
+            "addExpenseView"
 
         case .AccountHomeView:
             "accountHomeView"
