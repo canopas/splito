@@ -122,7 +122,7 @@ extension VerifyOtpViewModel {
                 guard let self else { return }
                 self.preference.user = user
                 self.onLoginSuccess()
-            }.store(in: &cancelables)
+            }.store(in: &cancelable)
     }
 
     func editButtonAction() {

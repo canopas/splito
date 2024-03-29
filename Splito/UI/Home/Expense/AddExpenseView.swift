@@ -30,7 +30,9 @@ struct AddExpenseView: View {
             }
             .padding(.trailing, 20)
 
-            PaidByView()
+            PaidByView(payerName: viewModel.selectedPayer?.firstName ?? "You") {
+                viewModel.showPayerSelection = viewModel.selectedGroup != nil
+            }
         }
         .padding(.horizontal, 20)
         .background(backgroundColor)
@@ -38,10 +40,13 @@ struct AddExpenseView: View {
         .sheet(isPresented: $viewModel.showGroupSelection) {
             ChooseGroupView(viewModel: ChooseGroupViewModel(selectedGroup: viewModel.selectedGroup) { group in
                 viewModel.selectedGroup = group
+                viewModel.selectedPayer = nil
             })
         }
-        .sheet(isPresented: $viewModel.showMemberSelection) {
-            ChoosePayerView(viewModel: ChoosePayerViewModel(groupId: viewModel.selectedGroup?.id ?? ""))
+        .sheet(isPresented: $viewModel.showPayerSelection) {
+            ChoosePayerView(viewModel: ChoosePayerViewModel(groupId: viewModel.selectedGroup?.id ?? "", selectedPayer: viewModel.selectedPayer) { payer in
+                viewModel.selectedPayer = payer
+            })
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -135,6 +140,9 @@ struct GroupSelectionView: View {
 
 struct PaidByView: View {
 
+    let payerName: String
+    var onTap: () -> Void
+
     var body: some View {
         HStack(spacing: 10) {
             Text("Paid by")
@@ -142,9 +150,9 @@ struct PaidByView: View {
                 .foregroundColor(primaryText)
 
             Button {
-
+                onTap()
             } label: {
-                Text("you")
+                Text(payerName)
                     .font(.subTitle2())
                     .foregroundColor(secondaryText)
             }

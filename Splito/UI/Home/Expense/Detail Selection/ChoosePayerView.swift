@@ -17,62 +17,108 @@ struct ChoosePayerView: View {
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        VStack(spacing: 16) {
-            Text("Group:: \(viewModel.groupId)")
-        }
-        .background(backgroundColor)
-        .navigationBarTitle("Choose payer", displayMode: .inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Text("Cancel")
+        VStack(alignment: .center, spacing: 20) {
+            if case .loading = viewModel.currentViewState {
+                LoaderView(tintColor: primaryColor, scaleSize: 2)
+            } else if case .noUsers = viewModel.currentViewState {
+                NoMemberFoundView()
+            } else if case .hasUser(let users) = viewModel.currentViewState {
+                VSpacer(10)
+
+                Text("Choose Payer")
+                    .font(.Header3())
+                    .foregroundColor(.primary)
+
+                VSpacer(10)
+
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: 16) {
+                        ForEach(users) { user in
+                            MemberCellView(member: user, isSelected: user.id == viewModel.selectedPayer?.id)
+                                .onTapGesture {
+                                    viewModel.handlePayerSelection(user: user)
+                                    dismiss()
+                                }
+                        }
+                    }
                 }
             }
+        }
+        .padding(.horizontal, 30)
+        .background(backgroundColor)
+        .toastView(toast: $viewModel.toast)
+        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+    }
+}
+
+private struct NoMemberFoundView: View {
+
+    var body: some View {
+        VStack {
+            Text("No members in your selected group.")
+                .font(.subTitle1())
+                .foregroundColor(primaryColor)
         }
     }
 }
 
-// struct PayerCellView: View {
-//
-//    var member: Member
-//
-//    var body: some View {
-//        HStack(alignment: .center, spacing: 16) {
-//            if let imageUrl = member.imageUrl, let url = URL(string: imageUrl) {
-//                KFImage(url)
-//                    .placeholder({ _ in
-//                        ImageLoaderView()
-//                    })
-//                    .setProcessor(ResizingImageProcessor(referenceSize: CGSize(width: (50 * UIScreen.main.scale), height: (50 * UIScreen.main.scale)), mode: .aspectFill))
-//                    .resizable()
-//                    .scaledToFill()
-//                    .frame(width: 50, height: 50, alignment: .center)
-//                    .clipShape(RoundedRectangle(cornerRadius: 10))
-//            } else {
-//                Image(.group)
-//                    .resizable()
-//                    .scaledToFill()
-//                    .frame(width: 50, height: 50, alignment: .center)
-//                    .clipShape(RoundedRectangle(cornerRadius: 10))
-//            }
-//
-//            Text(group.name)
-//                .font(.subTitle2())
-//                .foregroundColor(primaryText)
-//
-//            Spacer()
-//
-//            Image(.checkMarkTick)
-//                .resizable()
-//                .frame(width: 24, height: 24)
-//
-//        }
-//        .background(backgroundColor)
-//    }
-// }
+private struct MemberCellView: View {
+
+    var member: AppUser
+    var isSelected: Bool
+
+    var userName: String?
+
+    init(member: AppUser, isSelected: Bool) {
+        self.member = member
+        self.isSelected = isSelected
+        self.userName = (member.firstName ?? "") + " " + (member.lastName ?? "")
+    }
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 16) {
+            if let imageUrl = member.imageUrl, let url = URL(string: imageUrl) {
+                KFImage(url)
+                    .placeholder({ _ in
+                        ImageLoaderView()
+                    })
+                    .setProcessor(ResizingImageProcessor(referenceSize: CGSize(width: (50 * UIScreen.main.scale), height: (50 * UIScreen.main.scale)), mode: .aspectFill))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 50, height: 50, alignment: .center)
+                    .clipShape(RoundedRectangle(cornerRadius: 25))
+                    .overlay(
+                        Circle()
+                            .strokeBorder(Color.gray, lineWidth: 1)
+                    )
+            } else {
+                Image(.user)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 50, height: 50, alignment: .center)
+                    .clipShape(RoundedRectangle(cornerRadius: 25))
+                    .overlay(
+                        Circle()
+                            .strokeBorder(Color.gray, lineWidth: 1)
+                    )
+            }
+
+            Text((userName ?? "").isEmpty ? "Unknown" : userName!)
+                .font(.subTitle2())
+                .foregroundColor(primaryText)
+
+            Spacer()
+
+            if isSelected {
+                Image(.checkMarkTick)
+                    .resizable()
+                    .frame(width: 24, height: 24)
+            }
+        }
+        .background(backgroundColor)
+    }
+}
 
 #Preview {
-    ChoosePayerView(viewModel: ChoosePayerViewModel(groupId: ""))
+    ChoosePayerView(viewModel: ChoosePayerViewModel(groupId: "", selectedPayer: nil, onPayerSelection: { _ in }))
 }

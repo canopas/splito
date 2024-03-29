@@ -39,7 +39,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 guard let self, let group else { return }
                 self.group = group
                 self.groupState = group.members.count == 1 ? .noMember : .hasMembers
-            }.store(in: &cancelables)
+            }.store(in: &cancelable)
     }
 
     func handleCreateGroupClick() {

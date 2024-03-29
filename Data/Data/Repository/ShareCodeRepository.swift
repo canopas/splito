@@ -13,7 +13,7 @@ public class ShareCodeRepository: ObservableObject {
 
     @Inject private var store: ShareCodeStore
 
-    private var cancelables = Set<AnyCancellable>()
+    private var cancelable = Set<AnyCancellable>()
 
     public func addSharedCode(sharedCode: SharedCode, completion: @escaping (String?) -> Void) {
         store.addSharedCode(sharedCode: sharedCode, completion: completion)
@@ -38,6 +38,6 @@ public class ShareCodeRepository: ObservableObject {
                 }
             } receiveValue: { code in
                 completion(code == nil)
-            }.store(in: &cancelables)
+            }.store(in: &cancelable)
     }
 }

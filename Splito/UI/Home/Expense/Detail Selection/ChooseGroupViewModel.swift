@@ -13,7 +13,6 @@ class ChooseGroupViewModel: BaseViewModel, ObservableObject {
     @Inject var preference: SplitoPreference
     @Inject var groupRepository: GroupRepository
 
-    @Published var groups: [Groups] = []
     @Published var selectedGroup: Groups?
     @Published var currentViewState: ViewState = .initial
 
@@ -39,9 +38,8 @@ class ChooseGroupViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] groups in
                 self?.currentViewState = groups.isEmpty ? .noGroups : .hasGroups(groups: groups)
-                self?.groups = groups
             }
-            .store(in: &cancelables)
+            .store(in: &cancelable)
     }
 
     func handleGroupSelection(group: Groups) {

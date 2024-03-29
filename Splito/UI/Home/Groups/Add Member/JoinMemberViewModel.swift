@@ -44,7 +44,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
                 }
 
                 self.addMemberIfCodeExists(code: code)
-            }.store(in: &cancelables)
+            }.store(in: &cancelable)
     }
 
     func addMemberIfCodeExists(code: SharedCode) {
@@ -77,7 +77,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { _ in
                 self.currentState = .initial
                 completion()
-            }.store(in: &cancelables)
+            }.store(in: &cancelable)
     }
 
     func goToGroupHome() {

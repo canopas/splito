@@ -44,7 +44,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
                 guard let self else { return }
                 self.currentViewState = .initial
                 self.groupListState = groups.isEmpty ? .noGroup : .hasGroup(groups: groups)
-            }.store(in: &cancelables)
+            }.store(in: &cancelable)
     }
 
     func handleCreateGroupBtnTap() {

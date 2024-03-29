@@ -102,7 +102,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { id in
                 self.goToGroupHome(groupId: id)
-            }.store(in: &cancelables)
+            }.store(in: &cancelable)
     }
 
     func goToGroupHome(groupId: String) {

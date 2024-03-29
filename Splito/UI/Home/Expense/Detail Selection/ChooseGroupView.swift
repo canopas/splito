@@ -29,6 +29,8 @@ struct ChooseGroupView: View {
                     .font(.Header3())
                     .foregroundColor(.primary)
 
+                VSpacer(10)
+
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 16) {
                         ForEach(groups) { group in
@@ -44,21 +46,12 @@ struct ChooseGroupView: View {
         }
         .padding(.horizontal, 30)
         .background(backgroundColor)
-        .navigationBarTitle("Choose group", displayMode: .inline)
+        .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Text("Cancel")
-                }
-            }
-        }
     }
 }
 
-struct NoGroupFoundView: View {
+private struct NoGroupFoundView: View {
 
     var body: some View {
         VStack {
@@ -69,7 +62,7 @@ struct NoGroupFoundView: View {
     }
 }
 
-struct GroupCellView: View {
+private struct GroupCellView: View {
 
     var group: Groups
     var isSelected: Bool

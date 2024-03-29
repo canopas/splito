@@ -15,9 +15,10 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published var expenseDate = Date()
 
     @Published var selectedGroup: Groups?
+    @Published var selectedPayer: AppUser?
 
     @Published var showGroupSelection = false
-    @Published var showMemberSelection = false
+    @Published var showPayerSelection = false
 
     @Published var openForGroupSelection = false
 
