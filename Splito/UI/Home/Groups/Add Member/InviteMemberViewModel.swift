@@ -52,7 +52,7 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
                 self.group = group
-            }.store(in: &cancelables)
+            }.store(in: &cancelable)
     }
 
     func storeSharedCode() {

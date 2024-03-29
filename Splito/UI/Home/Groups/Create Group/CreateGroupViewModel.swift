@@ -24,7 +24,6 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     @Inject var preference: SplitoPreference
     @Inject var storageManager: StorageManager
     @Inject var groupRepository: GroupRepository
-    @Inject var memberRepository: MemberRepository
 
     @Published var groupName = ""
     @Published var sourceTypeIsCamera = false
@@ -87,7 +86,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     func handleDoneAction() {
         currentState = .loading
         let userId = preference.user?.id ?? ""
-        let group = Groups(name: groupName, createdBy: userId, members: [], imageUrl: nil, createdAt: Timestamp())
+        let group = Groups(name: groupName.capitalized, createdBy: userId, members: [userId], imageUrl: nil, createdAt: Timestamp())
 
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
@@ -103,7 +102,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { id in
                 self.goToGroupHome(groupId: id)
-            }.store(in: &cancelables)
+            }.store(in: &cancelable)
     }
 
     func goToGroupHome(groupId: String) {

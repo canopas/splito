@@ -18,7 +18,7 @@ open class BaseViewModel {
     @Published public var alert: AlertPrompt = .init(message: "")
     @Published public var showAlert: Bool = false
 
-    public var cancelables = Set<AnyCancellable>()
+    public var cancelable = Set<AnyCancellable>()
 
     public init() { }
 

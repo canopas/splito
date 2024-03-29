@@ -42,11 +42,9 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] groups in
                 guard let self else { return }
-                // Show only those groups in which the user is part of
-                let filteredGroups = groups.filter { $0.createdBy == userId || $0.members.contains(where: { $0.userId == userId }) }
                 self.currentViewState = .initial
-                self.groupListState = filteredGroups.isEmpty ? .noGroup : .hasGroup(groups: filteredGroups)
-            }.store(in: &cancelables)
+                self.groupListState = groups.isEmpty ? .noGroup : .hasGroup(groups: groups)
+            }.store(in: &cancelable)
     }
 
     func handleCreateGroupBtnTap() {
@@ -82,7 +80,7 @@ extension GroupListViewModel {
             switch self {
             case .noGroup:
                 "noGroup"
-            case .hasGroup(let groups):
+            case .hasGroup:
                 "hasGroup"
             }
         }

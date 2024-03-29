@@ -148,7 +148,7 @@ private struct UserDetailCell: View {
 
             VSpacer(5)
 
-            UserProfileDataEditableTextField(titletext: $titleText, isDisabled: isDisabled, placeholder: placeholder, fieldType: fieldType, keyboardType: keyboardType, focused: focused, autoCapitalizationType: autoCapitalizationType)
+            UserProfileDataEditableTextField(titleText: $titleText, isDisabled: isDisabled, placeholder: placeholder, fieldType: fieldType, keyboardType: keyboardType, focused: focused, autoCapitalizationType: autoCapitalizationType)
 
             VSpacer(8)
 
@@ -189,7 +189,7 @@ private struct UserDetailCell: View {
 
 private struct UserProfileDataEditableTextField: View {
 
-    @Binding var titletext: String
+    @Binding var titleText: String
 
     let isDisabled: Bool
     let placeholder: String
@@ -199,7 +199,7 @@ private struct UserProfileDataEditableTextField: View {
     var autoCapitalizationType: UITextAutocapitalizationType
 
     var body: some View {
-        TextField(placeholder, text: $titletext)
+        TextField(placeholder, text: $titleText)
             .font(.subTitle1())
             .focused(focused, equals: fieldType)
             .foregroundColor(primaryText)

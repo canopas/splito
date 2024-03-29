@@ -116,7 +116,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] _ in
                 guard let self else { return }
                 self.onLoginSuccess()
-            }.store(in: &cancelables)
+            }.store(in: &cancelable)
     }
 
     func onLoginSuccess() {
