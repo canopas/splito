@@ -31,12 +31,13 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     @Published var showImagePickerOptions = false
     @Published var profileImage: UIImage?
 
-    @Published var selectedGroupType: GroupType?
+    @Published var group: Groups?
     @Published var currentState: ViewState = .initial
 
     let router: Router<AppRoute>
+    var isOpenForEdit: Bool = false
 
-    init(router: Router<AppRoute>) {
+    init(router: Router<AppRoute>, group: Groups? = nil) {
         self.router = router
         super.init()
     }

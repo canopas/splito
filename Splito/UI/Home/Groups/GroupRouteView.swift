@@ -26,6 +26,8 @@ struct GroupRouteView: View {
                 InviteMemberView(viewModel: InviteMemberViewModel(router: appRoute, groupId: id))
             case .JoinMemberView:
                 JoinMemberView(viewModel: JoinMemberViewModel(router: appRoute))
+            case .GroupSettingView(let id):
+                GroupSettingView(viewModel: GroupSettingViewModel(router: appRoute, groupId: id))
             default:
                 EmptyRouteView(routeName: self)
             }

@@ -75,24 +75,8 @@ private struct GroupListCellView: View {
     let group: Groups
 
     var body: some View {
-        HStack(alignment: .center, spacing: 16) {
-            if let imageUrl = group.imageUrl, let url = URL(string: imageUrl) {
-                KFImage(url)
-                    .placeholder({ _ in
-                        ImageLoaderView()
-                    })
-                    .setProcessor(ResizingImageProcessor(referenceSize: CGSize(width: (50 * UIScreen.main.scale), height: (50 * UIScreen.main.scale)), mode: .aspectFill))
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 50, height: 50, alignment: .center)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            } else {
-                Image(.group)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 50, height: 50, alignment: .center)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
+        HStack(alignment: .center, spacing: 20) {
+            GroupProfileImageView(imageUrl: group.imageUrl)
 
             Text(group.name)
                 .font(.subTitle2())

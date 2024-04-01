@@ -49,6 +49,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     func handleAddMemberClick() {
         router.push(.InviteMemberView(groupId: groupId))
     }
+
+    func handleSettingButtonTap() {
+        router.push(.GroupSettingView(groupId: groupId))
+    }
 }
 
 // MARK: - Group State

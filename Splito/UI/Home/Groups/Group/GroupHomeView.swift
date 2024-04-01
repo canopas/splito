@@ -27,7 +27,18 @@ struct GroupHomeView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationBarTitle(viewModel.group?.name ?? "", displayMode: .inline)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .ignoresSafeArea()
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.handleSettingButtonTap()
+                } label: {
+                    Image(systemName: "gearshape")
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                }
+                .foregroundColor(primaryColor)
+            }
+        }
     }
 }
 

@@ -118,41 +118,6 @@ private struct AddGroupNameView: View {
     }
 }
 
-private struct GroupTypeSelectionView: View {
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Type")
-                .font(.subTitle4())
-                .foregroundColor(secondaryText)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    ForEach(CreateGroupViewModel.GroupType.allCases, id: \.self) { type in
-                        Button {
-
-                        } label: {
-                            Text(type.rawValue)
-                                .font(.subTitle3())
-                                .foregroundColor(secondaryText)
-//                                .foregroundColor(viewModel.selectedGroupType == type ? .white : .primary)
-//                                .background(viewModel.selectedGroupType == type ? Color.blue : Color.clear)
-                        }
-                        .padding(.vertical, 10)
-                        .padding(.horizontal, 20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 30)
-                                .stroke(secondaryText.opacity(0.5), lineWidth: 1)
-                        )
-                    }
-                }
-                .padding(1)
-            }
-        }
-    }
-}
-
 #Preview {
     CreateGroupView(viewModel: CreateGroupViewModel(router: .init(root: .CreateGroupView)))
 }

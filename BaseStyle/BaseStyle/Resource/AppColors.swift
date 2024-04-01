@@ -18,6 +18,8 @@ public let outlineColor = Color.outline
 public let primaryColor = Color.mainPrimary
 
 public let disableText = Color.disableText
+public let disableLightText = Color.disableLightText
+
 public let primaryText = Color.primaryText
 public let secondaryText = Color.secondaryText
 
