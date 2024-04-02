@@ -43,7 +43,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleCreateGroupClick() {
-        router.push(.CreateGroupView)
+        router.push(.CreateGroupView(group: nil))
     }
 
     func handleAddMemberClick() {

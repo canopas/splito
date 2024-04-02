@@ -69,9 +69,9 @@ public class GroupRepository: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    public func addMemberToGroup(memberId: String, groupId: String) -> AnyPublisher<Void, ServiceError> {
+    public func addMemberToGroup(memberId: String, groupId: String) -> AnyPublisher<String, ServiceError> {
         return fetchGroupBy(id: groupId)
-            .flatMap { group -> AnyPublisher<Void, ServiceError> in
+            .flatMap { group -> AnyPublisher<String, ServiceError> in
                 guard let group else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
 
                 var newGroup = group
@@ -107,7 +107,7 @@ public class GroupRepository: ObservableObject {
         userRepository.fetchUserBy(userID: userId)
     }
 
-    public func updateGroup(group: Groups) -> AnyPublisher<Void, ServiceError> {
+    public func updateGroup(group: Groups) -> AnyPublisher<String, ServiceError> {
         store.updateGroup(group: group)
     }
 
@@ -127,10 +127,44 @@ public class GroupRepository: ObservableObject {
 
                 self.updateGroup(group: newGroup)
                     .sink { completion in
-                        switch completion {
-                        case .finished:
-                            return
-                        case .failure(let error):
+                        if case .failure(let error) = completion {
+                            promise(.failure(error))
+                        }
+                    } receiveValue: { _ in
+                        promise(.success(()))
+                    }.store(in: &self.cancelable)
+            }
+        }.eraseToAnyPublisher()
+    }
+
+    public func updateGroupWithImage(imageData: Data?, group: Groups) -> AnyPublisher<Void, ServiceError> {
+        Future { [weak self] promise in
+            guard let self, let url = group.imageUrl else {
+                promise(.failure(.unexpectedError))
+                return
+            }
+
+            if let imageData {
+                self.storageManager.deleteImage(imageUrl: url) { error in
+                    guard error == nil else {
+                        promise(.failure(.databaseError))
+                        return
+                    }
+
+                    self.uploadImage(imageData: imageData, group: group)
+                        .sink { completion in
+                            if case .failure(let error) = completion {
+                                promise(.failure(error))
+                            }
+                        } receiveValue: { _ in
+                            promise(.success(()))
+                        }
+                        .store(in: &self.cancelable)
+                }
+            } else {
+                self.updateGroup(group: group)
+                    .sink { completion in
+                        if case .failure(let error) = completion {
                             promise(.failure(error))
                         }
                     } receiveValue: { _ in

@@ -24,6 +24,9 @@ struct GroupSettingView: View {
                         VSpacer(20)
 
                         GroupTitleView(group: group)
+                            .onTapGesture {
+                                viewModel.handleEditGroupTap()
+                            }
 
                         Divider()
                             .frame(height: 1)

@@ -26,7 +26,7 @@ public enum AppRoute: Hashable {
     // MARK: - Groups Tab
     case GroupListView
     case GroupHomeView(groupId: String)
-    case CreateGroupView
+    case CreateGroupView(group: Groups?)
     case InviteMemberView(groupId: String)
     case JoinMemberView
     case GroupSettingView(groupId: String)

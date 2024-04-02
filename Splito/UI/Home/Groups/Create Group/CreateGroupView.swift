@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BaseStyle
+import Kingfisher
 
 struct CreateGroupView: View {
 
@@ -20,18 +21,19 @@ struct CreateGroupView: View {
                 VStack(spacing: 40) {
                     VSpacer(30)
 
-                    AddGroupNameView(image: viewModel.profileImage, groupName: $viewModel.groupName, handleProfileTap: viewModel.handleProfileTap)
+                    AddGroupNameView(image: viewModel.profileImage, imageUrl: viewModel.profileImageUrl,
+                                     groupName: $viewModel.groupName, handleProfileTap: viewModel.handleProfileTap)
 
                     Spacer()
                 }
                 .padding(.horizontal, 20)
-                .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-                .navigationBarTitle("Create a group", displayMode: .inline)
             }
         }
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .navigationBarTitle(viewModel.group == nil ? "Create a group" : "Edit group", displayMode: .inline)
         .onTapGesture {
             UIApplication.shared.endEditing()
         }
@@ -72,6 +74,7 @@ struct CreateGroupView: View {
 private struct AddGroupNameView: View {
 
     var image: UIImage?
+    var imageUrl: String?
     @Binding var groupName: String
 
     let handleProfileTap: (() -> Void)
@@ -82,7 +85,11 @@ private struct AddGroupNameView: View {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(style: StrokeStyle(lineWidth: 1, dash: [4]))
 
-                if let image {
+                if let imageUrl, let url = URL(string: imageUrl) {
+                    KFImage(url)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else if let image {
                     Image(uiImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
@@ -119,5 +126,5 @@ private struct AddGroupNameView: View {
 }
 
 #Preview {
-    CreateGroupView(viewModel: CreateGroupViewModel(router: .init(root: .CreateGroupView)))
+    CreateGroupView(viewModel: CreateGroupViewModel(router: .init(root: .CreateGroupView(group: nil))))
 }

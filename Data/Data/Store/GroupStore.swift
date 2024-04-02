@@ -26,7 +26,7 @@ class GroupStore: ObservableObject {
         completion(nil)
     }
 
-    func updateGroup(group: Groups) -> AnyPublisher<Void, ServiceError> {
+    func updateGroup(group: Groups) -> AnyPublisher<String, ServiceError> {
         Future { [weak self] promise in
             guard let self, let docID = group.id else {
                 promise(.failure(.unexpectedError))
@@ -34,7 +34,7 @@ class GroupStore: ObservableObject {
             }
             do {
                 try self.database.collection(self.DATABASE_NAME).document(docID).setData(from: group, merge: true)
-                promise(.success(()))
+                promise(.success(docID))
             } catch {
                 LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
                 promise(.failure(.databaseError))

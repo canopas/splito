@@ -42,6 +42,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
+                self.group = group
                 self.currentViewState = .success(group: group)
             }.store(in: &cancelable)
     }
@@ -62,7 +63,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleEditGroupTap() {
-        router.push(.CreateGroupView)
+        router.push(.CreateGroupView(group: group))
     }
 
     func handleAddMemberTap() {
