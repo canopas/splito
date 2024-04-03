@@ -30,16 +30,17 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
         super.init()
 
-        fetchGroup()
+        fetchGroupDetails()
     }
+    
+    // MARK: - Data Loading
 
-    func fetchGroup() {
+    func fetchGroupDetails() {
         currentViewState = .loading
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.currentViewState = .initial
-                    self?.showAlertFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
@@ -53,8 +54,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         groupRepository.fetchMembersBy(groupId: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.currentViewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] users in
                 guard let self else { return }
@@ -62,6 +62,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                 self.currentViewState = .initial
             }.store(in: &cancelable)
     }
+    
+    // MARK: - User Actions
 
     func handleEditGroupTap() {
         router.push(.CreateGroupView(group: group))
@@ -109,8 +111,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         groupRepository.removeMemberFrom(group: group, memberId: memberId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.currentViewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { _ in
                 self.currentViewState = .initial
@@ -138,8 +139,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         groupRepository.deleteGroup(groupID: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.currentViewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { _ in
                 self.currentViewState = .initial
@@ -147,8 +147,17 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
+    // MARK: - Navigation
+    
     func goBackToGroupList() {
         router.popToRoot()
+    }
+    
+    // MARK: - Error Handling
+    
+    private func handleServiceError(_ error: ServiceError) {
+        currentViewState = .initial
+        showToastFor(error)
     }
 }
 

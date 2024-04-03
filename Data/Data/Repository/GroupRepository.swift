@@ -105,14 +105,26 @@ public class GroupRepository: ObservableObject {
                 promise(.failure(.unexpectedError))
                 return
             }
-
+            
+            let updateGroup = {
+                self.updateGroup(group: group)
+                    .sink { completion in
+                        if case .failure(let error) = completion {
+                            promise(.failure(error))
+                        }
+                    } receiveValue: { _ in
+                        promise(.success(()))
+                    }
+                    .store(in: &self.cancelable)
+            }
+            
             if let imageData {
                 self.storageManager.deleteImage(imageUrl: url) { error in
                     guard error == nil else {
                         promise(.failure(.databaseError))
                         return
                     }
-
+                    
                     self.uploadImage(imageData: imageData, group: group)
                         .sink { completion in
                             if case .failure(let error) = completion {
@@ -124,14 +136,7 @@ public class GroupRepository: ObservableObject {
                         .store(in: &self.cancelable)
                 }
             } else {
-                self.updateGroup(group: group)
-                    .sink { completion in
-                        if case .failure(let error) = completion {
-                            promise(.failure(error))
-                        }
-                    } receiveValue: { _ in
-                        promise(.success(()))
-                    }.store(in: &self.cancelable)
+                updateGroup()
             }
         }.eraseToAnyPublisher()
     }

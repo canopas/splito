@@ -33,7 +33,7 @@ struct GroupSettingView: View {
                         }
 
                         GroupAdvanceSettingsView(onLeaveGroupTap: viewModel.handleLeaveGroupTap,
-                                                 onDeleteGroupTap: viewModel.handleLeaveGroupTap)
+                                                 onDeleteGroupTap: viewModel.handleDeleteGroupTap)
                     }
                 }
             }
@@ -165,18 +165,25 @@ private struct GroupMemberCellView: View {
     @Inject var preference: SplitoPreference
 
     let member: AppUser
-    var userName: String?
-    var subInfo: String?
+    var userName: String = ""
+    var subInfo: String = ""
 
     init(member: AppUser) {
         self.member = member
-        if let user = preference.user, member.id == user.id {
-            userName = "You"
-        } else {
-            userName = (member.firstName ?? "") + " " + (member.lastName ?? "")
-        }
-        userName = (userName ?? "").isEmpty ? "Unknown" : userName
+        setupUserInfo()
+        setupSubInfo()
+    }
+    
+    private mutating func setupUserInfo() {
+         if let user = preference.user, member.id == user.id {
+             userName = "You"
+         } else {
+             userName = (member.firstName ?? "") + " " + (member.lastName ?? "")
+         }
+        userName = (userName).isEmpty ? "Unknown" : userName
+     }
 
+    private mutating func setupSubInfo() {
         if let emailId = member.emailId {
             subInfo = emailId
         } else if let phoneNumber = member.phoneNumber {
@@ -189,12 +196,12 @@ private struct GroupMemberCellView: View {
             MemberProfileImageView(imageUrl: member.imageUrl)
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(userName ?? "")
+                Text(userName)
                     .lineLimit(1)
                     .font(.subTitle2())
                     .foregroundColor(primaryText)
 
-                Text(subInfo ?? "")
+                Text(subInfo)
                     .lineLimit(1)
                     .font(.subTitle3())
                     .foregroundColor(secondaryText)
