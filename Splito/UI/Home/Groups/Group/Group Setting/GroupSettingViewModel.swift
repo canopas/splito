@@ -7,13 +7,18 @@
 
 import Data
 import Combine
+import BaseStyle
 
 class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
+    @Inject var preference: SplitoPreference
     @Inject var groupRepository: GroupRepository
 
     private let groupId: String
     private let router: Router<AppRoute>
+
+    @Published var showLeaveGroupDialog = false
+    @Published var showRemoveMemberDialog = false
 
     @Published var group: Groups?
     @Published var members: [AppUser] = []
@@ -26,39 +31,35 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         super.init()
 
         fetchGroup()
-        fetchGroupMembers()
     }
 
     func fetchGroup() {
         currentViewState = .loading
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
-                switch completion {
-                case .finished:
-                    return
-                case .failure(let error):
+                if case .failure(let error) = completion {
                     self?.currentViewState = .initial
-                    self?.showToastFor(error)
+                    self?.showAlertFor(error)
                 }
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
                 self.group = group
-                self.currentViewState = .success(group: group)
+                self.fetchGroupMembers()
             }.store(in: &cancelable)
     }
 
     func fetchGroupMembers() {
-        // Show loader for this method
+        currentViewState = .loading
         groupRepository.fetchMembersBy(groupId: groupId)
             .sink { [weak self] completion in
-                switch completion {
-                case .finished:
-                    return
-                case .failure(let error):
+                if case .failure(let error) = completion {
+                    self?.currentViewState = .initial
                     self?.showToastFor(error)
                 }
-            } receiveValue: { users in
+            } receiveValue: { [weak self] users in
+                guard let self else { return }
                 self.members = users
+                self.currentViewState = .initial
             }.store(in: &cancelable)
     }
 
@@ -69,6 +70,86 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     func handleAddMemberTap() {
         router.push(.InviteMemberView(groupId: groupId))
     }
+
+    func handleMemberTap(member: AppUser) {
+        if let userId = preference.user?.id, userId == member.id {
+            showLeaveGroupDialog = true
+            alert = .init(title: "Leave Group?",
+                          message: "Are you absolutely sure you want to leave this group?",
+                          positiveBtnTitle: "Leave",
+                          positiveBtnAction: { self.removeMemberFromGroup(memberId: member.id) },
+                          negativeBtnTitle: "Cancel",
+                          negativeBtnAction: { self.showAlert = false })
+        } else {
+            showRemoveMemberDialog = true
+            alert = .init(title: "Remove from group?",
+                          message: "Are you sure you want to remove this member from the group?",
+                          positiveBtnTitle: "Remove",
+                          positiveBtnAction: { self.removeMemberFromGroup(memberId: member.id) },
+                          negativeBtnTitle: "Cancel",
+                          negativeBtnAction: { self.showAlert = false })
+        }
+    }
+
+    func handleLeaveGroupTap() {
+        guard let userId = preference.user?.id else { return }
+        alert = .init(title: "Leave Group?",
+                      message: "Are you absolutely sure you want to leave this group?",
+                      positiveBtnTitle: "Leave",
+                      positiveBtnAction: { self.removeMemberFromGroup(memberId: userId) },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false })
+        showAlert = true
+    }
+
+    func removeMemberFromGroup(memberId: String) {
+        guard let group else { return }
+        guard let userId = preference.user?.id else { return }
+        currentViewState = .loading
+        groupRepository.removeMemberFrom(group: group, memberId: memberId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.currentViewState = .initial
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { _ in
+                self.currentViewState = .initial
+                if userId == memberId {
+                    self.goBackToGroupList()
+                } else {
+                    self.showAlert = false
+                    self.showToastFor(toast: ToastPrompt(type: .success, title: "", message: "Group member removed"))
+                }
+            }.store(in: &cancelable)
+    }
+
+    func handleDeleteGroupTap() {
+        alert = .init(title: "Delete Group",
+                      message: "Are you ABSOLUTELY sure you want to leave this group? This will remove the group for ALL users involved, not just yourself.",
+                      positiveBtnTitle: "Delete",
+                      positiveBtnAction: { self.deleteGroupWithMembers() },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
+        showAlert = true
+    }
+
+    func deleteGroupWithMembers() {
+        currentViewState = .loading
+        groupRepository.deleteGroup(groupID: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.currentViewState = .initial
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { _ in
+                self.currentViewState = .initial
+                self.goBackToGroupList()
+            }.store(in: &cancelable)
+    }
+
+    func goBackToGroupList() {
+        router.popToRoot()
+    }
 }
 
 // MARK: - Group State
@@ -76,7 +157,6 @@ extension GroupSettingViewModel {
     enum ViewState {
         case initial
         case loading
-        case success(group: Groups)
         case hasMembers
     }
 }

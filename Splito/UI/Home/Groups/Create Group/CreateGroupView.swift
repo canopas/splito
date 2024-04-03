@@ -18,8 +18,8 @@ struct CreateGroupView: View {
             if case .loading = viewModel.currentState {
                 LoaderView(tintColor: primaryColor, scaleSize: 2)
             } else {
-                VStack(spacing: 40) {
-                    VSpacer(30)
+                VStack {
+                    VSpacer(40)
 
                     AddGroupNameView(image: viewModel.profileImage, imageUrl: viewModel.profileImageUrl,
                                      groupName: $viewModel.groupName, handleProfileTap: viewModel.handleProfileTap)

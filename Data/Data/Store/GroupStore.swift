@@ -26,7 +26,7 @@ class GroupStore: ObservableObject {
         completion(nil)
     }
 
-    func updateGroup(group: Groups) -> AnyPublisher<String, ServiceError> {
+    func updateGroup(group: Groups) -> AnyPublisher<Void, ServiceError> {
         Future { [weak self] promise in
             guard let self, let docID = group.id else {
                 promise(.failure(.unexpectedError))
@@ -34,7 +34,7 @@ class GroupStore: ObservableObject {
             }
             do {
                 try self.database.collection(self.DATABASE_NAME).document(docID).setData(from: group, merge: true)
-                promise(.success(docID))
+                promise(.success(()))
             } catch {
                 LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
                 promise(.failure(.databaseError))
@@ -104,5 +104,24 @@ class GroupStore: ObservableObject {
                 }
             }
         }.eraseToAnyPublisher()
+    }
+
+    func deleteGroup(groupID: String) -> AnyPublisher<Void, ServiceError> {
+        Future { [weak self] promise in
+            guard let self else {
+                promise(.failure(.unexpectedError))
+                return
+            }
+
+            self.database.collection(DATABASE_NAME).document(groupID).delete { error in
+                if let error {
+                    LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
+                    promise(.failure(.databaseError))
+                } else {
+                    promise(.success(()))
+                }
+            }
+        }
+        .eraseToAnyPublisher()
     }
 }

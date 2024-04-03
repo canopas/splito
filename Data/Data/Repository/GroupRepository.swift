@@ -69,45 +69,7 @@ public class GroupRepository: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    public func addMemberToGroup(memberId: String, groupId: String) -> AnyPublisher<String, ServiceError> {
-        return fetchGroupBy(id: groupId)
-            .flatMap { group -> AnyPublisher<String, ServiceError> in
-                guard let group else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
-
-                var newGroup = group
-                newGroup.members.append(memberId)
-
-                return self.updateGroup(group: newGroup)
-            }
-            .eraseToAnyPublisher()
-    }
-
-    public func fetchMembersBy(groupId: String) -> AnyPublisher<[AppUser], ServiceError> {
-        fetchGroupBy(id: groupId)
-            .flatMap { group -> AnyPublisher<[AppUser], ServiceError> in
-                guard let group else {
-                    return Fail(error: .dataNotFound).eraseToAnyPublisher()
-                }
-
-                // Create a publisher for each member ID and fetch user data
-                let memberPublishers = group.members.map { (userId: String) -> AnyPublisher<AppUser?, ServiceError> in
-                    return self.fetchMemberBy(userId: userId)
-                }
-
-                return Publishers.MergeMany(memberPublishers)
-                    .compactMap { $0 }
-                    .collect()
-                    .mapError { $0 }
-                    .eraseToAnyPublisher()
-            }
-            .eraseToAnyPublisher()
-    }
-
-    public func fetchMemberBy(userId: String) -> AnyPublisher<AppUser?, ServiceError> {
-        userRepository.fetchUserBy(userID: userId)
-    }
-
-    public func updateGroup(group: Groups) -> AnyPublisher<String, ServiceError> {
+    public func updateGroup(group: Groups) -> AnyPublisher<Void, ServiceError> {
         store.updateGroup(group: group)
     }
 
@@ -172,5 +134,57 @@ public class GroupRepository: ObservableObject {
                     }.store(in: &self.cancelable)
             }
         }.eraseToAnyPublisher()
+    }
+
+    public func addMemberToGroup(memberId: String, groupId: String) -> AnyPublisher<Void, ServiceError> {
+        return fetchGroupBy(id: groupId)
+            .flatMap { group -> AnyPublisher<Void, ServiceError> in
+                guard let group else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
+
+                var newGroup = group
+                newGroup.members.append(memberId)
+
+                return self.updateGroup(group: newGroup)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    public func fetchMembersBy(groupId: String) -> AnyPublisher<[AppUser], ServiceError> {
+        fetchGroupBy(id: groupId)
+            .flatMap { group -> AnyPublisher<[AppUser], ServiceError> in
+                guard let group else {
+                    return Fail(error: .dataNotFound).eraseToAnyPublisher()
+                }
+
+                // Create a publisher for each member ID and fetch user data
+                let memberPublishers = group.members.map { (userId: String) -> AnyPublisher<AppUser?, ServiceError> in
+                    return self.fetchMemberBy(userId: userId)
+                }
+
+                return Publishers.MergeMany(memberPublishers)
+                    .compactMap { $0 }
+                    .collect()
+                    .mapError { $0 }
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+
+    public func fetchMemberBy(userId: String) -> AnyPublisher<AppUser?, ServiceError> {
+        userRepository.fetchUserBy(userID: userId)
+    }
+
+    public func removeMemberFrom(group: Groups, memberId: String) -> AnyPublisher<Void, ServiceError> {
+        var newGroup = group
+        newGroup.members.removeAll(where: { $0 == memberId })
+        if newGroup.members.isEmpty {
+            return deleteGroup(groupID: newGroup.id ?? "")
+        } else {
+            return updateGroup(group: newGroup)
+        }
+    }
+
+    public func deleteGroup(groupID: String) -> AnyPublisher<Void, ServiceError> {
+        store.deleteGroup(groupID: groupID)
     }
 }
