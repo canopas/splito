@@ -82,12 +82,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     func handleMemberTap(member: AppUser) {
         if let userId = preference.user?.id, userId == member.id {
             showLeaveGroupDialog = true
-            alert = .init(title: "Leave Group?",
-                          message: "Are you absolutely sure you want to leave this group?",
-                          positiveBtnTitle: "Leave",
-                          positiveBtnAction: { self.removeMemberFromGroup(memberId: member.id) },
-                          negativeBtnTitle: "Cancel",
-                          negativeBtnAction: { self.showAlert = false })
+            setupAlertForLeavingGroup(memberId: member.id)
         } else {
             showRemoveMemberDialog = true
             alert = .init(title: "Remove from group?",
@@ -101,13 +96,17 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     func handleLeaveGroupTap() {
         guard let userId = preference.user?.id else { return }
+        setupAlertForLeavingGroup(memberId: userId)
+        showAlert = true
+    }
+
+    private func setupAlertForLeavingGroup(memberId: String) {
         alert = .init(title: "Leave Group?",
                       message: "Are you absolutely sure you want to leave this group?",
                       positiveBtnTitle: "Leave",
-                      positiveBtnAction: { self.removeMemberFromGroup(memberId: userId) },
+                      positiveBtnAction: { self.removeMemberFromGroup(memberId: memberId) },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
-        showAlert = true
     }
 
     func removeMemberFromGroup(memberId: String) {
