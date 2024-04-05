@@ -14,7 +14,7 @@ public class UserRepository: ObservableObject {
     private var cancelable = Set<AnyCancellable>()
 
     public func storeUser(user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
-        return self.store.fetchUsers()
+        self.store.fetchUsers()
             .flatMap { [weak self] users -> AnyPublisher<AppUser, ServiceError> in
                 guard let self else {
                     return Fail(error: .unexpectedError).eraseToAnyPublisher()
@@ -29,7 +29,6 @@ public class UserRepository: ObservableObject {
                             return .databaseError
                         }
                         .map { _ in user }
-                        .receive(on: DispatchQueue.main)
                         .eraseToAnyPublisher()
                 }
             }
@@ -37,7 +36,7 @@ public class UserRepository: ObservableObject {
     }
 
     public func fetchUserBy(userID: String) -> AnyPublisher<AppUser?, ServiceError> {
-        return self.store.fetchUsers()
+        self.store.fetchUsers()
             .map { users -> AppUser? in
                 return users.first(where: { $0.id == userID })
             }
@@ -49,10 +48,10 @@ public class UserRepository: ObservableObject {
     }
 
     public func updateUser(user: AppUser) -> AnyPublisher<Void, ServiceError> {
-        return store.updateUser(user: user)
+        store.updateUser(user: user)
     }
 
     public func deleteUser(id: String) -> AnyPublisher<Void, ServiceError> {
-        return store.deleteUser(id: id)
+        store.deleteUser(id: id)
     }
 }

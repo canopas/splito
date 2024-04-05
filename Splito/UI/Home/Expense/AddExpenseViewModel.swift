@@ -61,10 +61,15 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         let expense = Expense(name: expenseName, amount: expenseAmount, date: Timestamp(date: expenseDate),
                               paidBy: selectedPayer.id, splitTo: selectedGroup.members, groupId: groupId)
 
-        expenseRepository.addExpense(expense: expense) { _ in
-            self.currentViewState = .initial
-            completion()
-        }
+        expenseRepository.addExpense(expense: expense)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.currentViewState = .initial
+                completion()
+            }.store(in: &cancelable)
     }
 }
 

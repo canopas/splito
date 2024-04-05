@@ -48,7 +48,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleCreateGroupBtnTap() {
-        router.push(.CreateGroupView)
+        router.push(.CreateGroupView(group: nil))
     }
 
     func handleJoinGroupBtnTap() {

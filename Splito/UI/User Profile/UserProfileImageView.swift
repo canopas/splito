@@ -1,5 +1,5 @@
 //
-//  ProfileImageView.swift
+//  UserProfileImageView.swift
 //  Splito
 //
 //  Created by Amisha Italiya on 14/03/24.
@@ -9,7 +9,7 @@ import SwiftUI
 import BaseStyle
 import Kingfisher
 
-struct ProfileImageView: View {
+struct UserProfileImageView: View {
 
     @Binding private var image: UIImage?
 

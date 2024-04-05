@@ -14,8 +14,8 @@ public class ExpenseRepository: ObservableObject {
 
     private var cancelable = Set<AnyCancellable>()
 
-    public func addExpense(expense: Expense, completion: @escaping (String?) -> Void) {
-        store.addExpense(expense: expense, completion: completion)
+    public func addExpense(expense: Expense) -> AnyPublisher<Void, ServiceError> {
+        store.addExpense(expense: expense)
     }
 
     public func deleteExpense(id: String) -> AnyPublisher<Void, ServiceError> {

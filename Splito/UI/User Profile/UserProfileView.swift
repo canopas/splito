@@ -22,7 +22,7 @@ struct UserProfileView: View {
                     VStack(spacing: 40) {
                         VSpacer(30)
 
-                        ProfileImageView(image: $viewModel.profileImage,
+                        UserProfileImageView(image: $viewModel.profileImage,
                                          profileImageUrl: viewModel.profileImageUrl,
                                          handleProfileTap: viewModel.handleProfileTap)
                         .confirmationDialog("", isPresented: $viewModel.showImagePickerOption, titleVisibility: .hidden) {

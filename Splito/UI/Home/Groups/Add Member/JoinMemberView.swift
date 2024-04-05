@@ -35,6 +35,7 @@ struct JoinMemberView: View {
             }
         }
         .padding(.horizontal, 22)
+        .background(backgroundColor)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .navigationBarTitle("Join Group", displayMode: .inline)
         .toastView(toast: $viewModel.toast)

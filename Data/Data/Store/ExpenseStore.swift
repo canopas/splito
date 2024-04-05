@@ -14,28 +14,35 @@ public class ExpenseStore: ObservableObject {
 
     private let DATABASE_NAME: String = "expenses"
 
-    public func addExpense(expense: Expense, completion: @escaping (String?) -> Void) {
-        do {
-            let code = try database.collection(DATABASE_NAME).addDocument(from: expense)
-            completion(code.documentID)
-            return
-        } catch {
-            LogE("ExpenseRepository :: \(#function) error: \(error.localizedDescription)")
+    func addExpense(expense: Expense) -> AnyPublisher<Void, ServiceError> {
+        Future { [weak self] promise in
+            guard let self else {
+                promise(.failure(.unexpectedError))
+                return
+            }
+
+            do {
+                let documentRef = try self.database.collection(self.DATABASE_NAME).addDocument(from: expense)
+                promise(.success(()))
+            } catch {
+                LogE("ExpenseRepository :: \(#function) error: \(error.localizedDescription)")
+                promise(.failure(.databaseError))
+            }
         }
-        completion(nil)
+        .eraseToAnyPublisher()
     }
 
     public func fetchExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
         return Future { [weak self] promise in
-            guard let self = self else {
+            guard let self else {
                 promise(.failure(.unexpectedError))
                 return
             }
 
             self.database.collection(DATABASE_NAME).whereField("group_id", isEqualTo: groupId).getDocuments { snapshot, error in
-                if let error = error {
+                if let error {
                     LogE("ExpenseRepository :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.networkError))
+                    promise(.failure(.databaseError))
                     return
                 }
 

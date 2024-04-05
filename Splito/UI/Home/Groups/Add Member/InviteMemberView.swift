@@ -49,6 +49,7 @@ struct InviteMemberView: View {
             Spacer()
         }
         .padding(.horizontal, 20)
+        .background(backgroundColor)
         .navigationBarTitle("Invite Code", displayMode: .inline)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .toastView(toast: $viewModel.toast)
