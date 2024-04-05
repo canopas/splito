@@ -82,32 +82,8 @@ private struct MemberCellView: View {
     }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 16) {
-            if let imageUrl = member.imageUrl, let url = URL(string: imageUrl) {
-                KFImage(url)
-                    .placeholder({ _ in
-                        ImageLoaderView()
-                    })
-                    .setProcessor(ResizingImageProcessor(referenceSize: CGSize(width: (50 * UIScreen.main.scale), height: (50 * UIScreen.main.scale)), mode: .aspectFill))
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 50, height: 50, alignment: .center)
-                    .clipShape(RoundedRectangle(cornerRadius: 25))
-                    .overlay(
-                        Circle()
-                            .strokeBorder(Color.gray, lineWidth: 1)
-                    )
-            } else {
-                Image(.user)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 50, height: 50, alignment: .center)
-                    .clipShape(RoundedRectangle(cornerRadius: 25))
-                    .overlay(
-                        Circle()
-                            .strokeBorder(Color.gray, lineWidth: 1)
-                    )
-            }
+        HStack(alignment: .center, spacing: 20) {
+            MemberProfileImageView(imageUrl: member.imageUrl)
 
             Text((userName ?? "").isEmpty ? "Unknown" : userName!)
                 .font(.subTitle2())

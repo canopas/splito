@@ -33,20 +33,22 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
 
     func generateInviteCode() {
         inviteCode = inviteCode.randomString(length: 6).uppercased()
-        codeRepository.checkForCodeAvailability(code: inviteCode) { [weak self] isAvailable in
-            if let self, !isAvailable {
-                self.generateInviteCode()
-            }
-        }
+        codeRepository.checkForCodeAvailability(code: inviteCode)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] isAvailable in
+                if let self, !isAvailable {
+                    self.generateInviteCode()
+                }
+            }.store(in: &cancelable)
     }
 
     func fetchGroup() {
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
-                switch completion {
-                case .finished:
-                    return
-                case .failure(let error):
+                if case .failure(let error) = completion {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] group in
@@ -57,10 +59,13 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
 
     func storeSharedCode() {
         let shareCode = SharedCode(code: inviteCode.encryptHexCode(), groupId: groupId, expireDate: Timestamp())
-        codeRepository.addSharedCode(sharedCode: shareCode) { [weak self] id in
-            if id != nil {
+        codeRepository.addSharedCode(sharedCode: shareCode)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] _ in
                 self?.router.pop()
-            }
-        }
+            }.store(in: &cancelable)
     }
 }

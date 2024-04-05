@@ -26,9 +26,10 @@ public enum AppRoute: Hashable {
     // MARK: - Groups Tab
     case GroupListView
     case GroupHomeView(groupId: String)
-    case CreateGroupView
+    case CreateGroupView(group: Groups?)
     case InviteMemberView(groupId: String)
     case JoinMemberView
+    case GroupSettingView(groupId: String)
 
     // MARK: - Expense Button
     case AddExpenseView
@@ -49,6 +50,8 @@ public enum AppRoute: Hashable {
             "phoneLoginView"
         case .VerifyOTPView:
             "verifyOTPView"
+        case .ProfileView:
+            "userProfileView"
         case .HomeView:
             "homeView"
 
@@ -68,8 +71,8 @@ public enum AppRoute: Hashable {
             "inviteMemberView"
         case .JoinMemberView:
             "joinMemberView"
-        case .ProfileView:
-            "userProfileView"
+        case .GroupSettingView:
+            "groupSettingView"
 
         case .AddExpenseView:
             "addExpenseView"

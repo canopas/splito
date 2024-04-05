@@ -43,11 +43,15 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleCreateGroupClick() {
-        router.push(.CreateGroupView)
+        router.push(.CreateGroupView(group: nil))
     }
 
     func handleAddMemberClick() {
         router.push(.InviteMemberView(groupId: groupId))
+    }
+
+    func handleSettingButtonTap() {
+        router.push(.GroupSettingView(groupId: groupId))
     }
 }
 

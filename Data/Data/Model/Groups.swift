@@ -7,7 +7,7 @@
 
 import FirebaseFirestore
 
-public struct Groups: Codable, Identifiable {
+public struct Groups: Codable, Identifiable, Hashable {
 
     @DocumentID public var id: String? // Automatically generated ID by Firestore
 
