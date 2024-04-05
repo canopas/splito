@@ -32,11 +32,8 @@ public class ShareCodeRepository: ObservableObject {
             guard let self else { promise(.failure(.unexpectedError)); return }
             self.fetchSharedCode(code: code)
                 .sink { result in
-                    switch result {
-                    case .failure(let error):
+                    if case .failure(let error) = result {
                         promise(.failure(error))
-                    case .finished:
-                        promise(.success(true))
                     }
                 } receiveValue: { code in
                     promise(.success(code == nil))

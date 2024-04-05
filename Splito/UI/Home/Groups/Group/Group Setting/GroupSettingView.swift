@@ -32,7 +32,8 @@ struct GroupSettingView: View {
                             viewModel.handleMemberTap(member: user)
                         }
 
-                        GroupAdvanceSettingsView(onLeaveGroupTap: viewModel.handleLeaveGroupTap,
+                        GroupAdvanceSettingsView(isDisable: !viewModel.isAdmin,
+                                                 onLeaveGroupTap: viewModel.handleLeaveGroupTap,
                                                  onDeleteGroupTap: viewModel.handleDeleteGroupTap)
                     }
                 }
@@ -115,6 +116,7 @@ private struct GroupMembersView: View {
 
 private struct GroupAdvanceSettingsView: View {
 
+    var isDisable: Bool
     var onLeaveGroupTap: () -> Void
     var onDeleteGroupTap: () -> Void
 
@@ -127,7 +129,7 @@ private struct GroupAdvanceSettingsView: View {
             GroupListEditCellView(icon: "arrow.left.square", text: "Leave group",
                                   isDistructive: true, onTap: onLeaveGroupTap)
 
-            GroupListEditCellView(icon: "trash", text: "Delete group",
+            GroupListEditCellView(icon: "trash", text: "Delete group", isDisable: isDisable,
                                   isDistructive: true, onTap: onDeleteGroupTap)
         }
         .padding(.horizontal, 22)
@@ -138,6 +140,7 @@ private struct GroupListEditCellView: View {
 
     var icon: String
     var text: String
+    var isDisable: Bool = false
     var isDistructive: Bool = false
 
     var onTap: () -> Void
@@ -153,10 +156,11 @@ private struct GroupListEditCellView: View {
         }
         .frame(height: 40)
         .padding(.leading, 16)
-        .foregroundColor(isDistructive ? awarenessColor : primaryText)
+        .foregroundColor(isDisable ? disableText : (isDistructive ? awarenessColor : primaryText))
         .onTouchGesture {
             onTap()
         }
+        .disabled(isDisable)
     }
 }
 

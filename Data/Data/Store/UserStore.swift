@@ -32,7 +32,7 @@ class UserStore: ObservableObject {
     }
 
     func updateUser(user: AppUser) -> AnyPublisher<Void, ServiceError> {
-        Future { [weak self] promise in
+        Future<Void, ServiceError> { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return

@@ -17,6 +17,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     private let groupId: String
     private let router: Router<AppRoute>
 
+    @Published var isAdmin = false
     @Published var showLeaveGroupDialog = false
     @Published var showRemoveMemberDialog = false
 
@@ -50,7 +51,6 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     func fetchGroupMembers() {
-        currentViewState = .loading
         groupRepository.fetchMembersBy(groupId: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -59,8 +59,14 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] users in
                 guard let self else { return }
                 self.members = users
+                self.checkForGroupAdmin()
                 self.currentViewState = .initial
             }.store(in: &cancelable)
+    }
+
+    func checkForGroupAdmin() {
+        guard let userId = preference.user?.id, let group else { return }
+        isAdmin = userId == group.createdBy
     }
 
     // MARK: - User Actions

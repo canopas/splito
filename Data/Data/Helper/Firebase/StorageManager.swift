@@ -31,9 +31,10 @@ public class StorageManager: ObservableObject {
 
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpg"
+        var cancellable: StorageUploadTask?
 
         return Future { promise in
-            storageRef.putData(imageData, metadata: metadata) { _, error in
+            cancellable = storageRef.putData(imageData, metadata: metadata) { _, error in
                 if let error {
                     LogE("StorageManager: Error while uploading file: \(error.localizedDescription)")
                     promise(.failure(.databaseError))
@@ -45,20 +46,27 @@ public class StorageManager: ObservableObject {
                         } else if let imageUrl = url?.absoluteString {
                             LogD("StorageManager: Image successfully uploaded to Firebase!")
                             promise(.success(imageUrl))
+                        } else {
+                            promise(.failure(.unexpectedError))
                         }
                     }
                 }
             }
         }
+        .handleEvents(receiveCancel: {
+            cancellable?.cancel()
+        })
         .eraseToAnyPublisher()
     }
 
     public func updateImage(for type: ImageStoreType, id: String, url: String, imageData: Data) -> AnyPublisher<String, ServiceError> {
-        self.deleteImage(imageUrl: url)
-            .flatMap { _ in
-                self.uploadImage(for: type, id: id, imageData: imageData)
-            }
-            .eraseToAnyPublisher()
+        deleteImage(imageUrl: url).catch { error -> AnyPublisher<Void, ServiceError> in
+            return Fail(error: error).eraseToAnyPublisher()
+        }
+        .flatMap { _ in
+            self.uploadImage(for: type, id: id, imageData: imageData)
+        }
+        .eraseToAnyPublisher()
     }
 
     public func deleteImage(imageUrl: String) -> AnyPublisher<Void, ServiceError> {
