@@ -81,6 +81,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             showImagePicker = true
         case .remove:
             profileImage = nil
+            profileImageUrl = nil
         }
     }
 
@@ -125,7 +126,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
 
-        groupRepository.updateGroupWithImage(imageData: imageData, group: newGroup)
+        groupRepository.updateGroupWithImage(imageData: imageData, newImageUrl: profileImageUrl, group: newGroup)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.currentState = .initial

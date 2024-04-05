@@ -32,7 +32,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
         fetchGroupDetails()
     }
-    
+
     // MARK: - Data Loading
 
     func fetchGroupDetails() {
@@ -62,7 +62,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                 self.currentViewState = .initial
             }.store(in: &cancelable)
     }
-    
+
     // MARK: - User Actions
 
     func handleEditGroupTap() {
@@ -148,13 +148,13 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Navigation
-    
+
     func goBackToGroupList() {
         router.popToRoot()
     }
-    
+
     // MARK: - Error Handling
-    
+
     private func handleServiceError(_ error: ServiceError) {
         currentViewState = .initial
         showToastFor(error)

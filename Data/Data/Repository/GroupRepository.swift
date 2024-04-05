@@ -18,34 +18,63 @@ public class GroupRepository: ObservableObject {
     private var cancelable = Set<AnyCancellable>()
 
     public func createGroup(group: Groups, imageData: Data?) -> AnyPublisher<String, ServiceError> {
-        Future { [weak self] promise in
-            guard let self else { promise(.failure(.unexpectedError)); return }
-
-            self.store.createGroup(group: group) { docId in
-                guard let docId else {
-                    promise(.failure(.databaseError))
-                    return
+        return store.createGroup(group: group)
+            .flatMap { [weak self] groupId -> AnyPublisher<String, ServiceError> in
+                guard let self else { return Fail(error: .unexpectedError).eraseToAnyPublisher() }
+                guard let imageData else {
+                    return Just(groupId).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
                 }
 
-                if let imageData {
-                    var newGroup = group
-                    newGroup.id = docId
-                    self.uploadImage(imageData: imageData, group: newGroup)
-                        .sink { completion in
-                            switch completion {
-                            case .finished:
-                                return
-                            case .failure(let error):
-                                promise(.failure(error))
-                            }
-                        } receiveValue: { _ in
-                            promise(.success(docId))
-                        }.store(in: &self.cancelable)
-                } else {
-                    promise(.success(docId))
-                }
+                var newGroup = group
+                newGroup.id = groupId
+
+                return self.uploadImage(imageData: imageData, group: newGroup)
+                    .map { _ in groupId }
+                    .eraseToAnyPublisher()
             }
-        }.eraseToAnyPublisher()
+            .eraseToAnyPublisher()
+    }
+
+    private func uploadImage(imageData: Data, group: Groups) -> AnyPublisher<Void, ServiceError> {
+        guard let groupId = group.id else {
+            return Fail(error: .unexpectedError).eraseToAnyPublisher()
+        }
+
+        return storageManager.uploadImage(for: .group, id: groupId, imageData: imageData)
+            .flatMap { imageUrl -> AnyPublisher<Void, ServiceError> in
+                var newGroup = group
+                newGroup.imageUrl = imageUrl
+                return self.updateGroup(group: newGroup)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    public func updateGroup(group: Groups) -> AnyPublisher<Void, ServiceError> {
+        store.updateGroup(group: group)
+    }
+
+    public func updateGroupWithImage(imageData: Data?, newImageUrl: String?, group: Groups) -> AnyPublisher<Void, ServiceError> {
+        var newGroup = group
+
+        if let currentUrl = group.imageUrl, newImageUrl == nil {
+            newGroup.imageUrl = newImageUrl
+
+            return storageManager.deleteImage(imageUrl: currentUrl)
+                .flatMap { _ in
+                    if let imageData {
+                        self.uploadImage(imageData: imageData, group: newGroup)
+                    } else {
+                        self.updateGroup(group: newGroup)
+                    }
+                }
+                .eraseToAnyPublisher()
+        }
+
+        if let imageData {
+            return self.uploadImage(imageData: imageData, group: newGroup)
+        } else {
+            return updateGroup(group: newGroup)
+        }
     }
 
     public func fetchGroupBy(id: String) -> AnyPublisher<Groups?, ServiceError> {
@@ -69,87 +98,18 @@ public class GroupRepository: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    public func updateGroup(group: Groups) -> AnyPublisher<Void, ServiceError> {
-        store.updateGroup(group: group)
-    }
-
-    private func uploadImage(imageData: Data, group: Groups) -> AnyPublisher<Void, ServiceError> {
-        Future { [weak self] promise in
-
-            guard let self, let groupId = group.id else { promise(.failure(.unexpectedError)); return }
-
-            self.storageManager.uploadImage(for: .group, id: groupId, imageData: imageData) { url in
-                guard let url else {
-                    promise(.failure(.databaseError))
-                    return
-                }
-
-                var newGroup = group
-                newGroup.imageUrl = url
-
-                self.updateGroup(group: newGroup)
-                    .sink { completion in
-                        if case .failure(let error) = completion {
-                            promise(.failure(error))
-                        }
-                    } receiveValue: { _ in
-                        promise(.success(()))
-                    }.store(in: &self.cancelable)
-            }
-        }.eraseToAnyPublisher()
-    }
-
-    public func updateGroupWithImage(imageData: Data?, group: Groups) -> AnyPublisher<Void, ServiceError> {
-        Future { [weak self] promise in
-            guard let self, let url = group.imageUrl else {
-                promise(.failure(.unexpectedError))
-                return
-            }
-            
-            let updateGroup = {
-                self.updateGroup(group: group)
-                    .sink { completion in
-                        if case .failure(let error) = completion {
-                            promise(.failure(error))
-                        }
-                    } receiveValue: { _ in
-                        promise(.success(()))
-                    }
-                    .store(in: &self.cancelable)
-            }
-            
-            if let imageData {
-                self.storageManager.deleteImage(imageUrl: url) { error in
-                    guard error == nil else {
-                        promise(.failure(.databaseError))
-                        return
-                    }
-                    
-                    self.uploadImage(imageData: imageData, group: group)
-                        .sink { completion in
-                            if case .failure(let error) = completion {
-                                promise(.failure(error))
-                            }
-                        } receiveValue: { _ in
-                            promise(.success(()))
-                        }
-                        .store(in: &self.cancelable)
-                }
-            } else {
-                updateGroup()
-            }
-        }.eraseToAnyPublisher()
-    }
-
     public func addMemberToGroup(memberId: String, groupId: String) -> AnyPublisher<Void, ServiceError> {
         return fetchGroupBy(id: groupId)
             .flatMap { group -> AnyPublisher<Void, ServiceError> in
-                guard let group else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
+                guard var group else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
 
-                var newGroup = group
-                newGroup.members.append(memberId)
+                // Check if the member already exists in the group
+                if group.members.contains(memberId) {
+                    return Fail(error: .alreadyExists).eraseToAnyPublisher()
+                }
 
-                return self.updateGroup(group: newGroup)
+                group.members.append(memberId)
+                return self.updateGroup(group: group)
             }
             .eraseToAnyPublisher()
     }
@@ -169,7 +129,6 @@ public class GroupRepository: ObservableObject {
                 return Publishers.MergeMany(memberPublishers)
                     .compactMap { $0 }
                     .collect()
-                    .mapError { $0 }
                     .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()

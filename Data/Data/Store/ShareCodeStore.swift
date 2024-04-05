@@ -14,15 +14,22 @@ public class ShareCodeStore: ObservableObject {
 
     @Inject private var database: Firestore
 
-    public func addSharedCode(sharedCode: SharedCode, completion: @escaping (String?) -> Void) {
-        do {
-            let code = try database.collection(DATABASE_NAME).addDocument(from: sharedCode)
-            completion(code.documentID)
-            return
-        } catch {
-            LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
+    func addSharedCode(sharedCode: SharedCode) -> AnyPublisher<Void, ServiceError> {
+        Future { [weak self] promise in
+            guard let self else {
+                promise(.failure(.unexpectedError))
+                return
+            }
+
+            do {
+                let documentRef = try self.database.collection(self.DATABASE_NAME).addDocument(from: sharedCode)
+                promise(.success(()))
+            } catch {
+                LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
+                promise(.failure(.databaseError))
+            }
         }
-        completion(nil)
+        .eraseToAnyPublisher()
     }
 
     public func fetchSharedCode(code: String) -> Future<SharedCode?, ServiceError> {
@@ -35,7 +42,7 @@ public class ShareCodeStore: ObservableObject {
             self.database.collection(DATABASE_NAME).whereField("code", isEqualTo: code).getDocuments { snapshot, error in
                 if let error {
                     LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.networkError))
+                    promise(.failure(.databaseError))
                     return
                 }
 

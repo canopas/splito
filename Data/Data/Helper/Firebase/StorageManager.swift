@@ -5,7 +5,7 @@
 //  Created by Amisha Italiya on 07/03/24.
 //
 
-import Foundation
+import Combine
 import FirebaseStorage
 
 public class StorageManager: ObservableObject {
@@ -26,50 +26,55 @@ public class StorageManager: ObservableObject {
 
     private let storage = Storage.storage()
 
-    public func uploadImage(for storeType: ImageStoreType, id: String, imageData: Data, completion: @escaping (String?) -> Void) {
+    public func uploadImage(for storeType: ImageStoreType, id: String, imageData: Data) -> AnyPublisher<String, ServiceError> {
         let storageRef = storage.reference(withPath: "/\(storeType.pathName)/\(id)")
 
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpg"
 
-        storageRef.putData(imageData, metadata: metadata) { _, error in
-            if let error {
-                LogE("StorageManager: Error while uploading file: \(error.localizedDescription)")
-                completion(nil)
-                return
-            }
-
-            storageRef.downloadURL { url, error in
+        return Future { promise in
+            storageRef.putData(imageData, metadata: metadata) { _, error in
                 if let error {
-                    LogE("StorageManager: Download url failed with error: \(error.localizedDescription)")
-                    completion(nil) // Return nil for completion to indicate error
-                } else if let imageUrl = url?.absoluteString {
-                    LogD("StorageManager: Image successfully uploaded to Firebase!")
-                    completion(imageUrl)
+                    LogE("StorageManager: Error while uploading file: \(error.localizedDescription)")
+                    promise(.failure(.databaseError))
+                } else {
+                    storageRef.downloadURL { url, error in
+                        if let error {
+                            LogE("StorageManager: Download url failed with error: \(error.localizedDescription)")
+                            promise(.failure(.databaseError))
+                        } else if let imageUrl = url?.absoluteString {
+                            LogD("StorageManager: Image successfully uploaded to Firebase!")
+                            promise(.success(imageUrl))
+                        }
+                    }
                 }
             }
         }
+        .eraseToAnyPublisher()
     }
 
-    public func updateImage(for type: ImageStoreType, id: String, url: String, imageData: Data, completion: @escaping (String?) -> Void) {
-        deleteImage(imageUrl: url) { error in
-            guard error == nil else { completion(nil) ; return }
-
-            self.uploadImage(for: type, id: id, imageData: imageData, completion: completion)
-        }
+    public func updateImage(for type: ImageStoreType, id: String, url: String, imageData: Data) -> AnyPublisher<String, ServiceError> {
+        self.deleteImage(imageUrl: url)
+            .flatMap { _ in
+                self.uploadImage(for: type, id: id, imageData: imageData)
+            }
+            .eraseToAnyPublisher()
     }
 
-    public func deleteImage(imageUrl: String, completion: @escaping (Error?) -> Void) {
+    public func deleteImage(imageUrl: String) -> AnyPublisher<Void, ServiceError> {
         let storageRef = storage.reference(forURL: imageUrl)
 
-        storageRef.delete { error in
-            guard error == nil else {
-                LogE("StorageManager: Error while deleting image: \(error as Any)")
-                completion(error)
-                return
+        return Future { promise in
+            storageRef.delete { error in
+                if let error {
+                    LogE("StorageManager: Error while deleting image: \(error)")
+                    promise(.failure(.databaseError))
+                } else {
+                    promise(.success(()))
+                }
             }
-            completion(nil)
         }
+        .eraseToAnyPublisher()
     }
 }
 

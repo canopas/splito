@@ -173,7 +173,7 @@ private struct GroupMemberCellView: View {
         setupUserInfo()
         setupSubInfo()
     }
-    
+
     private mutating func setupUserInfo() {
          if let user = preference.user, member.id == user.id {
              userName = "You"

@@ -44,7 +44,7 @@ struct CreateGroupView: View {
             Button("Choose from Library") {
                 viewModel.handleActionSelection(.gallery)
             }
-            if viewModel.profileImage != nil {
+            if viewModel.profileImage != nil || viewModel.profileImageUrl != nil {
                 Button("Remove") {
                     viewModel.handleActionSelection(.remove)
                 }
@@ -82,22 +82,18 @@ private struct AddGroupNameView: View {
     var body: some View {
         HStack(spacing: 16) {
             ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [4]))
-
-                if let imageUrl, let url = URL(string: imageUrl) {
-                    KFImage(url)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } else if let image {
+                if let image {
                     Image(uiImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                } else {
-                    Image(systemName: "camera")
+                } else if let imageUrl, let url = URL(string: imageUrl) {
+                    KFImage(url)
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 20, height: 20)
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Image(.group)
+                        .resizable()
+                        .scaledToFill()
                 }
             }
             .frame(width: 56, height: 55)
