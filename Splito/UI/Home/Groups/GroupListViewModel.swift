@@ -62,6 +62,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     }
 }
 
+// MARK: - Group States
 extension GroupListViewModel {
     enum ViewState {
         case initial

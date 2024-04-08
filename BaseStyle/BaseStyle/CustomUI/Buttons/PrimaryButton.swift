@@ -61,5 +61,6 @@ public struct PrimaryButton: View {
         .frame(minHeight: 50)
         .buttonStyle(.scale)
         .disabled(!isEnabled || showLoader)
+        .opacity((isEnabled && !showLoader) ? 1 : 0.6)
     }
 }

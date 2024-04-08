@@ -29,6 +29,8 @@
 		D89684562B722D3700D5F721 /* SplitoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89684552B722D3700D5F721 /* SplitoTests.swift */; };
 		D89684602B722D3700D5F721 /* SplitoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D896845F2B722D3700D5F721 /* SplitoUITests.swift */; };
 		D89684622B722D3700D5F721 /* SplitoUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89684612B722D3700D5F721 /* SplitoUITestsLaunchTests.swift */; };
+		D89C933B2BC0204100FACD16 /* AccountHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89C933A2BC0204100FACD16 /* AccountHomeView.swift */; };
+		D89C933D2BC020B200FACD16 /* AccountHomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89C933C2BC020B200FACD16 /* AccountHomeViewModel.swift */; };
 		D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */; };
 		D89DBE232B875C2200E5F1BD /* PhoneLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE222B875C2200E5F1BD /* PhoneLoginView.swift */; };
 		D89DBE252B875C3000E5F1BD /* PhoneLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE242B875C3000E5F1BD /* PhoneLoginViewModel.swift */; };
@@ -134,6 +136,8 @@
 		D896845B2B722D3700D5F721 /* SplitoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SplitoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D896845F2B722D3700D5F721 /* SplitoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitoUITests.swift; sourceTree = "<group>"; };
 		D89684612B722D3700D5F721 /* SplitoUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitoUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		D89C933A2BC0204100FACD16 /* AccountHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountHomeView.swift; sourceTree = "<group>"; };
+		D89C933C2BC020B200FACD16 /* AccountHomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountHomeViewModel.swift; sourceTree = "<group>"; };
 		D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInWithAppleDelegate.swift; sourceTree = "<group>"; };
 		D89DBE202B87433B00E5F1BD /* Splito.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Splito.entitlements; sourceTree = "<group>"; };
 		D89DBE222B875C2200E5F1BD /* PhoneLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneLoginView.swift; sourceTree = "<group>"; };
@@ -400,6 +404,9 @@
 			isa = PBXGroup;
 			children = (
 				D89DBE5E2B8DE98600E5F1BD /* AccountRouteView.swift */,
+				D89C933A2BC0204100FACD16 /* AccountHomeView.swift */,
+				D89C933C2BC020B200FACD16 /* AccountHomeViewModel.swift */,
+				D8D14A632BA2DD5C00F45FF2 /* User Profile */,
 			);
 			path = Account;
 			sourceTree = "<group>";
@@ -439,7 +446,6 @@
 				D8E244B62B972BE700C6C82A /* BaseViewModel.swift */,
 				D8AC26E62B84B12800CEAAD3 /* Onboard */,
 				D8AC26EB2B84B12800CEAAD3 /* Login */,
-				D8D14A632BA2DD5C00F45FF2 /* User Profile */,
 				D8AC26E32B84B12800CEAAD3 /* Home */,
 			);
 			path = UI;
@@ -769,6 +775,7 @@
 				D89DBE5D2B8DE97B00E5F1BD /* ActivityRouteView.swift in Sources */,
 				D8E244BF2B98592C00C6C82A /* GroupHomeViewModel.swift in Sources */,
 				D8D14A562BA189EC00F45FF2 /* JoinMemberView.swift in Sources */,
+				D89C933D2BC020B200FACD16 /* AccountHomeViewModel.swift in Sources */,
 				D8E244BD2B98444900C6C82A /* CreateGroupViewModel.swift in Sources */,
 				D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */,
 				D8AC26F12B84B12800CEAAD3 /* HomeView.swift in Sources */,
@@ -777,6 +784,7 @@
 				D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */,
 				D89DBE5F2B8DE98600E5F1BD /* AccountRouteView.swift in Sources */,
 				D8D14A652BA2DD7300F45FF2 /* UserProfileImageView.swift in Sources */,
+				D89C933B2BC0204100FACD16 /* AccountHomeView.swift in Sources */,
 				D8D14A672BA2E25100F45FF2 /* UserProfileList.swift in Sources */,
 				D85E86E72BB2E189002EDF76 /* ExpenseRouteView.swift in Sources */,
 				D8302DA02B9F282F005ACA13 /* InviteMemberView.swift in Sources */,

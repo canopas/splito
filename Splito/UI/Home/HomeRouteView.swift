@@ -22,7 +22,7 @@ struct HomeRouteView: View {
                     }
                     .tag(0)
 
-                HomeView()
+                AccountRouteView()
                     .tabItem {
                         Label("Account", systemImage: "person.crop.square")
                     }

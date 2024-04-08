@@ -32,7 +32,7 @@ struct UserProfileView: View {
                             Button("Choose from Library") {
                                 viewModel.handleActionSelection(.gallery)
                             }
-                            if viewModel.profileImage != nil {
+                            if viewModel.profileImage != nil || viewModel.profileImageUrl != nil {
                                 Button("Remove") {
                                     viewModel.handleActionSelection(.remove)
                                 }
@@ -59,7 +59,7 @@ struct UserProfileView: View {
                         }
 
                         PrimaryButton(text: "Save",
-                                      isEnabled: !viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count > 3,
+                                      isEnabled: viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count > 3,
                                       showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUserProfile)
 
                         VSpacer(40)

@@ -31,8 +31,8 @@ class UserStore: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    func updateUser(user: AppUser) -> AnyPublisher<Void, ServiceError> {
-        Future<Void, ServiceError> { [weak self] promise in
+    func updateUser(user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
+        Future<AppUser, ServiceError> { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return
@@ -40,7 +40,7 @@ class UserStore: ObservableObject {
 
             do {
                 try self.database.collection(self.DATABASE_NAME).document(user.id).setData(from: user, merge: true)
-                promise(.success(()))
+                promise(.success(user))
             } catch {
                 LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
                 promise(.failure(.databaseError))
