@@ -124,7 +124,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                     self.goBackToGroupList()
                 } else {
                     self.showAlert = false
-                    self.showToastFor(toast: ToastPrompt(type: .success, title: "", message: "Group member removed"))
+                    self.showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed"))
                 }
             }.store(in: &cancelable)
     }

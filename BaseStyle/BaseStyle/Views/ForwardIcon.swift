@@ -15,10 +15,10 @@ public struct ForwardIcon: View {
         VStack(spacing: 0) {
             Image(systemName: "chevron.right")
                 .font(.system(size: 12).weight(.bold))
-                .foregroundColor(secondaryText)
                 .aspectRatio(contentMode: .fit)
         }
-        .frame(width: 24, height: 24, alignment: .center)
+        .foregroundColor(secondaryText)
+        .frame(width: 26, height: 26, alignment: .center)
     }
 }
 

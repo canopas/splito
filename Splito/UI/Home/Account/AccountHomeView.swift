@@ -19,22 +19,36 @@ struct AccountHomeView: View {
                 LoaderView(tintColor: primaryColor, scaleSize: 2)
             } else {
                 Text("Account")
-                    .font(.Header3())
+                    .font(.Header4())
                     .foregroundColor(primaryText)
+                    .padding(.top, 10)
 
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: 0) {
+                    VStack(spacing: 20) {
                         VSpacer(20)
 
-                        UserInfoHeaderView(onTap: viewModel.openUserProfileView)
+                        AccountUserHeaderView(onTap: viewModel.openUserProfileView)
+
+                        AccountFeedbackSectionView(onContactTap: viewModel.onContactUsTap,
+                                                   onRateAppTap: viewModel.onRateAppTap)
+
+                        AccountLogoutSectionView(onLogoutTap: viewModel.performLogoutAction)
+
+                        VSpacer(20)
                     }
                 }
             }
         }
+        .background(backgroundColor)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .toastView(toast: $viewModel.toast)
+        .sheet(isPresented: $viewModel.showShareSheet) {
+            MailComposeView(logFilePath: viewModel.logFilePath, showToast: viewModel.showMailSendToast)
+        }
     }
 }
 
-private struct UserInfoHeaderView: View {
+private struct AccountUserHeaderView: View {
 
     @Inject var preference: SplitoPreference
 
@@ -48,21 +62,21 @@ private struct UserInfoHeaderView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Settings")
-                .font(.subTitle2())
+                .font(.subTitle4(14))
                 .foregroundColor(primaryText)
-                .padding(.horizontal, 18)
+                .padding(.horizontal, 16)
                 .padding(.bottom, 10)
 
             HStack(alignment: .center, spacing: 16) {
                 MemberProfileImageView(imageUrl: preference.user?.imageUrl)
 
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 5) {
                     Text(userName)
                         .font(.subTitle1())
                         .foregroundColor(primaryText)
 
                     Text(preference.user?.emailId ?? "")
-                        .font(.subTitle2())
+                        .font(.subTitle3())
                         .foregroundColor(secondaryText)
                 }
 
@@ -76,6 +90,66 @@ private struct UserInfoHeaderView: View {
             Divider()
                 .frame(height: 1)
                 .background(disableLightText)
+        }
+    }
+}
+
+private struct AccountFeedbackSectionView: View {
+
+    var onContactTap: () -> Void
+    var onRateAppTap: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Feedback")
+                .font(.subTitle4(14))
+                .foregroundColor(primaryText)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+
+            HStack(alignment: .center, spacing: 16) {
+                Text("Contact us")
+                    .font(.subTitle2())
+                    .foregroundColor(primaryText)
+
+                Spacer()
+
+                ForwardIcon()
+            }
+            .padding(.horizontal, 22)
+            .onTouchGesture { onContactTap() }
+
+            HStack(alignment: .center, spacing: 16) {
+                Text("Rate Splito")
+                    .font(.subTitle2())
+                    .foregroundColor(disableText)
+
+                Spacer()
+
+                ForwardIcon()
+            }
+            .padding(.top, 10)
+            .padding(.horizontal, 22)
+//            .onTouchGesture { onRateAppTap() }
+
+            Divider()
+                .frame(height: 1)
+                .background(disableLightText)
+        }
+    }
+}
+
+private struct AccountLogoutSectionView: View {
+
+    var onLogoutTap: () -> Void
+
+    var body: some View {
+        VStack(alignment: .center, spacing: 10) {
+            Text("Logout")
+                .font(.bodyBold(18))
+                .foregroundColor(primaryColor)
+                .padding(.top, 30)
+                .onTouchGesture { onLogoutTap() }
         }
     }
 }
