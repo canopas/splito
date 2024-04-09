@@ -60,13 +60,7 @@ public class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
     }
 
     public func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: (any Error)?) {
-        var needToShowToast = false
-        switch result {
-        case .sent:
-            needToShowToast = true
-        default:
-            break
-        }
+        let needToShowToast = result == .sent
 
         controller.dismiss(animated: true) {
             if needToShowToast {
