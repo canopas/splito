@@ -23,10 +23,9 @@ class OnboardViewModel: ObservableObject {
     }
 
     func loginAnonymous() {
-        Auth.auth().signInAnonymously { [weak self] result, _ in
+        FirebaseProvider.auth.signInAnonymously { [weak self] result, _ in
             guard let self, let user = result?.user else { return }
-            let isAnonymous = user.isAnonymous
-            self.preference.isOnboardShown = isAnonymous
+            self.preference.isOnboardShown = user.isAnonymous
             router.updateRoot(root: .LoginView)
         }
     }

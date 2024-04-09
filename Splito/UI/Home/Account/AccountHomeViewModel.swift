@@ -53,8 +53,26 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
 
     }
 
-    func performLogoutAction() {
+    func handleLogoutBtnTap() {
+        alert = .init(title: "See you soon!", message: "Are you sure you want to sign out?",
+                      positiveBtnTitle: "Sign out",
+                      positiveBtnAction: { self.performLogoutAction() },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
+        showAlert = true
+    }
 
+    private func performLogoutAction() {
+        do {
+            try FirebaseProvider.auth.signOut()
+            self.preference.clearPreference()
+        } catch let signOutError as NSError {
+          print("Error signing out: %@", signOutError)
+        }
+    }
+
+    private func goToLoginScreen() {
+        router.popToRoot()
     }
 }
 

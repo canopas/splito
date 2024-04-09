@@ -32,7 +32,7 @@ struct AccountHomeView: View {
                         AccountFeedbackSectionView(onContactTap: viewModel.onContactUsTap,
                                                    onRateAppTap: viewModel.onRateAppTap)
 
-                        AccountLogoutSectionView(onLogoutTap: viewModel.performLogoutAction)
+                        AccountLogoutSectionView(onLogoutTap: viewModel.handleLogoutBtnTap)
 
                         VSpacer(20)
                     }
@@ -42,6 +42,7 @@ struct AccountHomeView: View {
         .background(backgroundColor)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .toastView(toast: $viewModel.toast)
+        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showShareSheet) {
             MailComposeView(logFilePath: viewModel.logFilePath, showToast: viewModel.showMailSendToast)
         }
