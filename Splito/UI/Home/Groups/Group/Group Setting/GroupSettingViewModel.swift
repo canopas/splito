@@ -28,14 +28,11 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
         self.groupId = groupId
-
         super.init()
-
         fetchGroupDetails()
     }
 
     // MARK: - Data Loading
-
     func fetchGroupDetails() {
         currentViewState = .loading
         groupRepository.fetchGroupBy(id: groupId)
@@ -50,7 +47,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func fetchGroupMembers() {
+    private func fetchGroupMembers() {
         groupRepository.fetchMembersBy(groupId: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -64,7 +61,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func checkForGroupAdmin() {
+    private func checkForGroupAdmin() {
         guard let userId = preference.user?.id, let group else { return }
         isAdmin = userId == group.createdBy
     }
@@ -109,7 +106,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    func removeMemberFromGroup(memberId: String) {
+    private func removeMemberFromGroup(memberId: String) {
         guard let group else { return }
         guard let userId = preference.user?.id else { return }
         currentViewState = .loading
@@ -139,7 +136,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         showAlert = true
     }
 
-    func deleteGroupWithMembers() {
+    private func deleteGroupWithMembers() {
         currentViewState = .loading
         groupRepository.deleteGroup(groupID: groupId)
             .sink { [weak self] completion in
@@ -153,13 +150,11 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Navigation
-
     func goBackToGroupList() {
         router.popToRoot()
     }
 
     // MARK: - Error Handling
-
     private func handleServiceError(_ error: ServiceError) {
         currentViewState = .initial
         showToastFor(error)

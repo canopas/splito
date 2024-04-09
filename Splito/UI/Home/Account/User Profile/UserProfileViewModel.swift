@@ -13,8 +13,9 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
     private let NAME_CHARACTER_MIN_LIMIT = 3
 
-    @Inject var preference: SplitoPreference
-    @Inject var userRepository: UserRepository
+    @Inject private var mainRouter: Router<MainRoute>
+    @Inject private var preference: SplitoPreference
+    @Inject private var userRepository: UserRepository
 
     @Published var firstName: String = ""
     @Published var lastName: String = ""
@@ -35,10 +36,12 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var currentState: ViewState = .loading
 
-    private let router: Router<AppRoute>
+    private let router: Router<AppRoute>?
+    private var onDismiss: (() -> Void)?
 
-    init(router: Router<AppRoute>, isOpenedFromOnboard: Bool) {
+    init(router: Router<AppRoute>?, isOpenedFromOnboard: Bool, onDismiss: (() -> Void)?) {
         self.router = router
+        self.onDismiss = onDismiss
         self.isOpenedFromOnboard = isOpenedFromOnboard
         super.init()
         fetchUserDetail()
@@ -124,17 +127,12 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                     self.preference.user = user
 
                     if self.isOpenedFromOnboard {
-                        self.goToHome()
+                        self.onDismiss?()
                     } else {
-                        self.router.pop()
+                        self.router?.pop()
                     }
                 }.store(in: &cancelable)
         }
-    }
-
-    func goToHome() {
-        router.popToRoot()
-        router.updateRoot(root: .HomeView)
     }
 
     func handleDeleteAction() {
@@ -147,13 +145,21 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                         self?.currentState = .initial
                         self?.showAlertFor(error)
                     }
-                } receiveValue: { _ in
-                    // Login anonymous
+                } receiveValue: { [weak self] _ in
+                    guard let self else { return }
+                    self.preference.clearPreferenceSession()
+                    self.preference.isOnboardShown = false
+                    self.goToOnboardScreen()
                     print("UserProfileViewModel :: user deleted.")
                 }.store(in: &cancelable)
         } else {
             print("UserProfileViewModel :: user not exists.")
         }
+    }
+
+    private func goToOnboardScreen() {
+        router?.popToRoot()
+        mainRouter.updateRoot(root: .OnboardView)
     }
 }
 

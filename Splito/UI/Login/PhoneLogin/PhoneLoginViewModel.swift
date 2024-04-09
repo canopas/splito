@@ -59,12 +59,12 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
 // MARK: - Helper Methods
 extension PhoneLoginViewModel {
 
-    func openVerifyOtpView() {
+    private func openVerifyOtpView() {
         router.push(.VerifyOTPView(phoneNumber: phoneNumber, verificationId: verificationId))
         currentState = .initial
     }
 
-    func handleFirebaseAuthErrors(_ error: Error) {
+    private func handleFirebaseAuthErrors(_ error: Error) {
         if (error as NSError).code == FirebaseAuth.AuthErrorCode.webContextCancelled.rawValue {
             showAlertFor(message: "Something went wrong! Please try after some time.")
         } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.tooManyRequests.rawValue {

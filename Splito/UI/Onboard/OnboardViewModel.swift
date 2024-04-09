@@ -13,8 +13,9 @@ import Foundation
 class OnboardViewModel: ObservableObject {
 
     @Published var currentPageIndex = 0
+    @Published var currentState: ViewState = .initial
 
-    @Inject var preference: SplitoPreference
+    @Inject private var preference: SplitoPreference
 
     private let router: Router<AppRoute>
 
@@ -23,10 +24,20 @@ class OnboardViewModel: ObservableObject {
     }
 
     func loginAnonymous() {
+        currentState = .loading
         FirebaseProvider.auth.signInAnonymously { [weak self] result, _ in
-            guard let self, let user = result?.user else { return }
+            guard let self, let user = result?.user else { self?.currentState = .initial; return }
             self.preference.isOnboardShown = user.isAnonymous
+            currentState = .initial
             router.updateRoot(root: .LoginView)
         }
+    }
+}
+
+// MARK: - Group States
+extension OnboardViewModel {
+    enum ViewState {
+        case initial
+        case loading
     }
 }

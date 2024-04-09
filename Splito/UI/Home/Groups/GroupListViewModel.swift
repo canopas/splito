@@ -21,9 +21,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     init(router: Router<AppRoute>) {
         self.router = router
-
         super.init()
-
         fetchGroups()
     }
 

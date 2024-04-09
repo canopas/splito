@@ -47,7 +47,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func addMemberIfCodeExists(code: SharedCode) {
+    private func addMemberIfCodeExists(code: SharedCode) {
         let expireDate = code.expireDate.dateValue()
         let daysDifference = Calendar.current.dateComponents([.day], from: expireDate, to: Date()).day
 
@@ -63,7 +63,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func addMember(groupId: String, completion: @escaping () -> Void) {
+    private func addMember(groupId: String, completion: @escaping () -> Void) {
         guard let userId = preference.user?.id else { return }
         currentState = .loading
 
@@ -80,7 +80,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func goToGroupHome() {
+    private func goToGroupHome() {
         self.router.pop()
     }
 }

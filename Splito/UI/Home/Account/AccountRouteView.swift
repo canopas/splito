@@ -19,7 +19,7 @@ struct AccountRouteView: View {
             case .AccountHomeView:
                 AccountHomeView(viewModel: AccountHomeViewModel(router: appRoute))
             case .ProfileView:
-                UserProfileView(viewModel: UserProfileViewModel(router: appRoute, isOpenedFromOnboard: false))
+                UserProfileView(viewModel: UserProfileViewModel(router: appRoute, isOpenedFromOnboard: false, onDismiss: nil))
             default:
                 EmptyRouteView(routeName: self)
             }

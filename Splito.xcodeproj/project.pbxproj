@@ -37,14 +37,11 @@
 		D89DBE382B88A6A800E5F1BD /* VerifyOtpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE372B88A6A800E5F1BD /* VerifyOtpView.swift */; };
 		D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE392B88A6B400E5F1BD /* VerifyOtpViewModel.swift */; };
 		D89DBE422B8CA72700E5F1BD /* HomeRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */; };
-		D89DBE592B8DE91D00E5F1BD /* FriendRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE582B8DE91D00E5F1BD /* FriendRouteView.swift */; };
 		D89DBE5B2B8DE97000E5F1BD /* GroupRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE5A2B8DE97000E5F1BD /* GroupRouteView.swift */; };
-		D89DBE5D2B8DE97B00E5F1BD /* ActivityRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE5C2B8DE97B00E5F1BD /* ActivityRouteView.swift */; };
 		D89DBE5F2B8DE98600E5F1BD /* AccountRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE5E2B8DE98600E5F1BD /* AccountRouteView.swift */; };
 		D8A7CA6E2BA483F60014EC67 /* GroupHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A7CA6D2BA483F60014EC67 /* GroupHomeView.swift */; };
 		D8A7CA702BA484370014EC67 /* GroupSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A7CA6F2BA484370014EC67 /* GroupSettingView.swift */; };
 		D8A7CA722BA486250014EC67 /* GroupSettingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A7CA712BA486250014EC67 /* GroupSettingViewModel.swift */; };
-		D8AC26F12B84B12800CEAAD3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E42B84B12800CEAAD3 /* HomeView.swift */; };
 		D8AC26F22B84B12800CEAAD3 /* MainRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E52B84B12800CEAAD3 /* MainRouteView.swift */; };
 		D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E72B84B12800CEAAD3 /* OnboardView.swift */; };
 		D8AC26F42B84B12800CEAAD3 /* OnboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26E82B84B12800CEAAD3 /* OnboardViewModel.swift */; };
@@ -145,15 +142,12 @@
 		D89DBE372B88A6A800E5F1BD /* VerifyOtpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyOtpView.swift; sourceTree = "<group>"; };
 		D89DBE392B88A6B400E5F1BD /* VerifyOtpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyOtpViewModel.swift; sourceTree = "<group>"; };
 		D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRouteView.swift; sourceTree = "<group>"; };
-		D89DBE582B8DE91D00E5F1BD /* FriendRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRouteView.swift; sourceTree = "<group>"; };
 		D89DBE5A2B8DE97000E5F1BD /* GroupRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupRouteView.swift; sourceTree = "<group>"; };
-		D89DBE5C2B8DE97B00E5F1BD /* ActivityRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityRouteView.swift; sourceTree = "<group>"; };
 		D89DBE5E2B8DE98600E5F1BD /* AccountRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRouteView.swift; sourceTree = "<group>"; };
 		D8A7CA6D2BA483F60014EC67 /* GroupHomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupHomeView.swift; sourceTree = "<group>"; };
 		D8A7CA6F2BA484370014EC67 /* GroupSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSettingView.swift; sourceTree = "<group>"; };
 		D8A7CA712BA486250014EC67 /* GroupSettingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSettingViewModel.swift; sourceTree = "<group>"; };
 		D8AC26DF2B84B07700CEAAD3 /* BaseUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		D8AC26E42B84B12800CEAAD3 /* HomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		D8AC26E52B84B12800CEAAD3 /* MainRouteView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainRouteView.swift; sourceTree = "<group>"; };
 		D8AC26E72B84B12800CEAAD3 /* OnboardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardView.swift; sourceTree = "<group>"; };
 		D8AC26E82B84B12800CEAAD3 /* OnboardViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardViewModel.swift; sourceTree = "<group>"; };
@@ -370,14 +364,6 @@
 			path = VerifyOtp;
 			sourceTree = "<group>";
 		};
-		D89DBE542B8DE8B200E5F1BD /* Friends */ = {
-			isa = PBXGroup;
-			children = (
-				D89DBE582B8DE91D00E5F1BD /* FriendRouteView.swift */,
-			);
-			path = Friends;
-			sourceTree = "<group>";
-		};
 		D89DBE552B8DE8C600E5F1BD /* Groups */ = {
 			isa = PBXGroup;
 			children = (
@@ -390,14 +376,6 @@
 				D8302D9E2B9F2810005ACA13 /* Add Member */,
 			);
 			path = Groups;
-			sourceTree = "<group>";
-		};
-		D89DBE562B8DE8CF00E5F1BD /* Activity */ = {
-			isa = PBXGroup;
-			children = (
-				D89DBE5C2B8DE97B00E5F1BD /* ActivityRouteView.swift */,
-			);
-			path = Activity;
 			sourceTree = "<group>";
 		};
 		D89DBE572B8DE8D400E5F1BD /* Account */ = {
@@ -454,13 +432,10 @@
 		D8AC26E32B84B12800CEAAD3 /* Home */ = {
 			isa = PBXGroup;
 			children = (
-				D8AC26E42B84B12800CEAAD3 /* HomeView.swift */,
 				D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */,
 				D89DBE552B8DE8C600E5F1BD /* Groups */,
 				D85E86E12BAB06BC002EDF76 /* Expense */,
 				D89DBE572B8DE8D400E5F1BD /* Account */,
-				D89DBE562B8DE8CF00E5F1BD /* Activity */,
-				D89DBE542B8DE8B200E5F1BD /* Friends */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -765,20 +740,17 @@
 				D85E86EF2BB41B9F002EDF76 /* ChooseGroupViewModel.swift in Sources */,
 				D8E244B72B972BE700C6C82A /* BaseViewModel.swift in Sources */,
 				D8AC26F22B84B12800CEAAD3 /* MainRouteView.swift in Sources */,
-				D89DBE592B8DE91D00E5F1BD /* FriendRouteView.swift in Sources */,
 				D85E86E02BAB06A3002EDF76 /* AddExpenseView.swift in Sources */,
 				D88721472B9B2C97009DC5BE /* GroupListViewModel.swift in Sources */,
 				D8D14A622BA2DCE700F45FF2 /* UserProfileViewModel.swift in Sources */,
 				D8A7CA6E2BA483F60014EC67 /* GroupHomeView.swift in Sources */,
 				D85E86ED2BB41B87002EDF76 /* ChooseGroupView.swift in Sources */,
 				D8302DA22B9F284D005ACA13 /* InviteMemberViewModel.swift in Sources */,
-				D89DBE5D2B8DE97B00E5F1BD /* ActivityRouteView.swift in Sources */,
 				D8E244BF2B98592C00C6C82A /* GroupHomeViewModel.swift in Sources */,
 				D8D14A562BA189EC00F45FF2 /* JoinMemberView.swift in Sources */,
 				D89C933D2BC020B200FACD16 /* AccountHomeViewModel.swift in Sources */,
 				D8E244BD2B98444900C6C82A /* CreateGroupViewModel.swift in Sources */,
 				D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */,
-				D8AC26F12B84B12800CEAAD3 /* HomeView.swift in Sources */,
 				D8D6C3A02B79F8110023CF08 /* AppDelegate.swift in Sources */,
 				D8AC26F42B84B12800CEAAD3 /* OnboardViewModel.swift in Sources */,
 				D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */,

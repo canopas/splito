@@ -31,7 +31,7 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
         self.fetchGroup()
     }
 
-    func generateInviteCode() {
+    private func generateInviteCode() {
         inviteCode = inviteCode.randomString(length: 6).uppercased()
         codeRepository.checkForCodeAvailability(code: inviteCode)
             .sink { [weak self] completion in

@@ -11,7 +11,10 @@ import SwiftUI
 
 struct HomeRouteView: View {
 
+    @Inject var preference: SplitoPreference
+
     @State private var openExpenseSheet = false
+    @State private var openProfileView = false
 
     var body: some View {
         ZStack {
@@ -36,6 +39,19 @@ struct HomeRouteView: View {
             )
             .fullScreenCover(isPresented: $openExpenseSheet) {
                 ExpenseRouteView()
+            }
+            .sheet(isPresented: $openProfileView) {
+                UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenedFromOnboard: true, onDismiss: {
+                    openProfileView = false
+                }))
+                .interactiveDismissDisabled()
+            }
+        }
+        .onAppear {
+            if preference.isVerifiedUser {
+                if preference.user == nil || (preference.user?.firstName == nil) {
+                    openProfileView = true
+                }
             }
         }
     }
