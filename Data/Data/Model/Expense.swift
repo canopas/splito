@@ -7,17 +7,17 @@
 
 import FirebaseFirestore
 
-public struct Expense: Codable {
+public struct Expense: Codable, Hashable {
 
     @DocumentID public var id: String? // Automatically generated ID by Firestore
 
-    let name: String
-    let amount: Double
-    let date: Timestamp
-    let paidBy: String
-    let splitTo: [String] // Reference to user ids involved in the split
-    let groupId: String
-    let splitType: SplitType
+    public let name: String
+    public let amount: Double
+    public let date: Timestamp
+    public let paidBy: String
+    public let splitTo: [String] // Reference to user ids involved in the split
+    public let groupId: String
+    public let splitType: SplitType
 
     public init(name: String, amount: Double, date: Timestamp, paidBy: String,
                 splitTo: [String], groupId: String, splitType: SplitType = .equally) {

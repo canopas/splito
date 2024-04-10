@@ -30,3 +30,6 @@ public let surfaceColor = Color.surface
 public let surfaceDarkColor = Color.surfaceDark
 public let surfaceLightColor = Color.surfaceLight
 public let inverseSurfaceColor = Color.inverseSurface
+
+public let amountLentColor = Color.amountLent
+public let amountBorrowedColor = Color.amountBorrowed

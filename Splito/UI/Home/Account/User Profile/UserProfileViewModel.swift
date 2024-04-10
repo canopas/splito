@@ -107,8 +107,8 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             self.currentState = .loading
 
             var newUser = user
-            newUser.firstName = firstName
-            newUser.lastName = lastName
+            newUser.firstName = firstName.capitalized
+            newUser.lastName = lastName.capitalized
             newUser.emailId = email
             newUser.phoneNumber = phone
 

@@ -83,6 +83,7 @@ private struct ExpenseDetailRow: View {
     @Binding var date: Date
 
     var keyboardType: UIKeyboardType = .default
+    let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date())!
 
     var body: some View {
         HStack(spacing: 16) {
@@ -97,7 +98,7 @@ private struct ExpenseDetailRow: View {
                 )
 
             if forDatePicker {
-                DatePicker(placeholder, selection: $date, displayedComponents: .date)
+                DatePicker(placeholder, selection: $date, in: ...maximumDate, displayedComponents: .date)
                     .font(.subTitle2())
             } else {
                 VStack {

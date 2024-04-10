@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BaseStyle
+import Data
 
 struct GroupHomeView: View {
 
@@ -19,8 +20,11 @@ struct GroupHomeView: View {
             } else if case .noMember = viewModel.groupState {
                 AddMemberState(viewModel: .constant(viewModel))
             } else if case .hasMembers = viewModel.groupState {
-                Text("Members are added now !")
-                    .font(.title)
+                if case .noExpense = viewModel.groupExpenseState {
+                    NoExpenseView()
+                } else if case .hasExpense(let expenses) = viewModel.groupExpenseState {
+                    GroupExpenseListView(expenses: expenses)
+                }
             }
         }
         .toastView(toast: $viewModel.toast)
@@ -39,6 +43,89 @@ struct GroupHomeView: View {
                 .foregroundColor(primaryColor)
             }
         }
+    }
+}
+
+private struct GroupExpenseListView: View {
+
+    let expenses: [ExpenseWithUser]
+    var sortedExpenses: [ExpenseWithUser] = []
+
+    init(expenses: [ExpenseWithUser]) {
+        self.expenses = expenses
+        sortedExpenses = expenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                VSpacer(20)
+
+                ForEach(sortedExpenses, id: \.self) { expense in
+                    GroupExpenseItemView(expense: expense)
+                }
+                Spacer()
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+private struct GroupExpenseItemView: View {
+
+    @Inject var preference: SplitoPreference
+
+    let expense: ExpenseWithUser
+    private var userName: String = ""
+
+    init(expense: ExpenseWithUser) {
+        self.expense = expense
+        if let user = preference.user, expense.user.id == user.id {
+            self.userName = "You"
+        } else {
+            let firstName = expense.user.firstName ?? ""
+            let lastNameInitial = expense.user.lastName?.first.map { String($0) } ?? ""
+            self.userName = firstName + (lastNameInitial.isEmpty ? "" : " \(lastNameInitial).")
+        }
+    }
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Text(expense.expense.date.dateValue().shortDateWithMonth())
+                .font(.body1())
+                .foregroundColor(secondaryText)
+
+            Image(systemName: "doc.plaintext")
+                .resizable()
+                .frame(width: 26)
+                .font(.system(size: 16).weight(.light))
+                .foregroundColor(.white)
+                .padding(6)
+                .background(disableText.opacity(0.5))
+                .cornerRadius(4)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(expense.expense.name)
+                    .font(.body1(17))
+                    .foregroundColor(primaryText)
+
+                Text("\(userName) paid ₹ \(expense.expense.amount.formattedString())")
+                    .font(.body1(14))
+                    .foregroundColor(secondaryText)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            VStack(alignment: .trailing, spacing: 4) {
+                Text("you borrowed")
+                    .font(.body1(14))
+                    .foregroundColor(primaryText)
+
+                Text("₹ \(expense.expense.amount.formattedString())")
+                    .font(.body1(16))
+                    .foregroundColor(secondaryText)
+            }
+        }
+        .padding(.horizontal, 16)
     }
 }
 
@@ -114,6 +201,23 @@ private struct CreateGroupState: View {
             .buttonStyle(.scale)
         }
         .padding(.horizontal, 22)
+    }
+}
+
+private struct NoExpenseView: View {
+
+    var body: some View {
+        VStack(alignment: .center, spacing: 16) {
+            Text("No expenses here yet.")
+                .font(.subTitle4(17))
+                .foregroundColor(primaryText)
+
+            Text("Tap the plus button from home screen to add an expense with any group.")
+                .font(.body1(18))
+                .foregroundColor(secondaryText)
+                .multilineTextAlignment(.center)
+        }
+        .padding(.horizontal, 30)
     }
 }
 
