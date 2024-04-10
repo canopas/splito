@@ -26,25 +26,13 @@ struct OnboardRouteView: View {
                 PhoneLoginView(viewModel: PhoneLoginViewModel(router: router))
             case .VerifyOTPView(let phoneNumber, let verificationId):
                 VerifyOtpView(viewModel: VerifyOtpViewModel(router: router, phoneNumber: phoneNumber, verificationId: verificationId))
-            case .ProfileView:
-                UserProfileView(viewModel: UserProfileViewModel(router: router, isOpenedFromOnboard: true))
-            case .HomeView:
-                HomeRouteView()
             default:
                 EmptyRouteView(routeName: self)
             }
         }
         .onAppear {
-            if preference.isOnboardShown {
-                if preference.isVerifiedUser {
-                    if let user = preference.user, let username = user.firstName, !username.isEmpty {
-                        router.updateRoot(root: .HomeView)
-                    } else {
-                        router.updateRoot(root: .ProfileView)
-                    }
-                } else {
-                    router.updateRoot(root: .LoginView)
-                }
+            if preference.isOnboardShown, !preference.isVerifiedUser {
+                router.updateRoot(root: .LoginView)
             }
         }
     }

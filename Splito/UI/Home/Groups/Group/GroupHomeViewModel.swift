@@ -20,9 +20,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
         self.groupId = groupId
-
         super.init()
-
         self.fetchGroup()
     }
 

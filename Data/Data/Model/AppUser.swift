@@ -17,8 +17,8 @@ public struct AppUser: Identifiable, Equatable, Codable {
     public var firstName: String?
     public var lastName: String?
     public var emailId: String?
-    public let phoneNumber: String?
-    public let imageUrl: String?
+    public var phoneNumber: String?
+    public var imageUrl: String?
     public let loginType: LoginType
 
     public init(id: String, firstName: String?, lastName: String?, emailId: String?,

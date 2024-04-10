@@ -61,19 +61,19 @@ public class GroupRepository: ObservableObject {
 
             return storageManager.deleteImage(imageUrl: currentUrl)
                 .flatMap { _ in
-                    if let imageData {
-                        self.uploadImage(imageData: imageData, group: newGroup)
-                    } else {
-                        self.updateGroup(group: newGroup)
-                    }
+                    self.performImageAction(imageData: imageData, group: newGroup)
                 }
                 .eraseToAnyPublisher()
-        }
-
-        if let imageData {
-            return self.uploadImage(imageData: imageData, group: newGroup)
         } else {
-            return updateGroup(group: newGroup)
+            return self.performImageAction(imageData: imageData, group: newGroup)
+        }
+    }
+
+    private func performImageAction(imageData: Data?, group: Groups) -> AnyPublisher<Void, ServiceError> {
+        if let imageData {
+            self.uploadImage(imageData: imageData, group: group)
+        } else {
+            self.updateGroup(group: group)
         }
     }
 

@@ -17,8 +17,9 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var currentState: ViewState = .initial
 
-    @Inject var preference: SplitoPreference
-    @Inject var userRepository: UserRepository
+    @Inject private var mainRouter: Router<MainRoute>
+    @Inject private var preference: SplitoPreference
+    @Inject private var userRepository: UserRepository
 
     private var currentNonce: String = ""
 
@@ -119,13 +120,8 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func onLoginSuccess() {
-        router.popToRoot()
-        if let user = preference.user, let username = user.firstName, !username.isEmpty {
-            router.updateRoot(root: .HomeView)
-        } else {
-            router.updateRoot(root: .ProfileView)
-        }
+    private func onLoginSuccess() {
+        mainRouter.updateRoot(root: .HomeView)
     }
 
     func onPhoneLoginClick() {
