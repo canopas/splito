@@ -56,6 +56,7 @@ public extension DDFileLogger {
 
         let now = df.string(from: Date())
         let destination = FileManager.default.temporaryDirectory.appendingPathComponent("Logs/\(now).zip")
+
         SSZipArchive.createZipFile(atPath: destination.path, withContentsOfDirectory: self.logFileManager.logsDirectory)
         return destination
     }

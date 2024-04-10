@@ -169,30 +169,24 @@ private struct GroupMemberCellView: View {
     @Inject var preference: SplitoPreference
 
     let member: AppUser
-    var userName: String = ""
-    var subInfo: String = ""
 
-    init(member: AppUser) {
-        self.member = member
-        setupUserInfo()
-        setupSubInfo()
+    private var userName: String {
+        if let user = preference.user, member.id == user.id {
+            return "You"
+        } else {
+            let firstName = member.firstName ?? ""
+            let lastName = member.lastName ?? ""
+            return (firstName + " " + lastName).isEmpty ? "Unknown" : firstName + " " + lastName
+        }
     }
 
-    private mutating func setupUserInfo() {
-         if let user = preference.user, member.id == user.id {
-             userName = "You"
-         } else {
-             userName = (member.firstName ?? "") + " " + (member.lastName ?? "")
-         }
-        userName = (userName).isEmpty ? "Unknown" : userName
-     }
-
-    private mutating func setupSubInfo() {
+    private var subInfo: String {
         if let emailId = member.emailId {
-            subInfo = emailId
+            return emailId
         } else if let phoneNumber = member.phoneNumber {
-            subInfo = phoneNumber
+            return phoneNumber
         }
+        return ""
     }
 
     var body: some View {

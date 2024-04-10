@@ -18,6 +18,7 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var showLoader: Bool = false
     @Published private(set) var currentState: ViewState = .initial
 
+    @Inject var mainRouter: Router<MainRoute>
     @Inject var preference: SplitoPreference
     @Inject var userRepository: UserRepository
 
@@ -31,16 +32,12 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.phoneNumber = phoneNumber
         self.verificationId = verificationId
-
         super.init()
-
         runTimer()
     }
 
     func verifyOTP() {
-        guard !otp.isEmpty else {
-            return
-        }
+        guard !otp.isEmpty else { return }
 
         let credential = FirebaseProvider.phoneAuthProvider.credential(withVerificationID: verificationId, verificationCode: otp)
         showLoader = true
@@ -97,14 +94,8 @@ extension VerifyOtpViewModel {
         }
     }
 
-    func onLoginError() {
+    private func onLoginError() {
         showAlertFor(title: "Invalid OTP", message: "Please, enter a valid OTP code.")
-    }
-
-    func showFailAlert() {
-        showAlertFor(alert: .init(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.", positiveBtnAction: { [weak self] in
-            self?.router.pop()
-        }))
     }
 
     private func storeUser(user: AppUser) {
@@ -129,13 +120,9 @@ extension VerifyOtpViewModel {
         router.pop()
     }
 
-    func onLoginSuccess() {
+    private func onLoginSuccess() {
         router.popToRoot()
-        if let user = preference.user, let username = user.firstName, !username.isEmpty {
-            router.updateRoot(root: .HomeView)
-        } else {
-            router.updateRoot(root: .ProfileView)
-        }
+        mainRouter.updateRoot(root: .HomeView)
     }
 }
 

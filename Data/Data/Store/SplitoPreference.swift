@@ -60,4 +60,9 @@ public class SplitoPreference {
             }
         }
     }
+
+    public func clearPreferenceSession() {
+        user = nil
+        isVerifiedUser = false
+    }
 }

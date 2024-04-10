@@ -12,8 +12,8 @@ import FirebaseFirestoreInternal
 
 class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var preference: SplitoPreference
-    @Inject var expenseRepository: ExpenseRepository
+    @Inject private var preference: SplitoPreference
+    @Inject private var expenseRepository: ExpenseRepository
 
     @Published var expenseName = ""
     @Published var expenseAmount = 0.0
@@ -40,7 +40,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         updatePayerName()
     }
 
-    func updatePayerName() {
+    private func updatePayerName() {
         if let user = preference.user, let selectedPayer, selectedPayer.id == user.id {
             self.payerName = "You"
         } else {

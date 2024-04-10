@@ -21,9 +21,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     init(router: Router<AppRoute>) {
         self.router = router
-
         super.init()
-
         fetchGroups()
     }
 
@@ -62,6 +60,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     }
 }
 
+// MARK: - Group States
 extension GroupListViewModel {
     enum ViewState {
         case initial

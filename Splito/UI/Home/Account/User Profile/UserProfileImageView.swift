@@ -15,6 +15,7 @@ struct UserProfileImageView: View {
 
     private let profileImageUrl: String?
 
+    private let showOverlay: Bool = false
     private let handleProfileTap: (() -> Void)
 
     public init(image: Binding<UIImage?>, profileImageUrl: String?, handleProfileTap: @escaping () -> Void) {
@@ -65,18 +66,20 @@ struct UserProfileImageView: View {
             }
         }
         .overlay {
-            VStack(spacing: 0) {
-                Image(.profileEditPencil)
-                    .padding(8)
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 32, height: 32, alignment: .center)
-                    .overlay(
-                        Circle()
-                            .stroke(primaryLightText, lineWidth: 1)
-                    )
+            if showOverlay {
+                VStack(spacing: 0) {
+                    Image(.profileEditPencil)
+                        .padding(8)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 32, height: 32, alignment: .center)
+                        .overlay(
+                            Circle()
+                                .stroke(primaryLightText, lineWidth: 1)
+                        )
+                }
+                .padding([.top, .leading], 75)
+                .padding(.bottom, 10)
             }
-            .padding([.top, .leading], 75)
-            .padding(.bottom, 10)
         }
         .onTapGesture(perform: handleProfileTap)
     }
