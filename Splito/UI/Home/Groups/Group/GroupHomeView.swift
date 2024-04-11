@@ -50,22 +50,37 @@ private struct GroupExpenseListView: View {
 
     let expenses: [ExpenseWithUser]
     var sortedExpenses: [ExpenseWithUser] = []
+    var groupedExpenses: [String: [ExpenseWithUser]] = [:]
 
     init(expenses: [ExpenseWithUser]) {
         self.expenses = expenses
         sortedExpenses = expenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }
+
+        self.groupedExpenses = Dictionary(grouping: sortedExpenses) { expense in
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMMM yyyy"
+            return dateFormatter.string(from: expense.expense.date.dateValue())
+        }
     }
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(alignment: .leading, spacing: 26) {
                 VSpacer(20)
 
-                ForEach(sortedExpenses, id: \.self) { expense in
-                    GroupExpenseItemView(expense: expense)
+                ForEach(groupedExpenses.keys.sorted(), id: \.self) { month in
+                    Section(header:
+                        Text(month)
+                        .font(.subTitle4(14))
+                    ) {
+                        ForEach(groupedExpenses[month]!, id: \.self) { expense in
+                            GroupExpenseItemView(expense: expense)
+                        }
+                    }
                 }
                 Spacer()
             }
+            .padding(.horizontal, 14)
         }
         .frame(maxWidth: .infinity)
     }
@@ -76,16 +91,26 @@ private struct GroupExpenseItemView: View {
     @Inject var preference: SplitoPreference
 
     let expense: ExpenseWithUser
+
+    private var amount = 0.0
+    private var isBorrowed = false
     private var userName: String = ""
 
     init(expense: ExpenseWithUser) {
         self.expense = expense
         if let user = preference.user, expense.user.id == user.id {
-            self.userName = "You"
+            userName = "You"
+
+            isBorrowed = false
+            let singleExpense = expense.expense.amount / Double(expense.expense.splitTo.count)
+            amount = expense.expense.amount - singleExpense
         } else {
             let firstName = expense.user.firstName ?? ""
             let lastNameInitial = expense.user.lastName?.first.map { String($0) } ?? ""
-            self.userName = firstName + (lastNameInitial.isEmpty ? "" : " \(lastNameInitial).")
+            userName = firstName + (lastNameInitial.isEmpty ? "" : " \(lastNameInitial).")
+
+            isBorrowed = true
+            amount = expense.expense.amount / Double(expense.expense.splitTo.count)
         }
     }
 
@@ -94,15 +119,16 @@ private struct GroupExpenseItemView: View {
             Text(expense.expense.date.dateValue().shortDateWithMonth())
                 .font(.body1())
                 .foregroundColor(secondaryText)
+                .multilineTextAlignment(.center)
 
             Image(systemName: "doc.plaintext")
                 .resizable()
                 .frame(width: 26)
-                .font(.system(size: 16).weight(.light))
+                .font(.system(size: 14).weight(.light))
                 .foregroundColor(.white)
                 .padding(6)
-                .background(disableText.opacity(0.5))
-                .cornerRadius(4)
+                .background(disableText.opacity(0.3))
+                .cornerRadius(2)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(expense.expense.name)
@@ -110,22 +136,21 @@ private struct GroupExpenseItemView: View {
                     .foregroundColor(primaryText)
 
                 Text("\(userName) paid ₹ \(expense.expense.amount.formattedString())")
-                    .font(.body1(14))
+                    .font(.body1(12))
                     .foregroundColor(secondaryText)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
             VStack(alignment: .trailing, spacing: 4) {
-                Text("you borrowed")
-                    .font(.body1(14))
-                    .foregroundColor(primaryText)
+                Text(isBorrowed ? "you borrowed" : "you lent")
+                    .font(.body1(12))
 
-                Text("₹ \(expense.expense.amount.formattedString())")
+                Text("₹ \(amount.formattedString())")
                     .font(.body1(16))
-                    .foregroundColor(secondaryText)
             }
+            .foregroundColor(isBorrowed ? amountBorrowedColor : amountLentColor)
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 6)
     }
 }
 
