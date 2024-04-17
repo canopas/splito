@@ -41,7 +41,7 @@ public struct SecondaryButton: View {
 
                     Text(text)
                         .font(.buttonText())
-                        .foregroundColor(.mainPrimary)
+                        .foregroundStyle(.mainPrimary)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .center)

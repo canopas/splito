@@ -108,8 +108,8 @@ public extension Font {
         .custom(InterFontStyle.medium.name, size: size)
     }
 
-    /// It's default **size: 15** and weight is **Regular**
-    static func body1(_ size: CGFloat = 15) -> Font {
+    /// It's default **size: 16** and weight is **Regular**
+    static func body1(_ size: CGFloat = 16) -> Font {
         .custom(InterFontStyle.regular.name, size: size)
     }
 
@@ -118,8 +118,8 @@ public extension Font {
         .custom(InterFontStyle.medium.name, size: size)
     }
 
-    /// It's default **size: 15** and weight is **SemiBold**
-    static func bodyBold(_ size: CGFloat = 15) -> Font {
+    /// It's default **size: 16** and weight is **SemiBold**
+    static func bodyBold(_ size: CGFloat = 16) -> Font {
         .custom(InterFontStyle.semiBold.name, size: size)
     }
 

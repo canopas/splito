@@ -19,6 +19,11 @@ public struct Expense: Codable, Hashable {
     public let groupId: String
     public let splitType: SplitType
 
+    // Calculated properties for better UI representation
+    public var formattedAmount: String {
+        return amount.formattedCurrency()
+    }
+
     public init(name: String, amount: Double, date: Timestamp, paidBy: String,
                 splitTo: [String], groupId: String, splitType: SplitType = .equally) {
         self.name = name
@@ -42,5 +47,7 @@ public struct Expense: Codable, Hashable {
 }
 
 public enum SplitType: String, Codable {
-    case equally
+    case equally = "equally"
+    case percentage = "Percentage"
+    case fixedAmount = "Fixed Amount"
 }

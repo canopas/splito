@@ -31,7 +31,7 @@ struct LoginView: View {
 
                         Text("Sign up in the app to use amazing spliting features")
                             .font(.inter(.bold, size: 22).bold())
-                            .foregroundColor(inverseSurfaceColor)
+                            .foregroundStyle(inverseSurfaceColor)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 20)
 
@@ -106,7 +106,7 @@ private struct LoginOptionsButtonView: View {
                         Text(buttonName)
                             .lineLimit(1)
                             .font(.buttonText())
-                            .foregroundColor(buttonTextColor)
+                            .foregroundStyle(buttonTextColor)
                             .frame(height: 50)
                             .minimumScaleFactor(0.5)
                     }

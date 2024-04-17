@@ -6,9 +6,11 @@
 //
 
 import Data
+import SwiftUI
 
 class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
+    @Inject var preference: SplitoPreference
     @Inject var groupRepository: GroupRepository
     @Inject var expenseRepository: ExpenseRepository
 
@@ -16,8 +18,17 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var groupState: GroupState = .noMember
     @Published var groupExpenseState: GroupExpenseState = .noExpense
 
+    @Published var totalGroupMember = 1
+    @Published var groupTotalExpense = 0.0
+    @Published var overallOwingAmount = 0.0
+    @Published var memberOwingAmounts: [String: Double] = [:]
+
+    @Published var amountOwedByYou: [String: Double] = [:]
+    @Published var amountOwesToYou: [String: Double] = [:]
+
     var group: Groups?
     private let groupId: String
+    private var groupUserData: [AppUser] = []
     private let router: Router<AppRoute>
 
     init(router: Router<AppRoute>, groupId: String) {
@@ -39,8 +50,19 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
                 self.group = group
+                self.totalGroupMember = group.members.count
+
+                for member in group.members where member != self.preference.user?.id {
+                    self.fetchUserData(for: member) { memberData in
+                        self.groupUserData.append(memberData)
+                    }
+                }
                 self.groupState = group.members.count == 1 ? .noMember : .hasMembers
             }.store(in: &cancelable)
+    }
+
+    func fetchMemberDataBy(id: String) -> AppUser? {
+        return groupUserData.first(where: { $0.id == id })
     }
 
     func fetchExpenses() {
@@ -50,28 +72,57 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] expenses in
-                guard let self else { return }
+                guard let self, let admin = self.preference.user else { return }
 
                 var combinedData: [ExpenseWithUser] = []
                 let group = DispatchGroup() // dispatch group to wait for all asynchronous fetch operations
 
+                self.amountOwedByYou = [:]
+                self.amountOwesToYou = [:]
+                self.groupTotalExpense = 0.0
+                self.overallOwingAmount = 0.0
+
+                var owesToYou = 0.0
+                var owedByYou: [String: Double] = [:]
+                var expenseByYou = 0.0
+
                 for expense in expenses {
                     group.enter()
+
+                    self.groupTotalExpense += expense.amount
+                    let splitAmount = expense.amount / Double(expense.splitTo.count)
+
+                    if expense.paidBy == admin.id {
+                        owesToYou += splitAmount
+                        expenseByYou += expense.amount
+                    } else {
+                        owedByYou[expense.paidBy, default: 0.0] += splitAmount
+                    }
 
                     self.fetchUserData(for: expense.paidBy) { user in
                         let expenseWithUser = ExpenseWithUser(expense: expense, user: user)
                         combinedData.append(expenseWithUser)
-                        group.leave() // Leave the dispatch group after each fetch operation
+                        group.leave()
                     }
                 }
 
                 // Notify when all fetch operations are complete
                 group.notify(queue: .main) {
+                    guard let group = self.group else { return }
+                    for (userId, owedAmount) in owedByYou {
+                        let oweAmount = owesToYou - owedAmount
+                        if oweAmount < 0 {
+                            self.amountOwedByYou[userId] = abs(oweAmount)
+                        } else if oweAmount > 0 {
+                            self.amountOwesToYou[userId] = oweAmount
+                        }
+                    }
+                    self.overallOwingAmount = expenseByYou - (self.groupTotalExpense / Double(self.group?.members.count ?? 1))
                     self.groupExpenseState = expenses.isEmpty ? .noExpense : .hasExpense(expense: combinedData)
                 }
             }.store(in: &cancelable)
     }
-
+    
     func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
         groupRepository.fetchMemberBy(userId: userId)
             .sink { [weak self] completion in

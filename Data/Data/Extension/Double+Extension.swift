@@ -8,16 +8,15 @@
 import Foundation
 
 public extension Double {
-    func formattedString() -> String {
+    func formattedCurrency() -> String {
         let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 2
+        formatter.numberStyle = .currency
+        formatter.locale = Locale.current
 
         if let formattedAmount = formatter.string(from: NSNumber(value: self)) {
-            return formattedAmount
+            return formattedAmount.hasPrefix("-") ? String(formattedAmount.dropFirst()) : formattedAmount
         } else {
-            return String(self)
+            return String(format: "%.2f", self.rounded())  // Fallback to a basic decimal format
         }
     }
 }
