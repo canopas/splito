@@ -31,10 +31,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         currentViewState = .loading
         groupRepository.fetchGroups(userId: userId)
             .sink { [weak self] completion in
-                switch completion {
-                case .finished:
-                    return
-                case .failure(let error):
+                if case .failure(let error) = completion {
                     self?.currentViewState = .initial
                     self?.showToastFor(error)
                 }

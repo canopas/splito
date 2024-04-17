@@ -48,7 +48,7 @@ struct CreateGroupView: View {
                 Button("Remove") {
                     viewModel.handleActionSelection(.remove)
                 }
-                .foregroundColor(.red)
+                .foregroundStyle(.red)
             }
         }
         .sheet(isPresented: $viewModel.showImagePicker) {
@@ -99,7 +99,7 @@ private struct AddGroupNameView: View {
             .frame(width: 56, height: 55)
             .background(secondaryText.opacity(0.12))
             .clipShape(RoundedRectangle(cornerRadius: 8))
-            .foregroundColor(secondaryText)
+            .foregroundStyle(secondaryText)
             .onTapGesture {
                 handleProfileTap()
             }
@@ -107,7 +107,7 @@ private struct AddGroupNameView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text("Group name")
                     .font(.subTitle4())
-                    .foregroundColor(secondaryText)
+                    .foregroundStyle(secondaryText)
 
                 VSpacer(2)
 
@@ -115,7 +115,7 @@ private struct AddGroupNameView: View {
 
                 Rectangle()
                     .frame(height: 1)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
         }
     }

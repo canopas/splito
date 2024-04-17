@@ -17,7 +17,7 @@ public struct ForwardIcon: View {
                 .font(.system(size: 12).weight(.bold))
                 .aspectRatio(contentMode: .fit)
         }
-        .foregroundColor(secondaryText)
+        .foregroundStyle(secondaryText)
         .frame(width: 26, height: 26, alignment: .center)
     }
 }

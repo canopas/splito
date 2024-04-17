@@ -25,7 +25,7 @@ public struct VerifyOtpView: View {
 
                         Text("Splito")
                             .font(.Header1(40))
-                            .foregroundColor(primaryColor)
+                            .foregroundStyle(primaryColor)
 
                         Spacer(minLength: 40)
 
@@ -36,14 +36,14 @@ public struct VerifyOtpView: View {
                         VStack(spacing: 16) {
                             Text("We've sent a verification code to your phone")
                                 .font(.subTitle2())
-                                .foregroundColor(disableText)
+                                .foregroundStyle(disableText)
                                 .multilineTextAlignment(.center)
                                 .lineSpacing(2)
 
                             HStack(alignment: .center, spacing: 8) {
                                 Text(viewModel.phoneNumber)
                                     .font(.subTitle2())
-                                    .foregroundColor(primaryText)
+                                    .foregroundStyle(primaryText)
 
                                 Button(action: viewModel.editButtonAction, label: {
                                     Image(.editPencil)
@@ -122,18 +122,18 @@ private struct PhoneLoginOtpView: View {
                 HStack(spacing: 5) {
                     Text("Resend code")
                         .font(.subTitle2(14))
-                        .foregroundColor(primaryColor)
+                        .foregroundStyle(primaryColor)
 
                     Text("00:\(String(format: "%02d", resendOtpCount))")
                         .font(.subTitle2(14))
-                        .foregroundColor(primaryText)
+                        .foregroundStyle(primaryText)
                 }
                 .lineSpacing(1)
             } else {
                 Button(action: onResendOtp) {
                     Text("Resend code")
                         .font(.subTitle2(14))
-                        .foregroundColor(primaryColor)
+                        .foregroundStyle(primaryColor)
                         .padding(.horizontal, 10)
                         .lineSpacing(1)
                 }

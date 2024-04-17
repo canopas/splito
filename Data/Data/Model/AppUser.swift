@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AppUser: Identifiable, Equatable, Codable {
+public struct AppUser: Identifiable, Equatable, Codable, Hashable {
 
     public static func == (lhs: AppUser, rhs: AppUser) -> Bool {
         return lhs.id == rhs.id
@@ -20,6 +20,20 @@ public struct AppUser: Identifiable, Equatable, Codable {
     public var phoneNumber: String?
     public var imageUrl: String?
     public let loginType: LoginType
+
+    public var fullName: String {
+        if let firstName, let lastName {
+            return firstName + " " + lastName
+        } else {
+            return firstName ?? ""
+        }
+    }
+
+    public var nameWithLastInitial: String {
+        let firstName = firstName ?? ""
+        let lastNameInitial = lastName?.first.map { String($0) } ?? ""
+        return firstName + (lastNameInitial.isEmpty ? "" : " \(lastNameInitial).")
+    }
 
     public init(id: String, firstName: String?, lastName: String?, emailId: String?,
                 phoneNumber: String?, profileImageUrl: String? = nil, loginType: LoginType) {

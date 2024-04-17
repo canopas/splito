@@ -28,11 +28,11 @@ struct GroupListView: View {
                         HStack {
                             Text("You are all settle up!")
                                 .font(.subTitle4(19))
-                                .foregroundColor(primaryText)
+                                .foregroundStyle(primaryText)
                             Spacer()
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .resizable()
-                                .foregroundColor(primaryText)
+                                .foregroundStyle(primaryText)
                                 .frame(width: 26, height: 26)
                         }
 
@@ -80,7 +80,7 @@ private struct GroupListCellView: View {
 
             Text(group.name)
                 .font(.subTitle2())
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
 
             Spacer()
 
@@ -99,11 +99,11 @@ private struct CreateGroupState: View {
         VStack(spacing: 20) {
             Text("You do not have any groups yet.")
                 .font(.Header1(22))
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
 
             Text("Groups make it easy to split apartment bills, share travel expenses, and more.")
                 .font(.subTitle3(15))
-                .foregroundColor(secondaryText)
+                .foregroundStyle(secondaryText)
                 .multilineTextAlignment(.center)
 
             CreateGroupButtonView(onClick: viewModel.handleCreateGroupBtnTap)
@@ -123,11 +123,11 @@ private struct CreateGroupButtonView: View {
             HStack(spacing: 20) {
                 Image(systemName: "person.3.fill")
                     .resizable()
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .frame(width: 42, height: 22)
 
                 Text("Start a group")
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .font(.headline)
             }
             .padding(.vertical, 16)

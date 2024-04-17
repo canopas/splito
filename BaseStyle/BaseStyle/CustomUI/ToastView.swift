@@ -18,17 +18,17 @@ struct ToastView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .top, spacing: 0) {
                 Image(systemName: type.iconName)
-                    .foregroundColor(type.themeColor)
+                    .foregroundStyle(type.themeColor)
                     .padding(.trailing, 4)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.buttonText())
-                        .foregroundColor(primaryText)
+                        .foregroundStyle(primaryText)
 
                     Text(message)
                         .font(.body1(12))
-                        .foregroundColor(secondaryText)
+                        .foregroundStyle(secondaryText)
                 }
 
                 Spacer(minLength: 10)

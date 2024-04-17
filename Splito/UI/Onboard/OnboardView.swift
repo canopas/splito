@@ -48,7 +48,7 @@ struct OnboardView: View {
                             }
                         }
                         .fontWeight(.bold)
-                        .foregroundColor(primaryText)
+                        .foregroundStyle(primaryText)
                     }
                     .padding(.horizontal, 30)
                     .opacity(viewModel.currentPageIndex == (onboardItems.count - 1) ? 0 : 1)
@@ -77,7 +77,7 @@ struct OnboardPageView: View {
                 Image(items[index].image)
                     .resizable()
                     .scaledToFit()
-                    .foregroundColor(primaryColor.opacity(0.4))
+                    .foregroundStyle(primaryColor.opacity(0.4))
                     .frame(width: 200, height: 200, alignment: .center)
 
                 VSpacer(20)
@@ -85,11 +85,11 @@ struct OnboardPageView: View {
                 Text(items[index].title)
                     .font(.largeTitle)
                     .fontWeight(.heavy)
-                    .foregroundColor(primaryColor)
+                    .foregroundStyle(primaryColor)
 
                 Text(items[index].description)
                     .font(.title3)
-                    .foregroundColor(secondaryText)
+                    .foregroundStyle(secondaryText)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 20)
 

@@ -66,7 +66,7 @@ struct AddExpenseView: View {
                         dismiss()
                     }
                 }
-                .foregroundColor(primaryColor)
+                .foregroundStyle(primaryColor)
             }
         }
     }
@@ -83,12 +83,13 @@ private struct ExpenseDetailRow: View {
     @Binding var date: Date
 
     var keyboardType: UIKeyboardType = .default
+    let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date())!
 
     var body: some View {
         HStack(spacing: 16) {
             Image(systemName: imageName)
                 .resizable()
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
                 .frame(width: 32, height: 32)
                 .padding(12)
                 .background(Color.clear)
@@ -97,7 +98,7 @@ private struct ExpenseDetailRow: View {
                 )
 
             if forDatePicker {
-                DatePicker(placeholder, selection: $date, displayedComponents: .date)
+                DatePicker(placeholder, selection: $date, in: ...maximumDate, displayedComponents: .date)
                     .font(.subTitle2())
             } else {
                 VStack {
@@ -127,14 +128,14 @@ private struct GroupSelectionView: View {
     var body: some View {
         HStack(spacing: 10) {
             Text("You and: ")
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
 
             Button {
                 onTap()
             } label: {
                 Text(name)
                     .font(.subTitle2())
-                    .foregroundColor(secondaryText)
+                    .foregroundStyle(secondaryText)
             }
             .buttonStyle(.scale)
             .padding(.vertical, 10)
@@ -157,14 +158,14 @@ private struct PaidByView: View {
         HStack(spacing: 10) {
             Text("Paid by")
                 .font(.subTitle2())
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
 
             Button {
                 onTap()
             } label: {
                 Text(payerName)
                     .font(.subTitle2())
-                    .foregroundColor(secondaryText)
+                    .foregroundStyle(secondaryText)
             }
             .buttonStyle(.scale)
             .padding(.vertical, 8)
@@ -176,7 +177,7 @@ private struct PaidByView: View {
 
             Text("and split equally")
                 .font(.subTitle2())
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
         }
     }
 }

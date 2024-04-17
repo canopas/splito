@@ -31,7 +31,7 @@ struct UserProfileImageView: View {
                     Circle()
                         .background(
                             Circle()
-                                .foregroundColor(containerHighColor)
+                                .foregroundStyle(containerHighColor)
                         )
                         .frame(width: 106, height: 106, alignment: .center)
 
@@ -52,7 +52,7 @@ struct UserProfileImageView: View {
                             .strokeBorder(.clear, lineWidth: 0)
                             .background(
                                 Circle()
-                                    .foregroundColor(containerHighColor)
+                                    .foregroundStyle(containerHighColor)
                             )
                             .frame(width: 106, height: 106, alignment: .center)
 

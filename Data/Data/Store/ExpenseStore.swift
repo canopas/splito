@@ -22,7 +22,7 @@ public class ExpenseStore: ObservableObject {
             }
 
             do {
-                let documentRef = try self.database.collection(self.DATABASE_NAME).addDocument(from: expense)
+                _ = try self.database.collection(self.DATABASE_NAME).addDocument(from: expense)
                 promise(.success(()))
             } catch {
                 LogE("ExpenseRepository :: \(#function) error: \(error.localizedDescription)")
@@ -54,7 +54,9 @@ public class ExpenseStore: ObservableObject {
 
                 do {
                     let expenses = try snapshot.documents.compactMap { document in
-                        try document.data(as: Expense.self)
+                        var expense = try document.data(as: Expense.self)
+                        expense.id = document.documentID // Set the ID for each expense
+                        return expense
                     }
                     promise(.success(expenses))
                 } catch {

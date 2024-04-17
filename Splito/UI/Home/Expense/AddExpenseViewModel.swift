@@ -58,7 +58,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         guard let selectedGroup, let selectedPayer, let groupId = selectedGroup.id else { return }
 
         currentViewState = .loading
-        let expense = Expense(name: expenseName, amount: expenseAmount, date: Timestamp(date: expenseDate),
+        let expense = Expense(name: expenseName.capitalized,
+                              amount: expenseAmount, date: Timestamp(date: expenseDate),
                               paidBy: selectedPayer.id, splitTo: selectedGroup.members, groupId: groupId)
 
         expenseRepository.addExpense(expense: expense)
