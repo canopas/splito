@@ -28,7 +28,7 @@ struct FloatingAddGroupButton: View {
                             .padding()
                             .font(.subTitle3())
                             .background(backgroundColor)
-                            .foregroundColor(primaryColor)
+                            .foregroundStyle(primaryColor)
                             .overlay(RoundedRectangle(cornerRadius: 30).stroke(primaryColor, lineWidth: 1))
                     }
                     .offset(y: showMenu ? -60 : 0)
@@ -42,7 +42,7 @@ struct FloatingAddGroupButton: View {
                             .padding()
                             .font(.subTitle3())
                             .background(backgroundColor)
-                            .foregroundColor(primaryColor)
+                            .foregroundStyle(primaryColor)
                             .overlay(RoundedRectangle(cornerRadius: 30).stroke(primaryColor, lineWidth: 1))
                     }
                     .offset(y: showMenu ? -120 : 0)
@@ -58,7 +58,7 @@ struct FloatingAddGroupButton: View {
                             .rotationEffect(.degrees(showMenu ? 45 : 0))
                     }
                     .buttonStyle(.scale)
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .background(Circle().fill(Color.orange))
                 }
                 .animation(.easeInOut(duration: 0.4), value: showMenu)

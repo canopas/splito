@@ -27,7 +27,7 @@ struct ChooseGroupView: View {
 
                 Text("Choose Group")
                     .font(.Header3())
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
 
                 VSpacer(10)
 
@@ -57,7 +57,7 @@ private struct NoGroupFoundView: View {
         VStack {
             Text("You are not part of any group.")
                 .font(.subTitle1())
-                .foregroundColor(primaryColor)
+                .foregroundStyle(primaryColor)
         }
     }
 }
@@ -73,7 +73,7 @@ private struct GroupCellView: View {
 
             Text(group.name)
                 .font(.subTitle2())
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
 
             Spacer()
 

@@ -19,23 +19,23 @@ struct InviteMemberView: View {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Invite members to the group")
                     .font(.Header2())
-                    .foregroundColor(primaryText)
+                    .foregroundStyle(primaryText)
                     .multilineTextAlignment(.leading)
 
                 Text("Share this invitation code with your trusted one in your own style. Connecting with your friends is as flexible as you are.")
                     .font(.subTitle1())
-                    .foregroundColor(secondaryText)
+                    .foregroundStyle(secondaryText)
                     .multilineTextAlignment(.leading)
             }
 
             VStack(spacing: 10) {
                 Text(viewModel.inviteCode)
                     .font(.H1Text())
-                    .foregroundColor(primaryColor)
+                    .foregroundStyle(primaryColor)
 
                 Text("This code will be active for 2 days.")
                     .font(.subTitle2())
-                    .foregroundColor(secondaryText)
+                    .foregroundStyle(secondaryText)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 30)

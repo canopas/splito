@@ -24,7 +24,7 @@ public struct PhoneLoginView: View {
 
                         Text("Splito")
                             .font(.Header1(40))
-                            .foregroundColor(primaryColor)
+                            .foregroundStyle(primaryColor)
 
                         Spacer(minLength: 40)
 
@@ -33,7 +33,7 @@ public struct PhoneLoginView: View {
 
                             Text("We'll verify your phone number with a verification code")
                                 .font(.subTitle2())
-                                .foregroundColor(disableText)
+                                .foregroundStyle(disableText)
                                 .multilineTextAlignment(.center)
                                 .lineSpacing(2)
                         }
@@ -86,7 +86,7 @@ private struct PhoneLoginContentView: View {
                 HStack(spacing: 4) {
                     Text(selectedCountry.dialCode)
                         .font(.subTitle1())
-                        .foregroundColor(secondaryText)
+                        .foregroundStyle(secondaryText)
 
                     Image(.downArrow)
                         .resizable()
@@ -106,7 +106,7 @@ private struct PhoneLoginContentView: View {
                         .font(.subTitle1())
                         .textContentType(.telephoneNumber)
                         .keyboardType(.phonePad)
-                        .foregroundColor(primaryText)
+                        .foregroundStyle(primaryText)
                         .disabled(showLoader)
                         .accentColor(primaryColor)
                         .focused($isFocused)
@@ -120,7 +120,7 @@ private struct PhoneLoginContentView: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(lineWidth: 1)
-                    .foregroundColor(containerHighColor)
+                    .foregroundStyle(containerHighColor)
             )
             .padding(.horizontal, 20)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -177,11 +177,11 @@ private struct PhoneLoginCountryCell: View {
             HStack(spacing: 0) {
                 Text(country.flag + " " + country.name)
                     .font(.body1(16))
-                    .foregroundColor(primaryText)
+                    .foregroundStyle(primaryText)
                 Spacer()
                 Text(country.dialCode)
                     .font(.body1(16))
-                    .foregroundColor(primaryText)
+                    .foregroundStyle(primaryText)
             }
         }
     }

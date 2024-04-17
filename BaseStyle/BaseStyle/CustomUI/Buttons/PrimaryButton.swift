@@ -50,7 +50,7 @@ public struct PrimaryButton: View {
                 }
 
                 Text(text)
-                    .foregroundColor(textColor)
+                    .foregroundStyle(textColor)
             }
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, 15)

@@ -28,7 +28,7 @@ public struct HeaderTextView: View {
     public var body: some View {
         Text(title)
             .font(font)
-            .foregroundColor(foregroundColor)
+            .foregroundStyle(foregroundColor)
             .tracking(-0.4)
             .lineSpacing(lineSpacing)
             .frame(maxWidth: shouldGrow ? .infinity : nil, alignment: alignment)
@@ -54,7 +54,7 @@ public struct SubtitleTextView: View {
     public var body: some View {
         Text(text)
             .font(fontSize)
-            .foregroundColor(fontColor)
+            .foregroundStyle(fontColor)
             .tracking(letterTracking)
             .lineLimit(lineLimit)
     }

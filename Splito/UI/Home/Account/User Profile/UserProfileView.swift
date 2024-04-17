@@ -36,7 +36,7 @@ struct UserProfileView: View {
                                 Button("Remove") {
                                     viewModel.handleActionSelection(.remove)
                                 }
-                                .foregroundColor(.red)
+                                .foregroundStyle(.red)
                             }
                         }
 
@@ -52,7 +52,7 @@ struct UserProfileView: View {
                                 Text("Delete Account")
                                     .font(.body2())
                                     .lineSpacing(1)
-                                    .foregroundColor(awarenessColor)
+                                    .foregroundStyle(awarenessColor)
                             }
                             .buttonStyle(.scale)
                             .hidden(viewModel.isOpenedFromOnboard)
@@ -144,7 +144,7 @@ private struct UserDetailCell: View {
             Text(subtitleText)
                 .font(.body2())
                 .lineSpacing(1)
-                .foregroundColor(disableText)
+                .foregroundStyle(disableText)
                 .fixedSize()
 
             VSpacer(5)
@@ -160,7 +160,7 @@ private struct UserDetailCell: View {
                         .background(awarenessColor)
                     Text(validationType.errorText)
                         .font(.body1(12))
-                        .foregroundColor(awarenessColor)
+                        .foregroundStyle(awarenessColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 } else {
                     Divider()
@@ -203,7 +203,7 @@ private struct UserProfileDataEditableTextField: View {
         TextField(placeholder, text: $titleText)
             .font(.subTitle1())
             .focused(focused, equals: fieldType)
-            .foregroundColor(primaryText)
+            .foregroundStyle(primaryText)
             .disableAutocorrection(true)
             .disabled(isDisabled)
             .keyboardType(keyboardType)

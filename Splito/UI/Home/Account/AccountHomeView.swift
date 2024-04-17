@@ -20,7 +20,7 @@ struct AccountHomeView: View {
             } else {
                 Text("Account")
                     .font(.Header4())
-                    .foregroundColor(primaryText)
+                    .foregroundStyle(primaryText)
                     .padding(.top, 10)
 
                 ScrollView(showsIndicators: false) {
@@ -53,18 +53,13 @@ private struct AccountUserHeaderView: View {
 
     @Inject var preference: SplitoPreference
 
-    private var userName: String {
-        guard let user = preference.user else { return "" }
-        return (user.firstName ?? "") + " " + (user.lastName ?? "")
-    }
-
     var onTap: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Settings")
                 .font(.subTitle4(14))
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
                 .padding(.horizontal, 16)
                 .padding(.bottom, 10)
 
@@ -72,13 +67,13 @@ private struct AccountUserHeaderView: View {
                 MemberProfileImageView(imageUrl: preference.user?.imageUrl)
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(userName)
+                    Text(preference.user?.fullName ?? "")
                         .font(.subTitle1())
-                        .foregroundColor(primaryText)
+                        .foregroundStyle(primaryText)
 
                     Text(preference.user?.emailId ?? "")
                         .font(.subTitle3())
-                        .foregroundColor(secondaryText)
+                        .foregroundStyle(secondaryText)
                 }
 
                 Spacer()
@@ -104,14 +99,14 @@ private struct AccountFeedbackSectionView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Feedback")
                 .font(.subTitle4(14))
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
 
             HStack(alignment: .center, spacing: 16) {
                 Text("Contact us")
                     .font(.subTitle2())
-                    .foregroundColor(primaryText)
+                    .foregroundStyle(primaryText)
 
                 Spacer()
 
@@ -123,7 +118,7 @@ private struct AccountFeedbackSectionView: View {
             HStack(alignment: .center, spacing: 16) {
                 Text("Rate Splito")
                     .font(.subTitle2())
-                    .foregroundColor(disableText)
+                    .foregroundStyle(disableText)
 
                 Spacer()
 
@@ -148,7 +143,7 @@ private struct AccountLogoutSectionView: View {
         VStack(alignment: .center, spacing: 10) {
             Text("Logout")
                 .font(.bodyBold(18))
-                .foregroundColor(primaryColor)
+                .foregroundStyle(primaryColor)
                 .padding(.top, 30)
                 .onTouchGesture { onLogoutTap() }
         }

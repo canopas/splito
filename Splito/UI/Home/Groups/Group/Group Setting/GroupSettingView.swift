@@ -70,13 +70,13 @@ private struct GroupTitleView: View {
 
                 Text(group?.name ?? "")
                     .font(.subTitle1())
-                    .foregroundColor(primaryText)
+                    .foregroundStyle(primaryText)
 
                 Spacer()
 
                 Text("Edit")
                     .font(.bodyBold(17))
-                    .foregroundColor(primaryColor)
+                    .foregroundStyle(primaryColor)
             }
             .padding(.horizontal, 22)
 
@@ -97,7 +97,7 @@ private struct GroupMembersView: View {
         VStack(alignment: .leading, spacing: 26) {
             Text("Group members")
                 .font(.subTitle2())
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
 
             GroupListEditCellView(icon: "person.badge.plus", text: "Add people to group", onTap: onAddMemberTap)
 
@@ -124,7 +124,7 @@ private struct GroupAdvanceSettingsView: View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Advanced settings")
                 .font(.subTitle2())
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
 
             GroupListEditCellView(icon: "arrow.left.square", text: "Leave group",
                                   isDistructive: true, onTap: onLeaveGroupTap)
@@ -156,7 +156,7 @@ private struct GroupListEditCellView: View {
         }
         .frame(height: 40)
         .padding(.leading, 16)
-        .foregroundColor(isDisable ? disableText : (isDistructive ? awarenessColor : primaryText))
+        .foregroundStyle(isDisable ? disableText : (isDistructive ? awarenessColor : primaryText))
         .onTouchGesture {
             onTap()
         }
@@ -174,9 +174,7 @@ private struct GroupMemberCellView: View {
         if let user = preference.user, member.id == user.id {
             return "You"
         } else {
-            let firstName = member.firstName ?? ""
-            let lastName = member.lastName ?? ""
-            return (firstName + " " + lastName).isEmpty ? "Unknown" : firstName + " " + lastName
+            return member.fullName
         }
     }
 
@@ -197,19 +195,19 @@ private struct GroupMemberCellView: View {
                 Text(userName)
                     .lineLimit(1)
                     .font(.subTitle2())
-                    .foregroundColor(primaryText)
+                    .foregroundStyle(primaryText)
 
                 Text(subInfo)
                     .lineLimit(1)
                     .font(.subTitle3())
-                    .foregroundColor(secondaryText)
+                    .foregroundStyle(secondaryText)
             }
 
             Spacer()
 
             Text("settled up")
                 .font(.subTitle3())
-                .foregroundColor(secondaryText)
+                .foregroundStyle(secondaryText)
         }
     }
 }

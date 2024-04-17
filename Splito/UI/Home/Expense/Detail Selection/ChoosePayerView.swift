@@ -27,7 +27,7 @@ struct ChoosePayerView: View {
 
                 Text("Choose Payer")
                     .font(.Header3())
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
 
                 VSpacer(10)
 
@@ -57,7 +57,7 @@ private struct NoMemberFoundView: View {
         VStack {
             Text("No members in your selected group.")
                 .font(.subTitle1())
-                .foregroundColor(primaryColor)
+                .foregroundStyle(primaryColor)
         }
     }
 }
@@ -77,7 +77,7 @@ private struct MemberCellView: View {
         if let user = preference.user, member.id == user.id {
             self.userName = "You"
         } else {
-            self.userName = (member.firstName ?? "") + " " + (member.lastName ?? "")
+            self.userName = member.fullName
         }
     }
 
@@ -87,7 +87,7 @@ private struct MemberCellView: View {
 
             Text((userName ?? "").isEmpty ? "Unknown" : userName!)
                 .font(.subTitle2())
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
 
             Spacer()
 
