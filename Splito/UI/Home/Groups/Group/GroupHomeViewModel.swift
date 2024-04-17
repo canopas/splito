@@ -72,19 +72,15 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] expenses in
-                guard let self, let admin = self.preference.user else { return }
+                guard let self = self, let userId = self.preference.user?.id else { return }
 
                 var combinedData: [ExpenseWithUser] = []
-                let group = DispatchGroup() // dispatch group to wait for all asynchronous fetch operations
-
-                self.amountOwedByYou = [:]
-                self.amountOwesToYou = [:]
-                self.groupTotalExpense = 0.0
-                self.overallOwingAmount = 0.0
+                let group = DispatchGroup()
 
                 var owesToYou = 0.0
                 var owedByYou: [String: Double] = [:]
                 var expenseByYou = 0.0
+                var allGroupMembers = Set<String>()
 
                 for expense in expenses {
                     group.enter()
@@ -92,24 +88,30 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self.groupTotalExpense += expense.amount
                     let splitAmount = expense.amount / Double(expense.splitTo.count)
 
-                    if expense.paidBy == admin.id {
+                    if expense.paidBy == userId {
                         owesToYou += splitAmount
                         expenseByYou += expense.amount
                     } else {
                         owedByYou[expense.paidBy, default: 0.0] += splitAmount
                     }
 
+                    allGroupMembers.formUnion(expense.splitTo)
+                    allGroupMembers.insert(expense.paidBy)
+
                     self.fetchUserData(for: expense.paidBy) { user in
-                        let expenseWithUser = ExpenseWithUser(expense: expense, user: user)
-                        combinedData.append(expenseWithUser)
+                        combinedData.append(ExpenseWithUser(expense: expense, user: user))
                         group.leave()
                     }
                 }
 
+                allGroupMembers.subtract([userId])
+                allGroupMembers.subtract(owedByYou.keys)
+
+                allGroupMembers.forEach { owedByYou[$0] = 0.0 }
+
                 // Notify when all fetch operations are complete
                 group.notify(queue: .main) {
-                    guard let group = self.group else { return }
-                    for (userId, owedAmount) in owedByYou {
+                    owedByYou.forEach { userId, owedAmount in
                         let oweAmount = owesToYou - owedAmount
                         if oweAmount < 0 {
                             self.amountOwedByYou[userId] = abs(oweAmount)
@@ -122,7 +124,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 }
             }.store(in: &cancelable)
     }
-    
+
     func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
         groupRepository.fetchMemberBy(userId: userId)
             .sink { [weak self] completion in
