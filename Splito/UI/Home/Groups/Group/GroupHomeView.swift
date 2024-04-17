@@ -158,9 +158,8 @@ private struct GroupExpenseItemView: View {
             let singleExpense = expense.expense.amount / Double(expense.expense.splitTo.count)
             amount = expense.expense.amount - singleExpense
         } else {
-            userName = expense.user.nameWithLastInitial
-
             isBorrowed = true
+            userName = expense.user.nameWithLastInitial
             amount = expense.expense.amount / Double(expense.expense.splitTo.count)
         }
     }
@@ -190,6 +189,7 @@ private struct GroupExpenseItemView: View {
                     .font(.body1(12))
                     .foregroundStyle(secondaryText)
             }
+            .lineLimit(1)
             .frame(maxWidth: .infinity, alignment: .leading)
 
             VStack(alignment: .trailing, spacing: 4) {
@@ -199,6 +199,7 @@ private struct GroupExpenseItemView: View {
                 Text(amount.formattedCurrency())
                     .font(.body1(16))
             }
+            .lineLimit(1)
             .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
         }
         .padding(.horizontal, 6)
