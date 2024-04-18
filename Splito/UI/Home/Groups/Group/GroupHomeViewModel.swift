@@ -15,16 +15,16 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Inject var expenseRepository: ExpenseRepository
 
     @Published var expenses: [Expense] = []
+    @Published var expenseWithUser: [ExpenseWithUser] = []
     @Published var groupState: GroupState = .noMember
-    @Published var groupExpenseState: GroupExpenseState = .noExpense
 
     @Published var totalGroupMember = 1
     @Published var groupTotalExpense = 0.0
     @Published var overallOwingAmount = 0.0
     @Published var memberOwingAmounts: [String: Double] = [:]
 
-    @Published var amountOwedByYou: [String: Double] = [:]
     @Published var amountOwesToYou: [String: Double] = [:]
+    @Published var amountOwedByYou: [String: Double] = [:]
 
     var group: Groups?
     private let groupId: String
@@ -37,14 +37,15 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         super.init()
 
-        fetchGroup()
-        fetchExpenses()
+        fetchGroupAndExpenses()
     }
 
-    func fetchGroup() {
+    func fetchGroupAndExpenses() {
+        groupState = .loading
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
+                    self?.groupState = .noMember
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] group in
@@ -57,11 +58,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                         self.groupUserData.append(memberData)
                     }
                 }
-                self.groupState = group.members.count == 1 ? .noMember : .hasMembers
+                self.fetchExpenses()
             }.store(in: &cancelable)
     }
 
-    func fetchMemberDataBy(id: String) -> AppUser? {
+    func getMemberDataBy(id: String) -> AppUser? {
         return groupUserData.first(where: { $0.id == id })
     }
 
@@ -69,21 +70,24 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         expenseRepository.fetchExpensesBy(groupId: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
+                    self?.groupState = .noMember
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] expenses in
-                guard let self = self, let userId = self.preference.user?.id else { return }
+                guard let self, let group = self.group, let userId = self.preference.user?.id else { return }
 
-                var combinedData: [ExpenseWithUser] = []
-                let group = DispatchGroup()
+                self.expenses = expenses
+                let queue = DispatchGroup()
 
                 var owesToYou = 0.0
                 var owedByYou: [String: Double] = [:]
+
                 var expenseByYou = 0.0
                 var allGroupMembers = Set<String>()
+                var combinedData: [ExpenseWithUser] = []
 
                 for expense in expenses {
-                    group.enter()
+                    queue.enter()
 
                     self.groupTotalExpense += expense.amount
                     let splitAmount = expense.amount / Double(expense.splitTo.count)
@@ -100,7 +104,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
                     self.fetchUserData(for: expense.paidBy) { user in
                         combinedData.append(ExpenseWithUser(expense: expense, user: user))
-                        group.leave()
+                        queue.leave()
                     }
                 }
 
@@ -110,7 +114,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 allGroupMembers.forEach { owedByYou[$0] = 0.0 }
 
                 // Notify when all fetch operations are complete
-                group.notify(queue: .main) {
+                queue.notify(queue: .main) {
                     owedByYou.forEach { userId, owedAmount in
                         let oweAmount = owesToYou - owedAmount
                         if oweAmount < 0 {
@@ -119,8 +123,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                             self.amountOwesToYou[userId] = oweAmount
                         }
                     }
-                    self.overallOwingAmount = expenseByYou - (self.groupTotalExpense / Double(self.group?.members.count ?? 1))
-                    self.groupExpenseState = expenses.isEmpty ? .noExpense : .hasExpense(expense: combinedData)
+                    self.expenseWithUser = combinedData
+                    self.overallOwingAmount = expenseByYou - (group.members.count > 1 ? self.groupTotalExpense / Double(group.members.count) : 0)
+                    self.setGroupViewState()
                 }
             }.store(in: &cancelable)
     }
@@ -137,6 +142,20 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
+    func setGroupViewState() {
+        guard let group else { return }
+        groupState = group.members.count > 1 ?
+                     (expenses.isEmpty ? .noExpense : (groupTotalExpense == overallOwingAmount && overallOwingAmount != 0 ? .settledUp : .hasExpense)) :
+                     (expenses.isEmpty ? .noMember : (groupTotalExpense == overallOwingAmount && overallOwingAmount != 0 ? .settledUp : .hasExpense))
+    }
+
+    func setHasExpenseState() {
+        groupState = .loading
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.groupState = .hasExpense
+        }
+    }
+
     func handleCreateGroupClick() {
         router.push(.CreateGroupView(group: nil))
     }
@@ -148,19 +167,20 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     func handleSettingButtonTap() {
         router.push(.GroupSettingView(groupId: groupId))
     }
+
+    func handleExpenseItemTap(expenseId: String) {
+        router.push(.ExpenseDetailView(expenseId: expenseId))
+    }
 }
 
 // MARK: - Group State
 extension GroupHomeViewModel {
     enum GroupState {
-        case noGroup
+        case loading
         case noMember
-        case hasMembers
-    }
-
-    enum GroupExpenseState {
         case noExpense
-        case hasExpense(expense: [ExpenseWithUser])
+        case settledUp
+        case hasExpense
     }
 }
 

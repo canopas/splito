@@ -11,9 +11,11 @@ import Kingfisher
 public struct MemberProfileImageView: View {
 
     let imageUrl: String?
+    let height: CGFloat
 
-    public init(imageUrl: String?) {
+    public init(imageUrl: String?, height: CGFloat = 50) {
         self.imageUrl = imageUrl
+        self.height = height
     }
 
     public var body: some View {
@@ -23,11 +25,11 @@ public struct MemberProfileImageView: View {
                     .placeholder({ _ in
                         ImageLoaderView()
                     })
-                    .setProcessor(ResizingImageProcessor(referenceSize: CGSize(width: (50 * UIScreen.main.scale), height: (50 * UIScreen.main.scale)), mode: .aspectFill))
+                    .setProcessor(ResizingImageProcessor(referenceSize: CGSize(width: (height * UIScreen.main.scale), height: (height * UIScreen.main.scale)), mode: .aspectFill))
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 50, height: 50, alignment: .center)
-                    .clipShape(RoundedRectangle(cornerRadius: 25))
+                    .frame(width: height, height: height, alignment: .center)
+                    .clipShape(RoundedRectangle(cornerRadius: height / 2))
                     .overlay(
                         Circle()
                             .strokeBorder(Color.gray, lineWidth: 1)
@@ -36,8 +38,8 @@ public struct MemberProfileImageView: View {
                 Image(.user)
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 50, height: 50, alignment: .center)
-                    .clipShape(RoundedRectangle(cornerRadius: 25))
+                    .frame(width: height, height: height, alignment: .center)
+                    .clipShape(RoundedRectangle(cornerRadius: height / 2))
                     .overlay(
                         Circle()
                             .strokeBorder(Color.gray, lineWidth: 1)

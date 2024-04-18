@@ -55,12 +55,12 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        guard let selectedGroup, let selectedPayer, let groupId = selectedGroup.id else { return }
+        guard let selectedGroup, let selectedPayer, let groupId = selectedGroup.id, let user = preference.user else { return }
 
         currentViewState = .loading
-        let expense = Expense(name: expenseName.capitalized,
-                              amount: expenseAmount, date: Timestamp(date: expenseDate),
-                              paidBy: selectedPayer.id, splitTo: selectedGroup.members, groupId: groupId)
+        let expense = Expense(name: expenseName.capitalized, amount: expenseAmount,
+                              date: Timestamp(date: expenseDate), paidBy: selectedPayer.id,
+                              addedBy: user.id, splitTo: selectedGroup.members, groupId: groupId)
 
         expenseRepository.addExpense(expense: expense)
             .sink { [weak self] completion in

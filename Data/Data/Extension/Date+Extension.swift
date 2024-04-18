@@ -10,9 +10,16 @@ import Foundation
 public extension Date {
 
     // Mar 10
-    func shortDateWithMonth() -> String {
+    var shortDateWithNewLine: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM\ndd"
+        return dateFormatter.string(from: self)
+    }
+
+    // 10 March 2024
+    var longDate: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd MMM yyyy"
         return dateFormatter.string(from: self)
     }
 

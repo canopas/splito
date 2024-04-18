@@ -112,7 +112,7 @@ private struct ExpenseDetailRow: View {
                     }
 
                     Divider()
-                        .background(Color.gray)
+                        .background(outlineColor)
                         .frame(height: 1)
                 }
             }

@@ -32,7 +32,7 @@ public class ShareCodeStore: ObservableObject {
         .eraseToAnyPublisher()
     }
 
-    public func fetchSharedCode(code: String) -> Future<SharedCode?, ServiceError> {
+    func fetchSharedCode(code: String) -> Future<SharedCode?, ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
@@ -63,7 +63,7 @@ public class ShareCodeStore: ObservableObject {
         }
     }
 
-    public func deleteSharedCode(documentId: String) -> AnyPublisher<Void, ServiceError> {
+    func deleteSharedCode(documentId: String) -> AnyPublisher<Void, ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
