@@ -11,7 +11,7 @@ import BaseStyle
 
 struct ExpenseRouteView: View {
 
-    @StateObject var appRoute = Router(root: AppRoute.AddExpenseView)
+    @StateObject var appRoute = Router(root: AppRoute.AddExpenseView(expenseId: nil))
 
     var body: some View {
         RouterView(router: appRoute) { route in

@@ -38,6 +38,22 @@ public class ExpenseStore: ObservableObject {
         .eraseToAnyPublisher()
     }
 
+    func updateExpense(expense: Expense) -> AnyPublisher<Void, ServiceError> {
+        Future { [weak self] promise in
+            guard let self, let expenseId = expense.id else {
+                promise(.failure(.unexpectedError))
+                return
+            }
+            do {
+                try self.database.collection(self.DATABASE_NAME).document(expenseId).setData(from: expense, merge: false)
+                promise(.success(()))
+            } catch {
+                LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
+                promise(.failure(.databaseError))
+            }
+        }.eraseToAnyPublisher()
+    }
+
     func fetchExpenseBy(expenseId: String) -> AnyPublisher<Expense, ServiceError> {
         Future { [weak self] promise in
             guard let self else {

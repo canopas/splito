@@ -18,14 +18,18 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     @Published var expenseUsersData: [AppUser] = []
     @Published var viewState: ViewState = .initial
 
-    var expenseId: String = ""
+    var expenseId: String
+    let router: Router<AppRoute>
 
-    init(expenseId: String) {
+    init(router: Router<AppRoute>, expenseId: String) {
+        self.router = router
         self.expenseId = expenseId
+        super.init()
         print("XXX --- ID: \(expenseId)")
+        self.fetchExpense()
     }
 
-    func fetchExpenses() {
+    func fetchExpense() {
         viewState = .loading
         expenseRepository.fetchExpenseBy(expenseId: expenseId)
             .sink { [weak self] completion in
@@ -38,6 +42,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 self.expense = expense
                 self.fetchUserData(for: expense.paidBy) { user in
                     self.expenseUsersData.append(user)
+                    self.viewState = .initial
                 }
             }.store(in: &cancelable)
     }
@@ -46,6 +51,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         userRepository.fetchUserBy(userID: userId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
+                    self?.viewState = .initial
                     self?.showToastFor(error)
                 }
             } receiveValue: { user in
@@ -56,6 +62,24 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     func getMemberDataBy(id: String) -> AppUser? {
         return expenseUsersData.first(where: { $0.id == id })
+    }
+
+    func handleEditBtnAction() {
+        router.push(.AddExpenseView(expenseId: expenseId))
+    }
+
+    func handleDeleteBtnAction() {
+        viewState = .loading
+        expenseRepository.deleteExpense(id: expenseId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.viewState = .initial
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.viewState = .initial
+                self?.router.pop()
+            }.store(in: &cancelable)
     }
 }
 

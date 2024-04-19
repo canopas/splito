@@ -14,22 +14,24 @@ struct ExpenseDetailsView: View {
     @ObservedObject var viewModel: ExpenseDetailsViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 30) {
-            VSpacer(20)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 30) {
+                VSpacer(20)
 
-            ExpenseHeaderView(viewModel: viewModel)
+                ExpenseHeaderView(viewModel: viewModel)
 
-            Divider()
-                .frame(height: 1)
-                .background(outlineColor)
+                Divider()
+                    .frame(height: 1)
+                    .background(outlineColor)
 
-            ExpenseInfoView(viewModel: viewModel)
+                ExpenseInfoView(viewModel: viewModel)
 
-            Divider()
-                .frame(height: 1)
-                .background(outlineColor)
+                Divider()
+                    .frame(height: 1)
+                    .background(outlineColor)
 
-            VSpacer()
+                VSpacer()
+            }
         }
         .background(backgroundColor)
         .toastView(toast: $viewModel.toast)
@@ -39,7 +41,7 @@ struct ExpenseDetailsView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    // Handle delete action
+                    viewModel.handleDeleteBtnAction()
                 } label: {
                     Label("Delete", systemImage: "trash")
                 }
@@ -47,7 +49,7 @@ struct ExpenseDetailsView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    // Handle edit action
+                    viewModel.handleEditBtnAction()
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }
@@ -150,7 +152,7 @@ private struct ExpenseInfoView: View {
 }
 
 #Preview {
-    ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(expenseId: ""))
+    ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: .init(root: .ExpenseDetailView(expenseId: "")), expenseId: ""))
 }
 
 struct ConnectionLineView: View {

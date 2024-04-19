@@ -15,32 +15,32 @@ struct AddExpenseView: View {
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        VStack(spacing: 25) {
-            if case .loading = viewModel.currentViewState {
+        ScrollView {
+            if case .loading = viewModel.viewState {
                 LoaderView(tintColor: primaryColor, scaleSize: 2)
             } else {
-                GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Group") {
-                    viewModel.showGroupSelection = true
-                }
+                VStack(spacing: 25) {
+                    VSpacer(80)
 
-                VStack(spacing: 16) {
-                    ExpenseDetailRow(imageName: "note.text", placeholder: "Enter a description",
-                                     name: $viewModel.expenseName, amount: .constant(0), date: $viewModel.expenseDate)
-                    ExpenseDetailRow(imageName: "indianrupeesign.square", placeholder: "0.00",
-                                     name: .constant(""), amount: $viewModel.expenseAmount, date: $viewModel.expenseDate, keyboardType: .numberPad)
-                    ExpenseDetailRow(imageName: "calendar", placeholder: "Expense date", forDatePicker: true,
-                                     name: .constant(""), amount: .constant(0), date: $viewModel.expenseDate)
-                }
-                .padding(.trailing, 20)
+                    GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Group", onTap: viewModel.handleGroupBtnAction)
 
-                PaidByView(payerName: viewModel.payerName) {
-                    viewModel.showPayerSelection = viewModel.selectedGroup != nil
+                    VStack(spacing: 16) {
+                        ExpenseDetailRow(imageName: "note.text", placeholder: "Enter a description",
+                                         name: $viewModel.expenseName, amount: .constant(0), date: $viewModel.expenseDate)
+                        ExpenseDetailRow(imageName: "indianrupeesign.square", placeholder: "0.00",
+                                         name: .constant(""), amount: $viewModel.expenseAmount, date: $viewModel.expenseDate, keyboardType: .numberPad)
+                        ExpenseDetailRow(imageName: "calendar", placeholder: "Expense date", forDatePicker: true,
+                                         name: .constant(""), amount: .constant(0), date: $viewModel.expenseDate)
+                    }
+                    .padding(.trailing, 20)
+
+                    PaidByView(payerName: viewModel.payerName, onTap: viewModel.handlePayerBtnAction)
                 }
             }
         }
         .padding(.horizontal, 20)
         .background(backgroundColor)
-        .navigationBarTitle("Add an expense", displayMode: .inline)
+        .navigationBarTitle(viewModel.expenseId == nil ? "Add expense" : "Edit expense", displayMode: .inline)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showGroupSelection) {
@@ -55,14 +55,16 @@ struct AddExpenseView: View {
             })
         }
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button("Cancel") {
-                    dismiss()
+            if viewModel.expenseId == nil {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Add") {
-                    viewModel.saveExpense {
+                Button("Save") {
+                    viewModel.handleSaveAction {
                         dismiss()
                     }
                 }
@@ -183,5 +185,5 @@ private struct PaidByView: View {
 }
 
 #Preview {
-    AddExpenseView(viewModel: AddExpenseViewModel(router: .init(root: .AddExpenseView)))
+    AddExpenseView(viewModel: AddExpenseViewModel(router: .init(root: .AddExpenseView(expenseId: "")), expenseId: ""))
 }
