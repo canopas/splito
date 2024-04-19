@@ -25,7 +25,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.expenseId = expenseId
         super.init()
-        print("XXX --- ID: \(expenseId)")
         self.fetchExpense()
     }
 

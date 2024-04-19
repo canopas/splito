@@ -130,9 +130,9 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                               addedBy: user.id, splitTo: selectedGroup.members, groupId: groupId)
 
         if expenseId == nil {
-            updateExpense(expense: expense)
-        } else {
             addExpense(expense: expense, completion: completion)
+        } else {
+            updateExpense(expense: expense)
         }
     }
 
@@ -141,6 +141,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         expenseRepository.addExpense(expense: expense)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
+                    self?.viewState = .initial
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] _ in
@@ -154,6 +155,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         expenseRepository.updateExpense(expense: expense)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
+                    self?.viewState = .initial
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] _ in

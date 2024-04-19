@@ -28,9 +28,8 @@ struct GroupSettingView: View {
                                 viewModel.handleEditGroupTap()
                             }
 
-                        GroupMembersView(members: viewModel.members, onAddMemberTap: viewModel.handleAddMemberTap) { user in
-                            viewModel.handleMemberTap(member: user)
-                        }
+                        GroupMembersView(members: viewModel.members, oweAmount: viewModel.amountOweByMember,
+                                         onAddMemberTap: viewModel.handleAddMemberTap, onMemberTap: viewModel.handleMemberTap(member:))
 
                         GroupAdvanceSettingsView(isDisable: !viewModel.isAdmin,
                                                  onLeaveGroupTap: viewModel.handleLeaveGroupTap,
@@ -90,8 +89,18 @@ private struct GroupTitleView: View {
 private struct GroupMembersView: View {
 
     var members: [AppUser]
+    var oweAmount: [String: Double]
+
     var onAddMemberTap: () -> Void
     var onMemberTap: (AppUser) -> Void
+
+    init(members: [AppUser], oweAmount: [String: Double], onAddMemberTap: @escaping () -> Void, onMemberTap: @escaping (AppUser) -> Void) {
+        self.members = members
+        self.oweAmount = oweAmount
+        self.onAddMemberTap = onAddMemberTap
+        self.onMemberTap = onMemberTap
+
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 26) {
@@ -103,7 +112,7 @@ private struct GroupMembersView: View {
 
             LazyVStack(spacing: 20) {
                 ForEach(members) { member in
-                    GroupMemberCellView(member: member)
+                    GroupMemberCellView(member: member, amount: oweAmount[member.id] ?? 0)
                         .onTouchGesture {
                             onMemberTap(member)
                         }
@@ -117,6 +126,7 @@ private struct GroupMembersView: View {
 private struct GroupAdvanceSettingsView: View {
 
     var isDisable: Bool
+
     var onLeaveGroupTap: () -> Void
     var onDeleteGroupTap: () -> Void
 
@@ -169,6 +179,7 @@ private struct GroupMemberCellView: View {
     @Inject var preference: SplitoPreference
 
     let member: AppUser
+    let amount: Double
 
     private var userName: String {
         if let user = preference.user, member.id == user.id {
@@ -205,9 +216,22 @@ private struct GroupMemberCellView: View {
 
             Spacer()
 
-            Text("settled up")
-                .font(.subTitle3())
-                .foregroundStyle(secondaryText)
+            let isBorrowed = amount < 0
+            VStack(alignment: .trailing, spacing: 4) {
+                if amount == 0 {
+                    Text("settled up")
+                        .font(.body1(13))
+                        .foregroundStyle(secondaryText)
+                } else {
+                    Text(isBorrowed ? "owes" : "gets back")
+                        .font(.body1(13))
+
+                    Text(amount.formattedCurrency)
+                        .font(.body1(16))
+                }
+            }
+            .lineLimit(1)
+            .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
         }
     }
 }

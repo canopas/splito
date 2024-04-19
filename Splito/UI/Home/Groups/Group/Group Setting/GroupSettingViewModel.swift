@@ -13,6 +13,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     @Inject var preference: SplitoPreference
     @Inject var groupRepository: GroupRepository
+    @Inject var expenseRepository: ExpenseRepository
 
     private let groupId: String
     private let router: Router<AppRoute>
@@ -20,6 +21,9 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     @Published var isAdmin = false
     @Published var showLeaveGroupDialog = false
     @Published var showRemoveMemberDialog = false
+
+    @Published var groupTotalExpense = 0.0
+    @Published var amountOweByMember: [String: Double] = [:]
 
     @Published var group: Groups?
     @Published var members: [AppUser] = []
@@ -56,14 +60,38 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] users in
                 guard let self else { return }
                 self.members = users
+                self.fetchExpenses()
                 self.checkForGroupAdmin()
-                self.currentViewState = .initial
             }.store(in: &cancelable)
     }
 
     private func checkForGroupAdmin() {
         guard let userId = preference.user?.id, let group else { return }
         isAdmin = userId == group.createdBy
+    }
+
+    private func fetchExpenses() {
+        expenseRepository.fetchExpensesBy(groupId: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServiceError(error)
+                }
+            } receiveValue: { [weak self] expenses in
+                guard let self else { return }
+
+                for expense in expenses {
+                    self.amountOweByMember[expense.paidBy, default: 0.0] += expense.amount
+                    
+                    let splitAmount = expense.amount / Double(expense.splitTo.count)
+                    for member in expense.splitTo {
+                        self.amountOweByMember[member, default: 0.0] -= splitAmount
+                    }
+                }
+
+                DispatchQueue.main.async {
+                    self.currentViewState = .initial
+                }
+            }.store(in: &cancelable)
     }
 
     // MARK: - User Actions
