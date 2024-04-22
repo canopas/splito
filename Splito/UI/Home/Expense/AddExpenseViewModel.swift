@@ -19,14 +19,16 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published var expenseName = ""
     @Published var expenseAmount = 0.0
     @Published var expenseDate = Date()
+    @Published var selectedMembers: [String] = []
 
     @Published var showGroupSelection = false
     @Published var showPayerSelection = false
-    @Published var viewState: ViewState = .initial
+    @Published var showSplitTypeSelection = false
 
     @Published var payerName = "You"
     @Published var expense: Expense?
     @Published var selectedGroup: Groups?
+    @Published var viewState: ViewState = .initial
 
     @Published var selectedPayer: AppUser? {
         didSet {
@@ -58,18 +60,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func handleGroupBtnAction() {
-        showGroupSelection = expenseId == nil
-    }
-
-    func handlePayerBtnAction() {
-        guard selectedGroup != nil else {
-            self.showToastFor(toast: ToastPrompt(type: .warning, title: "Warning", message: "Please select group to get payer list."))
-            return
-        }
-        showPayerSelection = true
-    }
-
     func fetchExpenseDetails(expenseId: String) {
         viewState = .loading
         expenseRepository.fetchExpenseBy(expenseId: expenseId)
@@ -84,6 +74,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 self.expenseName = expense.name
                 self.expenseAmount = expense.amount
                 self.expenseDate = expense.date.dateValue()
+                self.selectedMembers = expense.splitTo
+
                 self.fetchGroupData(for: expense.groupId) { group in
                     self.selectedGroup = group
                     self.fetchUserData(for: expense.paidBy) { user in
@@ -119,6 +111,46 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
+    // MARK: - Actions
+    func handleGroupBtnAction() {
+        showGroupSelection = expenseId == nil
+    }
+
+    func handleGroupSelection(group: Groups) {
+        selectedGroup = group
+        selectedPayer = nil
+        selectedMembers = group.members
+    }
+
+    func handlePayerBtnAction() {
+        guard selectedGroup != nil else {
+            self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "Please select group to get payer list."))
+            return
+        }
+        showPayerSelection = true
+    }
+
+    func handlePayerSelection(payer: AppUser) {
+        selectedPayer = payer
+    }
+
+    func handleSplitTypeBtnAction() {
+        guard selectedGroup != nil else {
+            self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "Please select group to get payer list."))
+            return
+        }
+
+        guard expenseAmount > 0 else {
+            self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "Please enter a cost for your expense first!"))
+            return
+        }
+        showSplitTypeSelection = true
+    }
+
+    func handleSplitTypeSelection(members: [String]) {
+        selectedMembers = members
+    }
+
     func handleSaveAction(completion: @escaping () -> Void) {
         if expenseName == "" || expenseAmount == 0 || selectedGroup == nil || selectedPayer == nil {
             showToastFor(toast: ToastPrompt(type: .warning, title: "Warning", message: "Please fill all data to add expense."))
@@ -133,13 +165,13 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             newExpense.amount = expenseAmount
             newExpense.date = Timestamp(date: expenseDate)
             newExpense.paidBy = selectedPayer.id
-            newExpense.splitTo = selectedGroup.members
+            newExpense.splitTo = selectedMembers
 
             updateExpense(expense: newExpense)
         } else {
             let expense = Expense(name: expenseName.capitalized, amount: expenseAmount,
                                   date: Timestamp(date: expenseDate), paidBy: selectedPayer.id,
-                                  addedBy: user.id, splitTo: selectedGroup.members, groupId: groupId)
+                                  addedBy: user.id, splitTo: selectedMembers, groupId: groupId)
 
             addExpense(expense: expense, completion: completion)
         }

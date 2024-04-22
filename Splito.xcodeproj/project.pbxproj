@@ -50,6 +50,8 @@
 		D8AC26F62B84B12800CEAAD3 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26EC2B84B12800CEAAD3 /* LoginViewModel.swift */; };
 		D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC26ED2B84B12800CEAAD3 /* LoginView.swift */; };
 		D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC27142B84B72F00CEAAD3 /* PageControl.swift */; };
+		D8CD952C2BD65F1900407B47 /* ExpenseSplitOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8CD952B2BD65F1900407B47 /* ExpenseSplitOptionsView.swift */; };
+		D8CD952E2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8CD952D2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift */; };
 		D8D14A4E2BA0688A00F45FF2 /* FloatingGroupMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A4D2BA0688A00F45FF2 /* FloatingGroupMenu.swift */; };
 		D8D14A562BA189EC00F45FF2 /* JoinMemberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A552BA189EC00F45FF2 /* JoinMemberView.swift */; };
 		D8D14A582BA189F800F45FF2 /* JoinMemberViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A572BA189F800F45FF2 /* JoinMemberViewModel.swift */; };
@@ -160,6 +162,8 @@
 		D8AC27142B84B72F00CEAAD3 /* PageControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageControl.swift; sourceTree = "<group>"; };
 		D8AC27992B84BDB000CEAAD3 /* Style.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Style.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseStyle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8CD952B2BD65F1900407B47 /* ExpenseSplitOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseSplitOptionsView.swift; sourceTree = "<group>"; };
+		D8CD952D2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseSplitOptionsViewModel.swift; sourceTree = "<group>"; };
 		D8D14A4D2BA0688A00F45FF2 /* FloatingGroupMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingGroupMenu.swift; sourceTree = "<group>"; };
 		D8D14A552BA189EC00F45FF2 /* JoinMemberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinMemberView.swift; sourceTree = "<group>"; };
 		D8D14A572BA189F800F45FF2 /* JoinMemberViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinMemberViewModel.swift; sourceTree = "<group>"; };
@@ -271,8 +275,9 @@
 				D85E86E62BB2E189002EDF76 /* ExpenseRouteView.swift */,
 				D85E86DF2BAB06A3002EDF76 /* AddExpenseView.swift */,
 				D85E86E22BAB06D9002EDF76 /* AddExpenseViewModel.swift */,
-				D856C7302BCFD2080008A341 /* Expense Detail */,
 				D85E86F02BB41CBA002EDF76 /* Detail Selection */,
+				D856C7302BCFD2080008A341 /* Expense Detail */,
+				D8CD952A2BD65E6400407B47 /* Expense Split Option */,
 			);
 			path = Expense;
 			sourceTree = "<group>";
@@ -474,6 +479,15 @@
 				D89DBE212B875C1000E5F1BD /* PhoneLogin */,
 			);
 			path = Login;
+			sourceTree = "<group>";
+		};
+		D8CD952A2BD65E6400407B47 /* Expense Split Option */ = {
+			isa = PBXGroup;
+			children = (
+				D8CD952B2BD65F1900407B47 /* ExpenseSplitOptionsView.swift */,
+				D8CD952D2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift */,
+			);
+			path = "Expense Split Option";
 			sourceTree = "<group>";
 		};
 		D8D14A632BA2DD5C00F45FF2 /* User Profile */ = {
@@ -770,6 +784,7 @@
 				D8AC26F42B84B12800CEAAD3 /* OnboardViewModel.swift in Sources */,
 				D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */,
 				D89DBE5F2B8DE98600E5F1BD /* AccountRouteView.swift in Sources */,
+				D8CD952C2BD65F1900407B47 /* ExpenseSplitOptionsView.swift in Sources */,
 				D8D14A652BA2DD7300F45FF2 /* UserProfileImageView.swift in Sources */,
 				D89C933B2BC0204100FACD16 /* AccountHomeView.swift in Sources */,
 				D8D14A672BA2E25100F45FF2 /* UserProfileList.swift in Sources */,
@@ -777,6 +792,7 @@
 				D8302DA02B9F282F005ACA13 /* InviteMemberView.swift in Sources */,
 				D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */,
 				D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */,
+				D8CD952E2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift in Sources */,
 				D85E86E32BAB06D9002EDF76 /* AddExpenseViewModel.swift in Sources */,
 				D8A7CA702BA484370014EC67 /* GroupSettingView.swift in Sources */,
 				D8A7CA722BA486250014EC67 /* GroupSettingViewModel.swift in Sources */,
