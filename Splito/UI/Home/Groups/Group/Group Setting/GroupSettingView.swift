@@ -17,7 +17,7 @@ struct GroupSettingView: View {
     var body: some View {
         VStack {
             if case .loading = viewModel.currentViewState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else if case .initial = viewModel.currentViewState {
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 30) {

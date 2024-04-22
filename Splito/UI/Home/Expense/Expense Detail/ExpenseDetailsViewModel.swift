@@ -38,9 +38,21 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] expense in
                 guard let self else { return }
-                self.expense = expense
-                self.fetchUserData(for: expense.paidBy) { user in
-                    self.expenseUsersData.append(user)
+
+                let queue = DispatchGroup()
+
+                var userData: [AppUser] = []
+                for member in expense.splitTo {
+                    queue.enter()
+                    self.fetchUserData(for: member) { user in
+                        userData.append(user)
+                        queue.leave()
+                    }
+                }
+
+                queue.notify(queue: .main) {
+                    self.expense = expense
+                    self.expenseUsersData = userData
                     self.viewState = .initial
                 }
             }.store(in: &cancelable)
@@ -68,6 +80,16 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleDeleteBtnAction() {
+        showAlert = true
+        alert = .init(title: "Delete expense",
+                      message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
+                      positiveBtnTitle: "Ok",
+                      positiveBtnAction: { self.deleteExpense() },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false })
+    }
+
+    private func deleteExpense() {
         viewState = .loading
         expenseRepository.deleteExpense(id: expenseId)
             .sink { [weak self] completion in

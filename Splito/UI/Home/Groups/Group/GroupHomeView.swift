@@ -16,7 +16,7 @@ struct GroupHomeView: View {
     var body: some View {
         VStack(spacing: 0) {
             if case .loading = viewModel.groupState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else if case .noMember = viewModel.groupState {
                 AddMemberState(viewModel: .constant(viewModel))
             } else if case .noExpense = viewModel.groupState {
@@ -93,7 +93,7 @@ private struct GroupExpenseListView: View {
                     Section(header: Text(month).font(.subTitle4(14))) {
                         ForEach(groupedExpenses[month]!, id: \.self) { expense in
                             GroupExpenseItemView(expense: expense)
-                                .onTouchGesture { onExpenseItemTap(expense.expense.id ?? "0000") }
+                                .onTouchGesture { onExpenseItemTap(expense.expense.id ?? "0") }
                         }
                     }
                 }

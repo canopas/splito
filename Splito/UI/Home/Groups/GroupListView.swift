@@ -17,7 +17,7 @@ struct GroupListView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if case .loading = viewModel.currentViewState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else {
                 VStack(spacing: 0) {
                     if case .noGroup = viewModel.groupListState {

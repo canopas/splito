@@ -17,7 +17,7 @@ struct AddExpenseView: View {
     var body: some View {
         ScrollView {
             if case .loading = viewModel.viewState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else {
                 VStack(spacing: 25) {
                     VSpacer(80)

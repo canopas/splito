@@ -14,23 +14,29 @@ struct ExpenseDetailsView: View {
     @ObservedObject var viewModel: ExpenseDetailsViewModel
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 30) {
-                VSpacer(20)
+        VStack(alignment: .leading, spacing: 0) {
+            if case .loading = viewModel.viewState {
+                LoaderView()
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 30) {
+                        VSpacer(20)
 
-                ExpenseHeaderView(viewModel: viewModel)
+                        ExpenseHeaderView(viewModel: viewModel)
 
-                Divider()
-                    .frame(height: 1)
-                    .background(outlineColor)
+                        Divider()
+                            .frame(height: 1)
+                            .background(outlineColor)
 
-                ExpenseInfoView(viewModel: viewModel)
+                        ExpenseInfoView(viewModel: viewModel)
 
-                Divider()
-                    .frame(height: 1)
-                    .background(outlineColor)
+                        Divider()
+                            .frame(height: 1)
+                            .background(outlineColor)
 
-                VSpacer()
+                        VSpacer()
+                    }
+                }
             }
         }
         .background(backgroundColor)
@@ -43,7 +49,9 @@ struct ExpenseDetailsView: View {
                 Button {
                     viewModel.handleDeleteBtnAction()
                 } label: {
-                    Label("Delete", systemImage: "trash")
+                    Image(systemName: "trash")
+                        .resizable()
+                        .frame(width: 24, height: 24)
                 }
                 .foregroundStyle(primaryColor)
             }
@@ -51,7 +59,9 @@ struct ExpenseDetailsView: View {
                 Button {
                     viewModel.handleEditBtnAction()
                 } label: {
-                    Label("Edit", systemImage: "pencil")
+                    Image(systemName: "pencil")
+                        .resizable()
+                        .frame(width: 24, height: 24)
                 }
                 .foregroundStyle(primaryColor)
             }
@@ -65,7 +75,7 @@ private struct ExpenseHeaderView: View {
 
     var username: String {
         let user = viewModel.getMemberDataBy(id: viewModel.expense?.addedBy ?? "")
-        return viewModel.preference.user?.id == user?.id ? "You" : user?.nameWithLastInitial ?? "someone"
+        return viewModel.preference.user?.id == user?.id ? "you" : user?.nameWithLastInitial ?? "someone"
     }
 
     var body: some View {
@@ -97,6 +107,13 @@ private struct ExpenseInfoView: View {
         viewModel.expense
     }
 
+    var splitAmount: String {
+        let totalAmount = expense?.amount ?? 0
+        let splitTo = expense?.splitTo.count ?? 1
+        let finalAmount = totalAmount / Double(splitTo)
+        return finalAmount.formattedCurrency
+    }
+
     var userName: String {
         let user = viewModel.getMemberDataBy(id: expense?.paidBy ?? "")
         return viewModel.preference.user?.id == user?.id ? "You" : user?.nameWithLastInitial ?? "someone"
@@ -117,23 +134,14 @@ private struct ExpenseInfoView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     if let members = expense?.splitTo {
                         ForEach(members, id: \.self) { id in
-
+                            let subImageHeight: CGFloat = 36
                             if let member = viewModel.getMemberDataBy(id: id) {
-                                let subImageHeight: CGFloat = 36
-
                                 var memberName: String {
                                     return viewModel.preference.user?.id == member.id ? "You" : member.nameWithLastInitial
                                 }
-
-                                var splitAmount: String {
-                                    let amount = expense?.amount ?? 0 / Double(expense?.splitTo.count ?? 1)
-                                    return amount.formattedCurrency
-                                }
-
                                 var owes: String {
                                     return viewModel.preference.user?.id == member.id ? "owe" : "owes"
                                 }
-
                                 HStack(spacing: 10) {
                                     MemberProfileImageView(imageUrl: member.imageUrl, height: subImageHeight)
                                     Text("\(memberName) \(owes) \(splitAmount)")
@@ -145,7 +153,6 @@ private struct ExpenseInfoView: View {
                 .font(.body1())
                 .foregroundStyle(secondaryText)
             }
-            .lineLimit(1)
         }
         .padding(.horizontal, 20)
     }

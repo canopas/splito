@@ -16,7 +16,7 @@ struct LoginView: View {
 
     var body: some View {
         if case .loading = viewModel.currentState {
-            LoaderView(tintColor: primaryColor, scaleSize: 2)
+            LoaderView()
         } else {
             GeometryReader { proxy in
                 ScrollView(showsIndicators: false) {

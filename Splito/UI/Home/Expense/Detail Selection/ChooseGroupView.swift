@@ -19,7 +19,7 @@ struct ChooseGroupView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 20) {
             if case .loading = viewModel.currentViewState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else if case .noGroups = viewModel.currentViewState {
                 NoGroupFoundView()
             } else if case .hasGroups(let groups) = viewModel.currentViewState {

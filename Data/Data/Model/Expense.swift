@@ -11,14 +11,14 @@ public struct Expense: Codable, Hashable {
 
     @DocumentID public var id: String? // Automatically generated ID by Firestore
 
-    public let name: String
-    public let amount: Double
-    public let date: Timestamp
-    public let paidBy: String
+    public var name: String
+    public var amount: Double
+    public var date: Timestamp
+    public var paidBy: String
     public let addedBy: String
-    public let splitTo: [String] // Reference to user ids involved in the split
+    public var splitTo: [String] // Reference to user ids involved in the split
     public let groupId: String
-    public let splitType: SplitType
+    public var splitType: SplitType
 
     // Calculated properties for better UI representation
     public var formattedAmount: String {
@@ -38,6 +38,7 @@ public struct Expense: Codable, Hashable {
     }
 
     enum CodingKeys: String, CodingKey {
+        case id
         case name
         case amount
         case date

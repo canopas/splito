@@ -22,13 +22,7 @@ public class ExpenseStore: ObservableObject {
             }
 
             do {
-                let collectionRef = self.database.collection(self.DATABASE_NAME)
-                let documentRef = collectionRef.document()
-
-                var newExpense = expense
-                newExpense.id = collectionRef.document().documentID
-
-                _ = try documentRef.setData(from: expense)
+                _ = try self.database.collection(self.DATABASE_NAME).addDocument(from: expense)
                 promise(.success(()))
             } catch {
                 LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")

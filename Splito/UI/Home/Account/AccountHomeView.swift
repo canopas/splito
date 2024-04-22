@@ -16,7 +16,7 @@ struct AccountHomeView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 20) {
             if case .loading = viewModel.currentState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else {
                 Text("Account")
                     .font(.Header4())

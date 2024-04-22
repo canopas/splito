@@ -9,7 +9,7 @@ import Foundation
 
 public extension Date {
 
-    // Mar 10
+    // Mar \n 10
     var shortDateWithNewLine: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM\ndd"
@@ -19,7 +19,7 @@ public extension Date {
     // 10 March 2024
     var longDate: String {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd MMM yyyy"
+        dateFormatter.dateFormat = "dd MMMM yyyy"
         return dateFormatter.string(from: self)
     }
 

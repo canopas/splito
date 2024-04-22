@@ -16,7 +16,7 @@ struct CreateGroupView: View {
     var body: some View {
         VStack {
             if case .loading = viewModel.currentState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else {
                 VStack {
                     VSpacer(40)

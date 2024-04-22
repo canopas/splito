@@ -168,7 +168,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         router.push(.GroupSettingView(groupId: groupId))
     }
 
-    func handleExpenseItemTap(expenseId: String) {
+    func  handleExpenseItemTap(expenseId: String) {
         router.push(.ExpenseDetailView(expenseId: expenseId))
     }
 }

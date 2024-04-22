@@ -25,6 +25,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published var viewState: ViewState = .initial
 
     @Published var payerName = "You"
+    @Published var expense: Expense?
     @Published var selectedGroup: Groups?
 
     @Published var selectedPayer: AppUser? {
@@ -58,7 +59,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleGroupBtnAction() {
-        showGroupSelection = true
+        showGroupSelection = expenseId == nil
     }
 
     func handlePayerBtnAction() {
@@ -79,6 +80,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] expense in
                 guard let self else { return }
+                self.expense = expense
                 self.expenseName = expense.name
                 self.expenseAmount = expense.amount
                 self.expenseDate = expense.date.dateValue()
@@ -125,14 +127,21 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
         guard let selectedGroup, let selectedPayer, let groupId = selectedGroup.id, let user = preference.user else { return }
 
-        let expense = Expense(name: expenseName.capitalized, amount: expenseAmount,
-                              date: Timestamp(date: expenseDate), paidBy: selectedPayer.id,
-                              addedBy: user.id, splitTo: selectedGroup.members, groupId: groupId)
+        if let expense {
+            var newExpense = expense
+            newExpense.name = expenseName.capitalized
+            newExpense.amount = expenseAmount
+            newExpense.date = Timestamp(date: expenseDate)
+            newExpense.paidBy = selectedPayer.id
+            newExpense.splitTo = selectedGroup.members
 
-        if expenseId == nil {
-            addExpense(expense: expense, completion: completion)
+            updateExpense(expense: newExpense)
         } else {
-            updateExpense(expense: expense)
+            let expense = Expense(name: expenseName.capitalized, amount: expenseAmount,
+                                  date: Timestamp(date: expenseDate), paidBy: selectedPayer.id,
+                                  addedBy: user.id, splitTo: selectedGroup.members, groupId: groupId)
+
+            addExpense(expense: expense, completion: completion)
         }
     }
 

@@ -81,7 +81,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
                 for expense in expenses {
                     self.amountOweByMember[expense.paidBy, default: 0.0] += expense.amount
-                    
+
                     let splitAmount = expense.amount / Double(expense.splitTo.count)
                     for member in expense.splitTo {
                         self.amountOweByMember[member, default: 0.0] -= splitAmount
