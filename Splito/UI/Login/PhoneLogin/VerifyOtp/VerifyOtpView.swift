@@ -19,7 +19,7 @@ public struct VerifyOtpView: View {
             if case .loading = viewModel.currentState {
                 LoaderView()
             } else {
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VStack(spacing: 0) {
                         VSpacer(50)
 
@@ -75,6 +75,7 @@ public struct VerifyOtpView: View {
                         Spacer()
                     }
                 }
+                .scrollIndicators(.hidden)
             }
         }
     }

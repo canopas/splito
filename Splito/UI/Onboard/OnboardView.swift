@@ -70,7 +70,7 @@ struct OnboardPageView: View {
     var onStartBtnTap: (() -> Void)
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
+        ScrollView {
             VStack(alignment: .center, spacing: 12) {
                 VSpacer(20)
 
@@ -104,6 +104,7 @@ struct OnboardPageView: View {
             }
             .frame(maxWidth: isIpad ? 600 : .infinity, minHeight: proxy.size.height, alignment: .center)
         }
+        .scrollIndicators(.hidden)
         .padding(.horizontal, 20)
     }
 }

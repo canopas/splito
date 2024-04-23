@@ -19,6 +19,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published var expenseName = ""
     @Published var expenseAmount = 0.0
     @Published var expenseDate = Date()
+
+    @Published var groupMembers: [String] = []
     @Published var selectedMembers: [String] = []
 
     @Published var showGroupSelection = false
@@ -78,6 +80,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
                 self.fetchGroupData(for: expense.groupId) { group in
                     self.selectedGroup = group
+                    self.groupMembers = group?.members ?? []
                     self.fetchUserData(for: expense.paidBy) { user in
                         self.selectedPayer = user
                         self.viewState = .initial
@@ -117,8 +120,9 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleGroupSelection(group: Groups) {
-        selectedGroup = group
         selectedPayer = nil
+        selectedGroup = group
+        groupMembers = group.members
         selectedMembers = group.members
     }
 

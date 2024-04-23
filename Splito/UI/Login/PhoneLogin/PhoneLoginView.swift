@@ -18,7 +18,7 @@ public struct PhoneLoginView: View {
             if case .loading = viewModel.currentState {
                 LoaderView()
             } else {
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VStack(spacing: 0) {
                         VSpacer(50)
 
@@ -53,6 +53,7 @@ public struct PhoneLoginView: View {
                     }
                     .padding(.horizontal, 20)
                 }
+                .scrollIndicators(.hidden)
             }
         }
         .background(surfaceColor)

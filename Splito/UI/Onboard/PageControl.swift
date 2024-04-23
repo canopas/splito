@@ -16,7 +16,7 @@ struct PageControl: View {
     @Binding public var currentIndex: Int
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
+        ScrollView {
             HStack(spacing: 8) {
                 ForEach(0..<numberOfPages, id: \.self) { index in
                     if currentIndex == index {
@@ -27,6 +27,7 @@ struct PageControl: View {
                 }
             }
         }
+        .scrollIndicators(.hidden)
     }
 
     func roundPageIndicationView() -> some View {

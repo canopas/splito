@@ -18,7 +18,7 @@ struct UserProfileView: View {
             if case .loading = viewModel.currentState {
                 LoaderView()
             } else {
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VStack(spacing: 40) {
                         VSpacer(30)
 
@@ -66,6 +66,7 @@ struct UserProfileView: View {
                     }
                     .disabled(viewModel.isDeleteInProgress || viewModel.isSaveInProgress)
                 }
+                .scrollIndicators(.hidden)
             }
         }
         .padding(.horizontal, 20)

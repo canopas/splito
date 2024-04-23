@@ -101,6 +101,7 @@ private struct GroupExpenseListView: View {
             }
             .padding(.horizontal, 14)
         }
+        .scrollIndicators(.hidden)
         .frame(maxWidth: .infinity)
     }
 }

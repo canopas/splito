@@ -38,7 +38,7 @@ struct GroupListView: View {
 
                         VSpacer(20)
 
-                        ScrollView(showsIndicators: false) {
+                        ScrollView {
                             VSpacer(10)
 
                             LazyVStack(spacing: 16) {
@@ -50,6 +50,7 @@ struct GroupListView: View {
                                 }
                             }
                         }
+                        .scrollIndicators(.hidden)
                     }
                 }
                 .frame(maxHeight: .infinity)

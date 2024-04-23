@@ -27,7 +27,7 @@ struct ChooseGroupView: View {
             } else if case .noGroups = viewModel.currentViewState {
                 NoGroupFoundView()
             } else if case .hasGroups(let groups) = viewModel.currentViewState {
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VSpacer(40)
 
                     LazyVStack(spacing: 16) {
@@ -40,6 +40,7 @@ struct ChooseGroupView: View {
                         }
                     }
                 }
+                .scrollIndicators(.hidden)
             }
         }
         .background(backgroundColor)

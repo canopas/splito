@@ -23,7 +23,7 @@ struct AccountHomeView: View {
                     .foregroundStyle(primaryText)
                     .padding(.top, 10)
 
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VStack(spacing: 20) {
                         VSpacer(20)
 
@@ -37,6 +37,7 @@ struct AccountHomeView: View {
                         VSpacer(20)
                     }
                 }
+                .scrollIndicators(.hidden)
             }
         }
         .background(backgroundColor)

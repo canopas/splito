@@ -19,7 +19,7 @@ struct GroupSettingView: View {
             if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else if case .initial = viewModel.currentViewState {
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VStack(alignment: .leading, spacing: 30) {
                         VSpacer(20)
 
@@ -36,6 +36,7 @@ struct GroupSettingView: View {
                                                  onDeleteGroupTap: viewModel.handleDeleteGroupTap)
                     }
                 }
+                .scrollIndicators(.hidden)
             }
         }
         .background(backgroundColor)

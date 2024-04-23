@@ -7,6 +7,7 @@
 
 import Data
 import Combine
+import BaseStyle
 
 class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
 
@@ -18,19 +19,30 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     @Published var groupMembers: [AppUser] = []
     @Published var viewState: ViewState = .initial
 
-    var members: [String] = []
-    var selectedMembers: [String] = []
+    @Published var selectedMembers: [String] {
+        didSet {
+            splitAmount = totalAmount / Double(selectedMembers.count)
+        }
+    }
+
+    var isAllSelected: Bool {
+        members.count == selectedMembers.count
+    }
+
+    private var members: [String] = []
 
     var totalAmount: Double = 0
     var onMemberSelection: (([String]) -> Void)
 
-    init(amount: Double, members: [String], onMemberSelection: @escaping (([String]) -> Void)) {
+    init(amount: Double, members: [String], selectedMembers: [String], onMemberSelection: @escaping (([String]) -> Void)) {
         self.totalAmount = amount
         self.members = members
+        self.selectedMembers = selectedMembers
         self.onMemberSelection = onMemberSelection
         super.init()
 
         fetchUsersData()
+        splitAmount = totalAmount / Double(selectedMembers.count)
     }
 
     func fetchUsersData() {
@@ -60,12 +72,33 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func handleMemberSelection() {
-        splitAmount = totalAmount / Double(members.count)
+    func checkIsMemberSelected(_ memberId: String) -> Bool {
+        return selectedMembers.contains(memberId)
+    }
+
+    func handleAllBtnAction() {
+        if isAllSelected {
+            selectedMembers = [preference.user?.id ?? ""]
+        } else {
+            selectedMembers = members
+        }
+    }
+
+    func handleMemberSelection(_ memberId: String) {
+        if selectedMembers.contains(memberId) {
+            if selectedMembers.count > 1 {
+                selectedMembers.removeAll(where: { $0 == memberId })
+            } else {
+                showToastFor(toast: ToastPrompt(type: .warning, title: "Warning", message: "You must select at least one person to split with."))
+            }
+        } else {
+            selectedMembers.append(memberId)
+        }
     }
 
     func handleDoneAction(completion: @escaping () -> Void) {
-        onMemberSelection(members)
+        onMemberSelection(selectedMembers)
+        completion()
     }
 }
 

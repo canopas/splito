@@ -27,7 +27,7 @@ struct ChoosePayerView: View {
             } else if case .noMember = viewModel.currentViewState {
                 NoMemberFoundView()
             } else if case .hasMembers(let users) = viewModel.currentViewState {
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VSpacer(40)
 
                     LazyVStack(spacing: 16) {
@@ -40,6 +40,7 @@ struct ChoosePayerView: View {
                         }
                     }
                 }
+                .scrollIndicators(.hidden)
             }
         }
         .background(backgroundColor)

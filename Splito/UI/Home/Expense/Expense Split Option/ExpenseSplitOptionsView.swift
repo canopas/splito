@@ -20,28 +20,38 @@ struct ExpenseSplitOptionsView: View {
             if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
-                ScrollView {
-                    VStack(spacing: 50) {
-                        Divider()
-                            .frame(height: 1)
-                            .background(outlineColor.opacity(0.4))
+                ZStack {
+                    ScrollView {
+                        VStack(spacing: 50) {
+                            Divider()
+                                .frame(height: 1)
+                                .background(outlineColor.opacity(0.4))
 
-                        VStack(spacing: 8) {
-                            Text("Split equally")
-                                .font(.Header4())
+                            VStack(spacing: 8) {
+                                Text("Split equally")
+                                    .font(.Header4())
 
-                            Text("Select which people owe an equal share.")
-                                .font(.body1())
-                        }
-                        .padding(.horizontal, 20)
-                        .foregroundStyle(primaryText)
-
-                        VStack(spacing: 12) {
-                            ForEach(viewModel.groupMembers, id: \.self) { member in
-                                ExpenseMemberCellView(member: member, isSelected: true)
+                                Text("Select which people owe an equal share.")
+                                    .font(.body1())
                             }
+                            .padding(.horizontal, 20)
+                            .foregroundStyle(primaryText)
+
+                            VStack(spacing: 12) {
+                                ForEach(viewModel.groupMembers, id: \.self) { member in
+                                    ExpenseMemberCellView(member: member, isSelected: viewModel.checkIsMemberSelected(member.id)) {
+                                        viewModel.handleMemberSelection(member.id)
+                                    }
+                                }
+                            }
+
+                            VSpacer(80)
                         }
                     }
+                    .scrollIndicators(.hidden)
+
+                    ExpenseSplitAmountView(memberCount: viewModel.selectedMembers.count, splitAmount: viewModel.splitAmount,
+                                           isAllSelected: viewModel.isAllSelected, onAllBtnTap: viewModel.handleAllBtnAction)
                 }
             }
         }
@@ -70,15 +80,10 @@ struct ExpenseSplitOptionsView: View {
 
 private struct ExpenseMemberCellView: View {
 
-    @Inject var preference: SplitoPreference
-
     var member: AppUser
     var isSelected: Bool
 
-    init(member: AppUser, isSelected: Bool) {
-        self.member = member
-        self.isSelected = isSelected
-    }
+    var onTap: () -> Void
 
     var body: some View {
         VStack(spacing: 12) {
@@ -92,20 +97,85 @@ private struct ExpenseMemberCellView: View {
                 Spacer()
 
                 if isSelected {
-                    Image(.checkMarkTick)
+                    Image(systemName: "checkmark.circle.fill")
                         .resizable()
-                        .frame(width: 24, height: 24)
+                        .frame(width: 26, height: 26)
+                        .foregroundStyle(successColor)
+                } else {
+                    Circle()
+                        .strokeBorder(outlineColor.opacity(0.3), lineWidth: 1)
+                        .frame(width: 26, height: 26)
                 }
             }
             .padding(.horizontal, 16)
 
             Divider()
                 .frame(height: 1)
-                .background(outlineColor.opacity(0.4))
+                .background(outlineColor.opacity(0.3))
+        }
+        .onTouchGesture {
+            onTap()
+        }
+    }
+}
+
+private struct ExpenseSplitAmountView: View {
+
+    var memberCount: Int
+    var splitAmount: Double
+    var isAllSelected: Bool
+
+    let onAllBtnTap: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            HStack(alignment: .center) {
+                Spacer()
+
+                VStack(alignment: .center) {
+                    Text("\(splitAmount.formattedCurrency)/person")
+                        .font(.Header3())
+                        .foregroundStyle(primaryText)
+                    Text("(\(memberCount) people)")
+                        .font(.body1())
+                        .foregroundStyle(secondaryText)
+                }
+                .padding(20)
+
+                Spacer()
+
+                HStack(alignment: .center, spacing: 20) {
+                    Divider()
+                        .frame(width: 1)
+                        .background(outlineColor.opacity(0.4))
+
+                    Text("All")
+                        .font(.Header3())
+                        .foregroundStyle(primaryText)
+
+                    if isAllSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .resizable()
+                            .frame(width: 28, height: 28)
+                            .foregroundStyle(successColor)
+                    } else {
+                        Circle()
+                            .strokeBorder(outlineColor.opacity(0.3), lineWidth: 1)
+                            .frame(width: 28, height: 28)
+                    }
+                }
+                .padding(20)
+                .onTouchGesture { onAllBtnTap() }
+            }
+            .frame(height: 80)
+            .background(backgroundColor)
+            .shadow(color: primaryText.opacity(0.1), radius: 5, x: 0, y: -5)
         }
     }
 }
 
 #Preview {
-    ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: 0, members: [], onMemberSelection: { _ in }))
+    ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: 0, members: [], selectedMembers: [], onMemberSelection: { _ in }))
 }

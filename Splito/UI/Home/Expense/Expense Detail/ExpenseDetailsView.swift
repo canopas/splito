@@ -37,6 +37,7 @@ struct ExpenseDetailsView: View {
                         VSpacer()
                     }
                 }
+                .scrollIndicators(.hidden)
             }
         }
         .background(backgroundColor)

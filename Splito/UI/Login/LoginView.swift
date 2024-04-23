@@ -19,7 +19,7 @@ struct LoginView: View {
             LoaderView()
         } else {
             GeometryReader { proxy in
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VStack(alignment: .center, spacing: 0) {
                         VSpacer(20)
 
@@ -46,6 +46,7 @@ struct LoginView: View {
                     .frame(minHeight: proxy.size.height - 80, alignment: .center)
                     .padding(.horizontal, 20)
                 }
+                .scrollIndicators(.hidden)
                 .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
                 .background(
                     LinearGradient(colors: colorScheme == .dark ? [surfaceDarkColor] :

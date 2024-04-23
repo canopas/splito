@@ -40,6 +40,7 @@ struct AddExpenseView: View {
             }
         }
         .padding(.horizontal, 20)
+        .scrollIndicators(.hidden)
         .background(backgroundColor)
         .navigationBarTitle(viewModel.expenseId == nil ? "Add expense" : "Edit expense", displayMode: .inline)
         .toastView(toast: $viewModel.toast)
@@ -60,8 +61,9 @@ struct AddExpenseView: View {
         }
         .sheet(isPresented: $viewModel.showSplitTypeSelection) {
             NavigationStack {
-                ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: viewModel.expenseAmount,
-                                                                                members: viewModel.selectedMembers, onMemberSelection: { members in
+                ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: viewModel.expenseAmount, members: viewModel.groupMembers,
+                                                                                selectedMembers: viewModel.selectedMembers,
+                                                                                onMemberSelection: { members in
                     viewModel.handleSplitTypeSelection(members: members)
                 }))
             }
