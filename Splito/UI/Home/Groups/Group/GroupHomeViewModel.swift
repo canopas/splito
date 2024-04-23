@@ -18,13 +18,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var expenseWithUser: [ExpenseWithUser] = []
     @Published var groupState: GroupState = .noMember
 
-    @Published var totalGroupMember = 1
-    @Published var groupTotalExpense = 0.0
     @Published var overallOwingAmount = 0.0
-    @Published var memberOwingAmounts: [String: Double] = [:]
-
-    @Published var amountOwesToYou: [String: Double] = [:]
-    @Published var amountOwedByYou: [String: Double] = [:]
+    @Published var memberOwingAmount: [String: Double] = [:]
 
     var group: Groups?
     private let groupId: String
@@ -50,8 +45,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
                 self.group = group
-                self.totalGroupMember = group.members.count
-
                 for member in group.members where member != self.preference.user?.id {
                     self.fetchUserData(for: member) { memberData in
                         self.groupUserData.append(memberData)
@@ -73,33 +66,31 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] expenses in
-                guard let self, let group = self.group, let userId = self.preference.user?.id else { return }
+                guard let self, let userId = self.preference.user?.id else { return }
 
                 self.expenses = expenses
                 let queue = DispatchGroup()
 
-                var owesToYou = 0.0
+                var owesToYou: [String: Double] = [:]
                 var owedByYou: [String: Double] = [:]
 
                 var expenseByYou = 0.0
-                var allGroupMembers = Set<String>()
                 var combinedData: [ExpenseWithUser] = []
 
                 for expense in expenses {
                     queue.enter()
 
-                    self.groupTotalExpense += expense.amount
                     let splitAmount = expense.amount / Double(expense.splitTo.count)
 
                     if expense.paidBy == userId {
-                        owesToYou += splitAmount
-                        expenseByYou += expense.amount
-                    } else {
+                        expenseByYou += (expense.splitTo.count == 1 && !expense.splitTo.contains(userId)) ? expense.amount : expense.amount - splitAmount
+                        for member in expense.splitTo where member != userId {
+                            owesToYou[member, default: 0.0] += splitAmount
+                        }
+                    } else if expense.splitTo.contains(where: { $0 == userId }) {
+                        expenseByYou -= splitAmount
                         owedByYou[expense.paidBy, default: 0.0] += splitAmount
                     }
-
-                    allGroupMembers.formUnion(expense.splitTo)
-                    allGroupMembers.insert(expense.paidBy)
 
                     self.fetchUserData(for: expense.paidBy) { user in
                         combinedData.append(ExpenseWithUser(expense: expense, user: user))
@@ -107,23 +98,16 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     }
                 }
 
-                allGroupMembers.subtract([userId])
-                allGroupMembers.subtract(owedByYou.keys)
-
-                allGroupMembers.forEach { owedByYou[$0] = 0.0 }
-
-                // Notify when all fetch operations are complete
                 queue.notify(queue: .main) {
+                    owesToYou.forEach { userId, owesAmount in
+                        self.memberOwingAmount[userId] = owesAmount
+                    }
                     owedByYou.forEach { userId, owedAmount in
-                        let oweAmount = owesToYou - owedAmount
-                        if oweAmount < 0 {
-                            self.amountOwedByYou[userId] = abs(oweAmount)
-                        } else if oweAmount > 0 {
-                            self.amountOwesToYou[userId] = oweAmount
-                        }
+                        guard let owesAmount = self.memberOwingAmount[userId] else { return }
+                        self.memberOwingAmount[userId] = owesAmount - owedAmount
                     }
                     self.expenseWithUser = combinedData
-                    self.overallOwingAmount = expenseByYou - (group.members.count > 1 ? self.groupTotalExpense / Double(group.members.count) : 0)
+                    self.overallOwingAmount = expenseByYou
                     self.setGroupViewState()
                 }
             }.store(in: &cancelable)
@@ -144,8 +128,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     func setGroupViewState() {
         guard let group else { return }
         groupState = group.members.count > 1 ?
-                     (expenses.isEmpty ? .noExpense : (groupTotalExpense == overallOwingAmount && overallOwingAmount != 0 ? .settledUp : .hasExpense)) :
-                     (expenses.isEmpty ? .noMember : (groupTotalExpense == overallOwingAmount && overallOwingAmount != 0 ? .settledUp : .hasExpense))
+                     (expenses.isEmpty ? .noExpense : (overallOwingAmount == 0 ? .settledUp : .hasExpense)) :
+                     (expenses.isEmpty ? .noMember : (overallOwingAmount == 0 ? .settledUp : .hasExpense))
     }
 
     func setHasExpenseState() {

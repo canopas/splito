@@ -92,7 +92,7 @@ private struct GroupExpenseListView: View {
                 ForEach(groupedExpenses.keys.sorted(), id: \.self) { month in
                     Section(header: Text(month).font(.subTitle4(14))) {
                         ForEach(groupedExpenses[month]!, id: \.self) { expense in
-                            GroupExpenseItemView(expense: expense)
+                            GroupExpenseItemView(expenseWithUser: expense)
                                 .onTouchGesture { onExpenseItemTap(expense.expense.id ?? "0") }
                         }
                     }
@@ -120,9 +120,7 @@ private struct GroupExpenseHeaderView: View {
                 .font(.subTitle1(26))
                 .foregroundStyle(primaryText)
 
-            if viewModel.groupTotalExpense == viewModel.overallOwingAmount &&
-                viewModel.overallOwingAmount != 0 &&
-                (viewModel.group?.members.count ?? 1) < 2 {
+            if viewModel.overallOwingAmount == 0 {
                 Text("You are all settled up in this group.") // no due or lent
             } else {
                 let isDue = viewModel.overallOwingAmount < 0
@@ -131,28 +129,26 @@ private struct GroupExpenseHeaderView: View {
                     .font(.subTitle2())
                     .foregroundStyle(isDue ? amountBorrowedColor : amountLentColor)
 
-                ForEach(viewModel.amountOwesToYou.keys.sorted(), id: \.self) { memberId in
-                    let owesAmount = viewModel.amountOwesToYou[memberId] ?? 0.0
+                ForEach(viewModel.memberOwingAmount.keys.sorted(), id: \.self) { memberId in
+                    let owesAmount = viewModel.memberOwingAmount[memberId] ?? 0.0
                     let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
-                    Group {
-                        Text("\(name) owes you ")
-                            .foregroundColor(primaryText)
-                        + Text("\(owesAmount.formattedCurrency)")
-                            .foregroundColor(amountLentColor)
+                    if owesAmount > 0 {
+                        Group {
+                            Text("\(name) owes you ")
+                                .foregroundColor(primaryText)
+                            + Text("\(owesAmount.formattedCurrency)")
+                                .foregroundColor(amountLentColor)
+                        }
+                        .font(.body1(14))
+                    } else if owesAmount < 0 {
+                        Group {
+                            Text("You owe \(name) ")
+                                .foregroundColor(primaryText)
+                            + Text("\(owesAmount.formattedCurrency)")
+                                .foregroundColor(amountBorrowedColor)
+                        }
+                        .font(.body1(14))
                     }
-                    .font(.body1(14))
-                }
-
-                ForEach(viewModel.amountOwedByYou.keys.sorted(), id: \.self) { memberId in
-                    let owedAmount = viewModel.amountOwedByYou[memberId] ?? 0.0
-                    let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
-                    Group {
-                        Text("You owe \(name) ")
-                            .foregroundColor(primaryText)
-                        + Text("\(owedAmount.formattedCurrency)")
-                            .foregroundColor(amountBorrowedColor)
-                    }
-                    .font(.body1(14))
                 }
             }
         }
@@ -165,32 +161,34 @@ private struct GroupExpenseItemView: View {
 
     @Inject var preference: SplitoPreference
 
-    let expense: ExpenseWithUser
+    let expense: Expense
 
     private var amount = 0.0
+    private var isInvolved = true
     private var isSettled = false
     private var isBorrowed = false
     private var userName: String = ""
 
-    init(expense: ExpenseWithUser) {
-        self.expense = expense
-        self.isSettled = expense.expense.splitTo.count == 1 && expense.expense.paidBy == preference.user?.id
+    init(expenseWithUser: ExpenseWithUser) {
+        self.expense = expenseWithUser.expense
 
-        if let user = preference.user, expense.user.id == user.id {
+        if let user = preference.user, expenseWithUser.user.id == user.id {
             userName = "You"
             isBorrowed = false
-            let singleExpense = expense.expense.amount / Double(expense.expense.splitTo.count)
-            amount = expense.expense.amount - singleExpense
+            let singleExpense = expense.splitTo.count == 1 ? 0 : expense.amount / Double(expense.splitTo.count)
+            amount = expense.amount - singleExpense
+            isSettled = expense.paidBy == preference.user?.id && expense.splitTo.contains(preference.user?.id ?? "") && expense.splitTo.count == 1
         } else {
             isBorrowed = true
-            userName = expense.user.nameWithLastInitial
-            amount = expense.expense.amount / Double(expense.expense.splitTo.count)
+            userName = expenseWithUser.user.nameWithLastInitial
+            amount = expense.amount / Double(expense.splitTo.count)
+            isInvolved = expense.splitTo.contains(where: { $0 == preference.user?.id })
         }
     }
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            Text(expense.expense.date.dateValue().shortDateWithNewLine)
+            Text(expense.date.dateValue().shortDateWithNewLine)
                 .font(.body1())
                 .foregroundStyle(secondaryText)
                 .multilineTextAlignment(.center)
@@ -205,11 +203,11 @@ private struct GroupExpenseItemView: View {
                 .cornerRadius(2)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(expense.expense.name)
+                Text(expense.name)
                     .font(.body1(17))
                     .foregroundStyle(primaryText)
 
-                let amountText = isSettled ? "You paid for yourself" : "\(userName) paid \(expense.expense.formattedAmount)"
+                let amountText = isSettled ? "You paid for yourself" : "\(userName) paid \(expense.formattedAmount)"
                 Text(amountText)
                     .font(.body1(12))
                     .foregroundStyle(secondaryText)
@@ -223,11 +221,17 @@ private struct GroupExpenseItemView: View {
                         .font(.body1(12))
                         .foregroundStyle(secondaryText)
                 } else {
-                    Text(isBorrowed ? "you borrowed" : "you lent")
-                        .font(.body1(12))
+                    if isInvolved {
+                        Text(isBorrowed ? "you borrowed" : "you lent")
+                            .font(.body1(12))
 
-                    Text(amount.formattedCurrency)
-                        .font(.body1(16))
+                        Text(amount.formattedCurrency)
+                            .font(.body1(16))
+                    } else {
+                        Text("not involved")
+                            .font(.body1(12))
+                            .foregroundStyle(secondaryText)
+                    }
                 }
             }
             .lineLimit(1)

@@ -40,9 +40,13 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 guard let self else { return }
 
                 let queue = DispatchGroup()
-
                 var userData: [AppUser] = []
-                for member in expense.splitTo {
+
+                var members = expense.splitTo
+                members.append(expense.paidBy)
+                members.append(expense.addedBy)
+
+                for member in members.uniqued() {
                     queue.enter()
                     self.fetchUserData(for: member) { user in
                         userData.append(user)
