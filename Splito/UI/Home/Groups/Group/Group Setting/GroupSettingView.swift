@@ -82,7 +82,7 @@ private struct GroupTitleView: View {
 
             Divider()
                 .frame(height: 1)
-                .background(disableLightText)
+                .background(outlineColor)
         }
     }
 }
@@ -103,7 +103,7 @@ private struct GroupMembersView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 26) {
+        VStack(alignment: .leading, spacing: 30) {
             Text("Group members")
                 .font(.bodyBold())
                 .foregroundStyle(primaryText)

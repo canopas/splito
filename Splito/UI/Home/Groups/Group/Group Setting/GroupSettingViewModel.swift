@@ -113,6 +113,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { _ in
                 self.currentViewState = .initial
+                self.showToastFor(toast: ToastPrompt(type: .success, title: "Success",
+                                                     message: "Simplify debts turned \(self.isDebtSimplified ? "on" : "off")"))
             }.store(in: &cancelable)
     }
 

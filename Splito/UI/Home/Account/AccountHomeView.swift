@@ -86,7 +86,7 @@ private struct AccountUserHeaderView: View {
 
             Divider()
                 .frame(height: 1)
-                .background(disableLightText)
+                .background(outlineColor)
         }
     }
 }
@@ -131,7 +131,7 @@ private struct AccountFeedbackSectionView: View {
 
             Divider()
                 .frame(height: 1)
-                .background(disableLightText)
+                .background(outlineColor)
         }
     }
 }
