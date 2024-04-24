@@ -31,7 +31,7 @@ struct GroupSettingView: View {
                         GroupMembersView(members: viewModel.members, oweAmount: viewModel.amountOweByMember,
                                          onAddMemberTap: viewModel.handleAddMemberTap, onMemberTap: viewModel.handleMemberTap(member:))
 
-                        GroupAdvanceSettingsView(isDisable: !viewModel.isAdmin,
+                        GroupAdvanceSettingsView(isDebtSimplified: $viewModel.isDebtSimplified, isDisable: !viewModel.isAdmin,
                                                  onLeaveGroupTap: viewModel.handleLeaveGroupTap,
                                                  onDeleteGroupTap: viewModel.handleDeleteGroupTap)
                     }
@@ -64,7 +64,7 @@ private struct GroupTitleView: View {
     let group: Groups?
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 20) {
             HStack(alignment: .center, spacing: 16) {
                 GroupProfileImageView(imageUrl: group?.imageUrl)
 
@@ -100,13 +100,12 @@ private struct GroupMembersView: View {
         self.oweAmount = oweAmount
         self.onAddMemberTap = onAddMemberTap
         self.onMemberTap = onMemberTap
-
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 26) {
             Text("Group members")
-                .font(.subTitle2())
+                .font(.bodyBold())
                 .foregroundStyle(primaryText)
 
             GroupListEditCellView(icon: "person.badge.plus", text: "Add people to group", onTap: onAddMemberTap)
@@ -126,16 +125,36 @@ private struct GroupMembersView: View {
 
 private struct GroupAdvanceSettingsView: View {
 
-    var isDisable: Bool
+    @Binding var isDebtSimplified: Bool
 
+    var isDisable: Bool
     var onLeaveGroupTap: () -> Void
     var onDeleteGroupTap: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 30) {
             Text("Advanced settings")
-                .font(.subTitle2())
-                .foregroundStyle(primaryText)
+                .font(.bodyBold())
+
+            HStack(alignment: .top, spacing: 32) {
+                Image(systemName: "point.3.filled.connected.trianglepath.dotted")
+                    .resizable()
+                    .frame(width: 25, height: 22)
+                    .padding(.top, 6)
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Toggle(isOn: $isDebtSimplified) {
+                        Text("Simplify group debts")
+                            .font(.body1(18))
+                    }
+
+                    Text("Automatically combines debts to reduce the total number of repayments between group members.")
+                        .font(.body2())
+                        .foregroundStyle(secondaryText)
+                }
+            }
+            .padding(.top, -6)
+            .padding(.leading, 16)
 
             GroupListEditCellView(icon: "arrow.left.square", text: "Leave group",
                                   isDistructive: true, onTap: onLeaveGroupTap)
@@ -144,6 +163,7 @@ private struct GroupAdvanceSettingsView: View {
                                   isDistructive: true, onTap: onDeleteGroupTap)
         }
         .padding(.horizontal, 22)
+        .foregroundStyle(primaryText)
     }
 }
 
@@ -163,9 +183,8 @@ private struct GroupListEditCellView: View {
                 .frame(width: 22, height: 22)
 
             Text(text)
-                .font(.subTitle2())
+                .font(.body1(18))
         }
-        .frame(height: 40)
         .padding(.leading, 16)
         .foregroundStyle(isDisable ? disableText : (isDistructive ? awarenessColor : primaryText))
         .onTouchGesture {
@@ -228,7 +247,7 @@ private struct GroupMemberCellView: View {
                         .font(.body1(13))
 
                     Text(amount.formattedCurrency)
-                        .font(.body1(16))
+                        .font(.body1())
                 }
             }
             .lineLimit(1)

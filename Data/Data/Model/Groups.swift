@@ -16,13 +16,15 @@ public struct Groups: Codable, Identifiable, Hashable {
     public var members: [String]
     public var imageUrl: String?
     public var createdAt: Timestamp
+    public var isDebtSimplified: Bool
 
-    public init(name: String, createdBy: String, members: [String], imageUrl: String? = nil, createdAt: Timestamp) {
+    public init(name: String, createdBy: String, members: [String], imageUrl: String? = nil, createdAt: Timestamp, isDebtSimplified: Bool = false) {
         self.name = name
         self.createdBy = createdBy
         self.members = members
         self.imageUrl = imageUrl
         self.createdAt = createdAt
+        self.isDebtSimplified = isDebtSimplified
     }
 
     enum CodingKeys: String, CodingKey {
@@ -32,5 +34,6 @@ public struct Groups: Codable, Identifiable, Hashable {
         case members
         case imageUrl = "image_url"
         case createdAt = "created_at"
+        case isDebtSimplified = "is_debt_simplified"
     }
 }

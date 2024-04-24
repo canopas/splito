@@ -27,7 +27,13 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     @Published var group: Groups?
     @Published var members: [AppUser] = []
-    @Published var currentViewState: ViewState = .initial
+    @Published var currentViewState: ViewState = .loading
+
+    @Published var isDebtSimplified = false {
+        didSet {
+            updateGroupForSimplifyDebt()
+        }
+    }
 
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
@@ -37,8 +43,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Data Loading
-    func fetchGroupDetails() {
-        currentViewState = .loading
+    private func fetchGroupDetails() {
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -47,6 +52,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
                 self.group = group
+                self.isDebtSimplified = group.isDebtSimplified
                 self.fetchGroupMembers()
             }.store(in: &cancelable)
     }
@@ -91,6 +97,22 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                 DispatchQueue.main.async {
                     self.currentViewState = .initial
                 }
+            }.store(in: &cancelable)
+    }
+
+    private func updateGroupForSimplifyDebt() {
+        guard var group, group.isDebtSimplified != isDebtSimplified else { return }
+
+        currentViewState = .loading
+        group.isDebtSimplified = isDebtSimplified
+
+        groupRepository.updateGroup(group: group)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServiceError(error)
+                }
+            } receiveValue: { _ in
+                self.currentViewState = .initial
             }.store(in: &cancelable)
     }
 
