@@ -123,37 +123,51 @@ private struct GroupExpenseHeaderView: View {
             if viewModel.overallOwingAmount == 0 {
                 Text("You are all settled up in this group.") // no due or lent
             } else {
-                let isDue = viewModel.overallOwingAmount < 0
+                if viewModel.memberOwingAmount.count < 2, let member = viewModel.memberOwingAmount.first {
+                    let name = viewModel.getMemberDataBy(id: member.key)?.nameWithLastInitial ?? "Unknown"
+                    GroupExpenseMemberOweView(name: name, amount: viewModel.overallOwingAmount)
+                } else {
+                    let isDue = viewModel.overallOwingAmount < 0
+                    Text("You \(isDue ? "owe" : "are owed") \(viewModel.overallOwingAmount.formattedCurrency) overall")
+                        .font(.subTitle2())
+                        .foregroundStyle(isDue ? amountBorrowedColor : amountLentColor)
 
-                Text("You \(isDue ? "owe" : "are owed") \(viewModel.overallOwingAmount.formattedCurrency) overall")
-                    .font(.subTitle2())
-                    .foregroundStyle(isDue ? amountBorrowedColor : amountLentColor)
-
-                ForEach(viewModel.memberOwingAmount.keys.sorted(), id: \.self) { memberId in
-                    let owesAmount = viewModel.memberOwingAmount[memberId] ?? 0.0
-                    let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
-                    if owesAmount > 0 {
-                        Group {
-                            Text("\(name) owes you ")
-                                .foregroundColor(primaryText)
-                            + Text("\(owesAmount.formattedCurrency)")
-                                .foregroundColor(amountLentColor)
-                        }
-                        .font(.body1(14))
-                    } else if owesAmount < 0 {
-                        Group {
-                            Text("You owe \(name) ")
-                                .foregroundColor(primaryText)
-                            + Text("\(owesAmount.formattedCurrency)")
-                                .foregroundColor(amountBorrowedColor)
-                        }
-                        .font(.body1(14))
+                    ForEach(viewModel.memberOwingAmount.keys.sorted(), id: \.self) { memberId in
+                        let owesAmount = viewModel.memberOwingAmount[memberId] ?? 0.0
+                        let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
+                        GroupExpenseMemberOweView(name: name, amount: owesAmount)
                     }
                 }
             }
         }
         .padding(.leading, 40)
         .padding(.trailing, 20)
+    }
+}
+
+private struct GroupExpenseMemberOweView: View {
+
+    let name: String
+    let amount: Double
+
+    var body: some View {
+        if amount > 0 {
+            Group {
+                Text("\(name) owes you ")
+                    .foregroundColor(primaryText)
+                + Text("\(amount.formattedCurrency)")
+                    .foregroundColor(amountLentColor)
+            }
+            .font(.body1(14))
+        } else if amount < 0 {
+            Group {
+                Text("You owe \(name) ")
+                    .foregroundColor(primaryText)
+                + Text("\(amount.formattedCurrency)")
+                    .foregroundColor(amountBorrowedColor)
+            }
+            .font(.body1(14))
+        }
     }
 }
 

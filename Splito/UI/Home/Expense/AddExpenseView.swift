@@ -40,8 +40,9 @@ struct AddExpenseView: View {
             }
         }
         .padding(.horizontal, 20)
-        .scrollIndicators(.hidden)
         .background(backgroundColor)
+        .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.immediately)
         .navigationBarTitle(viewModel.expenseId == nil ? "Add expense" : "Edit expense", displayMode: .inline)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
@@ -105,10 +106,10 @@ private struct ExpenseDetailRow: View {
         HStack(spacing: 16) {
             Image(systemName: imageName)
                 .resizable()
-                .foregroundStyle(primaryText)
                 .frame(width: 32, height: 32)
                 .padding(12)
                 .background(Color.clear)
+                .foregroundStyle(primaryText.opacity(0.9))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8).stroke(outlineColor, lineWidth: 1)
                 )

@@ -107,8 +107,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 self.memberOwingAmount[userId] = owesAmount
             }
             owedByYou.forEach { userId, owedAmount in
-                guard let owesAmount = self.memberOwingAmount[userId] else { return }
-                self.memberOwingAmount[userId] = owesAmount - owedAmount
+                self.memberOwingAmount[userId] = (self.memberOwingAmount[userId] ?? 0) - owedAmount
             }
             self.expenseWithUser = combinedData
             self.overallOwingAmount = expenseByYou
@@ -127,10 +126,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         for expense in expenses {
             queue.enter()
 
+            ownAmounts[expense.paidBy, default: 0.0] += expense.amount
             let splitAmount = expense.amount / Double(expense.splitTo.count)
-            ownAmounts[expense.paidBy, default: 0.0] += expense.splitTo.contains(expense.paidBy) ? expense.amount - splitAmount : expense.amount
 
-            for member in expense.splitTo where member != expense.paidBy {
+            for member in expense.splitTo {
                 ownAmounts[member, default: 0.0] -= splitAmount
             }
 
@@ -144,7 +143,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             let debts = self.settleDebts(users: ownAmounts)
 
             for debt in debts where debt.0 == userId || debt.1 == userId {
-                self.overallOwingAmount = debt.1 == userId ? debt.2 : -debt.2
+                self.overallOwingAmount += debt.1 == userId ? debt.2 : -debt.2
                 self.memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
             }
 
