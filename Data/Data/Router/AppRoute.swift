@@ -51,7 +51,8 @@ public enum AppRoute: Hashable {
     case GroupSettingView(groupId: String)
 
     // MARK: - Expense Button
-    case AddExpenseView
+    case AddExpenseView(expenseId: String?)
+    case ExpenseDetailView(expenseId: String)
 
     // MARK: - Activity Tab
     case ActivityHomeView
@@ -79,6 +80,8 @@ public enum AppRoute: Hashable {
 
         case .ActivityHomeView:
             "activityHomeView"
+        case .ExpenseDetailView:
+            "expenseDetailView"
 
         case .GroupListView:
             "groupListView"

@@ -17,9 +17,9 @@ public struct VerifyOtpView: View {
     public var body: some View {
         VStack(spacing: 0) {
             if case .loading = viewModel.currentState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else {
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VStack(spacing: 0) {
                         VSpacer(50)
 
@@ -75,6 +75,7 @@ public struct VerifyOtpView: View {
                         Spacer()
                     }
                 }
+                .scrollIndicators(.hidden)
             }
         }
     }

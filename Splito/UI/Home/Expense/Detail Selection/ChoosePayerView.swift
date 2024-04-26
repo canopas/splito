@@ -17,24 +17,22 @@ struct ChoosePayerView: View {
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        VStack(alignment: .center, spacing: 20) {
+        VStack(alignment: .center, spacing: 0) {
+            Divider()
+                .frame(height: 1)
+                .background(outlineColor.opacity(0.4))
+
             if case .loading = viewModel.currentViewState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
-            } else if case .noUsers = viewModel.currentViewState {
+                LoaderView()
+            } else if case .noMember = viewModel.currentViewState {
                 NoMemberFoundView()
-            } else if case .hasUser(let users) = viewModel.currentViewState {
-                VSpacer(10)
+            } else if case .hasMembers(let users) = viewModel.currentViewState {
+                ScrollView {
+                    VSpacer(40)
 
-                Text("Choose Payer")
-                    .font(.Header3())
-                    .foregroundStyle(.primary)
-
-                VSpacer(10)
-
-                ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 16) {
                         ForEach(users) { user in
-                            MemberCellView(member: user, isSelected: user.id == viewModel.selectedPayer?.id)
+                            ChooseMemberCellView(member: user, isSelected: user.id == viewModel.selectedPayer?.id)
                                 .onTapGesture {
                                     viewModel.handlePayerSelection(user: user)
                                     dismiss()
@@ -42,12 +40,21 @@ struct ChoosePayerView: View {
                         }
                     }
                 }
+                .scrollIndicators(.hidden)
             }
         }
-        .padding(.horizontal, 30)
         .background(backgroundColor)
+        .interactiveDismissDisabled()
+        .navigationBarTitle("Choose Payer", displayMode: .inline)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button("Cancel") {
+                    dismiss()
+                }
+            }
+        }
     }
 }
 
@@ -62,7 +69,7 @@ private struct NoMemberFoundView: View {
     }
 }
 
-private struct MemberCellView: View {
+private struct ChooseMemberCellView: View {
 
     @Inject var preference: SplitoPreference
 
@@ -97,6 +104,7 @@ private struct MemberCellView: View {
                     .frame(width: 24, height: 24)
             }
         }
+        .padding(.horizontal, 30)
         .background(backgroundColor)
     }
 }

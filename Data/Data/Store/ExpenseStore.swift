@@ -25,15 +25,62 @@ public class ExpenseStore: ObservableObject {
                 _ = try self.database.collection(self.DATABASE_NAME).addDocument(from: expense)
                 promise(.success(()))
             } catch {
-                LogE("ExpenseRepository :: \(#function) error: \(error.localizedDescription)")
+                LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                 promise(.failure(.databaseError))
             }
         }
         .eraseToAnyPublisher()
     }
 
-    public func fetchExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
-        return Future { [weak self] promise in
+    func updateExpense(expense: Expense) -> AnyPublisher<Void, ServiceError> {
+        Future { [weak self] promise in
+            guard let self, let expenseId = expense.id else {
+                promise(.failure(.unexpectedError))
+                return
+            }
+            do {
+                try self.database.collection(self.DATABASE_NAME).document(expenseId).setData(from: expense, merge: false)
+                promise(.success(()))
+            } catch {
+                LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
+                promise(.failure(.databaseError))
+            }
+        }.eraseToAnyPublisher()
+    }
+
+    func fetchExpenseBy(expenseId: String) -> AnyPublisher<Expense, ServiceError> {
+        Future { [weak self] promise in
+            guard let self else {
+                promise(.failure(.unexpectedError))
+                return
+            }
+
+            self.database.collection(DATABASE_NAME).document(expenseId).getDocument { snapshot, error in
+                if let error {
+                    LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
+                    promise(.failure(.databaseError))
+                    return
+                }
+
+                guard let snapshot else {
+                    LogE("ExpenseStore :: \(#function) The document is not available.")
+                    promise(.failure(.dataNotFound))
+                    return
+                }
+
+                do {
+                    let expense = try snapshot.data(as: Expense.self)
+                    promise(.success(expense))
+                } catch {
+                    LogE("ExpenseStore :: \(#function) Decode error: \(error.localizedDescription)")
+                    promise(.failure(.decodingError))
+                }
+            }
+        }.eraseToAnyPublisher()
+    }
+
+    func fetchExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
+        Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return
@@ -41,26 +88,24 @@ public class ExpenseStore: ObservableObject {
 
             self.database.collection(DATABASE_NAME).whereField("group_id", isEqualTo: groupId).getDocuments { snapshot, error in
                 if let error {
-                    LogE("ExpenseRepository :: \(#function) error: \(error.localizedDescription)")
+                    LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError))
                     return
                 }
 
                 guard let snapshot, !snapshot.documents.isEmpty else {
-                    LogD("ExpenseRepository :: \(#function) The document is not available.")
+                    LogD("ExpenseStore :: \(#function) The document is not available.")
                     promise(.success([]))
                     return
                 }
 
                 do {
                     let expenses = try snapshot.documents.compactMap { document in
-                        var expense = try document.data(as: Expense.self)
-                        expense.id = document.documentID // Set the ID for each expense
-                        return expense
+                        try document.data(as: Expense.self)
                     }
                     promise(.success(expenses))
                 } catch {
-                    LogE("ExpenseRepository :: \(#function) Decode error: \(error.localizedDescription)")
+                    LogE("ExpenseStore :: \(#function) Decode error: \(error.localizedDescription)")
                     promise(.failure(.decodingError))
                 }
             }
@@ -68,7 +113,7 @@ public class ExpenseStore: ObservableObject {
         .eraseToAnyPublisher()
     }
 
-    public func deleteExpense(id: String) -> AnyPublisher<Void, ServiceError> {
+    func deleteExpense(id: String) -> AnyPublisher<Void, ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
@@ -77,10 +122,10 @@ public class ExpenseStore: ObservableObject {
 
             self.database.collection(self.DATABASE_NAME).document(id).delete { error in
                 if let error {
-                    LogE("ExpenseRepository :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
+                    LogE("ExpenseStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
                     promise(.failure(.databaseError))
                 } else {
-                    LogD("ExpenseRepository :: \(#function): expense deleted successfully.")
+                    LogD("ExpenseStore :: \(#function): expense deleted successfully.")
                     promise(.success(()))
                 }
             }

@@ -22,7 +22,7 @@ struct OnboardView: View {
     public var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if case .loading = viewModel.currentState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else {
                 GeometryReader { proxy in
                     TabView(selection: $viewModel.currentPageIndex) {
@@ -70,7 +70,7 @@ struct OnboardPageView: View {
     var onStartBtnTap: (() -> Void)
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
+        ScrollView {
             VStack(alignment: .center, spacing: 12) {
                 VSpacer(20)
 
@@ -104,6 +104,7 @@ struct OnboardPageView: View {
             }
             .frame(maxWidth: isIpad ? 600 : .infinity, minHeight: proxy.size.height, alignment: .center)
         }
+        .scrollIndicators(.hidden)
         .padding(.horizontal, 20)
     }
 }

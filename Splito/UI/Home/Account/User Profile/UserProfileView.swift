@@ -16,9 +16,9 @@ struct UserProfileView: View {
     var body: some View {
         VStack(spacing: 0) {
             if case .loading = viewModel.currentState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else {
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VStack(spacing: 40) {
                         VSpacer(30)
 
@@ -45,7 +45,7 @@ struct UserProfileView: View {
                                        userLoginType: $viewModel.userLoginType)
 
                         if viewModel.isDeleteInProgress {
-                            LoaderView(tintColor: primaryColor, scaleSize: 1)
+                            LoaderView(scaleSize: 1)
                                 .frame(height: 50)
                         } else {
                             Button(action: viewModel.handleDeleteAction) {
@@ -66,6 +66,7 @@ struct UserProfileView: View {
                     }
                     .disabled(viewModel.isDeleteInProgress || viewModel.isSaveInProgress)
                 }
+                .scrollIndicators(.hidden)
             }
         }
         .padding(.horizontal, 20)

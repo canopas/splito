@@ -17,9 +17,9 @@ struct GroupSettingView: View {
     var body: some View {
         VStack {
             if case .loading = viewModel.currentViewState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else if case .initial = viewModel.currentViewState {
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VStack(alignment: .leading, spacing: 30) {
                         VSpacer(20)
 
@@ -28,15 +28,15 @@ struct GroupSettingView: View {
                                 viewModel.handleEditGroupTap()
                             }
 
-                        GroupMembersView(members: viewModel.members, onAddMemberTap: viewModel.handleAddMemberTap) { user in
-                            viewModel.handleMemberTap(member: user)
-                        }
+                        GroupMembersView(members: viewModel.members, oweAmount: viewModel.amountOweByMember,
+                                         onAddMemberTap: viewModel.handleAddMemberTap, onMemberTap: viewModel.handleMemberTap(member:))
 
-                        GroupAdvanceSettingsView(isDisable: !viewModel.isAdmin,
+                        GroupAdvanceSettingsView(isDebtSimplified: $viewModel.isDebtSimplified, isDisable: !viewModel.isAdmin,
                                                  onLeaveGroupTap: viewModel.handleLeaveGroupTap,
                                                  onDeleteGroupTap: viewModel.handleDeleteGroupTap)
                     }
                 }
+                .scrollIndicators(.hidden)
             }
         }
         .background(backgroundColor)
@@ -64,7 +64,7 @@ private struct GroupTitleView: View {
     let group: Groups?
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 20) {
             HStack(alignment: .center, spacing: 16) {
                 GroupProfileImageView(imageUrl: group?.imageUrl)
 
@@ -82,7 +82,7 @@ private struct GroupTitleView: View {
 
             Divider()
                 .frame(height: 1)
-                .background(disableLightText)
+                .background(outlineColor)
         }
     }
 }
@@ -90,20 +90,29 @@ private struct GroupTitleView: View {
 private struct GroupMembersView: View {
 
     var members: [AppUser]
+    var oweAmount: [String: Double]
+
     var onAddMemberTap: () -> Void
     var onMemberTap: (AppUser) -> Void
 
+    init(members: [AppUser], oweAmount: [String: Double], onAddMemberTap: @escaping () -> Void, onMemberTap: @escaping (AppUser) -> Void) {
+        self.members = members
+        self.oweAmount = oweAmount
+        self.onAddMemberTap = onAddMemberTap
+        self.onMemberTap = onMemberTap
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 26) {
+        VStack(alignment: .leading, spacing: 30) {
             Text("Group members")
-                .font(.subTitle2())
+                .font(.bodyBold())
                 .foregroundStyle(primaryText)
 
             GroupListEditCellView(icon: "person.badge.plus", text: "Add people to group", onTap: onAddMemberTap)
 
             LazyVStack(spacing: 20) {
                 ForEach(members) { member in
-                    GroupMemberCellView(member: member)
+                    GroupMemberCellView(member: member, amount: oweAmount[member.id] ?? 0)
                         .onTouchGesture {
                             onMemberTap(member)
                         }
@@ -116,15 +125,36 @@ private struct GroupMembersView: View {
 
 private struct GroupAdvanceSettingsView: View {
 
+    @Binding var isDebtSimplified: Bool
+
     var isDisable: Bool
     var onLeaveGroupTap: () -> Void
     var onDeleteGroupTap: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 30) {
             Text("Advanced settings")
-                .font(.subTitle2())
-                .foregroundStyle(primaryText)
+                .font(.bodyBold())
+
+            HStack(alignment: .top, spacing: 32) {
+                Image(systemName: "point.3.filled.connected.trianglepath.dotted")
+                    .resizable()
+                    .frame(width: 25, height: 22)
+                    .padding(.top, 6)
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Toggle(isOn: $isDebtSimplified) {
+                        Text("Simplify group debts")
+                            .font(.body1(18))
+                    }
+
+                    Text("Automatically combines debts to reduce the total number of repayments between group members.")
+                        .font(.body2())
+                        .foregroundStyle(secondaryText)
+                }
+            }
+            .padding(.top, -6)
+            .padding(.leading, 16)
 
             GroupListEditCellView(icon: "arrow.left.square", text: "Leave group",
                                   isDistructive: true, onTap: onLeaveGroupTap)
@@ -133,6 +163,7 @@ private struct GroupAdvanceSettingsView: View {
                                   isDistructive: true, onTap: onDeleteGroupTap)
         }
         .padding(.horizontal, 22)
+        .foregroundStyle(primaryText)
     }
 }
 
@@ -152,9 +183,8 @@ private struct GroupListEditCellView: View {
                 .frame(width: 22, height: 22)
 
             Text(text)
-                .font(.subTitle2())
+                .font(.body1(18))
         }
-        .frame(height: 40)
         .padding(.leading, 16)
         .foregroundStyle(isDisable ? disableText : (isDistructive ? awarenessColor : primaryText))
         .onTouchGesture {
@@ -169,6 +199,7 @@ private struct GroupMemberCellView: View {
     @Inject var preference: SplitoPreference
 
     let member: AppUser
+    let amount: Double
 
     private var userName: String {
         if let user = preference.user, member.id == user.id {
@@ -205,9 +236,22 @@ private struct GroupMemberCellView: View {
 
             Spacer()
 
-            Text("settled up")
-                .font(.subTitle3())
-                .foregroundStyle(secondaryText)
+            let isBorrowed = amount < 0
+            VStack(alignment: .trailing, spacing: 4) {
+                if amount == 0 {
+                    Text("settled up")
+                        .font(.body1(13))
+                        .foregroundStyle(secondaryText)
+                } else {
+                    Text(isBorrowed ? "owes" : "gets back")
+                        .font(.body1(13))
+
+                    Text(amount.formattedCurrency)
+                        .font(.body1())
+                }
+            }
+            .lineLimit(1)
+            .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
         }
     }
 }

@@ -17,7 +17,7 @@ struct JoinMemberView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 30) {
             if case .loading = viewModel.currentState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else {
                 VSpacer(30)
 

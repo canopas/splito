@@ -18,6 +18,14 @@ public class ExpenseRepository: ObservableObject {
         store.addExpense(expense: expense)
     }
 
+    public func updateExpense(expense: Expense) -> AnyPublisher<Void, ServiceError> {
+        store.updateExpense(expense: expense)
+    }
+
+    public func fetchExpenseBy(expenseId: String) -> AnyPublisher<Expense, ServiceError> {
+        store.fetchExpenseBy(expenseId: expenseId)
+    }
+
     public func fetchExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
         store.fetchExpensesBy(groupId: groupId)
     }

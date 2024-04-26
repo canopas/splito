@@ -16,14 +16,14 @@ struct AccountHomeView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 20) {
             if case .loading = viewModel.currentState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else {
                 Text("Account")
                     .font(.Header4())
                     .foregroundStyle(primaryText)
                     .padding(.top, 10)
 
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VStack(spacing: 20) {
                         VSpacer(20)
 
@@ -37,6 +37,7 @@ struct AccountHomeView: View {
                         VSpacer(20)
                     }
                 }
+                .scrollIndicators(.hidden)
             }
         }
         .background(backgroundColor)
@@ -85,7 +86,7 @@ private struct AccountUserHeaderView: View {
 
             Divider()
                 .frame(height: 1)
-                .background(disableLightText)
+                .background(outlineColor)
         }
     }
 }
@@ -130,7 +131,7 @@ private struct AccountFeedbackSectionView: View {
 
             Divider()
                 .frame(height: 1)
-                .background(disableLightText)
+                .background(outlineColor)
         }
     }
 }

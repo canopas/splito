@@ -39,7 +39,7 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { users in
-                self.currentViewState = users.isEmpty ? .noUsers : .hasUser(users: users)
+                self.currentViewState = users.isEmpty ? .noMember : .hasMembers(users)
             }.store(in: &cancelable)
     }
 
@@ -53,7 +53,7 @@ extension ChoosePayerViewModel {
     enum ViewState {
         case initial
         case loading
-        case noUsers
-        case hasUser(users: [AppUser])
+        case noMember
+        case hasMembers([AppUser])
     }
 }

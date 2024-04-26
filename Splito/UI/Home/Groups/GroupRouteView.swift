@@ -28,6 +28,12 @@ struct GroupRouteView: View {
                 JoinMemberView(viewModel: JoinMemberViewModel(router: appRoute))
             case .GroupSettingView(let id):
                 GroupSettingView(viewModel: GroupSettingViewModel(router: appRoute, groupId: id))
+
+            case .ExpenseDetailView(let expenseId):
+                ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: appRoute, expenseId: expenseId))
+            case .AddExpenseView(let expenseId):
+                AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, expenseId: expenseId))
+
             default:
                 EmptyRouteView(routeName: self)
             }

@@ -14,21 +14,32 @@ struct GroupHomeView: View {
     @ObservedObject var viewModel: GroupHomeViewModel
 
     var body: some View {
-        VStack(alignment: .center, spacing: 0) {
-            if case .noGroup = viewModel.groupState {
-                CreateGroupState(viewModel: .constant(viewModel))
+        VStack(spacing: 0) {
+            if case .loading = viewModel.groupState {
+                LoaderView()
             } else if case .noMember = viewModel.groupState {
                 AddMemberState(viewModel: .constant(viewModel))
-            } else if case .hasMembers = viewModel.groupState {
-                if case .noExpense = viewModel.groupExpenseState {
-                    NoExpenseView()
-                } else if case .hasExpense(let expenses) = viewModel.groupExpenseState {
-                    VSpacer(10)
+            } else if case .noExpense = viewModel.groupState {
+                NoExpenseView()
+            } else if case .settledUp = viewModel.groupState {
+                ScrollView {
+                    VSpacer(60)
 
-                    GroupExpenseListView(viewModel: viewModel, expenses: expenses)
+                    GroupExpenseHeaderView(viewModel: viewModel)
+
+                    VSpacer(80)
+
+                    ExpenseSettledView()
+                        .onTouchGesture(viewModel.setHasExpenseState)
                 }
+                .scrollIndicators(.hidden)
+            } else if case .hasExpense = viewModel.groupState {
+                VSpacer(10)
+                GroupExpenseListView(viewModel: viewModel,
+                                     onExpenseItemTap: viewModel.handleExpenseItemTap(expenseId:))
             }
         }
+        .background(backgroundColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationBarTitle(viewModel.group?.name ?? "", displayMode: .inline)
@@ -51,16 +62,22 @@ struct GroupHomeView: View {
 private struct GroupExpenseListView: View {
 
     let viewModel: GroupHomeViewModel
+    let onExpenseItemTap: (String) -> Void
 
+    var isSettledUp = false
     var groupedExpenses: [String: [ExpenseWithUser]] = [:]
 
-    init(viewModel: GroupHomeViewModel, expenses: [ExpenseWithUser]) {
+    init(viewModel: GroupHomeViewModel, onExpenseItemTap: @escaping (String) -> Void) {
         self.viewModel = viewModel
-        self.groupedExpenses = Dictionary(grouping: expenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
+        self.onExpenseItemTap = onExpenseItemTap
+
+        self.groupedExpenses = Dictionary(grouping: viewModel.expenseWithUser.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMMM yyyy"
             return dateFormatter.string(from: expense.expense.date.dateValue())
         }
+
+        isSettledUp = (viewModel.group?.members.count ?? 1) > 1
     }
 
     var body: some View {
@@ -75,7 +92,8 @@ private struct GroupExpenseListView: View {
                 ForEach(groupedExpenses.keys.sorted(), id: \.self) { month in
                     Section(header: Text(month).font(.subTitle4(14))) {
                         ForEach(groupedExpenses[month]!, id: \.self) { expense in
-                            GroupExpenseItemView(expense: expense)
+                            GroupExpenseItemView(expenseWithUser: expense)
+                                .onTouchGesture { onExpenseItemTap(expense.expense.id ?? "0") }
                         }
                     }
                 }
@@ -83,6 +101,7 @@ private struct GroupExpenseListView: View {
             }
             .padding(.horizontal, 14)
         }
+        .scrollIndicators(.hidden)
         .frame(maxWidth: .infinity)
     }
 }
@@ -101,37 +120,22 @@ private struct GroupExpenseHeaderView: View {
                 .font(.subTitle1(26))
                 .foregroundStyle(primaryText)
 
-            if viewModel.groupTotalExpense == viewModel.overallOwingAmount && (viewModel.group?.members.count ?? 1) < 2 {
+            if viewModel.overallOwingAmount == 0 {
                 Text("You are all settled up in this group.") // no due or lent
             } else {
-                let isDue = viewModel.overallOwingAmount < 0
+                if viewModel.memberOwingAmount.count < 2, let member = viewModel.memberOwingAmount.first {
+                    let name = viewModel.getMemberDataBy(id: member.key)?.nameWithLastInitial ?? "Unknown"
+                    GroupExpenseMemberOweView(name: name, amount: viewModel.overallOwingAmount)
+                } else {
+                    let isDue = viewModel.overallOwingAmount < 0
+                    Text("You \(isDue ? "owe" : "are owed") \(viewModel.overallOwingAmount.formattedCurrency) overall")
+                        .font(.subTitle2())
+                        .foregroundStyle(isDue ? amountBorrowedColor : amountLentColor)
 
-                Text("You \(isDue ? "owe" : "are owed") \(viewModel.overallOwingAmount.formattedCurrency()) overall")
-                    .font(.subTitle2())
-                    .foregroundStyle(isDue ? amountBorrowedColor : amountLentColor)
-
-                ForEach(viewModel.amountOwesToYou.keys.sorted(), id: \.self) { memberId in
-                    let owesAmount = viewModel.amountOwesToYou[memberId] ?? 0.0
-                    let name = viewModel.fetchMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
-                    Group {
-                        Text("\(name) owes you ")
-                            .foregroundColor(primaryText)
-                        + Text("\(owesAmount.formattedCurrency())")
-                            .foregroundColor(amountLentColor)
+                    ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
+                        let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
+                        GroupExpenseMemberOweView(name: name, amount: amount)
                     }
-                    .font(.body1(14))
-                }
-
-                ForEach(viewModel.amountOwedByYou.keys.sorted(), id: \.self) { memberId in
-                    let owedAmount = viewModel.amountOwedByYou[memberId] ?? 0.0
-                    let name = viewModel.fetchMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
-                    Group {
-                        Text("You owe \(name) ")
-                            .foregroundColor(primaryText)
-                        + Text("\(owedAmount.formattedCurrency())")
-                            .foregroundColor(amountBorrowedColor)
-                    }
-                    .font(.body1(14))
                 }
             }
         }
@@ -140,33 +144,64 @@ private struct GroupExpenseHeaderView: View {
     }
 }
 
+private struct GroupExpenseMemberOweView: View {
+
+    let name: String
+    let amount: Double
+
+    var body: some View {
+        if amount > 0 {
+            Group {
+                Text("\(name) owes you ")
+                    .foregroundColor(primaryText)
+                + Text("\(amount.formattedCurrency)")
+                    .foregroundColor(amountLentColor)
+            }
+            .font(.body1(14))
+        } else if amount < 0 {
+            Group {
+                Text("You owe \(name) ")
+                    .foregroundColor(primaryText)
+                + Text("\(amount.formattedCurrency)")
+                    .foregroundColor(amountBorrowedColor)
+            }
+            .font(.body1(14))
+        }
+    }
+}
+
 private struct GroupExpenseItemView: View {
 
     @Inject var preference: SplitoPreference
 
-    let expense: ExpenseWithUser
+    let expense: Expense
 
     private var amount = 0.0
+    private var isInvolved = true
+    private var isSettled = false
     private var isBorrowed = false
     private var userName: String = ""
 
-    init(expense: ExpenseWithUser) {
-        self.expense = expense
-        if let user = preference.user, expense.user.id == user.id {
+    init(expenseWithUser: ExpenseWithUser) {
+        self.expense = expenseWithUser.expense
+
+        if let user = preference.user, expenseWithUser.user.id == user.id {
             userName = "You"
             isBorrowed = false
-            let singleExpense = expense.expense.amount / Double(expense.expense.splitTo.count)
-            amount = expense.expense.amount - singleExpense
+            let singleExpense = expense.splitTo.count == 1 ? 0 : expense.amount / Double(expense.splitTo.count)
+            amount = expense.amount - singleExpense
+            isSettled = expense.paidBy == preference.user?.id && expense.splitTo.contains(preference.user?.id ?? "") && expense.splitTo.count == 1
         } else {
             isBorrowed = true
-            userName = expense.user.nameWithLastInitial
-            amount = expense.expense.amount / Double(expense.expense.splitTo.count)
+            userName = expenseWithUser.user.nameWithLastInitial
+            amount = expense.amount / Double(expense.splitTo.count)
+            isInvolved = expense.splitTo.contains(where: { $0 == preference.user?.id })
         }
     }
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            Text(expense.expense.date.dateValue().shortDateWithMonth())
+            Text(expense.date.dateValue().shortDateWithNewLine)
                 .font(.body1())
                 .foregroundStyle(secondaryText)
                 .multilineTextAlignment(.center)
@@ -181,11 +216,12 @@ private struct GroupExpenseItemView: View {
                 .cornerRadius(2)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(expense.expense.name)
+                Text(expense.name)
                     .font(.body1(17))
                     .foregroundStyle(primaryText)
 
-                Text("\(userName) paid \(expense.expense.formattedAmount)")
+                let amountText = isSettled ? "You paid for yourself" : "\(userName) paid \(expense.formattedAmount)"
+                Text(amountText)
                     .font(.body1(12))
                     .foregroundStyle(secondaryText)
             }
@@ -193,11 +229,23 @@ private struct GroupExpenseItemView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
 
             VStack(alignment: .trailing, spacing: 4) {
-                Text(isBorrowed ? "you borrowed" : "you lent")
-                    .font(.body1(12))
+                if isSettled {
+                    Text("no balance")
+                        .font(.body1(12))
+                        .foregroundStyle(secondaryText)
+                } else {
+                    if isInvolved {
+                        Text(isBorrowed ? "you borrowed" : "you lent")
+                            .font(.body1(12))
 
-                Text(amount.formattedCurrency())
-                    .font(.body1(16))
+                        Text(amount.formattedCurrency)
+                            .font(.body1(16))
+                    } else {
+                        Text("not involved")
+                            .font(.body1(12))
+                            .foregroundStyle(secondaryText)
+                    }
+                }
             }
             .lineLimit(1)
             .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
@@ -294,6 +342,28 @@ private struct NoExpenseView: View {
                 .foregroundStyle(secondaryText)
                 .multilineTextAlignment(.center)
         }
+        .padding(.horizontal, 30)
+    }
+}
+
+private struct ExpenseSettledView: View {
+
+    var body: some View {
+        VStack(alignment: .center, spacing: 10) {
+            Text("You are all settled up.")
+                .foregroundStyle(primaryText)
+
+            Text("Tap to show settled expenses")
+                .foregroundStyle(secondaryText)
+                .multilineTextAlignment(.center)
+
+            VSpacer(20)
+
+            Image(.checkMarkTick)
+                .resizable()
+                .frame(width: 90, height: 80)
+        }
+        .font(.body1(17))
         .padding(.horizontal, 30)
     }
 }
