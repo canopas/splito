@@ -6,6 +6,7 @@
 //
 
 import Data
+import Combine
 
 class GroupListViewModel: BaseViewModel, ObservableObject {
 
@@ -30,12 +31,26 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     private func fetchGroups() {
         guard let userId = preference.user?.id else { return }
 
-        let queue = DispatchGroup()
-        var totalExpense = 0.0
-        var combinedData: [GroupInformation] = []
+        let totalExpense = CurrentValueSubject<Double, Never>(0.0)
 
         currentViewState = .loading
         groupRepository.fetchGroups(userId: userId)
+            .flatMap { [weak self] groups -> AnyPublisher<GroupInformation, ServiceError> in
+                guard let self else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
+                return Publishers.MergeMany(groups.map { group in
+                    self.fetchGroupMembers(groupId: group.id ?? "")
+                        .flatMap { members in
+                            self.fetchExpenses(group: group, members: members)
+                                .map { expense, owingAmounts in
+                                    let groupWithExpense = GroupInformation(group: group, oweAmount: expense, memberOweAmount: owingAmounts, members: members)
+                                    totalExpense.value += expense
+                                    return groupWithExpense
+                                }
+                        }
+                })
+                .eraseToAnyPublisher()
+            }
+            .collect()
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.currentViewState = .initial
@@ -43,67 +58,33 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] groups in
                 guard let self else { return }
-
-                for group in groups {
-                    queue.enter()
-
-                    var members: [AppUser] = []
-
-                    for memberId in group.members {
-                        self.fetchUserData(for: memberId) { member in
-                            members.append(member)
-                        }
-                    }
-
-                    self.fetchExpenses(group: group) { expense, owingAmounts in
-                        let groupWithExpense = GroupInformation(group: group, oweAmount: expense, memberOweAmount: owingAmounts, members: members)
-                        combinedData.append(groupWithExpense)
-                        totalExpense += expense
-                        queue.leave()
-                    }
-                }
-
-                queue.notify(queue: .main) {
-                    self.currentViewState = .initial
-                    self.usersTotalExpense = totalExpense
-                    let sortedGroups = combinedData.sorted(by: { ($0.group.createdAt) < ($1.group.createdAt) })
-                    self.groupListState = groups.isEmpty ? .noGroup : .hasGroup(groups: sortedGroups)
-                }
-            }.store(in: &cancelable)
+                self.currentViewState = .initial
+                let sortedGroups = groups.sorted { $0.group.createdAt > $1.group.createdAt }
+                self.groupListState = groups.isEmpty ? .noGroup : .hasGroup(groups: sortedGroups)
+                self.usersTotalExpense = totalExpense.value
+            }
+            .store(in: &cancelable)
     }
 
-    private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
-        groupRepository.fetchMemberBy(userId: userId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.currentViewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { user in
-                guard let user else { return }
-                completion(user)
-            }.store(in: &cancelable)
+    private func fetchGroupMembers(groupId: String) -> AnyPublisher<[AppUser], ServiceError> {
+        groupRepository.fetchMembersBy(groupId: groupId)
     }
 
-    private func fetchExpenses(group: Groups, completion: @escaping (Double, [String: Double]) -> Void) {
+    private func fetchExpenses(group: Groups, members: [AppUser]) -> AnyPublisher<(Double, [String: Double]), ServiceError> {
         expenseRepository.fetchExpensesBy(groupId: group.id ?? "")
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.currentViewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] expenses in
-                guard let self else { return }
+            .flatMap { [weak self] expenses -> AnyPublisher<(Double, [String: Double]), ServiceError> in
+                guard let self else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
                 if group.isDebtSimplified {
-                    self.calculateExpensesSimply(expenses: expenses, completion: completion)
+                    return self.calculateExpensesSimply(expenses: expenses)
                 } else {
-                    self.calculateExpenses(expenses: expenses, completion: completion)
+                    return self.calculateExpenses(expenses: expenses)
                 }
-            }.store(in: &cancelable)
+            }
+            .eraseToAnyPublisher()
     }
 
-    private func calculateExpenses(expenses: [Expense], completion: @escaping (Double, [String: Double]) -> Void) {
-        guard let userId = self.preference.user?.id else { return }
+    private func calculateExpenses(expenses: [Expense]) -> AnyPublisher<(Double, [String: Double]), ServiceError> {
+        guard let userId = self.preference.user?.id else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
 
         var expenseByUser = 0.0
         var owesToUser: [String: Double] = [:]
@@ -129,11 +110,11 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         owedByUser.forEach { userId, owedAmount in
             ownAmount[userId] = (ownAmount[userId] ?? 0) - owedAmount
         }
-        completion(expenseByUser, ownAmount)
+        return Just((expenseByUser, ownAmount)).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
     }
 
-    private func calculateExpensesSimply(expenses: [Expense], completion: @escaping (Double, [String: Double]) -> Void) {
-        guard let userId = self.preference.user?.id else { return }
+    private func calculateExpensesSimply(expenses: [Expense]) -> AnyPublisher<(Double, [String: Double]), ServiceError> {
+        guard let userId = self.preference.user?.id else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
 
         var expenseByUser = 0.0
         var ownAmount: [String: Double] = [:]
@@ -148,14 +129,13 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         }
 
         var oweByUser: [String: Double] = [:]
-        let debts = self.settleDebts(users: ownAmount)
+        let debts = settleDebts(users: ownAmount)
 
         for debt in debts where debt.0 == userId || debt.1 == userId {
             expenseByUser += debt.1 == userId ? debt.2 : -debt.2
             oweByUser[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
         }
-
-        completion(expenseByUser, oweByUser)
+        return Just((expenseByUser, oweByUser)).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
     }
 
     private func settleDebts(users: [String: Double]) -> [(String, String, Double)] {
