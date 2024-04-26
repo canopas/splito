@@ -132,10 +132,9 @@ private struct GroupExpenseHeaderView: View {
                         .font(.subTitle2())
                         .foregroundStyle(isDue ? amountBorrowedColor : amountLentColor)
 
-                    ForEach(viewModel.memberOwingAmount.keys.sorted(), id: \.self) { memberId in
-                        let owesAmount = viewModel.memberOwingAmount[memberId] ?? 0.0
+                    ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
                         let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
-                        GroupExpenseMemberOweView(name: name, amount: owesAmount)
+                        GroupExpenseMemberOweView(name: name, amount: amount)
                     }
                 }
             }

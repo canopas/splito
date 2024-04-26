@@ -75,11 +75,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         guard let userId = self.preference.user?.id else { return }
 
         let queue = DispatchGroup()
-        var expenseByYou = 0.0
+        var expenseByUser = 0.0
         var combinedData: [ExpenseWithUser] = []
 
-        var owesToYou: [String: Double] = [:]
-        var owedByYou: [String: Double] = [:]
+        var owesToUser: [String: Double] = [:]
+        var owedByUser: [String: Double] = [:]
 
         for expense in expenses {
             queue.enter()
@@ -87,13 +87,13 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             let splitAmount = expense.amount / Double(expense.splitTo.count)
 
             if expense.paidBy == userId {
-                expenseByYou += expense.splitTo.contains(userId) ? expense.amount - splitAmount : expense.amount
+                expenseByUser += expense.splitTo.contains(userId) ? expense.amount - splitAmount : expense.amount
                 for member in expense.splitTo where member != userId {
-                    owesToYou[member, default: 0.0] += splitAmount
+                    owesToUser[member, default: 0.0] += splitAmount
                 }
             } else if expense.splitTo.contains(where: { $0 == userId }) {
-                expenseByYou -= splitAmount
-                owedByYou[expense.paidBy, default: 0.0] += splitAmount
+                expenseByUser -= splitAmount
+                owedByUser[expense.paidBy, default: 0.0] += splitAmount
             }
 
             self.fetchUserData(for: expense.paidBy) { user in
@@ -103,14 +103,14 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         queue.notify(queue: .main) {
-            owesToYou.forEach { userId, owesAmount in
+            owesToUser.forEach { userId, owesAmount in
                 self.memberOwingAmount[userId] = owesAmount
             }
-            owedByYou.forEach { userId, owedAmount in
+            owedByUser.forEach { userId, owedAmount in
                 self.memberOwingAmount[userId] = (self.memberOwingAmount[userId] ?? 0) - owedAmount
             }
             self.expenseWithUser = combinedData
-            self.overallOwingAmount = expenseByYou
+            self.overallOwingAmount = expenseByUser
             self.setGroupViewState()
         }
     }
