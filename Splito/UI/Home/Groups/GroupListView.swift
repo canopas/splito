@@ -17,39 +17,19 @@ struct GroupListView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if case .loading = viewModel.currentViewState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else {
                 VStack(spacing: 0) {
                     if case .noGroup = viewModel.groupListState {
                         CreateGroupState(viewModel: .constant(viewModel))
-                    } else if case .hasGroup(let groups) = viewModel.groupListState {
-                        VSpacer(20)
+                    } else if case .hasGroup(let groupInformation) = viewModel.groupListState {
+                        VSpacer(30)
 
-                        HStack {
-                            Text("You are all settle up!")
-                                .font(.subTitle4(19))
-                                .foregroundStyle(primaryText)
-                            Spacer()
-                            Image(systemName: "line.3.horizontal.decrease.circle")
-                                .resizable()
-                                .foregroundStyle(primaryText)
-                                .frame(width: 26, height: 26)
-                        }
+                        GroupListHeaderView(expense: viewModel.usersTotalExpense)
 
                         VSpacer(20)
 
-                        ScrollView(showsIndicators: false) {
-                            VSpacer(10)
-
-                            LazyVStack(spacing: 16) {
-                                ForEach(groups) { group in
-                                    GroupListCellView(group: group)
-                                        .onTapGesture {
-                                            viewModel.handleGroupItemTap(group)
-                                        }
-                                }
-                            }
-                        }
+                        GroupListWithDetailView(viewModel: viewModel, groupInformation: groupInformation)
                     }
                 }
                 .frame(maxHeight: .infinity)
@@ -70,24 +50,126 @@ struct GroupListView: View {
     }
 }
 
-private struct GroupListCellView: View {
+private struct GroupListHeaderView: View {
 
-    let group: Groups
+    var expense: Double
 
     var body: some View {
-        HStack(alignment: .center, spacing: 20) {
-            GroupProfileImageView(imageUrl: group.imageUrl)
-
-            Text(group.name)
-                .font(.subTitle2())
-                .foregroundStyle(primaryText)
-
+        HStack {
+            if expense == 0 {
+                Text("You are all settle up!")
+                    .font(.Header4())
+                    .foregroundStyle(primaryText)
+            } else {
+                let isOwed = expense < 0
+                Group {
+                    Text("Overall, \(isOwed ? "you owe" : "you are owed")  ")
+                        .foregroundColor(primaryText)
+                    + Text("\(expense.formattedCurrency)")
+                        .foregroundColor(isOwed ? amountBorrowedColor : amountLentColor)
+                }
+                .font(.subTitle4(19))
+            }
             Spacer()
+        }
+    }
+}
 
-            Text("no expences")
-                .font(.caption)
+private struct GroupListWithDetailView: View {
+
+    var viewModel: GroupListViewModel
+    let groupInformation: [GroupInformation]
+
+    var body: some View {
+        ScrollView {
+            VSpacer(10)
+
+            LazyVStack(spacing: 16) {
+                ForEach(groupInformation, id: \.self) { group in
+                    GroupListCellView(group: group, viewModel: viewModel)
+                        .onTapGesture {
+                            viewModel.handleGroupItemTap(group.group)
+                        }
+                }
+            }
+        }
+        .scrollIndicators(.hidden)
+    }
+}
+
+private struct GroupListCellView: View {
+
+    let group: GroupInformation
+    var viewModel: GroupListViewModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(alignment: .center, spacing: 20) {
+                GroupProfileImageView(imageUrl: group.group.imageUrl)
+
+                Text(group.group.name)
+                    .font(.subTitle2())
+                    .foregroundStyle(primaryText)
+
+                Spacer()
+
+                let isBorrowed = group.oweAmount < 0
+                VStack(alignment: .trailing, spacing: 4) {
+                    if group.oweAmount == 0 {
+                        Text("no expense")
+                            .font(.body1(12))
+                            .foregroundStyle(secondaryText)
+                    } else {
+                        Text(isBorrowed ? "you owe" : "you are owed")
+                            .font(.body1(12))
+
+                        Text(group.oweAmount.formattedCurrency)
+                            .font(.body1(16))
+                    }
+                }
+                .lineLimit(1)
+                .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
+            }
+
+            HStack(alignment: .top, spacing: 20) {
+
+                HSpacer(50) // width of image size for padding
+
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(group.memberOweAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
+                        let name = viewModel.getMemberData(from: group.members, of: memberId)?.nameWithLastInitial ?? "Unknown"
+                        GroupExpenseMemberOweView(name: name, amount: amount)
+                    }
+                }
+            }
         }
         .background(backgroundColor)
+    }
+}
+
+private struct GroupExpenseMemberOweView: View {
+
+    let name: String
+    let amount: Double
+
+    var body: some View {
+        if amount > 0 {
+            Group {
+                Text("\(name) owes you ")
+                    .foregroundColor(secondaryText)
+                + Text("\(amount.formattedCurrency)")
+                    .foregroundColor(amountLentColor)
+            }
+            .font(.body1(14))
+        } else if amount < 0 {
+            Group {
+                Text("You owe \(name) ")
+                    .foregroundColor(secondaryText)
+                + Text("\(amount.formattedCurrency)")
+                    .foregroundColor(amountBorrowedColor)
+            }
+            .font(.body1(14))
+        }
     }
 }
 

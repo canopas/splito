@@ -17,21 +17,19 @@ struct ChooseGroupView: View {
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        VStack(alignment: .center, spacing: 20) {
+        VStack(alignment: .center, spacing: 0) {
+            Divider()
+                .frame(height: 1)
+                .background(outlineColor.opacity(0.4))
+
             if case .loading = viewModel.currentViewState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else if case .noGroups = viewModel.currentViewState {
                 NoGroupFoundView()
             } else if case .hasGroups(let groups) = viewModel.currentViewState {
-                VSpacer(10)
+                ScrollView {
+                    VSpacer(40)
 
-                Text("Choose Group")
-                    .font(.Header3())
-                    .foregroundStyle(.primary)
-
-                VSpacer(10)
-
-                ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 16) {
                         ForEach(groups) { group in
                             GroupCellView(group: group, isSelected: group.id == viewModel.selectedGroup?.id)
@@ -42,12 +40,21 @@ struct ChooseGroupView: View {
                         }
                     }
                 }
+                .scrollIndicators(.hidden)
             }
         }
-        .padding(.horizontal, 30)
         .background(backgroundColor)
+        .interactiveDismissDisabled()
+        .navigationBarTitle("Choose Group", displayMode: .inline)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button("Cancel") {
+                    dismiss()
+                }
+            }
+        }
     }
 }
 
@@ -83,6 +90,7 @@ private struct GroupCellView: View {
                     .frame(width: 24, height: 24)
             }
         }
+        .padding(.horizontal, 30)
         .background(backgroundColor)
     }
 }

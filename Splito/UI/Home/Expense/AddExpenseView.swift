@@ -15,54 +15,71 @@ struct AddExpenseView: View {
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        VStack(spacing: 25) {
-            if case .loading = viewModel.currentViewState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+        ScrollView {
+            if case .loading = viewModel.viewState {
+                LoaderView()
             } else {
-                GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Group") {
-                    viewModel.showGroupSelection = true
-                }
+                VStack(spacing: 25) {
+                    VSpacer(80)
 
-                VStack(spacing: 16) {
-                    ExpenseDetailRow(imageName: "note.text", placeholder: "Enter a description",
-                                     name: $viewModel.expenseName, amount: .constant(0), date: $viewModel.expenseDate)
-                    ExpenseDetailRow(imageName: "indianrupeesign.square", placeholder: "0.00",
-                                     name: .constant(""), amount: $viewModel.expenseAmount, date: $viewModel.expenseDate, keyboardType: .numberPad)
-                    ExpenseDetailRow(imageName: "calendar", placeholder: "Expense date", forDatePicker: true,
-                                     name: .constant(""), amount: .constant(0), date: $viewModel.expenseDate)
-                }
-                .padding(.trailing, 20)
+                    GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Group", onTap: viewModel.handleGroupBtnAction)
 
-                PaidByView(payerName: viewModel.payerName) {
-                    viewModel.showPayerSelection = viewModel.selectedGroup != nil
+                    VStack(spacing: 16) {
+                        ExpenseDetailRow(imageName: "note.text", placeholder: "Enter a description",
+                                         name: $viewModel.expenseName, amount: .constant(0), date: $viewModel.expenseDate)
+                        ExpenseDetailRow(imageName: "indianrupeesign.square", placeholder: "0.00",
+                                         name: .constant(""), amount: $viewModel.expenseAmount, date: $viewModel.expenseDate, keyboardType: .numberPad)
+                        ExpenseDetailRow(imageName: "calendar", placeholder: "Expense date", forDatePicker: true,
+                                         name: .constant(""), amount: .constant(0), date: $viewModel.expenseDate)
+                    }
+                    .padding(.trailing, 20)
+
+                    PaidByBottomView(payerName: viewModel.payerName, onPayerTap: viewModel.handlePayerBtnAction,
+                                     onSplitTypeTap: viewModel.handleSplitTypeBtnAction)
                 }
             }
         }
         .padding(.horizontal, 20)
         .background(backgroundColor)
-        .navigationBarTitle("Add an expense", displayMode: .inline)
+        .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.immediately)
+        .navigationBarTitle(viewModel.expenseId == nil ? "Add expense" : "Edit expense", displayMode: .inline)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showGroupSelection) {
-            ChooseGroupView(viewModel: ChooseGroupViewModel(selectedGroup: viewModel.selectedGroup) { group in
-                viewModel.selectedGroup = group
-                viewModel.selectedPayer = nil
-            })
+            NavigationStack {
+                ChooseGroupView(viewModel: ChooseGroupViewModel(selectedGroup: viewModel.selectedGroup) { group in
+                    viewModel.handleGroupSelection(group: group)
+                })
+            }
         }
         .sheet(isPresented: $viewModel.showPayerSelection) {
-            ChoosePayerView(viewModel: ChoosePayerViewModel(groupId: viewModel.selectedGroup?.id ?? "", selectedPayer: viewModel.selectedPayer) { payer in
-                viewModel.selectedPayer = payer
-            })
+            NavigationStack {
+                ChoosePayerView(viewModel: ChoosePayerViewModel(groupId: viewModel.selectedGroup?.id ?? "", selectedPayer: viewModel.selectedPayer) { payer in
+                    viewModel.handlePayerSelection(payer: payer)
+                })
+            }
+        }
+        .sheet(isPresented: $viewModel.showSplitTypeSelection) {
+            NavigationStack {
+                ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: viewModel.expenseAmount, members: viewModel.groupMembers,
+                                                                                selectedMembers: viewModel.selectedMembers,
+                                                                                onMemberSelection: { members in
+                    viewModel.handleSplitTypeSelection(members: members)
+                }))
+            }
         }
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button("Cancel") {
-                    dismiss()
+            if viewModel.expenseId == nil {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Add") {
-                    viewModel.saveExpense {
+                Button("Save") {
+                    viewModel.handleSaveAction {
                         dismiss()
                     }
                 }
@@ -89,10 +106,10 @@ private struct ExpenseDetailRow: View {
         HStack(spacing: 16) {
             Image(systemName: imageName)
                 .resizable()
-                .foregroundStyle(primaryText)
                 .frame(width: 32, height: 32)
                 .padding(12)
                 .background(Color.clear)
+                .foregroundStyle(primaryText.opacity(0.9))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8).stroke(outlineColor, lineWidth: 1)
                 )
@@ -112,7 +129,7 @@ private struct ExpenseDetailRow: View {
                     }
 
                     Divider()
-                        .background(Color.gray)
+                        .background(outlineColor)
                         .frame(height: 1)
                 }
             }
@@ -149,39 +166,50 @@ private struct GroupSelectionView: View {
     }
 }
 
-private struct PaidByView: View {
+private struct PaidByBottomView: View {
 
     let payerName: String
+    var onPayerTap: () -> Void
+    var onSplitTypeTap: () -> Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Text("Paid by")
+
+            PaidByBtnView(name: payerName, onTap: onPayerTap)
+
+            Text("and split")
+
+            PaidByBtnView(name: "equally", onTap: onSplitTypeTap)
+        }
+        .font(.subTitle2())
+        .foregroundStyle(primaryText)
+    }
+}
+
+private struct PaidByBtnView: View {
+
+    var name: String
     var onTap: () -> Void
 
     var body: some View {
-        HStack(spacing: 10) {
-            Text("Paid by")
+        Button {
+            onTap()
+        } label: {
+            Text(name)
                 .font(.subTitle2())
-                .foregroundStyle(primaryText)
-
-            Button {
-                onTap()
-            } label: {
-                Text(payerName)
-                    .font(.subTitle2())
-                    .foregroundStyle(secondaryText)
-            }
-            .buttonStyle(.scale)
-            .padding(.vertical, 8)
-            .padding(.horizontal, 12)
-            .background(Color.clear)
-            .overlay(
-                RoundedRectangle(cornerRadius: 8).stroke(outlineColor, lineWidth: 1)
-            )
-
-            Text("and split equally")
-                .font(.subTitle2())
-                .foregroundStyle(primaryText)
+                .foregroundStyle(secondaryText)
         }
+        .buttonStyle(.scale)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 10)
+        .background(Color.clear)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8).stroke(outlineColor, lineWidth: 1)
+        )
     }
 }
 
 #Preview {
-    AddExpenseView(viewModel: AddExpenseViewModel(router: .init(root: .AddExpenseView)))
+    AddExpenseView(viewModel: AddExpenseViewModel(router: .init(root: .AddExpenseView(expenseId: "")), expenseId: ""))
 }

@@ -16,7 +16,7 @@ struct CreateGroupView: View {
     var body: some View {
         VStack {
             if case .loading = viewModel.currentState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else {
                 VStack {
                     VSpacer(40)
@@ -80,7 +80,7 @@ private struct AddGroupNameView: View {
     let handleProfileTap: (() -> Void)
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(alignment: .top, spacing: 16) {
             ZStack {
                 if let image {
                     Image(uiImage: image)
@@ -96,7 +96,7 @@ private struct AddGroupNameView: View {
                         .scaledToFill()
                 }
             }
-            .frame(width: 56, height: 55)
+            .frame(width: 60, height: 60)
             .background(secondaryText.opacity(0.12))
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .foregroundStyle(secondaryText)
@@ -104,18 +104,16 @@ private struct AddGroupNameView: View {
                 handleProfileTap()
             }
 
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 7) {
                 Text("Group name")
-                    .font(.subTitle4())
+                    .font(.subTitle2())
                     .foregroundStyle(secondaryText)
-
-                VSpacer(2)
 
                 TextField("", text: $groupName)
 
-                Rectangle()
+                Divider()
                     .frame(height: 1)
-                    .foregroundStyle(.secondary)
+                    .background(outlineColor)
             }
         }
     }

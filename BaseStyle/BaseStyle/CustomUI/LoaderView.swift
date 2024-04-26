@@ -15,7 +15,7 @@ public struct LoaderView: View {
     private let withDarkBG: Bool
     private let showLoader: Bool
 
-    public init(tintColor: Color = primaryColor, scaleSize: CGFloat = 1.0, withDarkBg: Bool = false, showLoader: Bool = false) {
+    public init(tintColor: Color = primaryColor, scaleSize: CGFloat = 2.0, withDarkBg: Bool = false, showLoader: Bool = false) {
         self.tintColor = tintColor
         self.scaleSize = scaleSize
         self.withDarkBG = withDarkBg

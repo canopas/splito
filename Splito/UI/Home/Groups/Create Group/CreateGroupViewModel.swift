@@ -89,7 +89,6 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         showImagePickerOptions = true
     }
 
-    /// Create a new group
     func handleDoneAction() {
         if let group {
             updateGroup(group: group)

@@ -8,7 +8,7 @@
 import Foundation
 
 public extension Double {
-    func formattedCurrency() -> String {
+    var formattedCurrency: String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.locale = Locale.current
