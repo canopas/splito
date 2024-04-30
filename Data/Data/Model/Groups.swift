@@ -18,7 +18,7 @@ public struct Groups: Codable, Identifiable, Hashable {
     public var createdAt: Timestamp
     public var isDebtSimplified: Bool
 
-    public init(name: String, createdBy: String, members: [String], imageUrl: String? = nil, createdAt: Timestamp, isDebtSimplified: Bool = false) {
+    public init(name: String, createdBy: String, members: [String], imageUrl: String? = nil, createdAt: Timestamp, isDebtSimplified: Bool = true) {
         self.name = name
         self.createdBy = createdBy
         self.members = members

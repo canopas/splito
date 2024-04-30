@@ -59,7 +59,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] groups in
                 guard let self else { return }
                 self.currentViewState = .initial
-                let sortedGroups = groups.sorted { $0.group.createdAt > $1.group.createdAt }
+                let sortedGroups = groups.sorted { $0.group.name < $1.group.name }
                 self.groupListState = groups.isEmpty ? .noGroup : .hasGroup(groups: sortedGroups)
                 self.usersTotalExpense = totalExpense.value
             }
