@@ -21,6 +21,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var overallOwingAmount = 0.0
     @Published var memberOwingAmount: [String: Double] = [:]
 
+    @Published var showBalancesSheet = false
+
     var group: Groups?
     private let groupId: String
     private var groupUserData: [AppUser] = []
@@ -236,6 +238,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     func handleExpenseItemTap(expenseId: String) {
         router.push(.ExpenseDetailView(expenseId: expenseId))
+    }
+
+    func handleBalancesBtnTap() {
+        showBalancesSheet = true
     }
 }
 
