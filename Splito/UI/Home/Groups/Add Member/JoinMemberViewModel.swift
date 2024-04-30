@@ -15,7 +15,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
     @Inject var codeRepository: ShareCodeRepository
 
     @Published var code = ""
-    @Published private(set) var currentState: ViewState = .initial
+    @Published private(set) var showLoader: Bool = false
 
     private let router: Router<AppRoute>
 
@@ -25,24 +25,20 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
     }
 
     func joinMemberWithCode() {
-        currentState = .loading
+        showLoader = true
         codeRepository.fetchSharedCode(code: code)
             .sink { [weak self] completion in
-                switch completion {
-                case .failure(let error):
-                    self?.currentState = .initial
+                if case .failure(let error) = completion {
+                    self?.showLoader = false
                     self?.showToastFor(error)
-                case .finished:
-                    self?.currentState = .initial
                 }
             } receiveValue: { [weak self] code in
                 guard let self else { return }
-
                 guard let code else {
+                    self.showLoader = false
                     self.showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Entered code not exists."))
                     return
                 }
-
                 self.addMemberIfCodeExists(code: code)
             }.store(in: &cancelable)
     }
@@ -53,11 +49,13 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
 
         // Code will be valid until 2 days, so check for the day difference
         guard let daysDifference, daysDifference <= codeRepository.CODE_EXPIRATION_LIMIT else {
+            showLoader = false
             showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Entered code is expired."))
             return
         }
 
         addMember(groupId: code.groupId) {
+            self.showLoader = false
             _ = self.codeRepository.deleteSharedCode(documentId: code.id ?? "")
             self.goToGroupHome()
         }
@@ -65,30 +63,19 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
 
     private func addMember(groupId: String, completion: @escaping () -> Void) {
         guard let userId = preference.user?.id else { return }
-        currentState = .loading
 
         groupRepository.addMemberToGroup(memberId: userId, groupId: groupId)
             .sink { [weak self] result in
                 if case .failure(let error) = result {
-                    self?.currentState = .initial
                     self?.showToastFor(error)
                     completion()
                 }
             } receiveValue: { _ in
-                self.currentState = .initial
                 completion()
             }.store(in: &cancelable)
     }
 
     private func goToGroupHome() {
         self.router.pop()
-    }
-}
-
-// MARK: - View's State
-extension JoinMemberViewModel {
-    enum ViewState {
-        case initial
-        case loading
     }
 }

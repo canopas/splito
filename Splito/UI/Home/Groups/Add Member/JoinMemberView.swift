@@ -16,23 +16,17 @@ struct JoinMemberView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 30) {
-            if case .loading = viewModel.currentState {
-                LoaderView()
-            } else {
-                VSpacer(30)
+            VSpacer(40)
 
-                HeaderTextView(title: "Enter the Invite Code", alignment: .center)
+            HeaderTextView(title: "Enter the Invite Code", alignment: .center)
 
-                JoinWithCodeView(code: $viewModel.code, selectedField: $selectedField)
+            JoinWithCodeView(code: $viewModel.code, selectedField: $selectedField)
 
-                SubtitleTextView(text: "Get the code from the group creator to join.")
+            SubtitleTextView(text: "Get the code from the group creator to join.")
 
-                PrimaryButton(text: "Join Group") {
-                    viewModel.joinMemberWithCode()
-                }
+            PrimaryButton(text: "Join Group", isEnabled: !viewModel.code.isEmpty, showLoader: viewModel.showLoader, onClick: viewModel.joinMemberWithCode)
 
-                Spacer()
-            }
+            Spacer()
         }
         .padding(.horizontal, 22)
         .background(backgroundColor)
