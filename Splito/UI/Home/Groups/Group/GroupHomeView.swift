@@ -35,8 +35,8 @@ struct GroupHomeView: View {
                 .scrollIndicators(.hidden)
             } else if case .hasExpense = viewModel.groupState {
                 VSpacer(10)
-                GroupExpenseListView(viewModel: viewModel,
-                                     onExpenseItemTap: viewModel.handleExpenseItemTap(expenseId:))
+
+                GroupExpenseListView(viewModel: viewModel, onExpenseItemTap: viewModel.handleExpenseItemTap(expenseId:))
             }
         }
         .background(backgroundColor)
@@ -44,6 +44,11 @@ struct GroupHomeView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationBarTitle(viewModel.group?.name ?? "", displayMode: .inline)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
+            NavigationStack {
+                GroupBalancesView(viewModel: GroupBalancesViewModel(groupId: viewModel.group?.id ?? ""))
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -89,8 +94,12 @@ private struct GroupExpenseListView: View {
 
                 VSpacer(10)
 
+                GroupListOptionsView(onBalanceTap: viewModel.handleBalancesBtnTap)
+
+                VSpacer(10)
+
                 ForEach(groupedExpenses.keys.sorted(), id: \.self) { month in
-                    Section(header: Text(month).font(.subTitle4(14))) {
+                    Section(header: Text(month).font(.subTitle2())) {
                         ForEach(groupedExpenses[month]!, id: \.self) { expense in
                             GroupExpenseItemView(expenseWithUser: expense)
                                 .onTouchGesture { onExpenseItemTap(expense.expense.id ?? "0") }
@@ -99,7 +108,7 @@ private struct GroupExpenseListView: View {
                 }
                 Spacer()
             }
-            .padding(.horizontal, 14)
+            .padding(.horizontal, 20)
         }
         .scrollIndicators(.hidden)
         .frame(maxWidth: .infinity)
@@ -117,7 +126,7 @@ private struct GroupExpenseHeaderView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(viewModel.group?.name ?? "")
-                .font(.subTitle1(26))
+                .font(.body2(28))
                 .foregroundStyle(primaryText)
 
             if viewModel.overallOwingAmount == 0 {
@@ -132,9 +141,11 @@ private struct GroupExpenseHeaderView: View {
                         .font(.subTitle2())
                         .foregroundStyle(isDue ? amountBorrowedColor : amountLentColor)
 
-                    ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
-                        let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
-                        GroupExpenseMemberOweView(name: name, amount: amount)
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
+                            let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
+                            GroupExpenseMemberOweView(name: name, amount: amount)
+                        }
                     }
                 }
             }
@@ -211,9 +222,9 @@ private struct GroupExpenseItemView: View {
                 .frame(width: 22)
                 .font(.system(size: 14).weight(.light))
                 .foregroundStyle(.white)
-                .padding(6)
-                .background(disableText.opacity(0.3))
-                .cornerRadius(2)
+                .padding(.vertical, 6)
+                .padding(.horizontal, 8)
+                .background(disableText.opacity(0.2))
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(expense.name)
@@ -251,6 +262,40 @@ private struct GroupExpenseItemView: View {
             .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
         }
         .padding(.horizontal, 6)
+    }
+}
+
+private struct GroupListOptionsView: View {
+
+    let onBalanceTap: () -> Void
+
+    var body: some View {
+        HStack(spacing: 18) {
+            GroupOptionsButtonView(text: "Balances", onTap: onBalanceTap)
+        }
+    }
+}
+
+private struct GroupOptionsButtonView: View {
+
+    let text: String
+    var isForSettleUp = false
+
+    let onTap: () -> Void
+
+    var body: some View {
+        Text(text)
+            .font(.subTitle1())
+            .foregroundColor(isForSettleUp ? .white : primaryText)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .background(isForSettleUp ? settleUpColor : backgroundColor)
+            .cornerRadius(6)
+            .overlay(
+                RoundedRectangle(cornerRadius: 6).stroke(outlineColor, lineWidth: 1)
+            )
+            .shadow(color: secondaryText.opacity(0.2), radius: 2, x: 0, y: 1)
+            .onTouchGesture { onTap() }
     }
 }
 

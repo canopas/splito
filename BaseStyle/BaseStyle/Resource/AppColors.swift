@@ -34,3 +34,4 @@ public let inverseSurfaceColor = Color.inverseSurface
 
 public let amountLentColor = Color.amountLent
 public let amountBorrowedColor = Color.amountBorrowed
+public let settleUpColor = Color.settleUp
