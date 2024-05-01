@@ -28,9 +28,10 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         showLoader = true
         codeRepository.fetchSharedCode(code: code)
             .sink { [weak self] completion in
+                guard let self else { return }
+                self.showLoader = false
                 if case .failure(let error) = completion {
-                    self?.showLoader = false
-                    self?.showToastFor(error)
+                    self.showToastFor(error)
                 }
             } receiveValue: { [weak self] code in
                 guard let self else { return }

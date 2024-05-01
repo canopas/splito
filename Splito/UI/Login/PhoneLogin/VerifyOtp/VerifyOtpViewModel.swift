@@ -55,21 +55,22 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
     func resendOtp() {
         showLoader = true
         FirebaseProvider.phoneAuthProvider.verifyPhoneNumber((phoneNumber), uiDelegate: nil) { [weak self] (verificationID, error) in
-            self?.showLoader = false
+            guard let self else { return }
+            self.showLoader = false
             if error != nil {
                 if (error! as NSError).code == FirebaseAuth.AuthErrorCode.webContextCancelled.rawValue {
-                    self?.showAlertFor(message: "Something went wrong! Please try after some time.")
+                    self.showAlertFor(message: "Something went wrong! Please try after some time.")
                 } else if (error! as NSError).code == FirebaseAuth.AuthErrorCode.tooManyRequests.rawValue {
-                    self?.showAlertFor(title: "Warning !!!", message: "Too many attempts, please try after some time")
+                    self.showAlertFor(title: "Warning !!!", message: "Too many attempts, please try after some time")
                 } else if (error! as NSError).code == FirebaseAuth.AuthErrorCode.missingPhoneNumber.rawValue || (error! as NSError).code == FirebaseAuth.AuthErrorCode.invalidPhoneNumber.rawValue {
-                    self?.showAlertFor(message: "Enter a valid phone number")
+                    self.showAlertFor(message: "Enter a valid phone number")
                 } else {
                     LogE("Firebase: Phone login fail with error: \(error.debugDescription)")
-                    self?.showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
+                    self.showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
                 }
             } else {
-                self?.verificationId = verificationID ?? ""
-                self?.runTimer()
+                self.verificationId = verificationID ?? ""
+                self.runTimer()
             }
         }
     }

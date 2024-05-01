@@ -92,17 +92,17 @@ private struct GroupExpenseListView: View {
 
                 GroupExpenseHeaderView(viewModel: viewModel)
 
-                VSpacer(10)
+                VSpacer(6)
 
                 GroupListOptionsView(onBalanceTap: viewModel.handleBalancesBtnTap)
 
-                VSpacer(10)
+                VSpacer(6)
 
                 ForEach(groupedExpenses.keys.sorted(), id: \.self) { month in
                     Section(header: Text(month).font(.subTitle2())) {
                         ForEach(groupedExpenses[month]!, id: \.self) { expense in
                             GroupExpenseItemView(expenseWithUser: expense)
-                                .onTouchGesture { onExpenseItemTap(expense.expense.id ?? "0") }
+                                .onTouchGesture { onExpenseItemTap(expense.expense.id ?? "") }
                         }
                     }
                 }
@@ -150,8 +150,7 @@ private struct GroupExpenseHeaderView: View {
                 }
             }
         }
-        .padding(.leading, 40)
-        .padding(.trailing, 20)
+        .padding(.horizontal, 6)
     }
 }
 
