@@ -65,11 +65,32 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                 if case .failure(let error) = completion {
                     self?.handleServiceError(error)
                 }
-            } receiveValue: { [weak self] users in
+            } receiveValue: { [weak self] members in
                 guard let self else { return }
-                self.members = users
+                self.sortGroupMembers(members: members)
                 self.fetchExpenses()
             }.store(in: &cancelable)
+    }
+
+    func sortGroupMembers(members: [AppUser]) {
+        guard let userId = preference.user?.id else { return }
+
+        var sortedMembers = members
+        sortedMembers.sort { (member1: AppUser, member2: AppUser) in
+            if member1.id == userId {
+                return true
+            } else if member2.id == userId {
+                return false
+            } else {
+                return member1.fullName < member2.fullName
+            }
+        }
+        self.members = sortedMembers
+    }
+
+    func getMemberName(id: String, needFullName: Bool = false) -> String {
+        guard let member = members.first(where: { $0.id == id }) else { return "" }
+        return needFullName ? member.fullName : member.nameWithLastInitial
     }
 
     private func fetchExpenses() {
