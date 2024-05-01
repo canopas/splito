@@ -17,6 +17,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     private let groupId: String
     private let router: Router<AppRoute>
+    private var memberRemoveType: MemberRemoveType = .leave
 
     @Published var isAdmin = false
     @Published var showLeaveGroupDialog = false
@@ -52,6 +53,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
                 self.group = group
+                self.checkForGroupAdmin()
                 self.isDebtSimplified = group.isDebtSimplified
                 self.fetchGroupMembers()
             }.store(in: &cancelable)
@@ -63,17 +65,32 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                 if case .failure(let error) = completion {
                     self?.handleServiceError(error)
                 }
-            } receiveValue: { [weak self] users in
+            } receiveValue: { [weak self] members in
                 guard let self else { return }
-                self.members = users
+                self.sortGroupMembers(members: members)
                 self.fetchExpenses()
-                self.checkForGroupAdmin()
             }.store(in: &cancelable)
     }
 
-    private func checkForGroupAdmin() {
-        guard let userId = preference.user?.id, let group else { return }
-        isAdmin = userId == group.createdBy
+    func sortGroupMembers(members: [AppUser]) {
+        guard let userId = preference.user?.id else { return }
+
+        var sortedMembers = members
+        sortedMembers.sort { (member1: AppUser, member2: AppUser) in
+            if member1.id == userId {
+                return true
+            } else if member2.id == userId {
+                return false
+            } else {
+                return member1.fullName < member2.fullName
+            }
+        }
+        self.members = sortedMembers
+    }
+
+    func getMemberName(id: String, needFullName: Bool = false) -> String {
+        guard let member = members.first(where: { $0.id == id }) else { return "" }
+        return needFullName ? member.fullName : member.nameWithLastInitial
     }
 
     private func fetchExpenses() {
@@ -98,6 +115,11 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                     self.currentViewState = .initial
                 }
             }.store(in: &cancelable)
+    }
+
+    private func checkForGroupAdmin() {
+        guard let userId = preference.user?.id, let group else { return }
+        isAdmin = userId == group.createdBy
     }
 
     private func updateGroupForSimplifyDebt() {
@@ -128,28 +150,45 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         router.push(.InviteMemberView(groupId: groupId))
     }
 
-    func handleMemberTap(member: AppUser) {
-        if let userId = preference.user?.id, userId == member.id {
-            showLeaveGroupDialog = true
-            setupAlertForLeavingGroup(memberId: member.id)
-        } else {
-            showRemoveMemberDialog = true
-            alert = .init(title: "Remove from group?",
-                          message: "Are you sure you want to remove this member from the group?",
-                          positiveBtnTitle: "Remove",
-                          positiveBtnAction: { self.removeMemberFromGroup(memberId: member.id) },
-                          negativeBtnTitle: "Cancel",
-                          negativeBtnAction: { self.showAlert = false })
-        }
-    }
-
     func handleLeaveGroupTap() {
         guard let userId = preference.user?.id else { return }
-        setupAlertForLeavingGroup(memberId: userId)
+        showLeaveGroupAlert(memberId: userId)
         showAlert = true
     }
 
-    private func setupAlertForLeavingGroup(memberId: String) {
+    func handleMemberTap(member: AppUser) {
+        guard let userId = preference.user?.id else { return }
+        if userId == member.id {
+            showLeaveGroupDialog = true
+            showLeaveGroupAlert(memberId: member.id)
+        } else {
+            showRemoveMemberDialog = true
+            showRemoveMemberAlert(memberId: member.id)
+        }
+    }
+
+    private func showRemoveMemberAlert(memberId: String) {
+        guard amountOweByMember[memberId] == 0 else {
+            memberRemoveType = .remove
+            showDebtOutstandingAlert(memberId: memberId)
+            return
+        }
+
+        alert = .init(title: "Remove from group?",
+                      message: "Are you sure you want to remove this member from the group?",
+                      positiveBtnTitle: "Remove",
+                      positiveBtnAction: { self.removeMemberFromGroup(memberId: memberId) },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false })
+    }
+
+    private func showLeaveGroupAlert(memberId: String) {
+        guard amountOweByMember[memberId] == 0 else {
+            memberRemoveType = .leave
+            showDebtOutstandingAlert(memberId: memberId)
+            return
+        }
+
         alert = .init(title: "Leave Group?",
                       message: "Are you absolutely sure you want to leave this group?",
                       positiveBtnTitle: "Leave",
@@ -158,9 +197,22 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                       negativeBtnAction: { self.showAlert = false })
     }
 
+    private func showDebtOutstandingAlert(memberId: String) {
+        let leaveText = "You can't leave this group because you have outstanding debts with other group members. Please make sure all of your debts have been settle up, and try again."
+
+        let memberName = members.first(where: { $0.id == memberId })?.firstName ?? ""
+        let removeText = "You can't remove \(memberName) from this group because they have outstanding debts with other group members. Please make sure all of \(memberName)'s debts have been settle up, and try again."
+
+        alert = .init(title: "Whoops!",
+                      message: memberRemoveType == .leave ? leaveText : removeText,
+                      negativeBtnTitle: "Ok",
+                      negativeBtnAction: { self.showAlert = false })
+    }
+
     private func removeMemberFromGroup(memberId: String) {
         guard let group else { return }
         guard let userId = preference.user?.id else { return }
+
         currentViewState = .loading
         groupRepository.removeMemberFrom(group: group, memberId: memberId)
             .sink { [weak self] completion in
@@ -219,5 +271,10 @@ extension GroupSettingViewModel {
         case initial
         case loading
         case hasMembers
+    }
+
+    enum MemberRemoveType: Equatable {
+        case remove
+        case leave
     }
 }

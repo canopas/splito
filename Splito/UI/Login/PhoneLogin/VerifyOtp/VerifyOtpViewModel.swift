@@ -16,7 +16,6 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
     @Published var resendOtpCount: Int = 30
 
     @Published private(set) var showLoader: Bool = false
-    @Published private(set) var currentState: ViewState = .initial
 
     @Inject var mainRouter: Router<MainRoute>
     @Inject var preference: SplitoPreference
@@ -45,35 +44,33 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
             self?.showLoader = false
             if let result {
                 self?.resendTimer?.invalidate()
-                self?.currentState = .initial
                 let user = AppUser(id: result.user.uid, firstName: nil, lastName: nil, emailId: nil, phoneNumber: result.user.phoneNumber, loginType: .Phone)
                 self?.storeUser(user: user)
             } else {
-                self?.currentState = .initial
                 self?.onLoginError()
             }
         }
     }
 
     func resendOtp() {
-        currentState = .loading
+        showLoader = true
         FirebaseProvider.phoneAuthProvider.verifyPhoneNumber((phoneNumber), uiDelegate: nil) { [weak self] (verificationID, error) in
+            guard let self else { return }
+            self.showLoader = false
             if error != nil {
                 if (error! as NSError).code == FirebaseAuth.AuthErrorCode.webContextCancelled.rawValue {
-                    self?.showAlertFor(message: "Something went wrong! Please try after some time.")
+                    self.showAlertFor(message: "Something went wrong! Please try after some time.")
                 } else if (error! as NSError).code == FirebaseAuth.AuthErrorCode.tooManyRequests.rawValue {
-                    self?.showAlertFor(title: "Warning !!!", message: "Too many attempts, please try after some time")
+                    self.showAlertFor(title: "Warning !!!", message: "Too many attempts, please try after some time")
                 } else if (error! as NSError).code == FirebaseAuth.AuthErrorCode.missingPhoneNumber.rawValue || (error! as NSError).code == FirebaseAuth.AuthErrorCode.invalidPhoneNumber.rawValue {
-                    self?.showAlertFor(message: "Enter a valid phone number")
+                    self.showAlertFor(message: "Enter a valid phone number")
                 } else {
                     LogE("Firebase: Phone login fail with error: \(error.debugDescription)")
-                    self?.showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
+                    self.showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
                 }
-                self?.currentState = .initial
             } else {
-                self?.currentState = .initial
-                self?.verificationId = verificationID ?? ""
-                self?.runTimer()
+                self.verificationId = verificationID ?? ""
+                self.runTimer()
             }
         }
     }
@@ -123,13 +120,5 @@ extension VerifyOtpViewModel {
     private func onLoginSuccess() {
         router.popToRoot()
         mainRouter.updateRoot(root: .HomeView)
-    }
-}
-
-// MARK: - View's State & Alert
-extension VerifyOtpViewModel {
-    enum ViewState {
-        case initial
-        case loading
     }
 }

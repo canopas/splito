@@ -45,13 +45,11 @@ struct GroupSettingView: View {
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .navigationBarTitle("Group settings", displayMode: .inline)
         .confirmationDialog("", isPresented: $viewModel.showLeaveGroupDialog, titleVisibility: .hidden) {
-            // Show disable when member has debt
             Button("Leave Group") {
                 viewModel.showAlert = true
             }
         }
         .confirmationDialog("", isPresented: $viewModel.showRemoveMemberDialog, titleVisibility: .hidden) {
-            // Show disable when member has debt
             Button("Remove from group") {
                 viewModel.showAlert = true
             }
@@ -136,7 +134,7 @@ private struct GroupAdvanceSettingsView: View {
             Text("Advanced settings")
                 .font(.bodyBold())
 
-            HStack(alignment: .top, spacing: 32) {
+            HStack(alignment: .top, spacing: 30) {
                 Image(systemName: "point.3.filled.connected.trianglepath.dotted")
                     .resizable()
                     .frame(width: 25, height: 22)
@@ -177,7 +175,7 @@ private struct GroupListEditCellView: View {
     var onTap: () -> Void
 
     var body: some View {
-        HStack(spacing: 32) {
+        HStack(spacing: 30) {
             Image(systemName: icon)
                 .resizable()
                 .frame(width: 22, height: 22)
@@ -219,7 +217,7 @@ private struct GroupMemberCellView: View {
     }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 24) {
+        HStack(alignment: .center, spacing: 20) {
             MemberProfileImageView(imageUrl: member.imageUrl)
 
             VStack(alignment: .leading, spacing: 5) {

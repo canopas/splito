@@ -175,8 +175,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         sortedMembers.insert(userBalance, at: 0)
 
         sortedMembers.sort { member1, member2 in
-            if member1.id == userId { true } else if member2.id == userId { false }
-            else { getMemberName(id: member1.id) < getMemberName(id: member2.id) }
+            if member1.id == userId { true } else if member2.id == userId { false } else { getMemberName(id: member1.id) < getMemberName(id: member2.id) }
         }
 
         self.memberBalances = sortedMembers
