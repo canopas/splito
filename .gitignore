@@ -73,3 +73,5 @@ package-lock.json
 
 *.generated.swift 
 
+Plist/GoogleService-Info.plist
+ExportOptions.plist
