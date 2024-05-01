@@ -16,8 +16,8 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
     @Published var resendOtpCount: Int = 30
 
     @Published private(set) var showLoader: Bool = false
-    @Published private(set) var currentState: ViewState = .initial
 
+    @Inject var mainRouter: Router<MainRoute>
     @Inject var preference: SplitoPreference
     @Inject var userRepository: UserRepository
 
@@ -31,16 +31,12 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.phoneNumber = phoneNumber
         self.verificationId = verificationId
-
         super.init()
-
         runTimer()
     }
 
     func verifyOTP() {
-        guard !otp.isEmpty else {
-            return
-        }
+        guard !otp.isEmpty else { return }
 
         let credential = FirebaseProvider.phoneAuthProvider.credential(withVerificationID: verificationId, verificationCode: otp)
         showLoader = true
@@ -48,35 +44,33 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
             self?.showLoader = false
             if let result {
                 self?.resendTimer?.invalidate()
-                self?.currentState = .initial
                 let user = AppUser(id: result.user.uid, firstName: nil, lastName: nil, emailId: nil, phoneNumber: result.user.phoneNumber, loginType: .Phone)
                 self?.storeUser(user: user)
             } else {
-                self?.currentState = .initial
                 self?.onLoginError()
             }
         }
     }
 
     func resendOtp() {
-        currentState = .loading
+        showLoader = true
         FirebaseProvider.phoneAuthProvider.verifyPhoneNumber((phoneNumber), uiDelegate: nil) { [weak self] (verificationID, error) in
+            guard let self else { return }
+            self.showLoader = false
             if error != nil {
                 if (error! as NSError).code == FirebaseAuth.AuthErrorCode.webContextCancelled.rawValue {
-                    self?.showAlertFor(message: "Something went wrong! Please try after some time.")
+                    self.showAlertFor(message: "Something went wrong! Please try after some time.")
                 } else if (error! as NSError).code == FirebaseAuth.AuthErrorCode.tooManyRequests.rawValue {
-                    self?.showAlertFor(title: "Warning !!!", message: "Too many attempts, please try after some time")
+                    self.showAlertFor(title: "Warning !!!", message: "Too many attempts, please try after some time")
                 } else if (error! as NSError).code == FirebaseAuth.AuthErrorCode.missingPhoneNumber.rawValue || (error! as NSError).code == FirebaseAuth.AuthErrorCode.invalidPhoneNumber.rawValue {
-                    self?.showAlertFor(message: "Enter a valid phone number")
+                    self.showAlertFor(message: "Enter a valid phone number")
                 } else {
                     LogE("Firebase: Phone login fail with error: \(error.debugDescription)")
-                    self?.showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
+                    self.showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
                 }
-                self?.currentState = .initial
             } else {
-                self?.currentState = .initial
-                self?.verificationId = verificationID ?? ""
-                self?.runTimer()
+                self.verificationId = verificationID ?? ""
+                self.runTimer()
             }
         }
     }
@@ -97,14 +91,8 @@ extension VerifyOtpViewModel {
         }
     }
 
-    func onLoginError() {
+    private func onLoginError() {
         showAlertFor(title: "Invalid OTP", message: "Please, enter a valid OTP code.")
-    }
-
-    func showFailAlert() {
-        showAlertFor(alert: .init(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.", positiveBtnAction: { [weak self] in
-            self?.router.pop()
-        }))
     }
 
     private func storeUser(user: AppUser) {
@@ -116,33 +104,21 @@ extension VerifyOtpViewModel {
                     self.alert = .init(message: error.localizedDescription)
                     self.showAlert = true
                 case .finished:
-                    self.preference.user = user
                     self.preference.isVerifiedUser = true
                 }
-            } receiveValue: { [weak self] _ in
+            } receiveValue: { [weak self] user in
                 guard let self else { return }
+                self.preference.user = user
                 self.onLoginSuccess()
-            }.store(in: &cancelables)
+            }.store(in: &cancelable)
     }
 
     func editButtonAction() {
         router.pop()
     }
 
-    func onLoginSuccess() {
+    private func onLoginSuccess() {
         router.popToRoot()
-        if let user = preference.user, let username = user.firstName, !username.isEmpty {
-            router.updateRoot(root: .HomeView)
-        } else {
-            router.updateRoot(root: .ProfileView)
-        }
-    }
-}
-
-// MARK: - View's State & Alert
-extension VerifyOtpViewModel {
-    enum ViewState {
-        case initial
-        case loading
+        mainRouter.updateRoot(root: .HomeView)
     }
 }

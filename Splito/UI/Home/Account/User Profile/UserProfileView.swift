@@ -16,13 +16,13 @@ struct UserProfileView: View {
     var body: some View {
         VStack(spacing: 0) {
             if case .loading = viewModel.currentState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else {
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VStack(spacing: 40) {
                         VSpacer(30)
 
-                        ProfileImageView(image: $viewModel.profileImage,
+                        UserProfileImageView(image: $viewModel.profileImage,
                                          profileImageUrl: viewModel.profileImageUrl,
                                          handleProfileTap: viewModel.handleProfileTap)
                         .confirmationDialog("", isPresented: $viewModel.showImagePickerOption, titleVisibility: .hidden) {
@@ -32,11 +32,11 @@ struct UserProfileView: View {
                             Button("Choose from Library") {
                                 viewModel.handleActionSelection(.gallery)
                             }
-                            if viewModel.profileImage != nil {
+                            if viewModel.profileImage != nil || viewModel.profileImageUrl != nil {
                                 Button("Remove") {
                                     viewModel.handleActionSelection(.remove)
                                 }
-                                .foregroundColor(.red)
+                                .foregroundStyle(.red)
                             }
                         }
 
@@ -45,31 +45,33 @@ struct UserProfileView: View {
                                        userLoginType: $viewModel.userLoginType)
 
                         if viewModel.isDeleteInProgress {
-                            LoaderView(tintColor: primaryColor, scaleSize: 1)
+                            LoaderView(scaleSize: 1)
                                 .frame(height: 50)
                         } else {
                             Button(action: viewModel.handleDeleteAction) {
                                 Text("Delete Account")
                                     .font(.body2())
                                     .lineSpacing(1)
-                                    .foregroundColor(awarenessColor)
+                                    .foregroundStyle(awarenessColor)
                             }
                             .buttonStyle(.scale)
                             .hidden(viewModel.isOpenedFromOnboard)
                         }
 
                         PrimaryButton(text: "Save",
-                                      isEnabled: !viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count > 3,
+                                      isEnabled: viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count > 3,
                                       showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUserProfile)
 
                         VSpacer(40)
                     }
                     .disabled(viewModel.isDeleteInProgress || viewModel.isSaveInProgress)
                 }
+                .scrollIndicators(.hidden)
             }
         }
         .padding(.horizontal, 20)
         .background(surfaceColor)
+        .navigationBarTitle("Profile", displayMode: .inline)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toastView(toast: $viewModel.toast)
         .onTapGesture {
@@ -143,12 +145,12 @@ private struct UserDetailCell: View {
             Text(subtitleText)
                 .font(.body2())
                 .lineSpacing(1)
-                .foregroundColor(disableText)
+                .foregroundStyle(disableText)
                 .fixedSize()
 
             VSpacer(5)
 
-            UserProfileDataEditableTextField(titletext: $titleText, isDisabled: isDisabled, placeholder: placeholder, fieldType: fieldType, keyboardType: keyboardType, focused: focused, autoCapitalizationType: autoCapitalizationType)
+            UserProfileDataEditableTextField(titleText: $titleText, isDisabled: isDisabled, placeholder: placeholder, fieldType: fieldType, keyboardType: keyboardType, focused: focused, autoCapitalizationType: autoCapitalizationType)
 
             VSpacer(8)
 
@@ -159,7 +161,7 @@ private struct UserDetailCell: View {
                         .background(awarenessColor)
                     Text(validationType.errorText)
                         .font(.body1(12))
-                        .foregroundColor(awarenessColor)
+                        .foregroundStyle(awarenessColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 } else {
                     Divider()
@@ -189,7 +191,7 @@ private struct UserDetailCell: View {
 
 private struct UserProfileDataEditableTextField: View {
 
-    @Binding var titletext: String
+    @Binding var titleText: String
 
     let isDisabled: Bool
     let placeholder: String
@@ -199,10 +201,10 @@ private struct UserProfileDataEditableTextField: View {
     var autoCapitalizationType: UITextAutocapitalizationType
 
     var body: some View {
-        TextField(placeholder, text: $titletext)
+        TextField(placeholder, text: $titleText)
             .font(.subTitle1())
             .focused(focused, equals: fieldType)
-            .foregroundColor(primaryText)
+            .foregroundStyle(primaryText)
             .disableAutocorrection(true)
             .disabled(isDisabled)
             .keyboardType(keyboardType)
@@ -221,5 +223,5 @@ private struct UserProfileDataEditableTextField: View {
 }
 
 #Preview {
-    UserProfileView(viewModel: UserProfileViewModel(router: .init(root: .ProfileView), isOpenedFromOnboard: true))
+    UserProfileView(viewModel: UserProfileViewModel(router: .init(root: .ProfileView), isOpenedFromOnboard: true, onDismiss: nil))
 }

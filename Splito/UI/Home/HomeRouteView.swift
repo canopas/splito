@@ -11,48 +11,56 @@ import SwiftUI
 
 struct HomeRouteView: View {
 
+    @Inject var preference: SplitoPreference
+
+    @State private var openExpenseSheet = false
+    @State private var openProfileView = false
+
     var body: some View {
         ZStack {
             TabView {
-                HomeView()
-                    .tabItem {
-                        Label("Friends", systemImage: "person")
-                    }
-                    .tag(0)
-
                 GroupRouteView()
                     .tabItem {
                         Label("Groups", systemImage: "person.2")
                     }
-                    .tag(1)
+                    .tag(0)
 
-                HomeView()
-                    .tabItem {
-//                        Label("", systemImage: "plus.circle.fill")
-                    }
-                    .tag(1)
-
-                HomeView()
-                    .tabItem {
-                        Label("Activity", systemImage: "chart.line.uptrend.xyaxis.circle")
-                    }
-                    .tag(3)
-
-                HomeView()
+                AccountRouteView()
                     .tabItem {
                         Label("Account", systemImage: "person.crop.square")
                     }
-                    .tag(4)
+                    .tag(1)
             }
             .tint(primaryColor)
-            .toolbarColorScheme(.light, for: .tabBar)
-
-            CenterFabButton()
+            .overlay(
+                CenterFabButton {
+                    openExpenseSheet = true
+                }
+            )
+            .fullScreenCover(isPresented: $openExpenseSheet) {
+                ExpenseRouteView()
+            }
+            .sheet(isPresented: $openProfileView) {
+                UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenedFromOnboard: true, onDismiss: {
+                    openProfileView = false
+                }))
+                .interactiveDismissDisabled()
+            }
+        }
+        .onAppear {
+            if preference.isVerifiedUser {
+                if preference.user == nil || (preference.user?.firstName == nil) {
+                    openProfileView = true
+                }
+            }
         }
     }
 }
 
 struct CenterFabButton: View {
+
+    var onClick: () -> Void
+
     var body: some View {
         VStack {
             Spacer()
@@ -60,7 +68,7 @@ struct CenterFabButton: View {
                 Spacer()
 
                 Button {
-                    // Open screen
+                    onClick()
                 } label: {
                     Image(systemName: "plus.circle.fill")
                         .resizable()

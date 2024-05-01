@@ -31,8 +31,8 @@ class UserStore: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    func updateUser(user: AppUser) -> AnyPublisher<Void, ServiceError> {
-        return Future { [weak self] promise in
+    func updateUser(user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
+        Future<AppUser, ServiceError> { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return
@@ -40,7 +40,7 @@ class UserStore: ObservableObject {
 
             do {
                 try self.database.collection(self.DATABASE_NAME).document(user.id).setData(from: user, merge: true)
-                promise(.success(()))
+                promise(.success(user))
             } catch {
                 LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
                 promise(.failure(.databaseError))
@@ -48,26 +48,8 @@ class UserStore: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    func deleteUser(id: String) -> AnyPublisher<Void, ServiceError> {
-        return Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
-            }
-
-            self.database.collection(self.DATABASE_NAME).document(id).delete { error in
-                if let error {
-                    LogE("UserStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
-                    promise(.failure(.databaseError))
-                } else {
-                    promise(.success(()))
-                }
-            }
-        }.eraseToAnyPublisher()
-    }
-
     func fetchUsers() -> AnyPublisher<[AppUser], ServiceError> {
-        return Future { [weak self] promise in
+        Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return
@@ -76,13 +58,13 @@ class UserStore: ObservableObject {
             self.database.collection(self.DATABASE_NAME).getDocuments { snapshot, error in
                 if let error {
                     LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.networkError))
+                    promise(.failure(.databaseError))
                     return
                 }
 
                 guard let snapshot else {
                     LogE("UserStore :: \(#function) The document is not available.")
-                    promise(.failure(.unexpectedError))
+                    promise(.failure(.dataNotFound))
                     return
                 }
 
@@ -94,6 +76,24 @@ class UserStore: ObservableObject {
                 } catch {
                     LogE("UserStore :: \(#function) Decode error: \(error.localizedDescription)")
                     promise(.failure(.decodingError))
+                }
+            }
+        }.eraseToAnyPublisher()
+    }
+
+    func deleteUser(id: String) -> AnyPublisher<Void, ServiceError> {
+        Future { [weak self] promise in
+            guard let self else {
+                promise(.failure(.unexpectedError))
+                return
+            }
+
+            self.database.collection(self.DATABASE_NAME).document(id).delete { error in
+                if let error {
+                    LogE("UserStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
+                    promise(.failure(.databaseError))
+                } else {
+                    promise(.success(())) // Success if deletion is completed without error
                 }
             }
         }.eraseToAnyPublisher()

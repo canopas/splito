@@ -14,47 +14,42 @@ public struct PhoneLoginView: View {
     @ObservedObject var viewModel: PhoneLoginViewModel
 
     public var body: some View {
-        VStack(spacing: 0) {
-            if case .loading = viewModel.currentState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
-            } else {
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 0) {
-                        VSpacer(50)
+        ScrollView {
+            VStack(spacing: 0) {
+                VSpacer(50)
 
-                        Text("Splito")
-                            .font(.Header1(40))
-                            .foregroundColor(primaryColor)
+                Text("Splito")
+                    .font(.Header1(40))
+                    .foregroundStyle(primaryColor)
 
-                        Spacer(minLength: 40)
+                Spacer(minLength: 40)
 
-                        VStack(spacing: 16) {
-                            SubtitleTextView(text: "Enter phone number", fontSize: .Header1(), fontColor: primaryText)
+                VStack(spacing: 16) {
+                    SubtitleTextView(text: "Enter phone number", fontSize: .Header1(), fontColor: primaryText)
 
-                            Text("We'll verify your phone number with a verification code")
-                                .font(.subTitle2())
-                                .foregroundColor(disableText)
-                                .multilineTextAlignment(.center)
-                                .lineSpacing(2)
-                        }
-                        .padding(.horizontal, 16)
-
-                        VSpacer(40)
-
-                        HStack(spacing: 0) {
-                            Spacer()
-                            PhoneLoginContentView(phoneNumber: $viewModel.phoneNumber, countries: $viewModel.countries,
-                                                  selectedCountry: $viewModel.currentCountry, showLoader: viewModel.showLoader,
-                                                  onNext: viewModel.verifyAndSendOtp)
-                            .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-                            Spacer()
-                        }
-                        Spacer()
-                    }
-                    .padding(.horizontal, 20)
+                    Text("We'll verify your phone number with a verification code")
+                        .font(.subTitle2())
+                        .foregroundStyle(disableText)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(2)
                 }
+                .padding(.horizontal, 16)
+
+                VSpacer(40)
+
+                HStack(spacing: 0) {
+                    Spacer()
+                    PhoneLoginContentView(phoneNumber: $viewModel.phoneNumber, countries: $viewModel.countries,
+                                          selectedCountry: $viewModel.currentCountry, showLoader: viewModel.showLoader,
+                                          onNext: viewModel.verifyAndSendOtp)
+                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+                    Spacer()
+                }
+                Spacer()
             }
+            .padding(.horizontal, 20)
         }
+        .scrollIndicators(.hidden)
         .background(surfaceColor)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toastView(toast: $viewModel.toast)
@@ -86,7 +81,7 @@ private struct PhoneLoginContentView: View {
                 HStack(spacing: 4) {
                     Text(selectedCountry.dialCode)
                         .font(.subTitle1())
-                        .foregroundColor(secondaryText)
+                        .foregroundStyle(secondaryText)
 
                     Image(.downArrow)
                         .resizable()
@@ -106,7 +101,7 @@ private struct PhoneLoginContentView: View {
                         .font(.subTitle1())
                         .textContentType(.telephoneNumber)
                         .keyboardType(.phonePad)
-                        .foregroundColor(primaryText)
+                        .foregroundStyle(primaryText)
                         .disabled(showLoader)
                         .accentColor(primaryColor)
                         .focused($isFocused)
@@ -120,7 +115,7 @@ private struct PhoneLoginContentView: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(lineWidth: 1)
-                    .foregroundColor(containerHighColor)
+                    .foregroundStyle(containerHighColor)
             )
             .padding(.horizontal, 20)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -177,11 +172,11 @@ private struct PhoneLoginCountryCell: View {
             HStack(spacing: 0) {
                 Text(country.flag + " " + country.name)
                     .font(.body1(16))
-                    .foregroundColor(primaryText)
+                    .foregroundStyle(primaryText)
                 Spacer()
                 Text(country.dialCode)
                     .font(.body1(16))
-                    .foregroundColor(primaryText)
+                    .foregroundStyle(primaryText)
             }
         }
     }

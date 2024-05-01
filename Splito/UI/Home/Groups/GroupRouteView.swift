@@ -14,22 +14,28 @@ struct GroupRouteView: View {
     @StateObject var appRoute = Router(root: AppRoute.GroupListView)
 
     var body: some View {
-        VStack(spacing: 0) {
-            RouterView(router: appRoute) { route in
-                switch route {
-                case .GroupListView:
-                    GroupListView(viewModel: GroupListViewModel(router: appRoute))
-                case .GroupHomeView(let id):
-                    GroupHomeView(viewModel: GroupHomeViewModel(router: appRoute, groupId: id))
-                case .CreateGroupView:
-                    CreateGroupView(viewModel: CreateGroupViewModel(router: appRoute))
-                case .InviteMemberView(let id):
-                    InviteMemberView(viewModel: InviteMemberViewModel(router: appRoute, groupId: id))
-                case .JoinMemberView:
-                    JoinMemberView(viewModel: JoinMemberViewModel(router: appRoute))
-                default:
-                    EmptyRouteView(routeName: self)
-                }
+        RouterView(router: appRoute) { route in
+            switch route {
+            case .GroupListView:
+                GroupListView(viewModel: GroupListViewModel(router: appRoute))
+            case .GroupHomeView(let id):
+                GroupHomeView(viewModel: GroupHomeViewModel(router: appRoute, groupId: id))
+            case .CreateGroupView(let group):
+                CreateGroupView(viewModel: CreateGroupViewModel(router: appRoute, group: group))
+            case .InviteMemberView(let id):
+                InviteMemberView(viewModel: InviteMemberViewModel(router: appRoute, groupId: id))
+            case .JoinMemberView:
+                JoinMemberView(viewModel: JoinMemberViewModel(router: appRoute))
+            case .GroupSettingView(let id):
+                GroupSettingView(viewModel: GroupSettingViewModel(router: appRoute, groupId: id))
+
+            case .ExpenseDetailView(let expenseId):
+                ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: appRoute, expenseId: expenseId))
+            case .AddExpenseView(let expenseId):
+                AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, expenseId: expenseId))
+
+            default:
+                EmptyRouteView(routeName: self)
             }
         }
     }

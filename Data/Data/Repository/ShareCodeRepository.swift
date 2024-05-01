@@ -9,12 +9,14 @@ import Combine
 
 public class ShareCodeRepository: ObservableObject {
 
+    public let CODE_EXPIRATION_LIMIT = 2 /// Limit for code expiration, in days.
+
     @Inject private var store: ShareCodeStore
 
-    private var cancelables = Set<AnyCancellable>()
+    private var cancelable = Set<AnyCancellable>()
 
-    public func addSharedCode(sharedCode: SharedCode, completion: @escaping (String?) -> Void) {
-        store.addSharedCode(sharedCode: sharedCode, completion: completion)
+    public func addSharedCode(sharedCode: SharedCode) -> AnyPublisher<Void, ServiceError> {
+        store.addSharedCode(sharedCode: sharedCode)
     }
 
     public func fetchSharedCode(code: String) -> Future<SharedCode?, ServiceError> {
@@ -25,18 +27,18 @@ public class ShareCodeRepository: ObservableObject {
         store.deleteSharedCode(documentId: documentId)
     }
 
-    public func checkForCodeAvailability(code: String, completion: @escaping (Bool) -> Void) {
-        fetchSharedCode(code: code)
-            .sink { result in
-                switch result {
-                case .failure:
-                    completion(true)
-                case .finished:
-                    return
-                }
-            } receiveValue: { code in
-                completion(code == nil)
-            }.store(in: &cancelables)
-
+    public func checkForCodeAvailability(code: String) -> AnyPublisher<Bool, ServiceError> {
+        return Future { [weak self] promise in
+            guard let self else { promise(.failure(.unexpectedError)); return }
+            self.fetchSharedCode(code: code)
+                .sink { result in
+                    if case .failure(let error) = result {
+                        promise(.failure(error))
+                    }
+                } receiveValue: { code in
+                    promise(.success(code == nil))
+                }.store(in: &self.cancelable)
+        }
+        .eraseToAnyPublisher()
     }
 }

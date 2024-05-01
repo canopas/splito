@@ -12,8 +12,14 @@ public class TopViewController {
     static public let shared = TopViewController()
 
     public func topViewController(controller: UIViewController? = nil) -> UIViewController? {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return nil }
-        guard let controller = controller ?? windowScene.windows.first?.rootViewController else { return nil }
+        guard let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows }).first
+        else { return nil }
+
+        guard let controller = controller ?? window.rootViewController else {
+            return nil
+        }
 
         if let navigationController = controller as? UINavigationController {
             return topViewController(controller: navigationController.visibleViewController)

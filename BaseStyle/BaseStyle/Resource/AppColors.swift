@@ -9,6 +9,7 @@ import SwiftUI
 
 public let backgroundColor = Color.background
 public let awarenessColor = Color.awareness
+public let successColor = Color.success
 
 public let containerHighColor = Color.containerHigh
 public let containerLowColor = Color.containerLow
@@ -18,6 +19,8 @@ public let outlineColor = Color.outline
 public let primaryColor = Color.mainPrimary
 
 public let disableText = Color.disableText
+public let disableLightText = Color.disableLightText
+
 public let primaryText = Color.primaryText
 public let secondaryText = Color.secondaryText
 
@@ -28,3 +31,7 @@ public let surfaceColor = Color.surface
 public let surfaceDarkColor = Color.surfaceDark
 public let surfaceLightColor = Color.surfaceLight
 public let inverseSurfaceColor = Color.inverseSurface
+
+public let amountLentColor = Color.amountLent
+public let amountBorrowedColor = Color.amountBorrowed
+public let settleUpColor = Color.settleUp

@@ -18,6 +18,7 @@ public enum ServiceError: LocalizedError, Equatable {
     case unexpectedError
     case validationFailed
     case dataNotFound
+    case alreadyExists
 
     public var descriptionText: String {
         switch self {
@@ -37,6 +38,8 @@ public enum ServiceError: LocalizedError, Equatable {
             return "Something went wrong."
         case .dataNotFound:
             return "Your requested data not found."
+        case .alreadyExists:
+            return "Sorry, we can not perform your request as the data is already exists."
         default:
             return "Oops"
         }
@@ -62,6 +65,8 @@ public enum ServiceError: LocalizedError, Equatable {
             return "validationFailed"
         case .dataNotFound:
             return "dataNotFound"
+        case .alreadyExists:
+            return "alreadyExists"
         }
     }
 }

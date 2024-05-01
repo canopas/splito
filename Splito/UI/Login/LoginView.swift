@@ -16,10 +16,10 @@ struct LoginView: View {
 
     var body: some View {
         if case .loading = viewModel.currentState {
-            LoaderView(tintColor: primaryColor, scaleSize: 2)
+            LoaderView()
         } else {
             GeometryReader { proxy in
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VStack(alignment: .center, spacing: 0) {
                         VSpacer(20)
 
@@ -31,7 +31,7 @@ struct LoginView: View {
 
                         Text("Sign up in the app to use amazing spliting features")
                             .font(.inter(.bold, size: 22).bold())
-                            .foregroundColor(inverseSurfaceColor)
+                            .foregroundStyle(inverseSurfaceColor)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 20)
 
@@ -46,6 +46,7 @@ struct LoginView: View {
                     .frame(minHeight: proxy.size.height - 80, alignment: .center)
                     .padding(.horizontal, 20)
                 }
+                .scrollIndicators(.hidden)
                 .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
                 .background(
                     LinearGradient(colors: colorScheme == .dark ? [surfaceDarkColor] :
@@ -106,7 +107,7 @@ private struct LoginOptionsButtonView: View {
                         Text(buttonName)
                             .lineLimit(1)
                             .font(.buttonText())
-                            .foregroundColor(buttonTextColor)
+                            .foregroundStyle(buttonTextColor)
                             .frame(height: 50)
                             .minimumScaleFactor(0.5)
                     }

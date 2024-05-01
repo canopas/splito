@@ -15,6 +15,10 @@ public class AppAssembly: Assembly {
 
     public func assemble(container: Container) {
 
+        container.register(Router<MainRoute>.self) { _ in
+                .init(root: .OnboardView)
+        }.inObjectScope(.container)
+
         container.register(SplitoPreference.self) { _ in
             SplitoPreference.init()
         }.inObjectScope(.container)
@@ -31,6 +35,8 @@ public class AppAssembly: Assembly {
             StorageManager.init()
         }.inObjectScope(.container)
 
+        // MARK: - Stores
+
         container.register(UserStore.self) { _ in
             UserStore.init()
         }.inObjectScope(.container)
@@ -39,13 +45,15 @@ public class AppAssembly: Assembly {
             GroupStore.init()
         }.inObjectScope(.container)
 
-        container.register(MemberStore.self) { _ in
-            MemberStore.init()
-        }.inObjectScope(.container)
-
         container.register(ShareCodeStore.self) { _ in
             ShareCodeStore.init()
         }.inObjectScope(.container)
+
+        container.register(ExpenseStore.self) { _ in
+            ExpenseStore.init()
+        }.inObjectScope(.container)
+
+        // MARK: - Repositories
 
         container.register(UserRepository.self) { _ in
             UserRepository.init()
@@ -55,12 +63,12 @@ public class AppAssembly: Assembly {
             GroupRepository.init()
         }.inObjectScope(.container)
 
-        container.register(MemberRepository.self) { _ in
-            MemberRepository.init()
-        }.inObjectScope(.container)
-
         container.register(ShareCodeRepository.self) { _ in
             ShareCodeRepository.init()
+        }.inObjectScope(.container)
+
+        container.register(ExpenseRepository.self) { _ in
+            ExpenseRepository.init()
         }.inObjectScope(.container)
     }
 }

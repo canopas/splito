@@ -1,5 +1,5 @@
 //
-//  ProfileImageView.swift
+//  UserProfileImageView.swift
 //  Splito
 //
 //  Created by Amisha Italiya on 14/03/24.
@@ -9,12 +9,13 @@ import SwiftUI
 import BaseStyle
 import Kingfisher
 
-struct ProfileImageView: View {
+struct UserProfileImageView: View {
 
     @Binding private var image: UIImage?
 
     private let profileImageUrl: String?
 
+    private let showOverlay: Bool = false
     private let handleProfileTap: (() -> Void)
 
     public init(image: Binding<UIImage?>, profileImageUrl: String?, handleProfileTap: @escaping () -> Void) {
@@ -30,7 +31,7 @@ struct ProfileImageView: View {
                     Circle()
                         .background(
                             Circle()
-                                .foregroundColor(containerHighColor)
+                                .foregroundStyle(containerHighColor)
                         )
                         .frame(width: 106, height: 106, alignment: .center)
 
@@ -51,7 +52,7 @@ struct ProfileImageView: View {
                             .strokeBorder(.clear, lineWidth: 0)
                             .background(
                                 Circle()
-                                    .foregroundColor(containerHighColor)
+                                    .foregroundStyle(containerHighColor)
                             )
                             .frame(width: 106, height: 106, alignment: .center)
 
@@ -65,18 +66,20 @@ struct ProfileImageView: View {
             }
         }
         .overlay {
-            VStack(spacing: 0) {
-                Image(.profileEditPencil)
-                    .padding(8)
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 32, height: 32, alignment: .center)
-                    .overlay(
-                        Circle()
-                            .stroke(primaryLightText, lineWidth: 1)
-                    )
+            if showOverlay {
+                VStack(spacing: 0) {
+                    Image(.profileEditPencil)
+                        .padding(8)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 32, height: 32, alignment: .center)
+                        .overlay(
+                            Circle()
+                                .stroke(primaryLightText, lineWidth: 1)
+                        )
+                }
+                .padding([.top, .leading], 75)
+                .padding(.bottom, 10)
             }
-            .padding([.top, .leading], 75)
-            .padding(.bottom, 10)
         }
         .onTapGesture(perform: handleProfileTap)
     }

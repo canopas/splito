@@ -11,55 +11,84 @@ public class UserRepository: ObservableObject {
 
     @Inject private var store: UserStore
 
-    private var cancelables = Set<AnyCancellable>()
+    @Inject private var preference: SplitoPreference
+    @Inject private var storageManager: StorageManager
 
-    public func storeUser(user: AppUser) -> AnyPublisher<Void, ServiceError> {
-        Future { [weak self] promise in
+    private var cancelable = Set<AnyCancellable>()
 
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
+    public func storeUser(user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
+        self.store.fetchUsers()
+            .flatMap { [weak self] users -> AnyPublisher<AppUser, ServiceError> in
+                guard let self else {
+                    return Fail(error: .unexpectedError).eraseToAnyPublisher()
+                }
+
+                if let searchedUser = users.first(where: { $0.id == user.id }) {
+                    return Just(searchedUser).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
+                } else {
+                    return self.store.addUser(user: user)
+                        .mapError { error in
+                            LogE("UserRepository :: \(#function) addUser failed, error: \(error.localizedDescription).")
+                            return .databaseError
+                        }
+                        .map { _ in user }
+                        .eraseToAnyPublisher()
+                }
             }
-
-            self.store.fetchUsers()
-                .sink { completion in
-                    switch completion {
-                    case .finished:
-                        LogE("UserRepository :: \(#function) storeUser finished.")
-                    case .failure(let error):
-                        LogE("UserRepository :: \(#function) storeUser failed, error: \(error.localizedDescription).")
-                        promise(.failure(error))
-                    }
-                } receiveValue: { [weak self] users in
-                    guard let self else { return }
-                    let searchedUser = users.first(where: { $0.id == user.id })
-
-                    if searchedUser != nil {
-                        promise(.success(()))
-                    } else {
-                        self.store.addUser(user: user)
-                            .receive(on: DispatchQueue.main)
-                            .sink { completion in
-                                switch completion {
-                                case .failure(let error):
-                                    LogE("UserRepository :: \(#function) addUser failed, error: \(error.localizedDescription).")
-                                    promise(.failure(error))
-                                case .finished:
-                                    LogE("UserRepository :: \(#function) addUser finished.")
-                                }
-                            } receiveValue: { _ in
-                                promise(.success(()))
-                            }.store(in: &cancelables)
-                    }
-                }.store(in: &cancelables)
-        }.eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
-    public func updateUser(user: AppUser) -> AnyPublisher<Void, ServiceError> {
-        return store.updateUser(user: user)
+    public func fetchUserBy(userID: String) -> AnyPublisher<AppUser?, ServiceError> {
+        self.store.fetchUsers()
+            .map { users -> AppUser? in
+                return users.first(where: { $0.id == userID })
+            }
+            .mapError { error -> ServiceError in
+                LogE("UserRepository :: \(#function) fetchUserByID failed, error: \(error.localizedDescription).")
+                return .databaseError
+            }
+            .eraseToAnyPublisher()
+    }
+
+    private func uploadImage(imageData: Data, user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
+        storageManager.uploadImage(for: .user, id: user.id, imageData: imageData)
+            .flatMap { imageUrl -> AnyPublisher<AppUser, ServiceError> in
+                var newUser = user
+                newUser.imageUrl = imageUrl
+                return self.updateUser(user: newUser)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    public func updateUser(user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
+        store.updateUser(user: user)
+    }
+
+    public func updateUserWithImage(imageData: Data?, newImageUrl: String?, user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
+        var newUser = user
+
+        if let currentUrl = user.imageUrl, newImageUrl == nil {
+            newUser.imageUrl = newImageUrl
+
+            return storageManager.deleteImage(imageUrl: currentUrl)
+                .flatMap { _ in
+                    self.performImageAction(imageData: imageData, user: newUser)
+                }
+                .eraseToAnyPublisher()
+        } else {
+            return self.performImageAction(imageData: imageData, user: newUser)
+        }
+    }
+
+    private func performImageAction(imageData: Data?, user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
+        if let imageData {
+            return self.uploadImage(imageData: imageData, user: user)
+        } else {
+            return updateUser(user: user)
+        }
     }
 
     public func deleteUser(id: String) -> AnyPublisher<Void, ServiceError> {
-        return store.deleteUser(id: id)
+        store.deleteUser(id: id)
     }
 }

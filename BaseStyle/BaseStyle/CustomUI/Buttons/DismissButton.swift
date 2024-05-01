@@ -33,7 +33,7 @@ public struct DismissButton: View {
         }, label: {
             Image(systemName: "multiply")
                 .font(.system(size: iconSize.0).weight(iconSize.weight))
-                .foregroundColor(foregroundColor)
+                .foregroundStyle(foregroundColor)
                 .padding(padding)
                 .background(backgroundColor)
                 .clipShape(Circle())

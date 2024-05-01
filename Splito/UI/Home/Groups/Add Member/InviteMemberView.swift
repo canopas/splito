@@ -19,23 +19,23 @@ struct InviteMemberView: View {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Invite members to the group")
                     .font(.Header2())
-                    .foregroundColor(primaryText)
+                    .foregroundStyle(primaryText)
                     .multilineTextAlignment(.leading)
 
                 Text("Share this invitation code with your trusted one in your own style. Connecting with your friends is as flexible as you are.")
                     .font(.subTitle1())
-                    .foregroundColor(secondaryText)
+                    .foregroundStyle(secondaryText)
                     .multilineTextAlignment(.leading)
             }
 
             VStack(spacing: 10) {
                 Text(viewModel.inviteCode)
                     .font(.H1Text())
-                    .foregroundColor(primaryColor)
+                    .foregroundStyle(primaryColor)
 
                 Text("This code will be active for 2 days.")
                     .font(.subTitle2())
-                    .foregroundColor(secondaryText)
+                    .foregroundStyle(secondaryText)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 30)
@@ -49,12 +49,13 @@ struct InviteMemberView: View {
             Spacer()
         }
         .padding(.horizontal, 20)
+        .background(backgroundColor)
         .navigationBarTitle("Invite Code", displayMode: .inline)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showShareSheet) {
-            ShareSheetView(activityItems: ["Let's split the expnese! Use invite code \(viewModel.inviteCode) to join the \(viewModel.group?.name ?? "") group, don't have an app then please download it."]) { isCompleted in
+            ShareSheetView(activityItems: ["Let's split the expense! Use invite code \(viewModel.inviteCode) to join the \(viewModel.group?.name ?? "") group, don't have an app then please download it."]) { isCompleted in
                 if isCompleted {
                     viewModel.storeSharedCode()
                 }

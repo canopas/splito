@@ -17,7 +17,6 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var verificationId = ""
     @Published private(set) var showLoader: Bool = false
-    @Published private(set) var currentState: ViewState = .initial
 
     @Published var phoneNumber = "" {
         didSet {
@@ -41,12 +40,11 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
     }
 
     func verifyAndSendOtp() {
-        currentState = .loading
+        showLoader = true
         FirebaseProvider.phoneAuthProvider
             .verifyPhoneNumber((currentCountry.dialCode + phoneNumber.getNumbersOnly()), uiDelegate: nil) { [weak self] (verificationID, error) in
                 self?.showLoader = false
                 if let error {
-                    self?.currentState = .initial
                     self?.handleFirebaseAuthErrors(error)
                 } else {
                     self?.verificationId = verificationID ?? ""
@@ -59,12 +57,11 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
 // MARK: - Helper Methods
 extension PhoneLoginViewModel {
 
-    func openVerifyOtpView() {
+    private func openVerifyOtpView() {
         router.push(.VerifyOTPView(phoneNumber: phoneNumber, verificationId: verificationId))
-        currentState = .initial
     }
 
-    func handleFirebaseAuthErrors(_ error: Error) {
+    private func handleFirebaseAuthErrors(_ error: Error) {
         if (error as NSError).code == FirebaseAuth.AuthErrorCode.webContextCancelled.rawValue {
             showAlertFor(message: "Something went wrong! Please try after some time.")
         } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.tooManyRequests.rawValue {
@@ -77,13 +74,5 @@ extension PhoneLoginViewModel {
             LogE("Firebase: Phone login fail with error: \(error.localizedDescription)")
             showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
         }
-    }
-}
-
-// MARK: - View's State & Alert
-extension PhoneLoginViewModel {
-    enum ViewState {
-        case initial
-        case loading
     }
 }

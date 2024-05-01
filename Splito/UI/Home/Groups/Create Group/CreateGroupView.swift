@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BaseStyle
+import Kingfisher
 
 struct CreateGroupView: View {
 
@@ -15,23 +16,24 @@ struct CreateGroupView: View {
     var body: some View {
         VStack {
             if case .loading = viewModel.currentState {
-                LoaderView(tintColor: primaryColor, scaleSize: 2)
+                LoaderView()
             } else {
-                VStack(spacing: 40) {
-                    VSpacer(30)
+                VStack {
+                    VSpacer(40)
 
-                    AddGroupNameView(image: viewModel.profileImage, groupName: $viewModel.groupName, handleProfileTap: viewModel.handleProfileTap)
+                    AddGroupNameView(image: viewModel.profileImage, imageUrl: viewModel.profileImageUrl,
+                                     groupName: $viewModel.groupName, handleProfileTap: viewModel.handleProfileTap)
 
                     Spacer()
                 }
                 .padding(.horizontal, 20)
-                .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-                .navigationBarTitle("Create a group", displayMode: .inline)
             }
         }
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .navigationBarTitle(viewModel.group == nil ? "Create a group" : "Edit group", displayMode: .inline)
         .onTapGesture {
             UIApplication.shared.endEditing()
         }
@@ -42,11 +44,11 @@ struct CreateGroupView: View {
             Button("Choose from Library") {
                 viewModel.handleActionSelection(.gallery)
             }
-            if viewModel.profileImage != nil {
+            if viewModel.profileImage != nil || viewModel.profileImageUrl != nil {
                 Button("Remove") {
                     viewModel.handleActionSelection(.remove)
                 }
-                .foregroundColor(.red)
+                .foregroundStyle(.red)
             }
         }
         .sheet(isPresented: $viewModel.showImagePicker) {
@@ -54,101 +56,69 @@ struct CreateGroupView: View {
                             sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
                             image: $viewModel.profileImage, isPresented: $viewModel.showImagePicker)
         }
-        .navigationBarItems(
-            trailing: Button("Done") {
-                viewModel.handleDoneAction()
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.handleDoneAction()
+                } label: {
+                    Text("Done")
+                }
+                .font(.subTitle2())
+                .tint(primaryColor)
+                .disabled(viewModel.groupName.count < 3 || viewModel.currentState == .loading)
             }
-            .font(.subTitle2())
-            .tint(primaryColor)
-            .disabled(viewModel.groupName.count < 3 || viewModel.currentState == .loading)
-        )
+        }
     }
 }
 
 private struct AddGroupNameView: View {
 
     var image: UIImage?
+    var imageUrl: String?
     @Binding var groupName: String
 
     let handleProfileTap: (() -> Void)
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(alignment: .top, spacing: 16) {
             ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [4]))
-
                 if let image {
                     Image(uiImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                } else {
-                    Image(systemName: "camera")
+                } else if let imageUrl, let url = URL(string: imageUrl) {
+                    KFImage(url)
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 20, height: 20)
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Image(.group)
+                        .resizable()
+                        .scaledToFill()
                 }
             }
-            .frame(width: 56, height: 55)
+            .frame(width: 60, height: 60)
             .background(secondaryText.opacity(0.12))
             .clipShape(RoundedRectangle(cornerRadius: 8))
-            .foregroundColor(secondaryText)
+            .foregroundStyle(secondaryText)
             .onTapGesture {
                 handleProfileTap()
             }
 
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 7) {
                 Text("Group name")
-                    .font(.subTitle4())
-                    .foregroundColor(secondaryText)
-
-                VSpacer(2)
+                    .font(.subTitle2())
+                    .foregroundStyle(secondaryText)
 
                 TextField("", text: $groupName)
 
-                Rectangle()
+                Divider()
                     .frame(height: 1)
-                    .foregroundColor(.secondary)
-            }
-        }
-    }
-}
-
-private struct GroupTypeSelectionView: View {
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Type")
-                .font(.subTitle4())
-                .foregroundColor(secondaryText)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    ForEach(CreateGroupViewModel.GroupType.allCases, id: \.self) { type in
-                        Button {
-
-                        } label: {
-                            Text(type.rawValue)
-                                .font(.subTitle3())
-                                .foregroundColor(secondaryText)
-//                                .foregroundColor(viewModel.selectedGroupType == type ? .white : .primary)
-//                                .background(viewModel.selectedGroupType == type ? Color.blue : Color.clear)
-                        }
-                        .padding(.vertical, 10)
-                        .padding(.horizontal, 20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 30)
-                                .stroke(secondaryText.opacity(0.5), lineWidth: 1)
-                        )
-                    }
-                }
-                .padding(1)
+                    .background(outlineColor)
             }
         }
     }
 }
 
 #Preview {
-    CreateGroupView(viewModel: CreateGroupViewModel(router: .init(root: .CreateGroupView)))
+    CreateGroupView(viewModel: CreateGroupViewModel(router: .init(root: .CreateGroupView(group: nil))))
 }

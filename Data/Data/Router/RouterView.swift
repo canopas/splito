@@ -54,4 +54,13 @@ public class Router<T: Hashable>: ObservableObject {
     public func popToRoot() {
         paths = []
     }
+
+    public func popTo(_ path: T, inclusive: Bool = false) {
+        if let index = paths.lastIndex(of: path) {
+            let endIndex = inclusive ? index + 1 : index
+            paths.removeSubrange(endIndex..<paths.endIndex)
+        } else {
+            LogD("Router: path not found.")
+        }
+    }
 }

@@ -9,7 +9,7 @@ echo "$BUILD_PROVISION_PROFILE" | base64 --decode > "$DIST_PROFILE_FILE"
 mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
 
 # Copy the provisioning profile where Xcode can find it
-cp ${DIST_PROFILE_FILE} "$HOME/Library/MobileDevice/Provisioning Profiles/${BUILD_PROVISION_UUID}.mobileprovision"
+cp "${DIST_PROFILE_FILE}" "$HOME/Library/MobileDevice/Provisioning Profiles/${BUILD_PROVISION_UUID}.mobileprovision"
 
 # clean
-rm -fr *.mobileprovision
+rm -fr -- ./*.mobileprovision

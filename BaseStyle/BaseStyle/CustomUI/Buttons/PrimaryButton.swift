@@ -50,7 +50,7 @@ public struct PrimaryButton: View {
                 }
 
                 Text(text)
-                    .foregroundColor(textColor)
+                    .foregroundStyle(textColor)
             }
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, 15)
@@ -61,5 +61,6 @@ public struct PrimaryButton: View {
         .frame(minHeight: 50)
         .buttonStyle(.scale)
         .disabled(!isEnabled || showLoader)
+        .opacity((isEnabled && !showLoader) ? 1 : 0.6)
     }
 }

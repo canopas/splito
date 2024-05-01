@@ -13,8 +13,9 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
     private let NAME_CHARACTER_MIN_LIMIT = 3
 
-    @Inject var preference: SplitoPreference
-    @Inject var userRepository: UserRepository
+    @Inject private var mainRouter: Router<MainRoute>
+    @Inject private var preference: SplitoPreference
+    @Inject private var userRepository: UserRepository
 
     @Published var firstName: String = ""
     @Published var lastName: String = ""
@@ -35,14 +36,14 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var currentState: ViewState = .loading
 
-    private let router: Router<AppRoute>
+    private let router: Router<AppRoute>?
+    private var onDismiss: (() -> Void)?
 
-    init(router: Router<AppRoute>, isOpenedFromOnboard: Bool) {
+    init(router: Router<AppRoute>?, isOpenedFromOnboard: Bool, onDismiss: (() -> Void)?) {
         self.router = router
+        self.onDismiss = onDismiss
         self.isOpenedFromOnboard = isOpenedFromOnboard
-
         super.init()
-
         fetchUserDetail()
     }
 
@@ -53,7 +54,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             email = user.emailId ?? ""
             phone = user.phoneNumber ?? ""
             userLoginType = user.loginType
-            profileImageUrl = user.imageUrl ?? ""
+            profileImageUrl = user.imageUrl
         }
         currentState = .initial
     }
@@ -97,59 +98,68 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             showImagePicker = true
         case .remove:
             profileImage = nil
-            profileImageUrl = ""
+            profileImageUrl = nil
         }
     }
 
     func updateUserProfile() {
         if let user = preference.user {
             self.currentState = .loading
-            let newUser = AppUser(id: user.id, firstName: firstName, lastName: lastName,
-                                  emailId: email, phoneNumber: phone, loginType: user.loginType)
 
-            userRepository.updateUser(user: newUser)
+            var newUser = user
+            newUser.firstName = firstName.capitalized
+            newUser.lastName = lastName.capitalized
+            newUser.emailId = email
+            newUser.phoneNumber = phone
+
+            let resizedImage = profileImage?.aspectFittedToHeight(200)
+            let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
+
+            userRepository.updateUserWithImage(imageData: imageData, newImageUrl: profileImageUrl, user: newUser)
                 .sink { [weak self] completion in
-                    switch completion {
-                    case .finished:
-                        return
-                    case .failure(let error):
+                    if case .failure(let error) = completion {
                         self?.currentState = .initial
-                        self?.showToastFor(error)
+                        self?.showAlertFor(error)
                     }
-                } receiveValue: { [weak self] _ in
+                } receiveValue: { [weak self] user in
                     guard let self else { return }
                     self.currentState = .initial
-                    self.preference.user = newUser
+                    self.preference.user = user
 
                     if self.isOpenedFromOnboard {
-                        self.goToHome()
+                        self.onDismiss?()
+                    } else {
+                        self.router?.pop()
                     }
-                }.store(in: &cancelables)
+                }.store(in: &cancelable)
         }
-    }
-
-    func goToHome() {
-        router.popToRoot()
-        router.updateRoot(root: .HomeView)
     }
 
     func handleDeleteAction() {
         if let user = preference.user {
+            isDeleteInProgress = true
             userRepository.deleteUser(id: user.id)
                 .sink { [weak self] completion in
-                    switch completion {
-                    case .finished:
-                        return
-                    case .failure(let error):
+                    if case .failure(let error) = completion {
+                        self?.isDeleteInProgress = false
                         self?.currentState = .initial
-                        self?.showToastFor(error)
+                        self?.showAlertFor(error)
                     }
-                } receiveValue: { _ in
+                } receiveValue: { [weak self] _ in
+                    guard let self else { return }
+                    self.preference.clearPreferenceSession()
+                    self.preference.isOnboardShown = false
+                    self.goToOnboardScreen()
                     print("UserProfileViewModel :: user deleted.")
-                }.store(in: &cancelables)
+                }.store(in: &cancelable)
         } else {
             print("UserProfileViewModel :: user not exists.")
         }
+    }
+
+    private func goToOnboardScreen() {
+        router?.popToRoot()
+        mainRouter.updateRoot(root: .OnboardView)
     }
 }
 

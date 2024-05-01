@@ -7,6 +7,25 @@
 
 import Foundation
 
+public enum MainRoute: Hashable {
+
+    public static func == (lhs: MainRoute, rhs: MainRoute) -> Bool {
+        return lhs.key == rhs.key
+    }
+
+    case OnboardView
+    case HomeView
+
+    var key: String {
+        switch self {
+        case .OnboardView:
+            "onboard"
+        case .HomeView:
+            "home"
+        }
+    }
+}
+
 public enum AppRoute: Hashable {
 
     public static func == (lhs: AppRoute, rhs: AppRoute) -> Bool {
@@ -26,9 +45,14 @@ public enum AppRoute: Hashable {
     // MARK: - Groups Tab
     case GroupListView
     case GroupHomeView(groupId: String)
-    case CreateGroupView
+    case CreateGroupView(group: Groups?)
     case InviteMemberView(groupId: String)
     case JoinMemberView
+    case GroupSettingView(groupId: String)
+
+    // MARK: - Expense Button
+    case AddExpenseView(expenseId: String?)
+    case ExpenseDetailView(expenseId: String)
 
     // MARK: - Activity Tab
     case ActivityHomeView
@@ -46,6 +70,8 @@ public enum AppRoute: Hashable {
             "phoneLoginView"
         case .VerifyOTPView:
             "verifyOTPView"
+        case .ProfileView:
+            "userProfileView"
         case .HomeView:
             "homeView"
 
@@ -54,6 +80,8 @@ public enum AppRoute: Hashable {
 
         case .ActivityHomeView:
             "activityHomeView"
+        case .ExpenseDetailView:
+            "expenseDetailView"
 
         case .GroupListView:
             "groupListView"
@@ -65,8 +93,11 @@ public enum AppRoute: Hashable {
             "inviteMemberView"
         case .JoinMemberView:
             "joinMemberView"
-        case .ProfileView:
-            "userProfileView"
+        case .GroupSettingView:
+            "groupSettingView"
+
+        case .AddExpenseView:
+            "addExpenseView"
 
         case .AccountHomeView:
             "accountHomeView"
