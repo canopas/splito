@@ -5,6 +5,15 @@ on: push
 jobs:
   deploy:
     runs-on: macos-13
+    env:
+      APP_STORE_APP_ID: ${{ secrets.APP_STORE_APP_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+      APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+      DIST_CERTIFICATE: ${{ secrets.DIST_CERTIFICATE }}
+      DIST_CERTIFICATE_PASSWORD: ${{ secrets.DIST_CERTIFICATE_PASSWORD }}
+      DIST_PROFILE: ${{ secrets.DIST_PROFILE }}
+      DIST_PROFILE_UUID: ${{ secrets.DIST_PROFILE_UUID }}
 
     steps:
       - name: Checkout Repository
@@ -21,18 +30,6 @@ jobs:
           
       - name: Display Xcode Version
         run: /usr/bin/xcodebuild -version
-      
-      - name: Install Apple Certificate and Provisioning Profile
-        env:
-          BUILD_CERTIFICATE_KEY: ${{ secrets.BUILD_CERTIFICATE_KEY }}
-          BUILD_CERTIFICATE_PASSWORD: ${{ secrets.BUILD_CERTIFICATE_PASSWORD }}
-          BUILD_PROVISION_PROFILE: ${{ secrets.BUILD_PROVISION_PROFILE }}
-          BUILD_PROVISION_UUID: ${{ secrets.BUILD_PROVISION_UUID }}
-          BUILD_KEYCHAIN: ${{ secrets.BUILD_KEYCHAIN }}
-          BUILD_KEYCHAIN_PASSWORD: ${{ secrets.BUILD_KEYCHAIN_PASSWORD }}
-        run: |
-          chmod +x install_dist_certs.sh && ./install_dist_certs.sh
-          chmod +x install_dist_profile.sh && ./install_dist_profile.sh
 
       - name: Cache DerivedData
         uses: actions/cache@v2
@@ -68,6 +65,27 @@ jobs:
           else
             echo "No Swift files changed. Skipping SwiftLint."
           fi
+
+      - name: Install Codemagic CLI tools
+        run: pip install codemagic-cli-tools
+
+      - name: Set up keychain
+        run: keychain initialize
+
+      - name: Set up Provisioning profiles
+        run: |
+          PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$PROFILES_HOME"
+          PROFILE_PATH="$(mktemp "$PROFILES_HOME"/${$DIST_PROFILE_UUID}.mobileprovision)"
+          echo ${DIST_PROFILE} | base64 --decode > "$PROFILE_PATH"
+
+      - name: Set up signing certificate
+        run: |
+          echo $DIST_CERTIFICATE | base64 --decode > /tmp/certificate.p12
+          keychain add-certificates --certificate /tmp/certificate.p12 --certificate-password $DIST_CERTIFICATE_PASSWORD
+
+      - name: Set up code signing settings on the Xcode project
+        run: xcode-project use-profiles
 
       - name: Get Build Version
         run: |
