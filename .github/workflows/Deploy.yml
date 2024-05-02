@@ -103,5 +103,5 @@ jobs:
 
       - name: Publish the app to App Store Connect
         run: |
-           APP_FILE=$(find "$EXPORT_PATH" -name "*.ipa")
+           APP_FILE=$(find $(pwd)  -name "*.ipa")
            app-store-connect publish --path "$APP_FILE" 
