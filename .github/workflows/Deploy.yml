@@ -109,8 +109,7 @@ jobs:
           echo "Export path:- $EXPORT_PATH"
           cat $(pwd)/ExportOptions.plist
           echo "Google Info plist path:- $(pwd)/GoogleService-Info.plist"
-          xcode-project build-ipa --workspace=Splito.xcworkspace --scheme="Splito" --archive-directory=$ARCHIVE_PATH --export-options-plist=$HOME/ExportOptions.plist | xcpretty --color
-          # xcodebuild -exportArchive -archivePath $ARCHIVE_PATH -exportOptionsPlist $(pwd)/ExportOptions.plist -exportPath $EXPORT_PATH | xcpretty --color
+          xcodebuild -exportArchive -archivePath $ARCHIVE_PATH --export-options-plist=ExportOptions.plist -exportPath $EXPORT_PATH | xcpretty --color
 
       - name: Upload to App Store Connect
         run: |
