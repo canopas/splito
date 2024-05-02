@@ -72,6 +72,9 @@ jobs:
       - name: Set up keychain
         run: keychain initialize
 
+      - name: Restore Login Keychain
+        run: keychain use-login
+
       - name: Set up Provisioning profiles
         run: |
           PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
@@ -112,6 +115,5 @@ jobs:
 
       - name: Publish the app to App Store Connect
         run: |
-           APP_FILE=$(find $(pwd) -name "*.ipa")
-           app-store-connect publish \
-           --path "$APP_FILE" 
+           APP_FILE=$(find "$EXPORT_PATH" -name "*.ipa")
+           app-store-connect publish --path "$APP_FILE" 
