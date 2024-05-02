@@ -31,15 +31,6 @@ jobs:
       - name: Display Xcode Version
         run: /usr/bin/xcodebuild -version
 
-      - name: Cache DerivedData
-        uses: actions/cache@v2
-        with:
-          path: |
-            DerivedData
-          key: ${{ runner.os }}-derived-data-${{ hashFiles('**/*.xcworkspace') }}
-          restore-keys: |
-            ${{ runner.os }}-derived-data-
-
       - name: Cache CocoaPods
         uses: actions/cache@v2
         with:
@@ -71,9 +62,6 @@ jobs:
 
       - name: Set up keychain
         run: keychain initialize
-
-      - name: Restore Login Keychain
-        run: keychain use-login
 
       - name: Set up Provisioning profiles
         run: |
