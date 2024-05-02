@@ -105,7 +105,7 @@ jobs:
       - name: Export Archive
         run: |
           EXPORT_PATH=$RUNNER_TEMP/build
-          xcodebuild -exportArchive -archivePath $ARCHIVE_PATH -exportOptionsPlist=$HOME/export_options.plist -exportPath $EXPORT_PATH | xcpretty --color
+          xcodebuild -exportArchive -archivePath $ARCHIVE_PATH -exportPath $EXPORT_PATH -exportOptionsPlist $HOME/export_options.plist | xcpretty --color
 
       - name: Upload to App Store Connect
         run: |
