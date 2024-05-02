@@ -91,23 +91,25 @@ jobs:
 
       - name: Retrieve the secret and decode it to file
         env:
-          EXPORT_OPTIONS_PLIST: ${{ secrets.EXPORT_OPTIONS_PLIST_BASE64 }}
+          # EXPORT_OPTIONS_PLIST: ${{ secrets.EXPORT_OPTIONS_PLIST_BASE64 }}
           GOOGLE_SERVICE_INFO_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
         run: |
-          echo $EXPORT_OPTIONS_PLIST | base64 --decode > ExportOptions.plist
+          # echo $EXPORT_OPTIONS_PLIST | base64 --decode > ExportOptions.plist
           echo $GOOGLE_SERVICE_INFO_PLIST | base64 --decode > Splito/Plist/GoogleService-Info.plist
 
       - name: Build and Archive Project
         run: |
           ARCHIVE_PATH=$RUNNER_TEMP/Splito.xcarchive
           xcodebuild clean archive app_version_code=${buildNumber} app_version_name=${buildName} -workspace Splito.xcworkspace -scheme "Splito" -archivePath $ARCHIVE_PATH -destination generic/platform=iOS | xcpretty --color
+          echo "Archive path:- $ARCHIVE_PATH"
 
       - name: Export Archive
         run: |
           EXPORT_PATH=$RUNNER_TEMP/build
-          xcodebuild -exportArchive -archivePath $ARCHIVE_PATH -exportPath $EXPORT_PATH -exportOptionsPlist $HOME/export_options.plist | xcpretty --color
+          echo "Export path:- $EXPORT_PATH"
+          xcodebuild -exportArchive -archivePath $ARCHIVE_PATH -exportOptionsPlist $HOME/ExportOptions.plist -exportPath $EXPORT_PATH | xcpretty --color
 
       - name: Upload to App Store Connect
         run: |
-           APP_FILE=$(find $(pwd)  -name "*.ipa")
+           APP_FILE=$(find $(pwd) -name "*.ipa")
            app-store-connect publish --path "$APP_FILE" 
