@@ -112,9 +112,9 @@ jobs:
 
       - name: Upload to App Store Connect
         run: |
-          # EXPORT_PATH=$RUNNER_TEMP/build
+          EXPORT_PATH=$RUNNER_TEMP/build
           echo "Export path:- $EXPORT_PATH"
           ls -a $EXPORT_PATH
-          APP_FILE=$(find $(pwd) -name "*.ipa")
+          APP_FILE=$(find "$EXPORT_PATH" -name "*.ipa")
           echo "IAP path:- $APP_FILE"
           app-store-connect publish --path "$APP_FILE" 
