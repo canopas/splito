@@ -108,12 +108,13 @@ jobs:
           ARCHIVE_PATH=$RUNNER_TEMP/Splito.xcarchive
           echo "Export path:- $EXPORT_PATH"
           echo "Archive path:- $ARCHIVE_PATH"
-          echo "Export Plist Path:- $(pwd)/ExportOptions.plist"
-          echo "Google Info plist path:- $(pwd)/GoogleService-Info.plist"
           xcodebuild -exportArchive -archivePath $ARCHIVE_PATH -exportOptionsPlist $(pwd)/ExportOptions.plist -exportPath $EXPORT_PATH | xcpretty --color
 
       - name: Upload to App Store Connect
         run: |
-           APP_FILE=$(find $(pwd) -name "*.ipa")
-           echo "IAP path:- $APP_FILE"
-           app-store-connect publish --path "$APP_FILE" 
+          # EXPORT_PATH=$RUNNER_TEMP/build
+          echo "Export path:- $EXPORT_PATH"
+          ls -a $EXPORT_PATH
+          APP_FILE=$(find $(pwd) -name "*.ipa")
+          echo "IAP path:- $APP_FILE"
+          app-store-connect publish --path "$APP_FILE" 
