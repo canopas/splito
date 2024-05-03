@@ -101,13 +101,13 @@ jobs:
         run: |
           ARCHIVE_PATH=$RUNNER_TEMP/Splito.xcarchive
           xcodebuild clean archive app_version_code=${buildNumber} app_version_name=${buildName} -workspace Splito.xcworkspace -scheme "Splito" -archivePath $ARCHIVE_PATH -destination generic/platform=iOS | xcpretty --color
-          echo "Archive path:- $ARCHIVE_PATH"
 
       - name: Export Archive
         run: |
           EXPORT_PATH=$RUNNER_TEMP/build
           echo "Export path:- $EXPORT_PATH"
-          cat $(pwd)/ExportOptions.plist
+          echo "Archive path:- $ARCHIVE_PATH"
+          echo "Export Plist Path:- $(pwd)/ExportOptions.plist"
           echo "Google Info plist path:- $(pwd)/GoogleService-Info.plist"
           xcodebuild -exportArchive -archivePath $ARCHIVE_PATH -exportOptionsPlist $(pwd)/ExportOptions.plist -exportPath $EXPORT_PATH | xcpretty --color
 
