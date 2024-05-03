@@ -98,9 +98,13 @@ jobs:
           buildName="${versionValue[0]}.${versionValue[1]}.${{ github.run_number }}"
           echo "Uploading build $buildName"
 
+          # Update Version Information in Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $buildName" "Splito/Plist/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $buildNumber" "Splito/Plist/Info.plist"
+
           # Build and Archive Project
           ARCHIVE_PATH=$RUNNER_TEMP/Splito.xcarchive
-          xcodebuild clean archive app_version_code=${buildNumber} app_version_name=${buildName} -workspace Splito.xcworkspace -scheme "Splito" -archivePath $ARCHIVE_PATH -destination generic/platform=iOS | xcpretty --color
+          xcodebuild clean archive -workspace Splito.xcworkspace -scheme "Splito" -archivePath $ARCHIVE_PATH -destination generic/platform=iOS | xcpretty --color
 
           # Export Archive
           EXPORT_PATH=$RUNNER_TEMP/build
