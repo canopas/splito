@@ -105,6 +105,7 @@ jobs:
       - name: Export Archive
         run: |
           EXPORT_PATH=$RUNNER_TEMP/build
+          ARCHIVE_PATH=$RUNNER_TEMP/Splito.xcarchive
           echo "Export path:- $EXPORT_PATH"
           echo "Archive path:- $ARCHIVE_PATH"
           echo "Export Plist Path:- $(pwd)/ExportOptions.plist"
