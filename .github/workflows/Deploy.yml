@@ -1,6 +1,9 @@
 name: Deploy
 
-on: push
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -112,5 +115,4 @@ jobs:
 
           # Upload to App Store Connect
           APP_FILE=$(find "$EXPORT_PATH" -name "*.ipa")
-          echo "IAP path:- $APP_FILE"
           app-store-connect publish --path "$APP_FILE" 
