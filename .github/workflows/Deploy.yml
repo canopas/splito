@@ -105,9 +105,6 @@ jobs:
           # /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $buildName" "$info_plist_path"
           # /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $buildNumber" "$info_plist_path"
 
-          # Update Version Information in Project Build Settings
-          xcodebuild -workspace Splito.xcworkspace -scheme "Splito" -setBundleShortVersionString "$buildName" -setBundleVersion "$buildNumber"
-
           # Build and Archive Project
           ARCHIVE_PATH=$RUNNER_TEMP/Splito.xcarchive
           xcodebuild clean archive -workspace Splito.xcworkspace -scheme "Splito" -archivePath "$ARCHIVE_PATH" -destination generic/platform=iOS | xcpretty --color
