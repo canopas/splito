@@ -98,12 +98,12 @@ jobs:
           buildName="${versionValue[0]}.${versionValue[1]}.${{ github.run_number }}"
           echo "Uploading build $buildName"
 
-          # Find the correct Info.plist file path
-          info_plist_path=$(xcodebuild -workspace Splito.xcworkspace -showBuildSettings | grep INFOPLIST_FILE | sed 's/^.*= //')
-
           # # Update Version Information in Info.plist
-          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $buildName" "$info_plist_path"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $buildNumber" "$info_plist_path"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $buildName" "Splito/Plist/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $buildNumber" "Splito/Plist/Info.plist"
+          echo "Plist :: ls Splito/Plist"
+          echo "Plist PATH :: $(pwd)/Plist"
+          cat $(pwd)/Info.plist
 
           # Build and Archive Project
           ARCHIVE_PATH=$RUNNER_TEMP/Splito.xcarchive
