@@ -102,8 +102,8 @@ jobs:
           info_plist_path=$(xcodebuild -workspace Splito.xcworkspace -showBuildSettings | grep INFOPLIST_FILE | sed 's/^.*= //')
 
           # # Update Version Information in Info.plist
-          # /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $buildName" "$info_plist_path"
-          # /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $buildNumber" "$info_plist_path"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $buildName" "$info_plist_path"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $buildNumber" "$info_plist_path"
 
           # Build and Archive Project
           ARCHIVE_PATH=$RUNNER_TEMP/Splito.xcarchive
