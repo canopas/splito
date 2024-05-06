@@ -6,6 +6,7 @@
 //
 
 import Combine
+import SwiftUI
 
 public class GroupRepository: ObservableObject {
 

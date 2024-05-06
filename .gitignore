@@ -71,5 +71,6 @@ fastlane/test_output.DS_Store
 node_modules/
 package-lock.json
 
-*.generated.swift 
+*.generated.swift
 
+*.plist
