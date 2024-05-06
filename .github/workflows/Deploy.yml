@@ -101,9 +101,6 @@ jobs:
           # # Update Version Information in Info.plist
           /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $buildName" Splito/Plist/Info.plist
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $buildNumber" Splito/Plist/Info.plist
-          ls Splito
-          ls Splito/Plist
-          cat Splito/Plist/Info.plist
 
           # Build and Archive Project
           ARCHIVE_PATH=$RUNNER_TEMP/Splito.xcarchive
