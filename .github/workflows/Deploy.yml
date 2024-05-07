@@ -111,7 +111,7 @@ jobs:
           echo "Updated app version"
 
           # Update CFBundleURLSchemes with Reverse Client ID
-          /usr/libexec/PlistBuddy -c "Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $GOOGLE_REVERSE_CLIENT_ID" "$INFO_PLIST_PATH"
+          # /usr/libexec/PlistBuddy -c "Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $GOOGLE_REVERSE_CLIENT_ID" "$INFO_PLIST_PATH"
 
           echo "Added reverse client ID"
           
