@@ -10,6 +10,7 @@
 		07BE3EA39C276BF8B8A47841 /* Pods_SplitoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA3D6F970A1B86FF3657777F /* Pods_SplitoTests.framework */; };
 		0E8518C2A50B4013739F462C /* Pods_Splito.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED68AA3D71C6AAF6B6DDE27 /* Pods_Splito.framework */; };
 		1AA0888605B3C007D521672B /* Pods_Splito_SplitoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F43B44CC4843658DFC543F9 /* Pods_Splito_SplitoUITests.framework */; };
+		D815DFD72BEA26C200C0F862 /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D815DFD62BEA26C200C0F862 /* Secrets.xcconfig */; };
 		D826C0E22BDBD65600AAA449 /* GroupBalancesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826C0E12BDBD65600AAA449 /* GroupBalancesView.swift */; };
 		D826C0E42BDBD66300AAA449 /* GroupBalancesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826C0E32BDBD66300AAA449 /* GroupBalancesViewModel.swift */; };
 		D8302DA02B9F282F005ACA13 /* InviteMemberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8302D9F2B9F282F005ACA13 /* InviteMemberView.swift */; };
@@ -116,6 +117,7 @@
 		D7D95533332DF3C305CBF7CC /* Pods-Splito.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito.release.xcconfig"; path = "Target Support Files/Pods-Splito/Pods-Splito.release.xcconfig"; sourceTree = "<group>"; };
 		D8015C042B7A47CF0002886A /* Data.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Data.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8015C082B7A47D80002886A /* UI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = UI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D815DFD62BEA26C200C0F862 /* Secrets.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		D826C0E12BDBD65600AAA449 /* GroupBalancesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBalancesView.swift; sourceTree = "<group>"; };
 		D826C0E32BDBD66300AAA449 /* GroupBalancesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBalancesViewModel.swift; sourceTree = "<group>"; };
 		D8302D9F2B9F282F005ACA13 /* InviteMemberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteMemberView.swift; sourceTree = "<group>"; };
@@ -332,6 +334,7 @@
 			isa = PBXGroup;
 			children = (
 				D89DBE202B87433B00E5F1BD /* Splito.entitlements */,
+				D815DFD62BEA26C200C0F862 /* Secrets.xcconfig */,
 				D863857A2B908AB600A8C6EB /* VERSION */,
 				D89684442B722D3400D5F721 /* SplitoApp.swift */,
 				D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */,
@@ -628,6 +631,7 @@
 			files = (
 				D896844C2B722D3700D5F721 /* Preview Assets.xcassets in Resources */,
 				D89684492B722D3700D5F721 /* Assets.xcassets in Resources */,
+				D815DFD72BEA26C200C0F862 /* Secrets.xcconfig in Resources */,
 				D8D42A972B86FBF8009B345D /* GoogleService-Info.plist in Resources */,
 				D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */,
 				D863857B2B908AB600A8C6EB /* VERSION in Resources */,
@@ -865,6 +869,7 @@
 /* Begin XCBuildConfiguration section */
 		D89684632B722D3700D5F721 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D815DFD62BEA26C200C0F862 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -928,6 +933,7 @@
 		};
 		D89684642B722D3700D5F721 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D815DFD62BEA26C200C0F862 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -1078,9 +1084,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				app_name = Splito;
-				app_version_code = 1000000;
-				app_version_name = 1.0.0;
 			};
 			name = Debug;
 		};
@@ -1184,9 +1187,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				app_name = Splito;
-				app_version_code = 1000000;
-				app_version_name = 1.0.0;
 			};
 			name = Release;
 		};
