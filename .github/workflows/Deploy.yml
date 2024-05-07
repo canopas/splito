@@ -90,8 +90,6 @@ jobs:
           echo "$GOOGLE_SERVICE_INFO_PLIST" | base64 --decode > Splito/Plist/GoogleService-Info.plist
 
       - name: Upload app to App Store Connect
-        env:
-          GOOGLE_REVERSE_CLIENT_ID: ${{ secrets.GOOGLE_REVERSE_CLIENT_ID }}
         run: |
           # Get Build Version
           file='Splito/VERSION'
