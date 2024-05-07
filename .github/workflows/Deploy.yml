@@ -108,9 +108,13 @@ jobs:
           /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $buildName" "$INFO_PLIST_PATH"
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $buildNumber" "$INFO_PLIST_PATH"
 
+          echo "Updated app version"
+
            # Update CFBundleURLSchemes with Reverse Client ID
-           /usr/libexec/PlistBuddy -c "Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $GOOGLE_REVERSE_CLIENT_ID" "$INFO_PLIST_PATH"
-    
+          /usr/libexec/PlistBuddy -c "Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $GOOGLE_REVERSE_CLIENT_ID" "$INFO_PLIST_PATH"
+
+          echo "Added reverse client ID"
+          
           # Build and Archive Project
           ARCHIVE_PATH=$RUNNER_TEMP/Splito.xcarchive
           xcodebuild clean archive -workspace Splito.xcworkspace -scheme "Splito" -archivePath "$ARCHIVE_PATH" -destination generic/platform=iOS | xcpretty --color
@@ -121,4 +125,4 @@ jobs:
 
           # Upload to App Store Connect
           APP_FILE=$(find "$EXPORT_PATH" -name "*.ipa")
-          app-store-connect publish --path "$APP_FILE" 
+          app-store-connect publish --path "$APP_FILE"
