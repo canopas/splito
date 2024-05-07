@@ -116,13 +116,13 @@ jobs:
           
           # Build and Archive Project
           ARCHIVE_PATH=$RUNNER_TEMP/Splito.xcarchive
-          xcodebuild clean archive -workspace Splito.xcworkspace -scheme "Splito" -archivePath "$ARCHIVE_PATH" -destination generic/platform=iOS | xcpretty --color
+          xcodebuild clean archive -workspace Splito.xcworkspace -scheme "Splito" -archivePath $ARCHIVE_PATH -destination generic/platform=iOS | xcpretty --color
 
           echo "Build archived at path: $ARCHIVE_PATH"
           
           # Export Archive
           EXPORT_PATH=$RUNNER_TEMP/build
-          xcodebuild -exportArchive -archivePath "$ARCHIVE_PATH" -exportOptionsPlist "$(pwd)/ExportOptions.plist" -exportPath "$EXPORT_PATH" | xcpretty --color
+          xcodebuild -exportArchive -archivePath $ARCHIVE_PATH -exportOptionsPlist $(pwd)/ExportOptions.plist -exportPath $EXPORT_PATH | xcpretty --color
 
           echo "Build Exported at path: $EXPORT_PATH"
           
