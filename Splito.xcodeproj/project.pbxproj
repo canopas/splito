@@ -869,6 +869,7 @@
 /* Begin XCBuildConfiguration section */
 		D89684632B722D3700D5F721 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D815DFD62BEA26C200C0F862 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -932,6 +933,7 @@
 		};
 		D89684642B722D3700D5F721 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D815DFD62BEA26C200C0F862 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -1082,9 +1084,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				app_name = Splito;
-				app_version_code = 1000000;
-				app_version_name = 1.0.0;
 			};
 			name = Debug;
 		};
@@ -1188,9 +1187,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				app_name = Splito;
-				app_version_code = 1000000;
-				app_version_name = 1.0.0;
 			};
 			name = Release;
 		};
