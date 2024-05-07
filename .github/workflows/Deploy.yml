@@ -90,6 +90,8 @@ jobs:
           echo "$GOOGLE_SERVICE_INFO_PLIST" | base64 --decode > Splito/Plist/GoogleService-Info.plist
 
       - name: Upload app to App Store Connect
+        env:
+          GOOGLE_REVERSE_CLIENT_ID: ${{ secrets.GOOGLE_REVERSE_CLIENT_ID }}
         run: |
           # Get Build Version
           file='Splito/VERSION'
@@ -108,7 +110,7 @@ jobs:
           echo "Updated app version"
 
           # Update CFBundleURLSchemes with Reverse Client ID
-          # /usr/libexec/PlistBuddy -c "Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $GOOGLE_REVERSE_CLIENT_ID" Splito/Plist/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $GOOGLE_REVERSE_CLIENT_ID" Splito/Plist/Info.plist
 
           echo "Added reverse client ID"
           
