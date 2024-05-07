@@ -24,6 +24,7 @@
 		D85E86ED2BB41B87002EDF76 /* ChooseGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86EC2BB41B87002EDF76 /* ChooseGroupView.swift */; };
 		D85E86EF2BB41B9F002EDF76 /* ChooseGroupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86EE2BB41B9F002EDF76 /* ChooseGroupViewModel.swift */; };
 		D863857B2B908AB600A8C6EB /* VERSION in Resources */ = {isa = PBXBuildFile; fileRef = D863857A2B908AB600A8C6EB /* VERSION */; };
+		D871C01E2BE9FF2D0063BE66 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D871C01D2BE9FF2D0063BE66 /* GoogleService-Info.plist */; };
 		D88721452B9B2C78009DC5BE /* GroupListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721442B9B2C78009DC5BE /* GroupListView.swift */; };
 		D88721472B9B2C97009DC5BE /* GroupListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */; };
 		D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D889F5B82B7A521F008C6A43 /* SplashView.storyboard */; };
@@ -62,7 +63,6 @@
 		D8D14A652BA2DD7300F45FF2 /* UserProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A642BA2DD7300F45FF2 /* UserProfileImageView.swift */; };
 		D8D14A672BA2E25100F45FF2 /* UserProfileList.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A662BA2E25100F45FF2 /* UserProfileList.swift */; };
 		D8D14A692BA3133500F45FF2 /* OnboardRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A682BA3133500F45FF2 /* OnboardRouteView.swift */; };
-		D8D42A972B86FBF8009B345D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A962B86FBF8009B345D /* GoogleService-Info.plist */; };
 		D8D6C3A02B79F8110023CF08 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */; };
 		D8DB68DE2B98AF7600329D51 /* BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */; };
 		D8DB68DF2B98AF7600329D51 /* BaseStyle.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -116,6 +116,7 @@
 		D7D95533332DF3C305CBF7CC /* Pods-Splito.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito.release.xcconfig"; path = "Target Support Files/Pods-Splito/Pods-Splito.release.xcconfig"; sourceTree = "<group>"; };
 		D8015C042B7A47CF0002886A /* Data.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Data.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8015C082B7A47D80002886A /* UI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = UI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D815DFD32BEA01DA00C0F862 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		D826C0E12BDBD65600AAA449 /* GroupBalancesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBalancesView.swift; sourceTree = "<group>"; };
 		D826C0E32BDBD66300AAA449 /* GroupBalancesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBalancesViewModel.swift; sourceTree = "<group>"; };
 		D8302D9F2B9F282F005ACA13 /* InviteMemberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteMemberView.swift; sourceTree = "<group>"; };
@@ -131,6 +132,7 @@
 		D85E86EE2BB41B9F002EDF76 /* ChooseGroupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseGroupViewModel.swift; sourceTree = "<group>"; };
 		D863857A2B908AB600A8C6EB /* VERSION */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VERSION; sourceTree = "<group>"; };
 		D863857E2B909A5A00A8C6EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D871C01D2BE9FF2D0063BE66 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D88721442B9B2C78009DC5BE /* GroupListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListView.swift; sourceTree = "<group>"; };
 		D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListViewModel.swift; sourceTree = "<group>"; };
 		D889F5B82B7A521F008C6A43 /* SplashView.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SplashView.storyboard; sourceTree = "<group>"; };
@@ -176,7 +178,6 @@
 		D8D14A642BA2DD7300F45FF2 /* UserProfileImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileImageView.swift; sourceTree = "<group>"; };
 		D8D14A662BA2E25100F45FF2 /* UserProfileList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileList.swift; sourceTree = "<group>"; };
 		D8D14A682BA3133500F45FF2 /* OnboardRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardRouteView.swift; sourceTree = "<group>"; };
-		D8D42A962B86FBF8009B345D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D8E244B62B972BE700C6C82A /* BaseViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseViewModel.swift; sourceTree = "<group>"; };
 		D8E244BA2B9843A100C6C82A /* CreateGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGroupView.swift; sourceTree = "<group>"; };
@@ -332,6 +333,7 @@
 			isa = PBXGroup;
 			children = (
 				D89DBE202B87433B00E5F1BD /* Splito.entitlements */,
+				D815DFD32BEA01DA00C0F862 /* Secrets.xcconfig */,
 				D863857A2B908AB600A8C6EB /* VERSION */,
 				D89684442B722D3400D5F721 /* SplitoApp.swift */,
 				D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */,
@@ -445,7 +447,7 @@
 			isa = PBXGroup;
 			children = (
 				D863857E2B909A5A00A8C6EB /* Info.plist */,
-				D8D42A962B86FBF8009B345D /* GoogleService-Info.plist */,
+				D871C01D2BE9FF2D0063BE66 /* GoogleService-Info.plist */,
 			);
 			path = Plist;
 			sourceTree = "<group>";
@@ -628,7 +630,7 @@
 			files = (
 				D896844C2B722D3700D5F721 /* Preview Assets.xcassets in Resources */,
 				D89684492B722D3700D5F721 /* Assets.xcassets in Resources */,
-				D8D42A972B86FBF8009B345D /* GoogleService-Info.plist in Resources */,
+				D871C01E2BE9FF2D0063BE66 /* GoogleService-Info.plist in Resources */,
 				D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */,
 				D863857B2B908AB600A8C6EB /* VERSION in Resources */,
 			);
@@ -865,6 +867,7 @@
 /* Begin XCBuildConfiguration section */
 		D89684632B722D3700D5F721 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D815DFD32BEA01DA00C0F862 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -928,6 +931,7 @@
 		};
 		D89684642B722D3700D5F721 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D815DFD32BEA01DA00C0F862 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -1078,9 +1082,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				app_name = Splito;
-				app_version_code = 1000000;
-				app_version_name = 1.0.0;
 			};
 			name = Debug;
 		};
@@ -1184,9 +1185,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				app_name = Splito;
-				app_version_code = 1000000;
-				app_version_name = 1.0.0;
 			};
 			name = Release;
 		};

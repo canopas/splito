@@ -73,4 +73,8 @@ package-lock.json
 
 *.generated.swift
 
-*.plist
+Secrets.xcconfig
+
+ExportOptions.plist
+GoogleService-Info.plist
+
