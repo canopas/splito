@@ -1,0 +1,394 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    " %@ " : {
+
+    },
+    " in total" : {
+
+    },
+    " to %@" : {
+
+    },
+    "(%lld people)" : {
+
+    },
+    "%@" : {
+
+    },
+    "%@ %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@ %3$@"
+          }
+        }
+      }
+    },
+    "%@ owes " : {
+
+    },
+    "%@ owes you " : {
+
+    },
+    "%@ paid %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ paid %2$@"
+          }
+        }
+      }
+    },
+    "%@/person" : {
+
+    },
+    "00:%@" : {
+
+    },
+    "Account" : {
+
+    },
+    "Add & split expenses with groups or individuals." : {
+      "extractionState" : "manual"
+    },
+    "Add expense" : {
+
+    },
+    "Add people to group" : {
+      "extractionState" : "manual"
+    },
+    "Added by %@ on %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Added by %1$@ on %2$@"
+          }
+        }
+      }
+    },
+    "Advanced settings" : {
+
+    },
+    "All" : {
+
+    },
+    "and split" : {
+
+    },
+    "Automatically combines debts to reduce the total number of repayments between group members." : {
+
+    },
+    "Balances" : {
+      "extractionState" : "manual"
+    },
+    "Cancel" : {
+
+    },
+    "Choose from Library" : {
+
+    },
+    "Choose Group" : {
+
+    },
+    "Choose Payer" : {
+
+    },
+    "Contact us" : {
+
+    },
+    "Countries" : {
+
+    },
+    "Create a group" : {
+
+    },
+    "Create Group" : {
+
+    },
+    "Delete Account" : {
+
+    },
+    "Delete group" : {
+      "extractionState" : "manual"
+    },
+    "Details" : {
+
+    },
+    "Done" : {
+
+    },
+    "Edit" : {
+
+    },
+    "Edit expense" : {
+
+    },
+    "Edit group" : {
+
+    },
+    "Enter a description" : {
+      "extractionState" : "manual"
+    },
+    "Enter code" : {
+      "extractionState" : "manual"
+    },
+    "Enter phone number" : {
+      "extractionState" : "manual"
+    },
+    "Enter the Invite Code" : {
+      "extractionState" : "manual"
+    },
+    "equally" : {
+      "extractionState" : "manual"
+    },
+    "Expense date" : {
+      "extractionState" : "manual"
+    },
+    "Expenses" : {
+      "extractionState" : "manual"
+    },
+    "Feedback" : {
+
+    },
+    "Get Started" : {
+      "extractionState" : "manual"
+    },
+    "Get the code from the group creator to join." : {
+      "extractionState" : "manual"
+    },
+    "gets back" : {
+
+    },
+    "Group balances" : {
+
+    },
+    "Group members" : {
+
+    },
+    "Group name" : {
+
+    },
+    "Group settings" : {
+
+    },
+    "Groups" : {
+
+    },
+    "Groups make it easy to split apartment bills, share travel expenses, and more." : {
+
+    },
+    "Invite Code" : {
+
+    },
+    "Invite members" : {
+
+    },
+    "Invite members to the group" : {
+
+    },
+    "Join Group" : {
+
+    },
+    "keep track of balances between friends and loved ones." : {
+      "extractionState" : "manual"
+    },
+    "Leave group" : {
+      "extractionState" : "manual"
+    },
+    "Leave Group" : {
+
+    },
+    "Logout" : {
+
+    },
+    "Next" : {
+
+    },
+    "no balance" : {
+
+    },
+    "no expense" : {
+
+    },
+    "No expenses here yet." : {
+
+    },
+    "No members in your selected group." : {
+
+    },
+    "not involved" : {
+
+    },
+    "Overall, %@  " : {
+
+    },
+    "owes" : {
+
+    },
+    "Paid by" : {
+
+    },
+    "Pay Back" : {
+      "extractionState" : "manual"
+    },
+    "Phone number" : {
+
+    },
+    "Profile" : {
+
+    },
+    "Rate Splito" : {
+
+    },
+    "Remove" : {
+
+    },
+    "Remove from group" : {
+
+    },
+    "Resend code" : {
+
+    },
+    "Save" : {
+
+    },
+    "Search" : {
+      "extractionState" : "manual"
+    },
+    "Select which people owe an equal share." : {
+
+    },
+    "Settings" : {
+
+    },
+    "Settle up and pay back your friends any time." : {
+      "extractionState" : "manual"
+    },
+    "settled up" : {
+
+    },
+    "Share Code" : {
+      "extractionState" : "manual"
+    },
+    "Share this invitation code with your trusted one in your own style. Connecting with your friends is as flexible as you are." : {
+
+    },
+    "Sign in with Apple" : {
+      "extractionState" : "manual"
+    },
+    "Sign in with Google" : {
+      "extractionState" : "manual"
+    },
+    "Sign in with Phone Number" : {
+      "extractionState" : "manual"
+    },
+    "Sign up in the app to use amazing spliting features" : {
+
+    },
+    "Simplify group debts" : {
+
+    },
+    "Split equally" : {
+
+    },
+    "Split options" : {
+
+    },
+    "Splito" : {
+
+    },
+    "Start a group" : {
+
+    },
+    "Take Picture" : {
+
+    },
+    "Tap the plus button from home screen to add an expense with any group." : {
+
+    },
+    "Tap to show settled expenses" : {
+
+    },
+    "This code will be active for 2 days." : {
+
+    },
+    "Today" : {
+      "extractionState" : "manual"
+    },
+    "Tracking" : {
+      "extractionState" : "manual"
+    },
+    "Verification code" : {
+      "extractionState" : "manual"
+    },
+    "Verify" : {
+      "extractionState" : "manual"
+    },
+    "We'll verify your phone number with a verification code" : {
+
+    },
+    "We've sent a verification code to your phone" : {
+
+    },
+    "You" : {
+      "extractionState" : "manual"
+    },
+    "You %@ %@ overall" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You %1$@ %2$@ overall"
+          }
+        }
+      }
+    },
+    "You and: " : {
+
+    },
+    "You are all settle up!" : {
+
+    },
+    "You are all settled up in this group." : {
+
+    },
+    "You are all settled up." : {
+
+    },
+    "You are not part of any group." : {
+
+    },
+    "you are owed" : {
+
+    },
+    "you borrowed" : {
+
+    },
+    "You do not have any groups yet." : {
+
+    },
+    "you lent" : {
+
+    },
+    "you owe" : {
+
+    },
+    "You owe %@ " : {
+
+    },
+    "You paid for yourself" : {
+      "extractionState" : "manual"
+    },
+    "You're the only one here!" : {
+
+    }
+  },
+  "version" : "1.0"
+}

@@ -79,7 +79,7 @@ private struct GroupBalanceItemView: View {
                     Text(name)
                         .font(.Header4())
 
-                    + Text(" \(owesOrGetsBack) ")
+                    + Text(" \(owesOrGetsBack.localized) ")
 
                     + Text(memberBalance.totalOwedAmount.formattedCurrency)
                         .font(.body1(17))

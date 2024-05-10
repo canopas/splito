@@ -120,10 +120,10 @@ private struct ExpenseDetailRow: View {
             } else {
                 VStack {
                     if keyboardType == .default {
-                        TextField(placeholder, text: $name)
+                        TextField(placeholder.localized, text: $name)
                             .font(.subTitle2())
                     } else {
-                        TextField("Amount", value: $amount, formatter: NumberFormatter())
+                        TextField("", value: $amount, formatter: NumberFormatter())
                             .font(.subTitle2())
                             .keyboardType(keyboardType)
                     }
@@ -196,7 +196,7 @@ private struct PaidByBtnView: View {
         Button {
             onTap()
         } label: {
-            Text(name)
+            Text(name.localized)
                 .font(.subTitle2())
                 .foregroundStyle(secondaryText)
         }

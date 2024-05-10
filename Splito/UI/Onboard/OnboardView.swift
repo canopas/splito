@@ -82,12 +82,12 @@ struct OnboardPageView: View {
 
                 VSpacer(20)
 
-                Text(items[index].title)
+                Text(items[index].title.localized)
                     .font(.largeTitle)
                     .fontWeight(.heavy)
                     .foregroundStyle(primaryColor)
 
-                Text(items[index].description)
+                Text(items[index].description.localized)
                     .font(.title3)
                     .foregroundStyle(secondaryText)
                     .multilineTextAlignment(.center)

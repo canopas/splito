@@ -14,13 +14,6 @@ import FirebaseFirestoreInternal
 
 class CreateGroupViewModel: BaseViewModel, ObservableObject {
 
-    enum GroupType: String, CaseIterable {
-        case trip = "Trip"
-        case home = "Home"
-        case couple = "Couple"
-        case other = "Other"
-    }
-
     @Inject var preference: SplitoPreference
     @Inject var storageManager: StorageManager
     @Inject var groupRepository: GroupRepository

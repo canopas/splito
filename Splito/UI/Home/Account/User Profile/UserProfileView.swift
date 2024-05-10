@@ -23,8 +23,8 @@ struct UserProfileView: View {
                         VSpacer(30)
 
                         UserProfileImageView(image: $viewModel.profileImage,
-                                         profileImageUrl: viewModel.profileImageUrl,
-                                         handleProfileTap: viewModel.handleProfileTap)
+                                             profileImageUrl: viewModel.profileImageUrl,
+                                             handleProfileTap: viewModel.handleProfileTap)
                         .confirmationDialog("", isPresented: $viewModel.showImagePickerOption, titleVisibility: .hidden) {
                             Button("Take Picture") {
                                 viewModel.handleActionSelection(.camera)
@@ -201,7 +201,7 @@ private struct UserProfileDataEditableTextField: View {
     var autoCapitalizationType: UITextAutocapitalizationType
 
     var body: some View {
-        TextField(placeholder, text: $titleText)
+        TextField(placeholder.localized, text: $titleText)
             .font(.subTitle1())
             .focused(focused, equals: fieldType)
             .foregroundStyle(primaryText)

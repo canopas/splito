@@ -180,7 +180,7 @@ private struct GroupListEditCellView: View {
                 .resizable()
                 .frame(width: 22, height: 22)
 
-            Text(text)
+            Text(text.localized)
                 .font(.body1(18))
         }
         .padding(.leading, 16)
