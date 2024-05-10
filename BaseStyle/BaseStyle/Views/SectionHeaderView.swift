@@ -26,7 +26,7 @@ public struct HeaderTextView: View {
     }
 
     public var body: some View {
-        Text(title)
+        Text(title.localized)
             .font(font)
             .foregroundStyle(foregroundColor)
             .tracking(-0.4)
@@ -52,7 +52,7 @@ public struct SubtitleTextView: View {
     }
 
     public var body: some View {
-        Text(text)
+        Text(text.localized)
             .font(fontSize)
             .foregroundStyle(fontColor)
             .tracking(letterTracking)

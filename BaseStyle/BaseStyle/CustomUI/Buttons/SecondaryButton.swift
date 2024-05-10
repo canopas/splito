@@ -39,7 +39,7 @@ public struct SecondaryButton: View {
                             .onAppear(perform: loaderModel.onViewAppear)
                     }
 
-                    Text(text)
+                    Text(text.localized)
                         .font(.buttonText())
                         .foregroundStyle(.mainPrimary)
                 }

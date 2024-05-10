@@ -12,11 +12,9 @@ public extension Array where Element: Hashable {
         var buffer = Array()
         var added = Set<Element>()
 
-        for element in self {
-            if !added.contains(element) {
-                buffer.append(element)
-                added.insert(element)
-            }
+        for element in self where !added.contains(element) {
+            buffer.append(element)
+            added.insert(element)
         }
 
         return buffer

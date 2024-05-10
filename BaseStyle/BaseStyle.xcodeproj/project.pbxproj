@@ -36,8 +36,6 @@
 		D8D42A6C2B85CDB2009B345D /* Inter-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A612B85CDB2009B345D /* Inter-Italic.ttf */; };
 		D8D42A6D2B85CDB2009B345D /* inter-semi-bold-italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A622B85CDB2009B345D /* inter-semi-bold-italic.ttf */; };
 		D8D42A6E2B85CDB2009B345D /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A632B85CDB2009B345D /* Inter-SemiBold.ttf */; };
-		D8D42A712B85CDD3009B345D /* Onboard.strings in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A702B85CDD3009B345D /* Onboard.strings */; };
-		D8D42A732B85CDE0009B345D /* Login.strings in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A722B85CDE0009B345D /* Login.strings */; };
 		D8D42A772B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A762B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift */; };
 		D8D42A812B85D07C009B345D /* SecondaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A7D2B85D07C009B345D /* SecondaryButton.swift */; };
 		D8D42A822B85D07C009B345D /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A7E2B85D07C009B345D /* PrimaryButton.swift */; };
@@ -100,8 +98,6 @@
 		D8D42A612B85CDB2009B345D /* Inter-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Italic.ttf"; sourceTree = "<group>"; };
 		D8D42A622B85CDB2009B345D /* inter-semi-bold-italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "inter-semi-bold-italic.ttf"; sourceTree = "<group>"; };
 		D8D42A632B85CDB2009B345D /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.ttf"; sourceTree = "<group>"; };
-		D8D42A702B85CDD3009B345D /* Onboard.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Onboard.strings; sourceTree = "<group>"; };
-		D8D42A722B85CDE0009B345D /* Login.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Login.strings; sourceTree = "<group>"; };
 		D8D42A762B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonStyleTapGestureModifier.swift; sourceTree = "<group>"; };
 		D8D42A782B85CE81009B345D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D8D42A7D2B85D07C009B345D /* SecondaryButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecondaryButton.swift; sourceTree = "<group>"; };
@@ -227,7 +223,6 @@
 				D89DBE2C2B88828300E5F1BD /* Countries.json */,
 				D8D42A892B85D525009B345D /* AppColors.swift */,
 				D8D42A582B85CDB2009B345D /* Fonts */,
-				D8D42A6F2B85CDB8009B345D /* Localizable */,
 			);
 			path = Resource;
 			sourceTree = "<group>";
@@ -248,15 +243,6 @@
 				D8D42A632B85CDB2009B345D /* Inter-SemiBold.ttf */,
 			);
 			path = Fonts;
-			sourceTree = "<group>";
-		};
-		D8D42A6F2B85CDB8009B345D /* Localizable */ = {
-			isa = PBXGroup;
-			children = (
-				D8D42A702B85CDD3009B345D /* Onboard.strings */,
-				D8D42A722B85CDE0009B345D /* Login.strings */,
-			);
-			path = Localizable;
 			sourceTree = "<group>";
 		};
 		D8D42A742B85CDF9009B345D /* Extension */ = {
@@ -415,10 +401,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8D42A6E2B85CDB2009B345D /* Inter-SemiBold.ttf in Resources */,
-				D8D42A712B85CDD3009B345D /* Onboard.strings in Resources */,
 				D8D42A662B85CDB2009B345D /* inter-heavy-italic.otf in Resources */,
 				D8D42A6B2B85CDB2009B345D /* Acme-Regular.ttf in Resources */,
-				D8D42A732B85CDE0009B345D /* Login.strings in Resources */,
 				D8D42A642B85CDB2009B345D /* Inter-Medium.ttf in Resources */,
 				D8D42A682B85CDB2009B345D /* Inter-Thin.ttf in Resources */,
 				D8D42A692B85CDB2009B345D /* Inter-Bold.ttf in Resources */,

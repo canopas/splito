@@ -104,7 +104,7 @@ private struct LoginOptionsButtonView: View {
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 20, height: 20)
 
-                        Text(buttonName)
+                        Text(buttonName.localized)
                             .lineLimit(1)
                             .font(.buttonText())
                             .foregroundStyle(buttonTextColor)

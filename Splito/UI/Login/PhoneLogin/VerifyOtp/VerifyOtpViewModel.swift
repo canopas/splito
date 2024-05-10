@@ -61,7 +61,7 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
                 if (error! as NSError).code == FirebaseAuth.AuthErrorCode.webContextCancelled.rawValue {
                     self.showAlertFor(message: "Something went wrong! Please try after some time.")
                 } else if (error! as NSError).code == FirebaseAuth.AuthErrorCode.tooManyRequests.rawValue {
-                    self.showAlertFor(title: "Warning !!!", message: "Too many attempts, please try after some time")
+                    self.showAlertFor(title: "Warning !!!", message: "Too many attempts, please try after some time.")
                 } else if (error! as NSError).code == FirebaseAuth.AuthErrorCode.missingPhoneNumber.rawValue || (error! as NSError).code == FirebaseAuth.AuthErrorCode.invalidPhoneNumber.rawValue {
                     self.showAlertFor(message: "Enter a valid phone number")
                 } else {

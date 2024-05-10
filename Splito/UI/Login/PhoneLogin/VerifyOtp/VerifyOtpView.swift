@@ -59,10 +59,10 @@ public struct VerifyOtpView: View {
                     PhoneLoginOtpView(otp: $viewModel.otp, resendOtpCount: $viewModel.resendOtpCount,
                                       selectedField: $selectedField, showLoader: viewModel.showLoader,
                                       onVerify: {
-                                         viewModel.verifyOTP()
-                                         selectedField = 0
-                                         UIApplication.shared.endEditing()
-                                      },
+                        viewModel.verifyOTP()
+                        selectedField = 0
+                        UIApplication.shared.endEditing()
+                    },
                                       onResendOtp: viewModel.resendOtp)
                     .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
 

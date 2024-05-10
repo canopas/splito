@@ -232,7 +232,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     func handleDeleteGroupTap() {
         alert = .init(title: "Delete Group",
-                      message: "Are you ABSOLUTELY sure you want to leave this group? This will remove the group for ALL users involved, not just yourself.",
+                      message: "Are you ABSOLUTELY sure you want to delete this group? This will remove this group for ALL users involved, not just yourself.",
                       positiveBtnTitle: "Delete",
                       positiveBtnAction: { self.deleteGroupWithMembers() },
                       negativeBtnTitle: "Cancel",

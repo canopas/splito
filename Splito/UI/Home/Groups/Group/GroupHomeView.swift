@@ -231,7 +231,7 @@ private struct GroupExpenseItemView: View {
                     .foregroundStyle(primaryText)
 
                 let amountText = isSettled ? "You paid for yourself" : "\(userName) paid \(expense.formattedAmount)"
-                Text(amountText)
+                Text(amountText.localized)
                     .font(.body1(12))
                     .foregroundStyle(secondaryText)
             }
@@ -283,7 +283,7 @@ private struct GroupOptionsButtonView: View {
     let onTap: () -> Void
 
     var body: some View {
-        Text(text)
+        Text(text.localized)
             .font(.subTitle1())
             .foregroundColor(isForSettleUp ? .white : primaryText)
             .padding(.vertical, 8)
@@ -327,46 +327,6 @@ private struct AddMemberState: View {
                 .background(primaryColor)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
-            .buttonStyle(.scale)
-        }
-        .padding(.horizontal, 22)
-    }
-}
-
-private struct CreateGroupState: View {
-
-    @Binding var viewModel: GroupHomeViewModel
-
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("You do not have any groups yet.")
-                .font(.Header1(22))
-                .foregroundStyle(primaryText)
-
-            Text("Groups make it easy to split apartment bills, share travel expenses, and more.")
-                .font(.subTitle3(15))
-                .foregroundStyle(secondaryText)
-                .multilineTextAlignment(.center)
-
-            Button {
-                viewModel.handleCreateGroupClick()
-            } label: {
-                HStack(spacing: 20) {
-                    Image(systemName: "person.3.fill")
-                        .resizable()
-                        .foregroundStyle(.white)
-                        .frame(width: 42, height: 22)
-
-                    Text("Start a group")
-                        .foregroundStyle(.white)
-                        .font(.headline)
-                }
-                .padding(.vertical, 16)
-                .frame(maxWidth: .infinity)
-                .background(primaryColor)
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-            }
-            .padding(.top, 10)
             .buttonStyle(.scale)
         }
         .padding(.horizontal, 22)

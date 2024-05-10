@@ -128,7 +128,7 @@ private struct ExpenseInfoView: View {
             MemberProfileImageView(imageUrl: userImageUrl, height: mainImageHeight)
 
             VStack(alignment: .leading, spacing: 0) {
-                Text("\(userName) paid \(expense?.formattedAmount ?? "nothing")")
+                Text("\(userName.localized) paid \(expense?.formattedAmount ?? "nothing")")
                     .font(.body1(18))
                     .frame(height: mainImageHeight)
 
@@ -145,7 +145,7 @@ private struct ExpenseInfoView: View {
                                 }
                                 HStack(spacing: 10) {
                                     MemberProfileImageView(imageUrl: member.imageUrl, height: subImageHeight)
-                                    Text("\(memberName) \(owes) \(splitAmount)")
+                                    Text("\(memberName.localized) \(owes) \(splitAmount)")
                                 }
                             }
                         }
@@ -161,29 +161,4 @@ private struct ExpenseInfoView: View {
 
 #Preview {
     ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: .init(root: .ExpenseDetailView(expenseId: "")), expenseId: ""))
-}
-
-struct ConnectionLineView: View {
-    let fromPoint: CGPoint
-    let toPoint: CGPoint
-    let color: Color
-
-    var body: some View {
-        Path { path in
-            path.move(to: fromPoint)
-            path.addLine(to: toPoint)
-        }
-        .stroke(color, lineWidth: 2)
-    }
-}
-
-struct LabelView: View {
-    let text: String
-    let color: Color
-
-    var body: some View {
-        Text(text)
-            .font(.caption)
-            .foregroundColor(color)
-    }
 }
