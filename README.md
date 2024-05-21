@@ -6,7 +6,9 @@ Simplifying group expense management is easy and fair among friends and family w
 <img src="./Screenshots/SplitoCover.png"/>
 
 ## Overview
-Splito is an open-source expense tracking and splitting application inspired by Splitwise. It simplifies the management of shared expenses, making it easy for users to track and split costs among friends, family, or group members. Whether for a group trip, shared household bills, or any other collective expense, Splito ensures fairness and transparency in cost-sharing with its user-friendly interface and robust features.
+Splito is an open-source expense tracking and splitting application inspired by Splitwise. It simplifies the management of shared expenses, making it easy for users to track and split costs among friends, family, or group members.
+
+Whether for a group trip, shared household bills, or any other collective expense, Splito ensures fairness and transparency in cost-sharing with its user-friendly interface and robust features.
 
 ## Download App
 <img src="./Screenshots/AppStore.png" width="200"></img>
