@@ -26,6 +26,15 @@
 		D85E86EF2BB41B9F002EDF76 /* ChooseGroupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86EE2BB41B9F002EDF76 /* ChooseGroupViewModel.swift */; };
 		D863857B2B908AB600A8C6EB /* VERSION in Resources */ = {isa = PBXBuildFile; fileRef = D863857A2B908AB600A8C6EB /* VERSION */; };
 		D8682DF92BED0C1C00BB7273 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D8682DF82BED0C1C00BB7273 /* Localizable.xcstrings */; };
+		D8682E242BEE4B1000BB7273 /* cta.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E222BEE4B1000BB7273 /* cta.png */; };
+		D8682E252BEE4B1000BB7273 /* banner.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E232BEE4B1000BB7273 /* banner.png */; };
+		D8682E2C2BEE4B3C00BB7273 /* EditExpense.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E262BEE4B3B00BB7273 /* EditExpense.png */; };
+		D8682E2D2BEE4B3C00BB7273 /* InviteCode.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E272BEE4B3B00BB7273 /* InviteCode.png */; };
+		D8682E2E2BEE4B3C00BB7273 /* GroupList.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E282BEE4B3C00BB7273 /* GroupList.png */; };
+		D8682E2F2BEE4B3C00BB7273 /* GroupBalance.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E292BEE4B3C00BB7273 /* GroupBalance.png */; };
+		D8682E302BEE4B3C00BB7273 /* SplitOption.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E2A2BEE4B3C00BB7273 /* SplitOption.png */; };
+		D8682E312BEE4B3C00BB7273 /* ExpenseList.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E2B2BEE4B3C00BB7273 /* ExpenseList.png */; };
+		D8682E332BEE4BC100BB7273 /* AppStore.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E322BEE4BC100BB7273 /* AppStore.png */; };
 		D88721452B9B2C78009DC5BE /* GroupListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721442B9B2C78009DC5BE /* GroupListView.swift */; };
 		D88721472B9B2C97009DC5BE /* GroupListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */; };
 		D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D889F5B82B7A521F008C6A43 /* SplashView.storyboard */; };
@@ -135,6 +144,15 @@
 		D863857A2B908AB600A8C6EB /* VERSION */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VERSION; sourceTree = "<group>"; };
 		D863857E2B909A5A00A8C6EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D8682DF82BED0C1C00BB7273 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		D8682E222BEE4B1000BB7273 /* cta.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cta.png; sourceTree = "<group>"; };
+		D8682E232BEE4B1000BB7273 /* banner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = banner.png; sourceTree = "<group>"; };
+		D8682E262BEE4B3B00BB7273 /* EditExpense.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = EditExpense.png; sourceTree = "<group>"; };
+		D8682E272BEE4B3B00BB7273 /* InviteCode.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = InviteCode.png; sourceTree = "<group>"; };
+		D8682E282BEE4B3C00BB7273 /* GroupList.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GroupList.png; sourceTree = "<group>"; };
+		D8682E292BEE4B3C00BB7273 /* GroupBalance.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GroupBalance.png; sourceTree = "<group>"; };
+		D8682E2A2BEE4B3C00BB7273 /* SplitOption.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SplitOption.png; sourceTree = "<group>"; };
+		D8682E2B2BEE4B3C00BB7273 /* ExpenseList.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ExpenseList.png; sourceTree = "<group>"; };
+		D8682E322BEE4BC100BB7273 /* AppStore.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore.png; sourceTree = "<group>"; };
 		D88721442B9B2C78009DC5BE /* GroupListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListView.swift; sourceTree = "<group>"; };
 		D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListViewModel.swift; sourceTree = "<group>"; };
 		D889F5B82B7A521F008C6A43 /* SplashView.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SplashView.storyboard; sourceTree = "<group>"; };
@@ -318,6 +336,22 @@
 			path = "Detail Selection";
 			sourceTree = "<group>";
 		};
+		D8682E212BEE49E000BB7273 /* Screenshots */ = {
+			isa = PBXGroup;
+			children = (
+				D8682E232BEE4B1000BB7273 /* banner.png */,
+				D8682E222BEE4B1000BB7273 /* cta.png */,
+				D8682E322BEE4BC100BB7273 /* AppStore.png */,
+				D8682E282BEE4B3C00BB7273 /* GroupList.png */,
+				D8682E262BEE4B3B00BB7273 /* EditExpense.png */,
+				D8682E2B2BEE4B3C00BB7273 /* ExpenseList.png */,
+				D8682E292BEE4B3C00BB7273 /* GroupBalance.png */,
+				D8682E272BEE4B3B00BB7273 /* InviteCode.png */,
+				D8682E2A2BEE4B3C00BB7273 /* SplitOption.png */,
+			);
+			path = Screenshots;
+			sourceTree = "<group>";
+		};
 		D89684382B722D3400D5F721 = {
 			isa = PBXGroup;
 			children = (
@@ -327,6 +361,7 @@
 				D89684422B722D3400D5F721 /* Products */,
 				BAA91BB875B265C15A963001 /* Pods */,
 				7530D0A01F0D8D2C363B2A6E /* Frameworks */,
+				D8682E212BEE49E000BB7273 /* Screenshots */,
 			);
 			sourceTree = "<group>";
 		};
@@ -641,12 +676,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				D896844C2B722D3700D5F721 /* Preview Assets.xcassets in Resources */,
+				D8682E2F2BEE4B3C00BB7273 /* GroupBalance.png in Resources */,
 				D89684492B722D3700D5F721 /* Assets.xcassets in Resources */,
+				D8682E302BEE4B3C00BB7273 /* SplitOption.png in Resources */,
+				D8682E242BEE4B1000BB7273 /* cta.png in Resources */,
+				D8682E252BEE4B1000BB7273 /* banner.png in Resources */,
 				D815DFD72BEA26C200C0F862 /* Secrets.xcconfig in Resources */,
 				D8D42A972B86FBF8009B345D /* GoogleService-Info.plist in Resources */,
 				D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */,
+				D8682E2C2BEE4B3C00BB7273 /* EditExpense.png in Resources */,
+				D8682E2E2BEE4B3C00BB7273 /* GroupList.png in Resources */,
+				D8682E312BEE4B3C00BB7273 /* ExpenseList.png in Resources */,
 				D8682DF92BED0C1C00BB7273 /* Localizable.xcstrings in Resources */,
+				D8682E332BEE4BC100BB7273 /* AppStore.png in Resources */,
 				D863857B2B908AB600A8C6EB /* VERSION in Resources */,
+				D8682E2D2BEE4B3C00BB7273 /* InviteCode.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
