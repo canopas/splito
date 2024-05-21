@@ -1,7 +1,7 @@
 <p align="center"> <a href="https://canopas.com/contact"> <img src="./Screenshots/banner.png"></a></p>
 
 # Splito - Divide, Conquer, Enjoy Together! 💰
-Simplifying Group Expense Management Easy and Fair Among Friends and Family with Advanced Tracking and Splitting Features.
+Simplifying group expense management easy and fair among friends and family with advanced tracking and splitting features.
 
 ## Overview
 Splito is an open-source expense tracking and splitting application inspired by Splitwise. It simplifies the management of shared expenses, making it easy for users to track and split costs among friends, family, or group members. Whether for a group trip, shared household bills, or any other collective expense, Splito ensures fairness and transparency in cost-sharing with its user-friendly interface and robust features.
