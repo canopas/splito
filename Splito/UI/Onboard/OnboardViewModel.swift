@@ -9,6 +9,7 @@ import Data
 import BaseStyle
 import FirebaseAuth
 import Foundation
+import UIPilot
 
 class OnboardViewModel: ObservableObject {
 
@@ -17,9 +18,9 @@ class OnboardViewModel: ObservableObject {
 
     @Inject private var preference: SplitoPreference
 
-    private let router: Router<AppRoute>
+    private let router: UIPilot<AppRoute>
 
-    init(router: Router<AppRoute>) {
+    init(router: UIPilot<AppRoute>) {
         self.router = router
     }
 
@@ -29,7 +30,9 @@ class OnboardViewModel: ObservableObject {
             guard let self, let user = result?.user else { self?.currentState = .initial; return }
             self.preference.isOnboardShown = user.isAnonymous
             currentState = .initial
-            router.updateRoot(root: .LoginView)
+
+            router.popTo(.OnboardView, inclusive: true)
+            router.push(.LoginView)
         }
     }
 }

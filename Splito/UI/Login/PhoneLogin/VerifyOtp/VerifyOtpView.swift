@@ -158,5 +158,5 @@ private struct PhoneLoginOtpView: View {
 }
 
 #Preview {
-    VerifyOtpView(viewModel: VerifyOtpViewModel(router: .init(root: .VerifyOTPView(phoneNumber: "", verificationId: "")), phoneNumber: "", verificationId: ""))
+    VerifyOtpView(viewModel: VerifyOtpViewModel(router: .init(initial: .VerifyOTPView(phoneNumber: "", verificationId: "")), phoneNumber: "", verificationId: ""))
 }

@@ -50,7 +50,7 @@ struct InviteMemberView: View {
         }
         .padding(.horizontal, 20)
         .background(backgroundColor)
-        .navigationBarTitle("Invite Code", displayMode: .inline)
+        .setNavigationTitle("Invite Code")
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
@@ -65,5 +65,5 @@ struct InviteMemberView: View {
 }
 
 #Preview {
-    InviteMemberView(viewModel: InviteMemberViewModel(router: .init(root: .AccountHomeView), groupId: ""))
+    InviteMemberView(viewModel: InviteMemberViewModel(router: .init(initial: .AccountHomeView), groupId: ""))
 }

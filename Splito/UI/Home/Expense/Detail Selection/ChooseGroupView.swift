@@ -45,7 +45,7 @@ struct ChooseGroupView: View {
         }
         .background(backgroundColor)
         .interactiveDismissDisabled()
-        .navigationBarTitle("Choose Group", displayMode: .inline)
+        .setNavigationTitle("Choose Group")
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toolbar {

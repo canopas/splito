@@ -8,13 +8,14 @@
 import Data
 import SwiftUI
 import BaseStyle
+import UIPilot
 
 struct AccountRouteView: View {
 
-    @StateObject var appRoute = Router(root: AppRoute.AccountHomeView)
+    @StateObject var appRoute = UIPilot(initial: AppRoute.AccountHomeView)
 
     var body: some View {
-        RouterView(router: appRoute) { route in
+        UIPilotHost(appRoute) { route in
             switch route {
             case .AccountHomeView:
                 AccountHomeView(viewModel: AccountHomeViewModel(router: appRoute))

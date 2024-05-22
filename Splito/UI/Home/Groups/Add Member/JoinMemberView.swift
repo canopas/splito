@@ -31,7 +31,7 @@ struct JoinMemberView: View {
         .padding(.horizontal, 22)
         .background(backgroundColor)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .navigationBarTitle("Join Group", displayMode: .inline)
+        .setNavigationTitle("Join Group")
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
     }
@@ -75,5 +75,5 @@ private struct JoinWithCodeView: View {
 }
 
 #Preview {
-    JoinMemberView(viewModel: JoinMemberViewModel(router: .init(root: .JoinMemberView)))
+    JoinMemberView(viewModel: JoinMemberViewModel(router: .init(initial: .JoinMemberView)))
 }

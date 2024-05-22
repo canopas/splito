@@ -44,6 +44,7 @@ struct GroupListView: View {
             }
         }
         .padding(.horizontal, 20)
+        .toolbar(.hidden, for: .navigationBar)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
@@ -222,5 +223,5 @@ private struct CreateGroupButtonView: View {
 }
 
 #Preview {
-    GroupListView(viewModel: GroupListViewModel(router: .init(root: .GroupListView)))
+    GroupListView(viewModel: GroupListViewModel(router: .init(initial: .GroupListView)))
 }

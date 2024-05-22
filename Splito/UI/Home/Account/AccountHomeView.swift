@@ -21,11 +21,11 @@ struct AccountHomeView: View {
                 Text("Account")
                     .font(.Header4())
                     .foregroundStyle(primaryText)
-                    .padding(.top, 10)
+                    .padding(.top, 30)
 
                 ScrollView {
                     VStack(spacing: 20) {
-                        VSpacer(20)
+                        VSpacer(10)
 
                         AccountUserHeaderView(onTap: viewModel.openUserProfileView)
 
@@ -41,6 +41,7 @@ struct AccountHomeView: View {
             }
         }
         .background(backgroundColor)
+        .toolbar(.hidden, for: .navigationBar)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
@@ -152,5 +153,5 @@ private struct AccountLogoutSectionView: View {
 }
 
 #Preview {
-    AccountHomeView(viewModel: AccountHomeViewModel(router: .init(root: .AccountHomeView)))
+    AccountHomeView(viewModel: AccountHomeViewModel(router: .init(initial: .AccountHomeView)))
 }

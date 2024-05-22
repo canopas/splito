@@ -32,8 +32,8 @@ struct CreateGroupView: View {
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .setNavigationTitle(viewModel.group == nil ? "Create a group" : "Edit group")
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .navigationBarTitle(viewModel.group == nil ? "Create a group" : "Edit group", displayMode: .inline)
         .onTapGesture {
             UIApplication.shared.endEditing()
         }
@@ -120,5 +120,5 @@ private struct AddGroupNameView: View {
 }
 
 #Preview {
-    CreateGroupView(viewModel: CreateGroupViewModel(router: .init(root: .CreateGroupView(group: nil))))
+    CreateGroupView(viewModel: CreateGroupViewModel(router: .init(initial: .CreateGroupView(group: nil))))
 }

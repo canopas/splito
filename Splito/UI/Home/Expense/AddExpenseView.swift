@@ -12,38 +12,45 @@ struct AddExpenseView: View {
 
     @ObservedObject var viewModel: AddExpenseViewModel
 
-    @Environment(\.dismiss) var dismiss
-
     var body: some View {
         ScrollView {
             if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
-                VStack(spacing: 25) {
-                    VSpacer(80)
+                VStack(spacing: 0) {
+                    Divider()
+                        .frame(height: 1)
+                        .background(outlineColor.opacity(0.4))
 
-                    GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Group", onTap: viewModel.handleGroupBtnAction)
+                    VSpacer(50)
 
-                    VStack(spacing: 16) {
-                        ExpenseDetailRow(imageName: "note.text", placeholder: "Enter a description",
-                                         name: $viewModel.expenseName, amount: .constant(0), date: $viewModel.expenseDate)
-                        ExpenseDetailRow(imageName: "indianrupeesign.square", placeholder: "0.00",
-                                         name: .constant(""), amount: $viewModel.expenseAmount, date: $viewModel.expenseDate, keyboardType: .numberPad)
-                        ExpenseDetailRow(imageName: "calendar", placeholder: "Expense date", forDatePicker: true,
-                                         name: .constant(""), amount: .constant(0), date: $viewModel.expenseDate)
+                    VStack(spacing: 25) {
+                        GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Group", onTap: viewModel.handleGroupBtnAction)
+
+                        VStack(spacing: 16) {
+                            ExpenseDetailRow(imageName: "note.text", placeholder: "Enter a description",
+                                             name: $viewModel.expenseName, amount: .constant(0), date: $viewModel.expenseDate)
+
+                            ExpenseDetailRow(imageName: "indianrupeesign.square", placeholder: "0.00",
+                                             name: .constant(""), amount: $viewModel.expenseAmount,
+                                             date: $viewModel.expenseDate, keyboardType: .numberPad)
+
+                            ExpenseDetailRow(imageName: "calendar", placeholder: "Expense date", forDatePicker: true,
+                                             name: .constant(""), amount: .constant(0), date: $viewModel.expenseDate)
+                        }
+                        .padding(.trailing, 20)
+
+                        PaidByBottomView(payerName: viewModel.payerName, onPayerTap: viewModel.handlePayerBtnAction,
+                                         onSplitTypeTap: viewModel.handleSplitTypeBtnAction)
                     }
-                    .padding(.trailing, 20)
-
-                    PaidByBottomView(payerName: viewModel.payerName, onPayerTap: viewModel.handlePayerBtnAction,
-                                     onSplitTypeTap: viewModel.handleSplitTypeBtnAction)
+                    .padding(.horizontal, 20)
                 }
             }
         }
-        .padding(.horizontal, 20)
         .background(backgroundColor)
         .scrollIndicators(.hidden)
         .scrollDismissesKeyboard(.immediately)
-        .navigationBarTitle(viewModel.expenseId == nil ? "Add expense" : "Edit expense", displayMode: .inline)
+        .setNavigationTitle(viewModel.expenseId == nil ? "Add expense" : "Edit expense")
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showGroupSelection) {
@@ -62,7 +69,8 @@ struct AddExpenseView: View {
         }
         .sheet(isPresented: $viewModel.showSplitTypeSelection) {
             NavigationStack {
-                ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: viewModel.expenseAmount, members: viewModel.groupMembers,
+                ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: viewModel.expenseAmount,
+                                                                                members: viewModel.groupMembers,
                                                                                 selectedMembers: viewModel.selectedMembers,
                                                                                 onMemberSelection: { members in
                     viewModel.handleSplitTypeSelection(members: members)
@@ -73,14 +81,14 @@ struct AddExpenseView: View {
             if viewModel.expenseId == nil {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") {
-                        dismiss()
+                        viewModel.onDismiss?()
                     }
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Save") {
                     viewModel.handleSaveAction {
-                        dismiss()
+                        viewModel.onDismiss?()
                     }
                 }
                 .foregroundStyle(primaryColor)
@@ -211,5 +219,5 @@ private struct PaidByBtnView: View {
 }
 
 #Preview {
-    AddExpenseView(viewModel: AddExpenseViewModel(router: .init(root: .AddExpenseView(expenseId: "")), expenseId: ""))
+    AddExpenseView(viewModel: AddExpenseViewModel(router: .init(initial: .AddExpenseView(expenseId: "")), expenseId: "", onDismiss: {}))
 }

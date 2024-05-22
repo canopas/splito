@@ -41,9 +41,9 @@ struct ExpenseDetailsView: View {
             }
         }
         .background(backgroundColor)
+        .setNavigationTitle("Details")
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .navigationBarTitle("Details", displayMode: .inline)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -96,7 +96,7 @@ private struct ExpenseHeaderView: View {
                 .padding(.top, 6)
         }
         .lineLimit(1)
-        .padding(.horizontal, 40)
+        .padding(.horizontal, 30)
     }
 }
 
@@ -160,5 +160,5 @@ private struct ExpenseInfoView: View {
 }
 
 #Preview {
-    ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: .init(root: .ExpenseDetailView(expenseId: "")), expenseId: ""))
+    ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: .init(initial: .ExpenseDetailView(expenseId: "")), expenseId: ""))
 }

@@ -42,7 +42,7 @@ struct GroupHomeView: View {
         .background(backgroundColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .navigationBarTitle(viewModel.group?.name ?? "", displayMode: .inline)
+        .setNavigationTitle(viewModel.group?.name ?? "")
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
             NavigationStack {
@@ -272,6 +272,7 @@ private struct GroupListOptionsView: View {
         HStack(spacing: 18) {
             GroupOptionsButtonView(text: "Balances", onTap: onBalanceTap)
         }
+        .padding(.leading, 10)
     }
 }
 
@@ -373,5 +374,5 @@ private struct ExpenseSettledView: View {
 }
 
 #Preview {
-    GroupHomeView(viewModel: GroupHomeViewModel(router: .init(root: .GroupHomeView(groupId: "")), groupId: ""))
+    GroupHomeView(viewModel: GroupHomeViewModel(router: .init(initial: .GroupHomeView(groupId: "")), groupId: ""))
 }

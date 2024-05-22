@@ -57,9 +57,6 @@
     "Add & split expenses with groups or individuals." : {
       "extractionState" : "manual"
     },
-    "Add expense" : {
-
-    },
     "Add people to group" : {
       "extractionState" : "manual"
     },
@@ -94,19 +91,10 @@
     "Choose from Library" : {
 
     },
-    "Choose Group" : {
-
-    },
-    "Choose Payer" : {
-
-    },
     "Contact us" : {
 
     },
     "Countries" : {
-
-    },
-    "Create a group" : {
 
     },
     "Create Group" : {
@@ -118,19 +106,10 @@
     "Delete group" : {
       "extractionState" : "manual"
     },
-    "Details" : {
-
-    },
     "Done" : {
 
     },
     "Edit" : {
-
-    },
-    "Edit expense" : {
-
-    },
-    "Edit group" : {
 
     },
     "Enter a description" : {
@@ -166,25 +145,13 @@
     "gets back" : {
 
     },
-    "Group balances" : {
-
-    },
     "Group members" : {
 
     },
     "Group name" : {
 
     },
-    "Group settings" : {
-
-    },
-    "Groups" : {
-
-    },
     "Groups make it easy to split apartment bills, share travel expenses, and more." : {
-
-    },
-    "Invite Code" : {
 
     },
     "Invite members" : {
@@ -241,9 +208,6 @@
     "Phone number" : {
 
     },
-    "Profile" : {
-
-    },
     "Rate Splito" : {
 
     },
@@ -296,9 +260,6 @@
 
     },
     "Split equally" : {
-
-    },
-    "Split options" : {
 
     },
     "Splito" : {

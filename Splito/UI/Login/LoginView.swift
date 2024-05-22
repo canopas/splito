@@ -54,6 +54,7 @@ struct LoginView: View {
                                    startPoint: .top, endPoint: .bottom)
                 )
             }
+            .toolbar(.hidden, for: .navigationBar)
             .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         }
     }
@@ -123,5 +124,5 @@ private struct LoginOptionsButtonView: View {
 }
 
 #Preview {
-    LoginView(viewModel: LoginViewModel(router: .init(root: .LoginView)))
+    LoginView(viewModel: LoginViewModel(router: .init(initial: .LoginView)))
 }

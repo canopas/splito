@@ -9,6 +9,7 @@ import Data
 import Combine
 import BaseStyle
 import FirebaseFirestoreInternal
+import UIPilot
 
 class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
@@ -39,11 +40,14 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     }
 
     let expenseId: String?
-    private let router: Router<AppRoute>
+    var onDismiss: (() -> Void)?
 
-    init(router: Router<AppRoute>, expenseId: String? = nil) {
+    private let router: UIPilot<AppRoute>
+
+    init(router: UIPilot<AppRoute>, expenseId: String? = nil, onDismiss: (() -> Void)?) {
         self.router = router
         self.expenseId = expenseId
+        self.onDismiss = onDismiss
 
         super.init()
 

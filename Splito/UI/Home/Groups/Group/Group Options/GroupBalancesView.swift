@@ -46,7 +46,7 @@ struct GroupBalancesView: View {
         .interactiveDismissDisabled()
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .navigationBarTitle("Group balances", displayMode: .inline)
+        .setNavigationTitle("Group balances")
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {

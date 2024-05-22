@@ -45,7 +45,7 @@ struct ChoosePayerView: View {
         }
         .background(backgroundColor)
         .interactiveDismissDisabled()
-        .navigationBarTitle("Choose Payer", displayMode: .inline)
+        .setNavigationTitle("Choose Payer")
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toolbar {

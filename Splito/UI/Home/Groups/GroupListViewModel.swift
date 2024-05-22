@@ -7,6 +7,7 @@
 
 import Data
 import Combine
+import UIPilot
 
 class GroupListViewModel: BaseViewModel, ObservableObject {
 
@@ -20,9 +21,9 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var showGroupMenu = false
     @Published var usersTotalExpense = 0.0
 
-    private let router: Router<AppRoute>
+    private let router: UIPilot<AppRoute>
 
-    init(router: Router<AppRoute>) {
+    init(router: UIPilot<AppRoute>) {
         self.router = router
         super.init()
         fetchGroups()

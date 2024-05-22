@@ -7,6 +7,8 @@ project 'Splito.xcodeproj'
 use_frameworks!
 
 def data_pods
+  pod 'UIPilot'
+  
   pod 'Swinject'
   pod 'SwiftLint'
   

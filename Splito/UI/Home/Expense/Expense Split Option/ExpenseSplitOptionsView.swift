@@ -57,7 +57,7 @@ struct ExpenseSplitOptionsView: View {
         }
         .interactiveDismissDisabled()
         .background(backgroundColor)
-        .navigationBarTitle("Split options", displayMode: .inline)
+        .setNavigationTitle("Split options")
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toolbar {

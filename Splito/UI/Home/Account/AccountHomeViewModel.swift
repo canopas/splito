@@ -8,10 +8,11 @@
 import Data
 import MessageUI
 import BaseStyle
+import UIPilot
 
 class AccountHomeViewModel: BaseViewModel, ObservableObject {
 
-    @Inject private var mainRouter: Router<MainRoute>
+    @Inject private var mainRouter: UIPilot<MainRoute>
     @Inject private var preference: SplitoPreference
     @Inject private var ddLoggerProvider: DDLoggerProvider
 
@@ -21,9 +22,9 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
     @Published var showShareSheet = false
     @Published var showMailToast = false
 
-    private let router: Router<AppRoute>
+    private let router: UIPilot<AppRoute>
 
-    init(router: Router<AppRoute>) {
+    init(router: UIPilot<AppRoute>) {
         self.router = router
         super.init()
     }
@@ -76,7 +77,8 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     private func goToLoginScreen() {
-        mainRouter.updateRoot(root: .OnboardView)
+        mainRouter.popTo(.HomeView, inclusive: true)
+        mainRouter.push(.OnboardView)
     }
 }
 

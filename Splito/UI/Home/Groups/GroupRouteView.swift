@@ -8,13 +8,14 @@
 import Data
 import SwiftUI
 import BaseStyle
+import UIPilot
 
 struct GroupRouteView: View {
 
-    @StateObject var appRoute = Router(root: AppRoute.GroupListView)
+    @StateObject var appRoute = UIPilot(initial: AppRoute.GroupListView)
 
     var body: some View {
-        RouterView(router: appRoute) { route in
+        UIPilotHost(appRoute) { route in
             switch route {
             case .GroupListView:
                 GroupListView(viewModel: GroupListViewModel(router: appRoute))
@@ -22,6 +23,7 @@ struct GroupRouteView: View {
                 GroupHomeView(viewModel: GroupHomeViewModel(router: appRoute, groupId: id))
             case .CreateGroupView(let group):
                 CreateGroupView(viewModel: CreateGroupViewModel(router: appRoute, group: group))
+
             case .InviteMemberView(let id):
                 InviteMemberView(viewModel: InviteMemberViewModel(router: appRoute, groupId: id))
             case .JoinMemberView:
@@ -32,7 +34,7 @@ struct GroupRouteView: View {
             case .ExpenseDetailView(let expenseId):
                 ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: appRoute, expenseId: expenseId))
             case .AddExpenseView(let expenseId):
-                AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, expenseId: expenseId))
+                AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, expenseId: expenseId, onDismiss: nil))
 
             default:
                 EmptyRouteView(routeName: self)

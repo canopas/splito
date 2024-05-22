@@ -8,6 +8,7 @@
 import Data
 import BaseStyle
 import FirebaseFirestoreInternal
+import UIPilot
 
 class InviteMemberViewModel: BaseViewModel, ObservableObject {
 
@@ -19,9 +20,9 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
 
     var group: Groups?
     private let groupId: String
-    private let router: Router<AppRoute>
+    private let router: UIPilot<AppRoute>
 
-    init(router: Router<AppRoute>, groupId: String) {
+    init(router: UIPilot<AppRoute>, groupId: String) {
         self.router = router
         self.groupId = groupId
 

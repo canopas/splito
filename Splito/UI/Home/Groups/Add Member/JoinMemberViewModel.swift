@@ -7,6 +7,7 @@
 
 import Data
 import BaseStyle
+import UIPilot
 
 class JoinMemberViewModel: BaseViewModel, ObservableObject {
 
@@ -17,9 +18,9 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
     @Published var code = ""
     @Published private(set) var showLoader: Bool = false
 
-    private let router: Router<AppRoute>
+    private let router: UIPilot<AppRoute>
 
-    init(router: Router<AppRoute>) {
+    init(router: UIPilot<AppRoute>) {
         self.router = router
         super.init()
     }

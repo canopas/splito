@@ -57,7 +57,8 @@ struct OnboardView: View {
                 VSpacer(30)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .center)
+        .toolbar(.hidden, for: .navigationBar)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
     }
 }
 
@@ -116,5 +117,5 @@ public struct OnboardItem: Hashable {
 }
 
 #Preview {
-    OnboardView(viewModel: OnboardViewModel(router: .init(root: .OnboardView)))
+    OnboardView(viewModel: OnboardViewModel(router: .init(initial: .OnboardView)))
 }

@@ -8,6 +8,7 @@
 import Data
 import Combine
 import BaseStyle
+import UIPilot
 
 class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
@@ -16,7 +17,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     @Inject var expenseRepository: ExpenseRepository
 
     private let groupId: String
-    private let router: Router<AppRoute>
+    private let router: UIPilot<AppRoute>
     private var memberRemoveType: MemberRemoveType = .leave
 
     @Published var isAdmin = false
@@ -36,7 +37,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    init(router: Router<AppRoute>, groupId: String) {
+    init(router: UIPilot<AppRoute>, groupId: String) {
         self.router = router
         self.groupId = groupId
         super.init()
@@ -255,7 +256,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Navigation
     func goBackToGroupList() {
-        router.popToRoot()
+        router.popTo(.GroupListView)
     }
 
     // MARK: - Error Handling

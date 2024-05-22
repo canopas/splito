@@ -7,6 +7,7 @@
 
 import Foundation
 import Swinject
+import UIPilot
 import FirebaseFirestoreInternal
 
 public class AppAssembly: Assembly {
@@ -15,8 +16,8 @@ public class AppAssembly: Assembly {
 
     public func assemble(container: Container) {
 
-        container.register(Router<MainRoute>.self) { _ in
-                .init(root: .OnboardView)
+        container.register(UIPilot<MainRoute>.self) { _ in
+                .init(initial: .OnboardView)
         }.inObjectScope(.container)
 
         container.register(SplitoPreference.self) { _ in

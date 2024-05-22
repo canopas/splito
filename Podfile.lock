@@ -1126,6 +1126,7 @@ PODS:
   - SSZipArchive (2.5.5)
   - SwiftLint (0.54.0)
   - Swinject (2.8.8)
+  - UIPilot (2.0.2)
 
 DEPENDENCIES:
   - CocoaLumberjack/Swift
@@ -1137,6 +1138,7 @@ DEPENDENCIES:
   - SSZipArchive
   - SwiftLint
   - Swinject
+  - UIPilot
 
 SPEC REPOS:
   trunk:
@@ -1168,6 +1170,7 @@ SPEC REPOS:
     - SSZipArchive
     - SwiftLint
     - Swinject
+    - UIPilot
 
 SPEC CHECKSUMS:
   abseil: d121da9ef7e2ff4cab7666e76c5a3e0915ae08c3
@@ -1198,7 +1201,8 @@ SPEC CHECKSUMS:
   SSZipArchive: c69881e8ac5521f0e622291387add5f60f30f3c4
   SwiftLint: c1de071d9d08c8aba837545f6254315bc900e211
   Swinject: 2943463cdd58b49f114213bf1ce4a09f374828e7
+  UIPilot: dec727d11749dcb34654df4f8c94b98b29903566
 
-PODFILE CHECKSUM: 10370f2b03f8e9ad8893964fe46dc5645d6026ac
+PODFILE CHECKSUM: 06fd1c023c0bd8fe59d369d452d0c6b87349b85a
 
 COCOAPODS: 1.15.0

@@ -22,7 +22,6 @@
 		D89DBE1D2B872F0B00E5F1BD /* NonceGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE1C2B872F0B00E5F1BD /* NonceGenerator.swift */; };
 		D89DBE282B88802800E5F1BD /* Country.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE272B88802800E5F1BD /* Country.swift */; };
 		D89DBE2B2B88817E00E5F1BD /* JSONUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE2A2B88817E00E5F1BD /* JSONUtils.swift */; };
-		D89DBE402B8C9E7400E5F1BD /* RouterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE3F2B8C9E7400E5F1BD /* RouterView.swift */; };
 		D89DBE462B8CBE0F00E5F1BD /* UserRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE452B8CBE0F00E5F1BD /* UserRepository.swift */; };
 		D89DBE482B8CBE4C00E5F1BD /* AppUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE472B8CBE4C00E5F1BD /* AppUser.swift */; };
 		D89DBE4A2B8CBEAE00E5F1BD /* ServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE492B8CBEAE00E5F1BD /* ServiceError.swift */; };
@@ -71,7 +70,6 @@
 		D89DBE1C2B872F0B00E5F1BD /* NonceGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonceGenerator.swift; sourceTree = "<group>"; };
 		D89DBE272B88802800E5F1BD /* Country.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Country.swift; sourceTree = "<group>"; };
 		D89DBE2A2B88817E00E5F1BD /* JSONUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONUtils.swift; sourceTree = "<group>"; };
-		D89DBE3F2B8C9E7400E5F1BD /* RouterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterView.swift; sourceTree = "<group>"; };
 		D89DBE452B8CBE0F00E5F1BD /* UserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepository.swift; sourceTree = "<group>"; };
 		D89DBE472B8CBE4C00E5F1BD /* AppUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUser.swift; sourceTree = "<group>"; };
 		D89DBE492B8CBEAE00E5F1BD /* ServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceError.swift; sourceTree = "<group>"; };
@@ -181,7 +179,6 @@
 		D89DBE512B8DC4ED00E5F1BD /* Router */ = {
 			isa = PBXGroup;
 			children = (
-				D89DBE3F2B8C9E7400E5F1BD /* RouterView.swift */,
 				D89DBE522B8DC9F700E5F1BD /* AppRoute.swift */,
 			);
 			path = Router;
@@ -492,7 +489,6 @@
 				D83B15092B999789004A5F4F /* GroupRepository.swift in Sources */,
 				D89DBE532B8DC9F700E5F1BD /* AppRoute.swift in Sources */,
 				D8A7CA752BA5AB670014EC67 /* UserStore.swift in Sources */,
-				D89DBE402B8C9E7400E5F1BD /* RouterView.swift in Sources */,
 				D89C934E2BC694C200FACD16 /* Double+Extension.swift in Sources */,
 				D85E86E52BAB088F002EDF76 /* ExpenseRepository.swift in Sources */,
 				D8A7CA772BA5AB800014EC67 /* GroupStore.swift in Sources */,

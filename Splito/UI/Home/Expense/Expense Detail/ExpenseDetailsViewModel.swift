@@ -8,6 +8,7 @@
 import Data
 import Combine
 import SwiftUI
+import UIPilot
 
 class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
@@ -20,9 +21,9 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     @Published var viewState: ViewState = .initial
 
     var expenseId: String
-    let router: Router<AppRoute>
+    let router: UIPilot<AppRoute>
 
-    init(router: Router<AppRoute>, expenseId: String) {
+    init(router: UIPilot<AppRoute>, expenseId: String) {
         self.router = router
         self.expenseId = expenseId
         super.init()

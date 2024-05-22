@@ -9,6 +9,7 @@ import Data
 import SwiftUI
 import Combine
 import FirebaseAuth
+import UIPilot
 
 public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
 
@@ -17,7 +18,7 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var showLoader: Bool = false
 
-    @Inject var mainRouter: Router<MainRoute>
+    @Inject var mainRouter: UIPilot<MainRoute>
     @Inject var preference: SplitoPreference
     @Inject var userRepository: UserRepository
 
@@ -25,9 +26,9 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
     var phoneNumber: String
     var verificationId: String
 
-    private let router: Router<AppRoute>
+    private let router: UIPilot<AppRoute>
 
-    init(router: Router<AppRoute>, phoneNumber: String, verificationId: String) {
+    init(router: UIPilot<AppRoute>, phoneNumber: String, verificationId: String) {
         self.router = router
         self.phoneNumber = phoneNumber
         self.verificationId = verificationId
@@ -118,7 +119,8 @@ extension VerifyOtpViewModel {
     }
 
     private func onLoginSuccess() {
-        router.popToRoot()
-        mainRouter.updateRoot(root: .HomeView)
+        router.popTo(.OnboardView, inclusive: true)
+        mainRouter.popTo(.OnboardView, inclusive: true)
+        mainRouter.push(.HomeView)
     }
 }

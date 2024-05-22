@@ -7,6 +7,7 @@
 
 import Data
 import SwiftUI
+import UIPilot
 
 class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
@@ -26,9 +27,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     var group: Groups?
     private let groupId: String
     private var groupUserData: [AppUser] = []
-    private let router: Router<AppRoute>
+    private let router: UIPilot<AppRoute>
 
-    init(router: Router<AppRoute>, groupId: String) {
+    init(router: UIPilot<AppRoute>, groupId: String) {
         self.router = router
         self.groupId = groupId
         super.init()

@@ -5,15 +5,16 @@
 //  Created by Amisha Italiya on 14/03/24.
 //
 
-import SwiftUI
 import Data
+import UIPilot
+import SwiftUI
 import AVFoundation
 
 public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
     private let NAME_CHARACTER_MIN_LIMIT = 3
 
-    @Inject private var mainRouter: Router<MainRoute>
+    @Inject private var mainRouter: UIPilot<MainRoute>
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
 
@@ -36,10 +37,10 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var currentState: ViewState = .loading
 
-    private let router: Router<AppRoute>?
+    private let router: UIPilot<AppRoute>?
     private var onDismiss: (() -> Void)?
 
-    init(router: Router<AppRoute>?, isOpenedFromOnboard: Bool, onDismiss: (() -> Void)?) {
+    init(router: UIPilot<AppRoute>?, isOpenedFromOnboard: Bool, onDismiss: (() -> Void)?) {
         self.router = router
         self.onDismiss = onDismiss
         self.isOpenedFromOnboard = isOpenedFromOnboard
@@ -158,8 +159,9 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
     }
 
     private func goToOnboardScreen() {
-        router?.popToRoot()
-        mainRouter.updateRoot(root: .OnboardView)
+        router?.popTo(.AccountHomeView, inclusive: true)
+        mainRouter.popTo(.HomeView, inclusive: true)
+        mainRouter.push(.OnboardView)
     }
 }
 

@@ -40,10 +40,10 @@ struct GroupSettingView: View {
             }
         }
         .background(backgroundColor)
+        .setNavigationTitle("Group settings")
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .navigationBarTitle("Group settings", displayMode: .inline)
         .confirmationDialog("", isPresented: $viewModel.showLeaveGroupDialog, titleVisibility: .hidden) {
             Button("Leave Group") {
                 viewModel.showAlert = true
@@ -255,5 +255,5 @@ private struct GroupMemberCellView: View {
 }
 
 #Preview {
-    GroupSettingView(viewModel: GroupSettingViewModel(router: .init(root: .GroupSettingView(groupId: "")), groupId: ""))
+    GroupSettingView(viewModel: GroupSettingViewModel(router: .init(initial: .GroupSettingView(groupId: "")), groupId: ""))
 }

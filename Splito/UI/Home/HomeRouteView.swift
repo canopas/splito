@@ -11,48 +11,36 @@ import SwiftUI
 
 struct HomeRouteView: View {
 
-    @Inject var preference: SplitoPreference
-
-    @State private var openExpenseSheet = false
-    @State private var openProfileView = false
+    @StateObject var viewModel = HomeRouteViewModel()
 
     var body: some View {
-        ZStack {
-            TabView {
-                GroupRouteView()
-                    .tabItem {
-                        Label("Groups", systemImage: "person.2")
-                    }
-                    .tag(0)
+        UITabView(selection: $viewModel.selectedTab) {
+            GroupRouteView()
+                .tabItem("Groups", image: UIImage(systemName: "person.2.fill"))
 
-                AccountRouteView()
-                    .tabItem {
-                        Label("Account", systemImage: "person.crop.square")
-                    }
-                    .tag(1)
+            AccountRouteView()
+                .tabItem("Account", image: UIImage(systemName: "person.crop.square"))
+        }
+        .tint(primaryColor)
+        .overlay(
+            CenterFabButton {
+                viewModel.shouldOpenExpenseSheet = true
             }
-            .tint(primaryColor)
-            .overlay(
-                CenterFabButton {
-                    openExpenseSheet = true
-                }
-            )
-            .fullScreenCover(isPresented: $openExpenseSheet) {
-                ExpenseRouteView()
-            }
-            .sheet(isPresented: $openProfileView) {
-                UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenedFromOnboard: true, onDismiss: {
-                    openProfileView = false
-                }))
-                .interactiveDismissDisabled()
+        )
+        .fullScreenCover(isPresented: $viewModel.shouldOpenExpenseSheet) {
+            ExpenseRouteView {
+                viewModel.shouldOpenExpenseSheet = false
             }
         }
+        .sheet(isPresented: $viewModel.shouldOpenProfileView) {
+            UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenedFromOnboard: true, onDismiss: {
+                viewModel.shouldOpenProfileView = false
+            }))
+            .interactiveDismissDisabled()
+        }
+        .toolbar(.hidden, for: .navigationBar)
         .onAppear {
-            if preference.isVerifiedUser {
-                if preference.user == nil || (preference.user?.firstName == nil) {
-                    openProfileView = true
-                }
-            }
+            viewModel.checkForForceProfileInput()
         }
     }
 }

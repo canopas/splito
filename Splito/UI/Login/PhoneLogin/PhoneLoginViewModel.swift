@@ -7,6 +7,7 @@
 
 import Data
 import FirebaseAuth
+import UIPilot
 
 public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
 
@@ -28,9 +29,9 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private let router: Router<AppRoute>
+    private let router: UIPilot<AppRoute>
 
-    init(router: Router<AppRoute>) {
+    init(router: UIPilot<AppRoute>) {
         self.router = router
         let allCountries = JSONUtils.readJSONFromFile(fileName: "Countries", type: [Country].self, bundle: .baseBundle) ?? []
         let currentLocal = Locale.current.region?.identifier

@@ -8,16 +8,19 @@
 import Data
 import SwiftUI
 import BaseStyle
+import UIPilot
 
 struct ExpenseRouteView: View {
 
-    @StateObject var appRoute = Router(root: AppRoute.AddExpenseView(expenseId: nil))
+    @StateObject var appRoute = UIPilot(initial: AppRoute.AddExpenseView(expenseId: nil))
+
+    let onDismiss: (() -> Void)?
 
     var body: some View {
-        RouterView(router: appRoute) { route in
+        UIPilotHost(appRoute) { route in
             switch route {
             case .AddExpenseView:
-                AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute))
+                AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, onDismiss: onDismiss))
             default:
                 EmptyRouteView(routeName: self)
             }

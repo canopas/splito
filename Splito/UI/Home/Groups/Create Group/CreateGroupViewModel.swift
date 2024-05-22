@@ -11,6 +11,7 @@ import Combine
 import BaseStyle
 import AVFoundation
 import FirebaseFirestoreInternal
+import UIPilot
 
 class CreateGroupViewModel: BaseViewModel, ObservableObject {
 
@@ -29,10 +30,10 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     @Published var group: Groups?
     @Published var currentState: ViewState = .initial
 
-    let router: Router<AppRoute>
+    let router: UIPilot<AppRoute>
     var isOpenForEdit: Bool = false
 
-    init(router: Router<AppRoute>, group: Groups? = nil) {
+    init(router: UIPilot<AppRoute>, group: Groups? = nil) {
         self.router = router
         self.group = group
         self.groupName = group?.name ?? ""

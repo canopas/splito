@@ -8,10 +8,11 @@
 import Data
 import BaseStyle
 import SwiftUI
+import UIPilot
 
 public struct MainRouteView: View {
 
-    @Inject var router: Router<MainRoute>
+    @Inject var router: UIPilot<MainRoute>
     @Inject var preference: SplitoPreference
 
     init() {
@@ -19,7 +20,7 @@ public struct MainRouteView: View {
     }
 
     public var body: some View {
-        RouterView(router: router) { route in
+        UIPilotHost(router) { route in
             switch route {
             case .OnboardView:
                 OnboardRouteView()
@@ -29,7 +30,8 @@ public struct MainRouteView: View {
         }
         .onAppear {
             if preference.isVerifiedUser {
-                router.updateRoot(root: .HomeView)
+                router.popTo(.OnboardView, inclusive: true)
+                router.push(.HomeView)
             }
         }
     }

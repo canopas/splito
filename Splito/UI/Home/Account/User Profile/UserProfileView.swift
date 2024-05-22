@@ -71,7 +71,7 @@ struct UserProfileView: View {
         }
         .padding(.horizontal, 20)
         .background(surfaceColor)
-        .navigationBarTitle("Profile", displayMode: .inline)
+        .setNavigationTitle("Profile")
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toastView(toast: $viewModel.toast)
         .onTapGesture {
@@ -223,5 +223,5 @@ private struct UserProfileDataEditableTextField: View {
 }
 
 #Preview {
-    UserProfileView(viewModel: UserProfileViewModel(router: .init(root: .ProfileView), isOpenedFromOnboard: true, onDismiss: nil))
+    UserProfileView(viewModel: UserProfileViewModel(router: .init(initial: .ProfileView), isOpenedFromOnboard: true, onDismiss: nil))
 }

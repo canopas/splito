@@ -12,12 +12,13 @@ import GoogleSignIn
 import FirebaseCore
 import FirebaseAuth
 import AuthenticationServices
+import UIPilot
 
 public class LoginViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var currentState: ViewState = .initial
 
-    @Inject private var mainRouter: Router<MainRoute>
+    @Inject private var mainRouter: UIPilot<MainRoute>
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
 
@@ -25,9 +26,9 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 
     var appleSignInDelegates: SignInWithAppleDelegates! = nil
 
-    private let router: Router<AppRoute>
+    private let router: UIPilot<AppRoute>
 
-    init(router: Router<AppRoute>) {
+    init(router: UIPilot<AppRoute>) {
         self.router = router
     }
 
@@ -121,7 +122,8 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
     }
 
     private func onLoginSuccess() {
-        mainRouter.updateRoot(root: .HomeView)
+        mainRouter.popTo(.OnboardView)
+        mainRouter.push(.HomeView)
     }
 
     func onPhoneLoginClick() {

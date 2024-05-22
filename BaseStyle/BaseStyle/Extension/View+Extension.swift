@@ -25,6 +25,15 @@ public extension View {
 }
 
 public extension View {
+    func setNavigationTitle(_ title: String) -> some View {
+        self
+            .toolbar(.visible, for: .navigationBar)
+            .navigationTitle(title.localized)
+            .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+public extension View {
     @ViewBuilder func hidden(_ shouldHide: Bool) -> some View {
         switch shouldHide {
         case true: self.hidden()
