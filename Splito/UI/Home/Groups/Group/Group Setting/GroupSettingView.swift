@@ -54,6 +54,9 @@ struct GroupSettingView: View {
                 viewModel.showAlert = true
             }
         }
+        .onAppear {
+            viewModel.fetchGroupDetails()
+        }
     }
 }
 

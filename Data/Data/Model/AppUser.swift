@@ -7,11 +7,7 @@
 
 import Foundation
 
-public struct AppUser: Identifiable, Equatable, Codable, Hashable {
-
-    public static func == (lhs: AppUser, rhs: AppUser) -> Bool {
-        return lhs.id == rhs.id
-    }
+public struct AppUser: Identifiable, Codable {
 
     public var id: String
     public var firstName: String?

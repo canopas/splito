@@ -24,10 +24,10 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     init(groupId: String) {
         self.groupId = groupId
         super.init()
-        fetchGroupMembers(groupId: groupId)
+        fetchGroupMembers()
     }
 
-    private func fetchGroupMembers(groupId: String) {
+    func fetchGroupMembers() {
         viewState = .loading
         groupRepository.fetchMembersBy(groupId: groupId)
             .sink { [weak self] completion in

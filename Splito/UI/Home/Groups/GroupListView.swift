@@ -47,6 +47,12 @@ struct GroupListView: View {
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .onAppear {
+            viewModel.fetchGroups()
+        }
+        .onDisappear {
+            viewModel.showGroupMenu = false
+        }
     }
 }
 
@@ -85,7 +91,7 @@ private struct GroupListWithDetailView: View {
             VSpacer(10)
 
             LazyVStack(spacing: 16) {
-                ForEach(groupInformation, id: \.self) { group in
+                ForEach(groupInformation, id: \.group.id) { group in
                     GroupListCellView(group: group, viewModel: viewModel)
                         .onTapGesture {
                             viewModel.handleGroupItemTap(group.group)

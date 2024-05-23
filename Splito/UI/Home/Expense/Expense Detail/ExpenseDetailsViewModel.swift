@@ -25,8 +25,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     init(router: Router<AppRoute>, expenseId: String) {
         self.router = router
         self.expenseId = expenseId
-        super.init()
-        self.fetchExpense()
     }
 
     func fetchExpense() {

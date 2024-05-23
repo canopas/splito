@@ -38,7 +38,7 @@ struct ExpenseSplitOptionsView: View {
                             .foregroundStyle(primaryText)
 
                             VStack(spacing: 12) {
-                                ForEach(viewModel.groupMembers, id: \.self) { member in
+                                ForEach(viewModel.groupMembers, id: \.id) { member in
                                     ExpenseMemberCellView(member: member, isSelected: viewModel.checkIsMemberSelected(member.id)) {
                                         viewModel.handleMemberSelection(member.id)
                                     }

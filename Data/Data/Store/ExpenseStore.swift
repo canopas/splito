@@ -79,6 +79,13 @@ public class ExpenseStore: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
+    func fetchLatestExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
+        database.collection(DATABASE_NAME)
+            .whereField("group_id", isEqualTo: groupId)
+            .limit(to: 20)
+            .snapshotPublisher(as: Expense.self)
+    }
+
     func fetchExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
         Future { [weak self] promise in
             guard let self else {
@@ -86,7 +93,7 @@ public class ExpenseStore: ObservableObject {
                 return
             }
 
-            self.database.collection(DATABASE_NAME).whereField("group_id", isEqualTo: groupId).getDocuments { snapshot, error in
+            self.database.collection(DATABASE_NAME).whereField("group_id", isEqualTo: groupId).addSnapshotListener { snapshot, error in
                 if let error {
                     LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError))
@@ -130,5 +137,41 @@ public class ExpenseStore: ObservableObject {
                 }
             }
         }.eraseToAnyPublisher()
+    }
+
+    func deleteExpensesOf(groupId: String) -> AnyPublisher<Void, ServiceError> {
+        Future { [weak self] promise in
+            guard let self else {
+                promise(.failure(.unexpectedError))
+                return
+            }
+
+            self.database.collection(DATABASE_NAME).whereField("group_id", isEqualTo: groupId).getDocuments { snapshot, error in
+                if let error {
+                    print("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
+                    promise(.failure(.databaseError))
+                    return
+                }
+
+                guard let snapshot, !snapshot.documents.isEmpty else {
+                    print("ExpenseStore :: \(#function) The document is not available.")
+                    promise(.success(()))
+                    return
+                }
+
+                let batch = self.database.batch()
+                snapshot.documents.forEach { batch.deleteDocument($0.reference) }
+
+                batch.commit { error in
+                    if let error {
+                        promise(.failure(.databaseError))
+                        print("ExpenseStore :: \(#function) Database error: \(error.localizedDescription)")
+                    } else {
+                        promise(.success(()))
+                    }
+                }
+            }
+        }
+        .eraseToAnyPublisher()
     }
 }

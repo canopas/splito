@@ -49,14 +49,22 @@ class GroupStore: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    func fetchGroups() -> AnyPublisher<[Groups], ServiceError> {
+    func fetchLatestGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
+        database.collection(DATABASE_NAME)
+            .whereField("members", arrayContains: userId)
+            .snapshotPublisher(as: Groups.self)
+    }
+
+    func fetchGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return
             }
 
-            self.database.collection(DATABASE_NAME).getDocuments { snapshot, error in
+            self.database.collection(DATABASE_NAME)
+                .whereField("members", arrayContains: userId)
+                .getDocuments { snapshot, error in
                 if let error {
                     LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError))
