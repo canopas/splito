@@ -176,7 +176,7 @@ extension Font {
         var errorRef: Unmanaged<CFError>?
 
         if CTFontManagerRegisterGraphicsFont(fontRef!, &errorRef) == false {
-            print("Error registering font")
+            LogE("Error registering font")
         }
     }
 

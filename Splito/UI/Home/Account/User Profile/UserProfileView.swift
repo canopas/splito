@@ -15,65 +15,81 @@ struct UserProfileView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if case .loading = viewModel.currentState {
-                LoaderView()
-            } else {
-                ScrollView {
-                    VStack(spacing: 40) {
-                        VSpacer(30)
+            ScrollView {
+                VStack(spacing: 40) {
+                    VSpacer(30)
 
-                        UserProfileImageView(image: $viewModel.profileImage,
-                                             profileImageUrl: viewModel.profileImageUrl,
-                                             handleProfileTap: viewModel.handleProfileTap)
-                        .confirmationDialog("", isPresented: $viewModel.showImagePickerOption, titleVisibility: .hidden) {
-                            Button("Take Picture") {
-                                viewModel.handleActionSelection(.camera)
-                            }
-                            Button("Choose from Library") {
-                                viewModel.handleActionSelection(.gallery)
-                            }
-                            if viewModel.profileImage != nil || viewModel.profileImageUrl != nil {
-                                Button("Remove") {
-                                    viewModel.handleActionSelection(.remove)
-                                }
-                                .foregroundStyle(.red)
-                            }
+                    UserProfileImageView(image: $viewModel.profileImage,
+                                         profileImageUrl: viewModel.profileImageUrl,
+                                         handleProfileTap: viewModel.handleProfileTap)
+                    .confirmationDialog("", isPresented: $viewModel.showImagePickerOption, titleVisibility: .hidden) {
+                        Button("Take Picture") {
+                            viewModel.handleActionSelection(.camera)
                         }
-
-                        UserDetailList(firstName: $viewModel.firstName, lastName: $viewModel.lastName,
-                                       email: $viewModel.email, phone: $viewModel.phone,
-                                       userLoginType: $viewModel.userLoginType)
-
-                        if viewModel.isDeleteInProgress {
-                            LoaderView(scaleSize: 1)
-                                .frame(height: 50)
-                        } else {
-                            Button(action: viewModel.handleDeleteAction) {
-                                Text("Delete Account")
-                                    .font(.body2())
-                                    .lineSpacing(1)
-                                    .foregroundStyle(awarenessColor)
-                            }
-                            .buttonStyle(.scale)
-                            .hidden(viewModel.isOpenedFromOnboard)
+                        Button("Choose from Library") {
+                            viewModel.handleActionSelection(.gallery)
                         }
-
-                        PrimaryButton(text: "Save",
-                                      isEnabled: viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count > 3,
-                                      showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUserProfile)
-
-                        VSpacer(40)
+                        if viewModel.profileImage != nil || viewModel.profileImageUrl != nil {
+                            Button("Remove") {
+                                viewModel.handleActionSelection(.remove)
+                            }
+                            .foregroundStyle(.red)
+                        }
                     }
-                    .disabled(viewModel.isDeleteInProgress || viewModel.isSaveInProgress)
+
+                    UserDetailList(firstName: $viewModel.firstName, lastName: $viewModel.lastName,
+                                   email: $viewModel.email, phone: $viewModel.phone,
+                                   userLoginType: $viewModel.userLoginType)
+
+                    VSpacer(8)
+
+                    Button(action: viewModel.handleDeleteAction) {
+                        HStack(spacing: 10) {
+                            if viewModel.isDeleteInProgress {
+                                LoaderView(tintColor: primaryColor, scaleSize: 1)
+                                    .frame(width: 20)
+                            }
+
+                            Text("Delete account")
+                                .font(.buttonText())
+                                .foregroundStyle(awarenessColor)
+                        }
+                        .padding(.vertical, 16)
+                        .padding(.horizontal, 24)
+                        .background(containerLowColor)
+                        .clipShape(Capsule())
+                    }
+                    .buttonStyle(.scale)
+                    .hidden(viewModel.isOpenedFromOnboard)
+
+                    VSpacer(40)
                 }
-                .scrollIndicators(.hidden)
+                .disabled(viewModel.isDeleteInProgress || viewModel.isSaveInProgress)
             }
+            .scrollIndicators(.hidden)
         }
         .padding(.horizontal, 20)
         .background(surfaceColor)
         .navigationBarTitle("Profile", displayMode: .inline)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toastView(toast: $viewModel.toast)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing, content: {
+                if viewModel.isSaveInProgress {
+                    LoaderView(tintColor: primaryColor, scaleSize: 1)
+                        .frame(height: 50)
+                        .padding(.trailing, 5)
+                } else {
+                    Button(action: viewModel.updateUserProfile) {
+                        Image((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count > 3) ? .savePrimaryIcon: .saveIcon)
+                            .resizable()
+                            .frame(width: 26, height: 26)
+                    }
+                    .disabled(!viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count < 3)
+                    .opacity((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count > 3) ? 1 : 0.6)
+                }
+            })
+        }
         .onTapGesture {
             UIApplication.shared.endEditing()
         }

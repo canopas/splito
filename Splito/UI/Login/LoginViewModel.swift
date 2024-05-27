@@ -15,7 +15,8 @@ import AuthenticationServices
 
 public class LoginViewModel: BaseViewModel, ObservableObject {
 
-    @Published private(set) var currentState: ViewState = .initial
+    @Published private(set) var showGoogleLoading = false
+    @Published private(set) var showAppleLoading = false
 
     @Inject private var mainRouter: Router<MainRoute>
     @Inject private var preference: SplitoPreference
@@ -48,6 +49,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
                 LogE("LoginViewModel :: Google Login Error: \(String(describing: error))")
                 return
             }
+
             guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
 
             let firstName = user.profile?.givenName ?? ""
@@ -55,7 +57,8 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
             let email = user.profile?.email ?? ""
 
             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-            self.performFirebaseLogin(credential: credential, loginType: .Google, userData: (firstName, lastName, email))
+            self.showGoogleLoading = true
+            self.performFirebaseLogin(showGoogleLoading: showGoogleLoading, credential: credential, loginType: .Google, userData: (firstName, lastName, email))
         }
     }
 
@@ -67,7 +70,8 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 
         appleSignInDelegates = SignInWithAppleDelegates { (token, fName, lName, email)  in
             let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: token, rawNonce: self.currentNonce)
-            self.performFirebaseLogin(credential: credential, loginType: .Apple, userData: (fName, lName, email))
+            self.showAppleLoading = true
+            self.performFirebaseLogin(showAppleLoading: self.showAppleLoading, credential: credential, loginType: .Apple, userData: (fName, lName, email))
         }
 
         let authorizationController = ASAuthorizationController(authorizationRequests: [request])
@@ -75,21 +79,25 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         authorizationController.performRequests()
     }
 
-    private func performFirebaseLogin(credential: AuthCredential, loginType: LoginType, userData: (String, String, String)) {
-        currentState = .loading
+    private func performFirebaseLogin(showGoogleLoading: Bool = false, showAppleLoading: Bool = false, credential: AuthCredential, loginType: LoginType, userData: (String, String, String)) {
+        self.showGoogleLoading = showGoogleLoading
+        self.showAppleLoading = showAppleLoading
+
         FirebaseProvider.auth
             .signIn(with: credential) { [weak self] result, error in
                 guard let self = self else { return }
                 if let error {
-                    self.currentState = .initial
-                    print("LoginViewModel :: Firebase Error: \(error), with type Apple login.")
+                    self.showGoogleLoading = false
+                    self.showAppleLoading = false
+                    LogE("LoginViewModel :: Firebase Error: \(error), with type Apple login.")
                     self.alert = .init(message: "Server error")
                     self.showAlert = true
                 } else if let result {
-                    self.currentState = .initial
+                    self.showGoogleLoading = false
+                    self.showAppleLoading = false
                     let user = AppUser(id: result.user.uid, firstName: userData.0, lastName: userData.1, emailId: userData.2, phoneNumber: nil, loginType: loginType)
                     self.storeUser(user: user)
-                    print("LoginViewModel :: Logged in User: \(result.user)")
+                    LogD("LoginViewModel :: Logged in User: \(result.user)")
                 } else {
                     self.alert = .init(message: "Contact Support")
                     self.showAlert = true

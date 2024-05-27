@@ -112,7 +112,7 @@
     "Create Group" : {
 
     },
-    "Delete Account" : {
+    "Delete account" : {
 
     },
     "Delete group" : {
@@ -205,9 +205,6 @@
     "Leave Group" : {
 
     },
-    "Logout" : {
-
-    },
     "Next" : {
 
     },
@@ -288,6 +285,9 @@
     },
     "Sign in with Phone Number" : {
       "extractionState" : "manual"
+    },
+    "Sign out" : {
+
     },
     "Sign up in the app to use amazing spliting features" : {
 

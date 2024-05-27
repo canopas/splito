@@ -21,41 +21,38 @@ struct OnboardView: View {
 
     public var body: some View {
         VStack(alignment: .center, spacing: 0) {
-            if case .loading = viewModel.currentState {
-                LoaderView()
-            } else {
-                GeometryReader { proxy in
-                    TabView(selection: $viewModel.currentPageIndex) {
-                        ForEach(0..<onboardItems.count, id: \.self) { index in
-                            OnboardPageView(index: index, items: onboardItems, proxy: proxy, onStartBtnTap: viewModel.loginAnonymous)
-                        }
+            GeometryReader { proxy in
+                TabView(selection: $viewModel.currentPageIndex) {
+                    ForEach(0..<onboardItems.count, id: \.self) { index in
+                        OnboardPageView(index: index, items: onboardItems, proxy: proxy, showLoader: viewModel.showLoader, onStartBtnTap: viewModel.loginAnonymous)
                     }
-                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 }
-
-                Spacer()
-
-                ZStack(alignment: .center) {
-                    PageControl(numberOfPages: onboardItems.count, currentIndex: $viewModel.currentPageIndex)
-                        .frame(height: 10)
-                        .padding(.horizontal, 16)
-
-                    HStack {
-                        Spacer()
-                        Button("Next") {
-                            withAnimation {
-                                viewModel.currentPageIndex += 1
-                            }
-                        }
-                        .fontWeight(.bold)
-                        .foregroundStyle(primaryText)
-                    }
-                    .padding(.horizontal, 30)
-                    .opacity(viewModel.currentPageIndex == (onboardItems.count - 1) ? 0 : 1)
-                }
-
-                VSpacer(30)
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             }
+
+            Spacer()
+
+            ZStack(alignment: .center) {
+                PageControl(numberOfPages: onboardItems.count, currentIndex: $viewModel.currentPageIndex)
+                    .frame(height: 10)
+                    .padding(.horizontal, 16)
+
+                HStack {
+                    Spacer()
+                    Button("Next") {
+                        withAnimation {
+                            viewModel.currentPageIndex += 1
+                        }
+                    }
+                    .fontWeight(.bold)
+                    .foregroundStyle(primaryText)
+                }
+                .padding(.horizontal, 30)
+                .opacity(viewModel.currentPageIndex == (onboardItems.count - 1) ? 0 : 1)
+            }
+
+            VSpacer(30)
+
         }
         .frame(maxWidth: .infinity, alignment: .center)
     }
@@ -66,6 +63,7 @@ struct OnboardPageView: View {
     var index: Int
     var items: [OnboardItem]
     let proxy: GeometryProxy
+    var showLoader: Bool
 
     var onStartBtnTap: (() -> Void)
 
@@ -95,7 +93,7 @@ struct OnboardPageView: View {
 
                 VSpacer(70)
 
-                PrimaryButton(text: "Get Started", showLoader: false) {
+                PrimaryButton(text: "Get Started", showLoader: showLoader) {
                     onStartBtnTap()
                 }
                 .opacity(index == (items.count - 1) ? 1 : 0)

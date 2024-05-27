@@ -34,8 +34,6 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
     @Published var isDeleteInProgress: Bool = false
     @Published var isOpenedFromOnboard: Bool
 
-    @Published private(set) var currentState: ViewState = .loading
-
     private let router: Router<AppRoute>?
     private var onDismiss: (() -> Void)?
 
@@ -56,7 +54,6 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             userLoginType = user.loginType
             profileImageUrl = user.imageUrl
         }
-        currentState = .initial
     }
 
     func handleProfileTap() {
@@ -104,8 +101,6 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
     func updateUserProfile() {
         if let user = preference.user {
-            self.currentState = .loading
-
             var newUser = user
             newUser.firstName = firstName.capitalized
             newUser.lastName = lastName.capitalized
@@ -115,15 +110,16 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             let resizedImage = profileImage?.aspectFittedToHeight(200)
             let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
 
+            isSaveInProgress = true
             userRepository.updateUserWithImage(imageData: imageData, newImageUrl: profileImageUrl, user: newUser)
                 .sink { [weak self] completion in
                     if case .failure(let error) = completion {
-                        self?.currentState = .initial
+                        self?.isSaveInProgress = false
                         self?.showAlertFor(error)
                     }
                 } receiveValue: { [weak self] user in
                     guard let self else { return }
-                    self.currentState = .initial
+                    self.isSaveInProgress = false
                     self.preference.user = user
 
                     if self.isOpenedFromOnboard {
@@ -142,32 +138,24 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                 .sink { [weak self] completion in
                     if case .failure(let error) = completion {
                         self?.isDeleteInProgress = false
-                        self?.currentState = .initial
                         self?.showAlertFor(error)
                     }
                 } receiveValue: { [weak self] _ in
                     guard let self else { return }
+                    self.isDeleteInProgress = false
                     self.preference.clearPreferenceSession()
                     self.preference.isOnboardShown = false
                     self.goToOnboardScreen()
-                    print("UserProfileViewModel :: user deleted.")
+                    LogD("UserProfileViewModel :: user deleted.")
                 }.store(in: &cancelable)
         } else {
-            print("UserProfileViewModel :: user not exists.")
+            LogD("UserProfileViewModel :: user not exists.")
         }
     }
 
     private func goToOnboardScreen() {
         router?.popToRoot()
         mainRouter.updateRoot(root: .OnboardView)
-    }
-}
-
-// MARK: - View's State
-extension UserProfileViewModel {
-    enum ViewState {
-        case initial
-        case loading
     }
 }
 

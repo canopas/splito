@@ -12,6 +12,7 @@ struct FloatingAddGroupButton: View {
 
     @Binding var showMenu: Bool
 
+    var showCreateMenu: Bool
     var joinGroupTapped: () -> Void
     var createGroupTapped: () -> Void
 
@@ -35,19 +36,21 @@ struct FloatingAddGroupButton: View {
                     .opacity(showMenu ? 1 : 0)
                     .rotationEffect(.degrees(showMenu ? 0 : -180))
 
-                    Button {
-                        createGroupTapped()
-                    } label: {
-                        Text("Create Group")
-                            .padding()
-                            .font(.subTitle3())
-                            .background(backgroundColor)
-                            .foregroundStyle(primaryColor)
-                            .overlay(RoundedRectangle(cornerRadius: 30).stroke(primaryColor, lineWidth: 1))
+                    if showCreateMenu {
+                        Button {
+                            createGroupTapped()
+                        } label: {
+                            Text("Create Group")
+                                .padding()
+                                .font(.subTitle3())
+                                .background(backgroundColor)
+                                .foregroundStyle(primaryColor)
+                                .overlay(RoundedRectangle(cornerRadius: 30).stroke(primaryColor, lineWidth: 1))
+                        }
+                        .offset(y: showMenu ? -120 : 0)
+                        .opacity(showMenu ? 1 : 0)
+                        .rotationEffect(.degrees(showMenu ? 0 : -180))
                     }
-                    .offset(y: showMenu ? -120 : 0)
-                    .opacity(showMenu ? 1 : 0)
-                    .rotationEffect(.degrees(showMenu ? 0 : -180))
 
                     Button {
                         showMenu.toggle()

@@ -34,12 +34,11 @@ struct GroupListView: View {
                 }
                 .frame(maxHeight: .infinity)
                 .overlay {
-                    if viewModel.groupListState != .noGroup {
-                        FloatingAddGroupButton(showMenu: $viewModel.showGroupMenu,
-                                               joinGroupTapped: viewModel.handleJoinGroupBtnTap,
-                                               createGroupTapped: viewModel.handleCreateGroupBtnTap)
-                        .padding(.bottom, 16)
-                    }
+                    FloatingAddGroupButton(showMenu: $viewModel.showGroupMenu,
+                                           showCreateMenu: viewModel.groupListState != .noGroup,
+                                           joinGroupTapped: viewModel.handleJoinGroupBtnTap,
+                                           createGroupTapped: viewModel.handleCreateGroupBtnTap)
+                    .padding(.bottom, 16)
                 }
             }
         }

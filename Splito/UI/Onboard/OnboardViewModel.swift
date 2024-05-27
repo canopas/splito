@@ -10,34 +10,37 @@ import BaseStyle
 import FirebaseAuth
 import Foundation
 
-class OnboardViewModel: ObservableObject {
-
+class OnboardViewModel: BaseViewModel, ObservableObject {
+    
     @Published var currentPageIndex = 0
-    @Published var currentState: ViewState = .initial
-
+    @Published private(set) var showLoader = false
+    
     @Inject private var preference: SplitoPreference
-
+    
     private let router: Router<AppRoute>
-
+    
     init(router: Router<AppRoute>) {
         self.router = router
     }
-
+    
     func loginAnonymous() {
-        currentState = .loading
-        FirebaseProvider.auth.signInAnonymously { [weak self] result, _ in
-            guard let self, let user = result?.user else { self?.currentState = .initial; return }
-            self.preference.isOnboardShown = user.isAnonymous
-            currentState = .initial
-            router.updateRoot(root: .LoginView)
+        showLoader = true
+        FirebaseProvider.auth.signInAnonymously { [weak self] result, error in
+            guard let self = self else { return }
+            if let error {
+                self.showLoader = false
+                self.alert = .init(message: "Server error")
+                self.showAlert = true
+            } else if let result {
+                self.preference.isOnboardShown = result.user.isAnonymous
+                self.showLoader = false
+                router.updateRoot(root: .LoginView)
+            } else {
+                self.alert = .init(message: "Contact Support")
+                self.showLoader = false
+                self.showAlert = true
+            }
+            
         }
-    }
-}
-
-// MARK: - Group States
-extension OnboardViewModel {
-    enum ViewState {
-        case initial
-        case loading
     }
 }
