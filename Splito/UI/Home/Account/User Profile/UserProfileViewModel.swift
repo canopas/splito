@@ -142,9 +142,9 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                     }
                 } receiveValue: { [weak self] _ in
                     guard let self else { return }
+                    self.isDeleteInProgress = false
                     self.preference.clearPreferenceSession()
                     self.preference.isOnboardShown = false
-                    self.isDeleteInProgress = false
                     self.goToOnboardScreen()
                     print("UserProfileViewModel :: user deleted.")
                 }.store(in: &cancelable)

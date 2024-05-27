@@ -41,23 +41,28 @@ struct UserProfileView: View {
                                    email: $viewModel.email, phone: $viewModel.phone,
                                    userLoginType: $viewModel.userLoginType)
 
-                    if viewModel.isDeleteInProgress {
-                        LoaderView(scaleSize: 1)
-                            .frame(height: 50)
-                    } else {
-                        Button(action: viewModel.handleDeleteAction) {
+                    VSpacer(8)
+
+                    Button(action: viewModel.handleDeleteAction) {
+                        HStack(spacing: 10) {
+                            if viewModel.isDeleteInProgress {
+                                ProgressView()
+                                    .scaleEffect(1, anchor: .center)
+                                    .progressViewStyle(CircularProgressViewStyle(tint: primaryColor))
+                                    .animation(.default, value: viewModel.isDeleteInProgress)
+                            }
+
                             Text("Delete account")
-                                .font(.body2())
-                                .lineSpacing(1)
+                                .font(.buttonText())
                                 .foregroundStyle(awarenessColor)
                         }
-                        .buttonStyle(.scale)
-                        .hidden(viewModel.isOpenedFromOnboard)
+                        .padding(.vertical, 16)
+                        .padding(.horizontal, 24)
+                        .background(containerLowColor)
+                        .clipShape(Capsule())
                     }
-
-                    PrimaryButton(text: "Save",
-                                  isEnabled: viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count > 3,
-                                  showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUserProfile)
+                    .buttonStyle(.scale)
+                    .hidden(viewModel.isOpenedFromOnboard)
 
                     VSpacer(40)
                 }
@@ -70,6 +75,24 @@ struct UserProfileView: View {
         .navigationBarTitle("Profile", displayMode: .inline)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toastView(toast: $viewModel.toast)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing, content: {
+                if viewModel.isSaveInProgress {
+                    LoaderView(tintColor: primaryColor, scaleSize: 1)
+                        .frame(height: 50)
+                        .padding(.trailing, 5)
+                } else {
+                    Button(action: viewModel.updateUserProfile) {
+                        Image((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count > 3) ? .savePrimaryIcon: .saveIcon)
+                            .resizable()
+                            .frame(width: 26, height: 26)
+                    }
+                    .font(.subTitle1())
+                    .disabled(!viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count < 3)
+                    .opacity((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count > 3) ? 1 : 0.6)
+                }
+            })
+        }
         .onTapGesture {
             UIApplication.shared.endEditing()
         }
