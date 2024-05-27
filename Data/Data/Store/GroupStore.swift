@@ -52,7 +52,7 @@ class GroupStore: ObservableObject {
     func fetchLatestGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
         database.collection(DATABASE_NAME)
             .whereField("members", arrayContains: userId)
-			.limit(to: 10)
+            .limit(to: 10)
             .snapshotPublisher(as: Groups.self)
     }
 
@@ -66,28 +66,28 @@ class GroupStore: ObservableObject {
             self.database.collection(DATABASE_NAME)
                 .whereField("members", arrayContains: userId)
                 .getDocuments { snapshot, error in
-                if let error {
-                    LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError))
-                    return
-                }
-
-                guard let snapshot, !snapshot.documents.isEmpty else {
-                    LogD("GroupStore :: \(#function) The document is not available.")
-                    promise(.success([]))
-                    return
-                }
-
-                do {
-                    let groups = try snapshot.documents.compactMap { document in
-                        try document.data(as: Groups.self)
+                    if let error {
+                        LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
+                        promise(.failure(.databaseError))
+                        return
                     }
-                    promise(.success(groups))
-                } catch {
-                    LogE("GroupStore :: \(#function) Decode error: \(error.localizedDescription)")
-                    promise(.failure(.decodingError))
+
+                    guard let snapshot, !snapshot.documents.isEmpty else {
+                        LogD("GroupStore :: \(#function) The document is not available.")
+                        promise(.success([]))
+                        return
+                    }
+
+                    do {
+                        let groups = try snapshot.documents.compactMap { document in
+                            try document.data(as: Groups.self)
+                        }
+                        promise(.success(groups))
+                    } catch {
+                        LogE("GroupStore :: \(#function) Decode error: \(error.localizedDescription)")
+                        promise(.failure(.decodingError))
+                    }
                 }
-            }
         }.eraseToAnyPublisher()
     }
 

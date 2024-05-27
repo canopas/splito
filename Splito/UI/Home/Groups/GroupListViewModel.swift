@@ -15,7 +15,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Inject var groupRepository: GroupRepository
     @Inject var expenseRepository: ExpenseRepository
 
-	@Published var groups: [Groups] = []
+    @Published var groups: [Groups] = []
     @Published var currentViewState: ViewState = .loading
     @Published var groupListState: GroupListState = .noGroup
 
