@@ -35,7 +35,7 @@ struct GroupListView: View {
                 .frame(maxHeight: .infinity)
                 .overlay {
                     FloatingAddGroupButton(showMenu: $viewModel.showGroupMenu,
-                                           showCreateMenu: $viewModel.showCreateMenu,
+                                           showCreateMenu: viewModel.groupListState != .noGroup,
                                            joinGroupTapped: viewModel.handleJoinGroupBtnTap,
                                            createGroupTapped: viewModel.handleCreateGroupBtnTap)
                     .padding(.bottom, 16)

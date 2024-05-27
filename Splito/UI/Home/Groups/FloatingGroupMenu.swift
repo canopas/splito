@@ -11,8 +11,8 @@ import BaseStyle
 struct FloatingAddGroupButton: View {
 
     @Binding var showMenu: Bool
-    @Binding var showCreateMenu: Bool
 
+    var showCreateMenu: Bool
     var joinGroupTapped: () -> Void
     var createGroupTapped: () -> Void
 

@@ -20,7 +20,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var groupListState: GroupListState = .noGroup
 
     @Published var showGroupMenu = false
-    @Published var showCreateMenu = true
     @Published var usersTotalExpense = 0.0
 
     private let router: Router<AppRoute>
@@ -99,7 +98,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
                 let sortedGroups = groups.sorted { $0.group.name < $1.group.name }
                 self.groupListState = sortedGroups.isEmpty ? .noGroup : .hasGroup(groups: sortedGroups)
                 self.usersTotalExpense = groups.reduce(0.0) { $0 + $1.oweAmount }
-                self.showCreateMenu = !groups.isEmpty
             }
             .store(in: &cancelable)
     }
