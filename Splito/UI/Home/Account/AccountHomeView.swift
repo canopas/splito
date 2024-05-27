@@ -142,7 +142,7 @@ private struct AccountLogoutSectionView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 10) {
-            Text("Logout")
+            Text("Sign out")
                 .font(.bodyBold(18))
                 .foregroundStyle(primaryColor)
                 .padding(.top, 30)
