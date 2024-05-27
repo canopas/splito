@@ -59,8 +59,8 @@ extension DocumentReference {
             subject.send(data)
         }
 
-        return subject.handleEvents(receiveCancel: {
-            listener.remove()
-        }).eraseToAnyPublisher()
+		return subject
+			.handleEvents(receiveCancel: { listener.remove() })
+			.eraseToAnyPublisher()
     }
 }

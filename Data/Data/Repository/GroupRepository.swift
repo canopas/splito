@@ -84,7 +84,7 @@ public class GroupRepository: ObservableObject {
     }
 
     public func fetchLatestGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
-        store.fetchGroups(userId: userId)
+        store.fetchLatestGroups(userId: userId)
     }
 
     public func fetchGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {

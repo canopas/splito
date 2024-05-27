@@ -15,6 +15,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Inject var groupRepository: GroupRepository
     @Inject var expenseRepository: ExpenseRepository
 
+	@Published var groups: [Groups] = []
     @Published var currentViewState: ViewState = .loading
     @Published var groupListState: GroupListState = .noGroup
 
@@ -27,6 +28,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         self.router = router
         super.init()
         self.fetchLatestGroups()
+        self.observeLatestExpenses()
     }
 
     func fetchGroups() {
@@ -36,20 +38,47 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         processGroupsDetails(groupsPublisher)
     }
 
+    private func observeLatestExpenses() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.fetchLatestExpenses()
+        }
+    }
+
+    func fetchLatestExpenses() {
+        guard !groups.isEmpty else { return }
+
+        groups.forEach { group in
+            guard let groupId = group.id else { return }
+
+            expenseRepository.fetchLatestExpensesBy(groupId: groupId)
+                .sink(receiveCompletion: { [weak self] completion in
+                    if case .failure(let error) = completion {
+                        self?.currentViewState = .initial
+                        self?.showToastFor(error)
+                    }
+                }, receiveValue: { [weak self] _ in
+                    self?.fetchLatestGroups()
+                })
+                .store(in: &cancelable)
+        }
+    }
+
     func fetchLatestGroups() {
         guard let userId = preference.user?.id else { return }
 
-        let latestGroupsPublisher = groupRepository.fetchGroups(userId: userId)
+        let latestGroupsPublisher = groupRepository.fetchLatestGroups(userId: userId)
         processGroupsDetails(latestGroupsPublisher)
     }
 
     private func processGroupsDetails(_ groupsPublisher: AnyPublisher<[Groups], ServiceError>) {
         groupsPublisher
             .flatMap { [weak self] groups -> AnyPublisher<[GroupInformation], ServiceError> in
-                guard let self = self else {
+                guard let self else {
                     self?.currentViewState = .initial
                     return Fail(error: .dataNotFound).eraseToAnyPublisher()
                 }
+
+                self.groups = groups
 
                 let groupInfoPublishers = groups.map { group in
                     self.fetchGroupInformation(group: group)
