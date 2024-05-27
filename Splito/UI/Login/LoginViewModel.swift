@@ -61,7 +61,24 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
             self.performFirebaseLogin(showGoogleLoading: showGoogleLoading, credential: credential, loginType: .Google, userData: (firstName, lastName, email))
         }
     }
-    
+
+    func onAppleLoginClick() {
+        self.currentNonce = NonceGenerator.randomNonceString()
+        let request = ASAuthorizationAppleIDProvider().createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = NonceGenerator.sha256(currentNonce)
+
+        appleSignInDelegates = SignInWithAppleDelegates { (token, fName, lName, email)  in
+            let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: token, rawNonce: self.currentNonce)
+            self.showAppleLoading = true
+            self.performFirebaseLogin(showAppleLoading: self.showAppleLoading, credential: credential, loginType: .Apple, userData: (fName, lName, email))
+        }
+
+        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+        authorizationController.delegate = appleSignInDelegates
+        authorizationController.performRequests()
+    }
+
     private func performFirebaseLogin(showGoogleLoading: Bool = false, showAppleLoading: Bool = false, credential: AuthCredential, loginType: LoginType, userData: (String, String, String)) {
         self.showGoogleLoading = showGoogleLoading
         self.showAppleLoading = showAppleLoading
