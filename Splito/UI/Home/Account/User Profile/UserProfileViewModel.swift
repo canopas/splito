@@ -146,10 +146,10 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                     self.preference.clearPreferenceSession()
                     self.preference.isOnboardShown = false
                     self.goToOnboardScreen()
-                    print("UserProfileViewModel :: user deleted.")
+                    LogD("UserProfileViewModel :: user deleted.")
                 }.store(in: &cancelable)
         } else {
-            print("UserProfileViewModel :: user not exists.")
+            LogD("UserProfileViewModel :: user not exists.")
         }
     }
 

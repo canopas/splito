@@ -89,7 +89,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
                 if let error {
                     self.showGoogleLoading = false
                     self.showAppleLoading = false
-                    print("LoginViewModel :: Firebase Error: \(error), with type Apple login.")
+                    LogE("LoginViewModel :: Firebase Error: \(error), with type Apple login.")
                     self.alert = .init(message: "Server error")
                     self.showAlert = true
                 } else if let result {
@@ -97,7 +97,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
                     self.showAppleLoading = false
                     let user = AppUser(id: result.user.uid, firstName: userData.0, lastName: userData.1, emailId: userData.2, phoneNumber: nil, loginType: loginType)
                     self.storeUser(user: user)
-                    print("LoginViewModel :: Logged in User: \(result.user)")
+                    LogD("LoginViewModel :: Logged in User: \(result.user)")
                 } else {
                     self.alert = .init(message: "Contact Support")
                     self.showAlert = true

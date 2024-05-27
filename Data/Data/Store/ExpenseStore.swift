@@ -148,13 +148,13 @@ public class ExpenseStore: ObservableObject {
 
             self.database.collection(DATABASE_NAME).whereField("group_id", isEqualTo: groupId).getDocuments { snapshot, error in
                 if let error {
-                    print("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
+                    LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError))
                     return
                 }
 
                 guard let snapshot, !snapshot.documents.isEmpty else {
-                    print("ExpenseStore :: \(#function) The document is not available.")
+                    LogD("ExpenseStore :: \(#function) The document is not available.")
                     promise(.success(()))
                     return
                 }
@@ -165,7 +165,7 @@ public class ExpenseStore: ObservableObject {
                 batch.commit { error in
                     if let error {
                         promise(.failure(.databaseError))
-                        print("ExpenseStore :: \(#function) Database error: \(error.localizedDescription)")
+                        LogE("ExpenseStore :: \(#function) Database error: \(error.localizedDescription)")
                     } else {
                         promise(.success(()))
                     }
