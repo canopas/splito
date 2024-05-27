@@ -101,11 +101,10 @@ private struct LoginOptionsButtonView: View {
             }, label: {
                 ZStack {
                     HStack(alignment: .center, spacing: 12) {
-                        ProgressView()
-                            .scaleEffect(1, anchor: .center)
-                            .progressViewStyle(CircularProgressViewStyle(tint: primaryColor))
-                            .animation(.default, value: showLoader)
-                            .opacity(showLoader ? 1 : 0)
+                        if showLoader {
+                            LoaderView(tintColor: primaryColor, scaleSize: 1)
+                                .frame(width: 20, height: 20)
+                        }
 
                         Image(image)
                             .resizable()

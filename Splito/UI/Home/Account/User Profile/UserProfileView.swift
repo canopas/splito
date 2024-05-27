@@ -46,10 +46,8 @@ struct UserProfileView: View {
                     Button(action: viewModel.handleDeleteAction) {
                         HStack(spacing: 10) {
                             if viewModel.isDeleteInProgress {
-                                ProgressView()
-                                    .scaleEffect(1, anchor: .center)
-                                    .progressViewStyle(CircularProgressViewStyle(tint: primaryColor))
-                                    .animation(.default, value: viewModel.isDeleteInProgress)
+                                LoaderView(tintColor: primaryColor, scaleSize: 1)
+                                    .frame(width: 20)
                             }
 
                             Text("Delete account")
@@ -87,7 +85,6 @@ struct UserProfileView: View {
                             .resizable()
                             .frame(width: 26, height: 26)
                     }
-                    .font(.subTitle1())
                     .disabled(!viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count < 3)
                     .opacity((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count > 3) ? 1 : 0.6)
                 }
