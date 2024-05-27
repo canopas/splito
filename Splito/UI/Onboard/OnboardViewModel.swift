@@ -25,7 +25,7 @@ class OnboardViewModel: BaseViewModel, ObservableObject {
 
     func loginAnonymous() {
         showLoader = true
-        FirebaseProvider.auth.signInAnonymously { [weak self] result, _ in
+        FirebaseProvider.auth.signInAnonymously { [weak self] result, error in
             guard let self = self else { return }
             if let error {
                 self.showLoader = false
