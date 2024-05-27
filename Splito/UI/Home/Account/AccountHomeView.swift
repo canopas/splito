@@ -27,7 +27,7 @@ struct AccountHomeView: View {
                     VStack(spacing: 20) {
                         VSpacer(20)
 
-                        AccountUserHeaderView(onTap: viewModel.openUserProfileView)
+                        AccountUserHeaderView(user: viewModel.preference.user, onTap: viewModel.openUserProfileView)
 
                         AccountFeedbackSectionView(onContactTap: viewModel.onContactUsTap,
                                                    onRateAppTap: viewModel.onRateAppTap)
@@ -52,8 +52,7 @@ struct AccountHomeView: View {
 
 private struct AccountUserHeaderView: View {
 
-    @Inject var preference: SplitoPreference
-
+    let user: AppUser?
     var onTap: () -> Void
 
     var body: some View {
@@ -65,14 +64,14 @@ private struct AccountUserHeaderView: View {
                 .padding(.bottom, 10)
 
             HStack(alignment: .center, spacing: 16) {
-                MemberProfileImageView(imageUrl: preference.user?.imageUrl)
+                MemberProfileImageView(imageUrl: user?.imageUrl)
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(preference.user?.fullName ?? "")
+                    Text(user?.fullName ?? "")
                         .font(.subTitle1())
                         .foregroundStyle(primaryText)
 
-                    Text(preference.user?.emailId ?? "")
+                    Text(user?.emailId ?? "")
                         .font(.subTitle3())
                         .foregroundStyle(secondaryText)
                 }

@@ -11,8 +11,8 @@ import BaseStyle
 
 class AccountHomeViewModel: BaseViewModel, ObservableObject {
 
+    @Inject var preference: SplitoPreference
     @Inject private var mainRouter: Router<MainRoute>
-    @Inject private var preference: SplitoPreference
     @Inject private var ddLoggerProvider: DDLoggerProvider
 
     @Published var currentState: ViewState = .initial

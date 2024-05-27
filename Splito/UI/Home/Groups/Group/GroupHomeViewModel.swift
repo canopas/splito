@@ -32,10 +32,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         super.init()
-        fetchGroupAndExpenses()
+        self.fetchLatestExpenses()
     }
 
-    private func fetchGroupAndExpenses() {
+    func fetchGroupAndExpenses() {
         groupState = .loading
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
@@ -55,6 +55,24 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
+    private func fetchLatestExpenses() {
+        expenseRepository.fetchLatestExpensesBy(groupId: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.groupState = .noMember
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] expenses in
+                guard let self, let group else { return }
+                self.expenses = expenses
+                if group.isDebtSimplified {
+                    self.calculateExpensesSimply()
+                } else {
+                    self.calculateExpenses()
+                }
+            }.store(in: &cancelable)
+    }
+
     private func fetchExpenses() {
         expenseRepository.fetchExpensesBy(groupId: groupId)
             .sink { [weak self] completion in
@@ -66,9 +84,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 guard let self, let group else { return }
                 self.expenses = expenses
                 if group.isDebtSimplified {
-                    calculateExpensesSimply()
+                    self.calculateExpensesSimply()
                 } else {
-                    calculateExpenses()
+                    self.calculateExpenses()
                 }
             }.store(in: &cancelable)
     }
@@ -82,6 +100,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         var owesToUser: [String: Double] = [:]
         var owedByUser: [String: Double] = [:]
+
+        overallOwingAmount = 0.0
+        memberOwingAmount = [:]
 
         for expense in expenses {
             queue.enter()
@@ -121,9 +142,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         guard let userId = self.preference.user?.id else { return }
 
         let queue = DispatchGroup()
+        var ownAmounts: [String: Double] = [:]
         var combinedData: [ExpenseWithUser] = []
 
-        var ownAmounts: [String: Double] = [:]
+        overallOwingAmount = 0.0
+        memberOwingAmount = [:]
 
         for expense in expenses {
             queue.enter()
@@ -257,7 +280,7 @@ extension GroupHomeViewModel {
 }
 
 // Struct to hold combined expense and user information
-struct ExpenseWithUser: Hashable {
+struct ExpenseWithUser {
     let expense: Expense
     let user: AppUser
 }

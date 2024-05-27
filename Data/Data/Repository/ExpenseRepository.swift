@@ -22,6 +22,10 @@ public class ExpenseRepository: ObservableObject {
         store.updateExpense(expense: expense)
     }
 
+    public func fetchLatestExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
+        store.fetchLatestExpensesBy(groupId: groupId)
+    }
+
     public func fetchExpenseBy(expenseId: String) -> AnyPublisher<Expense, ServiceError> {
         store.fetchExpenseBy(expenseId: expenseId)
     }
@@ -32,5 +36,9 @@ public class ExpenseRepository: ObservableObject {
 
     public func deleteExpense(id: String) -> AnyPublisher<Void, ServiceError> {
         store.deleteExpense(id: id)
+    }
+
+    public func deleteExpensesOf(groupId: String) -> AnyPublisher<Void, ServiceError> {
+        store.deleteExpensesOf(groupId: groupId)
     }
 }

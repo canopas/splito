@@ -39,12 +39,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
         self.groupId = groupId
-        super.init()
-        fetchGroupDetails()
     }
 
     // MARK: - Data Loading
-    private func fetchGroupDetails() {
+    func fetchGroupDetails() {
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {

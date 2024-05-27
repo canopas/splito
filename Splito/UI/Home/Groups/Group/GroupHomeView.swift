@@ -61,6 +61,9 @@ struct GroupHomeView: View {
                 .foregroundStyle(primaryColor)
             }
         }
+        .onAppear {
+            viewModel.fetchGroupAndExpenses()
+        }
     }
 }
 
@@ -100,7 +103,7 @@ private struct GroupExpenseListView: View {
 
                 ForEach(groupedExpenses.keys.sorted(), id: \.self) { month in
                     Section(header: Text(month).font(.subTitle2())) {
-                        ForEach(groupedExpenses[month]!, id: \.self) { expense in
+                        ForEach(groupedExpenses[month]!, id: \.expense.id) { expense in
                             GroupExpenseItemView(expenseWithUser: expense)
                                 .onTouchGesture { onExpenseItemTap(expense.expense.id ?? "") }
                         }
@@ -117,11 +120,7 @@ private struct GroupExpenseListView: View {
 
 private struct GroupExpenseHeaderView: View {
 
-    var viewModel: GroupHomeViewModel
-
-    init(viewModel: GroupHomeViewModel) {
-        self.viewModel = viewModel
-    }
+    @ObservedObject var viewModel: GroupHomeViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
