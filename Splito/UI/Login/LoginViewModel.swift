@@ -32,35 +32,30 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
     }
 
     func onGoogleLoginClick() {
-        if GIDSignIn.sharedInstance.hasPreviousSignIn() {
-            LogE("LoginViewModel :: Alreday signed in.")
-//            GIDSignIn.sharedInstance.restorePreviousSignIn { _, _ in }
-        } else {
-            guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
 
-            // Create Google Sign In configuration object.
-            let config = GIDConfiguration(clientID: clientID)
-            GIDSignIn.sharedInstance.configuration = config
+        // Create Google Sign In configuration object.
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = config
 
-            guard let controller = TopViewController.shared.topViewController() else {
-                LogE("LoginViewModel :: Top Controller not found.")
+        guard let controller = TopViewController.shared.topViewController() else {
+            LogE("LoginViewModel :: Top Controller not found.")
+            return
+        }
+
+        GIDSignIn.sharedInstance.signIn(withPresenting: controller) { [unowned self] result, error in
+            guard error == nil else {
+                LogE("LoginViewModel :: Google Login Error: \(String(describing: error))")
                 return
             }
+            guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
 
-            GIDSignIn.sharedInstance.signIn(withPresenting: controller) { [unowned self] result, error in
-                guard error == nil else {
-                    LogE("LoginViewModel :: Google Login Error: \(String(describing: error))")
-                    return
-                }
-                guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
+            let firstName = user.profile?.givenName ?? ""
+            let lastName = user.profile?.familyName ?? ""
+            let email = user.profile?.email ?? ""
 
-                let firstName = user.profile?.givenName ?? ""
-                let lastName = user.profile?.familyName ?? ""
-                let email = user.profile?.email ?? ""
-
-                let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-                self.performFirebaseLogin(credential: credential, loginType: .Google, userData: (firstName, lastName, email))
-            }
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
+            self.performFirebaseLogin(credential: credential, loginType: .Google, userData: (firstName, lastName, email))
         }
     }
 

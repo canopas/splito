@@ -67,6 +67,9 @@ struct ExpenseDetailsView: View {
                 .foregroundStyle(primaryColor)
             }
         }
+        .onAppear {
+            viewModel.fetchExpense()
+        }
     }
 }
 
@@ -96,7 +99,7 @@ private struct ExpenseHeaderView: View {
                 .padding(.top, 6)
         }
         .lineLimit(1)
-        .padding(.horizontal, 40)
+        .padding(.horizontal, 30)
     }
 }
 
