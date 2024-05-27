@@ -10,7 +10,7 @@ import BaseStyle
 import FirebaseAuth
 import Foundation
 
-class OnboardViewModel: ObservableObject {
+class OnboardViewModel: BaseViewModel, ObservableObject {
 
     @Published var currentPageIndex = 0
     @Published private(set) var showLoader = false
@@ -26,9 +26,16 @@ class OnboardViewModel: ObservableObject {
     func loginAnonymous() {
         showLoader = true
         FirebaseProvider.auth.signInAnonymously { [weak self] result, _ in
-            guard let self, let user = result?.user else { self?.showLoader = false; return }
+            guard let self = self else { return }
+            if let error {
+                self.showLoader = false
+                self.alert = .init(message: "Server error")
+                self.showAlert = true
+            }
+
+            guard let user = result?.user else { self.showLoader = false; return }
             self.preference.isOnboardShown = user.isAnonymous
-            showLoader = false
+            self.showLoader = false
             router.updateRoot(root: .LoginView)
         }
     }
