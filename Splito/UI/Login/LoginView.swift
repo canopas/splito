@@ -15,47 +15,45 @@ struct LoginView: View {
     @ObservedObject var viewModel: LoginViewModel
 
     var body: some View {
-        if case .loading = viewModel.currentState {
-            LoaderView()
-        } else {
-            GeometryReader { proxy in
-                ScrollView {
-                    VStack(alignment: .center, spacing: 0) {
-                        VSpacer(20)
+        GeometryReader { proxy in
+            ScrollView {
+                VStack(alignment: .center, spacing: 0) {
+                    VSpacer(20)
 
-                        Image(.splito)
-                            .resizable()
-                            .frame(width: 160, height: 160, alignment: .center)
+                    Image(.splito)
+                        .resizable()
+                        .frame(width: 160, height: 160, alignment: .center)
 
-                        VSpacer(30)
+                    VSpacer(30)
 
-                        Text("Sign up in the app to use amazing spliting features")
-                            .font(.inter(.bold, size: 22).bold())
-                            .foregroundStyle(inverseSurfaceColor)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 20)
+                    Text("Sign up in the app to use amazing spliting features")
+                        .font(.inter(.bold, size: 22).bold())
+                        .foregroundStyle(inverseSurfaceColor)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
 
-                        VSpacer(30)
+                    VSpacer(30)
 
-                        LoginOptionsView(onGoogleLoginClick: viewModel.onGoogleLoginClick,
-                                         onAppleLoginClick: viewModel.onAppleLoginClick,
-                                         onPhoneLoginClick: viewModel.onPhoneLoginClick)
+                    LoginOptionsView(showGoogleLoading: viewModel.showGoogleLoading,
+                                     showAppleLoading: viewModel.showAppleLoading,
+                                     onGoogleLoginClick: viewModel.onGoogleLoginClick,
+                                     onAppleLoginClick: viewModel.onAppleLoginClick,
+                                     onPhoneLoginClick: viewModel.onPhoneLoginClick)
 
-                        VSpacer(30)
-                    }
-                    .frame(minHeight: proxy.size.height - 80, alignment: .center)
-                    .padding(.horizontal, 20)
+                    VSpacer(30)
                 }
-                .scrollIndicators(.hidden)
-                .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-                .background(
-                    LinearGradient(colors: colorScheme == .dark ? [surfaceDarkColor] :
-                                    [primaryColor.opacity(0), primaryColor.opacity(0.16), primaryColor.opacity(0)],
-                                   startPoint: .top, endPoint: .bottom)
-                )
+                .frame(minHeight: proxy.size.height - 80, alignment: .center)
+                .padding(.horizontal, 20)
             }
-            .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+            .scrollIndicators(.hidden)
+            .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+            .background(
+                LinearGradient(colors: colorScheme == .dark ? [surfaceDarkColor] :
+                                [primaryColor.opacity(0), primaryColor.opacity(0.16), primaryColor.opacity(0)],
+                               startPoint: .top, endPoint: .bottom)
+            )
         }
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
     }
 }
 
@@ -63,15 +61,17 @@ private struct LoginOptionsView: View {
 
     @Environment(\.colorScheme) var colorScheme
 
+    let showGoogleLoading: Bool
+    let showAppleLoading: Bool
     let onGoogleLoginClick: () -> Void
     let onAppleLoginClick: () -> Void
     let onPhoneLoginClick: () -> Void
 
     var body: some View {
         VStack(spacing: 16) {
-            LoginOptionsButtonView(image: .googleIcon, buttonName: "Sign in with Google", bgColor: surfaceLightColor, buttonTextColor: surfaceDarkColor, onClick: onGoogleLoginClick)
-            LoginOptionsButtonView(image: .appleIcon, buttonName: "Sign in with Apple", bgColor: inverseSurfaceColor, buttonTextColor: backgroundColor, onClick: onAppleLoginClick)
-            LoginOptionsButtonView(image: .phoneLoginIcon, buttonName: "Sign in with Phone Number", bgColor: primaryColor, onClick: onPhoneLoginClick)
+            LoginOptionsButtonView(image: .googleIcon, buttonName: "Sign in with Google", bgColor: surfaceLightColor, buttonTextColor: surfaceDarkColor, showLoader: showGoogleLoading, onClick: onGoogleLoginClick)
+            LoginOptionsButtonView(image: .appleIcon, buttonName: "Sign in with Apple", bgColor: inverseSurfaceColor, buttonTextColor: backgroundColor, showLoader: showAppleLoading, onClick: onAppleLoginClick)
+            LoginOptionsButtonView(image: .phoneLoginIcon, buttonName: "Sign in with Phone Number", bgColor: primaryColor, showLoader: false, onClick: onPhoneLoginClick)
         }
     }
 }
@@ -82,13 +82,15 @@ private struct LoginOptionsButtonView: View {
     let buttonName: String
     let bgColor: Color
     let buttonTextColor: Color
+    let showLoader: Bool
     let onClick: () -> Void
 
-    init(image: ImageResource, buttonName: String, bgColor: Color, buttonTextColor: Color = primaryDarkText, onClick: @escaping () -> Void) {
+    init(image: ImageResource, buttonName: String, bgColor: Color, buttonTextColor: Color = primaryDarkText, showLoader: Bool, onClick: @escaping () -> Void) {
         self.image = image
         self.buttonName = buttonName
         self.bgColor = bgColor
         self.buttonTextColor = buttonTextColor
+        self.showLoader = showLoader
         self.onClick = onClick
     }
 
@@ -99,6 +101,12 @@ private struct LoginOptionsButtonView: View {
             }, label: {
                 ZStack {
                     HStack(alignment: .center, spacing: 12) {
+                        ProgressView()
+                            .scaleEffect(1, anchor: .center)
+                            .progressViewStyle(CircularProgressViewStyle(tint: primaryColor))
+                            .animation(.default, value: showLoader)
+                            .opacity(showLoader ? 1 : 0)
+
                         Image(image)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
