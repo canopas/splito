@@ -14,6 +14,7 @@ class UserStore: ObservableObject {
     private let DATABASE_NAME: String = "users"
 
     @Inject private var database: Firestore
+    @Inject private var preference: SplitoPreference
 
     func addUser(user: AppUser) -> AnyPublisher<Void, ServiceError> {
         Future { [weak self] promise in
@@ -88,9 +89,9 @@ class UserStore: ObservableObject {
                 promise(.failure(.unexpectedError))
                 return
             }
-            
+
             let currentUser = Auth.auth().currentUser
-            
+
             currentUser?.delete { error in
                 if let error = error {
                     LogE("UserStore :: \(#function): Deleting user from Auth failed with error: \(error.localizedDescription).")
@@ -98,8 +99,17 @@ class UserStore: ObservableObject {
                 } else {
                     LogD("User deleted successfully from Firebase Auth")
                     promise(.success(()))
+                    self.deactivateUser()
                 }
             }
         }.eraseToAnyPublisher()
+    }
+
+    func deactivateUser() {
+        if let user = preference.user {
+            let newUser = AppUser(id: user.id, firstName: user.firstName, lastName: user.lastName, emailId: user.emailId, phoneNumber: user.phoneNumber, profileImageUrl: user.imageUrl, loginType: user.loginType, isActive: false)
+
+            updateUser(user: newUser)
+        }
     }
 }
