@@ -11,7 +11,7 @@ import BaseStyle
 
 struct ExpenseSplitOptionsView: View {
 
-    @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
+    @StateObject var viewModel: ExpenseSplitOptionsViewModel
 
     @Environment(\.dismiss) var dismiss
 

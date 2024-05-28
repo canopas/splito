@@ -11,7 +11,7 @@ import Data
 
 struct ExpenseDetailsView: View {
 
-    @ObservedObject var viewModel: ExpenseDetailsViewModel
+    @StateObject var viewModel: ExpenseDetailsViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

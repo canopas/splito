@@ -15,10 +15,6 @@ public class AppAssembly: Assembly {
 
     public func assemble(container: Container) {
 
-        container.register(Router<MainRoute>.self) { _ in
-                .init(root: .OnboardView)
-        }.inObjectScope(.container)
-
         container.register(SplitoPreference.self) { _ in
             SplitoPreference.init()
         }.inObjectScope(.container)

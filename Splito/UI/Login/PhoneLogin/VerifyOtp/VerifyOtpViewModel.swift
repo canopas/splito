@@ -17,7 +17,6 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var showLoader: Bool = false
 
-    @Inject var mainRouter: Router<MainRoute>
     @Inject var preference: SplitoPreference
     @Inject var userRepository: UserRepository
 
@@ -119,6 +118,5 @@ extension VerifyOtpViewModel {
 
     private func onLoginSuccess() {
         router.popToRoot()
-        mainRouter.updateRoot(root: .HomeView)
     }
 }

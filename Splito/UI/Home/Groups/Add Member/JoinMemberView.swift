@@ -10,7 +10,7 @@ import BaseStyle
 
 struct JoinMemberView: View {
 
-    @ObservedObject var viewModel: JoinMemberViewModel
+    @StateObject var viewModel: JoinMemberViewModel
 
     @State var selectedField: Int = 0
 

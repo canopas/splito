@@ -12,7 +12,6 @@ import BaseStyle
 class AccountHomeViewModel: BaseViewModel, ObservableObject {
 
     @Inject var preference: SplitoPreference
-    @Inject private var mainRouter: Router<MainRoute>
     @Inject private var ddLoggerProvider: DDLoggerProvider
 
     @Published var currentState: ViewState = .initial
@@ -67,16 +66,11 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
             currentState = .loading
             try FirebaseProvider.auth.signOut()
             preference.clearPreferenceSession()
-            goToLoginScreen()
         } catch let signOutError as NSError {
             currentState = .initial
             showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Something went wrong."))
             LogE("AccountHomeViewModel: Error signing out: \(signOutError)")
         }
-    }
-
-    private func goToLoginScreen() {
-        mainRouter.updateRoot(root: .OnboardView)
     }
 }
 

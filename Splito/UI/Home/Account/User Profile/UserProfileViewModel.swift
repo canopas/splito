@@ -13,7 +13,6 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
     private let NAME_CHARACTER_MIN_LIMIT = 3
 
-    @Inject private var mainRouter: Router<MainRoute>
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
 
@@ -155,7 +154,6 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
     private func goToOnboardScreen() {
         router?.popToRoot()
-        mainRouter.updateRoot(root: .OnboardView)
     }
 }
 
