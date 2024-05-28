@@ -21,6 +21,7 @@ struct UserProfileView: View {
 
                     UserProfileImageView(image: $viewModel.profileImage,
                                          profileImageUrl: viewModel.profileImageUrl,
+                                         showOverlay: true,
                                          handleProfileTap: viewModel.handleProfileTap)
                     .confirmationDialog("", isPresented: $viewModel.showImagePickerOption, titleVisibility: .hidden) {
                         Button("Take Picture") {
@@ -43,7 +44,7 @@ struct UserProfileView: View {
 
                     VSpacer(8)
 
-                    Button(action: viewModel.handleDeleteAction) {
+                    Button(action: viewModel.showDeleteAccountConfirmation) {
                         HStack(spacing: 10) {
                             if viewModel.isDeleteInProgress {
                                 LoaderView(tintColor: primaryColor, scaleSize: 1)
@@ -164,7 +165,7 @@ private struct UserDetailCell: View {
                 .foregroundStyle(disableText)
                 .fixedSize()
 
-            VSpacer(5)
+            VSpacer(8)
 
             UserProfileDataEditableTextField(titleText: $titleText, isDisabled: isDisabled, placeholder: placeholder, fieldType: fieldType, keyboardType: keyboardType, focused: focused, autoCapitalizationType: autoCapitalizationType)
 
@@ -181,7 +182,8 @@ private struct UserDetailCell: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 } else {
                     Divider()
-                        .background(outlineColor)
+                        .frame(height: 1)
+                        .background(focused.wrappedValue == fieldType ? primaryColor : outlineColor)
                 }
             }
             .animation(.easeInOut, value: validationEnabled && !isValidInput)

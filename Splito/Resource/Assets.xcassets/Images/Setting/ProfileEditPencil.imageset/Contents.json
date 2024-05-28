@@ -1,7 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "Group 1837.svg",
+      "filename" : "EditPencilLight 1.svg",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "EditPencilDark.svg",
       "idiom" : "universal"
     }
   ],

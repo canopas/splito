@@ -27,7 +27,7 @@ class OnboardViewModel: BaseViewModel, ObservableObject {
         showLoader = true
         FirebaseProvider.auth.signInAnonymously { [weak self] result, error in
             guard let self = self else { return }
-            if let error {
+            if error != nil {
                 self.showLoader = false
                 self.alert = .init(message: "Server error")
                 self.showAlert = true
