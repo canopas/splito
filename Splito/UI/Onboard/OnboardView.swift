@@ -17,7 +17,7 @@ struct OnboardView: View {
         OnboardItem(image: .payBack, title: "Pay Back", description: "Settle up and pay back your friends any time.")
     ]
 
-    @ObservedObject var viewModel: OnboardViewModel
+    @StateObject var viewModel: OnboardViewModel
 
     public var body: some View {
         VStack(alignment: .center, spacing: 0) {

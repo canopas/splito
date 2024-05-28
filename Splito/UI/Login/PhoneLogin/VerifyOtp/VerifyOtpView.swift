@@ -10,7 +10,7 @@ import BaseStyle
 
 public struct VerifyOtpView: View {
 
-    @ObservedObject var viewModel: VerifyOtpViewModel
+    @StateObject var viewModel: VerifyOtpViewModel
 
     @State var selectedField: Int = 0
 

@@ -11,7 +11,7 @@ import Kingfisher
 
 struct CreateGroupView: View {
 
-    @ObservedObject var viewModel: CreateGroupViewModel
+    @StateObject var viewModel: CreateGroupViewModel
 
     var body: some View {
         VStack {

@@ -7,25 +7,6 @@
 
 import Foundation
 
-public enum MainRoute: Hashable {
-
-    public static func == (lhs: MainRoute, rhs: MainRoute) -> Bool {
-        return lhs.key == rhs.key
-    }
-
-    case OnboardView
-    case HomeView
-
-    var key: String {
-        switch self {
-        case .OnboardView:
-            "onboard"
-        case .HomeView:
-            "home"
-        }
-    }
-}
-
 public enum AppRoute: Hashable {
 
     public static func == (lhs: AppRoute, rhs: AppRoute) -> Bool {

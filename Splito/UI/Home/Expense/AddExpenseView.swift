@@ -10,7 +10,7 @@ import BaseStyle
 
 struct AddExpenseView: View {
 
-    @ObservedObject var viewModel: AddExpenseViewModel
+    @StateObject var viewModel: AddExpenseViewModel
 
     @Environment(\.dismiss) var dismiss
 
