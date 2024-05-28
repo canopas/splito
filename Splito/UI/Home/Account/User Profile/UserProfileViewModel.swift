@@ -165,6 +165,9 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         if let user = preference.user {
             let newUser = AppUser(id: user.id, firstName: user.firstName, lastName: user.lastName, emailId: user.emailId, phoneNumber: user.phoneNumber, profileImageUrl: user.imageUrl, loginType: user.loginType, isActive: false)
 
+            let resizedImage = profileImage?.aspectFittedToHeight(200)
+            let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
+
             isDeleteInProgress = true
             userRepository.updateUser(user: newUser)
                 .sink { [weak self] completion in
