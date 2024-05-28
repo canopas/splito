@@ -11,7 +11,7 @@ import BaseStyle
 
 struct GroupBalancesView: View {
 
-    @ObservedObject var viewModel: GroupBalancesViewModel
+    @StateObject var viewModel: GroupBalancesViewModel
 
     @Environment(\.dismiss) var dismiss
 

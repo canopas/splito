@@ -17,7 +17,6 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var currentState: ViewState = .initial
 
-    @Inject private var mainRouter: Router<MainRoute>
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
 
@@ -107,7 +106,6 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
                     self.showAlert = true
                 case .finished:
                     self.preference.user = user
-                    self.preference.isVerifiedUser = true
                 }
             } receiveValue: { [weak self] _ in
                 guard let self else { return }
@@ -116,7 +114,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
     }
 
     private func onLoginSuccess() {
-        mainRouter.updateRoot(root: .HomeView)
+        preference.isVerifiedUser = true
     }
 
     func onPhoneLoginClick() {

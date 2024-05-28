@@ -11,7 +11,7 @@ import BaseStyle
 
 public struct PhoneLoginView: View {
 
-    @ObservedObject var viewModel: PhoneLoginViewModel
+    @StateObject var viewModel: PhoneLoginViewModel
 
     public var body: some View {
         ScrollView {

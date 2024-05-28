@@ -12,7 +12,7 @@ struct LoginView: View {
 
     @Environment(\.colorScheme) var colorScheme
 
-    @ObservedObject var viewModel: LoginViewModel
+    @StateObject var viewModel: LoginViewModel
 
     var body: some View {
         if case .loading = viewModel.currentState {

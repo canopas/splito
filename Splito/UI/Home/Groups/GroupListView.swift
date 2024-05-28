@@ -12,7 +12,7 @@ import Kingfisher
 
 struct GroupListView: View {
 
-    @ObservedObject var viewModel: GroupListViewModel
+    @StateObject var viewModel: GroupListViewModel
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {

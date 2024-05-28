@@ -10,12 +10,12 @@ import SwiftUI
 
 public struct RouterView<T: Hashable, Content: View>: View {
 
-    @ObservedObject var router: Router<T>
+    @StateObject var router: Router<T>
 
     @ViewBuilder var buildView: (T) -> Content
 
     public init(router: Router<T>, @ViewBuilder buildView: @escaping (T) -> Content) {
-        self.router = router
+        self._router = .init(wrappedValue: router)
         self.buildView = buildView
     }
 

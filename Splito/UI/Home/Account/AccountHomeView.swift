@@ -11,7 +11,7 @@ import BaseStyle
 
 struct AccountHomeView: View {
 
-    @ObservedObject var viewModel: AccountHomeViewModel
+    @StateObject var viewModel: AccountHomeViewModel
 
     var body: some View {
         VStack(alignment: .center, spacing: 20) {

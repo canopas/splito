@@ -12,7 +12,7 @@ import Kingfisher
 
 struct GroupSettingView: View {
 
-    @ObservedObject var viewModel: GroupSettingViewModel
+    @StateObject var viewModel: GroupSettingViewModel
 
     var body: some View {
         VStack {

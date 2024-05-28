@@ -12,7 +12,7 @@ import Kingfisher
 
 struct ChoosePayerView: View {
 
-    @ObservedObject var viewModel: ChoosePayerViewModel
+    @StateObject var viewModel: ChoosePayerViewModel
 
     @Environment(\.dismiss) var dismiss
 

@@ -12,7 +12,7 @@ import Kingfisher
 
 struct ChooseGroupView: View {
 
-    @ObservedObject var viewModel: ChooseGroupViewModel
+    @StateObject var viewModel: ChooseGroupViewModel
 
     @Environment(\.dismiss) var dismiss
 

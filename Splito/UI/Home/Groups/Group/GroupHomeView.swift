@@ -11,7 +11,7 @@ import Data
 
 struct GroupHomeView: View {
 
-    @ObservedObject var viewModel: GroupHomeViewModel
+    @StateObject var viewModel: GroupHomeViewModel
 
     var body: some View {
         VStack(spacing: 0) {
