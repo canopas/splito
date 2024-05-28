@@ -131,6 +131,15 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    func showDeleteAccountConfirmation() {
+        alert = .init(title: "Delete your account", message: "Are you ABSOLUTELY sure you want to close your splito account? You will no longer be able to log into your account or access your account history from your splito app",
+                      positiveBtnTitle: "Delete",
+                      positiveBtnAction: { self.handleDeleteAction() },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
+        showAlert = true
+    }
+
     func handleDeleteAction() {
         if let user = preference.user {
             isDeleteInProgress = true
@@ -143,6 +152,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                 } receiveValue: { [weak self] _ in
                     guard let self else { return }
                     self.isDeleteInProgress = false
+                    self.deactivateUser()
                     self.preference.clearPreferenceSession()
                     self.preference.isOnboardShown = false
                     self.goToOnboardScreen()
@@ -153,13 +163,27 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func showDeleteAccountConfirmation() {
-        alert = .init(title: "Delete your account", message: "Are you ABSOLUTELY sure you want to close your splito account? You will no longer be able to log into your account or access your account history from your splito app",
-                      positiveBtnTitle: "Delete",
-                      positiveBtnAction: { self.handleDeleteAction() },
-                      negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
-        showAlert = true
+    func deactivateUser() {
+        if let user = preference.user {
+            var newUser = user
+            newUser.isActive = false
+
+            let resizedImage = profileImage?.aspectFittedToHeight(200)
+            let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
+
+            isDeleteInProgress = true
+            userRepository.updateUserWithImage(imageData: imageData, newImageUrl: profileImageUrl, user: newUser)
+                .sink { [weak self] completion in
+                    if case .failure(let error) = completion {
+                        self?.isDeleteInProgress = false
+                        self?.showAlertFor(error)
+                    }
+                } receiveValue: { [weak self] user in
+                    guard let self else { return }
+                    self.isDeleteInProgress = false
+                    self.preference.user = user
+                }.store(in: &cancelable)
+        }
     }
 
     private func goToOnboardScreen() {

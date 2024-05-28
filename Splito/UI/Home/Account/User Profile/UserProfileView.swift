@@ -82,12 +82,12 @@ struct UserProfileView: View {
                         .padding(.trailing, 5)
                 } else {
                     Button(action: viewModel.updateUserProfile) {
-                        Image((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count > 3) ? .savePrimaryIcon: .saveIcon)
+                        Image((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3) ? .savePrimaryIcon : .saveIcon)
                             .resizable()
                             .frame(width: 26, height: 26)
                     }
                     .disabled(!viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count < 3)
-                    .opacity((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count > 3) ? 1 : 0.6)
+                    .opacity((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3) ? 1 : 0.6)
                 }
             })
         }

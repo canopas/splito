@@ -38,7 +38,7 @@ enum UserProfileList: Int, CaseIterable {
         case .lastName:
             return "Enter last name"
         case .email:
-            return "Enter last"
+            return "Enter email"
         case .phone:
             return "Enter phone number"
         }
