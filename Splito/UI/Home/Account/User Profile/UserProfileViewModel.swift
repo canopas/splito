@@ -186,15 +186,6 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func showDeleteAccountConfirmation() {
-        alert = .init(title: "Delete your account", message: "Are you ABSOLUTELY sure you want to close your splito account? You will no longer be able to log into your account or access your account history from your splito app",
-                      positiveBtnTitle: "Delete",
-                      positiveBtnAction: { self.handleDeleteAction() },
-                      negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
-        showAlert = true
-    }
-
     private func goToOnboardScreen() {
         router?.popToRoot()
         mainRouter.updateRoot(root: .OnboardView)

@@ -14,7 +14,6 @@ class UserStore: ObservableObject {
     private let DATABASE_NAME: String = "users"
 
     @Inject private var database: Firestore
-    @Inject private var preference: SplitoPreference
 
     func addUser(user: AppUser) -> AnyPublisher<Void, ServiceError> {
         Future { [weak self] promise in
