@@ -16,7 +16,7 @@ public struct AppUser: Identifiable, Codable {
     public var phoneNumber: String?
     public var imageUrl: String?
     public let loginType: LoginType
-    public let isActive: Bool?
+    public var isActive: Bool?
 
     public var fullName: String {
         if let firstName, let lastName {
