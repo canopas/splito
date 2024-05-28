@@ -133,7 +133,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
     func showDeleteAccountConfirmation() {
         alert = .init(title: "Delete your account", message: "Are you ABSOLUTELY sure you want to close your splito account? You will no longer be able to log into your account or access your account history from your splito app",
                       positiveBtnTitle: "Delete",
-                      positiveBtnAction: { self.handleDeleteAction() },
+                      positiveBtnAction: { self.deactivateUser() },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
         showAlert = true
@@ -151,7 +151,6 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                 } receiveValue: { [weak self] _ in
                     guard let self else { return }
                     self.isDeleteInProgress = false
-                    self.deactivateUser()
                     self.preference.clearPreferenceSession()
                     self.preference.isOnboardShown = false
                     self.goToOnboardScreen()
@@ -164,8 +163,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
     func deactivateUser() {
         if let user = preference.user {
-            var newUser = user
-            newUser.isActive = false
+            let newUser = AppUser(id: user.id, firstName: user.firstName, lastName: user.lastName, emailId: user.emailId, phoneNumber: user.phoneNumber, profileImageUrl: user.imageUrl, loginType: user.loginType, isActive: false)
 
             let resizedImage = profileImage?.aspectFittedToHeight(200)
             let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
@@ -177,10 +175,9 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                         self?.isDeleteInProgress = false
                         self?.showAlertFor(error)
                     }
-                } receiveValue: { [weak self] user in
-                    guard let self else { return }
-                    self.isDeleteInProgress = false
-                    self.preference.user = user
+                } receiveValue: { [weak self] _ in
+                    self?.isDeleteInProgress = false
+                    self?.handleDeleteAction()
                 }.store(in: &cancelable)
         }
     }
