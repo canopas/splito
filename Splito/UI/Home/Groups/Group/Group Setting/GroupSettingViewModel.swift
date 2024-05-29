@@ -185,7 +185,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     private func showLeaveGroupAlert(memberId: String) {
-        guard amountOweByMember[memberId] == 0 else {
+        guard (amountOweByMember[memberId] == 0 || amountOweByMember[memberId] == nil) else {
             memberRemoveType = .leave
             showDebtOutstandingAlert(memberId: memberId)
             return
