@@ -44,8 +44,9 @@ struct UserProfileView: View {
 
                     VSpacer(8)
 
-                    PrimaryButton(text: "Save", isEnabled: viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3, showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUserProfile)
-                        .hidden(!viewModel.isOpenedFromOnboard)
+                    if viewModel.isOpenedFromOnboard {
+                        PrimaryButton(text: "Save", isEnabled: viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3, showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUserProfile)
+                    }
 
                     Button(action: viewModel.showDeleteAccountConfirmation) {
                         HStack(spacing: 10) {
