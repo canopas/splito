@@ -28,12 +28,14 @@ struct GroupSettingView: View {
                                 viewModel.handleEditGroupTap()
                             }
 
-                        GroupMembersView(members: viewModel.members, oweAmount: viewModel.amountOweByMember,
+                        GroupMembersView(group: viewModel.group, members: viewModel.members, oweAmount: viewModel.amountOweByMember,
                                          onAddMemberTap: viewModel.handleAddMemberTap, onMemberTap: viewModel.handleMemberTap(member:))
 
                         GroupAdvanceSettingsView(isDebtSimplified: $viewModel.isDebtSimplified, isDisable: !viewModel.isAdmin,
                                                  onLeaveGroupTap: viewModel.handleLeaveGroupTap,
                                                  onDeleteGroupTap: viewModel.handleDeleteGroupTap)
+
+                        Spacer(minLength: 20)
                     }
                 }
                 .scrollIndicators(.hidden)
@@ -46,12 +48,12 @@ struct GroupSettingView: View {
         .navigationBarTitle("Group settings", displayMode: .inline)
         .confirmationDialog("", isPresented: $viewModel.showLeaveGroupDialog, titleVisibility: .hidden) {
             Button("Leave Group") {
-                viewModel.showAlert = true
+                viewModel.onRemoveAndLeaveFromGroupTap()
             }
         }
         .confirmationDialog("", isPresented: $viewModel.showRemoveMemberDialog, titleVisibility: .hidden) {
             Button("Remove from group") {
-                viewModel.showAlert = true
+                viewModel.onRemoveAndLeaveFromGroupTap()
             }
         }
         .onAppear {
@@ -90,13 +92,15 @@ private struct GroupTitleView: View {
 
 private struct GroupMembersView: View {
 
+    let group: Groups?
     var members: [AppUser]
     var oweAmount: [String: Double]
 
     var onAddMemberTap: () -> Void
     var onMemberTap: (AppUser) -> Void
 
-    init(members: [AppUser], oweAmount: [String: Double], onAddMemberTap: @escaping () -> Void, onMemberTap: @escaping (AppUser) -> Void) {
+    init(group: Groups?, members: [AppUser], oweAmount: [String: Double], onAddMemberTap: @escaping () -> Void, onMemberTap: @escaping (AppUser) -> Void) {
+        self.group = group
         self.members = members
         self.oweAmount = oweAmount
         self.onAddMemberTap = onAddMemberTap
@@ -113,7 +117,7 @@ private struct GroupMembersView: View {
 
             LazyVStack(spacing: 20) {
                 ForEach(members) { member in
-                    GroupMemberCellView(member: member, amount: oweAmount[member.id] ?? 0)
+                    GroupMemberCellView(member: member, amount: oweAmount[member.id] ?? 0, isAdmin: member.id == group?.createdBy)
                         .onTouchGesture {
                             onMemberTap(member)
                         }
@@ -201,6 +205,7 @@ private struct GroupMemberCellView: View {
 
     let member: AppUser
     let amount: Double
+    let isAdmin: Bool
 
     private var userName: String {
         if let user = preference.user, member.id == user.id {
@@ -224,10 +229,18 @@ private struct GroupMemberCellView: View {
             MemberProfileImageView(imageUrl: member.imageUrl)
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(userName)
-                    .lineLimit(1)
-                    .font(.subTitle2())
-                    .foregroundStyle(primaryText)
+                HStack(alignment: .center, spacing: 2) {
+                    Text(userName)
+                        .lineLimit(1)
+                        .font(.subTitle2())
+                        .foregroundStyle(primaryText)
+
+                    if isAdmin {
+                        Text("(Admin)")
+                            .font(.caption)
+                            .foregroundColor(secondaryText)
+                    }
+                }
 
                 Text(subInfo)
                     .lineLimit(1)
