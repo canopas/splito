@@ -83,7 +83,7 @@ class UserStore: ObservableObject {
     }
 
     func deleteUser(id: String) -> AnyPublisher<Void, ServiceError> {
-        Future { [weak self] promise in
+        return Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return
@@ -94,7 +94,7 @@ class UserStore: ObservableObject {
             currentUser?.delete { error in
                 if let error = error {
                     LogE("UserStore :: \(#function): Deleting user from Auth failed with error: \(error.localizedDescription).")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.deleteFailed(error: error.localizedDescription)))
                 } else {
                     LogD("User deleted successfully from Firebase Auth")
                     promise(.success(()))

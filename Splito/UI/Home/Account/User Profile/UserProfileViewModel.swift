@@ -161,9 +161,9 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func deactivateUser(isActive: Bool = false) {
+    func deactivateUser() {
         if let user = preference.user {
-            let newUser = AppUser(id: user.id, firstName: user.firstName, lastName: user.lastName, emailId: user.emailId, phoneNumber: user.phoneNumber, profileImageUrl: user.imageUrl, loginType: user.loginType, isActive: isActive)
+            let newUser = AppUser(id: user.id, firstName: user.firstName, lastName: user.lastName, emailId: user.emailId, phoneNumber: user.phoneNumber, profileImageUrl: user.imageUrl, loginType: user.loginType, isActive: false)
 
             isDeleteInProgress = true
             userRepository.updateUser(user: newUser)
