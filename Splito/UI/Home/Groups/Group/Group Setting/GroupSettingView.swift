@@ -34,6 +34,8 @@ struct GroupSettingView: View {
                         GroupAdvanceSettingsView(isDebtSimplified: $viewModel.isDebtSimplified, isDisable: !viewModel.isAdmin,
                                                  onLeaveGroupTap: viewModel.handleLeaveGroupTap,
                                                  onDeleteGroupTap: viewModel.handleDeleteGroupTap)
+
+                        Spacer(minLength: 20)
                     }
                 }
                 .scrollIndicators(.hidden)
@@ -46,12 +48,12 @@ struct GroupSettingView: View {
         .navigationBarTitle("Group settings", displayMode: .inline)
         .confirmationDialog("", isPresented: $viewModel.showLeaveGroupDialog, titleVisibility: .hidden) {
             Button("Leave Group") {
-                viewModel.showAlert = true
+                viewModel.onRemoveAndLeaveFromGroupTap()
             }
         }
         .confirmationDialog("", isPresented: $viewModel.showRemoveMemberDialog, titleVisibility: .hidden) {
             Button("Remove from group") {
-                viewModel.showAlert = true
+                viewModel.onRemoveAndLeaveFromGroupTap()
             }
         }
         .onAppear {

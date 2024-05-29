@@ -140,6 +140,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - User Actions
 
+    func onRemoveAndLeaveFromGroupTap() {
+        showAlert = true
+    }
+
     func handleEditGroupTap() {
         router.push(.CreateGroupView(group: group))
     }
