@@ -94,7 +94,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
                 } else if let result {
                     self.showGoogleLoading = false
                     self.showAppleLoading = false
-                    let user = AppUser(id: result.user.uid, firstName: userData.0, lastName: userData.1, emailId: userData.2, phoneNumber: nil, loginType: loginType)
+                    let user = AppUser(id: result.user.uid, firstName: userData.0, lastName: userData.1, emailId: userData.2, phoneNumber: nil, loginType: loginType, isActive: true)
                     self.storeUser(user: user)
                     LogD("LoginViewModel :: Logged in User: \(result.user)")
                 } else {

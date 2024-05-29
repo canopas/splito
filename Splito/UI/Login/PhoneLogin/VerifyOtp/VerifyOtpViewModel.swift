@@ -43,7 +43,7 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
             self?.showLoader = false
             if let result {
                 self?.resendTimer?.invalidate()
-                let user = AppUser(id: result.user.uid, firstName: nil, lastName: nil, emailId: nil, phoneNumber: result.user.phoneNumber, loginType: .Phone)
+                let user = AppUser(id: result.user.uid, firstName: nil, lastName: nil, emailId: nil, phoneNumber: result.user.phoneNumber, loginType: .Phone, isActive: true)
                 self?.storeUser(user: user)
             } else {
                 self?.onLoginError()

@@ -90,6 +90,6 @@ public class UserRepository: ObservableObject {
     }
 
     public func deleteUser(id: String) -> AnyPublisher<Void, ServiceError> {
-        store.deleteUser(id: id)
+        return store.deleteUser(id: id)
     }
 }

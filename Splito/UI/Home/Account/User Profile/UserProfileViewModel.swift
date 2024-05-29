@@ -130,6 +130,15 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    func showDeleteAccountConfirmation() {
+        alert = .init(title: "Delete your account", message: "Are you ABSOLUTELY sure you want to close your splito account? You will no longer be able to log into your account or access your account history from your splito app",
+                      positiveBtnTitle: "Delete",
+                      positiveBtnAction: { self.deactivateUser() },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
+        showAlert = true
+    }
+
     func handleDeleteAction() {
         if let user = preference.user {
             isDeleteInProgress = true
@@ -146,6 +155,27 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                     self.preference.isOnboardShown = false
                     self.goToOnboardScreen()
                     LogD("UserProfileViewModel :: user deleted.")
+                }.store(in: &cancelable)
+        } else {
+            LogD("UserProfileViewModel :: user not exists.")
+        }
+    }
+
+    func deactivateUser() {
+        if let user = preference.user {
+            let newUser = AppUser(id: user.id, firstName: user.firstName, lastName: user.lastName, emailId: user.emailId, phoneNumber: user.phoneNumber, profileImageUrl: user.imageUrl, loginType: user.loginType, isActive: false)
+
+            isDeleteInProgress = true
+            userRepository.updateUser(user: newUser)
+                .sink { [weak self] completion in
+                    if case .failure(let error) = completion {
+                        self?.isDeleteInProgress = false
+                        self?.showAlertFor(error)
+                    }
+                } receiveValue: { [weak self] _ in
+                    self?.isDeleteInProgress = false
+                    LogD("UserProfileViewModel :: user deactived successfully.")
+                    self?.handleDeleteAction()
                 }.store(in: &cancelable)
         } else {
             LogD("UserProfileViewModel :: user not exists.")

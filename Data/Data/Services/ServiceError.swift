@@ -19,6 +19,7 @@ public enum ServiceError: LocalizedError, Equatable {
     case validationFailed
     case dataNotFound
     case alreadyExists
+    case deleteFailed(error: String)
 
     public var descriptionText: String {
         switch self {
@@ -40,6 +41,8 @@ public enum ServiceError: LocalizedError, Equatable {
             return "Your requested data not found."
         case .alreadyExists:
             return "Sorry, we can not perform your request as the data is already exists."
+        case .deleteFailed(let error):
+            return error
         default:
             return "Oops"
         }
@@ -67,6 +70,8 @@ public enum ServiceError: LocalizedError, Equatable {
             return "dataNotFound"
         case .alreadyExists:
             return "alreadyExists"
+        case .deleteFailed:
+            return "deleteFailed"
         }
     }
 }

@@ -187,6 +187,7 @@ private struct CreateGroupState: View {
             Text("You do not have any groups yet.")
                 .font(.Header1(22))
                 .foregroundStyle(primaryText)
+                .multilineTextAlignment(.center)
 
             Text("Groups make it easy to split apartment bills, share travel expenses, and more.")
                 .font(.subTitle3(15))
