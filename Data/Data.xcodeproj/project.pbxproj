@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		21D8D0832C0857F10061B365 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8D0822C0857F10061B365 /* Constants.swift */; };
 		64E499C5CFAEA368EC21313F /* Pods_DataTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */; };
 		7EF3A291581F7EA20CB1042D /* Pods_Data.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E91B3E23688435064A60C0C4 /* Pods_Data.framework */; };
 		D826C0DF2BDA95C900AAA449 /* Timestamp+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826C0DE2BDA95C900AAA449 /* Timestamp+Extension.swift */; };
@@ -56,6 +57,7 @@
 
 /* Begin PBXFileReference section */
 		1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DataTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		21D8D0822C0857F10061B365 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		5B14CF1A2EEF27479BF50566 /* Pods-DataTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DataTests.debug.xcconfig"; path = "Target Support Files/Pods-DataTests/Pods-DataTests.debug.xcconfig"; sourceTree = "<group>"; };
 		803094012FE4C155F2A347B6 /* Pods-DataTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DataTests.release.xcconfig"; path = "Target Support Files/Pods-DataTests/Pods-DataTests.release.xcconfig"; sourceTree = "<group>"; };
 		BED6C37AA3F8FD2A6350DE1C /* Pods-Data.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Data.debug.xcconfig"; path = "Target Support Files/Pods-Data/Pods-Data.debug.xcconfig"; sourceTree = "<group>"; };
@@ -168,6 +170,7 @@
 			isa = PBXGroup;
 			children = (
 				D89DBE2A2B88817E00E5F1BD /* JSONUtils.swift */,
+				21D8D0822C0857F10061B365 /* Constants.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -483,6 +486,7 @@
 				D83B15052B9996C0004A5F4F /* Groups.swift in Sources */,
 				D8AC25BB2B7F327A00CEAAD3 /* SplitoPreference.swift in Sources */,
 				D8AC25C32B7F390B00CEAAD3 /* AppAssembly.swift in Sources */,
+				21D8D0832C0857F10061B365 /* Constants.swift in Sources */,
 				D8AC25C12B7F38D300CEAAD3 /* Injector.swift in Sources */,
 				D8D14A542BA092F500F45FF2 /* ShareCodeRepository.swift in Sources */,
 				D8A7CA7B2BA5B6AC0014EC67 /* ShareCodeStore.swift in Sources */,

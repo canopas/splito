@@ -54,6 +54,9 @@
     "00:%@" : {
 
     },
+    "About" : {
+
+    },
     "Account" : {
 
     },
@@ -242,6 +245,9 @@
       "extractionState" : "manual"
     },
     "Phone number" : {
+
+    },
+    "Privacy" : {
 
     },
     "Profile" : {

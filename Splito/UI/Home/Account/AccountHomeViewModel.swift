@@ -49,7 +49,9 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     func onRateAppTap() {
-
+        let urlStr = Constants.rateAppURL // Open App Review Page
+        guard let url = URL(string: urlStr), UIApplication.shared.canOpenURL(url) else { return }
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
 
     func handleLogoutBtnTap() {
@@ -59,6 +61,14 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
         showAlert = true
+    }
+
+    func handlePrivacyOptionTap() {
+        if let url = URL(string: Constants.privacyPolicyURL) {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:])
+            }
+        }
     }
 
     private func performLogoutAction() {

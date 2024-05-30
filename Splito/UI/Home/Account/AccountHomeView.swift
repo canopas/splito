@@ -32,6 +32,8 @@ struct AccountHomeView: View {
                         AccountFeedbackSectionView(onContactTap: viewModel.onContactUsTap,
                                                    onRateAppTap: viewModel.onRateAppTap)
 
+                        AccountAboutSectionView(onPrivacyTap: viewModel.handlePrivacyOptionTap)
+
                         AccountLogoutSectionView(onLogoutTap: viewModel.handleLogoutBtnTap)
 
                         VSpacer(20)
@@ -56,12 +58,10 @@ private struct AccountUserHeaderView: View {
     var onTap: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 16) {
             Text("Settings")
                 .font(.subTitle4(14))
                 .foregroundStyle(primaryText)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 10)
 
             HStack(alignment: .center, spacing: 16) {
                 MemberProfileImageView(imageUrl: user?.imageUrl)
@@ -80,13 +80,18 @@ private struct AccountUserHeaderView: View {
 
                 ForwardIcon()
             }
-            .padding(.horizontal, 22)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             .onTouchGesture { onTap() }
+            .background(containerLowColor)
+            .cornerRadius(16)
 
             Divider()
                 .frame(height: 1)
                 .background(outlineColor)
         }
+        .padding(.horizontal, 16)
+
     }
 }
 
@@ -118,7 +123,7 @@ private struct AccountFeedbackSectionView: View {
             HStack(alignment: .center, spacing: 16) {
                 Text("Rate Splito")
                     .font(.subTitle2())
-                    .foregroundStyle(disableText)
+                    .foregroundStyle(primaryText)
 
                 Spacer()
 
@@ -126,7 +131,38 @@ private struct AccountFeedbackSectionView: View {
             }
             .padding(.top, 10)
             .padding(.horizontal, 22)
-//            .onTouchGesture { onRateAppTap() }
+            .onTouchGesture { onRateAppTap() }
+
+            Divider()
+                .frame(height: 1)
+                .background(outlineColor)
+        }
+    }
+}
+
+private struct AccountAboutSectionView: View {
+
+    var onPrivacyTap: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("About")
+                .font(.subTitle4(14))
+                .foregroundStyle(primaryText)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+
+            HStack(alignment: .center, spacing: 16) {
+                Text("Privacy")
+                    .font(.subTitle2())
+                    .foregroundStyle(primaryText)
+
+                Spacer()
+
+                ForwardIcon()
+            }
+            .padding(.horizontal, 22)
+            .onTouchGesture(onPrivacyTap)
 
             Divider()
                 .frame(height: 1)
