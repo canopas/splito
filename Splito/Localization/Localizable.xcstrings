@@ -60,9 +60,6 @@
     "Account" : {
 
     },
-    "Acknowledgements" : {
-
-    },
     "Add & split expenses with groups or individuals." : {
       "extractionState" : "manual"
     },
@@ -107,9 +104,6 @@
 
     },
     "Choose Payer" : {
-
-    },
-    "Contact us" : {
 
     },
     "Countries" : {
@@ -162,9 +156,6 @@
     },
     "Expenses" : {
       "extractionState" : "manual"
-    },
-    "Feedback" : {
-
     },
     "Get Started" : {
       "extractionState" : "manual"
@@ -250,13 +241,7 @@
     "Phone number" : {
 
     },
-    "Privacy" : {
-
-    },
     "Profile" : {
-
-    },
-    "Rate Splito" : {
 
     },
     "Remove" : {
@@ -320,6 +305,9 @@
 
     },
     "Start a group" : {
+
+    },
+    "Stay In Touch" : {
 
     },
     "Take Picture" : {

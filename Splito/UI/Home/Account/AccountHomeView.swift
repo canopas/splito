@@ -10,9 +10,9 @@ import SwiftUI
 import BaseStyle
 
 struct AccountHomeView: View {
-
+    
     @StateObject var viewModel: AccountHomeViewModel
-
+    
     var body: some View {
         VStack(alignment: .center, spacing: 20) {
             if case .loading = viewModel.currentState {
@@ -22,20 +22,21 @@ struct AccountHomeView: View {
                     .font(.Header4())
                     .foregroundStyle(primaryText)
                     .padding(.top, 10)
-
+                
                 ScrollView {
                     VStack(spacing: 20) {
                         VSpacer(20)
-
+                        
                         AccountUserHeaderView(user: viewModel.preference.user, onTap: viewModel.openUserProfileView)
-
+                        
                         AccountFeedbackSectionView(onContactTap: viewModel.onContactUsTap,
-                                                   onRateAppTap: viewModel.onRateAppTap)
-
+                                                   onRateAppTap: viewModel.onRateAppTap,
+                                                   onShareAppTap: viewModel.onShareAppTap)
+                        
                         AccountAboutSectionView(onPrivacyTap: viewModel.handlePrivacyOptionTap, onAcknowledgementsTap: viewModel.handleAcknowledgementsOptionTap)
-
+                        
                         AccountLogoutSectionView(onLogoutTap: viewModel.handleLogoutBtnTap)
-
+                        
                         VSpacer(20)
                     }
                 }
@@ -53,31 +54,32 @@ struct AccountHomeView: View {
 }
 
 private struct AccountUserHeaderView: View {
-
+    
     let user: AppUser?
     var onTap: () -> Void
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Settings")
                 .font(.subTitle4(14))
                 .foregroundStyle(primaryText)
-
+                .padding(.horizontal, 16)
+            
             HStack(alignment: .center, spacing: 16) {
                 MemberProfileImageView(imageUrl: user?.imageUrl)
-
+                
                 VStack(alignment: .leading, spacing: 5) {
                     Text(user?.fullName ?? "")
                         .font(.subTitle1())
                         .foregroundStyle(primaryText)
-
+                    
                     Text(user?.emailId ?? "")
                         .font(.subTitle3())
                         .foregroundStyle(secondaryText)
                 }
-
+                
                 Spacer()
-
+                
                 ForwardIcon()
             }
             .padding(.horizontal, 16)
@@ -85,54 +87,38 @@ private struct AccountUserHeaderView: View {
             .onTouchGesture { onTap() }
             .background(containerLowColor)
             .cornerRadius(16)
-
+            .padding(.horizontal, 16)
+            
             Divider()
                 .frame(height: 1)
                 .background(outlineColor)
         }
-        .padding(.horizontal, 16)
-
+        
     }
 }
 
 private struct AccountFeedbackSectionView: View {
-
+    
     var onContactTap: () -> Void
     var onRateAppTap: () -> Void
-
+    var onShareAppTap: () -> Void
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Feedback")
+            Text("Stay In Touch")
                 .font(.subTitle4(14))
                 .foregroundStyle(primaryText)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
-
-            HStack(alignment: .center, spacing: 16) {
-                Text("Contact us")
-                    .font(.subTitle2())
-                    .foregroundStyle(primaryText)
-
-                Spacer()
-
-                ForwardIcon()
-            }
-            .padding(.horizontal, 22)
-            .onTouchGesture { onContactTap() }
-
-            HStack(alignment: .center, spacing: 16) {
-                Text("Rate Splito")
-                    .font(.subTitle2())
-                    .foregroundStyle(primaryText)
-
-                Spacer()
-
-                ForwardIcon()
-            }
-            .padding(.top, 10)
-            .padding(.horizontal, 22)
-            .onTouchGesture { onRateAppTap() }
-
+            
+            AccountItemCellView(optionText: "Contact us", onClick: onContactTap)
+            
+            AccountItemCellView(optionText: "Rate Splito", onClick: onRateAppTap)
+                .padding(.top, 10)
+            
+            AccountItemCellView(optionText: "Share app", onClick: onShareAppTap)
+                .padding(.top, 10)
+            
             Divider()
                 .frame(height: 1)
                 .background(outlineColor)
@@ -141,10 +127,10 @@ private struct AccountFeedbackSectionView: View {
 }
 
 private struct AccountAboutSectionView: View {
-
+    
     var onPrivacyTap: () -> Void
     var onAcknowledgementsTap: () -> Void
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("About")
@@ -152,31 +138,12 @@ private struct AccountAboutSectionView: View {
                 .foregroundStyle(primaryText)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
-
-            HStack(alignment: .center, spacing: 16) {
-                Text("Privacy")
-                    .font(.subTitle2())
-                    .foregroundStyle(primaryText)
-
-                Spacer()
-
-                ForwardIcon()
-            }
-            .padding(.horizontal, 22)
-            .onTouchGesture(onPrivacyTap)
-
-            HStack(alignment: .center, spacing: 16) {
-                Text("Acknowledgements")
-                    .font(.subTitle2())
-                    .foregroundStyle(primaryText)
-
-                Spacer()
-
-                ForwardIcon()
-            }
-            .padding(.horizontal, 22)
-            .onTouchGesture(onAcknowledgementsTap)
-
+            
+            AccountItemCellView(optionText: "Privacy", onClick: onPrivacyTap)
+            
+            AccountItemCellView(optionText: "Acknowledgements", onClick: onAcknowledgementsTap)
+                .padding(.top, 10)
+            
             Divider()
                 .frame(height: 1)
                 .background(outlineColor)
@@ -184,10 +151,30 @@ private struct AccountAboutSectionView: View {
     }
 }
 
+private struct AccountItemCellView: View {
+    
+    let optionText: String
+    var onClick: () -> Void
+    
+    var body: some View {
+        HStack(alignment: .center, spacing: 16) {
+            Text(optionText)
+                .font(.subTitle2())
+                .foregroundStyle(primaryText)
+            
+            Spacer()
+            
+            ForwardIcon()
+        }
+        .padding(.horizontal, 22)
+        .onTouchGesture(onClick)
+    }
+}
+
 private struct AccountLogoutSectionView: View {
-
+    
     var onLogoutTap: () -> Void
-
+    
     var body: some View {
         VStack(alignment: .center, spacing: 10) {
             Text("Sign out")

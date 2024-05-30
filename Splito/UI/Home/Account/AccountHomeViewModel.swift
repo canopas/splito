@@ -10,27 +10,27 @@ import MessageUI
 import BaseStyle
 
 class AccountHomeViewModel: BaseViewModel, ObservableObject {
-
+    
     @Inject var preference: SplitoPreference
     @Inject private var ddLoggerProvider: DDLoggerProvider
-
+    
     @Published var currentState: ViewState = .initial
-
+    
     @Published var logFilePath: URL?
     @Published var showShareSheet = false
     @Published var showMailToast = false
-
+    
     private let router: Router<AppRoute>
-
+    
     init(router: Router<AppRoute>) {
         self.router = router
         super.init()
     }
-
+    
     func openUserProfileView() {
         router.push(.ProfileView)
     }
-
+    
     func onContactUsTap() {
         guard MFMailComposeViewController.canSendMail() else {
             showToastFor(toast: ToastPrompt(type: .warning, title: "Warning", message: "Your device cannot send email."))
@@ -42,18 +42,38 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
         logFilePath = logger.zipLogs()
         showShareSheet = true
     }
-
+    
     func showMailSendToast() {
         showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Email sent successfully!"))
         showMailToast = true
     }
-
+    
     func onRateAppTap() {
         let urlStr = Constants.rateAppURL // Open App Review Page
         guard let url = URL(string: urlStr), UIApplication.shared.canOpenURL(url) else { return }
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
-
+    
+    func onShareAppTap() {
+        openShareSheet(items: [Constants.shareAppURL])
+    }
+    
+    func handlePrivacyOptionTap() {
+        if let url = URL(string: Constants.privacyPolicyURL) {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:])
+            }
+        }
+    }
+    
+    func handleAcknowledgementsOptionTap() {
+        if let url = URL(string: Constants.acknowledgementsURL) {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:])
+            }
+        }
+    }
+    
     func handleLogoutBtnTap() {
         alert = .init(title: "See you soon!", message: "Are you sure you want to sign out?",
                       positiveBtnTitle: "Sign out",
@@ -62,23 +82,7 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
                       negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
         showAlert = true
     }
-
-    func handlePrivacyOptionTap() {
-        if let url = URL(string: Constants.privacyPolicyURL) {
-            if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.open(url, options: [:])
-            }
-        }
-    }
-
-    func handleAcknowledgementsOptionTap() {
-        if let url = URL(string: Constants.acknowledgementsURL) {
-            if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.open(url, options: [:])
-            }
-        }
-    }
-
+    
     private func performLogoutAction() {
         do {
             currentState = .loading
