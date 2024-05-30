@@ -12,6 +12,10 @@ public struct Constants {
         return "https://canopas.github.io/Splito/"
     }
 
+    public static var acknowledgementsURL: String {
+        return "https://canopas.github.io/Splito/acknowledgements.html"
+    }
+
     public static var appStoreAppId: String {
         return "6477442217"
     }

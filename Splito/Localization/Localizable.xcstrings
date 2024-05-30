@@ -60,6 +60,9 @@
     "Account" : {
 
     },
+    "Acknowledgements" : {
+
+    },
     "Add & split expenses with groups or individuals." : {
       "extractionState" : "manual"
     },

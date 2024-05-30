@@ -32,7 +32,7 @@ struct AccountHomeView: View {
                         AccountFeedbackSectionView(onContactTap: viewModel.onContactUsTap,
                                                    onRateAppTap: viewModel.onRateAppTap)
 
-                        AccountAboutSectionView(onPrivacyTap: viewModel.handlePrivacyOptionTap)
+                        AccountAboutSectionView(onPrivacyTap: viewModel.handlePrivacyOptionTap, onAcknowledgementsTap: viewModel.handleAcknowledgementsOptionTap)
 
                         AccountLogoutSectionView(onLogoutTap: viewModel.handleLogoutBtnTap)
 
@@ -143,6 +143,7 @@ private struct AccountFeedbackSectionView: View {
 private struct AccountAboutSectionView: View {
 
     var onPrivacyTap: () -> Void
+    var onAcknowledgementsTap: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -163,6 +164,18 @@ private struct AccountAboutSectionView: View {
             }
             .padding(.horizontal, 22)
             .onTouchGesture(onPrivacyTap)
+
+            HStack(alignment: .center, spacing: 16) {
+                Text("Acknowledgements")
+                    .font(.subTitle2())
+                    .foregroundStyle(primaryText)
+
+                Spacer()
+
+                ForwardIcon()
+            }
+            .padding(.horizontal, 22)
+            .onTouchGesture(onAcknowledgementsTap)
 
             Divider()
                 .frame(height: 1)

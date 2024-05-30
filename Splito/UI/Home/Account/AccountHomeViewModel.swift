@@ -71,6 +71,14 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    func handleAcknowledgementsOptionTap() {
+        if let url = URL(string: Constants.acknowledgementsURL) {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:])
+            }
+        }
+    }
+
     private func performLogoutAction() {
         do {
             currentState = .loading
