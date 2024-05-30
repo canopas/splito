@@ -108,23 +108,22 @@ private struct AccountFeedbackSectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Stay In Touch")
-                .font(.subTitle4(14))
+                .font(.subTitle1())
                 .foregroundStyle(primaryText)
-                .padding(.horizontal, 16)
                 .padding(.vertical, 10)
 
-            AccountItemCellView(optionText: "Contact us", onClick: onContactTap)
+            VStack(spacing: 12) {
+                AccountItemCellView(optionText: "Contact us", onClick: onContactTap)
 
-            AccountItemCellView(optionText: "Rate Splito", onClick: onRateAppTap)
-                .padding(.top, 10)
+                AccountItemCellView(optionText: "Rate Splito", onClick: onRateAppTap)
 
-            AccountItemCellView(optionText: "Share app", onClick: onShareAppTap)
-                .padding(.top, 10)
-
-            Divider()
-                .frame(height: 1)
-                .background(outlineColor)
+                AccountItemCellView(optionText: "Share app", onClick: onShareAppTap)
+            }
+            .padding(.vertical, 12)
+            .background(containerLowColor)
+            .cornerRadius(16)
         }
+        .padding(.horizontal, 16)
     }
 }
 
@@ -136,20 +135,20 @@ private struct AccountAboutSectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("About")
-                .font(.subTitle4(14))
+                .font(.subTitle1())
                 .foregroundStyle(primaryText)
-                .padding(.horizontal, 16)
                 .padding(.vertical, 10)
 
-            AccountItemCellView(optionText: "Privacy", onClick: onPrivacyTap)
+            VStack(spacing: 12) {
+                AccountItemCellView(optionText: "Privacy", onClick: onPrivacyTap)
 
-            AccountItemCellView(optionText: "Acknowledgements", onClick: onAcknowledgementsTap)
-                .padding(.top, 10)
-
-            Divider()
-                .frame(height: 1)
-                .background(outlineColor)
+                AccountItemCellView(optionText: "Acknowledgements", onClick: onAcknowledgementsTap)
+            }
+            .padding(.vertical, 12)
+            .background(containerLowColor)
+            .cornerRadius(16)
         }
+        .padding(.horizontal, 16)
     }
 }
 
@@ -168,7 +167,7 @@ private struct AccountItemCellView: View {
 
             ForwardIcon()
         }
-        .padding(.horizontal, 22)
+        .padding(.horizontal, 16)
         .onTouchGesture(onClick)
     }
 }
