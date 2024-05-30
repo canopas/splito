@@ -10,9 +10,9 @@ import SwiftUI
 public struct ShareSheetView: UIViewControllerRepresentable {
 
     let activityItems: [Any]
-    var onCompletion: ((Bool) -> Void)
+    var onCompletion: ((Bool) -> Void)?
 
-    public init(activityItems: [Any], onCompletion: @escaping ((Bool) -> Void)) {
+    public init(activityItems: [Any], onCompletion: ((Bool) -> Void)? = nil) {
         self.activityItems = activityItems
         self.onCompletion = onCompletion
     }
@@ -20,7 +20,7 @@ public struct ShareSheetView: UIViewControllerRepresentable {
     public func makeUIViewController(context: Context) -> UIActivityViewController {
         let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
         controller.completionWithItemsHandler = { _, completed, _, _ in
-            self.onCompletion(completed)
+            self.onCompletion?(completed)
         }
         return controller
     }

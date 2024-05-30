@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		21D8D0852C08B0280061B365 /* ShareSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8D0842C08B0280061B365 /* ShareSheetView.swift */; };
 		5DAEE93D2D2208132D031984 /* Pods_BaseStyleTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4AFAF996FB5C233D40D81D5 /* Pods_BaseStyleTests.framework */; };
 		A40018A9B957803B8105BEA5 /* Pods_BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 174198EE4AF2FC82DADEB060 /* Pods_BaseStyle.framework */; };
 		D82174BE2BBAD86D00DB42C3 /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82174BD2BBAD86D00DB42C3 /* ProfileImageView.swift */; };
@@ -68,7 +67,6 @@
 
 /* Begin PBXFileReference section */
 		174198EE4AF2FC82DADEB060 /* Pods_BaseStyle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BaseStyle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		21D8D0842C08B0280061B365 /* ShareSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheetView.swift; sourceTree = "<group>"; };
 		2CE85328C46B183FC3F074A3 /* Pods-BaseStyle.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyle.release.xcconfig"; path = "Target Support Files/Pods-BaseStyle/Pods-BaseStyle.release.xcconfig"; sourceTree = "<group>"; };
 		5BDB5B9B63CFD771230CD759 /* Pods-BaseStyleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyleTests.release.xcconfig"; path = "Target Support Files/Pods-BaseStyleTests/Pods-BaseStyleTests.release.xcconfig"; sourceTree = "<group>"; };
 		CC9EC1F1C0A5A0821118E6CA /* Pods-BaseStyleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyleTests.debug.xcconfig"; path = "Target Support Files/Pods-BaseStyleTests/Pods-BaseStyleTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -269,7 +267,6 @@
 				D8D42A9C2B870A5D009B345D /* ToastPrompt.swift */,
 				D8E244B42B972AD200C6C82A /* EmptyRouteView.swift */,
 				D89DBE302B8884E300E5F1BD /* SectionHeaderView.swift */,
-				21D8D0842C08B0280061B365 /* ShareSheetView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -508,7 +505,6 @@
 				D89DBE352B88A05F00E5F1BD /* UIApplication+Extension.swift in Sources */,
 				D89DBE3C2B88AA1500E5F1BD /* CustomTextField.swift in Sources */,
 				D8D42A772B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift in Sources */,
-				21D8D0852C08B0280061B365 /* ShareSheetView.swift in Sources */,
 				D8D42A832B85D07C009B345D /* View+Extension.swift in Sources */,
 				D89DBE3E2B8C67CE00E5F1BD /* String+Extension.swift in Sources */,
 				D8E244C32B986D4F00C6C82A /* UIImage+Extension.swift in Sources */,
