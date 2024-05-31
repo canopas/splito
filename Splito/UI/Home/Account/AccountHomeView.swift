@@ -76,9 +76,11 @@ private struct AccountUserHeaderView: View {
                         .font(.subTitle1())
                         .foregroundStyle(primaryText)
 
-                    Text(user?.emailId ?? "")
-                        .font(.subTitle3())
-                        .foregroundStyle(secondaryText)
+                    if user?.emailId != nil && !(user?.emailId?.isEmpty ?? false) {
+                        Text(user?.emailId ?? "")
+                            .font(.subTitle3())
+                            .foregroundStyle(secondaryText)
+                    }
                 }
 
                 Spacer()
