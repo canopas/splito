@@ -64,7 +64,7 @@ private struct AccountUserHeaderView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Settings")
-                .font(.subTitle4(14))
+                .font(.subTitle1())
                 .foregroundStyle(primaryText)
                 .padding(.horizontal, 16)
 
@@ -86,8 +86,8 @@ private struct AccountUserHeaderView: View {
                 ForwardIcon()
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .onTouchGesture { onTap() }
+            .padding(.vertical, 16)
+            .onTouchGesture(onTap)
             .background(containerLowColor)
             .cornerRadius(16)
             .padding(.horizontal, 16)
