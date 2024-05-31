@@ -54,6 +54,9 @@
     "00:%@" : {
 
     },
+    "About" : {
+
+    },
     "Account" : {
 
     },
@@ -101,9 +104,6 @@
 
     },
     "Choose Payer" : {
-
-    },
-    "Contact us" : {
 
     },
     "Countries" : {
@@ -156,9 +156,6 @@
     },
     "Expenses" : {
       "extractionState" : "manual"
-    },
-    "Feedback" : {
-
     },
     "Get Started" : {
       "extractionState" : "manual"
@@ -247,9 +244,6 @@
     "Profile" : {
 
     },
-    "Rate Splito" : {
-
-    },
     "Remove" : {
 
     },
@@ -311,6 +305,9 @@
 
     },
     "Start a group" : {
+
+    },
+    "Stay In Touch" : {
 
     },
     "Take Picture" : {
