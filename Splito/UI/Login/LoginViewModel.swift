@@ -22,8 +22,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
     @Inject private var userRepository: UserRepository
 
     private var currentNonce: String = ""
-
-    var appleSignInDelegates: SignInWithAppleDelegates! = nil
+    private var appleSignInDelegates: SignInWithAppleDelegates! = nil
 
     private let router: Router<AppRoute>
 
@@ -94,7 +93,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
                 } else if let result {
                     self.showGoogleLoading = false
                     self.showAppleLoading = false
-                    let user = AppUser(id: result.user.uid, firstName: userData.0, lastName: userData.1, emailId: userData.2, phoneNumber: nil, loginType: loginType, isActive: true)
+                    let user = AppUser(id: result.user.uid, firstName: userData.0, lastName: userData.1, emailId: userData.2, phoneNumber: nil, loginType: loginType)
                     self.storeUser(user: user)
                     LogD("LoginViewModel :: Logged in User: \(result.user)")
                 } else {
@@ -108,15 +107,13 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         userRepository.storeUser(user: user)
             .sink { [weak self] completion in
                 guard let self else { return }
-                switch completion {
-                case .failure(let error):
-                    self.alert = .init(message: error.localizedDescription)
-                    self.showAlert = true
-                case .finished:
-                    self.preference.user = user
-                }
+				if case .failure(let error) = completion {
+					self.alert = .init(message: error.localizedDescription)
+					self.showAlert = true
+				}
             } receiveValue: { [weak self] _ in
                 guard let self else { return }
+				self.preference.user = user
                 self.onLoginSuccess()
             }.store(in: &cancelable)
     }

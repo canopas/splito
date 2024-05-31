@@ -49,7 +49,7 @@ struct HomeRouteView: View {
         }
         .onAppear {
             if preference.isVerifiedUser {
-                if preference.user == nil || (preference.user?.firstName == nil) {
+                if preference.user == nil || (preference.user?.firstName == nil) || (preference.user?.firstName == "") {
                     openProfileView = true
                 }
             }

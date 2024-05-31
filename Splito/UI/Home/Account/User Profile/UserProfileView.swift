@@ -44,8 +44,9 @@ struct UserProfileView: View {
 
                     VSpacer(8)
 
-                    if viewModel.isOpenedFromOnboard {
-                        PrimaryButton(text: "Save", isEnabled: viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3, showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUserProfile)
+                    if viewModel.isOpenFromOnboard {
+                        PrimaryButton(text: "Save", isEnabled: viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3,
+                                      showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUserProfile)
                     }
 
                     Button(action: viewModel.showDeleteAccountConfirmation) {
@@ -65,7 +66,7 @@ struct UserProfileView: View {
                         .clipShape(Capsule())
                     }
                     .buttonStyle(.scale)
-                    .hidden(viewModel.isOpenedFromOnboard)
+                    .hidden(viewModel.isOpenFromOnboard)
 
                     VSpacer(40)
                 }
@@ -124,7 +125,7 @@ private struct UserDetailList: View {
     }
 
     var isEmailDisable: Bool {
-        (userLoginType == .Google || userLoginType == .Apple) && !email.isEmpty
+        userLoginType == .Google
     }
 
     var body: some View {
@@ -171,7 +172,8 @@ private struct UserDetailCell: View {
 
             VSpacer(8)
 
-            UserProfileDataEditableTextField(titleText: $titleText, isDisabled: isDisabled, placeholder: placeholder, fieldType: fieldType, keyboardType: keyboardType, focused: focused, autoCapitalizationType: autoCapitalizationType)
+            UserProfileDataEditableTextField(titleText: $titleText, isDisabled: isDisabled, placeholder: placeholder, fieldType: fieldType,
+                                             keyboardType: keyboardType, focused: focused, autoCapitalizationType: autoCapitalizationType)
 
             VSpacer(8)
 

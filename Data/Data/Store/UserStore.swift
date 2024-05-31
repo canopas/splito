@@ -7,7 +7,6 @@
 
 import Combine
 import FirebaseFirestore
-import FirebaseAuth
 
 class UserStore: ObservableObject {
 
@@ -82,24 +81,23 @@ class UserStore: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    func deleteUser(id: String) -> AnyPublisher<Void, ServiceError> {
-        return Future { [weak self] promise in
+    func deactivateUserAfterDelete(userId: String) -> AnyPublisher<Void, ServiceError> {
+        Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return
             }
 
-            let currentUser = Auth.auth().currentUser
-
-            currentUser?.delete { error in
-                if let error = error {
-                    LogE("UserStore :: \(#function): Deleting user from Auth failed with error: \(error.localizedDescription).")
-                    promise(.failure(.deleteFailed(error: error.localizedDescription)))
-                } else {
-                    LogD("User deleted successfully from Firebase Auth")
-                    promise(.success(()))
+            self.database.collection(self.DATABASE_NAME)
+                .document(userId)
+                .updateData(["is_active": false]) { error in
+                    if let error {
+                        LogE("UserStore :: \(#function): Deleting user from Auth failed with error: \(error.localizedDescription).")
+                        promise(.failure(.deleteFailed(error: error.localizedDescription)))
+                    } else {
+                        promise(.success(()))
+                    }
                 }
-            }
         }.eraseToAnyPublisher()
     }
 }
