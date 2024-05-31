@@ -131,7 +131,7 @@ private struct UserDetailList: View {
         VStack(spacing: 24) {
             ForEach(profileOptions.indices, id: \.self) { index in
                 UserDetailCell(titleText: titles[index], focused: $focusedField,
-                               isDisabled: userLoginType == .Phone ? profileOptions[index].isDisabled : (profileOptions[index] == .email ? isEmailDisable : false),
+                               isDisabled: false,
                                placeholder: profileOptions[index].placeholder,
                                subtitleText: profileOptions[index].subtitle,
                                validationEnabled: profileOptions[index].validationType == .email || profileOptions[index].validationType == .phone || profileOptions[index].validationType == .firstName,
