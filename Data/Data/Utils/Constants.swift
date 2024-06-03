@@ -9,11 +9,11 @@ import Foundation
 
 public struct Constants {
     public static var privacyPolicyURL: String {
-        return "https://canopas.github.io/Splito/"
+        return "https://canopas.github.io/splito/"
     }
 
     public static var acknowledgementsURL: String {
-        return "https://canopas.github.io/Splito/acknowledgements.html"
+        return "https://canopas.github.io/splito/acknowledgements.html"
     }
 
     public static var appStoreAppId: String {
