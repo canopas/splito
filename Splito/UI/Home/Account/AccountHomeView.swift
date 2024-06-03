@@ -29,9 +29,9 @@ struct AccountHomeView: View {
 
                         AccountUserHeaderView(user: viewModel.preference.user, onTap: viewModel.openUserProfileView)
 
-                        AccountFeedbackSectionView(onContactTap: viewModel.onContactUsTap,
-                                                   onRateAppTap: viewModel.onRateAppTap,
-                                                   onShareAppTap: viewModel.onShareAppTap)
+                        AccountStayInTouchSectionView(onContactTap: viewModel.onContactUsTap,
+                                                      onRateAppTap: viewModel.onRateAppTap,
+                                                      onShareAppTap: viewModel.onShareAppTap)
 
                         AccountAboutSectionView(onPrivacyTap: viewModel.handlePrivacyOptionTap, onAcknowledgementsTap: viewModel.handleAcknowledgementsOptionTap)
 
@@ -63,10 +63,9 @@ private struct AccountUserHeaderView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Settings")
-                .font(.subTitle1())
+            Text("Profile")
+                .font(.Header3())
                 .foregroundStyle(primaryText)
-                .padding(.horizontal, 16)
 
             HStack(alignment: .center, spacing: 16) {
                 MemberProfileImageView(imageUrl: user?.imageUrl)
@@ -92,16 +91,12 @@ private struct AccountUserHeaderView: View {
             .onTouchGesture(onTap)
             .background(containerLowColor)
             .cornerRadius(16)
-            .padding(.horizontal, 16)
-
-            Divider()
-                .frame(height: 1)
-                .background(outlineColor)
         }
+        .padding(.horizontal, 16)
     }
 }
 
-private struct AccountFeedbackSectionView: View {
+private struct AccountStayInTouchSectionView: View {
 
     var onContactTap: () -> Void
     var onRateAppTap: () -> Void
@@ -110,18 +105,18 @@ private struct AccountFeedbackSectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Stay In Touch")
-                .font(.subTitle1())
+                .font(.Header3())
                 .foregroundStyle(primaryText)
                 .padding(.vertical, 10)
 
-            VStack(spacing: 12) {
+            VStack(spacing: 14) {
                 AccountItemCellView(optionText: "Contact us", onClick: onContactTap)
 
                 AccountItemCellView(optionText: "Rate Splito", onClick: onRateAppTap)
 
                 AccountItemCellView(optionText: "Share app", onClick: onShareAppTap)
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, 16)
             .background(containerLowColor)
             .cornerRadius(16)
         }
@@ -137,16 +132,16 @@ private struct AccountAboutSectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("About")
-                .font(.subTitle1())
+                .font(.Header3())
                 .foregroundStyle(primaryText)
                 .padding(.vertical, 10)
 
-            VStack(spacing: 12) {
+            VStack(spacing: 14) {
                 AccountItemCellView(optionText: "Privacy", onClick: onPrivacyTap)
 
                 AccountItemCellView(optionText: "Acknowledgements", onClick: onAcknowledgementsTap)
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, 16)
             .background(containerLowColor)
             .cornerRadius(16)
         }

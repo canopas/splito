@@ -4,6 +4,9 @@
     "" : {
 
     },
+    " (Admin)" : {
+
+    },
     " %@ " : {
 
     },
@@ -14,9 +17,6 @@
 
     },
     "(%lld people)" : {
-
-    },
-    "(Admin)" : {
 
     },
     "%@" : {
@@ -260,9 +260,6 @@
       "extractionState" : "manual"
     },
     "Select which people owe an equal share." : {
-
-    },
-    "Settings" : {
 
     },
     "Settle up and pay back your friends any time." : {

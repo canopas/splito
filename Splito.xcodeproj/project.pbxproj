@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		0BF8F99614F85846D78DE106 /* Pods_Splito_SplitoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2B9BBF3F71277A6AA5329CB /* Pods_Splito_SplitoUITests.framework */; };
-		217BEC102C00AB9E000CBBB4 /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 217BEC0F2C00AB9E000CBBB4 /* Secrets.xcconfig */; };
 		217BEC122C00AD78000CBBB4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 217BEC112C00AD78000CBBB4 /* GoogleService-Info.plist */; };
 		741540F86E36400CE27B1FAD /* Pods_SplitoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 701193A10871F36C3EDB356C /* Pods_SplitoTests.framework */; };
 		D815DFD72BEA26C200C0F862 /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D815DFD62BEA26C200C0F862 /* Secrets.xcconfig */; };
@@ -75,7 +74,6 @@
 		D8D14A652BA2DD7300F45FF2 /* UserProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A642BA2DD7300F45FF2 /* UserProfileImageView.swift */; };
 		D8D14A672BA2E25100F45FF2 /* UserProfileList.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A662BA2E25100F45FF2 /* UserProfileList.swift */; };
 		D8D14A692BA3133500F45FF2 /* OnboardRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A682BA3133500F45FF2 /* OnboardRouteView.swift */; };
-		D8D42A972B86FBF8009B345D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A962B86FBF8009B345D /* GoogleService-Info.plist */; };
 		D8D6C3A02B79F8110023CF08 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D6C39F2B79F8110023CF08 /* AppDelegate.swift */; };
 		D8DB68DE2B98AF7600329D51 /* BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */; };
 		D8DB68DF2B98AF7600329D51 /* BaseStyle.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -685,14 +683,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				D896844C2B722D3700D5F721 /* Preview Assets.xcassets in Resources */,
-				217BEC102C00AB9E000CBBB4 /* Secrets.xcconfig in Resources */,
 				D8682E2F2BEE4B3C00BB7273 /* GroupBalance.png in Resources */,
 				D89684492B722D3700D5F721 /* Assets.xcassets in Resources */,
 				D8682E302BEE4B3C00BB7273 /* SplitOption.png in Resources */,
 				D8682E242BEE4B1000BB7273 /* cta.png in Resources */,
 				D8682E252BEE4B1000BB7273 /* banner.png in Resources */,
 				D815DFD72BEA26C200C0F862 /* Secrets.xcconfig in Resources */,
-				D8D42A972B86FBF8009B345D /* GoogleService-Info.plist in Resources */,
 				D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */,
 				D8682E2C2BEE4B3C00BB7273 /* EditExpense.png in Resources */,
 				217BEC122C00AD78000CBBB4 /* GoogleService-Info.plist in Resources */,

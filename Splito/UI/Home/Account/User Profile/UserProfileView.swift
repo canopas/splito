@@ -39,13 +39,18 @@ struct UserProfileView: View {
                     }
 
                     UserDetailList(firstName: $viewModel.firstName, lastName: $viewModel.lastName,
-                                   email: $viewModel.email, phone: $viewModel.phone,
+                                   email: $viewModel.email, phone: $viewModel.phoneNumber,
                                    userLoginType: $viewModel.userLoginType)
 
                     VSpacer(8)
 
-                    if viewModel.isOpenedFromOnboard {
-                        PrimaryButton(text: "Save", isEnabled: viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3, showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUserProfile)
+                    if viewModel.isOpenFromOnboard {
+                        let isEnable = (viewModel.email.isValidEmail &&
+                                        viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3) ||
+                                       !(viewModel.userLoginType == .Google)
+
+                        PrimaryButton(text: "Save", isEnabled: isEnable,
+                                      showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUserProfile)
                     }
 
                     Button(action: viewModel.showDeleteAccountConfirmation) {
@@ -65,7 +70,7 @@ struct UserProfileView: View {
                         .clipShape(Capsule())
                     }
                     .buttonStyle(.scale)
-                    .hidden(viewModel.isOpenedFromOnboard)
+                    .hidden(viewModel.isOpenFromOnboard)
 
                     VSpacer(40)
                 }
@@ -102,6 +107,11 @@ struct UserProfileView: View {
             ImagePickerView(cropOption: .square, sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
                             image: $viewModel.profileImage, isPresented: $viewModel.showImagePicker)
         }
+        .sheet(isPresented: $viewModel.showOTPView) {
+            VerifyOtpView(viewModel: VerifyOtpViewModel(phoneNumber: viewModel.phoneNumber, verificationId: viewModel.verificationId, onLoginSuccess: { otp in
+                viewModel.otpPublisher.send(otp)
+            }))
+        }
     }
 }
 
@@ -124,7 +134,7 @@ private struct UserDetailList: View {
     }
 
     var isEmailDisable: Bool {
-        (userLoginType == .Google || userLoginType == .Apple) && !email.isEmpty
+        userLoginType == .Google
     }
 
     var body: some View {
@@ -171,7 +181,8 @@ private struct UserDetailCell: View {
 
             VSpacer(8)
 
-            UserProfileDataEditableTextField(titleText: $titleText, isDisabled: isDisabled, placeholder: placeholder, fieldType: fieldType, keyboardType: keyboardType, focused: focused, autoCapitalizationType: autoCapitalizationType)
+            UserProfileDataEditableTextField(titleText: $titleText, isDisabled: isDisabled, placeholder: placeholder, fieldType: fieldType,
+                                             keyboardType: keyboardType, focused: focused, autoCapitalizationType: autoCapitalizationType)
 
             VSpacer(8)
 
@@ -245,5 +256,5 @@ private struct UserProfileDataEditableTextField: View {
 }
 
 #Preview {
-    UserProfileView(viewModel: UserProfileViewModel(router: .init(root: .ProfileView), isOpenedFromOnboard: true, onDismiss: nil))
+    UserProfileView(viewModel: UserProfileViewModel(router: .init(root: .ProfileView), isOpenFromOnboard: true, onDismiss: nil))
 }

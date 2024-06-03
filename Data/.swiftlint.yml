@@ -9,6 +9,7 @@ disabled_rules: # rule identifiers to exclude from running
   - function_body_length
   - orphaned_doc_comment
   - void_function_in_ternary
+  - non_optional_string_data_conversion
   
 file_length:
   warning: 400

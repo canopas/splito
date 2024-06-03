@@ -23,15 +23,19 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
     var resendTimer: Timer?
     var phoneNumber: String
     var verificationId: String
+    var isFromPhoneLogin = false
 
-    private let router: Router<AppRoute>
+    private let router: Router<AppRoute>?
+    private var onLoginSuccess: ((String) -> Void)?
 
-    init(router: Router<AppRoute>, phoneNumber: String, verificationId: String) {
+    init(router: Router<AppRoute>? = nil, phoneNumber: String, verificationId: String, onLoginSuccess: ((String) -> Void)? = nil) {
         self.router = router
         self.phoneNumber = phoneNumber
         self.verificationId = verificationId
+        self.onLoginSuccess = onLoginSuccess
         super.init()
         runTimer()
+        isFromPhoneLogin = onLoginSuccess == nil
     }
 
     func verifyOTP() {
@@ -43,7 +47,7 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
             self?.showLoader = false
             if let result {
                 self?.resendTimer?.invalidate()
-                let user = AppUser(id: result.user.uid, firstName: nil, lastName: nil, emailId: nil, phoneNumber: result.user.phoneNumber, loginType: .Phone, isActive: true)
+                let user = AppUser(id: result.user.uid, firstName: nil, lastName: nil, emailId: nil, phoneNumber: result.user.phoneNumber, loginType: .Phone)
                 self?.storeUser(user: user)
             } else {
                 self?.onLoginError()
@@ -108,15 +112,19 @@ extension VerifyOtpViewModel {
             } receiveValue: { [weak self] user in
                 guard let self else { return }
                 self.preference.user = user
-                self.onLoginSuccess()
+                self.onVerificationSuccess()
             }.store(in: &cancelable)
     }
 
     func editButtonAction() {
-        router.pop()
+        router?.pop()
     }
 
-    private func onLoginSuccess() {
-        router.popToRoot()
+    private func onVerificationSuccess() {
+        if onLoginSuccess == nil {
+            router?.popToRoot()
+        } else {
+            onLoginSuccess?(otp)
+        }
     }
 }
