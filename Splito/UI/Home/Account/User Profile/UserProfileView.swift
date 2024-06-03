@@ -39,13 +39,17 @@ struct UserProfileView: View {
                     }
 
                     UserDetailList(firstName: $viewModel.firstName, lastName: $viewModel.lastName,
-                                   email: $viewModel.email, phone: $viewModel.phone,
+                                   email: $viewModel.email, phone: $viewModel.phoneNumber,
                                    userLoginType: $viewModel.userLoginType)
 
                     VSpacer(8)
 
                     if viewModel.isOpenFromOnboard {
-                        PrimaryButton(text: "Save", isEnabled: viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3,
+                        let isEnable = (viewModel.email.isValidEmail &&
+                                        viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3) ||
+                                       !(viewModel.userLoginType == .Google)
+
+                        PrimaryButton(text: "Save", isEnabled: isEnable,
                                       showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUserProfile)
                     }
 
@@ -102,6 +106,11 @@ struct UserProfileView: View {
         .sheet(isPresented: $viewModel.showImagePicker) {
             ImagePickerView(cropOption: .square, sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
                             image: $viewModel.profileImage, isPresented: $viewModel.showImagePicker)
+        }
+        .sheet(isPresented: $viewModel.showOTPView) {
+            VerifyOtpView(viewModel: VerifyOtpViewModel(phoneNumber: viewModel.phoneNumber, verificationId: viewModel.verificationId, onLoginSuccess: { otp in
+                viewModel.otpPublisher.send(otp)
+            }))
         }
     }
 }

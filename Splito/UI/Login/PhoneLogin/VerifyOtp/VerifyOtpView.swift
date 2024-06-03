@@ -41,12 +41,14 @@ public struct VerifyOtpView: View {
                             .font(.subTitle2())
                             .foregroundStyle(primaryText)
 
-                        Button(action: viewModel.editButtonAction, label: {
-                            Image(.editPencil)
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 24, height: 24, alignment: .center)
-                        })
+                        if viewModel.isFromPhoneLogin {
+                            Button(action: viewModel.editButtonAction, label: {
+                                Image(.editPencil)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 24, height: 24, alignment: .center)
+                            })
+                        }
                     }
                 }
                 .padding(.horizontal, 40)

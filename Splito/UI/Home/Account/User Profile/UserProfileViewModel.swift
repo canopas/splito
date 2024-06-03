@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Data
+import Combine
 import BaseStyle
 import AVFoundation
 import FirebaseAuth
@@ -25,7 +26,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
     @Published var firstName: String = ""
     @Published var lastName: String = ""
     @Published var email: String = ""
-    @Published var phone: String = ""
+    @Published var phoneNumber: String = ""
     @Published var userLoginType: LoginType = .Phone
 
     @Published var profileImage: UIImage?
@@ -38,12 +39,16 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
     @Published var isOpenFromOnboard: Bool
     @Published var isSaveInProgress = false
     @Published var isDeleteInProgress = false
+    @Published var showOTPView = false
 
+    var verificationId = ""
     private var currentNonce: String = ""
     private var appleSignInDelegates: SignInWithAppleDelegates! = nil
 
     private let router: Router<AppRoute>?
     private var onDismiss: (() -> Void)?
+
+    var otpPublisher = PassthroughSubject<String, Never>()
 
     init(router: Router<AppRoute>?, isOpenedFromOnboard: Bool, onDismiss: (() -> Void)?) {
         self.router = router
@@ -58,7 +63,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             firstName = user.firstName ?? ""
             lastName = user.lastName ?? ""
             email = user.emailId ?? ""
-            phone = user.phoneNumber ?? ""
+            phoneNumber = user.phoneNumber ?? ""
             userLoginType = user.loginType
             profileImageUrl = user.imageUrl
         }
@@ -114,7 +119,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         newUser.firstName = firstName.capitalized
         newUser.lastName = lastName.capitalized
         newUser.emailId = email
-        newUser.phoneNumber = phone
+        newUser.phoneNumber = phoneNumber
 
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
@@ -161,13 +166,13 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                 if case .failure(let error) = completion {
                     guard let self else { return }
                     if error.descriptionText.contains(self.REQUIRE_AGAIN_LOGIN_TEXT) {
-						self.alert = .init(title: "", message: error.descriptionText,
-						positiveBtnTitle: "Reauthenticate", positiveBtnAction: {
-							self.reAuthenticateUser()
-						}, negativeBtnTitle: "Cancel", negativeBtnAction: {
-							self.showAlert = false
-							self.isDeleteInProgress = false
-						})
+                        self.alert = .init(title: "", message: error.descriptionText,
+                                           positiveBtnTitle: "Reauthenticate", positiveBtnAction: {
+                            self.reAuthenticateUser()
+                        }, negativeBtnTitle: "Cancel", negativeBtnAction: {
+                            self.showAlert = false
+                            self.isDeleteInProgress = false
+                        })
                         self.showAlert = true
                     }
                 }
@@ -177,27 +182,9 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                 self.preference.isOnboardShown = false
                 self.preference.clearPreferenceSession()
                 self.goToOnboardScreen()
-				LogD("UserProfileViewModel :: user deleted.")
+                LogD("UserProfileViewModel :: user deleted.")
             }.store(in: &cancelable)
     }
-
-	func deleteUser() {
-		guard let user = preference.user else { return }
-		userRepository.deleteUser(id: user.id)
-			.sink { [weak self] completion in
-				if case .failure(let error) = completion {
-					self?.isDeleteInProgress = false
-					self?.showAlertFor(error)
-				}
-			} receiveValue: { [weak self] _ in
-				guard let self else { return }
-				self.isDeleteInProgress = false
-				self.preference.clearPreferenceSession()
-				self.preference.isOnboardShown = false
-				self.goToOnboardScreen()
-				LogD("UserProfileViewModel :: user deleted.")
-			}.store(in: &cancelable)
-	}
 
     private func goToOnboardScreen() {
         router?.popToRoot()
@@ -205,7 +192,6 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 }
 
 // MARK: - Reauthentication Actions
-
 extension UserProfileViewModel {
     private func reAuthenticateUser() {
         guard let user = FirebaseProvider.auth.currentUser else {
@@ -216,6 +202,7 @@ extension UserProfileViewModel {
         user.reload { [weak self] error in
             if let error {
                 self?.isDeleteInProgress = false
+                self?.showAlertFor(message: error.localizedDescription)
                 LogE("UserProfileViewModel: Error reloading user: \(error.localizedDescription)")
             } else {
                 self?.promptForReAuthentication(user)
@@ -234,6 +221,7 @@ extension UserProfileViewModel {
             user.reauthenticate(with: credential) { _, error in
                 if let error {
                     self?.isDeleteInProgress = false
+                    self?.showAlertFor(message: error.localizedDescription)
                     LogE("UserProfileViewModel: Error re-authenticating user: \(error.localizedDescription)")
                 } else {
                     self?.deleteUser()
@@ -247,48 +235,121 @@ extension UserProfileViewModel {
 
         switch appUser.loginType {
         case .Apple:
-            currentNonce = NonceGenerator.randomNonceString()
-            let request = ASAuthorizationAppleIDProvider().createRequest()
-            request.requestedScopes = [.fullName, .email]
-            request.nonce = NonceGenerator.sha256(currentNonce)
-
-            isDeleteInProgress = false
-
-            appleSignInDelegates = SignInWithAppleDelegates { (token, _, _, _)  in
-                self.isDeleteInProgress = true
-                let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: token, rawNonce: self.currentNonce)
-                completion(credential)
-            }
-
-            let authorizationController = ASAuthorizationController(authorizationRequests: [request])
-            authorizationController.delegate = appleSignInDelegates
-            authorizationController.performRequests()
+            handleAppleLogin(completion: completion)
 
         case .Google:
-            let clientID = FirebaseApp.app()?.options.clientID ?? ""
+            handleGoogleLogin(completion: completion)
 
-            let config = GIDConfiguration(clientID: clientID)
-            GIDSignIn.sharedInstance.configuration = config
+        case .Phone:
+            handlePhoneLogin(completion: completion)
+        }
+    }
 
-            guard let controller = TopViewController.shared.topViewController() else {
-                LogE("UserProfileViewModel :: Top Controller not found.")
+    private func deleteUser() {
+        guard let user = preference.user else { return }
+        userRepository.deleteUser(id: user.id)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.isDeleteInProgress = false
+                    self?.showAlertFor(error)
+                }
+            } receiveValue: { [weak self] _ in
+                guard let self else { return }
+                self.isDeleteInProgress = false
+                self.preference.clearPreferenceSession()
+                self.preference.isOnboardShown = false
+                self.goToOnboardScreen()
+                LogD("UserProfileViewModel :: user deleted.")
+            }.store(in: &cancelable)
+    }
+
+    private func handleAppleLogin(completion: @escaping (AuthCredential?) -> Void) {
+        currentNonce = NonceGenerator.randomNonceString()
+        let request = ASAuthorizationAppleIDProvider().createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = NonceGenerator.sha256(currentNonce)
+
+        isDeleteInProgress = false
+
+        appleSignInDelegates = SignInWithAppleDelegates { (token, _, _, _) in
+            self.isDeleteInProgress = true
+            let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: token, rawNonce: self.currentNonce)
+            completion(credential)
+        }
+
+        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+        authorizationController.delegate = appleSignInDelegates
+        authorizationController.performRequests()
+    }
+
+    private func handleGoogleLogin(completion: @escaping (AuthCredential?) -> Void) {
+        let clientID = FirebaseApp.app()?.options.clientID ?? ""
+
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = config
+
+        guard let controller = TopViewController.shared.topViewController() else {
+            LogE("UserProfileViewModel: Top Controller not found.")
+            return
+        }
+
+        GIDSignIn.sharedInstance.signIn(withPresenting: controller) { result, error in
+            guard error == nil else {
+                self.isDeleteInProgress = false
+                LogE("UserProfileViewModel: Google Login Error: \(String(describing: error))")
                 return
             }
 
-            GIDSignIn.sharedInstance.signIn(withPresenting: controller) { result, error in
-                guard error == nil else {
+            guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
+            completion(credential)
+        }
+    }
+
+    private func handlePhoneLogin(completion: @escaping (AuthCredential?) -> Void) {
+        guard let phoneNumber = preference.user?.phoneNumber else {
+            self.isDeleteInProgress = false
+            LogE("UserProfileViewModel No phone number found for phone login.")
+            return
+        }
+
+        FirebaseProvider.phoneAuthProvider
+            .verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
+                guard let self = self else { return }
+                if let error {
                     self.isDeleteInProgress = false
-                    LogE("UserProfileViewModel :: Google Login Error: \(String(describing: error))")
-                    return
+                    self.handleFirebaseAuthErrors(error)
+                } else {
+                    self.phoneNumber = phoneNumber
+                    self.verificationId = verificationID ?? ""
+                    self.showOTPView = true
+
+                    self.otpPublisher
+                        .sink { otp in
+                            guard !otp.isEmpty else { return }
+                            self.showOTPView = false
+
+                            let credential = FirebaseProvider.phoneAuthProvider
+                                .credential(withVerificationID: self.verificationId, verificationCode: otp)
+                            completion(credential)
+                        }
+                        .store(in: &self.cancelable)
                 }
-
-                guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
-                let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-                completion(credential)
             }
+    }
 
-        case .Phone:
-            completion(nil)
+    private func handleFirebaseAuthErrors(_ error: Error) {
+        if (error as NSError).code == FirebaseAuth.AuthErrorCode.webContextCancelled.rawValue {
+            showAlertFor(message: "Something went wrong! Please try after some time.")
+        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.tooManyRequests.rawValue {
+            showAlertFor(message: "Too many attempts, please try after some time.")
+        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.missingPhoneNumber.rawValue {
+            showAlertFor(message: "Enter a valid phone number.")
+        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.invalidPhoneNumber.rawValue {
+            showAlertFor(message: "Enter a valid phone number.")
+        } else {
+            LogE("Firebase: Phone login fail with error: \(error.localizedDescription)")
+            showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
         }
     }
 }
