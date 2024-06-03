@@ -256,5 +256,5 @@ private struct UserProfileDataEditableTextField: View {
 }
 
 #Preview {
-    UserProfileView(viewModel: UserProfileViewModel(router: .init(root: .ProfileView), isOpenedFromOnboard: true, onDismiss: nil))
+    UserProfileView(viewModel: UserProfileViewModel(router: .init(root: .ProfileView), isOpenFromOnboard: true, onDismiss: nil))
 }

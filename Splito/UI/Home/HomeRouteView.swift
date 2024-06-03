@@ -41,7 +41,7 @@ struct HomeRouteView: View {
                 ExpenseRouteView()
             }
             .sheet(isPresented: $openProfileView) {
-                UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenedFromOnboard: true, onDismiss: {
+                UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenFromOnboard: true, onDismiss: {
                     openProfileView = false
                 }))
                 .interactiveDismissDisabled()

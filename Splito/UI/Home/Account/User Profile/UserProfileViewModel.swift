@@ -43,17 +43,17 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
     var verificationId = ""
     private var currentNonce: String = ""
-    private var appleSignInDelegates: SignInWithAppleDelegates! = nil
+    private lazy var appleSignInDelegates: SignInWithAppleDelegates! = nil
 
     private let router: Router<AppRoute>?
     private var onDismiss: (() -> Void)?
 
     var otpPublisher = PassthroughSubject<String, Never>()
 
-    init(router: Router<AppRoute>?, isOpenedFromOnboard: Bool, onDismiss: (() -> Void)?) {
+    init(router: Router<AppRoute>?, isOpenFromOnboard: Bool, onDismiss: (() -> Void)?) {
         self.router = router
         self.onDismiss = onDismiss
-        self.isOpenFromOnboard = isOpenedFromOnboard
+        self.isOpenFromOnboard = isOpenFromOnboard
         super.init()
         fetchUserDetail()
     }
@@ -156,7 +156,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
     private func deleteUser() {
         guard let user = preference.user else {
-            LogD("UserProfileViewModel :: user not exists.")
+            LogD("UserProfileViewModel :: User does not exist.")
             return
         }
 
