@@ -148,19 +148,18 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Delete your account",
                       message: "Are you ABSOLUTELY sure you want to close your splito account? You will no longer be able to log into your account or access your account history from your splito app.",
                       positiveBtnTitle: "Delete",
-                      positiveBtnAction: { self.handleDeleteAccountAction() },
+                      positiveBtnAction: { self.deleteUser() },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
         showAlert = true
     }
 
-    func handleDeleteAccountAction() {
+    private func deleteUser() {
         guard let user = preference.user else {
             LogD("UserProfileViewModel :: user not exists.")
             return
         }
 
-        isDeleteInProgress = true
         userRepository.deleteUser(id: user.id)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -243,24 +242,6 @@ extension UserProfileViewModel {
         case .Phone:
             handlePhoneLogin(completion: completion)
         }
-    }
-
-    private func deleteUser() {
-        guard let user = preference.user else { return }
-        userRepository.deleteUser(id: user.id)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.isDeleteInProgress = false
-                    self?.showAlertFor(error)
-                }
-            } receiveValue: { [weak self] _ in
-                guard let self else { return }
-                self.isDeleteInProgress = false
-                self.preference.clearPreferenceSession()
-                self.preference.isOnboardShown = false
-                self.goToOnboardScreen()
-                LogD("UserProfileViewModel :: user deleted.")
-            }.store(in: &cancelable)
     }
 
     private func handleAppleLogin(completion: @escaping (AuthCredential?) -> Void) {
