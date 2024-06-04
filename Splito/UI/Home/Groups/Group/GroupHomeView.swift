@@ -44,9 +44,19 @@ struct GroupHomeView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationBarTitle(viewModel.group?.name ?? "", displayMode: .inline)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
+            NavigationStack {
+                GroupSettleUpView(viewModel: GroupSettleUpViewModel(groupId: viewModel.group?.id ?? ""))
+            }
+        }
         .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
             NavigationStack {
                 GroupBalancesView(viewModel: GroupBalancesViewModel(groupId: viewModel.group?.id ?? ""))
+            }
+        }
+        .fullScreenCover(isPresented: $viewModel.showGroupTotalSheet) {
+            NavigationStack {
+                GroupTotalsView(viewModel: GroupTotalsViewModel(groupId: viewModel.group?.id ?? ""))
             }
         }
         .toolbar {
@@ -79,11 +89,12 @@ private struct GroupExpenseListView: View {
         self.viewModel = viewModel
         self.onExpenseItemTap = onExpenseItemTap
 
-        self.groupedExpenses = Dictionary(grouping: viewModel.expenseWithUser.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "MMMM yyyy"
-            return dateFormatter.string(from: expense.expense.date.dateValue())
-        }
+        self.groupedExpenses = Dictionary(grouping: viewModel.expensesWithUser
+            .sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "MMMM yyyy"
+                return dateFormatter.string(from: expense.expense.date.dateValue())
+            }
 
         isSettledUp = (viewModel.group?.members.count ?? 1) > 1
     }
@@ -95,13 +106,11 @@ private struct GroupExpenseListView: View {
 
                 GroupExpenseHeaderView(viewModel: viewModel)
 
-                VSpacer(6)
+                GroupListOptionsView(onSettleUpTap: viewModel.handleSettleUpBtnTap,
+                                     onBalanceTap: viewModel.handleBalancesBtnTap,
+                                     onTotalsTap: viewModel.handleTotalBtnTap)
 
-                GroupListOptionsView(onBalanceTap: viewModel.handleBalancesBtnTap)
-
-                VSpacer(6)
-
-                ForEach(groupedExpenses.keys.sorted(), id: \.self) { month in
+                ForEach(groupedExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
                     Section(header: Text(month).font(.subTitle2())) {
                         ForEach(groupedExpenses[month]!, id: \.expense.id) { expense in
                             GroupExpenseItemView(expenseWithUser: expense)
@@ -109,6 +118,7 @@ private struct GroupExpenseListView: View {
                         }
                     }
                 }
+
                 Spacer()
             }
             .padding(.horizontal, 20)
@@ -265,12 +275,19 @@ private struct GroupExpenseItemView: View {
 
 private struct GroupListOptionsView: View {
 
+    let onSettleUpTap: () -> Void
     let onBalanceTap: () -> Void
+    let onTotalsTap: () -> Void
 
     var body: some View {
         HStack(spacing: 18) {
+            GroupOptionsButtonView(text: "Settle up", isForSettleUp: true, onTap: onSettleUpTap)
+
             GroupOptionsButtonView(text: "Balances", onTap: onBalanceTap)
+
+            GroupOptionsButtonView(text: "Totals", onTap: onTotalsTap)
         }
+        .padding(.vertical, 16)
     }
 }
 
@@ -283,7 +300,7 @@ private struct GroupOptionsButtonView: View {
 
     var body: some View {
         Text(text.localized)
-            .font(.subTitle1())
+            .font(.subTitle2())
             .foregroundColor(isForSettleUp ? .white : primaryText)
             .padding(.vertical, 8)
             .padding(.horizontal, 16)
