@@ -199,7 +199,7 @@ private struct GroupListEditCellView: View {
     }
 }
 
-struct GroupMemberCellView: View {
+private struct GroupMemberCellView: View {
 
     @Inject var preference: SplitoPreference
 
@@ -233,7 +233,7 @@ struct GroupMemberCellView: View {
                 HStack(alignment: .center, spacing: 2) {
                     Text(userName)
                         .lineLimit(1)
-                        .font(.subTitle2())
+                        .font(.body1())
                         .foregroundStyle(primaryText)
 
                     if isAdmin {

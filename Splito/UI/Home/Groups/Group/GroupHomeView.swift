@@ -106,7 +106,7 @@ private struct GroupExpenseListView: View {
 
                 GroupExpenseHeaderView(viewModel: viewModel)
 
-                GroupListOptionsView(onSettleUpTap: viewModel.handleSettleUpBtnTap,
+                GroupOptionsListView(onSettleUpTap: viewModel.handleSettleUpBtnTap,
                                      onBalanceTap: viewModel.handleBalancesBtnTap,
                                      onTotalsTap: viewModel.handleTotalBtnTap)
 
@@ -273,14 +273,14 @@ private struct GroupExpenseItemView: View {
     }
 }
 
-private struct GroupListOptionsView: View {
+private struct GroupOptionsListView: View {
 
     let onSettleUpTap: () -> Void
     let onBalanceTap: () -> Void
     let onTotalsTap: () -> Void
 
     var body: some View {
-        HStack(spacing: 18) {
+        HStack(spacing: 16) {
             GroupOptionsButtonView(text: "Settle up", isForSettleUp: true, onTap: onSettleUpTap)
 
             GroupOptionsButtonView(text: "Balances", onTap: onBalanceTap)
@@ -309,7 +309,7 @@ private struct GroupOptionsButtonView: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 6).stroke(outlineColor, lineWidth: 1)
             )
-            .shadow(color: secondaryText.opacity(0.2), radius: 2, x: 0, y: 1)
+            .shadow(color: secondaryText.opacity(0.2), radius: 1, x: 0, y: 1)
             .onTouchGesture { onTap() }
     }
 }

@@ -85,6 +85,9 @@
     "All" : {
 
     },
+    "All time" : {
+      "extractionState" : "manual"
+    },
     "and split" : {
 
     },
@@ -190,6 +193,9 @@
     "Groups make it easy to split apartment bills, share travel expenses, and more." : {
 
     },
+    "Hello, World!" : {
+
+    },
     "Invite Code" : {
 
     },
@@ -205,10 +211,16 @@
     "keep track of balances between friends and loved ones." : {
       "extractionState" : "manual"
     },
+    "Last month" : {
+      "extractionState" : "manual"
+    },
     "Leave group" : {
       "extractionState" : "manual"
     },
     "Leave Group" : {
+
+    },
+    "More options" : {
 
     },
     "Next" : {
@@ -235,10 +247,19 @@
     "owes" : {
 
     },
+    "owes you" : {
+
+    },
     "Paid by" : {
 
     },
     "Pay Back" : {
+      "extractionState" : "manual"
+    },
+    "Payments made" : {
+      "extractionState" : "manual"
+    },
+    "Payments received" : {
       "extractionState" : "manual"
     },
     "Phone number" : {
@@ -325,7 +346,19 @@
     "This code will be active for 2 days." : {
 
     },
+    "This month" : {
+      "extractionState" : "manual"
+    },
     "Today" : {
+      "extractionState" : "manual"
+    },
+    "Total change in balance" : {
+      "extractionState" : "manual"
+    },
+    "Total group spending" : {
+      "extractionState" : "manual"
+    },
+    "Total you paid for" : {
       "extractionState" : "manual"
     },
     "Tracking" : {
@@ -341,6 +374,9 @@
 
     },
     "We've sent a verification code to your phone" : {
+
+    },
+    "Which balance do you want to settle?" : {
 
     },
     "You" : {
@@ -394,6 +430,9 @@
     },
     "You're the only one here!" : {
 
+    },
+    "Your total share" : {
+      "extractionState" : "manual"
     }
   },
   "version" : "1.0"
