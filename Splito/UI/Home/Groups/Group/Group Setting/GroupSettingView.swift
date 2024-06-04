@@ -199,7 +199,7 @@ private struct GroupListEditCellView: View {
     }
 }
 
-private struct GroupMemberCellView: View {
+struct GroupMemberCellView: View {
 
     @Inject var preference: SplitoPreference
 
@@ -220,8 +220,9 @@ private struct GroupMemberCellView: View {
             return emailId
         } else if let phoneNumber = member.phoneNumber {
             return phoneNumber
+        } else {
+            return "No email address"
         }
-        return ""
     }
 
     var body: some View {

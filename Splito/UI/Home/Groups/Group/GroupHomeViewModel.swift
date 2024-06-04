@@ -10,18 +10,20 @@ import SwiftUI
 
 class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var preference: SplitoPreference
-    @Inject var groupRepository: GroupRepository
-    @Inject var expenseRepository: ExpenseRepository
+    @Inject private var preference: SplitoPreference
+    @Inject private var groupRepository: GroupRepository
+    @Inject private var expenseRepository: ExpenseRepository
 
-    @Published var expenses: [Expense] = []
-    @Published var expenseWithUser: [ExpenseWithUser] = []
+    @Published private var expenses: [Expense] = []
+    @Published var expensesWithUser: [ExpenseWithUser] = []
     @Published var groupState: GroupState = .noMember
 
     @Published var overallOwingAmount = 0.0
     @Published var memberOwingAmount: [String: Double] = [:]
 
+    @Published var showSettleUpSheet = false
     @Published var showBalancesSheet = false
+    @Published var showGroupTotalSheet = false
 
     var group: Groups?
     private let groupId: String
@@ -132,7 +134,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             owedByUser.forEach { userId, owedAmount in
                 self.memberOwingAmount[userId] = (self.memberOwingAmount[userId] ?? 0) - owedAmount
             }
-            self.expenseWithUser = combinedData
+            self.expensesWithUser = combinedData
             self.overallOwingAmount = expenseByUser
             self.setGroupViewState()
         }
@@ -172,7 +174,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 self.memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
             }
 
-            self.expenseWithUser = combinedData
+            self.expensesWithUser = combinedData
             self.setGroupViewState()
         }
     }
@@ -263,8 +265,42 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         router.push(.ExpenseDetailView(expenseId: expenseId))
     }
 
+    func handleSettleUpBtnTap() {
+        showSettleUpSheet = true
+    }
+
     func handleBalancesBtnTap() {
         showBalancesSheet = true
+    }
+
+    func handleTotalBtnTap() {
+        showGroupTotalSheet = true
+    }
+}
+
+// MARK: - Helper Methods
+
+extension GroupHomeViewModel {
+    func sortMonthYearStrings(_ s1: String, _ s2: String) -> Bool {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMMM yyyy"
+
+        guard let date1 = dateFormatter.date(from: s1),
+              let date2 = dateFormatter.date(from: s2) else {
+            return false
+        }
+
+        let components1 = Calendar.current.dateComponents([.year, .month], from: date1)
+        let components2 = Calendar.current.dateComponents([.year, .month], from: date2)
+
+        // Compare months first
+        if components1.month != components2.month {
+            return components1.month! > components2.month!
+        }
+        // If months are the same, compare years
+        else {
+            return components1.year! > components2.year!
+        }
     }
 }
 

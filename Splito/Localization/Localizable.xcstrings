@@ -178,6 +178,9 @@
     "Group settings" : {
 
     },
+    "Group spending summary" : {
+
+    },
     "Groups" : {
 
     },
@@ -260,6 +263,9 @@
       "extractionState" : "manual"
     },
     "Select which people owe an equal share." : {
+
+    },
+    "Settle up" : {
 
     },
     "Settle up and pay back your friends any time." : {
