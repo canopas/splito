@@ -19,6 +19,12 @@
 		D833445A2C0DD08400CD9F05 /* GroupSettleUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83344592C0DD08400CD9F05 /* GroupSettleUpViewModel.swift */; };
 		D83344612C0EF1F100CD9F05 /* GroupTotalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83344602C0EF1F100CD9F05 /* GroupTotalsView.swift */; };
 		D83344632C0EF1FA00CD9F05 /* GroupTotalsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83344622C0EF1FA00CD9F05 /* GroupTotalsViewModel.swift */; };
+		D83344652C0F2CEB00CD9F05 /* GroupWhoIsPayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83344642C0F2CEB00CD9F05 /* GroupWhoIsPayingView.swift */; };
+		D83344672C0F2D0000CD9F05 /* GroupWhoIsPayingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83344662C0F2D0000CD9F05 /* GroupWhoIsPayingViewModel.swift */; };
+		D833446C2C0F2D4200CD9F05 /* GroupWhoGettingPaidView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D833446B2C0F2D4200CD9F05 /* GroupWhoGettingPaidView.swift */; };
+		D833446E2C0F2D4C00CD9F05 /* GroupWhoGettingPaidViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D833446D2C0F2D4C00CD9F05 /* GroupWhoGettingPaidViewModel.swift */; };
+		D83344712C0F2D7D00CD9F05 /* GroupPaymentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83344702C0F2D7D00CD9F05 /* GroupPaymentViewModel.swift */; };
+		D83344732C0F2D9500CD9F05 /* GroupPaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83344722C0F2D9500CD9F05 /* GroupPaymentView.swift */; };
 		D856C7322BCFD21C0008A341 /* ExpenseDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D856C7312BCFD21C0008A341 /* ExpenseDetailsView.swift */; };
 		D856C7342BCFD2260008A341 /* ExpenseDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D856C7332BCFD2260008A341 /* ExpenseDetailsViewModel.swift */; };
 		D85E86E02BAB06A3002EDF76 /* AddExpenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86DF2BAB06A3002EDF76 /* AddExpenseView.swift */; };
@@ -143,6 +149,12 @@
 		D83344592C0DD08400CD9F05 /* GroupSettleUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSettleUpViewModel.swift; sourceTree = "<group>"; };
 		D83344602C0EF1F100CD9F05 /* GroupTotalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTotalsView.swift; sourceTree = "<group>"; };
 		D83344622C0EF1FA00CD9F05 /* GroupTotalsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTotalsViewModel.swift; sourceTree = "<group>"; };
+		D83344642C0F2CEB00CD9F05 /* GroupWhoIsPayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupWhoIsPayingView.swift; sourceTree = "<group>"; };
+		D83344662C0F2D0000CD9F05 /* GroupWhoIsPayingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupWhoIsPayingViewModel.swift; sourceTree = "<group>"; };
+		D833446B2C0F2D4200CD9F05 /* GroupWhoGettingPaidView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupWhoGettingPaidView.swift; sourceTree = "<group>"; };
+		D833446D2C0F2D4C00CD9F05 /* GroupWhoGettingPaidViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupWhoGettingPaidViewModel.swift; sourceTree = "<group>"; };
+		D83344702C0F2D7D00CD9F05 /* GroupPaymentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPaymentViewModel.swift; sourceTree = "<group>"; };
+		D83344722C0F2D9500CD9F05 /* GroupPaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPaymentView.swift; sourceTree = "<group>"; };
 		D856C7312BCFD21C0008A341 /* ExpenseDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseDetailsView.swift; sourceTree = "<group>"; };
 		D856C7332BCFD2260008A341 /* ExpenseDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseDetailsViewModel.swift; sourceTree = "<group>"; };
 		D85E86DF2BAB06A3002EDF76 /* AddExpenseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseView.swift; sourceTree = "<group>"; };
@@ -330,6 +342,9 @@
 			children = (
 				D83344572C0DD06F00CD9F05 /* GroupSettleUpView.swift */,
 				D83344592C0DD08400CD9F05 /* GroupSettleUpViewModel.swift */,
+				D833446F2C0F2D6C00CD9F05 /* Payment */,
+				D83344692C0F2D0D00CD9F05 /* Who Is paying */,
+				D833446A2C0F2D1E00CD9F05 /* Who Getting Paid */,
 			);
 			path = "Settle up";
 			sourceTree = "<group>";
@@ -341,6 +356,33 @@
 				D83344622C0EF1FA00CD9F05 /* GroupTotalsViewModel.swift */,
 			);
 			path = Totals;
+			sourceTree = "<group>";
+		};
+		D83344692C0F2D0D00CD9F05 /* Who Is paying */ = {
+			isa = PBXGroup;
+			children = (
+				D83344642C0F2CEB00CD9F05 /* GroupWhoIsPayingView.swift */,
+				D83344662C0F2D0000CD9F05 /* GroupWhoIsPayingViewModel.swift */,
+			);
+			path = "Who Is paying";
+			sourceTree = "<group>";
+		};
+		D833446A2C0F2D1E00CD9F05 /* Who Getting Paid */ = {
+			isa = PBXGroup;
+			children = (
+				D833446B2C0F2D4200CD9F05 /* GroupWhoGettingPaidView.swift */,
+				D833446D2C0F2D4C00CD9F05 /* GroupWhoGettingPaidViewModel.swift */,
+			);
+			path = "Who Getting Paid";
+			sourceTree = "<group>";
+		};
+		D833446F2C0F2D6C00CD9F05 /* Payment */ = {
+			isa = PBXGroup;
+			children = (
+				D83344722C0F2D9500CD9F05 /* GroupPaymentView.swift */,
+				D83344702C0F2D7D00CD9F05 /* GroupPaymentViewModel.swift */,
+			);
+			path = Payment;
 			sourceTree = "<group>";
 		};
 		D856C7302BCFD2080008A341 /* Expense Detail */ = {
@@ -880,8 +922,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D83344672C0F2D0000CD9F05 /* GroupWhoIsPayingViewModel.swift in Sources */,
 				D8D14A692BA3133500F45FF2 /* OnboardRouteView.swift in Sources */,
 				D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */,
+				D83344712C0F2D7D00CD9F05 /* GroupPaymentViewModel.swift in Sources */,
 				D85E86EF2BB41B9F002EDF76 /* ChooseGroupViewModel.swift in Sources */,
 				D8E244B72B972BE700C6C82A /* BaseViewModel.swift in Sources */,
 				D8AC26F22B84B12800CEAAD3 /* MainRouteView.swift in Sources */,
@@ -893,8 +937,10 @@
 				D8A7CA6E2BA483F60014EC67 /* GroupHomeView.swift in Sources */,
 				D85E86ED2BB41B87002EDF76 /* ChooseGroupView.swift in Sources */,
 				D8302DA22B9F284D005ACA13 /* InviteMemberViewModel.swift in Sources */,
+				D83344732C0F2D9500CD9F05 /* GroupPaymentView.swift in Sources */,
 				D83344582C0DD06F00CD9F05 /* GroupSettleUpView.swift in Sources */,
 				D8E244BF2B98592C00C6C82A /* GroupHomeViewModel.swift in Sources */,
+				D833446C2C0F2D4200CD9F05 /* GroupWhoGettingPaidView.swift in Sources */,
 				D8D14A562BA189EC00F45FF2 /* JoinMemberView.swift in Sources */,
 				D89C933D2BC020B200FACD16 /* AccountHomeViewModel.swift in Sources */,
 				D8E244BD2B98444900C6C82A /* CreateGroupViewModel.swift in Sources */,
@@ -911,6 +957,7 @@
 				D8D14A672BA2E25100F45FF2 /* UserProfileList.swift in Sources */,
 				D826C0E22BDBD65600AAA449 /* GroupBalancesView.swift in Sources */,
 				D85E86E72BB2E189002EDF76 /* ExpenseRouteView.swift in Sources */,
+				D83344652C0F2CEB00CD9F05 /* GroupWhoIsPayingView.swift in Sources */,
 				D8302DA02B9F282F005ACA13 /* InviteMemberView.swift in Sources */,
 				D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */,
 				D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */,
@@ -933,6 +980,7 @@
 				D8D14A582BA189F800F45FF2 /* JoinMemberViewModel.swift in Sources */,
 				D89DBE232B875C2200E5F1BD /* PhoneLoginView.swift in Sources */,
 				D85E86E92BB3FD49002EDF76 /* ChoosePayerView.swift in Sources */,
+				D833446E2C0F2D4C00CD9F05 /* GroupWhoGettingPaidViewModel.swift in Sources */,
 				D856C7342BCFD2260008A341 /* ExpenseDetailsViewModel.swift in Sources */,
 				D8AC26F62B84B12800CEAAD3 /* LoginViewModel.swift in Sources */,
 			);

@@ -21,7 +21,7 @@ struct GroupSettleUpView: View {
                 LoaderView()
             } else {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 30) {
+                    VStack(alignment: .leading, spacing: 20) {
                         VSpacer(10)
 
                         Text("Which balance do you want to settle?")
@@ -30,8 +30,11 @@ struct GroupSettleUpView: View {
                             .multilineTextAlignment(.leading)
                             .padding(.horizontal, 20)
 
+                        VSpacer(10)
+
                         GroupMembersListView(viewModel: viewModel)
 
+                        GroupSettleUpMoreOptionView(onMoreBtnTap: viewModel.handleMoreButtonTap)
                     }
                 }
                 .scrollIndicators(.hidden)
@@ -49,6 +52,27 @@ struct GroupSettleUpView: View {
                     dismiss()
                 }
             }
+        }
+    }
+}
+
+private struct GroupSettleUpMoreOptionView: View {
+
+    let onMoreBtnTap: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("More options")
+                .font(.body1())
+                .foregroundStyle(primaryText)
+                .padding(.horizontal, 20)
+
+            Divider()
+                .frame(height: 1)
+                .background(outlineColor.opacity(0.4))
+        }
+        .onTouchGesture {
+            onMoreBtnTap()
         }
     }
 }
@@ -107,7 +131,7 @@ private struct GroupMemberCellView: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text(member.fullName)
                     .lineLimit(1)
-                    .font(.subTitle2())
+                    .font(.body1())
                     .foregroundStyle(primaryText)
 
                 Text(subInfo)

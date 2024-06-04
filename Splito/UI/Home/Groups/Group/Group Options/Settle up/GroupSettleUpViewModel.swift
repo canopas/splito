@@ -175,6 +175,10 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
         return members.first(where: { $0.id == id })
     }
 
+    func handleMoreButtonTap() {
+
+    }
+
     // MARK: - Error Handling
     private func handleServiceError(_ error: ServiceError) {
         viewState = .initial
