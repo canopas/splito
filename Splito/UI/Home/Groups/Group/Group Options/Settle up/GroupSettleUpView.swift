@@ -29,8 +29,7 @@ struct GroupSettleUpView: View {
                             .foregroundStyle(primaryText)
                             .multilineTextAlignment(.leading)
                             .padding(.horizontal, 20)
-
-                        VSpacer(10)
+                            .padding(.bottom, 10)
 
                         GroupMembersListView(viewModel: viewModel)
 
