@@ -199,7 +199,7 @@ private struct GroupListEditCellView: View {
     }
 }
 
-struct GroupMemberCellView: View {
+private struct GroupMemberCellView: View {
 
     @Inject var preference: SplitoPreference
 

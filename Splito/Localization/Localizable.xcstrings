@@ -235,6 +235,9 @@
     "owes" : {
 
     },
+    "owes you" : {
+
+    },
     "Paid by" : {
 
     },
@@ -341,6 +344,9 @@
 
     },
     "We've sent a verification code to your phone" : {
+
+    },
+    "Which balance do you want to settle?" : {
 
     },
     "You" : {
