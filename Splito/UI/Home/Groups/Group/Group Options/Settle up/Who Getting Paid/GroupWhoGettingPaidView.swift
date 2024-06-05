@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Data
 import BaseStyle
 
 struct GroupWhoGettingPaidView: View {

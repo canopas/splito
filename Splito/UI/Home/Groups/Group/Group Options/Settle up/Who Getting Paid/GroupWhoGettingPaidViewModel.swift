@@ -7,7 +7,6 @@
 
 import Data
 import Combine
-import SwiftUI
 
 class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
 

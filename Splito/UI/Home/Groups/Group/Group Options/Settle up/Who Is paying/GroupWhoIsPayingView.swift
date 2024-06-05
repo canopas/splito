@@ -6,8 +6,8 @@
 //
 
 import SwiftUI
-import Data
 import BaseStyle
+import Data
 
 struct GroupWhoIsPayingView: View {
 
