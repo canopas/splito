@@ -24,8 +24,10 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
 
     private let groupId: String
     private var groupMemberData: [AppUser] = []
+    private let router: Router<AppRoute>?
 
-    init(groupId: String) {
+    init(router: Router<AppRoute>? = nil, groupId: String) {
+        self.router = router
         self.groupId = groupId
         super.init()
         fetchGroupDetails()
@@ -176,7 +178,11 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleMoreButtonTap() {
+        router?.push(.GroupWhoIsPayingView(groupId: groupId))
+    }
 
+    func onMemberTap(_ member: AppUser) {
+        router?.push(.GroupPaymentView(groupId: groupId))
     }
 
     // MARK: - Error Handling

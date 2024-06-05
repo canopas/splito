@@ -193,7 +193,7 @@
     "Groups make it easy to split apartment bills, share travel expenses, and more." : {
 
     },
-    "Hello, World!" : {
+    "Hello World" : {
 
     },
     "Invite Code" : {
@@ -228,6 +228,9 @@
     },
     "no balance" : {
 
+    },
+    "No email address" : {
+      "extractionState" : "manual"
     },
     "no expense" : {
 
@@ -266,6 +269,9 @@
 
     },
     "Profile" : {
+
+    },
+    "Record a payment" : {
 
     },
     "Remove" : {
@@ -377,6 +383,12 @@
 
     },
     "Which balance do you want to settle?" : {
+
+    },
+    "Who is getting paid?" : {
+
+    },
+    "Who is paying?" : {
 
     },
     "You" : {
