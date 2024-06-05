@@ -22,11 +22,11 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     @Published private var expenses: [Expense] = []
     @Published var memberOwingAmount: [String: Double] = [:]
 
-    private let groupId: String?
+    private let groupId: String
     private var groupMemberData: [AppUser] = []
     private let router: Router<AppRoute>?
 
-    init(router: Router<AppRoute>? = nil, groupId: String?) {
+    init(router: Router<AppRoute>? = nil, groupId: String) {
         self.router = router
         self.groupId = groupId
         super.init()
@@ -35,8 +35,6 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Data Loading
     func fetchGroupDetails() {
-        guard let groupId else { return }
-
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -50,7 +48,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     }
 
     private func fetchGroupMembers() {
-        guard let user = preference.user, let groupId = groupId else { return }
+        guard let user = preference.user else { return }
 
         groupRepository.fetchMembersBy(groupId: groupId)
             .sink { [weak self] completion in
@@ -66,8 +64,6 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     }
 
     private func fetchExpenses() {
-        guard let groupId else { return }
-
         expenseRepository.fetchExpensesBy(groupId: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -182,7 +178,6 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleMoreButtonTap() {
-        guard let groupId else { return }
         router?.push(.GroupWhoIsPayingView(groupId: groupId))
     }
 

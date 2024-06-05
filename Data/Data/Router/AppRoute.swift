@@ -30,7 +30,7 @@ public enum AppRoute: Hashable {
     case InviteMemberView(groupId: String)
     case JoinMemberView
     case GroupSettingView(groupId: String)
-    case GroupSettleUpView(groupId: String?)
+    case GroupSettleUpView(groupId: String)
     case GroupWhoIsPayingView(groupId: String)
     case GroupWhoGettingPaidView(groupId: String, selectedMemberId: String)
     case GroupPaymentView(groupId: String)
