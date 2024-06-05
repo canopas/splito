@@ -22,7 +22,7 @@ struct GroupWhoGettingPaidView: View {
                         ForEach(viewModel.members) { member in
                             GroupPayingMemberView(member: member, selectedMemberId: viewModel.selectedMemberId)
                                 .onTouchGesture {
-                                    viewModel.onMemberTap(member)
+                                    viewModel.onMemberTap(memberId: member.id)
                                 }
 
                             Divider()

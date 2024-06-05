@@ -181,8 +181,12 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
         router?.push(.GroupWhoIsPayingView(groupId: groupId))
     }
 
-    func onMemberTap(_ member: AppUser) {
-        router?.push(.GroupPaymentView(groupId: groupId))
+    func onMemberTap(memberId: String, amount: Double) {
+        guard let userId = self.preference.user?.id else { return }
+
+        let payerUserId = amount < 0 ? userId : memberId
+        let payableUserId = amount < 0 ? memberId : userId
+        router?.push(.GroupPaymentView(groupId: groupId, payerUserId: payerUserId, payableUserId: payableUserId, amount: amount))
     }
 
     // MARK: - Error Handling

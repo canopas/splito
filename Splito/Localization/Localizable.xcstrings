@@ -54,6 +54,9 @@
     "00:%@" : {
 
     },
+    "0.00" : {
+
+    },
     "About" : {
 
     },
@@ -191,9 +194,6 @@
 
     },
     "Groups make it easy to split apartment bills, share travel expenses, and more." : {
-
-    },
-    "Hello World" : {
 
     },
     "Invite Code" : {

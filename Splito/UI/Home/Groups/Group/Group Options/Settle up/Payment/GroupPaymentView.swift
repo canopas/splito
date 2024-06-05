@@ -7,33 +7,95 @@
 
 import SwiftUI
 import BaseStyle
+import Data
 
 struct GroupPaymentView: View {
 
+    @Inject private var preference: SplitoPreference
     @StateObject var viewModel: GroupPaymentViewModel
+
+    var payerName: String {
+        if let user = preference.user, user.id == viewModel.payerUserId {
+            return "You"
+        }
+        return viewModel.payerUser?.nameWithLastInitial ?? "Unknown"
+    }
+
+    var payableName: String {
+        if let user = preference.user, user.id == viewModel.payableUserId {
+            return "You"
+        }
+        return viewModel.payableUser?.nameWithLastInitial ?? "Unknown"
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
-                ScrollView {
-                    VStack(alignment: .center, spacing: 20) {
-                        Text("Hello World")
+                VStack(alignment: .center, spacing: 20) {
+                    HStack(alignment: .center, spacing: 20) {
+                        MemberProfileImageView(imageUrl: viewModel.payerUser?.imageUrl, height: 80)
+
+                        Image(systemName: "arrowshape.forward.fill")
+                            .resizable()
+                            .frame(width: 36, height: 18)
+                            .foregroundStyle(primaryText.opacity(0.6))
+
+                        MemberProfileImageView(imageUrl: viewModel.payableUser?.imageUrl, height: 80)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 24)
+
+                    Text("\(payerName) paid \(payableName)")
+                        .font(.body1())
+                        .foregroundStyle(primaryText)
+
+                    GroupPaymentAmountView(amount: $viewModel.amount)
                 }
-                .scrollIndicators(.hidden)
+                .padding(.horizontal, 20)
+                .padding(.top, 24)
             }
         }
         .background(backgroundColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationBarTitle("Record a payment", displayMode: .inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Save") {
+                    viewModel.handleSaveAction {
+
+                    }
+                }
+                .foregroundStyle(primaryColor)
+            }
+        }
     }
 }
 
-#Preview {
-    GroupPaymentView(viewModel: GroupPaymentViewModel(router: nil, groupId: ""))
+private struct GroupPaymentAmountView: View {
+
+    @Binding var amount: Double
+    @FocusState var isAmountFocused: Bool
+
+    var body: some View {
+        VStack(alignment: .center) {
+            TextField("0.00", value: $amount, formatter: NumberFormatter())
+                .keyboardType(.numberPad)
+                .frame(width: 140)
+                .font(.Header1(30))
+                .focused($isAmountFocused)
+                .overlay(
+                    VStack(spacing: 40) {
+                        Spacer()
+                        Rectangle()
+                            .frame(height: 2)
+                            .foregroundStyle(primaryColor)
+                    }
+                )
+        }
+        .padding(.vertical, 10)
+        .onAppear {
+            isAmountFocused = true
+        }
+    }
 }

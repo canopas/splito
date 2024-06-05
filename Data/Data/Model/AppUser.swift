@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AppUser: Identifiable, Codable {
+public struct AppUser: Identifiable, Codable, Hashable {
 
     public var id: String
     public var firstName: String?
