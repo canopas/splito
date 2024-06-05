@@ -79,7 +79,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleEditBtnAction() {
-        router.push(.AddExpenseView(expenseId: expenseId))
+        router.push(.AddExpenseView(expenseId: expenseId, groupId: ""))
     }
 
     func handleDeleteBtnAction() {

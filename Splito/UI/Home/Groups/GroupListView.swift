@@ -48,6 +48,7 @@ struct GroupListView: View {
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .onAppear {
             viewModel.fetchGroups()
+            groupIdForAddExpense = nil
         }
         .onDisappear {
             viewModel.showGroupMenu = false

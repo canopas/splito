@@ -8,6 +8,8 @@
 import Data
 import SwiftUI
 
+public var groupIdForAddExpense: String?
+
 class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     @Inject private var preference: SplitoPreference
@@ -38,6 +40,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     func fetchGroupAndExpenses() {
+        groupIdForAddExpense = groupId
+
         groupState = .loading
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in

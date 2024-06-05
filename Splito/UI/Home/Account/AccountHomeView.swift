@@ -53,6 +53,9 @@ struct AccountHomeView: View {
         .sheet(isPresented: $viewModel.showShareAppSheet) {
             ShareSheetView(activityItems: [Constants.shareAppURL])
         }
+        .onAppear {
+            groupIdForAddExpense = nil
+        }
     }
 }
 

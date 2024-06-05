@@ -38,20 +38,41 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    let groupId: String?
     let expenseId: String?
     private let router: Router<AppRoute>
 
-    init(router: Router<AppRoute>, expenseId: String? = nil) {
+    init(router: Router<AppRoute>, expenseId: String? = nil, groupId: String? = nil) {
         self.router = router
         self.expenseId = expenseId
+        self.groupId = groupId
 
         super.init()
 
         if let expenseId {
             fetchExpenseDetails(expenseId: expenseId)
+        } else if groupIdForAddExpense != nil && groupIdForAddExpense != "" {
+            fetchGroup()
         } else {
             updatePayerName()
         }
+    }
+
+    func fetchGroup() {
+        guard let groupIdForAddExpense else { return }
+
+        viewState = .loading
+        groupRepository.fetchGroupBy(id: groupIdForAddExpense)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.viewState = .initial
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] group in
+                guard let self, let group else { return }
+                self.selectedGroup = group
+                self.viewState = .initial
+            }.store(in: &cancelable)
     }
 
     private func updatePayerName() {

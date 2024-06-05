@@ -31,8 +31,8 @@ struct GroupRouteView: View {
 
             case .ExpenseDetailView(let expenseId):
                 ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: appRoute, expenseId: expenseId))
-            case .AddExpenseView(let expenseId):
-                AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, expenseId: expenseId))
+            case .AddExpenseView(let expenseId, let groupId):
+                AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, expenseId: expenseId, groupId: groupId))
 
             default:
                 EmptyRouteView(routeName: self)

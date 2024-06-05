@@ -11,13 +11,13 @@ import BaseStyle
 
 struct ExpenseRouteView: View {
 
-    @StateObject var appRoute = Router(root: AppRoute.AddExpenseView(expenseId: nil))
+    @StateObject var appRoute = Router(root: AppRoute.AddExpenseView(expenseId: nil, groupId: ""))
 
     var body: some View {
         RouterView(router: appRoute) { route in
             switch route {
-            case .AddExpenseView:
-                AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute))
+            case .AddExpenseView(let expenseId, let groupId):
+                AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, expenseId: expenseId, groupId: groupId))
             default:
                 EmptyRouteView(routeName: self)
             }
