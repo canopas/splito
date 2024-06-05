@@ -157,5 +157,5 @@ private struct GroupMemberCellView: View {
 }
 
 #Preview {
-    GroupSettleUpView(viewModel: GroupSettleUpViewModel(groupId: ""))
+    GroupSettleUpView(viewModel: GroupSettleUpViewModel(router: nil, groupId: ""))
 }

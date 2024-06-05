@@ -45,9 +45,7 @@ struct GroupHomeView: View {
         .navigationBarTitle(viewModel.group?.name ?? "", displayMode: .inline)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
-            NavigationStack {
-                GroupSettleUpView(viewModel: GroupSettleUpViewModel(groupId: viewModel.group?.id ?? ""))
-            }
+            GroupSettleUpRouteView(appRoute: Router(root: AppRoute.GroupSettleUpView(groupId: viewModel.group?.id ?? "")))
         }
         .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
             NavigationStack {
