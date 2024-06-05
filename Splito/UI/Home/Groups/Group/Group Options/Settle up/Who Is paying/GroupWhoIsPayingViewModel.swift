@@ -22,11 +22,10 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
         self.router = router
         super.init()
-        fetchGroupMembers()
     }
 
     // MARK: - Data Loading
-    private func fetchGroupMembers() {
+    func fetchGroupMembers() {
         groupRepository.fetchMembersBy(groupId: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {

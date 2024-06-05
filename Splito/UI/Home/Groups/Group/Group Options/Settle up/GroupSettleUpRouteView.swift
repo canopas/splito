@@ -2,7 +2,7 @@
 //  GroupSettleUpRouteView.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 04/06/24.
+//  Created by Amisha Italiya on 04/06/24.
 //
 
 import Data

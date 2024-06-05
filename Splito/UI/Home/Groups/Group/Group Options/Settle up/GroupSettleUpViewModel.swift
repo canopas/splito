@@ -181,6 +181,10 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
         router?.push(.GroupWhoIsPayingView(groupId: groupId))
     }
 
+    func onMemberTap(_ member: AppUser) {
+        router?.push(.GroupPaymentView(groupId: groupId))
+    }
+
     // MARK: - Error Handling
     private func handleServiceError(_ error: ServiceError) {
         viewState = .initial

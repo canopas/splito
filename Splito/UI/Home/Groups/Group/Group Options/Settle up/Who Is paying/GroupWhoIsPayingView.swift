@@ -21,7 +21,7 @@ struct GroupWhoIsPayingView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 10) {
                         ForEach(viewModel.members) { member in
-                            GroupMemberView(member: member)
+                            GroupPayingMemberView(member: member)
                                 .onTouchGesture {
                                     viewModel.onMemberTap(member)
                                 }
@@ -40,10 +40,13 @@ struct GroupWhoIsPayingView: View {
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationBarTitle("Who is paying?", displayMode: .inline)
+        .onAppear {
+            viewModel.fetchGroupMembers()
+        }
     }
 }
 
-struct GroupMemberView: View {
+struct GroupPayingMemberView: View {
 
     @Inject var preference: SplitoPreference
 
@@ -55,19 +58,11 @@ struct GroupMemberView: View {
         self.selectedMemberId = selectedMemberId
     }
 
-    private var userName: String {
-        if let user = preference.user, member.id == user.id {
-            return "You"
-        } else {
-            return member.fullName
-        }
-    }
-
     private var subInfo: String {
-        if let emailId = member.emailId {
-            return emailId
-        } else if let phoneNumber = member.phoneNumber {
+        if let phoneNumber = member.phoneNumber, !phoneNumber.isEmpty {
             return phoneNumber
+        } else if let emailId = member.emailId, !emailId.isEmpty {
+            return emailId
         } else {
             return "No email address"
         }
@@ -79,7 +74,7 @@ struct GroupMemberView: View {
 
             VStack(alignment: .leading, spacing: 5) {
                 HStack(alignment: .center, spacing: 2) {
-                    Text(userName.localized)
+                    Text(member.fullName.localized)
                         .lineLimit(1)
                         .font(.body1())
                         .foregroundStyle(primaryText)

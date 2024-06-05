@@ -25,11 +25,10 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
         self.selectedMemberId = selectedMemberId
         super.init()
-        fetchGroupMembers()
     }
 
     // MARK: - Data Loading
-    private func fetchGroupMembers() {
+    func fetchGroupMembers() {
         groupRepository.fetchMembersBy(groupId: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {

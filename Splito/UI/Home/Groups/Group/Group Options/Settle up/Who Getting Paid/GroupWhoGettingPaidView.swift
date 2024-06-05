@@ -20,7 +20,7 @@ struct GroupWhoGettingPaidView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 10) {
                         ForEach(viewModel.members) { member in
-                            GroupMemberView(member: member, selectedMemberId: viewModel.selectedMemberId)
+                            GroupPayingMemberView(member: member, selectedMemberId: viewModel.selectedMemberId)
                                 .onTouchGesture {
                                     viewModel.onMemberTap(member)
                                 }
@@ -39,6 +39,9 @@ struct GroupWhoGettingPaidView: View {
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationBarTitle("Who is getting paid?", displayMode: .inline)
+        .onAppear {
+            viewModel.fetchGroupMembers()
+        }
     }
 }
 

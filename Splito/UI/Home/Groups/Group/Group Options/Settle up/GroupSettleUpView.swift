@@ -98,6 +98,9 @@ private struct GroupMembersListView: View {
             ForEach(sortedMembers, id: \.key) { memberId, owingAmount in
                 if let member = viewModel.getMemberDataBy(id: memberId) {
                     GroupMemberCellView(member: member, amount: owingAmount)
+                        .onTouchGesture {
+                            viewModel.onMemberTap(member)
+                        }
 
                     Divider()
                         .frame(height: 1)
