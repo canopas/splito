@@ -17,7 +17,7 @@ struct HomeRouteView: View {
         ZStack {
             TabView {
                 GroupRouteView(onGroupSelected: { groupId in
-                    viewModel.selectedGroupId = groupId
+                    viewModel.setSelectedGroupId(groupId)
                 })
                 .tabItem {
                     Label("Groups", systemImage: "person.2")

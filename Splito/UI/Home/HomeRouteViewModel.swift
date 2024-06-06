@@ -18,4 +18,8 @@ class HomeRouteViewModel: ObservableObject {
     @Published var selectedGroupId: String?
 
     init() {}
+
+    func setSelectedGroupId(_ groupId: String) {
+        selectedGroupId = groupId
+    }
 }
