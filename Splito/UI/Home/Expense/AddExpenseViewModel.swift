@@ -51,7 +51,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
         if let expenseId {
             fetchExpenseDetails(expenseId: expenseId)
-        } else if groupIdForAddExpense != nil && groupIdForAddExpense != "" {
+        } else if groupId != nil {
             fetchGroup()
         } else {
             updatePayerName()
@@ -59,10 +59,10 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     }
 
     func fetchGroup() {
-        guard let groupIdForAddExpense else { return }
+        guard let groupId else { return }
 
         viewState = .loading
-        groupRepository.fetchGroupBy(id: groupIdForAddExpense)
+        groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.viewState = .initial

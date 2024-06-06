@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0BF8F99614F85846D78DE106 /* Pods_Splito_SplitoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2B9BBF3F71277A6AA5329CB /* Pods_Splito_SplitoUITests.framework */; };
 		213BA0602C0F465000116130 /* GroupSettleUpRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213BA05F2C0F465000116130 /* GroupSettleUpRouteView.swift */; };
+		213BA0662C11B70F00116130 /* HomeRouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */; };
 		217BEC122C00AD78000CBBB4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 217BEC112C00AD78000CBBB4 /* GoogleService-Info.plist */; };
 		741540F86E36400CE27B1FAD /* Pods_SplitoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 701193A10871F36C3EDB356C /* Pods_SplitoTests.framework */; };
 		D815DFD72BEA26C200C0F862 /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D815DFD62BEA26C200C0F862 /* Secrets.xcconfig */; };
@@ -132,6 +133,7 @@
 /* Begin PBXFileReference section */
 		038CCD15E82A4E16A4AD213C /* Pods-Splito-SplitoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito-SplitoUITests.release.xcconfig"; path = "Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests.release.xcconfig"; sourceTree = "<group>"; };
 		213BA05F2C0F465000116130 /* GroupSettleUpRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSettleUpRouteView.swift; sourceTree = "<group>"; };
+		213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRouteViewModel.swift; sourceTree = "<group>"; };
 		217BEC0F2C00AB9E000CBBB4 /* Secrets.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		217BEC112C00AD78000CBBB4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		43FFDB1561C565EE6E3DC86A /* Pods_Splito.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splito.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -603,6 +605,7 @@
 			isa = PBXGroup;
 			children = (
 				D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */,
+				213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */,
 				D89DBE552B8DE8C600E5F1BD /* Groups */,
 				D85E86E12BAB06BC002EDF76 /* Expense */,
 				D89DBE572B8DE8D400E5F1BD /* Account */,
@@ -961,6 +964,7 @@
 				D826C0E22BDBD65600AAA449 /* GroupBalancesView.swift in Sources */,
 				D85E86E72BB2E189002EDF76 /* ExpenseRouteView.swift in Sources */,
 				D83344652C0F2CEB00CD9F05 /* GroupWhoIsPayingView.swift in Sources */,
+				213BA0662C11B70F00116130 /* HomeRouteViewModel.swift in Sources */,
 				D8302DA02B9F282F005ACA13 /* InviteMemberView.swift in Sources */,
 				D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */,
 				213BA0602C0F465000116130 /* GroupSettleUpRouteView.swift in Sources */,

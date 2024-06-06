@@ -11,19 +11,18 @@ import SwiftUI
 
 struct HomeRouteView: View {
 
-    @Inject var preference: SplitoPreference
-
-    @State private var openExpenseSheet = false
-    @State private var openProfileView = false
+    @StateObject var viewModel = HomeRouteViewModel()
 
     var body: some View {
         ZStack {
             TabView {
-                GroupRouteView()
-                    .tabItem {
-                        Label("Groups", systemImage: "person.2")
-                    }
-                    .tag(0)
+                GroupRouteView(onGroupSelected: { groupId in
+                    viewModel.selectedGroupId = groupId
+                })
+                .tabItem {
+                    Label("Groups", systemImage: "person.2")
+                }
+                .tag(0)
 
                 AccountRouteView()
                     .tabItem {
@@ -34,23 +33,23 @@ struct HomeRouteView: View {
             .tint(primaryColor)
             .overlay(
                 CenterFabButton {
-                    openExpenseSheet = true
+                    viewModel.openExpenseSheet = true
                 }
             )
-            .fullScreenCover(isPresented: $openExpenseSheet) {
-                ExpenseRouteView()
+            .fullScreenCover(isPresented: $viewModel.openExpenseSheet) {
+                ExpenseRouteView(groupId: viewModel.selectedGroupId)
             }
-            .sheet(isPresented: $openProfileView) {
+            .sheet(isPresented: $viewModel.openProfileView) {
                 UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenFromOnboard: true, onDismiss: {
-                    openProfileView = false
+                    viewModel.openProfileView = false
                 }))
                 .interactiveDismissDisabled()
             }
         }
         .onAppear {
-            if preference.isVerifiedUser {
-                if preference.user == nil || (preference.user?.firstName == nil) || (preference.user?.firstName == "") {
-                    openProfileView = true
+            if viewModel.preference.isVerifiedUser {
+                if viewModel.preference.user == nil || (viewModel.preference.user?.firstName == nil) || (viewModel.preference.user?.firstName == "") {
+                    viewModel.openProfileView = true
                 }
             }
         }

@@ -12,6 +12,7 @@ import Data
 struct GroupHomeView: View {
 
     @StateObject var viewModel: GroupHomeViewModel
+    let onGroupSelected: (String) -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -70,6 +71,7 @@ struct GroupHomeView: View {
             }
         }
         .onAppear {
+            onGroupSelected(viewModel.groupId)
             viewModel.fetchGroupAndExpenses()
         }
     }
@@ -387,5 +389,5 @@ private struct ExpenseSettledView: View {
 }
 
 #Preview {
-    GroupHomeView(viewModel: GroupHomeViewModel(router: .init(root: .GroupHomeView(groupId: "")), groupId: ""))
+    GroupHomeView(viewModel: GroupHomeViewModel(router: .init(root: .GroupHomeView(groupId: "")), groupId: ""), onGroupSelected: {_ in})
 }
