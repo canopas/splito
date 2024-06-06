@@ -10,17 +10,18 @@ import SwiftUI
 import BaseStyle
 
 struct GroupRouteView: View {
+
     @StateObject var appRoute = Router(root: AppRoute.GroupListView)
 
-    var onGroupSelected: (String) -> Void
+    let onGroupSelected: (String) -> Void
 
     var body: some View {
         RouterView(router: appRoute) { route in
             switch route {
             case .GroupListView:
-                GroupListView(viewModel: GroupListViewModel(router: appRoute), onGroupSelected: onGroupSelected)
+                GroupListView(viewModel: GroupListViewModel(router: appRoute, onGroupSelected: onGroupSelected))
             case .GroupHomeView(let id):
-                GroupHomeView(viewModel: GroupHomeViewModel(router: appRoute, groupId: id), onGroupSelected: onGroupSelected)
+                GroupHomeView(viewModel: GroupHomeViewModel(router: appRoute, groupId: id))
             case .CreateGroupView(let group):
                 CreateGroupView(viewModel: CreateGroupViewModel(router: appRoute, group: group))
             case .InviteMemberView(let id):

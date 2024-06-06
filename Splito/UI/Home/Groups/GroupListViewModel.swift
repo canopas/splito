@@ -23,9 +23,11 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var usersTotalExpense = 0.0
 
     private let router: Router<AppRoute>
+    private let onGroupSelected: ((String) -> Void)?
 
-    init(router: Router<AppRoute>) {
+    init(router: Router<AppRoute>, onGroupSelected: ((String) -> Void)?) {
         self.router = router
+        self.onGroupSelected = onGroupSelected
         super.init()
         self.fetchLatestGroups()
         self.observeLatestExpenses()
@@ -241,6 +243,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     func handleGroupItemTap(_ group: Groups) {
         if let id = group.id {
+            onGroupSelected?(id)
             router.push(.GroupHomeView(groupId: id))
         }
     }

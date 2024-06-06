@@ -14,8 +14,6 @@ struct GroupListView: View {
 
     @StateObject var viewModel: GroupListViewModel
 
-    var onGroupSelected: (String) -> Void
-
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if case .loading = viewModel.currentViewState {
@@ -31,9 +29,7 @@ struct GroupListView: View {
 
                         VSpacer(20)
 
-                        GroupListWithDetailView(viewModel: viewModel, groupInformation: groupInformation, onGroupSelected: { groupId in
-                            onGroupSelected(groupId)
-                        })
+                        GroupListWithDetailView(viewModel: viewModel, groupInformation: groupInformation)
                     }
                 }
                 .frame(maxHeight: .infinity)
@@ -88,7 +84,6 @@ private struct GroupListWithDetailView: View {
 
     var viewModel: GroupListViewModel
     let groupInformation: [GroupInformation]
-    var onGroupSelected: (String) -> Void
 
     var body: some View {
         ScrollView {
@@ -98,7 +93,6 @@ private struct GroupListWithDetailView: View {
                 ForEach(groupInformation, id: \.group.id) { group in
                     GroupListCellView(group: group, viewModel: viewModel)
                         .onTapGesture {
-                            onGroupSelected(group.group.id ?? "")
                             viewModel.handleGroupItemTap(group.group)
                         }
                 }
@@ -234,5 +228,5 @@ private struct CreateGroupButtonView: View {
 }
 
 #Preview {
-    GroupListView(viewModel: GroupListViewModel(router: .init(root: .GroupListView)), onGroupSelected: {_ in})
+    GroupListView(viewModel: GroupListViewModel(router: .init(root: .GroupListView), onGroupSelected: {_ in}))
 }
