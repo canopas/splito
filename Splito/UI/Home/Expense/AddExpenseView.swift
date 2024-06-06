@@ -22,7 +22,7 @@ struct AddExpenseView: View {
                 VStack(spacing: 25) {
                     VSpacer(80)
 
-                    GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Group", onTap: viewModel.handleGroupBtnAction)
+                    GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Select group", onTap: viewModel.handleGroupBtnAction)
 
                     VStack(spacing: 16) {
                         ExpenseDetailRow(imageName: "note.text", placeholder: "Enter a description",

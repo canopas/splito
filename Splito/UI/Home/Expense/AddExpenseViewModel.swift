@@ -80,7 +80,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         if let user = preference.user, let selectedPayer, selectedPayer.id == user.id {
             self.payerName = "You"
         } else {
-            self.payerName = selectedPayer?.nameWithLastInitial ?? "Unknown"
+            self.payerName = selectedPayer?.nameWithLastInitial ?? "Select Payer"
         }
     }
 

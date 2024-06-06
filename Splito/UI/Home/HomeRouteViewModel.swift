@@ -17,6 +17,14 @@ class HomeRouteViewModel: ObservableObject {
     @Published var openProfileView = false
     @Published var selectedGroupId: String?
 
+    func onViewAppear() {
+        if preference.isVerifiedUser {
+            if preference.user == nil || (preference.user?.firstName == nil) || (preference.user?.firstName == "") {
+                openProfileView = true
+            }
+        }
+    }
+
     func setSelectedGroupId(_ groupId: String?) {
         selectedGroupId = groupId
     }

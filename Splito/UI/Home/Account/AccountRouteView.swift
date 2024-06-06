@@ -13,8 +13,6 @@ struct AccountRouteView: View {
 
     @StateObject var appRoute = Router(root: AppRoute.AccountHomeView)
 
-    let onGroupSelected: (String?) -> Void
-
     var body: some View {
         RouterView(router: appRoute) { route in
             switch route {
@@ -25,9 +23,6 @@ struct AccountRouteView: View {
             default:
                 EmptyRouteView(routeName: self)
             }
-        }
-        .onAppear {
-            onGroupSelected(nil)
         }
     }
 }

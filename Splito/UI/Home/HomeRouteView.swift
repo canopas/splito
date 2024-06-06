@@ -24,13 +24,11 @@ struct HomeRouteView: View {
                 }
                 .tag(0)
 
-                AccountRouteView(onGroupSelected: { groupId in
-                    viewModel.setSelectedGroupId(groupId)
-                })
-                .tabItem {
-                    Label("Account", systemImage: "person.crop.square")
-                }
-                .tag(1)
+                AccountRouteView()
+                    .tabItem {
+                        Label("Account", systemImage: "person.crop.square")
+                    }
+                    .tag(1)
             }
             .tint(primaryColor)
             .overlay(
@@ -48,13 +46,7 @@ struct HomeRouteView: View {
                 .interactiveDismissDisabled()
             }
         }
-        .onAppear {
-            if viewModel.preference.isVerifiedUser {
-                if viewModel.preference.user == nil || (viewModel.preference.user?.firstName == nil) || (viewModel.preference.user?.firstName == "") {
-                    viewModel.openProfileView = true
-                }
-            }
-        }
+        .onAppear(perform: viewModel.onViewAppear)
     }
 }
 
