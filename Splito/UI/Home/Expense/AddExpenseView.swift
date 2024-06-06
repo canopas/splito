@@ -70,11 +70,9 @@ struct AddExpenseView: View {
             }
         }
         .toolbar {
-            if viewModel.expenseId == nil {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
+            ToolbarItem(placement: .topBarLeading) {
+                Button("Cancel") {
+                    dismiss()
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
