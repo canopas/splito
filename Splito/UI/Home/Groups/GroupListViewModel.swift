@@ -23,9 +23,9 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var usersTotalExpense = 0.0
 
     private let router: Router<AppRoute>
-    private let onGroupSelected: ((String) -> Void)?
+    private let onGroupSelected: ((String?) -> Void)?
 
-    init(router: Router<AppRoute>, onGroupSelected: ((String) -> Void)?) {
+    init(router: Router<AppRoute>, onGroupSelected: ((String?) -> Void)?) {
         self.router = router
         self.onGroupSelected = onGroupSelected
         super.init()
@@ -239,6 +239,10 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     func handleJoinGroupBtnTap() {
         router.push(.JoinMemberView)
+    }
+
+    func resetSelectedGroupId() {
+        onGroupSelected?(nil)
     }
 
     func handleGroupItemTap(_ group: Groups) {

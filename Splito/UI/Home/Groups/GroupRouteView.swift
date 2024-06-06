@@ -13,7 +13,7 @@ struct GroupRouteView: View {
 
     @StateObject var appRoute = Router(root: AppRoute.GroupListView)
 
-    let onGroupSelected: (String) -> Void
+    let onGroupSelected: (String?) -> Void
 
     var body: some View {
         RouterView(router: appRoute) { route in

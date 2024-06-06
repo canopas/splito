@@ -24,11 +24,13 @@ struct HomeRouteView: View {
                 }
                 .tag(0)
 
-                AccountRouteView()
-                    .tabItem {
-                        Label("Account", systemImage: "person.crop.square")
-                    }
-                    .tag(1)
+                AccountRouteView(onGroupSelected: { groupId in
+                    viewModel.setSelectedGroupId(groupId)
+                })
+                .tabItem {
+                    Label("Account", systemImage: "person.crop.square")
+                }
+                .tag(1)
             }
             .tint(primaryColor)
             .overlay(

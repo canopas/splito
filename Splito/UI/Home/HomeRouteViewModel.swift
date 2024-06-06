@@ -17,9 +17,7 @@ class HomeRouteViewModel: ObservableObject {
     @Published var openProfileView = false
     @Published var selectedGroupId: String?
 
-    init() {}
-
-    func setSelectedGroupId(_ groupId: String) {
+    func setSelectedGroupId(_ groupId: String?) {
         selectedGroupId = groupId
     }
 }

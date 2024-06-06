@@ -47,6 +47,7 @@ struct GroupListView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .onAppear {
+            viewModel.resetSelectedGroupId()
             viewModel.fetchGroups()
         }
         .onDisappear {
