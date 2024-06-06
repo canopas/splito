@@ -11,14 +11,13 @@ import BaseStyle
 
 struct ExpenseRouteView: View {
 
-    var groupId: String?
-
     @StateObject var appRoute: Router<AppRoute>
+
+    let groupId: String?
 
     init(groupId: String? = nil) {
         self.groupId = groupId
         _appRoute = StateObject(wrappedValue: Router(root: AppRoute.AddExpenseView(expenseId: nil, groupId: groupId)))
-        print("xxx \(groupId)")
     }
 
     var body: some View {
@@ -26,7 +25,6 @@ struct ExpenseRouteView: View {
             switch route {
             case .AddExpenseView(let expenseId, let groupId):
                 AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, expenseId: expenseId, groupId: groupId))
-                    .background()
             default:
                 EmptyRouteView(routeName: self)
             }

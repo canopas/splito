@@ -38,8 +38,9 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    let groupId: String?
-    let expenseId: String?
+    @Published var expenseId: String?
+
+    private let groupId: String?
     private let router: Router<AppRoute>
 
     init(router: Router<AppRoute>, expenseId: String? = nil, groupId: String? = nil) {

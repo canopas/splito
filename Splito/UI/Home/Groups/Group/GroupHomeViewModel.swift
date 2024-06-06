@@ -25,8 +25,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var showBalancesSheet = false
     @Published var showGroupTotalSheet = false
 
-    var group: Groups?
-    @Published var groupId: String
+    @Published var group: Groups?
+
+    private let groupId: String
     private var groupUserData: [AppUser] = []
     private let router: Router<AppRoute>
 
