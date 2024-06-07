@@ -148,7 +148,7 @@ private struct GroupSelectionView: View {
             Button {
                 onTap()
             } label: {
-                Text(name)
+                Text(name.localized)
                     .font(.subTitle2())
                     .foregroundStyle(secondaryText)
             }

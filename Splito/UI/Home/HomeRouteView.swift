@@ -11,18 +11,16 @@ import SwiftUI
 
 struct HomeRouteView: View {
 
-    @StateObject var viewModel = HomeRouteViewModel()
+    @StateObject private var viewModel = HomeRouteViewModel()
 
     var body: some View {
         ZStack {
             TabView {
-                GroupRouteView(onGroupSelected: { groupId in
-                    viewModel.setSelectedGroupId(groupId)
-                })
-                .tabItem {
-                    Label("Groups", systemImage: "person.2")
-                }
-                .tag(0)
+                GroupRouteView(onGroupSelected: viewModel.setSelectedGroupId(_:))
+                    .tabItem {
+                        Label("Groups", systemImage: "person.2")
+                    }
+                    .tag(0)
 
                 AccountRouteView()
                     .tabItem {
@@ -32,21 +30,17 @@ struct HomeRouteView: View {
             }
             .tint(primaryColor)
             .overlay(
-                CenterFabButton {
-                    viewModel.openExpenseSheet = true
-                }
+                CenterFabButton(onClick: viewModel.openAddExpenseSheet)
             )
             .fullScreenCover(isPresented: $viewModel.openExpenseSheet) {
                 ExpenseRouteView(groupId: viewModel.selectedGroupId)
             }
             .sheet(isPresented: $viewModel.openProfileView) {
-                UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenFromOnboard: true, onDismiss: {
-                    viewModel.openProfileView = false
-                }))
-                .interactiveDismissDisabled()
+                UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenFromOnboard: true, onDismiss: viewModel.dismissProfileView))
+                    .interactiveDismissDisabled()
             }
         }
-        .onAppear(perform: viewModel.onViewAppear)
+        .onAppear(perform: viewModel.openUserProfileIfNeeded)
     }
 }
 

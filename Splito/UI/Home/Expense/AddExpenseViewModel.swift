@@ -16,6 +16,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
 
+    @Published var expenseId: String?
     @Published var expenseName = ""
     @Published var expenseAmount = 0.0
     @Published var expenseDate = Date()
@@ -38,8 +39,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    @Published var expenseId: String?
-
     private let groupId: String?
     private let router: Router<AppRoute>
 
@@ -52,22 +51,19 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
         if let expenseId {
             fetchExpenseDetails(expenseId: expenseId)
-        } else if groupId != nil {
-            fetchGroup()
+        } else if let groupId {
+            fetchGroup(groupId: groupId)
         } else {
             updatePayerName()
         }
     }
 
-    func fetchGroup() {
-        guard let groupId else { return }
-
+    private func fetchGroup(groupId: String) {
         viewState = .loading
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServerError(error)
                 }
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
@@ -80,17 +76,16 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         if let user = preference.user, let selectedPayer, selectedPayer.id == user.id {
             self.payerName = "You"
         } else {
-            self.payerName = selectedPayer?.nameWithLastInitial ?? "Select Payer"
+            self.payerName = selectedPayer?.nameWithLastInitial ?? "Select payer"
         }
     }
 
-    func fetchExpenseDetails(expenseId: String) {
+    private func fetchExpenseDetails(expenseId: String) {
         viewState = .loading
         expenseRepository.fetchExpenseBy(expenseId: expenseId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServerError(error)
                 }
             } receiveValue: { [weak self] expense in
                 guard let self else { return }
@@ -111,24 +106,22 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func fetchGroupData(for groupId: String, completion: @escaping (Groups?) -> Void) {
+    private func fetchGroupData(for groupId: String, completion: @escaping (Groups?) -> Void) {
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServerError(error)
                 }
             } receiveValue: { group in
                 completion(group)
             }.store(in: &cancelable)
     }
 
-    func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
+    private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
         groupRepository.fetchMemberBy(userId: userId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServerError(error)
                 }
             } receiveValue: { user in
                 guard let user else { return }
@@ -136,7 +129,16 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    // MARK: - Actions
+    private func handleServerError(_ error: ServiceError) {
+        viewState = .initial
+        showToastFor(error)
+    }
+}
+
+// MARK: - User Actions
+
+extension AddExpenseViewModel {
+
     func handleGroupBtnAction() {
         showGroupSelection = expenseId == nil
     }
@@ -203,13 +205,12 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func addExpense(expense: Expense, completion: @escaping () -> Void) {
+    private func addExpense(expense: Expense, completion: @escaping () -> Void) {
         viewState = .loading
         expenseRepository.addExpense(expense: expense)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServerError(error)
                 }
             } receiveValue: { [weak self] _ in
                 self?.viewState = .initial
@@ -217,13 +218,12 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func updateExpense(expense: Expense) {
+    private func updateExpense(expense: Expense) {
         viewState = .loading
         expenseRepository.updateExpense(expense: expense)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServerError(error)
                 }
             } receiveValue: { [weak self] _ in
                 self?.viewState = .initial

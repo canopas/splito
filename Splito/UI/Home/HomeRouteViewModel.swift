@@ -2,7 +2,7 @@
 //  HomeRouteViewModel.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 06/06/24.
+//  Created by Amisha Italiya on 06/06/24.
 //
 
 import Foundation
@@ -11,13 +11,13 @@ import Data
 
 class HomeRouteViewModel: ObservableObject {
 
-    @Inject var preference: SplitoPreference
+    @Inject private var preference: SplitoPreference
 
     @Published var openExpenseSheet = false
     @Published var openProfileView = false
     @Published var selectedGroupId: String?
 
-    func onViewAppear() {
+    func openUserProfileIfNeeded() {
         if preference.isVerifiedUser {
             if preference.user == nil || (preference.user?.firstName == nil) || (preference.user?.firstName == "") {
                 openProfileView = true
@@ -27,5 +27,13 @@ class HomeRouteViewModel: ObservableObject {
 
     func setSelectedGroupId(_ groupId: String?) {
         selectedGroupId = groupId
+    }
+
+    func openAddExpenseSheet() {
+        openExpenseSheet = true
+    }
+
+    func dismissProfileView() {
+        openProfileView = false
     }
 }
