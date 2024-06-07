@@ -48,16 +48,12 @@ struct AddExpenseView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showGroupSelection) {
             NavigationStack {
-                ChooseGroupView(viewModel: ChooseGroupViewModel(selectedGroup: viewModel.selectedGroup) { group in
-                    viewModel.handleGroupSelection(group: group)
-                })
+                ChooseGroupView(viewModel: ChooseGroupViewModel(selectedGroup: viewModel.selectedGroup, onGroupSelection: viewModel.handleGroupSelection(group:)))
             }
         }
         .sheet(isPresented: $viewModel.showPayerSelection) {
             NavigationStack {
-                ChoosePayerView(viewModel: ChoosePayerViewModel(groupId: viewModel.selectedGroup?.id ?? "", selectedPayer: viewModel.selectedPayer) { payer in
-                    viewModel.handlePayerSelection(payer: payer)
-                })
+                ChoosePayerView(viewModel: ChoosePayerViewModel(groupId: viewModel.selectedGroup?.id ?? "", selectedPayer: viewModel.selectedPayer, onPayerSelection: viewModel.handlePayerSelection(payer:)))
             }
         }
         .sheet(isPresented: $viewModel.showSplitTypeSelection) {
@@ -65,9 +61,7 @@ struct AddExpenseView: View {
                 ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: viewModel.expenseAmount,
                                                                                 members: viewModel.groupMembers,
                                                                                 selectedMembers: viewModel.selectedMembers,
-                                                                                onMemberSelection: { members in
-                    viewModel.handleSplitTypeSelection(members: members)
-                }))
+                                                                                onMemberSelection: viewModel.handleSplitTypeSelection(members:)))
             }
         }
         .toolbar {
