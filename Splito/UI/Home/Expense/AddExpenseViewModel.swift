@@ -156,10 +156,8 @@ extension AddExpenseViewModel {
             return
         }
         showPayerSelection = true
-        if let user = preference.user {
-            if selectedPayer == nil {
-                selectedPayer = user
-            }
+        if let user = preference.user, selectedPayer == nil {
+            selectedPayer = user
         }
     }
 
