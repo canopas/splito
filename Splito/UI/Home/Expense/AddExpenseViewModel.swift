@@ -68,6 +68,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
                 self.selectedGroup = group
+                self.groupMembers = group.members
+                self.selectedMembers = group.members
                 self.viewState = .initial
             }.store(in: &cancelable)
     }
@@ -76,7 +78,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         if let user = preference.user, let selectedPayer, selectedPayer.id == user.id {
             self.payerName = "You"
         } else {
-            self.payerName = selectedPayer?.nameWithLastInitial ?? "Select payer"
+            self.payerName = selectedPayer?.nameWithLastInitial ?? "You"
         }
     }
 
@@ -156,6 +158,11 @@ extension AddExpenseViewModel {
             return
         }
         showPayerSelection = true
+        if let user = preference.user {
+            if selectedPayer == nil {
+                selectedPayer = user
+            }
+        }
     }
 
     func handlePayerSelection(payer: AppUser) {

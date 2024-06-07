@@ -41,6 +41,8 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         self.onMemberSelection = onMemberSelection
         super.init()
 
+        print("xxx \(members)")
+
         fetchUsersData()
         splitAmount = totalAmount / Double(selectedMembers.count)
     }
