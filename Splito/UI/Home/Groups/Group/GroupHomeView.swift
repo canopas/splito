@@ -77,7 +77,8 @@ struct GroupHomeView: View {
 
 private struct GroupExpenseListView: View {
 
-    let viewModel: GroupHomeViewModel
+    @ObservedObject var viewModel: GroupHomeViewModel
+
     let onExpenseItemTap: (String) -> Void
 
     var isSettledUp = false
@@ -98,31 +99,47 @@ private struct GroupExpenseListView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                VSpacer(10)
+        List {
+            Group {
+                VSpacer(30)
 
                 GroupExpenseHeaderView(viewModel: viewModel)
+
+                VSpacer(16)
 
                 GroupOptionsListView(onSettleUpTap: viewModel.handleSettleUpBtnTap,
                                      onBalanceTap: viewModel.handleBalancesBtnTap,
                                      onTotalsTap: viewModel.handleTotalBtnTap)
 
                 ForEach(groupedExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
-                    Section(header: Text(month).font(.subTitle2())) {
+                    Section(header: Text(month).font(.subTitle2()).foregroundStyle(primaryText)) {
                         ForEach(groupedExpenses[month]!, id: \.expense.id) { expense in
                             GroupExpenseItemView(expenseWithUser: expense)
                                 .onTouchGesture { onExpenseItemTap(expense.expense.id ?? "") }
                         }
+                        .onDelete { indexSet in
+                            handleDelete(at: indexSet, for: month)
+                        }
                     }
                 }
-
-                Spacer()
             }
             .padding(.horizontal, 20)
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .listRowBackground(backgroundColor)
         }
-        .scrollIndicators(.hidden)
-        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 0)
+        .scrollIndicatorsHidden()
+        .listStyle(.plain)
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+        .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
+        .environment(\.defaultMinListRowHeight, 1) // avoid default space leave between item
+    }
+
+    private func handleDelete(at offsets: IndexSet, for month: String) {
+        guard let index = offsets.first else { return }
+        let expenseToDelete = groupedExpenses[month]![index]
+        viewModel.handleDeleteBtnAction(expenseId: expenseToDelete.expense.id!)
     }
 }
 
@@ -268,6 +285,7 @@ private struct GroupExpenseItemView: View {
             .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
         }
         .padding(.horizontal, 6)
+        .padding(.vertical, 10)
     }
 }
 

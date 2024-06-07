@@ -237,6 +237,27 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                      (expenses.isEmpty ? .noExpense : (overallOwingAmount == 0 ? .settledUp : .hasExpense)) :
                      (expenses.isEmpty ? .noMember : (overallOwingAmount == 0 ? .settledUp : .hasExpense))
     }
+
+    func handleDeleteBtnAction(expenseId: String) {
+        showAlert = true
+        alert = .init(title: "Delete expense",
+                      message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
+                      positiveBtnTitle: "Ok",
+                      positiveBtnAction: { self.deleteExpense(expenseId: expenseId) },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false })
+    }
+
+    private func deleteExpense(expenseId: String) {
+        expenseRepository.deleteExpense(id: expenseId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.expensesWithUser.removeAll { $0.expense.id == expenseId }
+            }.store(in: &cancelable)
+    }
 }
 
 // MARK: - User Actions
