@@ -36,7 +36,7 @@ public enum AppRoute: Hashable {
     case GroupPaymentView(groupId: String, payerUserId: String, payableUserId: String, amount: Double)
 
     // MARK: - Expense Button
-    case AddExpenseView(expenseId: String?)
+    case AddExpenseView(expenseId: String?, groupId: String?)
     case ExpenseDetailView(expenseId: String)
 
     // MARK: - Activity Tab

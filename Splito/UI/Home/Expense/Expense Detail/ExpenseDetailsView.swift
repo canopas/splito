@@ -45,6 +45,11 @@ struct ExpenseDetailsView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationBarTitle("Details", displayMode: .inline)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .fullScreenCover(isPresented: $viewModel.showEditExpenseSheet) {
+            NavigationStack {
+                AddExpenseView(viewModel: AddExpenseViewModel(router: viewModel.router, expenseId: viewModel.expenseId))
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {

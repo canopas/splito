@@ -25,7 +25,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var showBalancesSheet = false
     @Published var showGroupTotalSheet = false
 
-    var group: Groups?
+    @Published var group: Groups?
+
     private let groupId: String
     private var groupUserData: [AppUser] = []
     private let router: Router<AppRoute>
@@ -65,7 +66,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] expenses in
-                guard let self, let group else { return }
+                guard let self, let group, self.expenses.isEmpty else { return }
                 self.expenses = expenses
                 if group.isDebtSimplified {
                     self.calculateExpensesSimply()
@@ -236,8 +237,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                      (expenses.isEmpty ? .noExpense : (overallOwingAmount == 0 ? .settledUp : .hasExpense)) :
                      (expenses.isEmpty ? .noMember : (overallOwingAmount == 0 ? .settledUp : .hasExpense))
     }
+}
 
-    // MARK: - User Actions
+// MARK: - User Actions
+extension GroupHomeViewModel {
     func setHasExpenseState() {
         groupState = .loading
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -279,7 +282,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 }
 
 // MARK: - Helper Methods
-
 extension GroupHomeViewModel {
     func sortMonthYearStrings(_ s1: String, _ s2: String) -> Bool {
         let dateFormatter = DateFormatter()
