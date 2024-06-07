@@ -22,7 +22,7 @@ struct AddExpenseView: View {
                 VStack(spacing: 25) {
                     VSpacer(80)
 
-                    GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Group", onTap: viewModel.handleGroupBtnAction)
+                    GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Select group", onTap: viewModel.handleGroupBtnAction)
 
                     VStack(spacing: 16) {
                         ExpenseDetailRow(imageName: "note.text", placeholder: "Enter a description",
@@ -48,33 +48,26 @@ struct AddExpenseView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showGroupSelection) {
             NavigationStack {
-                ChooseGroupView(viewModel: ChooseGroupViewModel(selectedGroup: viewModel.selectedGroup) { group in
-                    viewModel.handleGroupSelection(group: group)
-                })
+                ChooseGroupView(viewModel: ChooseGroupViewModel(selectedGroup: viewModel.selectedGroup, onGroupSelection: viewModel.handleGroupSelection(group:)))
             }
         }
         .sheet(isPresented: $viewModel.showPayerSelection) {
             NavigationStack {
-                ChoosePayerView(viewModel: ChoosePayerViewModel(groupId: viewModel.selectedGroup?.id ?? "", selectedPayer: viewModel.selectedPayer) { payer in
-                    viewModel.handlePayerSelection(payer: payer)
-                })
+                ChoosePayerView(viewModel: ChoosePayerViewModel(groupId: viewModel.selectedGroup?.id ?? "", selectedPayer: viewModel.selectedPayer, onPayerSelection: viewModel.handlePayerSelection(payer:)))
             }
         }
         .sheet(isPresented: $viewModel.showSplitTypeSelection) {
             NavigationStack {
-                ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: viewModel.expenseAmount, members: viewModel.groupMembers,
+                ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: viewModel.expenseAmount,
+                                                                                members: viewModel.groupMembers,
                                                                                 selectedMembers: viewModel.selectedMembers,
-                                                                                onMemberSelection: { members in
-                    viewModel.handleSplitTypeSelection(members: members)
-                }))
+                                                                                onMemberSelection: viewModel.handleSplitTypeSelection(members:)))
             }
         }
         .toolbar {
-            if viewModel.expenseId == nil {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
+            ToolbarItem(placement: .topBarLeading) {
+                Button("Cancel") {
+                    dismiss()
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
@@ -150,7 +143,7 @@ private struct GroupSelectionView: View {
             Button {
                 onTap()
             } label: {
-                Text(name)
+                Text(name.localized)
                     .font(.subTitle2())
                     .foregroundStyle(secondaryText)
             }
@@ -211,5 +204,5 @@ private struct PaidByBtnView: View {
 }
 
 #Preview {
-    AddExpenseView(viewModel: AddExpenseViewModel(router: .init(root: .AddExpenseView(expenseId: "")), expenseId: ""))
+    AddExpenseView(viewModel: AddExpenseViewModel(router: .init(root: .AddExpenseView(expenseId: "", groupId: ""))))
 }

@@ -289,6 +289,9 @@
     "Search" : {
       "extractionState" : "manual"
     },
+    "Select group" : {
+      "extractionState" : "manual"
+    },
     "Select which people owe an equal share." : {
 
     },

@@ -23,9 +23,11 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var usersTotalExpense = 0.0
 
     private let router: Router<AppRoute>
+    private let onGroupSelected: ((String?) -> Void)?
 
-    init(router: Router<AppRoute>) {
+    init(router: Router<AppRoute>, onGroupSelected: ((String?) -> Void)?) {
         self.router = router
+        self.onGroupSelected = onGroupSelected
         super.init()
         self.fetchLatestGroups()
         self.observeLatestExpenses()
@@ -33,6 +35,8 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     func fetchGroups() {
         guard let userId = preference.user?.id else { return }
+
+        resetSelectedGroupId()
 
         let groupsPublisher = groupRepository.fetchGroups(userId: userId)
         processGroupsDetails(groupsPublisher)
@@ -44,7 +48,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func fetchLatestExpenses() {
+    private func fetchLatestExpenses() {
         guard !groups.isEmpty else { return }
 
         groups.forEach { group in
@@ -63,7 +67,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func fetchLatestGroups() {
+    private func fetchLatestGroups() {
         guard let userId = preference.user?.id else { return }
 
         let latestGroupsPublisher = groupRepository.fetchLatestGroups(userId: userId)
@@ -226,7 +230,11 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         }
         return transactions
     }
+}
 
+// MARK: - User Actions
+
+extension GroupListViewModel {
     func getMemberData(from members: [AppUser], of id: String) -> AppUser? {
         return members.first(where: { $0.id == id })
     }
@@ -239,8 +247,13 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         router.push(.JoinMemberView)
     }
 
+    func resetSelectedGroupId() {
+        onGroupSelected?(nil)
+    }
+
     func handleGroupItemTap(_ group: Groups) {
         if let id = group.id {
+            onGroupSelected?(id)
             router.push(.GroupHomeView(groupId: id))
         }
     }

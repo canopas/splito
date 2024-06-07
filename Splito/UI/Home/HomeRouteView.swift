@@ -11,15 +11,12 @@ import SwiftUI
 
 struct HomeRouteView: View {
 
-    @Inject var preference: SplitoPreference
-
-    @State private var openExpenseSheet = false
-    @State private var openProfileView = false
+    @StateObject private var viewModel = HomeRouteViewModel()
 
     var body: some View {
         ZStack {
             TabView {
-                GroupRouteView()
+                GroupRouteView(onGroupSelected: viewModel.setSelectedGroupId(_:))
                     .tabItem {
                         Label("Groups", systemImage: "person.2")
                     }
@@ -33,27 +30,17 @@ struct HomeRouteView: View {
             }
             .tint(primaryColor)
             .overlay(
-                CenterFabButton {
-                    openExpenseSheet = true
-                }
+                CenterFabButton(onClick: viewModel.openAddExpenseSheet)
             )
-            .fullScreenCover(isPresented: $openExpenseSheet) {
-                ExpenseRouteView()
+            .fullScreenCover(isPresented: $viewModel.openExpenseSheet) {
+                ExpenseRouteView(groupId: viewModel.selectedGroupId)
             }
-            .sheet(isPresented: $openProfileView) {
-                UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenFromOnboard: true, onDismiss: {
-                    openProfileView = false
-                }))
-                .interactiveDismissDisabled()
+            .sheet(isPresented: $viewModel.openProfileView) {
+                UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenFromOnboard: true, onDismiss: viewModel.dismissProfileView))
+                    .interactiveDismissDisabled()
             }
         }
-        .onAppear {
-            if preference.isVerifiedUser {
-                if preference.user == nil || (preference.user?.firstName == nil) || (preference.user?.firstName == "") {
-                    openProfileView = true
-                }
-            }
-        }
+        .onAppear(perform: viewModel.openUserProfileIfNeeded)
     }
 }
 

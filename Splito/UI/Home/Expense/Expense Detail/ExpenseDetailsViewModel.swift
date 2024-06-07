@@ -19,6 +19,8 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     @Published var expenseUsersData: [AppUser] = []
     @Published var viewState: ViewState = .initial
 
+    @Published var showEditExpenseSheet = false
+
     var expenseId: String
     let router: Router<AppRoute>
 
@@ -79,7 +81,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleEditBtnAction() {
-        router.push(.AddExpenseView(expenseId: expenseId))
+        showEditExpenseSheet = true
     }
 
     func handleDeleteBtnAction() {
