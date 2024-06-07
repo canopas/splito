@@ -39,13 +39,11 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private let groupId: String?
     private let router: Router<AppRoute>
 
     init(router: Router<AppRoute>, expenseId: String? = nil, groupId: String? = nil) {
         self.router = router
         self.expenseId = expenseId
-        self.groupId = groupId
 
         super.init()
 

@@ -292,9 +292,6 @@
     "Select group" : {
       "extractionState" : "manual"
     },
-    "Select payer" : {
-      "extractionState" : "manual"
-    },
     "Select which people owe an equal share." : {
 
     },
