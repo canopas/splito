@@ -234,11 +234,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private func setGroupViewState() {
         guard let group else { return }
         groupState = group.members.count > 1 ?
-                     (expenses.isEmpty ? .noExpense : (overallOwingAmount == 0 ? .settledUp : .hasExpense)) :
-                     (expenses.isEmpty ? .noMember : (overallOwingAmount == 0 ? .settledUp : .hasExpense))
+        (expenses.isEmpty ? .noExpense : (overallOwingAmount == 0 ? .settledUp : .hasExpense)) :
+        (expenses.isEmpty ? .noMember : (overallOwingAmount == 0 ? .settledUp : .hasExpense))
     }
 
-    func handleDeleteBtnAction(expenseId: String) {
+    func handleDeleteExpenseAction(expenseId: String) {
         showAlert = true
         alert = .init(title: "Delete expense",
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
@@ -339,7 +339,11 @@ extension GroupHomeViewModel {
 }
 
 // Struct to hold combined expense and user information
-struct ExpenseWithUser {
+struct ExpenseWithUser: Equatable {
+    static func == (lhs: ExpenseWithUser, rhs: ExpenseWithUser) -> Bool {
+        return lhs.expense.id == rhs.expense.id
+    }
+
     let expense: Expense
     let user: AppUser
 }

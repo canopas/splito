@@ -77,7 +77,8 @@ struct GroupHomeView: View {
 
 private struct GroupExpenseListView: View {
 
-    let viewModel: GroupHomeViewModel
+    @ObservedObject var viewModel: GroupHomeViewModel
+
     let onExpenseItemTap: (String) -> Void
 
     @State private var searchQuery: String = ""
@@ -122,9 +123,9 @@ private struct GroupExpenseListView: View {
                                 ForEach(groupedExpenses[month]!, id: \.expense.id) { expense in
                                     GroupExpenseItemView(expenseWithUser: expense)
                                         .onTouchGesture { onExpenseItemTap(expense.expense.id ?? "") }
-                                }
-                                .onDelete { indexSet in
-                                    handleDelete(at: indexSet, for: month)
+                                        .swipeActions {
+                                            DeleteExpenseBtnView(month: month, expenseId: expense.expense.id ?? "", handleDeleteExpense: handleDeleteExpense)
+                                        }
                                 }
                             }
                         }
@@ -145,14 +146,18 @@ private struct GroupExpenseListView: View {
         .onChange(of: searchQuery) { _ in
             updateGroupedExpenses()
         }
+        .onChange(of: viewModel.expensesWithUser) { _ in
+            updateGroupedExpenses()
+        }
     }
 
-    private func handleDelete(at offsets: IndexSet, for month: String) {
-        guard let index = offsets.first else { return }
-        let expenseToDelete = groupedExpenses[month]![index]
-        viewModel.handleDeleteBtnAction(expenseId: expenseToDelete.expense.id!)
-        withAnimation {
-            updateGroupedExpenses()
+    private func handleDeleteExpense(expenseId: String, for month: String) {
+        guard let index = groupedExpenses[month]?.firstIndex(where: { $0.expense.id == expenseId }) else { return }
+        if let expenseToDelete = groupedExpenses[month]?[index] {
+            viewModel.handleDeleteExpenseAction(expenseId: expenseToDelete.expense.id!)
+            withAnimation {
+                updateGroupedExpenses()
+            }
         }
     }
 
@@ -170,6 +175,22 @@ private struct GroupExpenseListView: View {
             dateFormatter.dateFormat = "MMMM yyyy"
             return dateFormatter.string(from: expense.expense.date.dateValue())
         }
+    }
+}
+
+private struct DeleteExpenseBtnView: View {
+
+    var month: String
+    var expenseId: String
+    var handleDeleteExpense: (_ expenseId: String, _ month: String) -> Void
+
+    var body: some View {
+        Button(action: {
+            handleDeleteExpense(expenseId, month)
+        }, label: {
+            Text("Delete")
+        })
+        .tint(.red)
     }
 }
 
