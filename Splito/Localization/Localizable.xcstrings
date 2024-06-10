@@ -48,9 +48,6 @@
         }
       }
     },
-    "%@." : {
-
-    },
     "%@/person" : {
 
     },
@@ -241,7 +238,7 @@
     "no expense" : {
 
     },
-    "No expenses found for " : {
+    "No expenses found for \"%@\"" : {
 
     },
     "No expenses here yet." : {
@@ -305,6 +302,9 @@
       "extractionState" : "manual"
     },
     "Select which people owe an equal share." : {
+
+    },
+    "Settings" : {
 
     },
     "Settle up" : {

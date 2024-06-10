@@ -19,8 +19,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var groupState: GroupState = .noMember
 
     @Published var overallOwingAmount = 0.0
+    @Published var searchExpense: String = ""
     @Published var memberOwingAmount: [String: Double] = [:]
 
+    @Published var showSearchBar = false
     @Published var showSettleUpSheet = false
     @Published var showBalancesSheet = false
     @Published var showGroupTotalSheet = false
@@ -299,6 +301,10 @@ extension GroupHomeViewModel {
 
     func handleTotalBtnTap() {
         showGroupTotalSheet = true
+    }
+
+    func handleSearchOptionsTap() {
+        showSearchBar = true
     }
 }
 

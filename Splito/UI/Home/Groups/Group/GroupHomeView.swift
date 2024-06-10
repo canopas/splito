@@ -36,7 +36,7 @@ struct GroupHomeView: View {
             } else if case .hasExpense = viewModel.groupState {
                 VSpacer(10)
 
-                GroupExpenseListView(viewModel: viewModel, onExpenseItemTap: viewModel.handleExpenseItemTap(expenseId:))
+                GroupExpenseListView(viewModel: viewModel)
             }
         }
         .background(backgroundColor)
@@ -59,12 +59,18 @@ struct GroupHomeView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    viewModel.handleSettingButtonTap()
+                Menu {
+                    Button(action: viewModel.handleSearchOptionsTap) {
+                        Label("Search", systemImage: "magnifyingglass")
+                    }
+                    Button(action: viewModel.handleSettingButtonTap) {
+                        Label("Settings", systemImage: "gearshape")
+                    }
                 } label: {
-                    Image(systemName: "gearshape")
+                    Image(systemName: "ellipsis")
                         .resizable()
-                        .frame(width: 24, height: 24)
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
                 }
                 .foregroundStyle(primaryColor)
             }
@@ -76,46 +82,62 @@ struct GroupHomeView: View {
 }
 
 private struct GroupExpenseListView: View {
-
+    
     @ObservedObject var viewModel: GroupHomeViewModel
-
-    let onExpenseItemTap: (String) -> Void
-
-    @State private var searchExpense: String = ""
+    
     @State private var groupedExpenses: [String: [ExpenseWithUser]] = [:]
-
-    init(viewModel: GroupHomeViewModel, onExpenseItemTap: @escaping (String) -> Void) {
+    @State private var isFocused: Bool = false
+    
+    init(viewModel: GroupHomeViewModel) {
         self.viewModel = viewModel
-        self.onExpenseItemTap = onExpenseItemTap
-        self._groupedExpenses = State(initialValue: Self.groupExpenses(viewModel.expensesWithUser, searchExpense: ""))
+        self._groupedExpenses = State(initialValue: groupExpenses(viewModel.expensesWithUser, searchExpense: ""))
     }
-
+    
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 8) {
-                SearchBar(text: $searchExpense, placeholder: "Search expenses")
-                    .padding(.horizontal, 8)
-
+            VStack(spacing: 0) {
+                if viewModel.showSearchBar {
+                    HStack(spacing: 4) {
+                        SearchBar(text: $viewModel.searchExpense, placeholder: "Search expenses", isFocused: $isFocused)
+                        
+                        if isFocused {
+                            Button("Cancel") {
+                                withAnimation {
+                                    viewModel.showSearchBar = false
+                                    viewModel.searchExpense = ""
+                                    isFocused = false
+                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                                }
+                            }
+                            .foregroundColor(.blue)
+                            .transition(.move(edge: .trailing))
+                            .animation(.default)
+                        }
+                    }
+                    .padding(.leading, 8)
+                    .padding(.trailing, 20)
+                }
+                
                 List {
                     Group {
-                        VSpacer(16)
-
+                        VSpacer(30)
+                        
                         GroupExpenseHeaderView(viewModel: viewModel)
-
+                        
                         VSpacer(16)
-
+                        
                         GroupOptionsListView(onSettleUpTap: viewModel.handleSettleUpBtnTap,
                                              onBalanceTap: viewModel.handleBalancesBtnTap,
                                              onTotalsTap: viewModel.handleTotalBtnTap)
-
+                        
                         if groupedExpenses.isEmpty {
-                            ExpenseNotFoundView(geometry: .constant(geometry), searchedExpense: $searchExpense)
+                            ExpenseNotFoundView(geometry: .constant(geometry), searchedExpense: $viewModel.searchExpense)
                         } else {
                             ForEach(groupedExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
                                 Section(header: Text(month).font(.subTitle2()).foregroundStyle(primaryText)) {
                                     ForEach(groupedExpenses[month]!, id: \.expense.id) { expense in
                                         GroupExpenseItemView(expenseWithUser: expense)
-                                            .onTouchGesture { onExpenseItemTap(expense.expense.id ?? "") }
+                                            .onTouchGesture { viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "") }
                                             .swipeActions {
                                                 DeleteExpenseBtnView(month: month, expenseId: expense.expense.id ?? "", handleDeleteExpense: handleDeleteExpense)
                                             }
@@ -136,7 +158,7 @@ private struct GroupExpenseListView: View {
             }
             .padding(.bottom, 24)
             .onAppear(perform: updateGroupedExpenses)
-            .onChange(of: searchExpense) { _ in
+            .onChange(of: viewModel.searchExpense) { _ in
                 updateGroupedExpenses()
             }
             .onChange(of: viewModel.expensesWithUser) { _ in
@@ -144,7 +166,7 @@ private struct GroupExpenseListView: View {
             }
         }
     }
-
+    
     private func handleDeleteExpense(expenseId: String, for month: String) {
         guard let index = groupedExpenses[month]?.firstIndex(where: { $0.expense.id == expenseId }) else { return }
         if let expenseToDelete = groupedExpenses[month]?[index] {
@@ -154,16 +176,16 @@ private struct GroupExpenseListView: View {
             }
         }
     }
-
+    
     private func updateGroupedExpenses() {
-        groupedExpenses = Self.groupExpenses(viewModel.expensesWithUser, searchExpense: searchExpense)
+        groupedExpenses = groupExpenses(viewModel.expensesWithUser, searchExpense: viewModel.searchExpense)
     }
-
-    private static func groupExpenses(_ expensesWithUser: [ExpenseWithUser], searchExpense: String) -> [String: [ExpenseWithUser]] {
+    
+    private func groupExpenses(_ expensesWithUser: [ExpenseWithUser], searchExpense: String) -> [String: [ExpenseWithUser]] {
         let filteredExpenses = expensesWithUser.filter { expense in
             searchExpense.isEmpty || expense.expense.name.lowercased().contains(searchExpense.lowercased())
         }
-
+        
         return Dictionary(grouping: filteredExpenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMMM yyyy"
@@ -181,14 +203,12 @@ private struct ExpenseNotFoundView: View {
         VStack(alignment: .center, spacing: 0) {
             VSpacer()
 
-            Group {
-                Text("No expenses found for ") +
-                Text("\(searchedExpense).")
-            }
-            .font(.subTitle2())
-            .lineSpacing(2)
-            .foregroundColor(secondaryText)
-            .frame(maxWidth: .infinity, alignment: .center)
+            Text("No expenses found for \"\(searchedExpense)\"")
+                .font(.subTitle2())
+                .lineSpacing(2)
+                .foregroundColor(secondaryText)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
 
             VSpacer()
         }

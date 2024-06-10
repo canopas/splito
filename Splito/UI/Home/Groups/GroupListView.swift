@@ -45,6 +45,17 @@ struct GroupListView: View {
         .padding(.horizontal, 20)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .toolbar {
+
+            ToolbarItem(placement: .topBarLeading) {
+                Button(action: {
+
+                }) {
+                    Label("Search", systemImage: "magnifyingglass")
+                }
+                .foregroundStyle(primaryText)
+            }
+        }
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .onAppear {
             viewModel.fetchGroups()
