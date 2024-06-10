@@ -48,6 +48,9 @@
         }
       }
     },
+    "%@." : {
+
+    },
     "%@/person" : {
 
     },
@@ -238,7 +241,7 @@
     "no expense" : {
 
     },
-    "No expenses found..." : {
+    "No expenses found for " : {
 
     },
     "No expenses here yet." : {
