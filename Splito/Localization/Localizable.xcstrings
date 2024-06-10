@@ -235,6 +235,9 @@
     "no expense" : {
 
     },
+    "No expenses found..." : {
+
+    },
     "No expenses here yet." : {
 
     },
@@ -287,6 +290,9 @@
 
     },
     "Search" : {
+      "extractionState" : "manual"
+    },
+    "Search expenses" : {
       "extractionState" : "manual"
     },
     "Select group" : {

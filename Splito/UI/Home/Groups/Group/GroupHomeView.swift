@@ -77,69 +77,99 @@ struct GroupHomeView: View {
 
 private struct GroupExpenseListView: View {
 
-    @ObservedObject var viewModel: GroupHomeViewModel
-
+    let viewModel: GroupHomeViewModel
     let onExpenseItemTap: (String) -> Void
 
-    var isSettledUp = false
-    var groupedExpenses: [String: [ExpenseWithUser]] = [:]
+    @State private var searchQuery: String = ""
+    @State private var groupedExpenses: [String: [ExpenseWithUser]] = [:]
 
     init(viewModel: GroupHomeViewModel, onExpenseItemTap: @escaping (String) -> Void) {
         self.viewModel = viewModel
         self.onExpenseItemTap = onExpenseItemTap
-
-        self.groupedExpenses = Dictionary(grouping: viewModel.expensesWithUser
-            .sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "MMMM yyyy"
-                return dateFormatter.string(from: expense.expense.date.dateValue())
-            }
-
-        isSettledUp = (viewModel.group?.members.count ?? 1) > 1
+        self._groupedExpenses = State(initialValue: Self.groupExpenses(viewModel.expensesWithUser, searchQuery: ""))
     }
 
     var body: some View {
-        List {
-            Group {
-                VSpacer(30)
+        VStack(spacing: 8) {
+            SearchBar(text: $searchQuery, placeholder: "Search expenses")
+                .padding(.horizontal, 8)
 
-                GroupExpenseHeaderView(viewModel: viewModel)
+            List {
+                Group {
+                    VSpacer(16)
 
-                VSpacer(16)
+                    GroupExpenseHeaderView(viewModel: viewModel)
 
-                GroupOptionsListView(onSettleUpTap: viewModel.handleSettleUpBtnTap,
-                                     onBalanceTap: viewModel.handleBalancesBtnTap,
-                                     onTotalsTap: viewModel.handleTotalBtnTap)
+                    VSpacer(16)
 
-                ForEach(groupedExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
-                    Section(header: Text(month).font(.subTitle2()).foregroundStyle(primaryText)) {
-                        ForEach(groupedExpenses[month]!, id: \.expense.id) { expense in
-                            GroupExpenseItemView(expenseWithUser: expense)
-                                .onTouchGesture { onExpenseItemTap(expense.expense.id ?? "") }
+                    GroupOptionsListView(onSettleUpTap: viewModel.handleSettleUpBtnTap,
+                                         onBalanceTap: viewModel.handleBalancesBtnTap,
+                                         onTotalsTap: viewModel.handleTotalBtnTap)
+
+                    if groupedExpenses.isEmpty {
+                        VStack(alignment: .center, spacing: 0) {
+                            Spacer()
+
+                            Text("No expenses found...")
+                                .font(.subTitle1())
+                                .foregroundStyle(primaryText)
+
+                            Spacer()
                         }
-                        .onDelete { indexSet in
-                            handleDelete(at: indexSet, for: month)
+                    } else {
+                        ForEach(groupedExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
+                            Section(header: Text(month).font(.subTitle2()).foregroundStyle(primaryText)) {
+                                ForEach(groupedExpenses[month]!, id: \.expense.id) { expense in
+                                    GroupExpenseItemView(expenseWithUser: expense)
+                                        .onTouchGesture { onExpenseItemTap(expense.expense.id ?? "") }
+                                }
+                                .onDelete { indexSet in
+                                    handleDelete(at: indexSet, for: month)
+                                }
+                            }
                         }
                     }
                 }
+                .padding(.horizontal, 20)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowBackground(backgroundColor)
             }
-            .padding(.horizontal, 20)
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            .listRowBackground(backgroundColor)
+            .scrollIndicatorsHidden()
+            .listStyle(.plain)
+            .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
+            .environment(\.defaultMinListRowHeight, 1) // avoid default space leave between item
         }
-        .padding(.horizontal, 0)
-        .scrollIndicatorsHidden()
-        .listStyle(.plain)
-        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-        .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
-        .environment(\.defaultMinListRowHeight, 1) // avoid default space leave between item
+        .padding(.bottom, 24)
+        .onAppear(perform: updateGroupedExpenses)
+        .onChange(of: searchQuery) { _ in
+            updateGroupedExpenses()
+        }
     }
 
     private func handleDelete(at offsets: IndexSet, for month: String) {
         guard let index = offsets.first else { return }
         let expenseToDelete = groupedExpenses[month]![index]
         viewModel.handleDeleteBtnAction(expenseId: expenseToDelete.expense.id!)
+        withAnimation {
+            updateGroupedExpenses()
+        }
+    }
+
+    private func updateGroupedExpenses() {
+        groupedExpenses = Self.groupExpenses(viewModel.expensesWithUser, searchQuery: searchQuery)
+    }
+
+    private static func groupExpenses(_ expensesWithUser: [ExpenseWithUser], searchQuery: String) -> [String: [ExpenseWithUser]] {
+        let filteredExpenses = expensesWithUser.filter { expense in
+            searchQuery.isEmpty || expense.expense.name.lowercased().contains(searchQuery.lowercased())
+        }
+
+        return Dictionary(grouping: filteredExpenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMMM yyyy"
+            return dateFormatter.string(from: expense.expense.date.dateValue())
+        }
     }
 }
 
