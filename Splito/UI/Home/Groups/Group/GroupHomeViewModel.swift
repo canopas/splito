@@ -29,6 +29,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     @Published var group: Groups?
 
+    var groupedExpenses: [String: [ExpenseWithUser]] {
+        groupExpenses(expensesWithUser, searchExpense: searchExpense)
+    }
+
     private let groupId: String
     private var groupUserData: [AppUser] = []
     private let router: Router<AppRoute>
@@ -240,7 +244,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         (expenses.isEmpty ? .noMember : (overallOwingAmount == 0 ? .settledUp : .hasExpense))
     }
 
-    func handleDeleteExpenseAction(expenseId: String) {
+    func showDeleteExpenseConfirmation(expenseId: String) {
         showAlert = true
         alert = .init(title: "Delete expense",
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
@@ -257,7 +261,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] _ in
-                self?.expensesWithUser.removeAll { $0.expense.id == expenseId }
+                withAnimation {
+                    self?.expensesWithUser.removeAll { $0.expense.id == expenseId }
+                }
             }.store(in: &cancelable)
     }
 }
@@ -303,8 +309,16 @@ extension GroupHomeViewModel {
         showGroupTotalSheet = true
     }
 
-    func handleSearchOptionsTap() {
-        showSearchBar = true
+    func handleSearchOptionTap() {
+        withAnimation {
+            showSearchBar = true
+        }
+    }
+
+    func onSearchBarCancelBtnTap() {
+        withAnimation {
+            showSearchBar = false
+        }
     }
 }
 
@@ -322,13 +336,22 @@ extension GroupHomeViewModel {
         let components1 = Calendar.current.dateComponents([.year, .month], from: date1)
         let components2 = Calendar.current.dateComponents([.year, .month], from: date2)
 
-        // Compare months first
-        if components1.month != components2.month {
+        if components1.year != components2.year {    // Compare years first
+            return components1.year! > components2.year!
+        } else {    // If years are the same, compare months
             return components1.month! > components2.month!
         }
-        // If months are the same, compare years
-        else {
-            return components1.year! > components2.year!
+    }
+
+    private func groupExpenses(_ expensesWithUser: [ExpenseWithUser], searchExpense: String) -> [String: [ExpenseWithUser]] {
+        let filteredExpenses = expensesWithUser.filter { expense in
+            searchExpense.isEmpty || expense.expense.name.lowercased().contains(searchExpense.lowercased())
+        }
+
+        return Dictionary(grouping: filteredExpenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMMM yyyy"
+            return dateFormatter.string(from: expense.expense.date.dateValue())
         }
     }
 }

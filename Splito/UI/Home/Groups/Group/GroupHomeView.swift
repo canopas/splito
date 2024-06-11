@@ -60,7 +60,7 @@ struct GroupHomeView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button(action: viewModel.handleSearchOptionsTap) {
+                    Button(action: viewModel.handleSearchOptionTap) {
                         Label("Search", systemImage: "magnifyingglass")
                     }
                     Button(action: viewModel.handleSettingButtonTap) {
@@ -82,60 +82,41 @@ struct GroupHomeView: View {
 }
 
 private struct GroupExpenseListView: View {
-    
+
     @ObservedObject var viewModel: GroupHomeViewModel
-    
-    @State private var groupedExpenses: [String: [ExpenseWithUser]] = [:]
-    @State private var isFocused: Bool = false
-    
+
+    @State private var isFocused: Bool = true
+
     init(viewModel: GroupHomeViewModel) {
         self.viewModel = viewModel
-        self._groupedExpenses = State(initialValue: groupExpenses(viewModel.expensesWithUser, searchExpense: ""))
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
                 if viewModel.showSearchBar {
-                    HStack(spacing: 4) {
-                        SearchBar(text: $viewModel.searchExpense, placeholder: "Search expenses", isFocused: $isFocused)
-                        
-                        if isFocused {
-                            Button("Cancel") {
-                                withAnimation {
-                                    viewModel.showSearchBar = false
-                                    viewModel.searchExpense = ""
-                                    isFocused = false
-                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                                }
-                            }
-                            .foregroundColor(.blue)
-                            .transition(.move(edge: .trailing))
-                            .animation(.default)
-                        }
-                    }
-                    .padding(.leading, 8)
-                    .padding(.trailing, 20)
+                    SearchBar(text: $viewModel.searchExpense, isFocused: $isFocused, placeholder: "Search expenses", showCancelButton: true, clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
+                        .padding(.horizontal, 8)
                 }
-                
+
                 List {
                     Group {
                         VSpacer(30)
-                        
+
                         GroupExpenseHeaderView(viewModel: viewModel)
-                        
+
                         VSpacer(16)
-                        
+
                         GroupOptionsListView(onSettleUpTap: viewModel.handleSettleUpBtnTap,
                                              onBalanceTap: viewModel.handleBalancesBtnTap,
                                              onTotalsTap: viewModel.handleTotalBtnTap)
-                        
-                        if groupedExpenses.isEmpty {
+
+                        if viewModel.groupedExpenses.isEmpty {
                             ExpenseNotFoundView(geometry: .constant(geometry), searchedExpense: $viewModel.searchExpense)
                         } else {
-                            ForEach(groupedExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
+                            ForEach(viewModel.groupedExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
                                 Section(header: Text(month).font(.subTitle2()).foregroundStyle(primaryText)) {
-                                    ForEach(groupedExpenses[month]!, id: \.expense.id) { expense in
+                                    ForEach(viewModel.groupedExpenses[month]!, id: \.expense.id) { expense in
                                         GroupExpenseItemView(expenseWithUser: expense)
                                             .onTouchGesture { viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "") }
                                             .swipeActions {
@@ -157,40 +138,11 @@ private struct GroupExpenseListView: View {
                 .environment(\.defaultMinListRowHeight, 1) // avoid default space leave between item
             }
             .padding(.bottom, 24)
-            .onAppear(perform: updateGroupedExpenses)
-            .onChange(of: viewModel.searchExpense) { _ in
-                updateGroupedExpenses()
-            }
-            .onChange(of: viewModel.expensesWithUser) { _ in
-                updateGroupedExpenses()
-            }
         }
     }
-    
+
     private func handleDeleteExpense(expenseId: String, for month: String) {
-        guard let index = groupedExpenses[month]?.firstIndex(where: { $0.expense.id == expenseId }) else { return }
-        if let expenseToDelete = groupedExpenses[month]?[index] {
-            viewModel.handleDeleteExpenseAction(expenseId: expenseToDelete.expense.id!)
-            withAnimation {
-                updateGroupedExpenses()
-            }
-        }
-    }
-    
-    private func updateGroupedExpenses() {
-        groupedExpenses = groupExpenses(viewModel.expensesWithUser, searchExpense: viewModel.searchExpense)
-    }
-    
-    private func groupExpenses(_ expensesWithUser: [ExpenseWithUser], searchExpense: String) -> [String: [ExpenseWithUser]] {
-        let filteredExpenses = expensesWithUser.filter { expense in
-            searchExpense.isEmpty || expense.expense.name.lowercased().contains(searchExpense.lowercased())
-        }
-        
-        return Dictionary(grouping: filteredExpenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "MMMM yyyy"
-            return dateFormatter.string(from: expense.expense.date.dateValue())
-        }
+        viewModel.showDeleteExpenseConfirmation(expenseId: expenseId)
     }
 }
 
