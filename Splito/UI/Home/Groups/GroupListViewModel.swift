@@ -28,7 +28,8 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     private let onGroupSelected: ((String?) -> Void)?
 
     var filteredGroups: [GroupInformation] {
-        filterGroups()
+        guard case .hasGroup(let groups) = groupListState else { return [] }
+        return searchedGroup.isEmpty ? groups : groups.filter { $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
     }
 
     init(router: Router<AppRoute>, onGroupSelected: ((String?) -> Void)?) {
@@ -235,11 +236,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             if debtors[dIdx].1 == 0 { dIdx += 1 }
         }
         return transactions
-    }
-
-    private func filterGroups() -> [GroupInformation] {
-        guard case .hasGroup(let groups) = groupListState else { return [] }
-        return searchedGroup.isEmpty ? groups : groups.filter { $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
     }
 }
 

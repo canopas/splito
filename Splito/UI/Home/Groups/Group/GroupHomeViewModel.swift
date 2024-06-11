@@ -30,7 +30,15 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var group: Groups?
 
     var groupExpenses: [String: [ExpenseWithUser]] {
-        groupExpenses(expensesWithUser, searchedExpense: searchedExpense)
+        let filteredExpenses = expensesWithUser.filter { expense in
+            searchedExpense.isEmpty || expense.expense.name.lowercased().contains(searchedExpense.lowercased())
+        }
+
+        return Dictionary(grouping: filteredExpenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMMM yyyy"
+            return dateFormatter.string(from: expense.expense.date.dateValue())
+        }
     }
 
     private let groupId: String
@@ -261,9 +269,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] _ in
-                withAnimation {
-                    self?.expensesWithUser.removeAll { $0.expense.id == expenseId }
-                }
+                withAnimation { self?.expensesWithUser.removeAll { $0.expense.id == expenseId } }
             }.store(in: &cancelable)
     }
 }
@@ -343,18 +349,6 @@ extension GroupHomeViewModel {
         // If years are the same, compare months
         else {
             return components1.month! > components2.month!
-        }
-    }
-
-    private func groupExpenses(_ expensesWithUser: [ExpenseWithUser], searchedExpense: String) -> [String: [ExpenseWithUser]] {
-        let filteredExpenses = expensesWithUser.filter { expense in
-            searchedExpense.isEmpty || expense.expense.name.lowercased().contains(searchedExpense.lowercased())
-        }
-
-        return Dictionary(grouping: filteredExpenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "MMMM yyyy"
-            return dateFormatter.string(from: expense.expense.date.dateValue())
         }
     }
 }
