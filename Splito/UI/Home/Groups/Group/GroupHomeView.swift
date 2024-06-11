@@ -14,125 +14,126 @@ struct GroupHomeView: View {
     @StateObject var viewModel: GroupHomeViewModel
 
     var body: some View {
-        VStack(spacing: 0) {
-            if case .loading = viewModel.groupState {
-                LoaderView()
-            } else if case .noMember = viewModel.groupState {
-                AddMemberState(viewModel: .constant(viewModel))
-            } else if case .noExpense = viewModel.groupState {
-                NoExpenseView()
-            } else if case .settledUp = viewModel.groupState {
-                ScrollView {
-                    VSpacer(60)
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                if case .loading = viewModel.groupState {
+                    LoaderView()
+                } else if case .noMember = viewModel.groupState {
+                    AddMemberState(viewModel: .constant(viewModel))
+                } else if case .noExpense = viewModel.groupState {
+                    NoExpenseView()
+                } else if case .settledUp = viewModel.groupState {
+                    ScrollView {
+                        VSpacer(60)
 
-                    GroupExpenseHeaderView(viewModel: viewModel)
+                        GroupExpenseHeaderView(viewModel: viewModel)
 
-                    VSpacer(80)
+                        VSpacer(80)
 
-                    ExpenseSettledView()
-                        .onTouchGesture(viewModel.setHasExpenseState)
-                }
-                .scrollIndicators(.hidden)
-            } else if case .hasExpense = viewModel.groupState {
-                VSpacer(10)
-
-                GroupExpenseListView(viewModel: viewModel)
-            }
-        }
-        .background(backgroundColor)
-        .toastView(toast: $viewModel.toast)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .navigationBarTitle(viewModel.group?.name ?? "", displayMode: .inline)
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
-            GroupSettleUpRouteView(appRoute: Router(root: AppRoute.GroupSettleUpView(groupId: viewModel.group?.id ?? "")))
-        }
-        .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
-            NavigationStack {
-                GroupBalancesView(viewModel: GroupBalancesViewModel(groupId: viewModel.group?.id ?? ""))
-            }
-        }
-        .fullScreenCover(isPresented: $viewModel.showGroupTotalSheet) {
-            NavigationStack {
-                GroupTotalsView(viewModel: GroupTotalsViewModel(groupId: viewModel.group?.id ?? ""))
-            }
-        }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button(action: viewModel.handleSearchOptionTap) {
-                        Label("Search", systemImage: "magnifyingglass")
+                        ExpenseSettledView()
+                            .onTouchGesture(viewModel.setHasExpenseState)
                     }
-                    Button(action: viewModel.handleSettingButtonTap) {
-                        Label("Settings", systemImage: "gearshape")
-                    }
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 18, height: 18)
+                    .scrollIndicators(.hidden)
+                } else if case .hasExpense = viewModel.groupState {
+                    VSpacer(10)
+
+                    GroupExpenseListView(geometry: .constant(geometry), viewModel: viewModel)
                 }
-                .foregroundStyle(primaryColor)
             }
+            .background(backgroundColor)
+            .toastView(toast: $viewModel.toast)
+            .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+            .navigationBarTitle(viewModel.group?.name ?? "", displayMode: .inline)
+            .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+            .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
+                GroupSettleUpRouteView(appRoute: Router(root: AppRoute.GroupSettleUpView(groupId: viewModel.group?.id ?? "")))
+            }
+            .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
+                NavigationStack {
+                    GroupBalancesView(viewModel: GroupBalancesViewModel(groupId: viewModel.group?.id ?? ""))
+                }
+            }
+            .fullScreenCover(isPresented: $viewModel.showGroupTotalSheet) {
+                NavigationStack {
+                    GroupTotalsView(viewModel: GroupTotalsViewModel(groupId: viewModel.group?.id ?? ""))
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button(action: viewModel.handleSearchOptionTap) {
+                            Label("Search", systemImage: "magnifyingglass")
+                        }
+                        Button(action: viewModel.handleSettingButtonTap) {
+                            Label("Settings", systemImage: "gearshape")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    }
+                    .foregroundStyle(primaryColor)
+                }
+            }
+            .onAppear(perform: viewModel.fetchGroupAndExpenses)
         }
-        .onAppear(perform: viewModel.fetchGroupAndExpenses)
     }
 }
 
 private struct GroupExpenseListView: View {
 
+    @Binding var geometry: GeometryProxy
     @ObservedObject var viewModel: GroupHomeViewModel
 
     @State private var isFocused: Bool = true
 
     var body: some View {
-        GeometryReader { geometry in
-            VStack(spacing: 0) {
-                if viewModel.showSearchBar {
-                    SearchBar(text: $viewModel.searchExpense, isFocused: $isFocused, placeholder: "Search expenses", showCancelButton: true, clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
-                        .padding(.horizontal, 8)
-                }
+        VStack(spacing: 0) {
+            if viewModel.showSearchBar {
+                SearchBar(text: $viewModel.searchExpense, isFocused: $isFocused, placeholder: "Search expenses", showCancelButton: true, clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
+                    .padding(.horizontal, 8)
+            }
 
-                List {
-                    Group {
-                        VSpacer(30)
+            List {
+                Group {
+                    VSpacer(30)
 
-                        GroupExpenseHeaderView(viewModel: viewModel)
+                    GroupExpenseHeaderView(viewModel: viewModel)
 
-                        VSpacer(16)
+                    VSpacer(16)
 
-                        GroupOptionsListView(onSettleUpTap: viewModel.handleSettleUpBtnTap,
-                                             onBalanceTap: viewModel.handleBalancesBtnTap,
-                                             onTotalsTap: viewModel.handleTotalBtnTap)
+                    GroupOptionsListView(onSettleUpTap: viewModel.handleSettleUpBtnTap,
+                                         onBalanceTap: viewModel.handleBalancesBtnTap,
+                                         onTotalsTap: viewModel.handleTotalBtnTap)
 
-                        if viewModel.groupExpenses.isEmpty {
-                            ExpenseNotFoundView(geometry: .constant(geometry), searchedExpense: $viewModel.searchExpense)
-                        } else {
-                            ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
-                                Section(header: Text(month).font(.subTitle2()).foregroundStyle(primaryText)) {
-                                    ForEach(viewModel.groupExpenses[month]!, id: \.expense.id) { expense in
-                                        GroupExpenseItemView(expenseWithUser: expense)
-                                            .onTouchGesture { viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "") }
-                                            .swipeActions {
-                                                DeleteExpenseBtnView(month: month, expenseId: expense.expense.id ?? "", handleDeleteExpense: viewModel.showDeleteExpenseConfirmation(expenseId:))
-                                            }
-                                    }
+                    if viewModel.groupExpenses.isEmpty {
+                        ExpenseNotFoundView(geometry: $geometry, searchedExpense: $viewModel.searchExpense)
+                    } else {
+                        ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
+                            Section(header: Text(month).font(.subTitle2()).foregroundStyle(primaryText)) {
+                                ForEach(viewModel.groupExpenses[month]!, id: \.expense.id) { expense in
+                                    GroupExpenseItemView(expenseWithUser: expense)
+                                        .onTouchGesture { viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "") }
+                                        .swipeActions {
+                                            DeleteExpenseBtnView(month: month, expenseId: expense.expense.id ?? "", handleDeleteExpense: viewModel.showDeleteExpenseConfirmation(expenseId:))
+                                        }
                                 }
                             }
                         }
                     }
-                    .padding(.horizontal, 20)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    .listRowBackground(backgroundColor)
                 }
-                .scrollIndicatorsHidden()
-                .listStyle(.plain)
-                .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
-                .environment(\.defaultMinListRowHeight, 1) // avoid default space leave between item
+                .padding(.horizontal, 20)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowBackground(backgroundColor)
             }
-            .padding(.bottom, 24)
+            .scrollIndicatorsHidden()
+            .listStyle(.plain)
+            .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
+            .environment(\.defaultMinListRowHeight, 1) // avoid default space leave between item
         }
+        .padding(.bottom, 24)
     }
 }
 
