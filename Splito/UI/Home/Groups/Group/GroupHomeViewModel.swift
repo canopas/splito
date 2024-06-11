@@ -19,18 +19,18 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var groupState: GroupState = .noMember
 
     @Published var overallOwingAmount = 0.0
-    @Published var searchExpense: String = ""
+    @Published var searchedExpense: String = ""
     @Published var memberOwingAmount: [String: Double] = [:]
 
-    @Published private(set) var showSearchBar = false
     @Published var showSettleUpSheet = false
     @Published var showBalancesSheet = false
     @Published var showGroupTotalSheet = false
+    @Published private(set) var showSearchBar = false
 
     @Published var group: Groups?
 
     var groupExpenses: [String: [ExpenseWithUser]] {
-        groupExpenses(expensesWithUser, searchExpense: searchExpense)
+        groupExpenses(expensesWithUser, searchedExpense: searchedExpense)
     }
 
     private let groupId: String
@@ -240,8 +240,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private func setGroupViewState() {
         guard let group else { return }
         groupState = group.members.count > 1 ?
-        (expenses.isEmpty ? .noExpense : (overallOwingAmount == 0 ? .settledUp : .hasExpense)) :
-        (expenses.isEmpty ? .noMember : (overallOwingAmount == 0 ? .settledUp : .hasExpense))
+                     (expenses.isEmpty ? .noExpense : (overallOwingAmount == 0 ? .settledUp : .hasExpense)) :
+                     (expenses.isEmpty ? .noMember : (overallOwingAmount == 0 ? .settledUp : .hasExpense))
     }
 
     func showDeleteExpenseConfirmation(expenseId: String) {
@@ -336,16 +336,19 @@ extension GroupHomeViewModel {
         let components1 = Calendar.current.dateComponents([.year, .month], from: date1)
         let components2 = Calendar.current.dateComponents([.year, .month], from: date2)
 
-        if components1.year != components2.year {    // Compare years first
+        // Compare years first
+        if components1.year != components2.year {
             return components1.year! > components2.year!
-        } else {    // If years are the same, compare months
+        }
+        // If years are the same, compare months
+        else {
             return components1.month! > components2.month!
         }
     }
 
-    private func groupExpenses(_ expensesWithUser: [ExpenseWithUser], searchExpense: String) -> [String: [ExpenseWithUser]] {
+    private func groupExpenses(_ expensesWithUser: [ExpenseWithUser], searchedExpense: String) -> [String: [ExpenseWithUser]] {
         let filteredExpenses = expensesWithUser.filter { expense in
-            searchExpense.isEmpty || expense.expense.name.lowercased().contains(searchExpense.lowercased())
+            searchedExpense.isEmpty || expense.expense.name.lowercased().contains(searchedExpense.lowercased())
         }
 
         return Dictionary(grouping: filteredExpenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
