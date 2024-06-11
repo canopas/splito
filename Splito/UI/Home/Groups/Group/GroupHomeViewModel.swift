@@ -22,14 +22,14 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var searchExpense: String = ""
     @Published var memberOwingAmount: [String: Double] = [:]
 
-    @Published var showSearchBar = false
+    @Published private(set) var showSearchBar = false
     @Published var showSettleUpSheet = false
     @Published var showBalancesSheet = false
     @Published var showGroupTotalSheet = false
 
     @Published var group: Groups?
 
-    var groupedExpenses: [String: [ExpenseWithUser]] {
+    var groupExpenses: [String: [ExpenseWithUser]] {
         groupExpenses(expensesWithUser, searchExpense: searchExpense)
     }
 

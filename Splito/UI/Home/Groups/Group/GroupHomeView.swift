@@ -85,10 +85,6 @@ private struct GroupExpenseListView: View {
 
     @State private var isFocused: Bool = true
 
-    init(viewModel: GroupHomeViewModel) {
-        self.viewModel = viewModel
-    }
-
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
@@ -109,16 +105,16 @@ private struct GroupExpenseListView: View {
                                              onBalanceTap: viewModel.handleBalancesBtnTap,
                                              onTotalsTap: viewModel.handleTotalBtnTap)
 
-                        if viewModel.groupedExpenses.isEmpty {
+                        if viewModel.groupExpenses.isEmpty {
                             ExpenseNotFoundView(geometry: .constant(geometry), searchedExpense: $viewModel.searchExpense)
                         } else {
-                            ForEach(viewModel.groupedExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
+                            ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
                                 Section(header: Text(month).font(.subTitle2()).foregroundStyle(primaryText)) {
-                                    ForEach(viewModel.groupedExpenses[month]!, id: \.expense.id) { expense in
+                                    ForEach(viewModel.groupExpenses[month]!, id: \.expense.id) { expense in
                                         GroupExpenseItemView(expenseWithUser: expense)
                                             .onTouchGesture { viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "") }
                                             .swipeActions {
-                                                DeleteExpenseBtnView(month: month, expenseId: expense.expense.id ?? "", handleDeleteExpense: handleDeleteExpense)
+                                                DeleteExpenseBtnView(month: month, expenseId: expense.expense.id ?? "", handleDeleteExpense: viewModel.showDeleteExpenseConfirmation(expenseId:))
                                             }
                                     }
                                 }
@@ -137,10 +133,6 @@ private struct GroupExpenseListView: View {
             }
             .padding(.bottom, 24)
         }
-    }
-
-    private func handleDeleteExpense(expenseId: String, for month: String) {
-        viewModel.showDeleteExpenseConfirmation(expenseId: expenseId)
     }
 }
 
@@ -170,14 +162,14 @@ private struct DeleteExpenseBtnView: View {
 
     var month: String
     var expenseId: String
-    var handleDeleteExpense: (_ expenseId: String, _ month: String) -> Void
+    var handleDeleteExpense: (_ expenseId: String) -> Void
 
     var body: some View {
-        Button(action: {
-            handleDeleteExpense(expenseId, month)
-        }, label: {
+        Button {
+            handleDeleteExpense(expenseId)
+        } label: {
             Text("Delete")
-        })
+        }
         .tint(.red)
     }
 }

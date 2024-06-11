@@ -38,7 +38,7 @@ public struct SearchBar: UIViewRepresentable {
     }
 
     public func updateUIView(_ uiView: UISearchBar, context: UIViewRepresentableContext<SearchBar>) {
-        uiView.text = text
+        uiView.text = text.localized
 
         if isFocused && !uiView.isFirstResponder {
             uiView.becomeFirstResponder()
@@ -48,7 +48,7 @@ public struct SearchBar: UIViewRepresentable {
     }
 
     public func makeCoordinator() -> SearchBar.Coordinator {
-        return Coordinator(text: $text, isFocused: $isFocused, onCancel: onCancel, showCancelButton: showCancelButton)
+        return Coordinator(text: $text, isFocused: $isFocused, showCancelButton: showCancelButton, onCancel: onCancel)
     }
 
     public class Coordinator: NSObject, UISearchBarDelegate {
@@ -56,28 +56,18 @@ public struct SearchBar: UIViewRepresentable {
         @Binding var text: String
         @Binding var isFocused: Bool
 
-        let onCancel: (() -> Void)?
         let showCancelButton: Bool
+        let onCancel: (() -> Void)?
 
-        public init(text: Binding<String>, isFocused: Binding<Bool>, onCancel: (() -> Void)?, showCancelButton: Bool) {
+        public init(text: Binding<String>, isFocused: Binding<Bool>, showCancelButton: Bool, onCancel: (() -> Void)?) {
             _text = text
             _isFocused = isFocused
-            self.onCancel = onCancel
             self.showCancelButton = showCancelButton
+            self.onCancel = onCancel
         }
 
         public func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
             text = searchText
-        }
-
-        public func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-            isFocused = true
-            searchBar.setShowsCancelButton(showCancelButton, animated: true)
-        }
-
-        public func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-            isFocused = false
-            searchBar.setShowsCancelButton(showCancelButton, animated: true)
         }
 
         public func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
