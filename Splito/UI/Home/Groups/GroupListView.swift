@@ -14,6 +14,8 @@ struct GroupListView: View {
 
     @StateObject var viewModel: GroupListViewModel
 
+    @State private var isFocused: Bool = true
+
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if case .loading = viewModel.currentViewState {
@@ -22,14 +24,17 @@ struct GroupListView: View {
                 VStack(spacing: 0) {
                     if case .noGroup = viewModel.groupListState {
                         CreateGroupState(viewModel: .constant(viewModel))
-                    } else if case .hasGroup(let groupInformation) = viewModel.groupListState {
-                        VSpacer(30)
+                    } else if case .hasGroup = viewModel.groupListState {
+                        VSpacer(16)
 
                         GroupListHeaderView(expense: viewModel.usersTotalExpense)
 
-                        VSpacer(20)
+                        if viewModel.showSearchBar {
+                            SearchBar(text: $viewModel.searchedGroup, isFocused: $isFocused, placeholder: "Search group", showCancelButton: true, clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
+                                .padding(.horizontal, 4)
+                        }
 
-                        GroupListWithDetailView(viewModel: viewModel, groupInformation: groupInformation)
+                        GroupListWithDetailView(viewModel: viewModel)
                     }
                 }
                 .frame(maxHeight: .infinity)
@@ -38,11 +43,9 @@ struct GroupListView: View {
                                            showCreateMenu: viewModel.groupListState != .noGroup,
                                            joinGroupTapped: viewModel.handleJoinGroupBtnTap,
                                            createGroupTapped: viewModel.handleCreateGroupBtnTap)
-                    .padding(.bottom, 16)
                 }
             }
         }
-        .padding(.horizontal, 20)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toolbar {
@@ -50,7 +53,7 @@ struct GroupListView: View {
                 Button(action: viewModel.handleSearchBarTap) {
                     Image(systemName: "magnifyingglass")
                         .resizable()
-                        .frame(width: 24, height: 24)
+                        .frame(width: 16, height: 16)
                         .scaledToFit()
                 }
                 .foregroundStyle(primaryText)
@@ -88,26 +91,27 @@ private struct GroupListHeaderView: View {
             }
             Spacer()
         }
+        .padding(.horizontal, 20)
     }
 }
 
 private struct GroupListWithDetailView: View {
 
-    var viewModel: GroupListViewModel
-    let groupInformation: [GroupInformation]
+    @ObservedObject var viewModel: GroupListViewModel
 
     var body: some View {
         ScrollView {
-            VSpacer(10)
+            VSpacer(30)
 
             LazyVStack(spacing: 16) {
-                ForEach(groupInformation, id: \.group.id) { group in
+                ForEach(viewModel.filteredGroups, id: \.group.id) { group in
                     GroupListCellView(group: group, viewModel: viewModel)
                         .onTapGesture {
                             viewModel.handleGroupItemTap(group.group)
                         }
                 }
             }
+            .padding(.horizontal, 20)
         }
         .scrollIndicators(.hidden)
     }
@@ -207,7 +211,7 @@ private struct CreateGroupState: View {
 
             CreateGroupButtonView(onClick: viewModel.handleCreateGroupBtnTap)
         }
-        .padding(.horizontal, 22)
+        .padding(.horizontal, 42)
     }
 }
 

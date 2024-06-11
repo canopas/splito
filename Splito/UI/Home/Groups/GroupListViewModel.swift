@@ -7,7 +7,7 @@
 
 import Data
 import Combine
-import Foundation
+import SwiftUI
 
 class GroupListViewModel: BaseViewModel, ObservableObject {
 
@@ -20,7 +20,13 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var groupListState: GroupListState = .noGroup
 
     @Published var showGroupMenu = false
+    @Published private(set) var showSearchBar = false
+    @Published var searchedGroup: String = ""
     @Published var usersTotalExpense = 0.0
+
+    var filteredGroups: [GroupInformation] {
+        filterGroups()
+    }
 
     private let router: Router<AppRoute>
     private let onGroupSelected: ((String?) -> Void)?
@@ -230,6 +236,20 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         }
         return transactions
     }
+
+    private func filterGroups() -> [GroupInformation] {
+        if case .hasGroup(let groups) = groupListState {
+            if searchedGroup.isEmpty {
+                return groups
+            } else {
+                let filteredGroups = groups.filter {
+                    $0.group.name.localizedCaseInsensitiveContains(searchedGroup)
+                }
+                return filteredGroups
+            }
+        }
+        return []
+    }
 }
 
 // MARK: - User Actions
@@ -259,7 +279,15 @@ extension GroupListViewModel {
     }
 
     func handleSearchBarTap() {
-//        router.push(.CreateGroupView(group: nil))
+        withAnimation {
+            showSearchBar = true
+        }
+    }
+
+    func onSearchBarCancelBtnTap() {
+        withAnimation {
+            showSearchBar = false
+        }
     }
 }
 
