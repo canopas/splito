@@ -100,20 +100,48 @@ private struct GroupListWithDetailView: View {
     @ObservedObject var viewModel: GroupListViewModel
 
     var body: some View {
-        ScrollView {
-            VSpacer(30)
+        GeometryReader { geometry in
+            ScrollView {
+                VSpacer(30)
 
-            LazyVStack(spacing: 16) {
-                ForEach(viewModel.filteredGroups, id: \.group.id) { group in
-                    GroupListCellView(group: group, viewModel: viewModel)
-                        .onTapGesture {
-                            viewModel.handleGroupItemTap(group.group)
+                LazyVStack(spacing: 16) {
+                    if viewModel.filteredGroups.isEmpty {
+                        GroupNotFoundView(geometry: .constant(geometry), searchedGroup: $viewModel.searchedGroup)
+                    } else {
+                        ForEach(viewModel.filteredGroups, id: \.group.id) { group in
+                            GroupListCellView(group: group, viewModel: viewModel)
+                                .onTapGesture {
+                                    viewModel.handleGroupItemTap(group.group)
+                                }
                         }
+                    }
                 }
+                .padding(.horizontal, 20)
             }
-            .padding(.horizontal, 20)
+            .scrollIndicators(.hidden)
         }
-        .scrollIndicators(.hidden)
+    }
+}
+
+private struct GroupNotFoundView: View {
+
+    @Binding var geometry: GeometryProxy
+    @Binding var searchedGroup: String
+
+    var body: some View {
+        VStack(alignment: .center, spacing: 0) {
+            VSpacer()
+
+            Text("No group found for \"\(searchedGroup)\"")
+                .font(.subTitle2())
+                .lineSpacing(2)
+                .foregroundColor(secondaryText)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
+
+            VSpacer()
+        }
+        .frame(minHeight: geometry.size.height - 130, maxHeight: .infinity, alignment: .center)
     }
 }
 

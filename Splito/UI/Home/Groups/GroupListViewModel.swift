@@ -24,12 +24,12 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var searchedGroup: String = ""
     @Published var usersTotalExpense = 0.0
 
+    private let router: Router<AppRoute>
+    private let onGroupSelected: ((String?) -> Void)?
+
     var filteredGroups: [GroupInformation] {
         filterGroups()
     }
-
-    private let router: Router<AppRoute>
-    private let onGroupSelected: ((String?) -> Void)?
 
     init(router: Router<AppRoute>, onGroupSelected: ((String?) -> Void)?) {
         self.router = router
