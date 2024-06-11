@@ -146,7 +146,7 @@ private struct ExpenseNotFoundView: View {
         VStack(alignment: .center, spacing: 0) {
             VSpacer()
 
-            Text("No expenses found for \"\(searchedExpense)\"")
+            Text("No results found for \"\(searchedExpense)\"")
                 .font(.subTitle2())
                 .lineSpacing(2)
                 .foregroundColor(secondaryText)

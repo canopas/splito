@@ -238,17 +238,8 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func filterGroups() -> [GroupInformation] {
-        if case .hasGroup(let groups) = groupListState {
-            if searchedGroup.isEmpty {
-                return groups
-            } else {
-                let filteredGroups = groups.filter {
-                    $0.group.name.localizedCaseInsensitiveContains(searchedGroup)
-                }
-                return filteredGroups
-            }
-        }
-        return []
+        guard case .hasGroup(let groups) = groupListState else { return [] }
+        return searchedGroup.isEmpty ? groups : groups.filter { $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
     }
 }
 

@@ -134,7 +134,7 @@ private struct GroupNotFoundView: View {
         VStack(alignment: .center, spacing: 0) {
             VSpacer()
 
-            Text("No group found for \"\(searchedGroup)\"")
+            Text("No results found for \"\(searchedGroup)\"")
                 .font(.subTitle2())
                 .lineSpacing(2)
                 .foregroundColor(secondaryText)
@@ -143,7 +143,7 @@ private struct GroupNotFoundView: View {
 
             VSpacer()
         }
-        .frame(minHeight: geometry.size.height - 130, maxHeight: .infinity, alignment: .center)
+        .frame(minHeight: geometry.size.height - 200, maxHeight: .infinity, alignment: .center)
     }
 }
 
