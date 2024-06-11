@@ -48,7 +48,7 @@ public struct SearchBar: UIViewRepresentable {
     }
 
     public func makeCoordinator() -> SearchBar.Coordinator {
-        return Coordinator(text: $text, isFocused: $isFocused, showCancelButton: showCancelButton, onCancel: onCancel)
+        return Coordinator(text: $text, isFocused: $isFocused, onCancel: onCancel)
     }
 
     public class Coordinator: NSObject, UISearchBarDelegate {
@@ -56,13 +56,11 @@ public struct SearchBar: UIViewRepresentable {
         @Binding var text: String
         @Binding var isFocused: Bool
 
-        let showCancelButton: Bool
         let onCancel: (() -> Void)?
 
-        public init(text: Binding<String>, isFocused: Binding<Bool>, showCancelButton: Bool, onCancel: (() -> Void)?) {
+        public init(text: Binding<String>, isFocused: Binding<Bool>, onCancel: (() -> Void)?) {
             _text = text
             _isFocused = isFocused
-            self.showCancelButton = showCancelButton
             self.onCancel = onCancel
         }
 
@@ -73,10 +71,10 @@ public struct SearchBar: UIViewRepresentable {
         public func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
             if !text.isEmpty {
                 text = ""
+                isFocused = true
             } else {
                 onCancel?()
             }
-            isFocused = true
         }
     }
 }

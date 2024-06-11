@@ -33,7 +33,7 @@ struct GroupListView: View {
                             VSpacer(20)
 
                             if viewModel.showSearchBar {
-                                SearchBar(text: $viewModel.searchedGroup, isFocused: $isFocused, placeholder: "Search group", showCancelButton: true, clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
+                                SearchBar(text: $viewModel.searchedGroup, isFocused: $isFocused, placeholder: "Search groups", showCancelButton: true, clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
                                     .padding(.horizontal, 4)
                             }
 

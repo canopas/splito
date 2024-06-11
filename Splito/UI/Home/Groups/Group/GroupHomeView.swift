@@ -89,58 +89,57 @@ private struct GroupExpenseListView: View {
     @State private var isFocused: Bool = true
 
     var body: some View {
-        VStack(spacing: 0) {
-            if viewModel.showSearchBar {
-                SearchBar(text: $viewModel.searchExpense, isFocused: $isFocused, placeholder: "Search expenses", showCancelButton: true, clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
-                    .padding(.horizontal, 8)
-            }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                if viewModel.showSearchBar {
+                    SearchBar(text: $viewModel.searchExpense, isFocused: $isFocused, placeholder: "Search expenses", showCancelButton: true, clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
+                        .padding(.horizontal, 8)
+                }
 
-            List {
-                Group {
-                    VSpacer(30)
+                VSpacer(30)
 
-                    GroupExpenseHeaderView(viewModel: viewModel)
+                GroupExpenseHeaderView(viewModel: viewModel)
 
-                    VSpacer(16)
+                VSpacer(16)
 
-                    GroupOptionsListView(onSettleUpTap: viewModel.handleSettleUpBtnTap,
-                                         onBalanceTap: viewModel.handleBalancesBtnTap,
-                                         onTotalsTap: viewModel.handleTotalBtnTap)
+                GroupOptionsListView(onSettleUpTap: viewModel.handleSettleUpBtnTap,
+                                     onBalanceTap: viewModel.handleBalancesBtnTap,
+                                     onTotalsTap: viewModel.handleTotalBtnTap)
 
-                    if viewModel.groupExpenses.isEmpty {
-                        ExpenseNotFoundView(geometry: $geometry, searchedExpense: $viewModel.searchExpense)
-                    } else {
-                        ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
-                            Section(header: Text(month).font(.subTitle2()).foregroundStyle(primaryText)) {
-                                ForEach(viewModel.groupExpenses[month]!, id: \.expense.id) { expense in
-                                    GroupExpenseItemView(expenseWithUser: expense)
-                                        .onTouchGesture { viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "") }
-                                        .swipeActions {
-                                            DeleteExpenseBtnView(month: month, expenseId: expense.expense.id ?? "", handleDeleteExpense: viewModel.showDeleteExpenseConfirmation(expenseId:))
-                                        }
-                                }
+                if viewModel.groupExpenses.isEmpty {
+                    ExpenseNotFoundView(geometry: $geometry, searchedExpense: viewModel.searchExpense)
+                } else {
+                    ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
+                        Section(header: sectionHeader(month: month)) {
+                            ForEach(viewModel.groupExpenses[month]!, id: \.expense.id) { expense in
+                                GroupExpenseItemView(expenseWithUser: expense)
+                                    .onTouchGesture { viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "") }
+                                    .swipeActions {
+                                        DeleteExpenseBtnView(month: month, expenseId: expense.expense.id ?? "", handleDeleteExpense: viewModel.showDeleteExpenseConfirmation(expenseId:))
+                                    }
                             }
                         }
                     }
                 }
-                .padding(.horizontal, 20)
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowBackground(backgroundColor)
             }
-            .scrollIndicatorsHidden()
-            .listStyle(.plain)
             .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
-            .environment(\.defaultMinListRowHeight, 1) // avoid default space leave between item
+            .padding(.bottom, 24)
         }
-        .padding(.bottom, 24)
+    }
+
+    private func sectionHeader(month: String) -> some View {
+        return Text(month)
+            .font(.subTitle2())
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
     }
 }
 
 private struct ExpenseNotFoundView: View {
 
     @Binding var geometry: GeometryProxy
-    @Binding var searchedExpense: String
+
+    let searchedExpense: String
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
@@ -156,6 +155,7 @@ private struct ExpenseNotFoundView: View {
             VSpacer()
         }
         .frame(minHeight: geometry.size.height / 2, maxHeight: .infinity, alignment: .center)
+        .padding(.horizontal, 20)
     }
 }
 
@@ -206,7 +206,7 @@ private struct GroupExpenseHeaderView: View {
                 }
             }
         }
-        .padding(.horizontal, 6)
+        .padding(.horizontal, 26)
     }
 }
 
@@ -316,7 +316,7 @@ private struct GroupExpenseItemView: View {
             .lineLimit(1)
             .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
         }
-        .padding(.horizontal, 6)
+        .padding(.horizontal, 26)
         .padding(.vertical, 10)
     }
 }
@@ -336,6 +336,7 @@ private struct GroupOptionsListView: View {
             GroupOptionsButtonView(text: "Totals", onTap: onTotalsTap)
         }
         .padding(.vertical, 16)
+        .padding(.horizontal, 20)
     }
 }
 
