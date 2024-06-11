@@ -75,9 +75,7 @@ struct GroupHomeView: View {
                 .foregroundStyle(primaryColor)
             }
         }
-        .onAppear {
-            viewModel.fetchGroupAndExpenses()
-        }
+        .onAppear(perform: viewModel.fetchGroupAndExpenses)
     }
 }
 

@@ -46,12 +46,12 @@ struct GroupListView: View {
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toolbar {
-
             ToolbarItem(placement: .topBarLeading) {
-                Button(action: {
-
-                }) {
-                    Label("Search", systemImage: "magnifyingglass")
+                Button(action: viewModel.handleSearchBarTap) {
+                    Image(systemName: "magnifyingglass")
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                        .scaledToFit()
                 }
                 .foregroundStyle(primaryText)
             }

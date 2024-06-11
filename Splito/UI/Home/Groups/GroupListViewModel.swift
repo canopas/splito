@@ -257,6 +257,10 @@ extension GroupListViewModel {
             router.push(.GroupHomeView(groupId: id))
         }
     }
+
+    func handleSearchBarTap() {
+//        router.push(.CreateGroupView(group: nil))
+    }
 }
 
 // MARK: - To show group and expense together
