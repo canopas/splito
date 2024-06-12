@@ -72,7 +72,6 @@ struct GroupHomeView: View {
                         .scaledToFit()
                         .frame(width: 18, height: 18)
                 }
-                .foregroundStyle(primaryColor)
             }
         }
         .onAppear(perform: viewModel.fetchGroupAndExpenses)
