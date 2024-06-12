@@ -12,7 +12,7 @@ public class ExpenseStore: ObservableObject {
 
     @Inject private var database: Firestore
 
-    private let DATABASE_NAME: String = "expenses"
+    private let COLLECTION_NAME: String = "expenses"
 
     func addExpense(expense: Expense) -> AnyPublisher<Void, ServiceError> {
         Future { [weak self] promise in
@@ -22,7 +22,7 @@ public class ExpenseStore: ObservableObject {
             }
 
             do {
-                _ = try self.database.collection(self.DATABASE_NAME).addDocument(from: expense)
+                _ = try self.database.collection(self.COLLECTION_NAME).addDocument(from: expense)
                 promise(.success(()))
             } catch {
                 LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
@@ -39,7 +39,7 @@ public class ExpenseStore: ObservableObject {
                 return
             }
             do {
-                try self.database.collection(self.DATABASE_NAME).document(expenseId).setData(from: expense, merge: false)
+                try self.database.collection(self.COLLECTION_NAME).document(expenseId).setData(from: expense, merge: false)
                 promise(.success(()))
             } catch {
                 LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
@@ -55,7 +55,7 @@ public class ExpenseStore: ObservableObject {
                 return
             }
 
-            self.database.collection(DATABASE_NAME).document(expenseId).getDocument { snapshot, error in
+            self.database.collection(COLLECTION_NAME).document(expenseId).getDocument { snapshot, error in
                 if let error {
                     LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError))
@@ -80,7 +80,7 @@ public class ExpenseStore: ObservableObject {
     }
 
     func fetchLatestExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
-        database.collection(DATABASE_NAME)
+        database.collection(COLLECTION_NAME)
             .whereField("group_id", isEqualTo: groupId)
             .limit(to: 20)
             .snapshotPublisher(as: Expense.self)
@@ -93,7 +93,7 @@ public class ExpenseStore: ObservableObject {
                 return
             }
 
-            self.database.collection(DATABASE_NAME).whereField("group_id", isEqualTo: groupId).addSnapshotListener { snapshot, error in
+            self.database.collection(COLLECTION_NAME).whereField("group_id", isEqualTo: groupId).addSnapshotListener { snapshot, error in
                 if let error {
                     LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError))
@@ -127,7 +127,7 @@ public class ExpenseStore: ObservableObject {
                 return
             }
 
-            self.database.collection(self.DATABASE_NAME).document(id).delete { error in
+            self.database.collection(self.COLLECTION_NAME).document(id).delete { error in
                 if let error {
                     LogE("ExpenseStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
                     promise(.failure(.databaseError))
@@ -146,7 +146,7 @@ public class ExpenseStore: ObservableObject {
                 return
             }
 
-            self.database.collection(DATABASE_NAME).whereField("group_id", isEqualTo: groupId).getDocuments { snapshot, error in
+            self.database.collection(COLLECTION_NAME).whereField("group_id", isEqualTo: groupId).getDocuments { snapshot, error in
                 if let error {
                     LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError))

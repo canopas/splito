@@ -10,7 +10,7 @@ import FirebaseFirestore
 
 class UserStore: ObservableObject {
 
-    private let DATABASE_NAME: String = "users"
+    private let COLLECTION_NAME: String = "users"
 
     @Inject private var database: Firestore
 
@@ -22,7 +22,7 @@ class UserStore: ObservableObject {
             }
 
             do {
-                try self.database.collection(self.DATABASE_NAME).document(user.id).setData(from: user)
+                try self.database.collection(self.COLLECTION_NAME).document(user.id).setData(from: user)
                 promise(.success(()))
             } catch {
                 LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
@@ -39,7 +39,7 @@ class UserStore: ObservableObject {
             }
 
             do {
-                try self.database.collection(self.DATABASE_NAME).document(user.id).setData(from: user, merge: true)
+                try self.database.collection(self.COLLECTION_NAME).document(user.id).setData(from: user, merge: true)
                 promise(.success(user))
             } catch {
                 LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
@@ -55,7 +55,7 @@ class UserStore: ObservableObject {
                 return
             }
 
-            self.database.collection(self.DATABASE_NAME).getDocuments { snapshot, error in
+            self.database.collection(self.COLLECTION_NAME).getDocuments { snapshot, error in
                 if let error {
                     LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError))
@@ -88,7 +88,7 @@ class UserStore: ObservableObject {
                 return
             }
 
-            self.database.collection(self.DATABASE_NAME)
+            self.database.collection(self.COLLECTION_NAME)
                 .document(userId)
                 .updateData(["is_active": false]) { error in
                     if let error {

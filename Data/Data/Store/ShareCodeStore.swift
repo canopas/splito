@@ -10,7 +10,7 @@ import FirebaseFirestoreInternal
 
 public class ShareCodeStore: ObservableObject {
 
-    private let DATABASE_NAME: String = "shared_codes"
+    private let COLLECTION_NAME: String = "shared_codes"
 
     @Inject private var database: Firestore
 
@@ -22,7 +22,7 @@ public class ShareCodeStore: ObservableObject {
             }
 
             do {
-                let documentRef = try self.database.collection(self.DATABASE_NAME).addDocument(from: sharedCode)
+                let documentRef = try self.database.collection(self.COLLECTION_NAME).addDocument(from: sharedCode)
                 promise(.success(()))
             } catch {
                 LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
@@ -39,7 +39,7 @@ public class ShareCodeStore: ObservableObject {
                 return
             }
 
-            self.database.collection(DATABASE_NAME).whereField("code", isEqualTo: code).getDocuments { snapshot, error in
+            self.database.collection(COLLECTION_NAME).whereField("code", isEqualTo: code).getDocuments { snapshot, error in
                 if let error {
                     LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError))
@@ -70,7 +70,7 @@ public class ShareCodeStore: ObservableObject {
                 return
             }
 
-            self.database.collection(self.DATABASE_NAME).document(documentId).delete { error in
+            self.database.collection(self.COLLECTION_NAME).document(documentId).delete { error in
                 if let error {
                     LogE("ShareCodeStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
                     promise(.failure(.databaseError))

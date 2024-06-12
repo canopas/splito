@@ -15,17 +15,17 @@ struct GroupPaymentView: View {
     @StateObject var viewModel: GroupPaymentViewModel
 
     var payerName: String {
-        if let user = preference.user, user.id == viewModel.payerUserId {
+        if let user = preference.user, user.id == viewModel.payerId {
             return "You"
         }
-        return viewModel.payerUser?.nameWithLastInitial ?? "Unknown"
+        return viewModel.payer?.nameWithLastInitial ?? "Unknown"
     }
 
     var payableName: String {
-        if let user = preference.user, user.id == viewModel.payableUserId {
+        if let user = preference.user, user.id == viewModel.receiverId {
             return "You"
         }
-        return viewModel.payableUser?.nameWithLastInitial ?? "Unknown"
+        return viewModel.receiver?.nameWithLastInitial ?? "Unknown"
     }
 
     var body: some View {
@@ -35,14 +35,14 @@ struct GroupPaymentView: View {
             } else {
                 VStack(alignment: .center, spacing: 20) {
                     HStack(alignment: .center, spacing: 20) {
-                        MemberProfileImageView(imageUrl: viewModel.payerUser?.imageUrl, height: 80)
+                        MemberProfileImageView(imageUrl: viewModel.payer?.imageUrl, height: 80)
 
                         Image(systemName: "arrowshape.forward.fill")
                             .resizable()
                             .frame(width: 36, height: 18)
                             .foregroundStyle(primaryText.opacity(0.6))
 
-                        MemberProfileImageView(imageUrl: viewModel.payableUser?.imageUrl, height: 80)
+                        MemberProfileImageView(imageUrl: viewModel.receiver?.imageUrl, height: 80)
                     }
 
                     Text("\(payerName) paid \(payableName)")
