@@ -234,20 +234,13 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private func setGroupViewState() {
         guard let group else { return }
         groupState = group.members.count > 1 ?
-                     (expenses.isEmpty ? .noExpense : (overallOwingAmount == 0 ? .settledUp : .hasExpense)) :
-                     (expenses.isEmpty ? .noMember : (overallOwingAmount == 0 ? .settledUp : .hasExpense))
+            (expenses.isEmpty ? .noExpense : .hasExpense) :
+            (expenses.isEmpty ? .noMember : .hasExpense)
     }
 }
 
 // MARK: - User Actions
 extension GroupHomeViewModel {
-    func setHasExpenseState() {
-        groupState = .loading
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.groupState = .hasExpense
-        }
-    }
-
     func getMemberDataBy(id: String) -> AppUser? {
         return groupUserData.first(where: { $0.id == id })
     }
@@ -269,7 +262,11 @@ extension GroupHomeViewModel {
     }
 
     func handleSettleUpBtnTap() {
-        showSettleUpSheet = true
+        if let group, group.members.count > 1 {
+            showSettleUpSheet = true
+        } else {
+            showAlertFor(title: "Oops", message: "You're the only member in this group, and there's no point in settling up with yourself :)")
+        }
     }
 
     func handleBalancesBtnTap() {
@@ -312,7 +309,6 @@ extension GroupHomeViewModel {
         case loading
         case noMember
         case noExpense
-        case settledUp
         case hasExpense
     }
 }

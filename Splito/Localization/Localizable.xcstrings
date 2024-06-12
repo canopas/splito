@@ -13,6 +13,9 @@
     " in total" : {
 
     },
+    " is settled up" : {
+
+    },
     " to %@" : {
 
     },
@@ -232,9 +235,6 @@
     "No email address" : {
       "extractionState" : "manual"
     },
-    "no expense" : {
-
-    },
     "No expenses here yet." : {
 
     },
@@ -243,6 +243,9 @@
     },
     "not involved" : {
 
+    },
+    "Oops" : {
+      "extractionState" : "manual"
     },
     "Overall, %@  " : {
 
@@ -441,6 +444,9 @@
 
     },
     "You paid for yourself" : {
+      "extractionState" : "manual"
+    },
+    "You're the only member in this group, and there's no point in settling up with yourself :)" : {
       "extractionState" : "manual"
     },
     "You're the only one here!" : {

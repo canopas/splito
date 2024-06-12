@@ -22,7 +22,7 @@ public class ShareCodeStore: ObservableObject {
             }
 
             do {
-                let documentRef = try self.database.collection(self.COLLECTION_NAME).addDocument(from: sharedCode)
+                _ = try self.database.collection(self.COLLECTION_NAME).addDocument(from: sharedCode)
                 promise(.success(()))
             } catch {
                 LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
