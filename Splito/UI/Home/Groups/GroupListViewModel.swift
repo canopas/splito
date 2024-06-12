@@ -21,8 +21,9 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     @Published var showGroupMenu = false
     @Published private(set) var showSearchBar = false
-    @Published var searchedGroup: String = ""
+
     @Published var usersTotalExpense = 0.0
+    @Published var searchedGroup: String = ""
 
     private let router: Router<AppRoute>
     private let onGroupSelected: ((String?) -> Void)?

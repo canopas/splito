@@ -14,7 +14,7 @@ struct GroupHomeView: View {
     @StateObject var viewModel: GroupHomeViewModel
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             if case .loading = viewModel.groupState {
                 LoaderView()
             } else if case .noMember = viewModel.groupState {
@@ -32,7 +32,6 @@ struct GroupHomeView: View {
                     ExpenseSettledView()
                         .onTouchGesture(viewModel.setHasExpenseState)
                 }
-                .scrollIndicators(.hidden)
             } else if case .hasExpense = viewModel.groupState {
                 VSpacer(10)
 
@@ -89,17 +88,15 @@ private struct GroupExpenseListView: View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
                 if viewModel.showSearchBar {
-                    SearchBar(text: $viewModel.searchedExpense, isFocused: $isFocused, placeholder: "Search expenses", showCancelButton: true, clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
+                    SearchBar(text: $viewModel.searchedExpense, isFocused: $isFocused,
+                              placeholder: "Search expenses", showCancelButton: true,
+                              clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
                         .padding(.horizontal, 8)
                 }
 
                 List {
                     Group {
-                        VSpacer(30)
-
                         GroupExpenseHeaderView(viewModel: viewModel)
-
-                        VSpacer(16)
 
                         GroupOptionsListView(onSettleUpTap: viewModel.handleSettleUpBtnTap,
                                              onBalanceTap: viewModel.handleBalancesBtnTap,
@@ -112,9 +109,16 @@ private struct GroupExpenseListView: View {
                                 Section(header: Text(month).font(.subTitle2()).foregroundStyle(primaryText)) {
                                     ForEach(viewModel.groupExpenses[month]!, id: \.expense.id) { expense in
                                         GroupExpenseItemView(expenseWithUser: expense)
-                                            .onTouchGesture { viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "") }
+                                            .onTouchGesture {
+                                                viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
+                                            }
                                             .swipeActions {
-                                                DeleteExpenseBtnView(month: month, expenseId: expense.expense.id ?? "", handleDeleteExpense: viewModel.showDeleteExpenseConfirmation(expenseId:))
+                                                DeleteExpenseBtnView {
+
+                                                }
+//                                                DeleteExpenseBtnView {
+//                                                    viewModel.showDeleteExpenseConfirmation(expenseId: expense.expense.id)
+//                                                }
                                             }
                                     }
                                 }
@@ -126,12 +130,9 @@ private struct GroupExpenseListView: View {
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowBackground(backgroundColor)
                 }
-                .scrollIndicators(ScrollIndicatorVisibility.hidden)
                 .listStyle(.plain)
                 .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
-                .environment(\.defaultMinListRowHeight, 1) // avoid default space leave between item
             }
-            .padding(.bottom, 24)
         }
     }
 }
@@ -160,13 +161,11 @@ private struct ExpenseNotFoundView: View {
 
 private struct DeleteExpenseBtnView: View {
 
-    var month: String
-    var expenseId: String
-    var handleDeleteExpense: (_ expenseId: String) -> Void
+    var handleDeleteExpense: () -> Void
 
     var body: some View {
         Button {
-            handleDeleteExpense(expenseId)
+            handleDeleteExpense()
         } label: {
             Text("Delete")
         }
@@ -205,7 +204,7 @@ private struct GroupExpenseHeaderView: View {
                 }
             }
         }
-        .padding(.horizontal, 6)
+        .padding(.vertical, 24)
     }
 }
 
@@ -315,8 +314,8 @@ private struct GroupExpenseItemView: View {
             .lineLimit(1)
             .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
         }
+        .padding(.top, 16)
         .padding(.horizontal, 6)
-        .padding(.vertical, 10)
     }
 }
 
@@ -334,7 +333,7 @@ private struct GroupOptionsListView: View {
 
             GroupOptionsButtonView(text: "Totals", onTap: onTotalsTap)
         }
-        .padding(.vertical, 16)
+        .padding(.vertical, 6)
     }
 }
 

@@ -31,8 +31,8 @@ public struct SearchBar: UIViewRepresentable {
         searchBar.delegate = context.coordinator
         searchBar.placeholder = placeholder
         searchBar.searchBarStyle = .minimal
-        searchBar.searchTextField.clearButtonMode = clearButtonMode
         searchBar.showsCancelButton = showCancelButton
+        searchBar.searchTextField.clearButtonMode = clearButtonMode
         return searchBar
     }
 

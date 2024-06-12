@@ -43,14 +43,14 @@ public extension View {
 public extension Backport where Content: View {
     @ViewBuilder func alert(isPresented: Binding<Bool>, alertStruct: AlertPrompt) -> some View {
         content
-            .alert(alertStruct.title, isPresented: isPresented) {
+            .alert(alertStruct.title.localized, isPresented: isPresented) {
                 if let positiveTitle = alertStruct.positiveBtnTitle {
-                    Button(positiveTitle, role: alertStruct.isPositiveBtnDestructive ? .destructive : nil, action: {
+                    Button(positiveTitle.localized, role: alertStruct.isPositiveBtnDestructive ? .destructive : nil, action: {
                         alertStruct.positiveBtnAction?()
                     })
                 }
                 if let negativeTitle = alertStruct.negativeBtnTitle {
-                    Button(negativeTitle, role: .cancel, action: {
+                    Button(negativeTitle.localized, role: .cancel, action: {
                         alertStruct.negativeBtnAction?()
                     })
                 }
@@ -60,7 +60,7 @@ public extension Backport where Content: View {
                     })
                 }
             } message: {
-                Text(alertStruct.message)
+                Text(alertStruct.message.localized)
             }
     }
 }

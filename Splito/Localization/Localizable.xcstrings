@@ -91,6 +91,9 @@
     "and split" : {
 
     },
+    "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you." : {
+      "extractionState" : "manual"
+    },
     "Automatically combines debts to reduce the total number of repayments between group members." : {
 
     },
@@ -123,6 +126,9 @@
     },
     "Delete account" : {
 
+    },
+    "Delete expense" : {
+      "extractionState" : "manual"
     },
     "Delete group" : {
       "extractionState" : "manual"

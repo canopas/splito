@@ -69,7 +69,5 @@ struct FloatingAddGroupButton: View {
             .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .bottomTrailing)
         }
         .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.bottom, 16)
-        .padding(.horizontal, 20)
     }
 }

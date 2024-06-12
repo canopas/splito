@@ -248,11 +248,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private func setGroupViewState() {
         guard let group else { return }
         groupState = group.members.count > 1 ?
-                     (expenses.isEmpty ? .noExpense : (overallOwingAmount == 0 ? .settledUp : .hasExpense)) :
-                     (expenses.isEmpty ? .noMember : (overallOwingAmount == 0 ? .settledUp : .hasExpense))
+        (expenses.isEmpty ? .noExpense : (overallOwingAmount == 0 ? .settledUp : .hasExpense)) :
+        (expenses.isEmpty ? .noMember : (overallOwingAmount == 0 ? .settledUp : .hasExpense))
     }
 
-    func showDeleteExpenseConfirmation(expenseId: String) {
+    func showExpenseDeleteAlert(expenseId: String) {
         showAlert = true
         alert = .init(title: "Delete expense",
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",

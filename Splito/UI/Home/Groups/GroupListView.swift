@@ -32,7 +32,9 @@ struct GroupListView: View {
                         VSpacer(20)
 
                         if viewModel.showSearchBar {
-                            SearchBar(text: $viewModel.searchedGroup, isFocused: $isFocused, placeholder: "Search groups", showCancelButton: true, clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
+                            SearchBar(text: $viewModel.searchedGroup, isFocused: $isFocused,
+                                      placeholder: "Search groups", showCancelButton: true,
+                                      clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
                                 .padding(.horizontal, 4)
                         }
 
@@ -45,6 +47,7 @@ struct GroupListView: View {
                                            showCreateMenu: viewModel.groupListState != .noGroup,
                                            joinGroupTapped: viewModel.handleJoinGroupBtnTap,
                                            createGroupTapped: viewModel.handleCreateGroupBtnTap)
+                    .padding([.bottom, .trailing], 10)
                 }
             }
         }
@@ -240,7 +243,7 @@ private struct CreateGroupState: View {
 
             CreateGroupButtonView(onClick: viewModel.handleCreateGroupBtnTap)
         }
-        .padding(.horizontal, 42)
+        .padding(.horizontal, 30)
     }
 }
 
