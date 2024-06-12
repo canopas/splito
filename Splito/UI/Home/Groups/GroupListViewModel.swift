@@ -21,6 +21,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     @Published var showGroupMenu = false
     @Published private(set) var showSearchBar = false
+    @Published var isFocused: Bool = true
 
     @Published var usersTotalExpense = 0.0
     @Published var searchedGroup: String = ""
@@ -260,6 +261,7 @@ extension GroupListViewModel {
     }
 
     func handleGroupItemTap(_ group: Groups) {
+        onSearchBarCancelBtnTap()
         if let id = group.id {
             onGroupSelected?(id)
             router.push(.GroupHomeView(groupId: id))
@@ -268,12 +270,14 @@ extension GroupListViewModel {
 
     func handleSearchBarTap() {
         withAnimation {
+            isFocused = true
             showSearchBar = true
         }
     }
 
     func onSearchBarCancelBtnTap() {
         withAnimation {
+            isFocused = false
             showSearchBar = false
         }
     }

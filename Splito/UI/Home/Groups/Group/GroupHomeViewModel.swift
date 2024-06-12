@@ -22,6 +22,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var searchedExpense: String = ""
     @Published var memberOwingAmount: [String: Double] = [:]
 
+    @Published var isFocused: Bool = true
     @Published var showSettleUpSheet = false
     @Published var showBalancesSheet = false
     @Published var showGroupTotalSheet = false
@@ -300,6 +301,7 @@ extension GroupHomeViewModel {
     }
 
     func handleExpenseItemTap(expenseId: String) {
+        onSearchBarCancelBtnTap()
         router.push(.ExpenseDetailView(expenseId: expenseId))
     }
 
@@ -317,12 +319,14 @@ extension GroupHomeViewModel {
 
     func handleSearchOptionTap() {
         withAnimation {
+            isFocused = true
             showSearchBar = true
         }
     }
 
     func onSearchBarCancelBtnTap() {
         withAnimation {
+            isFocused = false
             showSearchBar = false
         }
     }

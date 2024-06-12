@@ -62,6 +62,7 @@ struct GroupHomeView: View {
                     Button(action: viewModel.handleSearchOptionTap) {
                         Label("Search", systemImage: "magnifyingglass")
                     }
+                    .hidden(viewModel.expensesWithUser.count < 2)
                     Button(action: viewModel.handleSettingButtonTap) {
                         Label("Settings", systemImage: "gearshape")
                     }
@@ -75,6 +76,7 @@ struct GroupHomeView: View {
             }
         }
         .onAppear(perform: viewModel.fetchGroupAndExpenses)
+        .onDisappear(perform: viewModel.onSearchBarCancelBtnTap)
     }
 }
 
@@ -82,13 +84,11 @@ private struct GroupExpenseListView: View {
 
     @ObservedObject var viewModel: GroupHomeViewModel
 
-    @State private var isFocused: Bool = true
-
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
                 if viewModel.showSearchBar {
-                    SearchBar(text: $viewModel.searchedExpense, isFocused: $isFocused,
+                    SearchBar(text: $viewModel.searchedExpense, isFocused: $viewModel.isFocused,
                               placeholder: "Search expenses", showCancelButton: true,
                               clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
                         .padding(.horizontal, 8)
@@ -114,11 +114,8 @@ private struct GroupExpenseListView: View {
                                             }
                                             .swipeActions {
                                                 DeleteExpenseBtnView {
-
+                                                    viewModel.showExpenseDeleteAlert(expenseId: expense.expense.id ?? "")
                                                 }
-//                                                DeleteExpenseBtnView {
-//                                                    viewModel.showDeleteExpenseConfirmation(expenseId: expense.expense.id)
-//                                                }
                                             }
                                     }
                                 }
@@ -161,7 +158,7 @@ private struct ExpenseNotFoundView: View {
 
 private struct DeleteExpenseBtnView: View {
 
-    var handleDeleteExpense: () -> Void
+    let handleDeleteExpense: () -> Void
 
     var body: some View {
         Button {

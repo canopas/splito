@@ -14,8 +14,6 @@ struct GroupListView: View {
 
     @StateObject var viewModel: GroupListViewModel
 
-    @State private var isFocused: Bool = true
-
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if case .loading = viewModel.currentViewState {
@@ -32,7 +30,7 @@ struct GroupListView: View {
                         VSpacer(20)
 
                         if viewModel.showSearchBar {
-                            SearchBar(text: $viewModel.searchedGroup, isFocused: $isFocused,
+                            SearchBar(text: $viewModel.searchedGroup, isFocused: $viewModel.isFocused,
                                       placeholder: "Search groups", showCancelButton: true,
                                       clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
                                 .padding(.horizontal, 4)
@@ -48,6 +46,7 @@ struct GroupListView: View {
                                            joinGroupTapped: viewModel.handleJoinGroupBtnTap,
                                            createGroupTapped: viewModel.handleCreateGroupBtnTap)
                     .padding([.bottom, .trailing], 10)
+                    .hidden(viewModel.showSearchBar)
                 }
             }
         }
@@ -62,6 +61,7 @@ struct GroupListView: View {
                         .scaledToFit()
                 }
                 .foregroundStyle(primaryText)
+                .hidden(viewModel.groupListState == .noGroup)
             }
         }
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
