@@ -46,14 +46,6 @@ struct GroupListView: View {
                     }
                 }
                 .frame(maxHeight: .infinity)
-//                .overlay {
-//                    FloatingAddGroupButton(showMenu: $viewModel.showGroupMenu,
-//                                           showCreateMenu: viewModel.groupListState != .noGroup,
-//                                           joinGroupTapped: viewModel.handleJoinGroupBtnTap,
-//                                           createGroupTapped: viewModel.handleCreateGroupBtnTap)
-//                    .padding([.bottom, .trailing], 10)
-//                    .hidden(viewModel.showSearchBar)
-//                }
             }
         }
         .toastView(toast: $viewModel.toast)
@@ -69,12 +61,25 @@ struct GroupListView: View {
                 .foregroundStyle(primaryText)
                 .hidden(viewModel.groupListState == .noGroup)
             }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button(action: viewModel.handleCreateGroupBtnTap) {
+                        Label("Create group", systemImage: "plus.circle")
+                    }
+                    .hidden(viewModel.groupListState == .noGroup)
+                    Button(action: viewModel.handleJoinGroupBtnTap) {
+                        Label("Join group", systemImage: "person.2")
+                    }
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 14).weight(.bold))
+                }
+            }
         }
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .onAppear(perform: viewModel.fetchGroups)
         .onDisappear {
             isFocused = false
-            viewModel.showGroupMenu = false
         }
     }
 }

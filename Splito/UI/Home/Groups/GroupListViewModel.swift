@@ -19,7 +19,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var currentViewState: ViewState = .loading
     @Published var groupListState: GroupListState = .noGroup
 
-    @Published var showGroupMenu = false
     @Published private(set) var showSearchBar = false
 
     @Published var usersTotalExpense = 0.0

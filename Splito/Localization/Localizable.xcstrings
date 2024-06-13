@@ -118,7 +118,7 @@
     "Create a group" : {
 
     },
-    "Create Group" : {
+    "Create group" : {
 
     },
     "Delete" : {
@@ -212,6 +212,9 @@
 
     },
     "Invite members to the group" : {
+
+    },
+    "Join group" : {
 
     },
     "Join Group" : {

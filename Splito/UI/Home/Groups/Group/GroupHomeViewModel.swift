@@ -29,19 +29,19 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     @Published var group: Groups?
 
-    var dateFormatter: DateFormatter {
+    static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
         return formatter
-    }
+    }()
 
     var groupExpenses: [String: [ExpenseWithUser]] {
         let filteredExpenses = expensesWithUser.filter { expense in
-            searchedExpense.isEmpty || expense.expense.name.lowercased().contains(searchedExpense.lowercased())
+            searchedExpense.isEmpty || expense.expense.name.lowercased().contains(searchedExpense.lowercased()) || expense.expense.amount == Double(searchedExpense)
         }
 
         return Dictionary(grouping: filteredExpenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
-            return dateFormatter.string(from: expense.expense.date.dateValue())
+            return GroupHomeViewModel.dateFormatter.string(from: expense.expense.date.dateValue())
         }
     }
 
@@ -304,13 +304,7 @@ extension GroupHomeViewModel {
     }
 
     func handleExpenseItemTap(expenseId: String) {
-        if showSearchBar {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.router.push(.ExpenseDetailView(expenseId: expenseId))
-            }
-        } else {
-            self.router.push(.ExpenseDetailView(expenseId: expenseId))
-        }
+        router.push(.ExpenseDetailView(expenseId: expenseId))
     }
 
     func handleSettleUpBtnTap() {

@@ -11,9 +11,9 @@ public struct SearchBar: UIViewRepresentable {
 
     @Binding var text: String
 
+    let placeholder: String
     var isFocused: FocusState<Bool>.Binding
     let clearButtonMode: UITextField.ViewMode
-    let placeholder: String
     let showCancelButton: Bool
     let onCancel: (() -> Void)?
 
@@ -36,8 +36,8 @@ public struct SearchBar: UIViewRepresentable {
         return searchBar
     }
 
-    public func updateUIView(_ uiView: UISearchBar, context: Context) {
-        uiView.text = text
+    public func updateUIView(_ uiView: UISearchBar, context: UIViewRepresentableContext<SearchBar>) {
+        uiView.text = text.localized
     }
 
     public func makeCoordinator() -> SearchBar.Coordinator {

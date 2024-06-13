@@ -78,7 +78,6 @@
 		D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC27142B84B72F00CEAAD3 /* PageControl.swift */; };
 		D8CD952C2BD65F1900407B47 /* ExpenseSplitOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8CD952B2BD65F1900407B47 /* ExpenseSplitOptionsView.swift */; };
 		D8CD952E2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8CD952D2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift */; };
-		D8D14A4E2BA0688A00F45FF2 /* FloatingGroupMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A4D2BA0688A00F45FF2 /* FloatingGroupMenu.swift */; };
 		D8D14A562BA189EC00F45FF2 /* JoinMemberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A552BA189EC00F45FF2 /* JoinMemberView.swift */; };
 		D8D14A582BA189F800F45FF2 /* JoinMemberViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A572BA189F800F45FF2 /* JoinMemberViewModel.swift */; };
 		D8D14A602BA2DCDB00F45FF2 /* UserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A5F2BA2DCDB00F45FF2 /* UserProfileView.swift */; };
@@ -218,7 +217,6 @@
 		D8AC27E12B84C06500CEAAD3 /* BaseStyle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseStyle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8CD952B2BD65F1900407B47 /* ExpenseSplitOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseSplitOptionsView.swift; sourceTree = "<group>"; };
 		D8CD952D2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseSplitOptionsViewModel.swift; sourceTree = "<group>"; };
-		D8D14A4D2BA0688A00F45FF2 /* FloatingGroupMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingGroupMenu.swift; sourceTree = "<group>"; };
 		D8D14A552BA189EC00F45FF2 /* JoinMemberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinMemberView.swift; sourceTree = "<group>"; };
 		D8D14A572BA189F800F45FF2 /* JoinMemberViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinMemberViewModel.swift; sourceTree = "<group>"; };
 		D8D14A5F2BA2DCDB00F45FF2 /* UserProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileView.swift; sourceTree = "<group>"; };
@@ -539,7 +537,6 @@
 				D89DBE5A2B8DE97000E5F1BD /* GroupRouteView.swift */,
 				D88721442B9B2C78009DC5BE /* GroupListView.swift */,
 				D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */,
-				D8D14A4D2BA0688A00F45FF2 /* FloatingGroupMenu.swift */,
 				D8A7CA6C2BA483BC0014EC67 /* Group */,
 				D8302D9D2B9F2770005ACA13 /* Create Group */,
 				D8302D9E2B9F2810005ACA13 /* Add Member */,
@@ -974,7 +971,6 @@
 				D8A7CA702BA484370014EC67 /* GroupSettingView.swift in Sources */,
 				D8A7CA722BA486250014EC67 /* GroupSettingViewModel.swift in Sources */,
 				D833445A2C0DD08400CD9F05 /* GroupSettleUpViewModel.swift in Sources */,
-				D8D14A4E2BA0688A00F45FF2 /* FloatingGroupMenu.swift in Sources */,
 				D85E86EB2BB3FD59002EDF76 /* ChoosePayerViewModel.swift in Sources */,
 				D89DBE5B2B8DE97000E5F1BD /* GroupRouteView.swift in Sources */,
 				D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */,
