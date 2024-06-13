@@ -9,43 +9,40 @@ import BaseStyle
 import SwiftUI
 
 struct HomeRouteView: View {
-    
+
     @StateObject private var viewModel = HomeRouteViewModel()
-    @State private var selectedTab = 0
-    @State var previousSelectedTab = 0
-    
+
     var body: some View {
         ZStack {
-            TabView(selection: $selectedTab) {
+            TabView(selection: $viewModel.selectedTab) {
                 GroupRouteView(onGroupSelected: viewModel.setSelectedGroupId(_:))
-                    .onAppear(perform: {
-                        previousSelectedTab = 0
-                    })
+                    .onAppear {
+                        viewModel.setLastSelectedTab(0)
+                    }
                     .tabItem {
                         Label("Groups", systemImage: "person.2")
                     }
                     .tag(0)
-                
-                Text("Add Expense")
+
+                Text("")
                     .tabItem {
-                        CustomAddExpenseTab(selected: selectedTab == 1)
+                        Label("Add expense", systemImage: "list.dash")
                     }
                     .tag(1)
-                
+
                 AccountRouteView()
-                    .onAppear(perform: {
-                        previousSelectedTab = 2
-                    })
+                    .onAppear {
+                        viewModel.setLastSelectedTab(2)
+                    }
                     .tabItem {
                         Label("Account", systemImage: "person.crop.square")
                     }
                     .tag(2)
             }
             .tint(primaryColor)
-            .onChange(of: selectedTab) { newValue in
+            .onChange(of: viewModel.selectedTab) { newValue in
                 if newValue == 1 {
-                    viewModel.openExpenseSheet = true
-                    selectedTab = previousSelectedTab
+                    viewModel.openAddExpenseSheet()
                 }
             }
             .fullScreenCover(isPresented: $viewModel.openExpenseSheet) {
@@ -62,13 +59,12 @@ struct HomeRouteView: View {
 
 struct CustomAddExpenseTab: View {
     var selected: Bool
-    
+
     var body: some View {
         VStack {
             Image(systemName: "plus.circle.fill")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 24, height: 24)
                 .foregroundColor(selected ? primaryColor : .gray)
             Text("Add Expense")
                 .font(.caption)
