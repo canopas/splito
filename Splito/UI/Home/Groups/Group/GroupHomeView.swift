@@ -449,5 +449,5 @@ private struct ExpenseSettledView: View {
 }
 
 #Preview {
-    GroupHomeView(viewModel: GroupHomeViewModel(router: .init(root: .GroupHomeView(groupId: "")), groupId: ""))
+    GroupHomeView(viewModel: GroupHomeViewModel(router: .init(root: .GroupHomeView(groupId: "")), groupId: "", onGroupSelected: ({_ in})))
 }

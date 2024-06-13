@@ -47,12 +47,20 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private let groupId: String
     private var groupUserData: [AppUser] = []
     private let router: Router<AppRoute>
+    private let onGroupSelected: ((String?) -> Void)?
 
-    init(router: Router<AppRoute>, groupId: String) {
+    init(router: Router<AppRoute>, groupId: String, onGroupSelected: ((String?) -> Void)?) {
         self.router = router
         self.groupId = groupId
+        self.onGroupSelected = onGroupSelected
         super.init()
         self.fetchLatestExpenses()
+
+        self.onGroupSelected?(groupId)
+    }
+
+    deinit {
+        self.onGroupSelected?(nil)
     }
 
     func fetchGroupAndExpenses() {

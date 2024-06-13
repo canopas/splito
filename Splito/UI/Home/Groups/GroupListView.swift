@@ -286,5 +286,5 @@ private struct CreateGroupButtonView: View {
 }
 
 #Preview {
-    GroupListView(viewModel: GroupListViewModel(router: .init(root: .GroupListView), onGroupSelected: {_ in}))
+    GroupListView(viewModel: GroupListViewModel(router: .init(root: .GroupListView)))
 }

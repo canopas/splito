@@ -25,16 +25,14 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var searchedGroup: String = ""
 
     private let router: Router<AppRoute>
-    private let onGroupSelected: ((String?) -> Void)?
 
     var filteredGroups: [GroupInformation] {
         guard case .hasGroup(let groups) = groupListState else { return [] }
         return searchedGroup.isEmpty ? groups : groups.filter { $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
     }
 
-    init(router: Router<AppRoute>, onGroupSelected: ((String?) -> Void)?) {
+    init(router: Router<AppRoute>) {
         self.router = router
-        self.onGroupSelected = onGroupSelected
         super.init()
         self.fetchLatestGroups()
         self.observeLatestExpenses()
@@ -42,8 +40,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     func fetchGroups() {
         guard let userId = preference.user?.id else { return }
-
-        resetSelectedGroupId()
 
         let groupsPublisher = groupRepository.fetchGroups(userId: userId)
         processGroupsDetails(groupsPublisher)
@@ -254,14 +250,9 @@ extension GroupListViewModel {
         router.push(.JoinMemberView)
     }
 
-    func resetSelectedGroupId() {
-        onGroupSelected?(nil)
-    }
-
     func handleGroupItemTap(_ group: Groups) {
         onSearchBarCancelBtnTap()
         if let id = group.id {
-            onGroupSelected?(id)
             router.push(.GroupHomeView(groupId: id))
         }
     }
