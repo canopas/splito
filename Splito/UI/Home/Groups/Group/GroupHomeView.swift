@@ -13,6 +13,8 @@ struct GroupHomeView: View {
 
     @StateObject var viewModel: GroupHomeViewModel
 
+    @FocusState private var isFocused: Bool
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if case .loading = viewModel.groupState {
@@ -35,7 +37,10 @@ struct GroupHomeView: View {
             } else if case .hasExpense = viewModel.groupState {
                 VSpacer(10)
 
-                GroupExpenseListView(viewModel: viewModel)
+                GroupExpenseListView(viewModel: viewModel, isFocused: $isFocused, onSearchBarAppear: {
+                    isFocused = true
+                })
+                .focused($isFocused)
             }
         }
         .background(backgroundColor)
@@ -75,22 +80,35 @@ struct GroupHomeView: View {
             }
         }
         .onAppear(perform: viewModel.fetchGroupAndExpenses)
-        .onDisappear(perform: viewModel.onSearchBarCancelBtnTap)
+        .onDisappear {
+            isFocused = false
+            viewModel.onSearchBarCancelBtnTap()
+        }
     }
 }
 
 private struct GroupExpenseListView: View {
 
     @ObservedObject var viewModel: GroupHomeViewModel
+    let isFocused: FocusState<Bool>.Binding
+    let onSearchBarAppear: () -> Void
 
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
                 if viewModel.showSearchBar {
-                    SearchBar(text: $viewModel.searchedExpense, isFocused: $viewModel.isFocused,
-                              placeholder: "Search expenses", showCancelButton: true,
-                              clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
-                        .padding(.horizontal, 8)
+                    SearchBar(
+                        text: $viewModel.searchedExpense,
+                        isFocused: isFocused,
+                        placeholder: "Search expenses",
+                        showCancelButton: true,
+                        clearButtonMode: .never,
+                        onCancel: {
+                            viewModel.onSearchBarCancelBtnTap()
+                        }
+                    )
+                    .padding(.horizontal, 8)
+                    .onAppear(perform: onSearchBarAppear)
                 }
 
                 List {

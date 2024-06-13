@@ -10,19 +10,19 @@ import SwiftUI
 public struct SearchBar: UIViewRepresentable {
 
     @Binding var text: String
-    @Binding var isFocused: Bool
 
+    var isFocused: FocusState<Bool>.Binding
+    let clearButtonMode: UITextField.ViewMode
     let placeholder: String
     let showCancelButton: Bool
-    let clearButtonMode: UITextField.ViewMode
     let onCancel: (() -> Void)?
 
-    public init(text: Binding<String>, isFocused: Binding<Bool> = .constant(false), placeholder: String, showCancelButton: Bool = false, clearButtonMode: UITextField.ViewMode = .whileEditing, onCancel: (() -> Void)? = nil) {
+    public init(text: Binding<String>, isFocused: FocusState<Bool>.Binding, placeholder: String, showCancelButton: Bool = false, clearButtonMode: UITextField.ViewMode = .whileEditing, onCancel: (() -> Void)? = nil) {
         self._text = text
-        self._isFocused = isFocused
+        self.isFocused = isFocused
         self.placeholder = placeholder
-        self.clearButtonMode = clearButtonMode
         self.showCancelButton = showCancelButton
+        self.clearButtonMode = clearButtonMode
         self.onCancel = onCancel
     }
 
@@ -36,30 +36,24 @@ public struct SearchBar: UIViewRepresentable {
         return searchBar
     }
 
-    public func updateUIView(_ uiView: UISearchBar, context: UIViewRepresentableContext<SearchBar>) {
-        uiView.text = text.localized
-
-        if isFocused && !uiView.isFirstResponder {
-            uiView.becomeFirstResponder()
-        } else if !isFocused && uiView.isFirstResponder {
-            uiView.resignFirstResponder()
-        }
+    public func updateUIView(_ uiView: UISearchBar, context: Context) {
+        uiView.text = text
     }
 
     public func makeCoordinator() -> SearchBar.Coordinator {
-        return Coordinator(text: $text, isFocused: $isFocused, onCancel: onCancel)
+        return Coordinator(text: $text, isFocused: isFocused, onCancel: onCancel)
     }
 
     public class Coordinator: NSObject, UISearchBarDelegate {
 
         @Binding var text: String
-        @Binding var isFocused: Bool
 
+        var isFocused: FocusState<Bool>.Binding
         let onCancel: (() -> Void)?
 
-        public init(text: Binding<String>, isFocused: Binding<Bool>, onCancel: (() -> Void)?) {
-            _text = text
-            _isFocused = isFocused
+        public init(text: Binding<String>, isFocused: FocusState<Bool>.Binding, onCancel: (() -> Void)?) {
+            self._text = text
+            self.isFocused = isFocused
             self.onCancel = onCancel
         }
 
@@ -70,7 +64,7 @@ public struct SearchBar: UIViewRepresentable {
         public func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
             if !text.isEmpty {
                 text = ""
-                isFocused = true
+                isFocused.wrappedValue = true
             } else {
                 onCancel?()
             }

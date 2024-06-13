@@ -21,7 +21,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     @Published var showGroupMenu = false
     @Published private(set) var showSearchBar = false
-    @Published var isFocused: Bool = true
 
     @Published var usersTotalExpense = 0.0
     @Published var searchedGroup: String = ""
@@ -270,14 +269,13 @@ extension GroupListViewModel {
 
     func handleSearchBarTap() {
         withAnimation {
-            isFocused = true
             showSearchBar = true
         }
     }
 
     func onSearchBarCancelBtnTap() {
         withAnimation {
-            isFocused = false
+            searchedGroup = ""
             showSearchBar = false
         }
     }

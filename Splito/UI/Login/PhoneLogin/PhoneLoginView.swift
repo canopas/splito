@@ -136,7 +136,7 @@ private struct PhoneLoginCountryPicker: View {
     @Binding var isPresented: Bool
 
     @State private var searchCountry: String = ""
-    @State private var isFocused: Bool = true
+    @FocusState private var isFocused: Bool
 
     private var filteredCountries: [Country] {
         countries.filter { country in
@@ -152,6 +152,7 @@ private struct PhoneLoginCountryPicker: View {
                 .padding(.top, 24)
 
             SearchBar(text: $searchCountry, isFocused: $isFocused, placeholder: "Search")
+                .focused($isFocused)
 
             List(filteredCountries) { country in
                 PhoneLoginCountryCell(country: country) {
