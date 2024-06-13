@@ -17,6 +17,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     @Inject private var transactionRepository: TransactionRepository
 
     @Published var amount: Double = 0
+    @Published var paymentDate = Date()
+
     @Published var payer: AppUser?
     @Published var receiver: AppUser?
     @Published var viewState: ViewState = .initial
@@ -69,7 +71,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     func handleSaveAction(completion: @escaping () -> Void) {
         let transaction = Transactions(payerId: payerId, receiverId: receiverId,
-                                       groupId: groupId, amount: amount, date: .init(date: .now))
+                                       groupId: groupId, amount: amount, date: .init(date: paymentDate))
 
         viewState = .loading
         transactionRepository.addTransaction(transaction: transaction)

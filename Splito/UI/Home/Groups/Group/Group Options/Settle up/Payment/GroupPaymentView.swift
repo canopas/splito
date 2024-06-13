@@ -28,31 +28,46 @@ struct GroupPaymentView: View {
         return viewModel.receiver?.nameWithLastInitial ?? "Unknown"
     }
 
+    let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date())!
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .center, spacing: 0) {
             if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
-                VStack(alignment: .center, spacing: 20) {
-                    HStack(alignment: .center, spacing: 20) {
-                        MemberProfileImageView(imageUrl: viewModel.payer?.imageUrl, height: 80)
+                ScrollView {
+                    VStack(alignment: .center, spacing: 20) {
+                        VSpacer(80)
 
-                        Image(systemName: "arrowshape.forward.fill")
-                            .resizable()
-                            .frame(width: 36, height: 18)
-                            .foregroundStyle(primaryText.opacity(0.6))
+                        HStack(alignment: .center, spacing: 20) {
+                            MemberProfileImageView(imageUrl: viewModel.payer?.imageUrl, height: 80)
 
-                        MemberProfileImageView(imageUrl: viewModel.receiver?.imageUrl, height: 80)
+                            Image(systemName: "arrowshape.forward.fill")
+                                .resizable()
+                                .frame(width: 36, height: 18)
+                                .foregroundStyle(primaryText.opacity(0.6))
+
+                            MemberProfileImageView(imageUrl: viewModel.receiver?.imageUrl, height: 80)
+                        }
+                        .padding(.top, 20)
+
+                        Text("\(payerName) paid \(payableName)")
+                            .font(.body1())
+                            .foregroundStyle(primaryText)
+
+                        DatePicker("Date:", selection: $viewModel.paymentDate,
+                                   in: ...maximumDate, displayedComponents: .date)
+                        .font(.subTitle2())
+                        .padding(.top, 16)
+                        .frame(width: 170, alignment: .center)
+
+                        GroupPaymentAmountView(amount: $viewModel.amount)
+
+                        VSpacer(20)
                     }
-
-                    Text("\(payerName) paid \(payableName)")
-                        .font(.body1())
-                        .foregroundStyle(primaryText)
-
-                    GroupPaymentAmountView(amount: $viewModel.amount)
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 24)
+                .scrollIndicators(.hidden)
             }
         }
         .background(backgroundColor)
@@ -79,7 +94,12 @@ private struct GroupPaymentAmountView: View {
     @FocusState var isAmountFocused: Bool
 
     var body: some View {
-        VStack(alignment: .center) {
+        HStack(alignment: .center, spacing: 16) {
+            Image(systemName: "indianrupeesign.square")
+                .resizable()
+                .frame(width: 30, height: 30)
+                .padding(.top, 5)
+
             TextField("0.00", value: $amount, formatter: NumberFormatter())
                 .keyboardType(.numberPad)
                 .frame(width: 140)
@@ -95,6 +115,7 @@ private struct GroupPaymentAmountView: View {
                 )
         }
         .padding(.vertical, 10)
+        .foregroundStyle(primaryText)
         .onAppear {
             isAmountFocused = true
         }
