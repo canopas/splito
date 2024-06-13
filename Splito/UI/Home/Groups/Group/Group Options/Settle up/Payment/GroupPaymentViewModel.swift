@@ -70,6 +70,11 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleSaveAction(completion: @escaping () -> Void) {
+        guard amount > 0 else {
+            showAlertFor(title: "Whoops!", message: "You must enter an amount.")
+            return
+        }
+
         let transaction = Transactions(payerId: payerId, receiverId: receiverId,
                                        groupId: groupId, amount: amount, date: .init(date: paymentDate))
 

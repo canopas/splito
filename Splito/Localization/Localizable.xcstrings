@@ -400,6 +400,9 @@
     "Who is paying?" : {
 
     },
+    "Whoops!" : {
+      "extractionState" : "manual"
+    },
     "You" : {
       "extractionState" : "manual"
     },
@@ -439,6 +442,9 @@
     },
     "you lent" : {
 
+    },
+    "You must enter an amount." : {
+      "extractionState" : "manual"
     },
     "you owe" : {
 
