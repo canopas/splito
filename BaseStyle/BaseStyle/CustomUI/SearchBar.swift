@@ -10,9 +10,9 @@ import SwiftUI
 public struct SearchBar: UIViewRepresentable {
 
     @Binding var text: String
+    var isFocused: FocusState<Bool>.Binding
 
     let placeholder: String
-    var isFocused: FocusState<Bool>.Binding
     let clearButtonMode: UITextField.ViewMode
     let showCancelButton: Bool
     let onCancel: (() -> Void)?

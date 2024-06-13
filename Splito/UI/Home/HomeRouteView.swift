@@ -9,28 +9,45 @@ import BaseStyle
 import SwiftUI
 
 struct HomeRouteView: View {
-
+    
     @StateObject private var viewModel = HomeRouteViewModel()
-
+    @State private var selectedTab = 0
+    @State var previousSelectedTab = 0
+    
     var body: some View {
         ZStack {
-            TabView {
+            TabView(selection: $selectedTab) {
                 GroupRouteView(onGroupSelected: viewModel.setSelectedGroupId(_:))
+                    .onAppear(perform: {
+                        previousSelectedTab = 0
+                    })
                     .tabItem {
                         Label("Groups", systemImage: "person.2")
                     }
                     .tag(0)
-
+                
+                Text("Add Expense")
+                    .tabItem {
+                        CustomAddExpenseTab(selected: selectedTab == 1)
+                    }
+                    .tag(1)
+                
                 AccountRouteView()
+                    .onAppear(perform: {
+                        previousSelectedTab = 2
+                    })
                     .tabItem {
                         Label("Account", systemImage: "person.crop.square")
                     }
-                    .tag(1)
+                    .tag(2)
             }
             .tint(primaryColor)
-            .overlay(
-                CenterFabButton(onClick: viewModel.openAddExpenseSheet)
-            )
+            .onChange(of: selectedTab) { newValue in
+                if newValue == 1 {
+                    viewModel.openExpenseSheet = true
+                    selectedTab = previousSelectedTab
+                }
+            }
             .fullScreenCover(isPresented: $viewModel.openExpenseSheet) {
                 ExpenseRouteView(groupId: viewModel.selectedGroupId)
             }
@@ -43,31 +60,20 @@ struct HomeRouteView: View {
     }
 }
 
-struct CenterFabButton: View {
-
-    var onClick: () -> Void
-
+struct CustomAddExpenseTab: View {
+    var selected: Bool
+    
     var body: some View {
         VStack {
-            Spacer()
-            HStack {
-                Spacer()
-
-                Button {
-                    onClick()
-                } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .resizable()
-                        .frame(width: 43, height: 43)
-                        .tint(primaryColor)
-                        .background(backgroundColor)
-                        .clipShape(Circle())
-                        .shadow(radius: 2)
-                }
-                .padding(.vertical, 1)
-
-                Spacer()
-            }
+            Image(systemName: "plus.circle.fill")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 24, height: 24)
+                .foregroundColor(selected ? primaryColor : .gray)
+            Text("Add Expense")
+                .font(.caption)
+                .foregroundColor(selected ? primaryColor : .gray)
         }
+        .padding(.top, 6)
     }
 }

@@ -16,6 +16,7 @@ class HomeRouteViewModel: ObservableObject {
     @Published var openExpenseSheet = false
     @Published var openProfileView = false
     @Published var selectedGroupId: String?
+    @Published var selectedTab = 0
 
     func openUserProfileIfNeeded() {
         if preference.isVerifiedUser {
