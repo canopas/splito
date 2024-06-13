@@ -11,7 +11,6 @@ import SwiftUI
 struct HomeRouteView: View {
 
     @StateObject private var viewModel = HomeRouteViewModel()
-    @State private var isKeyboardVisible = false
 
     var body: some View {
         ZStack {
@@ -31,7 +30,6 @@ struct HomeRouteView: View {
             .tint(primaryColor)
             .overlay(
                 CenterFabButton(onClick: viewModel.openAddExpenseSheet)
-                    .offset(y: isKeyboardVisible ? 150 : 0)
             )
             .fullScreenCover(isPresented: $viewModel.openExpenseSheet) {
                 ExpenseRouteView(groupId: viewModel.selectedGroupId)
@@ -41,30 +39,7 @@ struct HomeRouteView: View {
                     .interactiveDismissDisabled()
             }
         }
-        .onAppear {
-            viewModel.openUserProfileIfNeeded()
-            addKeyboardObservers()
-        }
-        .onDisappear(perform: removeKeyboardObservers)
-    }
-
-    private func addKeyboardObservers() {
-        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { _ in
-            withAnimation {
-                isKeyboardVisible = true
-            }
-        }
-
-        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
-            withAnimation(.easeOut(duration: 0.3)) {
-                isKeyboardVisible = false
-            }
-        }
-    }
-
-    private func removeKeyboardObservers() {
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+        .onAppear(perform: viewModel.openUserProfileIfNeeded)
     }
 }
 

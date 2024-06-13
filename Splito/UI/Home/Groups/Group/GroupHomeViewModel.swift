@@ -29,14 +29,18 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     @Published var group: Groups?
 
+    var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter
+    }
+
     var groupExpenses: [String: [ExpenseWithUser]] {
         let filteredExpenses = expensesWithUser.filter { expense in
             searchedExpense.isEmpty || expense.expense.name.lowercased().contains(searchedExpense.lowercased())
         }
 
         return Dictionary(grouping: filteredExpenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "MMMM yyyy"
             return dateFormatter.string(from: expense.expense.date.dateValue())
         }
     }
@@ -248,8 +252,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private func setGroupViewState() {
         guard let group else { return }
         groupState = group.members.count > 1 ?
-        (expenses.isEmpty ? .noExpense : (overallOwingAmount == 0 ? .settledUp : .hasExpense)) :
-        (expenses.isEmpty ? .noMember : (overallOwingAmount == 0 ? .settledUp : .hasExpense))
+                     (expenses.isEmpty ? .noExpense : (overallOwingAmount == 0 ? .settledUp : .hasExpense)) :
+                     (expenses.isEmpty ? .noMember : (overallOwingAmount == 0 ? .settledUp : .hasExpense))
     }
 
     func showExpenseDeleteAlert(expenseId: String) {
@@ -322,9 +326,7 @@ extension GroupHomeViewModel {
     }
 
     func handleSearchOptionTap() {
-        withAnimation {
-            showSearchBar = true
-        }
+        withAnimation { showSearchBar = true }
     }
 
     func onSearchBarCancelBtnTap() {

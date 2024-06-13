@@ -46,14 +46,14 @@ struct GroupListView: View {
                     }
                 }
                 .frame(maxHeight: .infinity)
-                .overlay {
-                    FloatingAddGroupButton(showMenu: $viewModel.showGroupMenu,
-                                           showCreateMenu: viewModel.groupListState != .noGroup,
-                                           joinGroupTapped: viewModel.handleJoinGroupBtnTap,
-                                           createGroupTapped: viewModel.handleCreateGroupBtnTap)
-                    .padding([.bottom, .trailing], 10)
-                    .hidden(viewModel.showSearchBar)
-                }
+//                .overlay {
+//                    FloatingAddGroupButton(showMenu: $viewModel.showGroupMenu,
+//                                           showCreateMenu: viewModel.groupListState != .noGroup,
+//                                           joinGroupTapped: viewModel.handleJoinGroupBtnTap,
+//                                           createGroupTapped: viewModel.handleCreateGroupBtnTap)
+//                    .padding([.bottom, .trailing], 10)
+//                    .hidden(viewModel.showSearchBar)
+//                }
             }
         }
         .toastView(toast: $viewModel.toast)
