@@ -26,7 +26,7 @@ struct HomeRouteView: View {
 
                 Text("")
                     .tabItem {
-                        Label("Add expense", systemImage: "list.dash")
+                        Image(.addIcon)
                     }
                     .tag(1)
 
@@ -54,22 +54,5 @@ struct HomeRouteView: View {
             }
         }
         .onAppear(perform: viewModel.openUserProfileIfNeeded)
-    }
-}
-
-struct CustomAddExpenseTab: View {
-    var selected: Bool
-
-    var body: some View {
-        VStack {
-            Image(systemName: "plus.circle.fill")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .foregroundColor(selected ? primaryColor : .gray)
-            Text("Add Expense")
-                .font(.caption)
-                .foregroundColor(selected ? primaryColor : .gray)
-        }
-        .padding(.top, 6)
     }
 }
