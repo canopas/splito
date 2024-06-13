@@ -73,6 +73,7 @@ struct GroupListView: View {
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: 14).weight(.bold))
+                        .foregroundStyle(primaryText)
                 }
             }
         }

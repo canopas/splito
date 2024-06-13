@@ -39,7 +39,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         let filteredExpenses = expensesWithUser.filter { expense in
             searchedExpense.isEmpty || expense.expense.name.lowercased().contains(searchedExpense.lowercased()) || expense.expense.amount == Double(searchedExpense)
         }
-
         return Dictionary(grouping: filteredExpenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
             return GroupHomeViewModel.dateFormatter.string(from: expense.expense.date.dateValue())
         }
