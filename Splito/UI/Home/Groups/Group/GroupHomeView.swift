@@ -13,8 +13,10 @@ struct GroupHomeView: View {
 
     @StateObject var viewModel: GroupHomeViewModel
 
+    @FocusState private var isFocused: Bool
+
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             if case .loading = viewModel.groupState {
                 LoaderView()
             } else if case .noMember = viewModel.groupState {
@@ -83,7 +85,7 @@ private struct GroupExpenseListView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 0) {
                 if viewModel.showSearchBar {
                     SearchBar(
                         text: $viewModel.searchedExpense,
@@ -126,15 +128,16 @@ private struct GroupExpenseListView: View {
                                     }
                                 }
                             }
-                            }
+                        }
+                    }
                     .padding(.horizontal, 20)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowBackground(backgroundColor)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                }
                 .listStyle(.plain)
-                .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
-                .listStyle(.plain)
+                .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .leading)
+            }
         }
     }
 }
@@ -170,8 +173,6 @@ private struct DeleteExpenseBtnView: View {
             handleDeleteExpense()
         } label: {
             Text("Delete")
-        }
-        .tint(.red)
         }
         .tint(.red)
     }

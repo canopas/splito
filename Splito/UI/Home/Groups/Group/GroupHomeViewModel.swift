@@ -277,6 +277,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] _ in
                 withAnimation { self?.expensesWithUser.removeAll { $0.expense.id == expenseId } }
+                self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully"))
             }.store(in: &cancelable)
     }
 }
