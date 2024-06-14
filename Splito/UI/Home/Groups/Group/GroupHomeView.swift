@@ -114,7 +114,7 @@ private struct GroupExpenseListView: View {
                             ExpenseNotFoundView(geometry: geometry, searchedExpense: viewModel.searchedExpense)
                         } else {
                             ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
-                                Section(header: Text(month).font(.subTitle2()).foregroundStyle(primaryText)) {
+                                Section(header: sectionHeader(month: month)) {
                                     ForEach(viewModel.groupExpenses[month]!, id: \.expense.id) { expense in
                                         GroupExpenseItemView(expenseWithUser: expense)
                                             .onTouchGesture {
@@ -139,6 +139,13 @@ private struct GroupExpenseListView: View {
                 .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .leading)
             }
         }
+    }
+
+    private func sectionHeader(month: String) -> some View {
+       return Text(month)
+            .font(.subTitle2())
+            .foregroundStyle(primaryText)
+            .padding(.bottom, 8)
     }
 }
 
@@ -318,7 +325,7 @@ private struct GroupExpenseItemView: View {
             }
             .lineLimit(1)
         }
-        .padding(.top, 16)
+        .padding(.vertical, 8)
         .padding(.horizontal, 6)
     }
 }
