@@ -26,7 +26,7 @@ struct HomeRouteView: View {
 
                 Text("")
                     .tabItem {
-                        Image(.addIcon)
+                        Label("Add expense", systemImage: "plus.circle.fill")
                     }
                     .tag(1)
 

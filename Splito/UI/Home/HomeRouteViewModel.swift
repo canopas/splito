@@ -13,11 +13,12 @@ class HomeRouteViewModel: ObservableObject {
 
     @Inject private var preference: SplitoPreference
 
-    @Published var openExpenseSheet = false
     @Published var openProfileView = false
-    @Published var selectedGroupId: String?
+    @Published var openExpenseSheet = false
+
     @Published var selectedTab = 0
     @Published var lastSelectedTab = 0
+    @Published var selectedGroupId: String?
 
     func openUserProfileIfNeeded() {
         if preference.isVerifiedUser {
