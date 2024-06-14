@@ -75,34 +75,46 @@ private struct GroupBalanceItemView: View {
                 let hasDue = memberBalance.totalOwedAmount < 0
                 let name = viewModel.getMemberName(id: memberBalance.id, needFullName: true)
                 let owesOrGetsBack = hasDue ? "owes" : "gets back"
-                Group {
-                    Text(name)
-                        .font(.Header4())
 
-                    + Text(" \(owesOrGetsBack.localized) ")
+                if memberBalance.totalOwedAmount == 0 {
+                    Group {
+                        Text(name)
+                            .font(.Header4())
+                        + Text(" is settled up")
+                            .font(.body1(16))
+                    }
+                } else {
+                    Group {
+                        Text(name)
+                            .font(.Header4())
 
-                    + Text(memberBalance.totalOwedAmount.formattedCurrency)
-                        .font(.body1(17))
-                        .foregroundColor(hasDue ? amountBorrowedColor : amountLentColor)
+                        + Text(" \(owesOrGetsBack.localized) ")
 
-                    + Text(" in total")
+                        + Text(memberBalance.totalOwedAmount.formattedCurrency)
+                            .font(.body1(17))
+                            .foregroundColor(hasDue ? amountBorrowedColor : amountLentColor)
+
+                        + Text(" in total")
+                    }
+                    .lineSpacing(3)
+                    .font(.body1(16))
                 }
-                .lineSpacing(3)
-                .font(.body1(16))
-                .foregroundStyle(primaryText)
 
                 Spacer()
 
-                Image(systemName: memberBalance.isExpanded ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
-                    .resizable()
-                    .frame(width: 18, height: 18)
-                    .foregroundStyle(secondaryText.opacity(0.8))
-                    .onTouchGesture {
-                        withAnimation(Animation.easeInOut(duration: 0.3)) {
-                            toggleExpandBtn(memberBalance.id)
+                if memberBalance.totalOwedAmount != 0 {
+                    Image(systemName: memberBalance.isExpanded ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
+                        .resizable()
+                        .frame(width: 18, height: 18)
+                        .foregroundStyle(secondaryText.opacity(0.8))
+                        .onTouchGesture {
+                            withAnimation(Animation.easeInOut(duration: 0.3)) {
+                                toggleExpandBtn(memberBalance.id)
+                            }
                         }
-                    }
+                }
             }
+            .foregroundStyle(primaryText)
             .padding(.horizontal, 15)
 
             if memberBalance.isExpanded {

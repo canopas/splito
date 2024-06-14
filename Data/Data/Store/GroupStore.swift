@@ -10,7 +10,7 @@ import FirebaseFirestore
 
 class GroupStore: ObservableObject {
 
-    private let DATABASE_NAME: String = "groups"
+    private let COLLECTION_NAME: String = "groups"
 
     @Inject private var database: Firestore
     @Inject private var preference: SplitoPreference
@@ -23,11 +23,11 @@ class GroupStore: ObservableObject {
             }
 
             do {
-                let documentRef = try self.database.collection(self.DATABASE_NAME).addDocument(from: group)
+                let documentRef = try self.database.collection(self.COLLECTION_NAME).addDocument(from: group)
                 promise(.success(documentRef.documentID))
             } catch {
                 LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError))
+                promise(.failure(.databaseError(error: error.localizedDescription)))
             }
         }
         .eraseToAnyPublisher()
@@ -40,17 +40,17 @@ class GroupStore: ObservableObject {
                 return
             }
             do {
-                try self.database.collection(self.DATABASE_NAME).document(groupId).setData(from: group, merge: false)
+                try self.database.collection(self.COLLECTION_NAME).document(groupId).setData(from: group, merge: false)
                 promise(.success(()))
             } catch {
                 LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError))
+                promise(.failure(.databaseError(error: error.localizedDescription)))
             }
         }.eraseToAnyPublisher()
     }
 
     func fetchLatestGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
-        database.collection(DATABASE_NAME)
+        database.collection(COLLECTION_NAME)
             .whereField("members", arrayContains: userId)
             .limit(to: 10)
             .snapshotPublisher(as: Groups.self)
@@ -63,12 +63,12 @@ class GroupStore: ObservableObject {
                 return
             }
 
-            self.database.collection(DATABASE_NAME)
+            self.database.collection(COLLECTION_NAME)
                 .whereField("members", arrayContains: userId)
                 .getDocuments { snapshot, error in
                     if let error {
                         LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                        promise(.failure(.databaseError))
+                        promise(.failure(.databaseError(error: error.localizedDescription)))
                         return
                     }
 
@@ -98,10 +98,10 @@ class GroupStore: ObservableObject {
                 return
             }
 
-            self.database.collection(DATABASE_NAME).document(id).getDocument { snapshot, error in
+            self.database.collection(COLLECTION_NAME).document(id).getDocument { snapshot, error in
                 if let error {
                     LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                     return
                 }
 
@@ -129,10 +129,10 @@ class GroupStore: ObservableObject {
                 return
             }
 
-            self.database.collection(DATABASE_NAME).document(groupID).delete { error in
+            self.database.collection(COLLECTION_NAME).document(groupID).delete { error in
                 if let error {
                     LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                 } else {
                     promise(.success(()))
                 }

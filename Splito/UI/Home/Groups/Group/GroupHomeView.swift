@@ -13,27 +13,14 @@ struct GroupHomeView: View {
 
     @StateObject var viewModel: GroupHomeViewModel
 
-    @FocusState private var isFocused: Bool
-
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(spacing: 0) {
             if case .loading = viewModel.groupState {
                 LoaderView()
             } else if case .noMember = viewModel.groupState {
                 AddMemberState(viewModel: .constant(viewModel))
             } else if case .noExpense = viewModel.groupState {
                 NoExpenseView()
-            } else if case .settledUp = viewModel.groupState {
-                ScrollView {
-                    VSpacer(60)
-
-                    GroupExpenseHeaderView(viewModel: viewModel)
-
-                    VSpacer(80)
-
-                    ExpenseSettledView()
-                        .onTouchGesture(viewModel.setHasExpenseState)
-                }
             } else if case .hasExpense = viewModel.groupState {
                 VSpacer(10)
 
@@ -49,7 +36,9 @@ struct GroupHomeView: View {
         .navigationBarTitle(viewModel.group?.name ?? "", displayMode: .inline)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
-            GroupSettleUpRouteView(appRoute: Router(root: AppRoute.GroupSettleUpView(groupId: viewModel.group?.id ?? "")))
+            GroupSettleUpRouteView(appRoute: .init(root: .GroupSettleUpView(groupId: viewModel.group?.id ?? ""))) {
+                viewModel.showSettleUpSheet = false
+            }
         }
         .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
             NavigationStack {
@@ -114,7 +103,8 @@ private struct GroupExpenseListView: View {
                     Group {
                         GroupExpenseHeaderView(viewModel: viewModel)
 
-                        GroupOptionsListView(onSettleUpTap: viewModel.handleSettleUpBtnTap,
+                        GroupOptionsListView(isSettleUpEnable: viewModel.group?.members.count ?? 1 > 1,
+                                             onSettleUpTap: viewModel.handleSettleUpBtnTap,
                                              onBalanceTap: viewModel.handleBalancesBtnTap,
                                              onTotalsTap: viewModel.handleTotalBtnTap)
 
@@ -136,16 +126,15 @@ private struct GroupExpenseListView: View {
                                     }
                                 }
                             }
-                        }
-                    }
+                            }
                     .padding(.horizontal, 20)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowBackground(backgroundColor)
-                }
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .listStyle(.plain)
                 .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
-            }
+                .listStyle(.plain)
         }
     }
 }
@@ -181,6 +170,8 @@ private struct DeleteExpenseBtnView: View {
             handleDeleteExpense()
         } label: {
             Text("Delete")
+        }
+        .tint(.red)
         }
         .tint(.red)
     }
@@ -325,7 +316,6 @@ private struct GroupExpenseItemView: View {
                 }
             }
             .lineLimit(1)
-            .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
         }
         .padding(.top, 16)
         .padding(.horizontal, 6)
@@ -334,13 +324,15 @@ private struct GroupExpenseItemView: View {
 
 private struct GroupOptionsListView: View {
 
+    var isSettleUpEnable: Bool
+
     let onSettleUpTap: () -> Void
     let onBalanceTap: () -> Void
     let onTotalsTap: () -> Void
 
     var body: some View {
         HStack(spacing: 16) {
-            GroupOptionsButtonView(text: "Settle up", isForSettleUp: true, onTap: onSettleUpTap)
+            GroupOptionsButtonView(text: "Settle up", isForSettleUp: isSettleUpEnable, onTap: onSettleUpTap)
 
             GroupOptionsButtonView(text: "Balances", onTap: onBalanceTap)
 

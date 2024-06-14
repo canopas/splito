@@ -99,7 +99,7 @@ private struct GroupMembersListView: View {
                 if let member = viewModel.getMemberDataBy(id: memberId) {
                     GroupMemberCellView(member: member, amount: owingAmount)
                         .onTouchGesture {
-                            viewModel.onMemberTap(member)
+                            viewModel.onMemberTap(memberId: member.id, amount: owingAmount)
                         }
 
                     Divider()

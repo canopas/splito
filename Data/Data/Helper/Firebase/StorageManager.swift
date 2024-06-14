@@ -37,12 +37,12 @@ public class StorageManager: ObservableObject {
             cancellable = storageRef.putData(imageData, metadata: metadata) { _, error in
                 if let error {
                     LogE("StorageManager: Error while uploading file: \(error.localizedDescription)")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                 } else {
                     storageRef.downloadURL { url, error in
                         if let error {
                             LogE("StorageManager: Download url failed with error: \(error.localizedDescription)")
-                            promise(.failure(.databaseError))
+                            promise(.failure(.databaseError(error: error.localizedDescription)))
                         } else if let imageUrl = url?.absoluteString {
                             LogD("StorageManager: Image successfully uploaded to Firebase!")
                             promise(.success(imageUrl))
@@ -76,7 +76,7 @@ public class StorageManager: ObservableObject {
             storageRef.delete { error in
                 if let error {
                     LogE("StorageManager: Error while deleting image: \(error)")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                 } else {
                     promise(.success(()))
                 }

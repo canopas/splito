@@ -39,6 +39,7 @@ struct GroupWhoIsPayingView: View {
         .background(backgroundColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .navigationBarTitle("Who is paying?", displayMode: .inline)
         .onAppear {
             viewModel.fetchGroupMembers()

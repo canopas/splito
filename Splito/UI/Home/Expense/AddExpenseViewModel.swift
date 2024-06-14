@@ -13,6 +13,7 @@ import FirebaseFirestoreInternal
 class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     @Inject private var preference: SplitoPreference
+    @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
 
@@ -51,8 +52,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             fetchExpenseDetails(expenseId: expenseId)
         } else if let groupId {
             fetchGroup(groupId: groupId)
-        } else {
-            updatePayerName()
+            fetchDefaultUser()
         }
     }
 
@@ -68,6 +68,22 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 self.selectedGroup = group
                 self.groupMembers = group.members
                 self.selectedMembers = group.members
+                self.viewState = .initial
+            }.store(in: &cancelable)
+    }
+
+    private func fetchDefaultUser() {
+        guard let id = preference.user?.id else { return }
+        viewState = .loading
+
+        userRepository.fetchUserBy(userID: id)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServerError(error)
+                }
+            } receiveValue: { [weak self] user in
+                guard let self, let user else { return }
+                self.selectedPayer = user
                 self.viewState = .initial
             }.store(in: &cancelable)
     }
