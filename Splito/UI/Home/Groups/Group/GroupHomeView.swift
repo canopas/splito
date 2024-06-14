@@ -55,8 +55,10 @@ struct GroupHomeView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button(action: viewModel.handleSearchOptionTap) {
-                        Label("Search", systemImage: "magnifyingglass")
+                    if viewModel.groupState == .hasExpense {
+                        Button(action: viewModel.handleSearchOptionTap) {
+                            Label("Search", systemImage: "magnifyingglass")
+                        }
                     }
                     Button(action: viewModel.handleSettingButtonTap) {
                         Label("Settings", systemImage: "gearshape")
@@ -121,9 +123,10 @@ private struct GroupExpenseListView: View {
                                                 viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
                                             }
                                             .swipeActions {
-                                                DeleteExpenseBtnView {
+                                                Button("Delete") {
                                                     viewModel.showExpenseDeleteAlert(expenseId: expense.expense.id ?? "")
                                                 }
+                                                .tint(.red)
                                             }
                                     }
                                 }
@@ -142,7 +145,7 @@ private struct GroupExpenseListView: View {
     }
 
     private func sectionHeader(month: String) -> some View {
-       return Text(month)
+        return Text(month)
             .font(.subTitle2())
             .foregroundStyle(primaryText)
             .padding(.bottom, 8)
@@ -168,20 +171,6 @@ private struct ExpenseNotFoundView: View {
             VSpacer()
         }
         .frame(minHeight: geometry.size.height / 2, maxHeight: .infinity, alignment: .center)
-    }
-}
-
-private struct DeleteExpenseBtnView: View {
-
-    let handleDeleteExpense: () -> Void
-
-    var body: some View {
-        Button {
-            handleDeleteExpense()
-        } label: {
-            Text("Delete")
-        }
-        .tint(.red)
     }
 }
 
@@ -324,6 +313,7 @@ private struct GroupExpenseItemView: View {
                 }
             }
             .lineLimit(1)
+            .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 6)
@@ -346,6 +336,7 @@ private struct GroupOptionsListView: View {
 
             GroupOptionsButtonView(text: "Totals", onTap: onTotalsTap)
         }
+        .padding(.bottom, 4)
         .padding(.vertical, 6)
     }
 }
@@ -421,28 +412,6 @@ private struct NoExpenseView: View {
                 .foregroundStyle(secondaryText)
                 .multilineTextAlignment(.center)
         }
-        .padding(.horizontal, 30)
-    }
-}
-
-private struct ExpenseSettledView: View {
-
-    var body: some View {
-        VStack(alignment: .center, spacing: 10) {
-            Text("You are all settled up.")
-                .foregroundStyle(primaryText)
-
-            Text("Tap to show settled expenses")
-                .foregroundStyle(secondaryText)
-                .multilineTextAlignment(.center)
-
-            VSpacer(20)
-
-            Image(.checkMarkTick)
-                .resizable()
-                .frame(width: 90, height: 80)
-        }
-        .font(.body1(17))
         .padding(.horizontal, 30)
     }
 }

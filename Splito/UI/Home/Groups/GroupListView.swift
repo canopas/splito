@@ -61,7 +61,7 @@ struct GroupListView: View {
                 .foregroundStyle(primaryText)
                 .hidden(viewModel.groupListState == .noGroup)
             }
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button(action: viewModel.handleCreateGroupBtnTap) {
                         Label("Create group", systemImage: "plus.circle")
