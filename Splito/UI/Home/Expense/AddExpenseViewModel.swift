@@ -172,9 +172,6 @@ extension AddExpenseViewModel {
             return
         }
         showPayerSelection = true
-        if let user = preference.user, selectedPayer == nil {
-            selectedPayer = user
-        }
     }
 
     func handlePayerSelection(payer: AppUser) {
@@ -199,6 +196,10 @@ extension AddExpenseViewModel {
     }
 
     func handleSaveAction(completion: @escaping () -> Void) {
+        if let user = preference.user, selectedPayer == nil {
+            selectedPayer = user
+        }
+
         if expenseName == "" || expenseAmount == 0 || selectedGroup == nil || selectedPayer == nil {
             showToastFor(toast: ToastPrompt(type: .warning, title: "Warning", message: "Please fill all data to add expense."))
             return

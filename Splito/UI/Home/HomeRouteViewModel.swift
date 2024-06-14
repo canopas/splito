@@ -5,7 +5,7 @@
 //  Created by Amisha Italiya on 06/06/24.
 //
 
-import Foundation
+import SwiftUI
 import Combine
 import Data
 
@@ -13,9 +13,12 @@ class HomeRouteViewModel: ObservableObject {
 
     @Inject private var preference: SplitoPreference
 
-    @Published var openExpenseSheet = false
     @Published var openProfileView = false
-    @Published var selectedGroupId: String?
+    @Published var openExpenseSheet = false
+
+    @Published var selectedTab = 0
+    @Published private(set) var lastSelectedTab = 0
+    @Published private(set) var selectedGroupId: String?
 
     func openUserProfileIfNeeded() {
         if preference.isVerifiedUser {
@@ -25,12 +28,19 @@ class HomeRouteViewModel: ObservableObject {
         }
     }
 
+    func setLastSelectedTab(_ index: Int) {
+        lastSelectedTab = index
+    }
+
     func setSelectedGroupId(_ groupId: String?) {
-        selectedGroupId = groupId
+        DispatchQueue.main.async {
+            self.selectedGroupId = groupId
+        }
     }
 
     func openAddExpenseSheet() {
         openExpenseSheet = true
+        selectedTab = lastSelectedTab
     }
 
     func dismissProfileView() {

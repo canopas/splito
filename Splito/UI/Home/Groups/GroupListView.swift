@@ -14,6 +14,8 @@ struct GroupListView: View {
 
     @StateObject var viewModel: GroupListViewModel
 
+    @FocusState private var isFocused: Bool
+
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if case .loading = viewModel.currentViewState {
@@ -22,35 +24,63 @@ struct GroupListView: View {
                 VStack(spacing: 0) {
                     if case .noGroup = viewModel.groupListState {
                         CreateGroupState(viewModel: .constant(viewModel))
-                    } else if case .hasGroup(let groupInformation) = viewModel.groupListState {
-                        VSpacer(30)
+                    } else if case .hasGroup = viewModel.groupListState {
+                        VSpacer(16)
 
                         GroupListHeaderView(expense: viewModel.usersTotalExpense)
 
                         VSpacer(20)
 
-                        GroupListWithDetailView(viewModel: viewModel, groupInformation: groupInformation)
+                        if viewModel.showSearchBar {
+                            SearchBar(text: $viewModel.searchedGroup, isFocused: $isFocused,
+                                      placeholder: "Search groups", showCancelButton: true,
+                                      clearButtonMode: .never, onCancel: viewModel.onSearchBarCancelBtnTap)
+                            .padding(.horizontal, 4)
+                            .focused($isFocused)
+                            .onAppear {
+                                isFocused = true
+                            }
+                        }
+
+                        GroupListWithDetailView(viewModel: viewModel)
                     }
                 }
                 .frame(maxHeight: .infinity)
-                .overlay {
-                    FloatingAddGroupButton(showMenu: $viewModel.showGroupMenu,
-                                           showCreateMenu: viewModel.groupListState != .noGroup,
-                                           joinGroupTapped: viewModel.handleJoinGroupBtnTap,
-                                           createGroupTapped: viewModel.handleCreateGroupBtnTap)
-                    .padding(.bottom, 16)
+            }
+        }
+        .toastView(toast: $viewModel.toast)
+        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(action: viewModel.handleSearchBarTap) {
+                    Image(systemName: "magnifyingglass")
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .scaledToFit()
+                }
+                .foregroundStyle(primaryText)
+                .hidden(viewModel.groupListState == .noGroup)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button(action: viewModel.handleCreateGroupBtnTap) {
+                        Label("Create group", systemImage: "plus.circle")
+                    }
+                    .hidden(viewModel.groupListState == .noGroup)
+                    Button(action: viewModel.handleJoinGroupBtnTap) {
+                        Label("Join group", systemImage: "person.2")
+                    }
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 14).weight(.bold))
+                        .foregroundStyle(primaryText)
                 }
             }
         }
-        .padding(.horizontal, 20)
-        .toastView(toast: $viewModel.toast)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .onAppear {
-            viewModel.fetchGroups()
-        }
+        .onAppear(perform: viewModel.fetchGroups)
         .onDisappear {
-            viewModel.showGroupMenu = false
+            isFocused = false
         }
     }
 }
@@ -77,30 +107,56 @@ private struct GroupListHeaderView: View {
             }
             Spacer()
         }
+        .padding(.horizontal, 20)
     }
 }
 
 private struct GroupListWithDetailView: View {
 
-    var viewModel: GroupListViewModel
-    let groupInformation: [GroupInformation]
+    @ObservedObject var viewModel: GroupListViewModel
 
     var body: some View {
-        ScrollView {
-            VSpacer(10)
-
-            LazyVStack(spacing: 16) {
-                ForEach(groupInformation, id: \.group.id) { group in
-                    GroupListCellView(group: group, viewModel: viewModel)
-                        .onTapGesture {
-                            viewModel.handleGroupItemTap(group.group)
+        GeometryReader { geometry in
+            ScrollView {
+                VSpacer(10)
+                LazyVStack(spacing: 16) {
+                    if viewModel.filteredGroups.isEmpty {
+                        GroupNotFoundView(geometry: geometry, searchedGroup: viewModel.searchedGroup)
+                    } else {
+                        ForEach(viewModel.filteredGroups, id: \.group.id) { group in
+                            GroupListCellView(group: group, viewModel: viewModel)
+                                .onTapGesture {
+                                    viewModel.handleGroupItemTap(group.group)
+                                }
                         }
+                    }
                 }
+                .padding(.horizontal, 20)
             }
-
-            VSpacer(40)
+            .scrollIndicators(.hidden)
         }
-        .scrollIndicators(.hidden)
+    }
+}
+
+private struct GroupNotFoundView: View {
+
+    let geometry: GeometryProxy
+    let searchedGroup: String
+
+    var body: some View {
+        VStack(alignment: .center, spacing: 0) {
+            VSpacer()
+
+            Text("No results found for \"\(searchedGroup)\"")
+                .font(.subTitle2())
+                .lineSpacing(2)
+                .foregroundColor(secondaryText)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
+
+            VSpacer()
+        }
+        .frame(minHeight: geometry.size.height - 50, maxHeight: .infinity, alignment: .center)
     }
 }
 
@@ -198,7 +254,7 @@ private struct CreateGroupState: View {
 
             CreateGroupButtonView(onClick: viewModel.handleCreateGroupBtnTap)
         }
-        .padding(.horizontal, 22)
+        .padding(.horizontal, 30)
     }
 }
 
@@ -230,5 +286,5 @@ private struct CreateGroupButtonView: View {
 }
 
 #Preview {
-    GroupListView(viewModel: GroupListViewModel(router: .init(root: .GroupListView), onGroupSelected: {_ in}))
+    GroupListView(viewModel: GroupListViewModel(router: .init(root: .GroupListView)))
 }

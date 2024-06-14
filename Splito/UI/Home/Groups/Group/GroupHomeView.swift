@@ -13,8 +13,10 @@ struct GroupHomeView: View {
 
     @StateObject var viewModel: GroupHomeViewModel
 
+    @FocusState private var isFocused: Bool
+
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             if case .loading = viewModel.groupState {
                 LoaderView()
             } else if case .noMember = viewModel.groupState {
@@ -24,7 +26,10 @@ struct GroupHomeView: View {
             } else if case .hasExpense = viewModel.groupState {
                 VSpacer(10)
 
-                GroupExpenseListView(viewModel: viewModel, onExpenseItemTap: viewModel.handleExpenseItemTap(expenseId:))
+                GroupExpenseListView(viewModel: viewModel, isFocused: $isFocused, onSearchBarAppear: {
+                    isFocused = true
+                })
+                .focused($isFocused)
             }
         }
         .background(backgroundColor)
@@ -49,71 +54,123 @@ struct GroupHomeView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    viewModel.handleSettingButtonTap()
+                Menu {
+                    if viewModel.groupState == .hasExpense {
+                        Button(action: viewModel.handleSearchOptionTap) {
+                            Label("Search", systemImage: "magnifyingglass")
+                        }
+                    }
+                    Button(action: viewModel.handleSettingButtonTap) {
+                        Label("Settings", systemImage: "gearshape")
+                    }
                 } label: {
-                    Image(systemName: "gearshape")
+                    Image(systemName: "ellipsis")
                         .resizable()
-                        .frame(width: 24, height: 24)
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
                 }
-                .foregroundStyle(primaryColor)
             }
         }
-        .onAppear {
-            viewModel.fetchGroupAndExpenses()
+        .onAppear(perform: viewModel.fetchGroupAndExpenses)
+        .onDisappear {
+            isFocused = false
+            viewModel.onSearchBarCancelBtnTap()
         }
     }
 }
 
 private struct GroupExpenseListView: View {
 
-    let viewModel: GroupHomeViewModel
-    let onExpenseItemTap: (String) -> Void
-
-    var isSettledUp = false
-    var groupedExpenses: [String: [ExpenseWithUser]] = [:]
-
-    init(viewModel: GroupHomeViewModel, onExpenseItemTap: @escaping (String) -> Void) {
-        self.viewModel = viewModel
-        self.onExpenseItemTap = onExpenseItemTap
-
-        self.groupedExpenses = Dictionary(grouping: viewModel.expensesWithUser
-            .sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "MMMM yyyy"
-                return dateFormatter.string(from: expense.expense.date.dateValue())
-            }
-
-        isSettledUp = (viewModel.group?.members.count ?? 1) > 1
-    }
+    @ObservedObject var viewModel: GroupHomeViewModel
+    let isFocused: FocusState<Bool>.Binding
+    let onSearchBarAppear: () -> Void
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                VSpacer(10)
-
-                GroupExpenseHeaderView(viewModel: viewModel)
-
-                GroupOptionsListView(isSettleUpEnable: viewModel.group?.members.count ?? 1 > 1,
-                                     onSettleUpTap: viewModel.handleSettleUpBtnTap,
-                                     onBalanceTap: viewModel.handleBalancesBtnTap,
-                                     onTotalsTap: viewModel.handleTotalBtnTap)
-
-                ForEach(groupedExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
-                    Section(header: Text(month).font(.subTitle2())) {
-                        ForEach(groupedExpenses[month]!, id: \.expense.id) { expense in
-                            GroupExpenseItemView(expenseWithUser: expense)
-                                .onTouchGesture { onExpenseItemTap(expense.expense.id ?? "") }
+        GeometryReader { geometry in
+            VStack(alignment: .leading, spacing: 0) {
+                if viewModel.showSearchBar {
+                    SearchBar(
+                        text: $viewModel.searchedExpense,
+                        isFocused: isFocused,
+                        placeholder: "Search expenses",
+                        showCancelButton: true,
+                        clearButtonMode: .never,
+                        onCancel: {
+                            viewModel.onSearchBarCancelBtnTap()
                         }
-                    }
+                    )
+                    .padding(.horizontal, 8)
+                    .onAppear(perform: onSearchBarAppear)
                 }
 
-                VSpacer(40)
+                List {
+                    Group {
+                        GroupExpenseHeaderView(viewModel: viewModel)
+
+                        GroupOptionsListView(isSettleUpEnable: viewModel.group?.members.count ?? 1 > 1,
+                                             onSettleUpTap: viewModel.handleSettleUpBtnTap,
+                                             onBalanceTap: viewModel.handleBalancesBtnTap,
+                                             onTotalsTap: viewModel.handleTotalBtnTap)
+
+                        if viewModel.groupExpenses.isEmpty {
+                            ExpenseNotFoundView(geometry: geometry, searchedExpense: viewModel.searchedExpense)
+                        } else {
+                            ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
+                                Section(header: sectionHeader(month: month)) {
+                                    ForEach(viewModel.groupExpenses[month]!, id: \.expense.id) { expense in
+                                        GroupExpenseItemView(expenseWithUser: expense)
+                                            .onTouchGesture {
+                                                viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
+                                            }
+                                            .swipeActions {
+                                                Button("Delete") {
+                                                    viewModel.showExpenseDeleteAlert(expenseId: expense.expense.id ?? "")
+                                                }
+                                                .tint(.red)
+                                            }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowBackground(backgroundColor)
+                }
+                .listStyle(.plain)
+                .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 20)
         }
-        .scrollIndicators(.hidden)
-        .frame(maxWidth: .infinity)
+    }
+
+    private func sectionHeader(month: String) -> some View {
+        return Text(month)
+            .font(.subTitle2())
+            .foregroundStyle(primaryText)
+            .padding(.bottom, 8)
+    }
+}
+
+private struct ExpenseNotFoundView: View {
+
+    let geometry: GeometryProxy
+    let searchedExpense: String
+
+    var body: some View {
+        VStack(alignment: .center, spacing: 0) {
+            VSpacer()
+
+            Text("No results found for \"\(searchedExpense)\"")
+                .font(.subTitle2())
+                .lineSpacing(2)
+                .foregroundColor(secondaryText)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
+
+            VSpacer()
+        }
+        .frame(minHeight: geometry.size.height / 2, maxHeight: .infinity, alignment: .center)
     }
 }
 
@@ -148,7 +205,7 @@ private struct GroupExpenseHeaderView: View {
                 }
             }
         }
-        .padding(.horizontal, 6)
+        .padding(.vertical, 24)
     }
 }
 
@@ -258,6 +315,7 @@ private struct GroupExpenseItemView: View {
             .lineLimit(1)
             .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
         }
+        .padding(.vertical, 8)
         .padding(.horizontal, 6)
     }
 }
@@ -278,7 +336,8 @@ private struct GroupOptionsListView: View {
 
             GroupOptionsButtonView(text: "Totals", onTap: onTotalsTap)
         }
-        .padding(.vertical, 16)
+        .padding(.bottom, 4)
+        .padding(.vertical, 6)
     }
 }
 
@@ -357,28 +416,6 @@ private struct NoExpenseView: View {
     }
 }
 
-private struct ExpenseSettledView: View {
-
-    var body: some View {
-        VStack(alignment: .center, spacing: 10) {
-            Text("You are all settled up.")
-                .foregroundStyle(primaryText)
-
-            Text("Tap to show settled expenses")
-                .foregroundStyle(secondaryText)
-                .multilineTextAlignment(.center)
-
-            VSpacer(20)
-
-            Image(.checkMarkTick)
-                .resizable()
-                .frame(width: 90, height: 80)
-        }
-        .font(.body1(17))
-        .padding(.horizontal, 30)
-    }
-}
-
 #Preview {
-    GroupHomeView(viewModel: GroupHomeViewModel(router: .init(root: .GroupHomeView(groupId: "")), groupId: ""))
+    GroupHomeView(viewModel: GroupHomeViewModel(router: .init(root: .GroupHomeView(groupId: "")), groupId: "", onGroupSelected: ({_ in})))
 }

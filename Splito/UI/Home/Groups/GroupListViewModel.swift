@@ -7,7 +7,7 @@
 
 import Data
 import Combine
-import Foundation
+import SwiftUI
 
 class GroupListViewModel: BaseViewModel, ObservableObject {
 
@@ -19,15 +19,20 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var currentViewState: ViewState = .loading
     @Published var groupListState: GroupListState = .noGroup
 
-    @Published var showGroupMenu = false
+    @Published private(set) var showSearchBar = false
+
     @Published var usersTotalExpense = 0.0
+    @Published var searchedGroup: String = ""
 
     private let router: Router<AppRoute>
-    private let onGroupSelected: ((String?) -> Void)?
 
-    init(router: Router<AppRoute>, onGroupSelected: ((String?) -> Void)?) {
+    var filteredGroups: [GroupInformation] {
+        guard case .hasGroup(let groups) = groupListState else { return [] }
+        return searchedGroup.isEmpty ? groups : groups.filter { $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
+    }
+
+    init(router: Router<AppRoute>) {
         self.router = router
-        self.onGroupSelected = onGroupSelected
         super.init()
         self.fetchLatestGroups()
         self.observeLatestExpenses()
@@ -35,8 +40,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     func fetchGroups() {
         guard let userId = preference.user?.id else { return }
-
-        resetSelectedGroupId()
 
         let groupsPublisher = groupRepository.fetchGroups(userId: userId)
         processGroupsDetails(groupsPublisher)
@@ -247,14 +250,21 @@ extension GroupListViewModel {
         router.push(.JoinMemberView)
     }
 
-    func resetSelectedGroupId() {
-        onGroupSelected?(nil)
+    func handleGroupItemTap(_ group: Groups) {
+        onSearchBarCancelBtnTap()
+        if let id = group.id {
+            router.push(.GroupHomeView(groupId: id))
+        }
     }
 
-    func handleGroupItemTap(_ group: Groups) {
-        if let id = group.id {
-            onGroupSelected?(id)
-            router.push(.GroupHomeView(groupId: id))
+    func handleSearchBarTap() {
+        withAnimation { showSearchBar = true }
+    }
+
+    func onSearchBarCancelBtnTap() {
+        withAnimation {
+            searchedGroup = ""
+            showSearchBar = false
         }
     }
 }

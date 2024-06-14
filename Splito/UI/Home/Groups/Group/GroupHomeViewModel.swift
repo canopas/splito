@@ -16,26 +16,47 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     @Published private var expenses: [Expense] = []
     @Published var expensesWithUser: [ExpenseWithUser] = []
-    @Published var groupState: GroupState = .noMember
+    @Published var groupState: GroupState = .loading
 
     @Published var overallOwingAmount = 0.0
+    @Published var searchedExpense: String = ""
     @Published var memberOwingAmount: [String: Double] = [:]
 
     @Published var showSettleUpSheet = false
     @Published var showBalancesSheet = false
     @Published var showGroupTotalSheet = false
+    @Published private(set) var showSearchBar = false
 
     @Published var group: Groups?
 
-    private let groupId: String
-    private var groupUserData: [AppUser] = []
-    private let router: Router<AppRoute>
+    static private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter
+    }()
 
-    init(router: Router<AppRoute>, groupId: String) {
+    var groupExpenses: [String: [ExpenseWithUser]] {
+        let filteredExpenses = expensesWithUser.filter { expense in
+            searchedExpense.isEmpty || expense.expense.name.lowercased().contains(searchedExpense.lowercased()) || expense.expense.amount == Double(searchedExpense)
+        }
+        return Dictionary(grouping: filteredExpenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
+            return GroupHomeViewModel.dateFormatter.string(from: expense.expense.date.dateValue())
+        }
+    }
+
+    private let groupId: String
+    private let router: Router<AppRoute>
+	private var groupUserData: [AppUser] = []
+    private let onGroupSelected: ((String?) -> Void)?
+
+    init(router: Router<AppRoute>, groupId: String, onGroupSelected: ((String?) -> Void)?) {
         self.router = router
         self.groupId = groupId
+        self.onGroupSelected = onGroupSelected
         super.init()
         self.fetchLatestExpenses()
+
+        self.onGroupSelected?(groupId)
     }
 
     func fetchGroupAndExpenses() {
@@ -237,6 +258,28 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             (expenses.isEmpty ? .noExpense : .hasExpense) :
             (expenses.isEmpty ? .noMember : .hasExpense)
     }
+
+    func showExpenseDeleteAlert(expenseId: String) {
+        showAlert = true
+        alert = .init(title: "Delete expense",
+                      message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
+                      positiveBtnTitle: "Ok",
+                      positiveBtnAction: { self.deleteExpense(expenseId: expenseId) },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false })
+    }
+
+    private func deleteExpense(expenseId: String) {
+        expenseRepository.deleteExpense(id: expenseId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] _ in
+                withAnimation { self?.expensesWithUser.removeAll { $0.expense.id == expenseId } }
+                self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully"))
+            }.store(in: &cancelable)
+    }
 }
 
 // MARK: - User Actions
@@ -276,6 +319,17 @@ extension GroupHomeViewModel {
     func handleTotalBtnTap() {
         showGroupTotalSheet = true
     }
+
+    func handleSearchOptionTap() {
+        withAnimation { showSearchBar = true }
+    }
+
+    func onSearchBarCancelBtnTap() {
+        withAnimation {
+            searchedExpense = ""
+            showSearchBar = false
+        }
+    }
 }
 
 // MARK: - Helper Methods
@@ -292,13 +346,13 @@ extension GroupHomeViewModel {
         let components1 = Calendar.current.dateComponents([.year, .month], from: date1)
         let components2 = Calendar.current.dateComponents([.year, .month], from: date2)
 
-        // Compare months first
-        if components1.month != components2.month {
-            return components1.month! > components2.month!
-        }
-        // If months are the same, compare years
-        else {
+        // Compare years first
+        if components1.year != components2.year {
             return components1.year! > components2.year!
+        }
+        // If years are the same, compare months
+        else {
+            return components1.month! > components2.month!
         }
     }
 }

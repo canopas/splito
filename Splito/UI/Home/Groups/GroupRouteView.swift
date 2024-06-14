@@ -19,9 +19,9 @@ struct GroupRouteView: View {
         RouterView(router: appRoute) { route in
             switch route {
             case .GroupListView:
-                GroupListView(viewModel: GroupListViewModel(router: appRoute, onGroupSelected: onGroupSelected))
+                GroupListView(viewModel: GroupListViewModel(router: appRoute))
             case .GroupHomeView(let id):
-                GroupHomeView(viewModel: GroupHomeViewModel(router: appRoute, groupId: id))
+                GroupHomeView(viewModel: GroupHomeViewModel(router: appRoute, groupId: id, onGroupSelected: onGroupSelected))
             case .CreateGroupView(let group):
                 CreateGroupView(viewModel: CreateGroupViewModel(router: appRoute, group: group))
             case .InviteMemberView(let id):
