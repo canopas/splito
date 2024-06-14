@@ -31,7 +31,7 @@ public class UserRepository: ObservableObject {
                     return self.store.addUser(user: user)
                         .mapError { error in
                             LogE("UserRepository :: \(#function) addUser failed, error: \(error.localizedDescription).")
-                            return .databaseError
+                            return .databaseError(error: error.localizedDescription)
                         }
                         .map { _ in user }
                         .eraseToAnyPublisher()
@@ -47,7 +47,7 @@ public class UserRepository: ObservableObject {
             }
             .mapError { error -> ServiceError in
                 LogE("UserRepository :: \(#function) fetchUserByID failed, error: \(error.localizedDescription).")
-                return .databaseError
+                return .databaseError(error: error.localizedDescription)
             }
             .eraseToAnyPublisher()
     }

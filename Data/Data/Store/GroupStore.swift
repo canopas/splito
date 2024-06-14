@@ -27,7 +27,7 @@ class GroupStore: ObservableObject {
                 promise(.success(documentRef.documentID))
             } catch {
                 LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError))
+                promise(.failure(.databaseError(error: error.localizedDescription)))
             }
         }
         .eraseToAnyPublisher()
@@ -44,7 +44,7 @@ class GroupStore: ObservableObject {
                 promise(.success(()))
             } catch {
                 LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError))
+                promise(.failure(.databaseError(error: error.localizedDescription)))
             }
         }.eraseToAnyPublisher()
     }
@@ -68,7 +68,7 @@ class GroupStore: ObservableObject {
                 .getDocuments { snapshot, error in
                     if let error {
                         LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                        promise(.failure(.databaseError))
+                        promise(.failure(.databaseError(error: error.localizedDescription)))
                         return
                     }
 
@@ -101,7 +101,7 @@ class GroupStore: ObservableObject {
             self.database.collection(COLLECTION_NAME).document(id).getDocument { snapshot, error in
                 if let error {
                     LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                     return
                 }
 
@@ -132,7 +132,7 @@ class GroupStore: ObservableObject {
             self.database.collection(COLLECTION_NAME).document(groupID).delete { error in
                 if let error {
                     LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                 } else {
                     promise(.success(()))
                 }

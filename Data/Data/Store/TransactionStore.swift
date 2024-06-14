@@ -26,7 +26,7 @@ public class TransactionStore: ObservableObject {
                 promise(.success(()))
             } catch {
                 LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError))
+                promise(.failure(.databaseError(error: error.localizedDescription)))
             }
         }
         .eraseToAnyPublisher()
@@ -43,7 +43,7 @@ public class TransactionStore: ObservableObject {
                 promise(.success(()))
             } catch {
                 LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError))
+                promise(.failure(.databaseError(error: error.localizedDescription)))
             }
         }.eraseToAnyPublisher()
     }
@@ -65,7 +65,7 @@ public class TransactionStore: ObservableObject {
             self.database.collection(COLLECTION_NAME).whereField("payer_id", isEqualTo: userId).getDocuments { snapshot, error in
                 if let error {
                     LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                     return
                 }
 
@@ -98,7 +98,7 @@ public class TransactionStore: ObservableObject {
             self.database.collection(COLLECTION_NAME).whereField("group_id", isEqualTo: groupId).addSnapshotListener { snapshot, error in
                 if let error {
                     LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                     return
                 }
 
@@ -132,7 +132,7 @@ public class TransactionStore: ObservableObject {
             self.database.collection(COLLECTION_NAME).whereField("group_id", isEqualTo: groupId).getDocuments { snapshot, error in
                 if let error {
                     LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                     return
                 }
 
@@ -147,7 +147,7 @@ public class TransactionStore: ObservableObject {
 
                 batch.commit { error in
                     if let error {
-                        promise(.failure(.databaseError))
+                        promise(.failure(.databaseError(error: error.localizedDescription)))
                         LogE("TransactionStore :: \(#function) Database error: \(error.localizedDescription)")
                     } else {
                         promise(.success(()))

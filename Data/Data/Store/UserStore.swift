@@ -26,7 +26,7 @@ class UserStore: ObservableObject {
                 promise(.success(()))
             } catch {
                 LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError))
+                promise(.failure(.databaseError(error: error.localizedDescription)))
             }
         }.eraseToAnyPublisher()
     }
@@ -43,7 +43,7 @@ class UserStore: ObservableObject {
                 promise(.success(user))
             } catch {
                 LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError))
+                promise(.failure(.databaseError(error: error.localizedDescription)))
             }
         }.eraseToAnyPublisher()
     }
@@ -58,7 +58,7 @@ class UserStore: ObservableObject {
             self.database.collection(self.COLLECTION_NAME).getDocuments { snapshot, error in
                 if let error {
                     LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                     return
                 }
 

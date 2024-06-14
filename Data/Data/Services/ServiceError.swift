@@ -14,7 +14,7 @@ public enum ServiceError: LocalizedError, Equatable {
     case serverError(statusCode: Int? = nil)
     case networkError
     case decodingError
-    case databaseError
+    case databaseError(error: String)
     case unexpectedError
     case validationFailed
     case dataNotFound

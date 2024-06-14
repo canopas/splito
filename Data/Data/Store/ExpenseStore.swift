@@ -26,7 +26,7 @@ public class ExpenseStore: ObservableObject {
                 promise(.success(()))
             } catch {
                 LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError))
+                promise(.failure(.databaseError(error: error.localizedDescription)))
             }
         }
         .eraseToAnyPublisher()
@@ -43,7 +43,7 @@ public class ExpenseStore: ObservableObject {
                 promise(.success(()))
             } catch {
                 LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError))
+                promise(.failure(.databaseError(error: error.localizedDescription)))
             }
         }.eraseToAnyPublisher()
     }
@@ -58,7 +58,7 @@ public class ExpenseStore: ObservableObject {
             self.database.collection(COLLECTION_NAME).document(expenseId).getDocument { snapshot, error in
                 if let error {
                     LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                     return
                 }
 
@@ -96,7 +96,7 @@ public class ExpenseStore: ObservableObject {
             self.database.collection(COLLECTION_NAME).whereField("group_id", isEqualTo: groupId).addSnapshotListener { snapshot, error in
                 if let error {
                     LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                     return
                 }
 
@@ -130,7 +130,7 @@ public class ExpenseStore: ObservableObject {
             self.database.collection(self.COLLECTION_NAME).document(id).delete { error in
                 if let error {
                     LogE("ExpenseStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                 } else {
                     LogD("ExpenseStore :: \(#function): expense deleted successfully.")
                     promise(.success(()))
@@ -149,7 +149,7 @@ public class ExpenseStore: ObservableObject {
             self.database.collection(COLLECTION_NAME).whereField("group_id", isEqualTo: groupId).getDocuments { snapshot, error in
                 if let error {
                     LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                     return
                 }
 
@@ -164,7 +164,7 @@ public class ExpenseStore: ObservableObject {
 
                 batch.commit { error in
                     if let error {
-                        promise(.failure(.databaseError))
+                        promise(.failure(.databaseError(error: error.localizedDescription)))
                         LogE("ExpenseStore :: \(#function) Database error: \(error.localizedDescription)")
                     } else {
                         promise(.success(()))
