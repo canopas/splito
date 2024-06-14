@@ -258,7 +258,10 @@ extension GroupListViewModel {
     }
 
     func handleSearchBarTap() {
-        withAnimation { showSearchBar = true }
+        withAnimation {
+            searchedGroup = ""
+            showSearchBar.toggle()
+        }
     }
 
     func onSearchBarCancelBtnTap() {

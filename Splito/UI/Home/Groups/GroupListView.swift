@@ -50,6 +50,7 @@ struct GroupListView: View {
         }
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .navigationBarTitle("", displayMode: .inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button(action: viewModel.handleSearchBarTap) {

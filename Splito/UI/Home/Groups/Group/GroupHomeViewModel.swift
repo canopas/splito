@@ -321,7 +321,10 @@ extension GroupHomeViewModel {
     }
 
     func handleSearchOptionTap() {
-        withAnimation { showSearchBar = true }
+        withAnimation {
+            searchedExpense = ""
+            showSearchBar.toggle()
+        }
     }
 
     func onSearchBarCancelBtnTap() {

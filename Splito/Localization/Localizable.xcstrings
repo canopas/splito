@@ -211,6 +211,9 @@
     "Groups make it easy to split apartment bills, share travel expenses, and more." : {
 
     },
+    "Hello, World!" : {
+
+    },
     "Invite Code" : {
 
     },
@@ -335,6 +338,9 @@
       "extractionState" : "manual"
     },
     "Share this invitation code with your trusted one in your own style. Connecting with your friends is as flexible as you are." : {
+
+    },
+    "Show transaction" : {
 
     },
     "Sign in with Apple" : {
