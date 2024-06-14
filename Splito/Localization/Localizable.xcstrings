@@ -13,6 +13,9 @@
     " in total" : {
 
     },
+    " is settled up" : {
+
+    },
     " to %@" : {
 
     },
@@ -52,6 +55,9 @@
 
     },
     "00:%@" : {
+
+    },
+    "0.00" : {
 
     },
     "About" : {
@@ -116,6 +122,9 @@
 
     },
     "Create Group" : {
+
+    },
+    "Date:" : {
 
     },
     "Delete account" : {
@@ -193,9 +202,6 @@
     "Groups make it easy to split apartment bills, share travel expenses, and more." : {
 
     },
-    "Hello World" : {
-
-    },
     "Invite Code" : {
 
     },
@@ -232,9 +238,6 @@
     "No email address" : {
       "extractionState" : "manual"
     },
-    "no expense" : {
-
-    },
     "No expenses here yet." : {
 
     },
@@ -243,6 +246,9 @@
     },
     "not involved" : {
 
+    },
+    "Oops" : {
+      "extractionState" : "manual"
     },
     "Overall, %@  " : {
 
@@ -394,6 +400,9 @@
     "Who is paying?" : {
 
     },
+    "Whoops!" : {
+      "extractionState" : "manual"
+    },
     "You" : {
       "extractionState" : "manual"
     },
@@ -434,6 +443,9 @@
     "you lent" : {
 
     },
+    "You must enter an amount." : {
+      "extractionState" : "manual"
+    },
     "you owe" : {
 
     },
@@ -441,6 +453,9 @@
 
     },
     "You paid for yourself" : {
+      "extractionState" : "manual"
+    },
+    "You're the only member in this group, and there's no point in settling up with yourself :)" : {
       "extractionState" : "manual"
     },
     "You're the only one here!" : {

@@ -40,9 +40,9 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func onMemberTap(_ member: AppUser) {
-        if member.id != selectedMemberId {
-            router?.push(.GroupPaymentView(groupId: groupId))
+    func onMemberTap(memberId: String) {
+        if memberId != selectedMemberId {
+            router?.push(.GroupPaymentView(groupId: groupId, payerId: selectedMemberId, receiverId: memberId, amount: 0))
         }
     }
 

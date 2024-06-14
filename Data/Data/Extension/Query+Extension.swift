@@ -15,7 +15,7 @@ extension Query {
         let listener = addSnapshotListener { querySnapshot, error in
             if let error = error {
                 LogE("SnapshotPublisher :: error: \(error.localizedDescription)")
-                subject.send(completion: .failure(.databaseError))
+                subject.send(completion: .failure(.databaseError(error: error.localizedDescription)))
                 return
             }
 

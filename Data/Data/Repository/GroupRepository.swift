@@ -16,6 +16,7 @@ public class GroupRepository: ObservableObject {
     @Inject private var userRepository: UserRepository
     @Inject private var storageManager: StorageManager
     @Inject private var expenseRepository: ExpenseRepository
+    @Inject private var transactionRepository: TransactionRepository
 
     private var cancelable = Set<AnyCancellable>()
 
@@ -143,6 +144,9 @@ public class GroupRepository: ObservableObject {
 
     public func deleteGroup(groupID: String) -> AnyPublisher<Void, ServiceError> {
         return expenseRepository.deleteExpensesOf(groupId: groupID)
+            .flatMap { _ in
+                self.transactionRepository.deleteTransactionsOf(groupId: groupID)
+            }
             .flatMap { _ in
                 self.store.deleteGroup(groupID: groupID)
             }.eraseToAnyPublisher()
