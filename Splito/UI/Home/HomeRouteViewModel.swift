@@ -5,7 +5,7 @@
 //  Created by Amisha Italiya on 06/06/24.
 //
 
-import Foundation
+import SwiftUI
 import Combine
 import Data
 
@@ -17,8 +17,8 @@ class HomeRouteViewModel: ObservableObject {
     @Published var openExpenseSheet = false
 
     @Published var selectedTab = 0
-    @Published var lastSelectedTab = 0
-    @Published var selectedGroupId: String?
+    @Published private(set) var lastSelectedTab = 0
+    @Published private(set) var selectedGroupId: String?
 
     func openUserProfileIfNeeded() {
         if preference.isVerifiedUser {
@@ -33,7 +33,9 @@ class HomeRouteViewModel: ObservableObject {
     }
 
     func setSelectedGroupId(_ groupId: String?) {
-        selectedGroupId = groupId
+        DispatchQueue.main.async {
+            self.selectedGroupId = groupId
+        }
     }
 
     func openAddExpenseSheet() {

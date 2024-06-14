@@ -63,19 +63,27 @@ struct GroupHomeView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button(action: viewModel.handleSearchOptionTap) {
-                        Label("Search", systemImage: "magnifyingglass")
+                if viewModel.expenses.count > 1 {
+                    Menu {
+                        Button(action: viewModel.handleSearchOptionTap) {
+                            Label("Search", systemImage: "magnifyingglass")
+                        }
+                        Button(action: viewModel.handleSettingButtonTap) {
+                            Label("Settings", systemImage: "gearshape")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
                     }
-                    .hidden(viewModel.expensesWithUser.count < 2)
+                } else {
                     Button(action: viewModel.handleSettingButtonTap) {
-                        Label("Settings", systemImage: "gearshape")
+                        Image(systemName: "gearshape")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24, height: 24)
                     }
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 18, height: 18)
                 }
             }
         }

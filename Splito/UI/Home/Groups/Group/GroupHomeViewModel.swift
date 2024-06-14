@@ -14,7 +14,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
 
-    @Published private var expenses: [Expense] = []
+    @Published var expenses: [Expense] = []
     @Published var expensesWithUser: [ExpenseWithUser] = []
     @Published var groupState: GroupState = .noMember
 
