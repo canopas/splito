@@ -34,6 +34,7 @@ public enum AppRoute: Hashable {
     case GroupWhoIsPayingView(groupId: String)
     case GroupWhoGettingPaidView(groupId: String, selectedMemberId: String)
     case GroupPaymentView(groupId: String, payerId: String, receiverId: String, amount: Double)
+    case TransactionListView(groupId: String)
 
     // MARK: - Expense Button
     case AddExpenseView(expenseId: String?, groupId: String?)
@@ -88,6 +89,8 @@ public enum AppRoute: Hashable {
             "groupWhoGettingPaidView"
         case .GroupPaymentView:
             "groupPaymentView"
+        case .TransactionListView:
+            "transactionListView"
 
         case .AddExpenseView:
             "addExpenseView"

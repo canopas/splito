@@ -51,6 +51,16 @@
         }
       }
     },
+    "%@ paid %lf to %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ paid %2$lf to %3$@"
+          }
+        }
+      }
+    },
     "%@/person" : {
 
     },
@@ -211,9 +221,6 @@
     "Groups make it easy to split apartment bills, share travel expenses, and more." : {
 
     },
-    "Hello, World!" : {
-
-    },
     "Invite Code" : {
 
     },
@@ -260,6 +267,9 @@
 
     },
     "No results found for \"%@\"" : {
+
+    },
+    "No transactions found" : {
 
     },
     "not involved" : {

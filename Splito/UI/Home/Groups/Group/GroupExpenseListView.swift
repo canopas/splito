@@ -12,6 +12,7 @@ import Data
 struct GroupExpenseListView: View {
 
     @ObservedObject var viewModel: GroupHomeViewModel
+
     let isFocused: FocusState<Bool>.Binding
     let onSearchBarAppear: () -> Void
 

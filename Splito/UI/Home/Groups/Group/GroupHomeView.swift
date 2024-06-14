@@ -58,11 +58,11 @@ struct GroupHomeView: View {
                         Button(action: viewModel.handleSearchOptionTap) {
                             Label("Search", systemImage: "magnifyingglass")
                         }
-                        Button(action: {}) {
+                        Button(action: viewModel.handleShowTransactionOptionTap) {
                             Label("Show transaction", systemImage: "rectangle.portrait.and.arrow.forward")
                         }
                     }
-                    Button(action: viewModel.handleSettingButtonTap) {
+                    Button(action: viewModel.handleSettingsOptionTap) {
                         Label("Settings", systemImage: "gearshape")
                     }
                 } label: {

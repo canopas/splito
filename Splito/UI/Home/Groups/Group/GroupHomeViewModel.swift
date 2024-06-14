@@ -87,7 +87,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] expenses in
-                guard let self, let group, self.expenses.isEmpty else { return }
+                guard let self, let group, !self.expenses.isEmpty else { return }
                 self.expenses = expenses
                 if group.isDebtSimplified {
                     self.calculateExpensesSimply()
@@ -296,8 +296,12 @@ extension GroupHomeViewModel {
         router.push(.InviteMemberView(groupId: groupId))
     }
 
-    func handleSettingButtonTap() {
+    func handleSettingsOptionTap() {
         router.push(.GroupSettingView(groupId: groupId))
+    }
+
+    func handleShowTransactionOptionTap() {
+        router.push(.TransactionListView(groupId: groupId))
     }
 
     func handleExpenseItemTap(expenseId: String) {
