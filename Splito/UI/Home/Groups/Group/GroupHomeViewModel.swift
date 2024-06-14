@@ -14,9 +14,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
 
-    @Published var expenses: [Expense] = []
+    @Published private var expenses: [Expense] = []
     @Published var expensesWithUser: [ExpenseWithUser] = []
-    @Published var groupState: GroupState = .noMember
+    @Published var groupState: GroupState = .loading
 
     @Published var overallOwingAmount = 0.0
     @Published var searchedExpense: String = ""
@@ -29,7 +29,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     @Published var group: Groups?
 
-    static let dateFormatter: DateFormatter = {
+    static private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
         return formatter
@@ -45,8 +45,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     private let groupId: String
-    private var groupUserData: [AppUser] = []
     private let router: Router<AppRoute>
+	private var groupUserData: [AppUser] = []
     private let onGroupSelected: ((String?) -> Void)?
 
     init(router: Router<AppRoute>, groupId: String, onGroupSelected: ((String?) -> Void)?) {
@@ -57,10 +57,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         self.fetchLatestExpenses()
 
         self.onGroupSelected?(groupId)
-    }
-
-    deinit {
-        self.onGroupSelected?(nil)
     }
 
     func fetchGroupAndExpenses() {
