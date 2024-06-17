@@ -116,15 +116,14 @@ private struct TransactionItemView: View {
                 .foregroundStyle(secondaryText)
                 .multilineTextAlignment(.center)
 
-            Image(systemName: "rectangle.portrait.and.arrow.forward")
+            Image(.transactionIcon)
                 .resizable()
-                .frame(width: 22, height: 22)
-                .foregroundStyle(.white)
+                .frame(width: 30, height: 30)
                 .padding(.vertical, 6)
                 .padding(.horizontal, 8)
                 .background(disableText.opacity(0.2))
 
-            Text("\(payerName) paid \(transactionWithUser.transaction.amount.formattedCurrency) to \(receiverName).")
+            Text("\(payerName) paid \(receiverName) \(transactionWithUser.transaction.amount.formattedCurrency).")
                 .font(.body1(17))
                 .foregroundStyle(primaryText)
                 .lineLimit(1)

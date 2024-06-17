@@ -74,8 +74,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             showAlertFor(title: "Whoops!", message: "You must enter an amount.")
             return
         }
+        guard let userId = preference.user?.id else { return }
 
-        let transaction = Transactions(payerId: payerId, receiverId: receiverId,
+        let transaction = Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
                                        groupId: groupId, amount: amount, date: .init(date: paymentDate))
 
         viewState = .loading

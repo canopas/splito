@@ -51,12 +51,12 @@
         }
       }
     },
-    "%@ paid %@ to %@." : {
+    "%@ paid %@ %@." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$@ paid %2$@ to %3$@."
+            "value" : "%1$@ paid %2$@ %3$@."
           }
         }
       }
@@ -397,6 +397,9 @@
     },
     "This month" : {
       "extractionState" : "manual"
+    },
+    "This payment was added using the \"record a payment\" feature. No money has been moved." : {
+
     },
     "Today" : {
       "extractionState" : "manual"

@@ -10,6 +10,8 @@
 		0BF8F99614F85846D78DE106 /* Pods_Splito_SplitoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2B9BBF3F71277A6AA5329CB /* Pods_Splito_SplitoUITests.framework */; };
 		213BA0602C0F465000116130 /* GroupSettleUpRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213BA05F2C0F465000116130 /* GroupSettleUpRouteView.swift */; };
 		213BA0662C11B70F00116130 /* HomeRouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */; };
+		2177692B2C203160009B3B37 /* TransactionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2177692A2C203160009B3B37 /* TransactionDetailView.swift */; };
+		2177692D2C20316B009B3B37 /* TransactionDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2177692C2C20316B009B3B37 /* TransactionDetailViewModel.swift */; };
 		217BEC122C00AD78000CBBB4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 217BEC112C00AD78000CBBB4 /* GoogleService-Info.plist */; };
 		21B1C09A2C1C59F10098B4FD /* TransactionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21B1C0992C1C59F10098B4FD /* TransactionListView.swift */; };
 		21B1C09C2C1C5A050098B4FD /* TransactionListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21B1C09B2C1C5A040098B4FD /* TransactionListViewModel.swift */; };
@@ -136,6 +138,8 @@
 		038CCD15E82A4E16A4AD213C /* Pods-Splito-SplitoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito-SplitoUITests.release.xcconfig"; path = "Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests.release.xcconfig"; sourceTree = "<group>"; };
 		213BA05F2C0F465000116130 /* GroupSettleUpRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSettleUpRouteView.swift; sourceTree = "<group>"; };
 		213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRouteViewModel.swift; sourceTree = "<group>"; };
+		2177692A2C203160009B3B37 /* TransactionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDetailView.swift; sourceTree = "<group>"; };
+		2177692C2C20316B009B3B37 /* TransactionDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDetailViewModel.swift; sourceTree = "<group>"; };
 		217BEC0F2C00AB9E000CBBB4 /* Secrets.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		217BEC112C00AD78000CBBB4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		21B1C0992C1C59F10098B4FD /* TransactionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionListView.swift; sourceTree = "<group>"; };
@@ -284,6 +288,8 @@
 			children = (
 				21B1C0992C1C59F10098B4FD /* TransactionListView.swift */,
 				21B1C09B2C1C5A040098B4FD /* TransactionListViewModel.swift */,
+				2177692A2C203160009B3B37 /* TransactionDetailView.swift */,
+				2177692C2C20316B009B3B37 /* TransactionDetailViewModel.swift */,
 			);
 			path = "Transaction List";
 			sourceTree = "<group>";
@@ -962,9 +968,11 @@
 				D83344612C0EF1F100CD9F05 /* GroupTotalsView.swift in Sources */,
 				D88721472B9B2C97009DC5BE /* GroupListViewModel.swift in Sources */,
 				D8D14A622BA2DCE700F45FF2 /* UserProfileViewModel.swift in Sources */,
+				2177692B2C203160009B3B37 /* TransactionDetailView.swift in Sources */,
 				D8A7CA6E2BA483F60014EC67 /* GroupHomeView.swift in Sources */,
 				D85E86ED2BB41B87002EDF76 /* ChooseGroupView.swift in Sources */,
 				D8302DA22B9F284D005ACA13 /* InviteMemberViewModel.swift in Sources */,
+				2177692D2C20316B009B3B37 /* TransactionDetailViewModel.swift in Sources */,
 				D83344732C0F2D9500CD9F05 /* GroupPaymentView.swift in Sources */,
 				D83344582C0DD06F00CD9F05 /* GroupSettleUpView.swift in Sources */,
 				D8E244BF2B98592C00C6C82A /* GroupHomeViewModel.swift in Sources */,

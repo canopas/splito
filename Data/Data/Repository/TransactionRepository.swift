@@ -32,6 +32,14 @@ public class TransactionRepository: ObservableObject {
         store.fetchTransactionsBy(groupId: groupId)
     }
 
+    public func fetchTransactionBy(transactionId: String) -> AnyPublisher<Transactions, ServiceError> {
+        store.fetchTransactionsBy(transactionId: transactionId)
+    }
+
+    public func deleteTransaction(transactionId: String) -> AnyPublisher<Void, ServiceError> {
+        store.deleteTransaction(transactionId: transactionId)
+    }
+
     public func deleteTransactionsOf(groupId: String) -> AnyPublisher<Void, ServiceError> {
         store.deleteTransactionsOf(groupId: groupId)
     }

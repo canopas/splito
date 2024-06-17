@@ -95,7 +95,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     private func deleteTransaction(transactionId: String?) {
         guard let transactionId else { return }
 
-        transactionRepository.deleteTransactionsOf(groupId: transactionId)
+        transactionRepository.deleteTransaction(transactionId: transactionId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.showToastFor(error)
@@ -106,8 +106,8 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
-    func handleTransactionItemTap(_ transactionId: String?) {
-        // Handle transaction item tap
+    func handleTransactionItemTap(_ transactionId: String) {
+        router.push(.TransactionDetailView(transactionId: transactionId))
     }
 
     // MARK: - Helper Methods
