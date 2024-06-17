@@ -9,36 +9,61 @@ import Data
 import Combine
 import BaseStyle
 
+// Struct to hold combined expense and user information
+struct TransactionWithUser {
+    let transaction: Transactions
+    let user: AppUser
+}
+
 class TransactionListViewModel: BaseViewModel, ObservableObject {
 
     @Inject private var preference: SplitoPreference
     @Inject private var transactionRepository: TransactionRepository
     @Inject private var groupRepository: GroupRepository
 
+    @Published var transactionsWithUser: [TransactionWithUser] = []
+    @Published var currentViewState: ViewState = .loading
+
+    @Published var group: Groups?
+
     private let groupId: String
     private let router: Router<AppRoute>
-
-    @Published var transactionsWithUser: [TransactionWithUser] = []
-    @Published var transactions: [Transactions] = []
-    @Published var currentViewState: ViewState = .loading
+    private var groupUserData: [AppUser] = []
+    private var transactions: [Transactions] = []
 
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
         self.groupId = groupId
         super.init()
 
-        self.fetchTransactions()
+        fetchGroupAndTransactions()
     }
 
     // MARK: - Data Loading
 
-    func fetchTransactions() {
+    func fetchGroupAndTransactions() {
         currentViewState = .loading
+        groupRepository.fetchGroupBy(id: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServiceError(error)
+                }
+            } receiveValue: { [weak self] group in
+                guard let self, let group else { return }
+                self.group = group
+                for member in group.members where member != self.preference.user?.id {
+                    self.fetchUserData(for: member) { memberData in
+                        self.groupUserData.append(memberData)
+                    }
+                }
+                self.fetchTransactions()
+            }.store(in: &cancelable)
+    }
 
+    func fetchTransactions() {
         transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
             if case .failure(let error) = completion {
-                self?.currentViewState = .initial
-                self?.showToastFor(error)
+                self?.handleServiceError(error)
             }
         } receiveValue: { [weak self] transactions in
             guard let self = self else { return }
@@ -48,39 +73,34 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func calculateTransactions() {
-           guard let userId = self.preference.user?.id else { return }
+        guard let userId = self.preference.user?.id else { return }
 
-           let queue = DispatchGroup()
-           var ownAmounts: [String: Double] = [:]
-           var combinedData: [TransactionWithUser] = []
+        let queue = DispatchGroup()
+        var combinedData: [TransactionWithUser] = []
 
-           for transaction in transactions {
-               queue.enter()
+        for transaction in transactions {
+            queue.enter()
+            self.fetchUserData(for: transaction.payerId) { user in
+                combinedData.append(TransactionWithUser(transaction: transaction, user: user))
+                queue.leave()
+            }
+        }
 
-               ownAmounts[transaction.payerId, default: 0.0] += transaction.amount
-               ownAmounts[transaction.receiverId, default: 0.0] -= transaction.amount
+        queue.notify(queue: .main) {
+            self.transactionsWithUser = combinedData
+            self.setCurrentViewState()
+        }
+    }
 
-               self.fetchUserData(for: transaction.payerId) { user in
-                   combinedData.append(TransactionWithUser(transaction: transaction, user: user))
-                   queue.leave()
-               }
-           }
-
-           queue.notify(queue: .main) {
-               self.transactionsWithUser = combinedData
-               self.setTransactionListViewState()
-           }
-       }
-
-    private func setTransactionListViewState() {
-        currentViewState = transactions.isEmpty ? .noTransaction : .hasTransaction(transactions: transactions)
+    private func setCurrentViewState() {
+        currentViewState = transactions.isEmpty ? .noTransaction : .hasTransaction
     }
 
     private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
         groupRepository.fetchMemberBy(userId: userId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.showToastFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { user in
                 guard let user else { return }
@@ -154,7 +174,7 @@ extension TransactionListViewModel {
         case loading
         case initial
         case noTransaction
-        case hasTransaction(transactions: [Transactions])
+        case hasTransaction
 
         var key: String {
             switch self {
@@ -169,10 +189,4 @@ extension TransactionListViewModel {
             }
         }
     }
-}
-
-// Struct to hold combined expense and user information
-struct TransactionWithUser {
-    let transaction: Transactions
-    let user: AppUser
 }
