@@ -51,12 +51,12 @@
         }
       }
     },
-    "%@ paid %lf to %@" : {
+    "%@ paid %@ to %@." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$@ paid %2$lf to %3$@"
+            "value" : "%1$@ paid %2$@ to %3$@."
           }
         }
       }
@@ -412,6 +412,9 @@
     },
     "Tracking" : {
       "extractionState" : "manual"
+    },
+    "Transactions" : {
+
     },
     "Verification code" : {
       "extractionState" : "manual"

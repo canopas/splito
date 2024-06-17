@@ -7,7 +7,7 @@
 
 import FirebaseFirestore
 
-public struct Transactions: Codable, Hashable {
+public struct Transactions: Codable {
 
     @DocumentID public var id: String? // Automatically generated ID by Firestore
 

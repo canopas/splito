@@ -19,8 +19,6 @@ struct TransactionListView: View {
                 LoaderView()
             } else if case .hasTransaction = viewModel.currentViewState {
                 VStack(alignment: .leading, spacing: 0) {
-                    VSpacer(20)
-
                     TransactionListWithDetailView(viewModel: viewModel)
 
                     VSpacer(40)
@@ -33,8 +31,8 @@ struct TransactionListView: View {
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .navigationBarTitle("Group settings", displayMode: .inline)
-        .onAppear(perform: viewModel.fetchGroupAndTransactions)
+        .navigationBarTitle("Transactions", displayMode: .inline)
+        .onAppear(perform: viewModel.fetchTransactions)
     }
 }
 
@@ -62,6 +60,15 @@ private struct TransactionListWithDetailView: View {
                     Section(header: sectionHeader(month: month)) {
                         ForEach(groupedTransactions[month]!, id: \.transaction.id) { transaction in
                             TransactionItemView(transactionWithUser: transaction)
+                                .onTouchGesture {
+                                    viewModel.handleTransactionItemTap(transaction.transaction.id ?? "")
+                                }
+                                .swipeActions {
+                                    Button("Delete") {
+                                        viewModel.showTransactionDeleteAlert(transaction.transaction.id ?? "")
+                                    }
+                                    .tint(.red)
+                                }
                         }
                     }
                 }
@@ -72,6 +79,7 @@ private struct TransactionListWithDetailView: View {
             .listRowBackground(backgroundColor)
         }
         .listStyle(.plain)
+        .scrollIndicators(.hidden)
         .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .leading)
     }
 
@@ -87,37 +95,36 @@ private struct TransactionItemView: View {
 
     @Inject var preference: SplitoPreference
 
-    let transaction: Transactions
+    let transactionWithUser: TransactionWithUser
 
-    private var userName: String = ""
+    private var payerName: String = ""
+    private var receiverName: String = ""
 
     init(transactionWithUser: TransactionWithUser) {
-        self.transaction = transactionWithUser.transaction
+        self.transactionWithUser = transactionWithUser
 
-        if let user = preference.user, transactionWithUser.user.id == user.id {
-            userName = "You"
-        } else {
-            userName = transactionWithUser.user.nameWithLastInitial
+        if let user = preference.user {
+            payerName = transactionWithUser.payer?.id == user.id ? "You" : transactionWithUser.payer!.firstName ?? ""
+            receiverName = transactionWithUser.receiver?.id == user.id ? "You" : transactionWithUser.receiver!.firstName ?? ""
         }
     }
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            Text(transaction.date.dateValue().shortDateWithNewLine)
+            Text(transactionWithUser.transaction.date.dateValue().shortDateWithNewLine)
                 .font(.body1())
                 .foregroundStyle(secondaryText)
                 .multilineTextAlignment(.center)
 
-            Image(systemName: "doc.plaintext")
+            Image(systemName: "rectangle.portrait.and.arrow.forward")
                 .resizable()
-                .frame(width: 22)
-                .font(.system(size: 14).weight(.light))
+                .frame(width: 22, height: 22)
                 .foregroundStyle(.white)
                 .padding(.vertical, 6)
                 .padding(.horizontal, 8)
                 .background(disableText.opacity(0.2))
 
-            Text("\(userName) paid \(transaction.amount) to \(userName)")
+            Text("\(payerName) paid \(transactionWithUser.transaction.amount.formattedCurrency) to \(receiverName).")
                 .font(.body1(17))
                 .foregroundStyle(primaryText)
                 .lineLimit(1)
