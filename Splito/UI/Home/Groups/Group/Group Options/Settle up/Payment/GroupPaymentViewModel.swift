@@ -28,6 +28,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     let payerId: String
     let receiverId: String
     private let groupId: String
+    private var transaction: Transactions?
     private let router: Router<AppRoute>?
 
     var dismissPaymentFlow: () -> Void
@@ -47,6 +48,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         getPayableUserDetail()
     }
 
+    // MARK: - Data Loading
     func fetchTransaction() {
         guard let transactionId else { return }
 
@@ -58,7 +60,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] transaction in
                 guard let self else { return }
-                paymentDate = transaction.date.dateValue()
+                self.transaction = transaction
+                self.paymentDate = transaction.date.dateValue()
                 self.viewState = .initial
             }.store(in: &cancelable)
     }
@@ -94,12 +97,16 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         }
         guard let userId = preference.user?.id else { return }
 
-        let transaction = Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
-                                       groupId: groupId, amount: amount, date: .init(date: paymentDate))
+        if let transaction {
+            var newTransaction = transaction
+            newTransaction.amount = amount
+            newTransaction.date = .init(date: paymentDate)
 
-        if transactionId != nil {
-            updateTransaction(transaction: transaction)
+            updateTransaction(transaction: newTransaction)
         } else {
+            let transaction = Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
+                                           groupId: groupId, amount: amount, date: .init(date: paymentDate))
+
             addTransaction(transaction: transaction)
         }
     }
@@ -130,6 +137,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
+    // MARK: - User Actions
     func onDismiss() {
         dismissPaymentFlow()
     }

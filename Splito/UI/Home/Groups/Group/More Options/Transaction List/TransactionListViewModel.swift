@@ -28,7 +28,6 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Data Loading
-
     func fetchTransactions() {
         currentViewState = .loading
 

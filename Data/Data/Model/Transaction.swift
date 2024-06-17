@@ -13,7 +13,7 @@ public struct Transactions: Codable {
 
     public var payerId: String
     public var receiverId: String
-    public let addedBy: String
+    public var addedBy: String
     public let groupId: String
     public var amount: Double
     public var date: Timestamp

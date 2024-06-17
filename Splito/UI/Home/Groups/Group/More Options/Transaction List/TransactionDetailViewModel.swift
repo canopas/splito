@@ -33,6 +33,7 @@ class TransactionDetailViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
     }
 
+    // MARK: - Data Loading
     func fetchTransaction() {
         viewState = .loading
         transactionRepository.fetchTransactionBy(transactionId: transactionId)
@@ -85,20 +86,6 @@ class TransactionDetailViewModel: BaseViewModel, ObservableObject {
         return transactionUsersData.first(where: { $0.id == id })
     }
 
-    func handleEditBtnAction() {
-        showEditTransactionSheet.toggle()
-    }
-
-    func handleDeleteBtnAction() {
-        showAlert = true
-        alert = .init(title: "Delete transaction",
-                      message: "Are you sure you want to delete this transaction?",
-                      positiveBtnTitle: "Ok",
-                      positiveBtnAction: { self.deleteTransaction() },
-                      negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false })
-    }
-
     private func deleteTransaction() {
         viewState = .loading
 
@@ -111,6 +98,26 @@ class TransactionDetailViewModel: BaseViewModel, ObservableObject {
                 self?.viewState = .initial
                 self?.router.pop()
             }.store(in: &cancelable)
+    }
+
+    // MARK: - User Actions
+    func handleEditBtnAction() {
+        showEditTransactionSheet = true
+    }
+
+    func dismissEditTransactionSheet() {
+        showEditTransactionSheet = false
+        fetchTransaction()
+    }
+
+    func handleDeleteBtnAction() {
+        showAlert = true
+        alert = .init(title: "Delete transaction",
+                      message: "Are you sure you want to delete this transaction?",
+                      positiveBtnTitle: "Ok",
+                      positiveBtnAction: { self.deleteTransaction() },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false })
     }
 
     // MARK: - Error Handling
