@@ -6,8 +6,7 @@
 //
 
 import Data
-import Combine
-import BaseStyle
+import SwiftUI
 
 class TransactionListViewModel: BaseViewModel, ObservableObject {
 
@@ -101,13 +100,14 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] _ in
+                withAnimation { self?.transactionsWithUser.removeAll { $0.transaction.id == transactionId } }
                 self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully"))
             }.store(in: &cancelable)
     }
 
     // MARK: - User Actions
     func handleTransactionItemTap(_ transactionId: String) {
-        router.push(.TransactionDetailView(transactionId: transactionId))
+        router.push(.TransactionDetailView(transactionId: transactionId, groupId: groupId))
     }
 
     // MARK: - Helper Methods

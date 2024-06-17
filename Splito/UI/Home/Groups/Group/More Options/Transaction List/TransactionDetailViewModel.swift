@@ -22,12 +22,15 @@ class TransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     @Published var showEditTransactionSheet = false
 
-    var transactionId: String
+    @Published var transactionId: String
+    @Published var groupId: String
+
     let router: Router<AppRoute>
 
-    init(router: Router<AppRoute>, transactionId: String) {
+    init(router: Router<AppRoute>, transactionId: String, groupId: String) {
         self.router = router
         self.transactionId = transactionId
+        self.groupId = groupId
     }
 
     func fetchTransaction() {
@@ -83,7 +86,7 @@ class TransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleEditBtnAction() {
-        showEditTransactionSheet = true
+        showEditTransactionSheet.toggle()
     }
 
     func handleDeleteBtnAction() {

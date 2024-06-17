@@ -78,11 +78,16 @@ struct GroupPaymentView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Save") {
-                    viewModel.handleSaveAction {
+                    viewModel.handleSaveAction()
+                }
+            }
+            if viewModel.transactionId != nil {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        viewModel.onDismiss()
 
                     }
                 }
-                .foregroundStyle(primaryColor)
             }
         }
     }

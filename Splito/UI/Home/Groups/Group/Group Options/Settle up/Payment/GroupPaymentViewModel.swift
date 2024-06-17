@@ -23,6 +23,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     @Published var receiver: AppUser?
     @Published var viewState: ViewState = .initial
 
+    @Published var transactionId: String?
+
     let payerId: String
     let receiverId: String
     private let groupId: String
@@ -30,8 +32,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     var dismissPaymentFlow: () -> Void
 
-    init(router: Router<AppRoute>, groupId: String, payerId: String, receiverId: String, amount: Double, dismissPaymentFlow: @escaping () -> Void) {
+    init(router: Router<AppRoute>, transactionId: String? = nil, groupId: String, payerId: String, receiverId: String, amount: Double, dismissPaymentFlow: @escaping () -> Void) {
         self.router = router
+        self.transactionId = transactionId
         self.groupId = groupId
         self.payerId = payerId
         self.receiverId = receiverId
@@ -39,16 +42,32 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         self.dismissPaymentFlow = dismissPaymentFlow
         super.init()
 
+        fetchTransaction()
         getPayerUserDetail()
         getPayableUserDetail()
+    }
+
+    func fetchTransaction() {
+        guard let transactionId else { return }
+
+        viewState = .loading
+        transactionRepository.fetchTransactionBy(transactionId: transactionId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServiceError(error)
+                }
+            } receiveValue: { [weak self] transaction in
+                guard let self else { return }
+                paymentDate = transaction.date.dateValue()
+                self.viewState = .initial
+            }.store(in: &cancelable)
     }
 
     private func getPayerUserDetail() {
         userRepository.fetchUserBy(userID: payerId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] user in
                 guard let self else { return }
@@ -60,8 +79,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         userRepository.fetchUserBy(userID: receiverId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] user in
                 guard let self else { return }
@@ -69,7 +87,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func handleSaveAction(completion: @escaping () -> Void) {
+    func handleSaveAction() {
         guard amount > 0 else {
             showAlertFor(title: "Whoops!", message: "You must enter an amount.")
             return
@@ -79,17 +97,47 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         let transaction = Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
                                        groupId: groupId, amount: amount, date: .init(date: paymentDate))
 
+        if transactionId != nil {
+            updateTransaction(transaction: transaction)
+        } else {
+            addTransaction(transaction: transaction)
+        }
+    }
+
+    private func addTransaction(transaction: Transactions) {
         viewState = .loading
         transactionRepository.addTransaction(transaction: transaction)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] _ in
-                self?.dismissPaymentFlow()
+                self?.onDismiss()
                 self?.viewState = .initial
             }.store(in: &cancelable)
+    }
+
+    private func updateTransaction(transaction: Transactions) {
+        viewState = .loading
+        transactionRepository.updateTransaction(transaction: transaction)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServiceError(error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.onDismiss()
+                self?.viewState = .initial
+            }.store(in: &cancelable)
+    }
+
+    func onDismiss() {
+        dismissPaymentFlow()
+    }
+
+    // MARK: - Error Handling
+    private func handleServiceError(_ error: ServiceError) {
+        viewState = .initial
+        showToastFor(error)
     }
 }
 
