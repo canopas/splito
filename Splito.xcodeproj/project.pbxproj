@@ -274,6 +274,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2177692E2C206678009B3B37 /* Transaction Detail */ = {
+			isa = PBXGroup;
+			children = (
+				2177692A2C203160009B3B37 /* TransactionDetailView.swift */,
+				2177692C2C20316B009B3B37 /* TransactionDetailViewModel.swift */,
+			);
+			path = "Transaction Detail";
+			sourceTree = "<group>";
+		};
 		21B1C0972C1C59630098B4FD /* More Options */ = {
 			isa = PBXGroup;
 			children = (
@@ -288,8 +297,7 @@
 			children = (
 				21B1C0992C1C59F10098B4FD /* TransactionListView.swift */,
 				21B1C09B2C1C5A040098B4FD /* TransactionListViewModel.swift */,
-				2177692A2C203160009B3B37 /* TransactionDetailView.swift */,
-				2177692C2C20316B009B3B37 /* TransactionDetailViewModel.swift */,
+				2177692E2C206678009B3B37 /* Transaction Detail */,
 			);
 			path = "Transaction List";
 			sourceTree = "<group>";

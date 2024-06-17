@@ -33,7 +33,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     var dismissPaymentFlow: () -> Void
 
-    init(router: Router<AppRoute>, transactionId: String? = nil, groupId: String, payerId: String, receiverId: String, amount: Double, dismissPaymentFlow: @escaping () -> Void) {
+    init(router: Router<AppRoute>, transactionId: String?, groupId: String, payerId: String, receiverId: String, amount: Double, dismissPaymentFlow: @escaping () -> Void) {
         self.router = router
         self.transactionId = transactionId
         self.groupId = groupId
