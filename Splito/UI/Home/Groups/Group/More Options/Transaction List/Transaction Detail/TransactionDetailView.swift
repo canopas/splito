@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BaseStyle
+import Data
 
 struct TransactionDetailView: View {
 
@@ -29,6 +30,7 @@ struct TransactionDetailView: View {
 
                         Text("This payment was added using the \"record a payment\" feature. No money has been moved.")
                             .font(.body2())
+                            .lineSpacing(2)
                             .foregroundStyle(disableText)
                             .padding(.horizontal, 16)
 
@@ -70,21 +72,23 @@ struct TransactionDetailView: View {
 
 private struct TransactionInfoView: View {
 
+    @Inject var preference: SplitoPreference
+
     let viewModel: TransactionDetailViewModel
 
     var addedUserName: String {
         let user = viewModel.getMemberDataBy(id: viewModel.transaction?.addedBy ?? "")
-        return viewModel.preference.user?.id == user?.id ? "you" : user?.nameWithLastInitial ?? "someone"
+        return preference.user?.id == user?.id ? "you" : user?.nameWithLastInitial ?? "someone"
     }
 
     var payerName: String {
         let user = viewModel.getMemberDataBy(id: viewModel.transaction?.payerId ?? "")
-        return viewModel.preference.user?.id == user?.id ? "You" : user?.nameWithLastInitial ?? "Someone"
+        return preference.user?.id == user?.id ? "You" : user?.nameWithLastInitial ?? "Someone"
     }
 
     var receiverName: String {
         let user = viewModel.getMemberDataBy(id: viewModel.transaction?.receiverId ?? "")
-        return viewModel.preference.user?.id == user?.id ? "you" : user?.nameWithLastInitial ?? "someone"
+        return preference.user?.id == user?.id ? "you" : user?.nameWithLastInitial ?? "someone"
     }
 
     var body: some View {
@@ -92,7 +96,7 @@ private struct TransactionInfoView: View {
             Image(.transactionIcon)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 70, height: 70)
+                .frame(width: 80, height: 80)
 
             Text("\(payerName) paid \(receiverName)")
                 .font(.body1(22))
@@ -108,7 +112,6 @@ private struct TransactionInfoView: View {
                 .foregroundStyle(secondaryText)
                 .padding(.top, 8)
         }
-        .lineLimit(1)
         .padding(.horizontal, 30)
     }
 }

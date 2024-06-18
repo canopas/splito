@@ -11,9 +11,7 @@ import SwiftUI
 
 class TransactionDetailViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
-    @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
 
     @Published private(set) var transaction: Transactions?
@@ -39,8 +37,7 @@ class TransactionDetailViewModel: BaseViewModel, ObservableObject {
         transactionRepository.fetchTransactionBy(transactionId: transactionId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] transaction in
                 guard let self else { return }
@@ -73,8 +70,7 @@ class TransactionDetailViewModel: BaseViewModel, ObservableObject {
         userRepository.fetchUserBy(userID: userId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { user in
                 guard let user else { return }
@@ -92,7 +88,7 @@ class TransactionDetailViewModel: BaseViewModel, ObservableObject {
         transactionRepository.deleteTransaction(transactionId: transactionId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.showToastFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] _ in
                 self?.viewState = .initial

@@ -10,7 +10,6 @@ import SwiftUI
 
 class TransactionListViewModel: BaseViewModel, ObservableObject {
 
-    @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
 
@@ -60,23 +59,17 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
         var combinedData: [TransactionWithUser] = []
 
         for transaction in transactions {
-            var payerMember: AppUser?
-            var receiverMember: AppUser?
-
             queue.enter()
             self.fetchUserData(for: transaction.payerId) { payer in
-                payerMember = payer
-
                 self.fetchUserData(for: transaction.receiverId) { receiver in
-                    receiverMember = receiver
-                    combinedData.append(TransactionWithUser(transaction: transaction, payer: payerMember, receiver: receiverMember))
+                    combinedData.append(TransactionWithUser(transaction: transaction, payer: payer, receiver: receiver))
                     queue.leave()
                 }
             }
         }
 
         queue.notify(queue: .main) { [self] in
-            self.transactionsWithUser = combinedData
+            transactionsWithUser = combinedData
             currentViewState = transactions.isEmpty ? .noTransaction : .hasTransaction
         }
     }

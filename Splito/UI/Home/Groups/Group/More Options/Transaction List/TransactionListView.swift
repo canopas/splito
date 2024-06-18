@@ -82,8 +82,7 @@ private struct TransactionItemView: View {
 
     @Inject var preference: SplitoPreference
 
-    let transactionWithUser: TransactionWithUser
-
+    private let transactionWithUser: TransactionWithUser
     private var payerName: String = ""
     private var receiverName: String = ""
 
@@ -113,7 +112,6 @@ private struct TransactionItemView: View {
             Text("\(payerName) paid \(receiverName) \(transactionWithUser.transaction.amount.formattedCurrency).")
                 .font(.body1(17))
                 .foregroundStyle(primaryText)
-                .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.vertical, 8)
@@ -129,13 +127,9 @@ private struct EmptyTransactionView: View {
 
             Text("No transactions found")
                 .font(.subTitle2())
-                .lineSpacing(2)
                 .foregroundColor(secondaryText)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, alignment: .center)
 
             VSpacer()
         }
-        .frame(alignment: .center)
     }
 }

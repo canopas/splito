@@ -85,7 +85,7 @@ struct GroupPaymentView: View {
             }
             if viewModel.transactionId != nil {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel", action: viewModel.onDismiss)
+                    Button("Cancel", action: viewModel.dismissPaymentFlow)
                 }
             }
         }

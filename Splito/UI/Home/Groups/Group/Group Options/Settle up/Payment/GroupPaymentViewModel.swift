@@ -26,11 +26,11 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var payerId: String
     @Published private(set) var receiverId: String
     @Published private(set) var transactionId: String?
+    @Published private(set) var dismissPaymentFlow: () -> Void
 
     private let groupId: String
     private var transaction: Transactions?
     private let router: Router<AppRoute>?
-    private let dismissPaymentFlow: () -> Void
 
     init(router: Router<AppRoute>, transactionId: String?, groupId: String, payerId: String, receiverId: String, amount: Double, dismissPaymentFlow: @escaping () -> Void) {
         self.router = router
@@ -103,10 +103,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
             updateTransaction(transaction: newTransaction)
         } else {
-            let transaction = Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
-                                           groupId: groupId, amount: amount, date: .init(date: paymentDate))
-
-            addTransaction(transaction: transaction)
+            addTransaction(transaction: Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
+                                                     groupId: groupId, amount: amount, date: .init(date: paymentDate)))
         }
     }
 
@@ -118,7 +116,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                     self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] _ in
-                self?.onDismiss()
+                self?.dismissPaymentFlow()
                 self?.viewState = .initial
             }.store(in: &cancelable)
     }
@@ -131,14 +129,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                     self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] _ in
-                self?.onDismiss()
+                self?.dismissPaymentFlow()
                 self?.viewState = .initial
             }.store(in: &cancelable)
-    }
-
-    // MARK: - User Actions
-    func onDismiss() {
-        dismissPaymentFlow()
     }
 
     // MARK: - Error Handling
