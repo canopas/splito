@@ -15,6 +15,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var transactionsWithUser: [TransactionWithUser] = []
     @Published private(set) var currentViewState: ViewState = .loading
+    @Published var selectedTab: TransactionTabType = .thisMonth
 
     static private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -22,12 +23,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
         return formatter
     }()
 
-    var groupedTransactions: [String: [TransactionWithUser]] {
-        return Dictionary(grouping: transactionsWithUser
-            .sorted { $0.transaction.date.dateValue() > $1.transaction.date.dateValue() }) { transaction in
-                return TransactionListViewModel.dateFormatter.string(from: transaction.transaction.date.dateValue())
-            }
-    }
+    @Published var filteredTransactions: [String: [TransactionWithUser]] = [:]
 
     private var transactions: [Transactions] = []
     private let groupId: String
@@ -45,7 +41,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
 
         transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
             if case .failure(let error) = completion {
-                self?.showToastFor(error)
+                self?.handleServiceError(error)
             }
         } receiveValue: { [weak self] transactions in
             guard let self = self else { return }
@@ -70,7 +66,8 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
 
         queue.notify(queue: .main) { [self] in
             transactionsWithUser = combinedData
-            currentViewState = transactions.isEmpty ? .noTransaction : .hasTransaction
+            filteredTransactionsForSelectedTab()
+            currentViewState = .initial
         }
     }
 
@@ -78,7 +75,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
         groupRepository.fetchMemberBy(userId: userId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.showToastFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { user in
                 guard let user else { return }
@@ -88,7 +85,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
 
     func showTransactionDeleteAlert(_ transactionId: String?) {
         guard let transactionId else { return }
-        
+
         showAlert = true
         alert = .init(title: "Delete transaction",
                       message: "Are you sure you want to delete this transaction?",
@@ -102,7 +99,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
         transactionRepository.deleteTransaction(transactionId: transactionId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.showToastFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] _ in
                 withAnimation { self?.transactionsWithUser.removeAll { $0.transaction.id == transactionId } }
@@ -114,6 +111,45 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     func handleTransactionItemTap(_ transactionId: String?) {
         guard let transactionId else { return }
         router.push(.TransactionDetailView(transactionId: transactionId, groupId: groupId))
+    }
+
+    func handleTabItemSelection(_ selection: TransactionTabType) {
+        withAnimation(.easeInOut(duration: 0.3), {
+            selectedTab = selection
+            filteredTransactionsForSelectedTab()
+        })
+    }
+
+    private func filteredTransactionsForSelectedTab() {
+        var currentMonth: String {
+            let currentMonth = Date()
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMMM yyyy"
+            return formatter.string(from: currentMonth)
+        }
+
+        var lastMonth: String {
+            let lastMonth = Calendar.current.date(byAdding: .month, value: -1, to: Date())
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMMM yyyy"
+            return formatter.string(from: lastMonth!)
+        }
+
+        var groupedTransactions: [String: [TransactionWithUser]] {
+            return Dictionary(grouping: transactionsWithUser
+                .sorted { $0.transaction.date.dateValue() > $1.transaction.date.dateValue() }) { transaction in
+                    return TransactionListViewModel.dateFormatter.string(from: transaction.transaction.date.dateValue())
+                }
+        }
+
+        switch selectedTab {
+        case .thisMonth:
+            filteredTransactions = groupedTransactions.filter { $0.key == currentMonth }
+        case .lastMonth:
+            filteredTransactions = groupedTransactions.filter { $0.key == lastMonth }
+        case .all:
+            filteredTransactions = groupedTransactions
+        }
     }
 
     // MARK: - Helper Methods
@@ -136,6 +172,12 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
             return components1.month! > components2.month!
         }
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError(_ error: ServiceError) {
+        currentViewState = .initial
+        showToastFor(error)
+    }
 }
 
 // MARK: - Group State
@@ -146,18 +188,31 @@ extension TransactionListViewModel {
         }
 
         case loading
-        case noTransaction
-        case hasTransaction
+        case initial
 
         var key: String {
             switch self {
             case .loading:
                 return "loading"
-            case .noTransaction:
-                return "noTransaction"
-            case .hasTransaction:
-                return "hasTransaction"
+            case .initial:
+                return "initial"
             }
+        }
+    }
+}
+
+enum TransactionTabType: Int, CaseIterable {
+
+    case thisMonth, lastMonth, all
+
+    var tabItem: String {
+        switch self {
+        case .thisMonth:
+            return "This month"
+        case .lastMonth:
+            return "Last month"
+        case .all:
+            return "All"
         }
     }
 }

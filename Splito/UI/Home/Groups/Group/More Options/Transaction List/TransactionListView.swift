@@ -14,17 +14,20 @@ struct TransactionListView: View {
     @StateObject var viewModel: TransactionListViewModel
 
     var body: some View {
-        VStack {
+        VStack(alignment: .center) {
             if case .loading = viewModel.currentViewState {
                 LoaderView()
-            } else if case .hasTransaction = viewModel.currentViewState {
-                VStack(alignment: .leading, spacing: 0) {
+            } else {
+                VStack(alignment: .center, spacing: 0) {
+                    VSpacer(24)
+
+                    TransactionTabView(selectedTab: viewModel.selectedTab,
+                                       onSelect: viewModel.handleTabItemSelection(_:))
+
                     TransactionListWithDetailView(viewModel: viewModel)
 
                     VSpacer(40)
                 }
-            } else if case .noTransaction = viewModel.currentViewState {
-                EmptyTransactionView()
             }
         }
         .background(backgroundColor)
@@ -41,33 +44,39 @@ private struct TransactionListWithDetailView: View {
     @ObservedObject var viewModel: TransactionListViewModel
 
     var body: some View {
-        List {
-            Group {
-                ForEach(viewModel.groupedTransactions.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
-                    Section(header: sectionHeader(month: month)) {
-                        ForEach(viewModel.groupedTransactions[month]!, id: \.transaction.id) { transaction in
-                            TransactionItemView(transactionWithUser: transaction)
-                                .onTouchGesture {
-                                    viewModel.handleTransactionItemTap(transaction.transaction.id)
+        GeometryReader { geometry in
+            List {
+                Group {
+                    if viewModel.filteredTransactions.isEmpty {
+                        EmptyTransactionView(geometry: geometry)
+                    } else {
+                        ForEach(viewModel.filteredTransactions.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
+                            Section(header: sectionHeader(month: month)) {
+                                ForEach(viewModel.filteredTransactions[month]!, id: \.transaction.id) { transaction in
+                                    TransactionItemView(transactionWithUser: transaction)
+                                        .onTouchGesture {
+                                            viewModel.handleTransactionItemTap(transaction.transaction.id)
+                                        }
+                                        .swipeActions {
+                                            Button("Delete") {
+                                                viewModel.showTransactionDeleteAlert(transaction.transaction.id)
+                                            }
+                                            .tint(.red)
+                                        }
                                 }
-                                .swipeActions {
-                                    Button("Delete") {
-                                        viewModel.showTransactionDeleteAlert(transaction.transaction.id)
-                                    }
-                                    .tint(.red)
-                                }
+                            }
                         }
                     }
                 }
+                .padding(.horizontal, 20)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowBackground(backgroundColor)
             }
-            .padding(.horizontal, 20)
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            .listRowBackground(backgroundColor)
+            .listStyle(.plain)
+            .scrollIndicators(.hidden)
+            .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
         }
-        .listStyle(.plain)
-        .scrollIndicators(.hidden)
-        .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .leading)
     }
 
     private func sectionHeader(month: String) -> some View {
@@ -121,15 +130,59 @@ private struct TransactionItemView: View {
 
 private struct EmptyTransactionView: View {
 
+    let geometry: GeometryProxy
+
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
-            VSpacer()
+            Spacer()
 
-            Text("No transactions found")
-                .font(.subTitle2())
-                .foregroundColor(secondaryText)
+            HStack {
+                Spacer()
+                Text("No transactions found")
+                    .font(.subTitle2())
+                    .foregroundColor(secondaryText)
+                    .multilineTextAlignment(.center)
+                Spacer()
+            }
 
-            VSpacer()
+            Spacer()
         }
+        .padding(.horizontal, 20)
+        .frame(minHeight: geometry.size.height, maxHeight: .infinity, alignment: .center)
+    }
+}
+
+private struct TransactionTabView: View {
+
+    let selectedTab: TransactionTabType
+    let onSelect: ((TransactionTabType) -> Void)
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(TransactionTabType.allCases, id: \.self) { tab in
+                Button {
+                    onSelect(tab)
+                } label: {
+                    Text(tab.tabItem.localized)
+                        .font(.body2())
+                        .foregroundColor(selectedTab == tab ? surfaceDarkColor : primaryText)
+                        .padding(.vertical, 8)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .background(selectedTab == tab ? surfaceLightColor : Color.clear)
+                        .cornerRadius(selectedTab == tab ? 8 : 0)
+                        .padding(.all, 2)
+                        .minimumScaleFactor(0.5)
+                }
+            }
+        }
+        .background(containerNormalColor)
+        .cornerRadius(8)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .transaction { transaction in
+            transaction.animation = nil
+        }
+        .padding(.bottom, 10)
+        .padding(.horizontal, 12)
     }
 }
