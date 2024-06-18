@@ -167,6 +167,9 @@
     "Edit group" : {
 
     },
+    "Edit payment" : {
+
+    },
     "Enter a description" : {
       "extractionState" : "manual"
     },

@@ -55,11 +55,15 @@ struct GroupPaymentView: View {
                             .font(.body1())
                             .foregroundStyle(primaryText)
 
-                        DatePicker("Date:", selection: $viewModel.paymentDate,
-                                   in: ...maximumDate, displayedComponents: .date)
-                        .font(.subTitle2())
+                        HStack(alignment: .center) {
+                            Text("Date:")
+                                .font(.subTitle2())
+                                .foregroundStyle(primaryText)
+
+                            DatePicker("", selection: $viewModel.paymentDate, in: ...maximumDate, displayedComponents: .date)
+                                .labelsHidden()
+                        }
                         .padding(.top, 16)
-                        .frame(width: 170, alignment: .center)
 
                         GroupPaymentAmountView(amount: $viewModel.amount)
 
@@ -74,19 +78,14 @@ struct GroupPaymentView: View {
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .navigationBarTitle("Record a payment", displayMode: .inline)
+        .navigationBarTitle(viewModel.transactionId != nil ? "Edit payment" : "Record a payment", displayMode: .inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Save") {
-                    viewModel.handleSaveAction()
-                }
+                Button("Save", action: viewModel.handleSaveAction)
             }
             if viewModel.transactionId != nil {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
-                        viewModel.onDismiss()
-
-                    }
+                    Button("Cancel", action: viewModel.onDismiss)
                 }
             }
         }

@@ -40,32 +40,19 @@ private struct TransactionListWithDetailView: View {
 
     @ObservedObject var viewModel: TransactionListViewModel
 
-    var groupedTransactions: [String: [TransactionWithUser]] = [:]
-
-    init(viewModel: TransactionListViewModel) {
-        self.viewModel = viewModel
-
-        self.groupedTransactions = Dictionary(grouping: viewModel.transactionsWithUser
-            .sorted { $0.transaction.date.dateValue() > $1.transaction.date.dateValue() }) { transaction in
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "MMMM yyyy"
-                return dateFormatter.string(from: transaction.transaction.date.dateValue())
-            }
-    }
-
     var body: some View {
         List {
             Group {
-                ForEach(groupedTransactions.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
+                ForEach(viewModel.groupedTransactions.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
                     Section(header: sectionHeader(month: month)) {
-                        ForEach(groupedTransactions[month]!, id: \.transaction.id) { transaction in
+                        ForEach(viewModel.groupedTransactions[month]!, id: \.transaction.id) { transaction in
                             TransactionItemView(transactionWithUser: transaction)
                                 .onTouchGesture {
-                                    viewModel.handleTransactionItemTap(transaction.transaction.id ?? "")
+                                    viewModel.handleTransactionItemTap(transaction.transaction.id)
                                 }
                                 .swipeActions {
                                     Button("Delete") {
-                                        viewModel.showTransactionDeleteAlert(transaction.transaction.id ?? "")
+                                        viewModel.showTransactionDeleteAlert(transaction.transaction.id)
                                     }
                                     .tint(.red)
                                 }

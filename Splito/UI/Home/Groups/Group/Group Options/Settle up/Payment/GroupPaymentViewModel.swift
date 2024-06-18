@@ -19,19 +19,18 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     @Published var amount: Double = 0
     @Published var paymentDate = Date()
 
-    @Published var payer: AppUser?
-    @Published var receiver: AppUser?
-    @Published var viewState: ViewState = .initial
+    @Published private(set) var payer: AppUser?
+    @Published private(set) var receiver: AppUser?
+    @Published private(set) var viewState: ViewState = .initial
 
-    @Published var transactionId: String?
+    @Published private(set) var payerId: String
+    @Published private(set) var receiverId: String
+    @Published private(set) var transactionId: String?
 
-    let payerId: String
-    let receiverId: String
     private let groupId: String
     private var transaction: Transactions?
     private let router: Router<AppRoute>?
-
-    var dismissPaymentFlow: () -> Void
+    private let dismissPaymentFlow: () -> Void
 
     init(router: Router<AppRoute>, transactionId: String?, groupId: String, payerId: String, receiverId: String, amount: Double, dismissPaymentFlow: @escaping () -> Void) {
         self.router = router

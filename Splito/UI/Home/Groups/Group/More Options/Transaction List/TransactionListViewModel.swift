@@ -14,8 +14,21 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
 
-    @Published var transactionsWithUser: [TransactionWithUser] = []
-    @Published var currentViewState: ViewState = .loading
+    @Published private(set) var transactionsWithUser: [TransactionWithUser] = []
+    @Published private(set) var currentViewState: ViewState = .loading
+
+    static private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter
+    }()
+
+    var groupedTransactions: [String: [TransactionWithUser]] {
+        return Dictionary(grouping: transactionsWithUser
+            .sorted { $0.transaction.date.dateValue() > $1.transaction.date.dateValue() }) { transaction in
+                return TransactionListViewModel.dateFormatter.string(from: transaction.transaction.date.dateValue())
+            }
+    }
 
     private var transactions: [Transactions] = []
     private let groupId: String
@@ -33,7 +46,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
 
         transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
             if case .failure(let error) = completion {
-                self?.handleServiceError(error)
+                self?.showToastFor(error)
             }
         } receiveValue: { [weak self] transactions in
             guard let self = self else { return }
@@ -72,7 +85,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
         groupRepository.fetchMemberBy(userId: userId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
+                    self?.showToastFor(error)
                 }
             } receiveValue: { user in
                 guard let user else { return }
@@ -81,6 +94,8 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     func showTransactionDeleteAlert(_ transactionId: String?) {
+        guard let transactionId else { return }
+        
         showAlert = true
         alert = .init(title: "Delete transaction",
                       message: "Are you sure you want to delete this transaction?",
@@ -90,9 +105,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func deleteTransaction(transactionId: String?) {
-        guard let transactionId else { return }
-
+    private func deleteTransaction(transactionId: String) {
         transactionRepository.deleteTransaction(transactionId: transactionId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -105,7 +118,8 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
-    func handleTransactionItemTap(_ transactionId: String) {
+    func handleTransactionItemTap(_ transactionId: String?) {
+        guard let transactionId else { return }
         router.push(.TransactionDetailView(transactionId: transactionId, groupId: groupId))
     }
 
@@ -128,11 +142,6 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
         } else {
             return components1.month! > components2.month!
         }
-    }
-
-    // MARK: - Error Handling
-    private func handleServiceError(_ error: ServiceError) {
-        showToastFor(error)
     }
 }
 

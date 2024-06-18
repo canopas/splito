@@ -16,14 +16,14 @@ class TransactionDetailViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
 
-    @Published var transaction: Transactions?
-    @Published var transactionUsersData: [AppUser] = []
-    @Published var viewState: ViewState = .initial
+    @Published private(set) var transaction: Transactions?
+    @Published private(set) var transactionUsersData: [AppUser] = []
+    @Published private(set) var viewState: ViewState = .initial
 
     @Published var showEditTransactionSheet = false
 
-    @Published var transactionId: String
-    @Published var groupId: String
+    @Published private(set) var transactionId: String
+    @Published private(set) var groupId: String
 
     let router: Router<AppRoute>
 
@@ -69,7 +69,7 @@ class TransactionDetailViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
+    private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
         userRepository.fetchUserBy(userID: userId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {

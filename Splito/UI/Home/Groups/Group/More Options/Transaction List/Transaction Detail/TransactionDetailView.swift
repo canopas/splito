@@ -50,24 +50,18 @@ struct TransactionDetailView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    viewModel.handleDeleteBtnAction()
-                } label: {
+                Button(action: viewModel.handleDeleteBtnAction) {
                     Image(systemName: "trash")
                         .resizable()
                         .frame(width: 24, height: 24)
                 }
-                .foregroundStyle(primaryColor)
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    viewModel.handleEditBtnAction()
-                } label: {
+                Button(action: viewModel.handleEditBtnAction) {
                     Image(systemName: "pencil")
                         .resizable()
                         .frame(width: 24, height: 24)
                 }
-                .foregroundStyle(primaryColor)
             }
         }
         .onAppear(perform: viewModel.fetchTransaction)
