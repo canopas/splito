@@ -14,16 +14,16 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     @Inject private var transactionRepository: TransactionRepository
 
     @Published private(set) var transactionsWithUser: [TransactionWithUser] = []
-    @Published private(set) var currentViewState: ViewState = .loading
+    @Published private(set) var filteredTransactions: [String: [TransactionWithUser]] = [:]
+
     @Published var selectedTab: TransactionTabType = .thisMonth
+    @Published private(set) var currentViewState: ViewState = .loading
 
     static private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
         return formatter
     }()
-
-    @Published var filteredTransactions: [String: [TransactionWithUser]] = [:]
 
     private var transactions: [Transactions] = []
     private let groupId: String
@@ -114,7 +114,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleTabItemSelection(_ selection: TransactionTabType) {
-        withAnimation(.easeInOut(duration: 0.3), {
+        withAnimation(.easeInOut(duration: 0.1), {
             selectedTab = selection
             filteredTransactionsForSelectedTab()
         })

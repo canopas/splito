@@ -111,20 +111,26 @@ private struct TransactionItemView: View {
                 .foregroundStyle(secondaryText)
                 .multilineTextAlignment(.center)
 
-            Image(.transactionIcon)
-                .resizable()
-                .frame(width: 30, height: 30)
-                .padding(.vertical, 6)
-                .padding(.horizontal, 8)
-                .background(disableText.opacity(0.2))
+            Divider()
+                .frame(width: 1)
+                .background(outlineColor)
 
             Text("\(payerName) paid \(receiverName) \(transactionWithUser.transaction.amount.formattedCurrency).")
                 .font(.body1(17))
                 .foregroundStyle(primaryText)
                 .frame(maxWidth: .infinity, alignment: .leading)
+
+            Image(systemName: "list.bullet.rectangle.portrait")
+                .resizable()
+                .frame(width: 20, height: 24)
+                .padding(10)
+                .background(containerNormalColor.opacity(0.7))
+                .cornerRadius(4)
         }
+        .padding(16)
+        .background(containerLowColor)
+        .cornerRadius(16)
         .padding(.vertical, 8)
-        .padding(.horizontal, 6)
     }
 }
 
