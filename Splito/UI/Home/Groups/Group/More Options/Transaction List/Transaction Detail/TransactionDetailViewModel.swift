@@ -6,8 +6,7 @@
 //
 
 import Data
-import Combine
-import SwiftUI
+import Foundation
 
 class TransactionDetailViewModel: BaseViewModel, ObservableObject {
 
@@ -41,29 +40,34 @@ class TransactionDetailViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] transaction in
                 guard let self else { return }
-
-                let queue = DispatchGroup()
-                var userData: [AppUser] = []
-
-                var members: [String] = []
-                members.append(transaction.payerId)
-                members.append(transaction.receiverId)
-                members.append(transaction.addedBy)
-
-                for member in members.uniqued() {
-                    queue.enter()
-                    self.fetchUserData(for: member) { user in
-                        userData.append(user)
-                        queue.leave()
-                    }
-                }
-
-                queue.notify(queue: .main) {
-                    self.transaction = transaction
-                    self.transactionUsersData = userData
-                    self.viewState = .initial
-                }
+                self.transaction = transaction
+                self.setTransactionUsersData()
             }.store(in: &cancelable)
+    }
+
+    private func setTransactionUsersData() {
+        guard let transaction else { return }
+
+        let queue = DispatchGroup()
+        var userData: [AppUser] = []
+
+        var members: [String] = []
+        members.append(transaction.payerId)
+        members.append(transaction.receiverId)
+        members.append(transaction.addedBy)
+
+        for member in members.uniqued() {
+            queue.enter()
+            self.fetchUserData(for: member) { user in
+                userData.append(user)
+                queue.leave()
+            }
+        }
+
+        queue.notify(queue: .main) {
+            self.transactionUsersData = userData
+            self.viewState = .initial
+        }
     }
 
     private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {

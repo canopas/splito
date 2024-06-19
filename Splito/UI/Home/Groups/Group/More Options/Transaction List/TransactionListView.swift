@@ -99,8 +99,8 @@ private struct TransactionItemView: View {
         self.transactionWithUser = transactionWithUser
 
         if let user = preference.user {
-            payerName = transactionWithUser.payer?.id == user.id ? "You" : transactionWithUser.payer!.firstName ?? ""
-            receiverName = transactionWithUser.receiver?.id == user.id ? "You" : transactionWithUser.receiver!.firstName ?? ""
+            payerName = transactionWithUser.payer?.id == user.id ? "You" : transactionWithUser.payer?.nameWithLastInitial ?? "Someone"
+            receiverName = transactionWithUser.receiver?.id == user.id ? "you" : transactionWithUser.receiver?.nameWithLastInitial ?? "someone"
         }
     }
 
@@ -125,7 +125,7 @@ private struct TransactionItemView: View {
                 .frame(width: 20, height: 24)
                 .padding(10)
                 .background(containerNormalColor.opacity(0.7))
-                .cornerRadius(4)
+                .cornerRadius(10)
         }
         .padding(16)
         .background(containerLowColor)

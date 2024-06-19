@@ -60,7 +60,7 @@ struct GroupHomeView: View {
                         }
                     }
                     Button(action: viewModel.handleShowTransactionOptionTap) {
-                        Label("Show transaction", systemImage: "rectangle.portrait.and.arrow.forward")
+                        Label("Show transaction", systemImage: "list.bullet.rectangle.portrait")
                     }
                     Button(action: viewModel.handleSettingsOptionTap) {
                         Label("Settings", systemImage: "gearshape")

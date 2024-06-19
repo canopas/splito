@@ -143,8 +143,8 @@ public class TransactionStore: ObservableObject {
                 }
 
                 do {
-                    let expense = try snapshot.data(as: Transactions.self)
-                    promise(.success(expense))
+                    let transaction = try snapshot.data(as: Transactions.self)
+                    promise(.success(transaction))
                 } catch {
                     LogE("TransactionStore :: \(#function) Decode error: \(error.localizedDescription)")
                     promise(.failure(.decodingError))

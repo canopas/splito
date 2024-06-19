@@ -83,18 +83,6 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func showTransactionDeleteAlert(_ transactionId: String?) {
-        guard let transactionId else { return }
-
-        showAlert = true
-        alert = .init(title: "Delete transaction",
-                      message: "Are you sure you want to delete this transaction?",
-                      positiveBtnTitle: "Ok",
-                      positiveBtnAction: { self.deleteTransaction(transactionId: transactionId) },
-                      negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false })
-    }
-
     private func deleteTransaction(transactionId: String) {
         transactionRepository.deleteTransaction(transactionId: transactionId)
             .sink { [weak self] completion in
@@ -108,13 +96,25 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
+    func showTransactionDeleteAlert(_ transactionId: String?) {
+        guard let transactionId else { return }
+
+        showAlert = true
+        alert = .init(title: "Delete transaction",
+                      message: "Are you sure you want to delete this transaction?",
+                      positiveBtnTitle: "Ok",
+                      positiveBtnAction: { self.deleteTransaction(transactionId: transactionId) },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false })
+    }
+    
     func handleTransactionItemTap(_ transactionId: String?) {
         guard let transactionId else { return }
         router.push(.TransactionDetailView(transactionId: transactionId, groupId: groupId))
     }
 
     func handleTabItemSelection(_ selection: TransactionTabType) {
-        withAnimation(.easeInOut(duration: 0.1), {
+        withAnimation(.easeInOut(duration: 0.3), {
             selectedTab = selection
             filteredTransactionsForSelectedTab()
         })
@@ -123,16 +123,12 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     private func filteredTransactionsForSelectedTab() {
         var currentMonth: String {
             let currentMonth = Date()
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MMMM yyyy"
-            return formatter.string(from: currentMonth)
+            return TransactionListViewModel.dateFormatter.string(from: currentMonth)
         }
 
         var lastMonth: String {
             let lastMonth = Calendar.current.date(byAdding: .month, value: -1, to: Date())
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MMMM yyyy"
-            return formatter.string(from: lastMonth!)
+            return TransactionListViewModel.dateFormatter.string(from: lastMonth ?? Date())
         }
 
         var groupedTransactions: [String: [TransactionWithUser]] {
@@ -180,7 +176,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     }
 }
 
-// MARK: - Group State
+// MARK: - View States
 extension TransactionListViewModel {
     enum ViewState: Equatable {
         static func == (lhs: TransactionListViewModel.ViewState, rhs: TransactionListViewModel.ViewState) -> Bool {

@@ -93,10 +93,11 @@ private struct TransactionInfoView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 8) {
-            Image(.transactionIcon)
+            Image(systemName: "list.bullet.rectangle.portrait")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 80, height: 80)
+                .frame(width: 50, height: 60)
+                .padding(10)
 
             Text("\(payerName) paid \(receiverName)")
                 .font(.body1(22))
