@@ -90,8 +90,14 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
                     self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] _ in
-                withAnimation { self?.transactionsWithUser.removeAll { $0.transaction.id == transactionId } }
-                self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully"))
+                guard let self else { return }
+                withAnimation {
+                    if let index = self.transactions.firstIndex(where: { $0.id == transactionId }) {
+                        self.transactions.remove(at: index)
+                        self.combinedTransactionsWithUser()
+                    }
+                }
+                self.showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully"))
             }.store(in: &cancelable)
     }
 
@@ -107,7 +113,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
-    
+
     func handleTransactionItemTap(_ transactionId: String?) {
         guard let transactionId else { return }
         router.push(.TransactionDetailView(transactionId: transactionId, groupId: groupId))
