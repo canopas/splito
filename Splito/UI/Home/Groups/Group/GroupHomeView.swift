@@ -168,7 +168,7 @@ private struct NoExpenseView: View {
                 .font(.subTitle4(17))
                 .foregroundStyle(primaryText)
 
-            Text("Tap the plus button from home screen to add an expense with any group.")
+            Text("Tap the plus button to add an expense with any group.")
                 .font(.body1(18))
                 .foregroundStyle(secondaryText)
                 .multilineTextAlignment(.center)

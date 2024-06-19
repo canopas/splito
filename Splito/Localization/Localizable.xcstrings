@@ -263,6 +263,9 @@
     "No email address" : {
       "extractionState" : "manual"
     },
+    "no expense" : {
+
+    },
     "No expenses here yet." : {
 
     },
@@ -392,7 +395,7 @@
     "Take Picture" : {
 
     },
-    "Tap the plus button from home screen to add an expense with any group." : {
+    "Tap the plus button to add an expense with any group." : {
 
     },
     "This code will be active for 2 days." : {
