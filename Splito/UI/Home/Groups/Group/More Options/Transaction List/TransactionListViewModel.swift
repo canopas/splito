@@ -65,9 +65,11 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
         }
 
         queue.notify(queue: .main) { [self] in
-            transactionsWithUser = combinedData
-            filteredTransactionsForSelectedTab()
-            currentViewState = .initial
+            withAnimation {
+                transactionsWithUser = combinedData
+                filteredTransactionsForSelectedTab()
+                currentViewState = .initial
+            }
         }
     }
 
