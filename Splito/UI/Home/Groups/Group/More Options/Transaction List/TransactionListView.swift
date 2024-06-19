@@ -58,10 +58,13 @@ private struct TransactionListWithDetailView: View {
                                             viewModel.handleTransactionItemTap(transaction.transaction.id)
                                         }
                                         .swipeActions {
-                                            Button("Delete") {
+                                            Button {
                                                 viewModel.showTransactionDeleteAlert(transaction.transaction.id)
+                                            } label: {
+                                                Image(.deleteIcon)
+                                                    .resizable()
+                                                    .tint(.clear)
                                             }
-                                            .tint(.red)
                                         }
                                 }
                             }
