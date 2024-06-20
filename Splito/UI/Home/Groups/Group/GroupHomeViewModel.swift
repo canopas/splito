@@ -23,6 +23,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var memberOwingAmount: [String: Double] = [:]
 
     @Published var showSettleUpSheet = false
+    @Published var showTransactionsSheet = false
     @Published var showBalancesSheet = false
     @Published var showGroupTotalSheet = false
     @Published private(set) var showSearchBar = false
@@ -46,7 +47,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     private let groupId: String
     private let router: Router<AppRoute>
-	private var groupUserData: [AppUser] = []
+    private var groupUserData: [AppUser] = []
     private let onGroupSelected: ((String?) -> Void)?
 
     init(router: Router<AppRoute>, groupId: String, onGroupSelected: ((String?) -> Void)?) {
@@ -87,7 +88,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] expenses in
-                guard let self, let group, self.expenses.isEmpty else { return }
+                guard let self, let group, !self.expenses.isEmpty else { return }
                 self.expenses = expenses
                 if group.isDebtSimplified {
                     self.calculateExpensesSimply()
@@ -255,8 +256,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private func setGroupViewState() {
         guard let group else { return }
         groupState = group.members.count > 1 ?
-            (expenses.isEmpty ? .noExpense : .hasExpense) :
-            (expenses.isEmpty ? .noMember : .hasExpense)
+        (expenses.isEmpty ? .noExpense : .hasExpense) :
+        (expenses.isEmpty ? .noMember : .hasExpense)
     }
 
     func showExpenseDeleteAlert(expenseId: String) {
@@ -296,7 +297,7 @@ extension GroupHomeViewModel {
         router.push(.InviteMemberView(groupId: groupId))
     }
 
-    func handleSettingButtonTap() {
+    func handleSettingsOptionTap() {
         router.push(.GroupSettingView(groupId: groupId))
     }
 
@@ -320,8 +321,15 @@ extension GroupHomeViewModel {
         showGroupTotalSheet = true
     }
 
+    func handleTransactionsBtnTap() {
+        showTransactionsSheet = true
+    }
+
     func handleSearchOptionTap() {
-        withAnimation { showSearchBar = true }
+        withAnimation {
+            searchedExpense = ""
+            showSearchBar.toggle()
+        }
     }
 
     func onSearchBarCancelBtnTap() {

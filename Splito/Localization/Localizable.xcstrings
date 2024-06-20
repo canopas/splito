@@ -51,6 +51,16 @@
         }
       }
     },
+    "%@ paid %@ %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ paid %2$@ %3$@."
+          }
+        }
+      }
+    },
     "%@/person" : {
 
     },
@@ -157,6 +167,9 @@
     "Edit group" : {
 
     },
+    "Edit payment" : {
+
+    },
     "Enter a description" : {
       "extractionState" : "manual"
     },
@@ -250,6 +263,9 @@
     "No email address" : {
       "extractionState" : "manual"
     },
+    "no expense" : {
+
+    },
     "No expenses here yet." : {
 
     },
@@ -257,6 +273,9 @@
 
     },
     "No results found for \"%@\"" : {
+
+    },
+    "No transactions found" : {
 
     },
     "not involved" : {
@@ -373,7 +392,7 @@
     "Take Picture" : {
 
     },
-    "Tap the plus button from home screen to add an expense with any group." : {
+    "Tap the plus button to add an expense with any group." : {
 
     },
     "This code will be active for 2 days." : {
@@ -381,6 +400,9 @@
     },
     "This month" : {
       "extractionState" : "manual"
+    },
+    "This payment was added using the \"record a payment\" feature. No money has been moved." : {
+
     },
     "Today" : {
       "extractionState" : "manual"
@@ -396,6 +418,9 @@
     },
     "Tracking" : {
       "extractionState" : "manual"
+    },
+    "Transactions" : {
+
     },
     "Verification code" : {
       "extractionState" : "manual"

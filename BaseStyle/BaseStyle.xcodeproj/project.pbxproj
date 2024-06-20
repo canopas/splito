@@ -11,6 +11,7 @@
 		A40018A9B957803B8105BEA5 /* Pods_BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 174198EE4AF2FC82DADEB060 /* Pods_BaseStyle.framework */; };
 		D82174BE2BBAD86D00DB42C3 /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82174BD2BBAD86D00DB42C3 /* ProfileImageView.swift */; };
 		D8302D9C2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8302D9B2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift */; };
+		D86632962C2410BB009D3EF5 /* OtpTextInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86632952C2410BB009D3EF5 /* OtpTextInputView.swift */; };
 		D887213F2B99992A009DC5BE /* LoaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D887213E2B99992A009DC5BE /* LoaderViewModel.swift */; };
 		D89C933F2BC3C0F800FACD16 /* ForwardIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89C933E2BC3C0F800FACD16 /* ForwardIcon.swift */; };
 		D89C93462BC42DE500FACD16 /* MailComposeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89C93452BC42DE500FACD16 /* MailComposeView.swift */; };
@@ -72,6 +73,7 @@
 		CC9EC1F1C0A5A0821118E6CA /* Pods-BaseStyleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyleTests.debug.xcconfig"; path = "Target Support Files/Pods-BaseStyleTests/Pods-BaseStyleTests.debug.xcconfig"; sourceTree = "<group>"; };
 		D82174BD2BBAD86D00DB42C3 /* ProfileImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageView.swift; sourceTree = "<group>"; };
 		D8302D9B2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryFloatingButton.swift; sourceTree = "<group>"; };
+		D86632952C2410BB009D3EF5 /* OtpTextInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtpTextInputView.swift; sourceTree = "<group>"; };
 		D887213E2B99992A009DC5BE /* LoaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoaderViewModel.swift; path = BaseStyle/Views/LoaderViewModel.swift; sourceTree = SOURCE_ROOT; };
 		D89C933E2BC3C0F800FACD16 /* ForwardIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForwardIcon.swift; sourceTree = "<group>"; };
 		D89C93452BC42DE500FACD16 /* MailComposeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailComposeView.swift; sourceTree = "<group>"; };
@@ -297,6 +299,7 @@
 				D8D42AAF2B872E44009B345D /* LoaderView.swift */,
 				D8D14A4F2BA090F000F45FF2 /* ShareSheetView.swift */,
 				D89C93452BC42DE500FACD16 /* MailComposeView.swift */,
+				D86632952C2410BB009D3EF5 /* OtpTextInputView.swift */,
 				D89DBE3B2B88AA1500E5F1BD /* CustomTextField.swift */,
 				D82174BD2BBAD86D00DB42C3 /* ProfileImageView.swift */,
 				D8E244C02B986CD800C6C82A /* ImagePickerView.swift */,
@@ -513,6 +516,7 @@
 				D8D42AAC2B872A7C009B345D /* ToastView.swift in Sources */,
 				D8D42A952B85F8A2009B345D /* Bundle+Extension.swift in Sources */,
 				D89C93462BC42DE500FACD16 /* MailComposeView.swift in Sources */,
+				D86632962C2410BB009D3EF5 /* OtpTextInputView.swift in Sources */,
 				D8E244C12B986CD800C6C82A /* ImagePickerView.swift in Sources */,
 				D89DBE312B8884E300E5F1BD /* SectionHeaderView.swift in Sources */,
 				D8D42A862B85D08F009B345D /* Font+Extension.swift in Sources */,

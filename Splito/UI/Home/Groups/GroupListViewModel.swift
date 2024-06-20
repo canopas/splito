@@ -114,11 +114,11 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             return Fail(error: ServiceError.dataNotFound).eraseToAnyPublisher()
         }
 
-        return fetchGroupMembers(groupId: groupId)
-            .combineLatest(fetchExpenses(group: group))
-            .map { (members, amountTuple) in
-                let (expense, owingAmounts) = amountTuple
-                return GroupInformation(group: group, oweAmount: expense, memberOweAmount: owingAmounts, members: members)
+        return fetchExpenses(group: group)
+            .combineLatest(fetchGroupMembers(groupId: groupId))
+            .map { (expenseTuple, members) -> GroupInformation in
+                let (expense, owingAmounts, hasExpenses) = expenseTuple
+                return GroupInformation(group: group, oweAmount: expense, memberOweAmount: owingAmounts, members: members, hasExpenses: hasExpenses)
             }
             .eraseToAnyPublisher()
     }
@@ -127,15 +127,24 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         groupRepository.fetchMembersBy(groupId: groupId)
     }
 
-    private func fetchExpenses(group: Groups) -> AnyPublisher<(Double, [String: Double]), ServiceError> {
+    private func fetchExpenses(group: Groups) -> AnyPublisher<(Double, [String: Double], Bool), ServiceError> {
         expenseRepository.fetchExpensesBy(groupId: group.id ?? "")
-            .flatMap { [weak self] expenses -> AnyPublisher<(Double, [String: Double]), ServiceError> in
+            .flatMap { [weak self] expenses -> AnyPublisher<(Double, [String: Double], Bool), ServiceError> in
                 guard let self else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
+
+                let expensesPublisher: AnyPublisher<(Double, [String: Double]), ServiceError>
+
                 if group.isDebtSimplified {
-                    return self.calculateExpensesSimply(expenses: expenses)
+                    expensesPublisher = self.calculateExpensesSimply(expenses: expenses)
                 } else {
-                    return self.calculateExpenses(expenses: expenses)
+                    expensesPublisher = self.calculateExpenses(expenses: expenses)
                 }
+
+                return expensesPublisher
+                    .map { (total, owingAmounts) in
+                        return (total, owingAmounts, !expenses.isEmpty)
+                    }
+                    .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
     }
@@ -258,7 +267,10 @@ extension GroupListViewModel {
     }
 
     func handleSearchBarTap() {
-        withAnimation { showSearchBar = true }
+        withAnimation {
+            searchedGroup = ""
+            showSearchBar.toggle()
+        }
     }
 
     func onSearchBarCancelBtnTap() {
@@ -275,6 +287,7 @@ struct GroupInformation {
     let oweAmount: Double
     let memberOweAmount: [String: Double]
     let members: [AppUser]
+    let hasExpenses: Bool
 }
 
 // MARK: - Group States

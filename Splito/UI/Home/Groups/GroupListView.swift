@@ -50,6 +50,7 @@ struct GroupListView: View {
         }
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .navigationBarTitle("", displayMode: .inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button(action: viewModel.handleSearchBarTap) {
@@ -179,7 +180,7 @@ private struct GroupListCellView: View {
                 let isBorrowed = group.oweAmount < 0
                 VStack(alignment: .trailing, spacing: 4) {
                     if group.oweAmount == 0 {
-                        Text("settled up")
+                        Text(group.hasExpenses ? "settled up" : "no expense")
                             .font(.body1(12))
                             .foregroundStyle(secondaryText)
                     } else {

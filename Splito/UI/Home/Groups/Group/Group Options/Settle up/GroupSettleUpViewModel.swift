@@ -185,7 +185,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
         guard let userId = self.preference.user?.id else { return }
 
         let (payerId, receiverId) = amount < 0 ? (userId, memberId) : (memberId, userId)
-        router?.push(.GroupPaymentView(groupId: groupId, payerId: payerId, receiverId: receiverId, amount: amount))
+        router?.push(.GroupPaymentView(transactionId: nil, groupId: groupId, payerId: payerId, receiverId: receiverId, amount: amount))
     }
 
     // MARK: - Error Handling

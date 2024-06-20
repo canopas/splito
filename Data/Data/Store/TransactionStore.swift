@@ -122,6 +122,56 @@ public class TransactionStore: ObservableObject {
         .eraseToAnyPublisher()
     }
 
+    func fetchTransactionsBy(transactionId: String) -> AnyPublisher<Transactions, ServiceError> {
+        Future { [weak self] promise in
+            guard let self else {
+                promise(.failure(.unexpectedError))
+                return
+            }
+
+            self.database.collection(COLLECTION_NAME).document(transactionId).getDocument { snapshot, error in
+                if let error {
+                    LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
+                    return
+                }
+
+                guard let snapshot else {
+                    LogE("TransactionStore :: \(#function) The document is not available.")
+                    promise(.failure(.dataNotFound))
+                    return
+                }
+
+                do {
+                    let transaction = try snapshot.data(as: Transactions.self)
+                    promise(.success(transaction))
+                } catch {
+                    LogE("TransactionStore :: \(#function) Decode error: \(error.localizedDescription)")
+                    promise(.failure(.decodingError))
+                }
+            }
+        }.eraseToAnyPublisher()
+    }
+
+    func deleteTransaction(transactionId: String) -> AnyPublisher<Void, ServiceError> {
+        Future { [weak self] promise in
+            guard let self else {
+                promise(.failure(.unexpectedError))
+                return
+            }
+
+            self.database.collection(self.COLLECTION_NAME).document(transactionId).delete { error in
+                if let error {
+                    LogE("TransactionStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
+                } else {
+                    LogD("TransactionStore :: \(#function): transaction deleted successfully.")
+                    promise(.success(()))
+                }
+            }
+        }.eraseToAnyPublisher()
+    }
+
     func deleteTransactionsOf(groupId: String) -> AnyPublisher<Void, ServiceError> {
         Future { [weak self] promise in
             guard let self else {

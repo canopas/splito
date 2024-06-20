@@ -10,7 +10,13 @@
 		0BF8F99614F85846D78DE106 /* Pods_Splito_SplitoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2B9BBF3F71277A6AA5329CB /* Pods_Splito_SplitoUITests.framework */; };
 		213BA0602C0F465000116130 /* GroupSettleUpRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213BA05F2C0F465000116130 /* GroupSettleUpRouteView.swift */; };
 		213BA0662C11B70F00116130 /* HomeRouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */; };
+		2156A8B02C24069800CFAB64 /* GroupTransactionsRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2156A8AF2C24069800CFAB64 /* GroupTransactionsRouteView.swift */; };
+		2177692B2C203160009B3B37 /* GroupTransactionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2177692A2C203160009B3B37 /* GroupTransactionDetailView.swift */; };
+		2177692D2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2177692C2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift */; };
 		217BEC122C00AD78000CBBB4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 217BEC112C00AD78000CBBB4 /* GoogleService-Info.plist */; };
+		21B1C09A2C1C59F10098B4FD /* GroupTransactionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21B1C0992C1C59F10098B4FD /* GroupTransactionListView.swift */; };
+		21B1C09C2C1C5A050098B4FD /* GroupTransactionListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21B1C09B2C1C5A040098B4FD /* GroupTransactionListViewModel.swift */; };
+		21B1C09E2C1C5AA30098B4FD /* GroupExpenseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21B1C09D2C1C5AA30098B4FD /* GroupExpenseListView.swift */; };
 		741540F86E36400CE27B1FAD /* Pods_SplitoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 701193A10871F36C3EDB356C /* Pods_SplitoTests.framework */; };
 		D815DFD72BEA26C200C0F862 /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D815DFD62BEA26C200C0F862 /* Secrets.xcconfig */; };
 		D826C0E22BDBD65600AAA449 /* GroupBalancesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826C0E12BDBD65600AAA449 /* GroupBalancesView.swift */; };
@@ -133,8 +139,14 @@
 		038CCD15E82A4E16A4AD213C /* Pods-Splito-SplitoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito-SplitoUITests.release.xcconfig"; path = "Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests.release.xcconfig"; sourceTree = "<group>"; };
 		213BA05F2C0F465000116130 /* GroupSettleUpRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSettleUpRouteView.swift; sourceTree = "<group>"; };
 		213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRouteViewModel.swift; sourceTree = "<group>"; };
+		2156A8AF2C24069800CFAB64 /* GroupTransactionsRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionsRouteView.swift; sourceTree = "<group>"; };
+		2177692A2C203160009B3B37 /* GroupTransactionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionDetailView.swift; sourceTree = "<group>"; };
+		2177692C2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionDetailViewModel.swift; sourceTree = "<group>"; };
 		217BEC0F2C00AB9E000CBBB4 /* Secrets.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		217BEC112C00AD78000CBBB4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		21B1C0992C1C59F10098B4FD /* GroupTransactionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionListView.swift; sourceTree = "<group>"; };
+		21B1C09B2C1C5A040098B4FD /* GroupTransactionListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionListViewModel.swift; sourceTree = "<group>"; };
+		21B1C09D2C1C5AA30098B4FD /* GroupExpenseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupExpenseListView.swift; sourceTree = "<group>"; };
 		43FFDB1561C565EE6E3DC86A /* Pods_Splito.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splito.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		44312D517F674E980CBAE838 /* Pods-Splito.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito.debug.xcconfig"; path = "Target Support Files/Pods-Splito/Pods-Splito.debug.xcconfig"; sourceTree = "<group>"; };
 		701193A10871F36C3EDB356C /* Pods_SplitoTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SplitoTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -264,6 +276,34 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2156A8AE2C24064400CFAB64 /* Transactions */ = {
+			isa = PBXGroup;
+			children = (
+				2156A8AF2C24069800CFAB64 /* GroupTransactionsRouteView.swift */,
+				21B1C0992C1C59F10098B4FD /* GroupTransactionListView.swift */,
+				21B1C09B2C1C5A040098B4FD /* GroupTransactionListViewModel.swift */,
+				2177692E2C206678009B3B37 /* Transaction Detail */,
+			);
+			path = Transactions;
+			sourceTree = "<group>";
+		};
+		2177692E2C206678009B3B37 /* Transaction Detail */ = {
+			isa = PBXGroup;
+			children = (
+				2177692A2C203160009B3B37 /* GroupTransactionDetailView.swift */,
+				2177692C2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift */,
+			);
+			path = "Transaction Detail";
+			sourceTree = "<group>";
+		};
+		21B1C0972C1C59630098B4FD /* More Options */ = {
+			isa = PBXGroup;
+			children = (
+				D8A7CA732BA486290014EC67 /* Group Setting */,
+			);
+			path = "More Options";
+			sourceTree = "<group>";
+		};
 		7530D0A01F0D8D2C363B2A6E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -304,6 +344,7 @@
 			isa = PBXGroup;
 			children = (
 				D83344562C0DD03B00CD9F05 /* Settle up */,
+				2156A8AE2C24064400CFAB64 /* Transactions */,
 				D83344552C0DD02F00CD9F05 /* Balances */,
 				D833445F2C0EF1D300CD9F05 /* Totals */,
 			);
@@ -560,8 +601,9 @@
 			children = (
 				D8A7CA6D2BA483F60014EC67 /* GroupHomeView.swift */,
 				D8E244BE2B98592C00C6C82A /* GroupHomeViewModel.swift */,
+				21B1C09D2C1C5AA30098B4FD /* GroupExpenseListView.swift */,
+				21B1C0972C1C59630098B4FD /* More Options */,
 				D826C0E02BDBD63A00AAA449 /* Group Options */,
-				D8A7CA732BA486290014EC67 /* Group Setting */,
 			);
 			path = Group;
 			sourceTree = "<group>";
@@ -937,9 +979,11 @@
 				D83344612C0EF1F100CD9F05 /* GroupTotalsView.swift in Sources */,
 				D88721472B9B2C97009DC5BE /* GroupListViewModel.swift in Sources */,
 				D8D14A622BA2DCE700F45FF2 /* UserProfileViewModel.swift in Sources */,
+				2177692B2C203160009B3B37 /* GroupTransactionDetailView.swift in Sources */,
 				D8A7CA6E2BA483F60014EC67 /* GroupHomeView.swift in Sources */,
 				D85E86ED2BB41B87002EDF76 /* ChooseGroupView.swift in Sources */,
 				D8302DA22B9F284D005ACA13 /* InviteMemberViewModel.swift in Sources */,
+				2177692D2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift in Sources */,
 				D83344732C0F2D9500CD9F05 /* GroupPaymentView.swift in Sources */,
 				D83344582C0DD06F00CD9F05 /* GroupSettleUpView.swift in Sources */,
 				D8E244BF2B98592C00C6C82A /* GroupHomeViewModel.swift in Sources */,
@@ -964,6 +1008,7 @@
 				213BA0662C11B70F00116130 /* HomeRouteViewModel.swift in Sources */,
 				D8302DA02B9F282F005ACA13 /* InviteMemberView.swift in Sources */,
 				D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */,
+				21B1C09C2C1C5A050098B4FD /* GroupTransactionListViewModel.swift in Sources */,
 				213BA0602C0F465000116130 /* GroupSettleUpRouteView.swift in Sources */,
 				D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */,
 				D8CD952E2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift in Sources */,
@@ -972,11 +1017,13 @@
 				D8A7CA722BA486250014EC67 /* GroupSettingViewModel.swift in Sources */,
 				D833445A2C0DD08400CD9F05 /* GroupSettleUpViewModel.swift in Sources */,
 				D85E86EB2BB3FD59002EDF76 /* ChoosePayerViewModel.swift in Sources */,
+				21B1C09A2C1C59F10098B4FD /* GroupTransactionListView.swift in Sources */,
 				D89DBE5B2B8DE97000E5F1BD /* GroupRouteView.swift in Sources */,
 				D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */,
 				D8E244BB2B9843A100C6C82A /* CreateGroupView.swift in Sources */,
 				D89DBE382B88A6A800E5F1BD /* VerifyOtpView.swift in Sources */,
 				D89DBE422B8CA72700E5F1BD /* HomeRouteView.swift in Sources */,
+				21B1C09E2C1C5AA30098B4FD /* GroupExpenseListView.swift in Sources */,
 				D89DBE252B875C3000E5F1BD /* PhoneLoginViewModel.swift in Sources */,
 				D8D14A602BA2DCDB00F45FF2 /* UserProfileView.swift in Sources */,
 				D88721452B9B2C78009DC5BE /* GroupListView.swift in Sources */,
@@ -986,6 +1033,7 @@
 				D85E86E92BB3FD49002EDF76 /* ChoosePayerView.swift in Sources */,
 				D833446E2C0F2D4C00CD9F05 /* GroupWhoGettingPaidViewModel.swift in Sources */,
 				D856C7342BCFD2260008A341 /* ExpenseDetailsViewModel.swift in Sources */,
+				2156A8B02C24069800CFAB64 /* GroupTransactionsRouteView.swift in Sources */,
 				D8AC26F62B84B12800CEAAD3 /* LoginViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

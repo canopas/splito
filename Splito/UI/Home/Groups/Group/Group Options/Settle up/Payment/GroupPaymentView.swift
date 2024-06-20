@@ -11,24 +11,7 @@ import Data
 
 struct GroupPaymentView: View {
 
-    @Inject private var preference: SplitoPreference
     @StateObject var viewModel: GroupPaymentViewModel
-
-    var payerName: String {
-        if let user = preference.user, user.id == viewModel.payerId {
-            return "You"
-        }
-        return viewModel.payer?.nameWithLastInitial ?? "Unknown"
-    }
-
-    var payableName: String {
-        if let user = preference.user, user.id == viewModel.receiverId {
-            return "You"
-        }
-        return viewModel.receiver?.nameWithLastInitial ?? "Unknown"
-    }
-
-    let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date())!
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
@@ -51,15 +34,19 @@ struct GroupPaymentView: View {
                         }
                         .padding(.top, 20)
 
-                        Text("\(payerName) paid \(payableName)")
+                        Text("\(viewModel.payerName) paid \(viewModel.payableName)")
                             .font(.body1())
                             .foregroundStyle(primaryText)
 
-                        DatePicker("Date:", selection: $viewModel.paymentDate,
-                                   in: ...maximumDate, displayedComponents: .date)
-                        .font(.subTitle2())
+                        HStack(alignment: .center) {
+                            Text("Date:")
+                                .font(.subTitle2())
+                                .foregroundStyle(primaryText)
+
+                            DatePicker("", selection: $viewModel.paymentDate, in: ...viewModel.maximumDate, displayedComponents: .date)
+                                .labelsHidden()
+                        }
                         .padding(.top, 16)
-                        .frame(width: 170, alignment: .center)
 
                         GroupPaymentAmountView(amount: $viewModel.amount)
 
@@ -74,15 +61,15 @@ struct GroupPaymentView: View {
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .navigationBarTitle("Record a payment", displayMode: .inline)
+        .navigationBarTitle(viewModel.transactionId != nil ? "Edit payment" : "Record a payment", displayMode: .inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Save") {
-                    viewModel.handleSaveAction {
-
-                    }
+                Button("Save", action: viewModel.handleSaveAction)
+            }
+            if viewModel.transactionId != nil {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel", action: viewModel.dismissPaymentFlow)
                 }
-                .foregroundStyle(primaryColor)
             }
         }
     }
