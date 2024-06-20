@@ -47,7 +47,7 @@ private struct JoinWithCodeView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 10) {
-            TextField("", text: $code)
+            TextField("Code", text: $code)
                 .font(.subTitle1(34))
                 .foregroundColor(primaryText)
                 .kerning(16)

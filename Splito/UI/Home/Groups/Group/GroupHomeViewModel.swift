@@ -23,6 +23,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var memberOwingAmount: [String: Double] = [:]
 
     @Published var showSettleUpSheet = false
+    @Published var showTransactionsSheet = false
     @Published var showBalancesSheet = false
     @Published var showGroupTotalSheet = false
     @Published private(set) var showSearchBar = false
@@ -46,7 +47,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     private let groupId: String
     private let router: Router<AppRoute>
-	private var groupUserData: [AppUser] = []
+    private var groupUserData: [AppUser] = []
     private let onGroupSelected: ((String?) -> Void)?
 
     init(router: Router<AppRoute>, groupId: String, onGroupSelected: ((String?) -> Void)?) {
@@ -255,8 +256,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private func setGroupViewState() {
         guard let group else { return }
         groupState = group.members.count > 1 ?
-            (expenses.isEmpty ? .noExpense : .hasExpense) :
-            (expenses.isEmpty ? .noMember : .hasExpense)
+        (expenses.isEmpty ? .noExpense : .hasExpense) :
+        (expenses.isEmpty ? .noMember : .hasExpense)
     }
 
     func showExpenseDeleteAlert(expenseId: String) {
@@ -300,10 +301,6 @@ extension GroupHomeViewModel {
         router.push(.GroupSettingView(groupId: groupId))
     }
 
-    func handleShowTransactionOptionTap() {
-        router.push(.TransactionListView(groupId: groupId))
-    }
-
     func handleExpenseItemTap(expenseId: String) {
         router.push(.ExpenseDetailView(expenseId: expenseId))
     }
@@ -322,6 +319,10 @@ extension GroupHomeViewModel {
 
     func handleTotalBtnTap() {
         showGroupTotalSheet = true
+    }
+
+    func handleTransactionsBtnTap() {
+        showTransactionsSheet = true
     }
 
     func handleSearchOptionTap() {

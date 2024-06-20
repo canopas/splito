@@ -41,6 +41,11 @@ struct GroupHomeView: View {
                 viewModel.showSettleUpSheet = false
             }
         }
+        .fullScreenCover(isPresented: $viewModel.showTransactionsSheet) {
+            GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.group?.id ?? ""))) {
+                viewModel.showTransactionsSheet = false
+            }
+        }
         .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
             NavigationStack {
                 GroupBalancesView(viewModel: GroupBalancesViewModel(groupId: viewModel.group?.id ?? ""))
@@ -58,9 +63,6 @@ struct GroupHomeView: View {
                         Button(action: viewModel.handleSearchOptionTap) {
                             Label("Search", systemImage: "magnifyingglass")
                         }
-                    }
-                    Button(action: viewModel.handleShowTransactionOptionTap) {
-                        Label("Show transaction", systemImage: "list.bullet.rectangle.portrait")
                     }
                     Button(action: viewModel.handleSettingsOptionTap) {
                         Label("Settings", systemImage: "gearshape")
@@ -86,19 +88,25 @@ struct GroupOptionsListView: View {
     var isSettleUpEnable: Bool
 
     let onSettleUpTap: () -> Void
+    let onTransactionsTap: () -> Void
     let onBalanceTap: () -> Void
     let onTotalsTap: () -> Void
 
     var body: some View {
-        HStack(spacing: 16) {
-            GroupOptionsButtonView(text: "Settle up", isForSettleUp: isSettleUpEnable, onTap: onSettleUpTap)
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 16) {
+                GroupOptionsButtonView(text: "Settle up", isForSettleUp: isSettleUpEnable, onTap: onSettleUpTap)
 
-            GroupOptionsButtonView(text: "Balances", onTap: onBalanceTap)
+                GroupOptionsButtonView(text: "Transactions", onTap: onTransactionsTap)
 
-            GroupOptionsButtonView(text: "Totals", onTap: onTotalsTap)
+                GroupOptionsButtonView(text: "Balances", onTap: onBalanceTap)
+
+                GroupOptionsButtonView(text: "Totals", onTap: onTotalsTap)
+            }
+            .padding(.bottom, 4)
+            .padding(.vertical, 6)
+            .padding(.horizontal, 20)
         }
-        .padding(.bottom, 4)
-        .padding(.vertical, 6)
     }
 }
 

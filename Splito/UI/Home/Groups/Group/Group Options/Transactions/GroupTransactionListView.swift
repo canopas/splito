@@ -13,6 +13,8 @@ struct GroupTransactionListView: View {
 
     @StateObject var viewModel: GroupTransactionListViewModel
 
+    @Environment(\.dismiss) var dismiss
+
     var body: some View {
         VStack(alignment: .center) {
             if case .loading = viewModel.currentViewState {
@@ -35,6 +37,13 @@ struct GroupTransactionListView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .navigationBarTitle("Transactions", displayMode: .inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button("Cancel") {
+                    dismiss()
+                }
+            }
+        }
         .onAppear(perform: viewModel.fetchTransactions)
     }
 }

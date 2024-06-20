@@ -128,6 +128,9 @@
     "Choose Payer" : {
 
     },
+    "Code" : {
+
+    },
     "Countries" : {
 
     },
@@ -354,9 +357,6 @@
       "extractionState" : "manual"
     },
     "Share this invitation code with your trusted one in your own style. Connecting with your friends is as flexible as you are." : {
-
-    },
-    "Show transaction" : {
 
     },
     "Sign in with Apple" : {

@@ -98,15 +98,29 @@ private struct PhoneLoginOtpView: View {
     let onResendOtp: () -> Void
 
     private let OTP_TOTAL_CHARACTERS = 6
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .center, spacing: 0) {
-                CustomTextField(text: $otp, selectedField: $selectedField, placeholder: "Enter code", font: .inter(.medium, size: 34),
-                                placeholderFont: .inter(.medium, size: 16), tag: 1, isDisabled: showLoader, keyboardType: .numberPad,
-                                returnKey: .default, textAlignment: .center, characterLimit: 6, textContentType: .oneTimeCode)
-                .frame(height: 45, alignment: .center)
-                .background(Color.clear)
+                TextField("", text: $otp)
+                    .font(.subTitle1(34))
+                    .foregroundColor(primaryText)
+                    .kerning(16)
+                    .multilineTextAlignment(.center)
+                    .keyboardType(.numberPad)
+                    .textContentType(.oneTimeCode)
+                    .disableAutocorrection(true)
+                    .focused($isFocused)
+                    .onChange(of: otp) { newValue in
+                        if newValue.count > OTP_TOTAL_CHARACTERS {
+                            otp = String(newValue.prefix(OTP_TOTAL_CHARACTERS))
+                        }
+                        if newValue.count == OTP_TOTAL_CHARACTERS {
+                            onVerify()
+                            UIApplication.shared.endEditing()
+                        }
+                    }
 
                 Divider()
                     .background(outlineColor)
@@ -114,9 +128,9 @@ private struct PhoneLoginOtpView: View {
             }
             .onAppear {
                 if otp.isEmpty {
-                    selectedField = 1
+                    isFocused = true
                 } else {
-                    selectedField = 0
+                    isFocused = false
                     UIApplication.shared.endEditing()
                 }
             }
@@ -150,11 +164,8 @@ private struct PhoneLoginOtpView: View {
             }
         }
         .padding(.horizontal, 16)
-        .onChange(of: otp) { _ in
-            if otp.count == OTP_TOTAL_CHARACTERS {
-                onVerify()
-                UIApplication.shared.endEditing()
-            }
+        .onChange(of: selectedField) { newValue in
+            isFocused = (newValue == 1)
         }
     }
 }

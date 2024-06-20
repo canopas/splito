@@ -38,6 +38,7 @@ struct GroupExpenseListView: View {
 
                         GroupOptionsListView(isSettleUpEnable: viewModel.group?.members.count ?? 1 > 1,
                                              onSettleUpTap: viewModel.handleSettleUpBtnTap,
+                                             onTransactionsTap: viewModel.handleTransactionsBtnTap,
                                              onBalanceTap: viewModel.handleBalancesBtnTap,
                                              onTotalsTap: viewModel.handleTotalBtnTap)
 
@@ -62,7 +63,6 @@ struct GroupExpenseListView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 20)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowBackground(backgroundColor)
@@ -78,6 +78,7 @@ struct GroupExpenseListView: View {
             .font(.subTitle2())
             .foregroundStyle(primaryText)
             .padding(.bottom, 8)
+            .padding(.horizontal, 20)
     }
 }
 
@@ -162,7 +163,7 @@ private struct GroupExpenseItemView: View {
             .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
         }
         .padding(.vertical, 8)
-        .padding(.horizontal, 6)
+        .padding(.horizontal, 26)
     }
 }
 
@@ -197,6 +198,7 @@ private struct GroupExpenseHeaderView: View {
                 }
             }
         }
+        .padding(.horizontal, 20)
         .padding(.vertical, 24)
     }
 }
@@ -245,6 +247,7 @@ private struct ExpenseNotFoundView: View {
 
             VSpacer()
         }
+        .padding(.horizontal, 20)
         .frame(minHeight: geometry.size.height / 2, maxHeight: .infinity, alignment: .center)
     }
 }

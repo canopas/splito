@@ -10,6 +10,7 @@
 		0BF8F99614F85846D78DE106 /* Pods_Splito_SplitoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2B9BBF3F71277A6AA5329CB /* Pods_Splito_SplitoUITests.framework */; };
 		213BA0602C0F465000116130 /* GroupSettleUpRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213BA05F2C0F465000116130 /* GroupSettleUpRouteView.swift */; };
 		213BA0662C11B70F00116130 /* HomeRouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */; };
+		2156A8B02C24069800CFAB64 /* GroupTransactionsRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2156A8AF2C24069800CFAB64 /* GroupTransactionsRouteView.swift */; };
 		2177692B2C203160009B3B37 /* GroupTransactionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2177692A2C203160009B3B37 /* GroupTransactionDetailView.swift */; };
 		2177692D2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2177692C2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift */; };
 		217BEC122C00AD78000CBBB4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 217BEC112C00AD78000CBBB4 /* GoogleService-Info.plist */; };
@@ -138,6 +139,7 @@
 		038CCD15E82A4E16A4AD213C /* Pods-Splito-SplitoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito-SplitoUITests.release.xcconfig"; path = "Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests.release.xcconfig"; sourceTree = "<group>"; };
 		213BA05F2C0F465000116130 /* GroupSettleUpRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSettleUpRouteView.swift; sourceTree = "<group>"; };
 		213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRouteViewModel.swift; sourceTree = "<group>"; };
+		2156A8AF2C24069800CFAB64 /* GroupTransactionsRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionsRouteView.swift; sourceTree = "<group>"; };
 		2177692A2C203160009B3B37 /* GroupTransactionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionDetailView.swift; sourceTree = "<group>"; };
 		2177692C2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionDetailViewModel.swift; sourceTree = "<group>"; };
 		217BEC0F2C00AB9E000CBBB4 /* Secrets.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
@@ -274,6 +276,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2156A8AE2C24064400CFAB64 /* Transactions */ = {
+			isa = PBXGroup;
+			children = (
+				2156A8AF2C24069800CFAB64 /* GroupTransactionsRouteView.swift */,
+				21B1C0992C1C59F10098B4FD /* GroupTransactionListView.swift */,
+				21B1C09B2C1C5A040098B4FD /* GroupTransactionListViewModel.swift */,
+				2177692E2C206678009B3B37 /* Transaction Detail */,
+			);
+			path = Transactions;
+			sourceTree = "<group>";
+		};
 		2177692E2C206678009B3B37 /* Transaction Detail */ = {
 			isa = PBXGroup;
 			children = (
@@ -286,20 +299,9 @@
 		21B1C0972C1C59630098B4FD /* More Options */ = {
 			isa = PBXGroup;
 			children = (
-				21B1C0982C1C59C10098B4FD /* Transactions */,
 				D8A7CA732BA486290014EC67 /* Group Setting */,
 			);
 			path = "More Options";
-			sourceTree = "<group>";
-		};
-		21B1C0982C1C59C10098B4FD /* Transactions */ = {
-			isa = PBXGroup;
-			children = (
-				21B1C0992C1C59F10098B4FD /* GroupTransactionListView.swift */,
-				21B1C09B2C1C5A040098B4FD /* GroupTransactionListViewModel.swift */,
-				2177692E2C206678009B3B37 /* Transaction Detail */,
-			);
-			path = Transactions;
 			sourceTree = "<group>";
 		};
 		7530D0A01F0D8D2C363B2A6E /* Frameworks */ = {
@@ -342,6 +344,7 @@
 			isa = PBXGroup;
 			children = (
 				D83344562C0DD03B00CD9F05 /* Settle up */,
+				2156A8AE2C24064400CFAB64 /* Transactions */,
 				D83344552C0DD02F00CD9F05 /* Balances */,
 				D833445F2C0EF1D300CD9F05 /* Totals */,
 			);
@@ -1030,6 +1033,7 @@
 				D85E86E92BB3FD49002EDF76 /* ChoosePayerView.swift in Sources */,
 				D833446E2C0F2D4C00CD9F05 /* GroupWhoGettingPaidViewModel.swift in Sources */,
 				D856C7342BCFD2260008A341 /* ExpenseDetailsViewModel.swift in Sources */,
+				2156A8B02C24069800CFAB64 /* GroupTransactionsRouteView.swift in Sources */,
 				D8AC26F62B84B12800CEAAD3 /* LoginViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

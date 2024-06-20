@@ -23,9 +23,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var receiver: AppUser?
     @Published private(set) var viewState: ViewState = .initial
 
-    @Published private(set) var payerId: String
-    @Published private(set) var receiverId: String
-    @Published private(set) var transactionId: String?
     @Published private(set) var dismissPaymentFlow: () -> Void
 
     var payerName: String {
@@ -38,7 +35,10 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         return user.id == receiverId ? "You" : receiver?.nameWithLastInitial ?? "Unknown"
     }
 
+    let transactionId: String?
     private let groupId: String
+    private let payerId: String
+    private let receiverId: String
     private var transaction: Transactions?
     private let router: Router<AppRoute>?
 
