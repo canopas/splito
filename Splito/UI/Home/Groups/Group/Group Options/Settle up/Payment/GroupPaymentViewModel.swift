@@ -17,6 +17,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     @Published var amount: Double = 0
     @Published var paymentDate = Date()
+    @Published private(set) var maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date())!
 
     @Published private(set) var payer: AppUser?
     @Published private(set) var receiver: AppUser?
@@ -26,6 +27,16 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var receiverId: String
     @Published private(set) var transactionId: String?
     @Published private(set) var dismissPaymentFlow: () -> Void
+
+    var payerName: String {
+        guard let user = preference.user else { return "" }
+        return user.id == payerId ? "You" : payer?.nameWithLastInitial ?? "Unknown"
+    }
+
+    var payableName: String {
+        guard let user = preference.user else { return "" }
+        return user.id == receiverId ? "You" : receiver?.nameWithLastInitial ?? "Unknown"
+    }
 
     private let groupId: String
     private var transaction: Transactions?

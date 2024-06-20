@@ -11,24 +11,7 @@ import Data
 
 struct GroupPaymentView: View {
 
-    @Inject private var preference: SplitoPreference
     @StateObject var viewModel: GroupPaymentViewModel
-
-    var payerName: String {
-        if let user = preference.user, user.id == viewModel.payerId {
-            return "You"
-        }
-        return viewModel.payer?.nameWithLastInitial ?? "Unknown"
-    }
-
-    var payableName: String {
-        if let user = preference.user, user.id == viewModel.receiverId {
-            return "You"
-        }
-        return viewModel.receiver?.nameWithLastInitial ?? "Unknown"
-    }
-
-    let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date())!
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
@@ -51,7 +34,7 @@ struct GroupPaymentView: View {
                         }
                         .padding(.top, 20)
 
-                        Text("\(payerName) paid \(payableName)")
+                        Text("\(viewModel.payerName) paid \(viewModel.payableName)")
                             .font(.body1())
                             .foregroundStyle(primaryText)
 
@@ -60,7 +43,7 @@ struct GroupPaymentView: View {
                                 .font(.subTitle2())
                                 .foregroundStyle(primaryText)
 
-                            DatePicker("", selection: $viewModel.paymentDate, in: ...maximumDate, displayedComponents: .date)
+                            DatePicker("", selection: $viewModel.paymentDate, in: ...viewModel.maximumDate, displayedComponents: .date)
                                 .labelsHidden()
                         }
                         .padding(.top, 16)

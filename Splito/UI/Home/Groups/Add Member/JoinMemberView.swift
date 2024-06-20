@@ -43,15 +43,27 @@ private struct JoinWithCodeView: View {
     @Binding var selectedField: Int
 
     private let CODE_TOTAL_CHARACTERS = 6
+    @FocusState private var isFocused: Bool
 
     var body: some View {
-        VStack(alignment: .center, spacing: 0) {
-            CustomTextField(text: $code, selectedField: $selectedField, placeholder: "Code",
-                            font: .inter(.medium, size: 34), placeholderFont: .inter(.medium, size: 16),
-                            tag: 1, keyboardType: .alphabet, returnKey: .done, textAlignment: .center,
-                            characterLimit: 6, textContentType: .oneTimeCode)
-            .frame(height: 45, alignment: .center)
-            .background(Color.clear)
+        VStack(alignment: .center, spacing: 10) {
+            TextField("", text: $code)
+                .font(.subTitle1(34))
+                .foregroundColor(primaryText)
+                .kerning(16)
+                .multilineTextAlignment(.center)
+                .keyboardType(.alphabet)
+                .textContentType(.oneTimeCode)
+                .disableAutocorrection(true)
+                .focused($isFocused)
+                .onChange(of: code) { newValue in
+                    if newValue.count > CODE_TOTAL_CHARACTERS {
+                        code = String(newValue.prefix(CODE_TOTAL_CHARACTERS))
+                    }
+                    if newValue.count == CODE_TOTAL_CHARACTERS {
+                        UIApplication.shared.endEditing()
+                    }
+                }
 
             Divider()
                 .background(outlineColor)
@@ -59,17 +71,15 @@ private struct JoinWithCodeView: View {
         }
         .onAppear {
             if code.isEmpty {
-                selectedField = 1
+                isFocused = true
             } else {
-                selectedField = 0
+                isFocused = false
                 UIApplication.shared.endEditing()
             }
         }
         .padding(.horizontal, 16)
-        .onChange(of: code) { _ in
-            if code.count == CODE_TOTAL_CHARACTERS {
-                UIApplication.shared.endEditing()
-            }
+        .onChange(of: selectedField) { newValue in
+            isFocused = (newValue == 1)
         }
     }
 }
