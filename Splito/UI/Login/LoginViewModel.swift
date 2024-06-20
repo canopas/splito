@@ -111,7 +111,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 					self.alert = .init(message: error.localizedDescription)
 					self.showAlert = true
 				}
-            } receiveValue: { [weak self] _ in
+            } receiveValue: { [weak self] user in
                 guard let self else { return }
 				self.preference.user = user
                 self.onLoginSuccess()
