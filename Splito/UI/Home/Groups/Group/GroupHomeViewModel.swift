@@ -88,7 +88,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] expenses in
-                guard let self, let group, !self.expenses.isEmpty else { return }
+                guard let self, let group else { return }
                 self.expenses = expenses
                 if group.isDebtSimplified {
                     self.calculateExpensesSimply()
