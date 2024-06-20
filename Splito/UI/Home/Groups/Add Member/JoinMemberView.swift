@@ -12,7 +12,6 @@ struct JoinMemberView: View {
 
     @StateObject var viewModel: JoinMemberViewModel
 
-    @State var selectedField: Int = 0
     @FocusState private var isFocused: Bool
 
     var body: some View {

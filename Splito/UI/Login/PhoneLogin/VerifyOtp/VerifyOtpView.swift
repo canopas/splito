@@ -12,8 +12,6 @@ public struct VerifyOtpView: View {
 
     @StateObject var viewModel: VerifyOtpViewModel
 
-    @State var selectedField: Int = 0
-
     public var body: some View {
         ScrollView {
             VStack(spacing: 0) {
@@ -58,13 +56,11 @@ public struct VerifyOtpView: View {
                 HStack(spacing: 0) {
                     Spacer()
 
-                    PhoneLoginOtpView(otp: $viewModel.otp, resendOtpCount: $viewModel.resendOtpCount,
-                                      selectedField: $selectedField, showLoader: viewModel.showLoader,
+                    PhoneLoginOtpView(otp: $viewModel.otp, resendOtpCount: $viewModel.resendOtpCount, showLoader: viewModel.showLoader,
                                       onVerify: {
-                        viewModel.verifyOTP()
-                        selectedField = 0
-                        UIApplication.shared.endEditing()
-                    },
+                                            viewModel.verifyOTP()
+                                            UIApplication.shared.endEditing()
+                                      },
                                       onResendOtp: viewModel.resendOtp)
                     .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
 
@@ -78,7 +74,6 @@ public struct VerifyOtpView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toastView(toast: $viewModel.toast)
         .onTapGesture {
-            selectedField = 0
             UIApplication.shared.endEditing()
         }
         .onDisappear {
@@ -91,13 +86,11 @@ private struct PhoneLoginOtpView: View {
 
     @Binding var otp: String
     @Binding var resendOtpCount: Int
-    @Binding var selectedField: Int
     let showLoader: Bool
 
     let onVerify: () -> Void
     let onResendOtp: () -> Void
 
-    private let OTP_TOTAL_CHARACTERS = 6
     @FocusState private var isFocused: Bool
 
     var body: some View {
@@ -133,9 +126,6 @@ private struct PhoneLoginOtpView: View {
             }
         }
         .padding(.horizontal, 16)
-        .onChange(of: selectedField) { newValue in
-            isFocused = (newValue == 1)
-        }
     }
 }
 
