@@ -33,11 +33,11 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     init(router: Router<AppRoute>, transactionId: String?, groupId: String, payerId: String, receiverId: String, amount: Double, dismissPaymentFlow: @escaping () -> Void) {
         self.router = router
-        self.transactionId = transactionId
+        self.amount = abs(amount)
         self.groupId = groupId
         self.payerId = payerId
         self.receiverId = receiverId
-        self.amount = abs(amount)
+        self.transactionId = transactionId
         self.dismissPaymentFlow = dismissPaymentFlow
         super.init()
 
@@ -99,7 +99,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             var newTransaction = transaction
             newTransaction.amount = amount
             newTransaction.date = .init(date: paymentDate)
-
             updateTransaction(transaction: newTransaction)
         } else {
             addTransaction(transaction: Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,

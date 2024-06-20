@@ -1,14 +1,14 @@
 //
-//  TransactionListViewModel.swift
+//  GroupTransactionListViewModel.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 14/06/24.
+//  Created by Amisha Italiya on 14/06/24.
 //
 
 import Data
 import SwiftUI
 
-class TransactionListViewModel: BaseViewModel, ObservableObject {
+class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
@@ -16,6 +16,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var transactionsWithUser: [TransactionWithUser] = []
     @Published private(set) var filteredTransactions: [String: [TransactionWithUser]] = [:]
 
+    @Published private var transactions: [Transactions] = []
     @Published var selectedTab: TransactionTabType = .thisMonth
     @Published private(set) var currentViewState: ViewState = .loading
 
@@ -25,7 +26,6 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
         return formatter
     }()
 
-    private var transactions: [Transactions] = []
     private let groupId: String
     private let router: Router<AppRoute>
 
@@ -33,6 +33,7 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         super.init()
+        fetchLatestTransactions()
     }
 
     // MARK: - Data Loading
@@ -44,7 +45,19 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
                 self?.handleServiceError(error)
             }
         } receiveValue: { [weak self] transactions in
-            guard let self = self else { return }
+            guard let self else { return }
+            self.transactions = transactions
+            self.combinedTransactionsWithUser()
+        }.store(in: &cancelable)
+    }
+
+    private func fetchLatestTransactions() {
+        transactionRepository.fetchLatestTransactionsBy(groupId: groupId).sink { [weak self] completion in
+            if case .failure(let error) = completion {
+                self?.handleServiceError(error)
+            }
+        } receiveValue: { [weak self] transactions in
+            guard let self, !self.transactions.isEmpty else { return }
             self.transactions = transactions
             self.combinedTransactionsWithUser()
         }.store(in: &cancelable)
@@ -96,7 +109,6 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
                 withAnimation {
                     if let index = self.transactions.firstIndex(where: { $0.id == transactionId }) {
                         self.transactions.remove(at: index)
-                        self.combinedTransactionsWithUser()
                     }
                 }
                 self.showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully"))
@@ -131,18 +143,18 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
     private func filteredTransactionsForSelectedTab() {
         var currentMonth: String {
             let currentMonth = Date()
-            return TransactionListViewModel.dateFormatter.string(from: currentMonth)
+            return GroupTransactionListViewModel.dateFormatter.string(from: currentMonth)
         }
 
         var lastMonth: String {
             let lastMonth = Calendar.current.date(byAdding: .month, value: -1, to: Date())
-            return TransactionListViewModel.dateFormatter.string(from: lastMonth ?? Date())
+            return GroupTransactionListViewModel.dateFormatter.string(from: lastMonth ?? Date())
         }
 
         var groupedTransactions: [String: [TransactionWithUser]] {
             return Dictionary(grouping: transactionsWithUser
                 .sorted { $0.transaction.date.dateValue() > $1.transaction.date.dateValue() }) { transaction in
-                    return TransactionListViewModel.dateFormatter.string(from: transaction.transaction.date.dateValue())
+                    return GroupTransactionListViewModel.dateFormatter.string(from: transaction.transaction.date.dateValue())
                 }
         }
 
@@ -185,9 +197,9 @@ class TransactionListViewModel: BaseViewModel, ObservableObject {
 }
 
 // MARK: - View States
-extension TransactionListViewModel {
+extension GroupTransactionListViewModel {
     enum ViewState: Equatable {
-        static func == (lhs: TransactionListViewModel.ViewState, rhs: TransactionListViewModel.ViewState) -> Bool {
+        static func == (lhs: GroupTransactionListViewModel.ViewState, rhs: GroupTransactionListViewModel.ViewState) -> Bool {
             lhs.key == rhs.key
         }
 

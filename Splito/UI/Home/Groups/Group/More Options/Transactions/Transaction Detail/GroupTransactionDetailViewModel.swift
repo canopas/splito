@@ -1,14 +1,14 @@
 //
-//  TransactionDetailViewModel.swift
+//  GroupTransactionDetailViewModel.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 17/06/24.
+//  Created by Amisha Italiya on 17/06/24.
 //
 
 import Data
 import Foundation
 
-class TransactionDetailViewModel: BaseViewModel, ObservableObject {
+class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     @Inject private var userRepository: UserRepository
     @Inject private var transactionRepository: TransactionRepository
@@ -128,7 +128,7 @@ class TransactionDetailViewModel: BaseViewModel, ObservableObject {
 }
 
 // MARK: - View States
-extension TransactionDetailViewModel {
+extension GroupTransactionDetailViewModel {
     enum ViewState {
         case initial
         case loading

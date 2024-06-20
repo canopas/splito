@@ -1,17 +1,17 @@
 //
-//  TransactionDetailView.swift
+//  GroupTransactionDetailView.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 17/06/24.
+//  Created by Amisha Italiya on 17/06/24.
 //
 
 import SwiftUI
 import BaseStyle
 import Data
 
-struct TransactionDetailView: View {
+struct GroupTransactionDetailView: View {
 
-    @StateObject var viewModel: TransactionDetailViewModel
+    @StateObject var viewModel: GroupTransactionDetailViewModel
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
@@ -47,7 +47,15 @@ struct TransactionDetailView: View {
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .fullScreenCover(isPresented: $viewModel.showEditTransactionSheet) {
             NavigationStack {
-                GroupPaymentView(viewModel: GroupPaymentViewModel(router: viewModel.router, transactionId: viewModel.transactionId, groupId: viewModel.groupId, payerId: viewModel.transaction?.payerId ?? "", receiverId: viewModel.transaction?.receiverId ?? "", amount: viewModel.transaction?.amount ?? 0, dismissPaymentFlow: viewModel.dismissEditTransactionSheet))
+                GroupPaymentView(
+                    viewModel: GroupPaymentViewModel(
+                        router: viewModel.router, transactionId: viewModel.transactionId,
+                        groupId: viewModel.groupId, payerId: viewModel.transaction?.payerId ?? "",
+                        receiverId: viewModel.transaction?.receiverId ?? "",
+                        amount: viewModel.transaction?.amount ?? 0,
+                        dismissPaymentFlow: viewModel.dismissEditTransactionSheet
+                    )
+                )
             }
         }
         .toolbar {
@@ -74,7 +82,7 @@ private struct TransactionInfoView: View {
 
     @Inject var preference: SplitoPreference
 
-    let viewModel: TransactionDetailViewModel
+    let viewModel: GroupTransactionDetailViewModel
 
     var addedUserName: String {
         let user = viewModel.getMemberDataBy(id: viewModel.transaction?.addedBy ?? "")
@@ -118,5 +126,5 @@ private struct TransactionInfoView: View {
 }
 
 #Preview {
-    TransactionDetailView(viewModel: TransactionDetailViewModel(router: .init(root: .TransactionDetailView(transactionId: "", groupId: "")), transactionId: "", groupId: ""))
+    GroupTransactionDetailView(viewModel: GroupTransactionDetailViewModel(router: .init(root: .TransactionDetailView(transactionId: "", groupId: "")), transactionId: "", groupId: ""))
 }

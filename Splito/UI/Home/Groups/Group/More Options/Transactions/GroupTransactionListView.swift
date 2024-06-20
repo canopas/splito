@@ -1,17 +1,17 @@
 //
-//  TransactionListView.swift
+//  GroupTransactionListView.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 14/06/24.
+//  Created by Amisha Italiya on 14/06/24.
 //
 
 import SwiftUI
 import BaseStyle
 import Data
 
-struct TransactionListView: View {
+struct GroupTransactionListView: View {
 
-    @StateObject var viewModel: TransactionListViewModel
+    @StateObject var viewModel: GroupTransactionListViewModel
 
     var body: some View {
         VStack(alignment: .center) {
@@ -41,7 +41,7 @@ struct TransactionListView: View {
 
 private struct TransactionListWithDetailView: View {
 
-    @ObservedObject var viewModel: TransactionListViewModel
+    @ObservedObject var viewModel: GroupTransactionListViewModel
 
     var body: some View {
         GeometryReader { geometry in

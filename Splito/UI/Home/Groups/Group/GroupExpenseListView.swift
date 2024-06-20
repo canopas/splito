@@ -2,7 +2,7 @@
 //  GroupExpenseListView.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 14/06/24.
+//  Created by Amisha Italiya on 14/06/24.
 //
 
 import SwiftUI
@@ -26,9 +26,7 @@ struct GroupExpenseListView: View {
                         placeholder: "Search expenses",
                         showCancelButton: true,
                         clearButtonMode: .never,
-                        onCancel: {
-                            viewModel.onSearchBarCancelBtnTap()
-                        }
+                        onCancel: viewModel.onSearchBarCancelBtnTap
                     )
                     .padding(.horizontal, 8)
                     .onAppear(perform: onSearchBarAppear)
