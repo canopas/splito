@@ -97,11 +97,11 @@ struct GroupOptionsListView: View {
             HStack(spacing: 16) {
                 GroupOptionsButtonView(text: "Settle up", isForSettleUp: isSettleUpEnable, onTap: onSettleUpTap)
 
+                GroupOptionsButtonView(text: "Totals", onTap: onTotalsTap)
+
                 GroupOptionsButtonView(text: "Transactions", onTap: onTransactionsTap)
 
                 GroupOptionsButtonView(text: "Balances", onTap: onBalanceTap)
-
-                GroupOptionsButtonView(text: "Totals", onTap: onTotalsTap)
             }
             .padding(.bottom, 4)
             .padding(.vertical, 6)

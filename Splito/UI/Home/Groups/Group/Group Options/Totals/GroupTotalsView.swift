@@ -101,7 +101,7 @@ private struct GroupTotalSummaryView: View {
     }
 
     private var totalShare: Double {
-        viewModel.getTotalShareAmount()
+        return viewModel.getTotalShareAmount()
     }
 
     private var totalChangeInBalance: Double {
@@ -109,11 +109,11 @@ private struct GroupTotalSummaryView: View {
     }
 
     private var paymentsMade: Double {
-        return 0 // Add calculation for payments made
+        return viewModel.getPaymentsMade()
     }
 
     private var paymentsReceived: Double {
-        return 0 // Add calculation for payments received
+        return viewModel.getPaymentsReceived()
     }
 
     var body: some View {
@@ -124,7 +124,7 @@ private struct GroupTotalSummaryView: View {
             GroupSummaryAmountView(text: "Payments made", amount: paymentsMade)
             GroupSummaryAmountView(text: "Payments received", amount: paymentsReceived)
             GroupSummaryAmountView(text: "Total change in balance", amount: totalChangeInBalance,
-                             fontColor: (totalChangeInBalance < 0 ? amountBorrowedColor : amountLentColor))
+                                   fontColor: (totalChangeInBalance < 0 ? amountBorrowedColor : amountLentColor))
         }
         .padding(.horizontal, 4)
     }
