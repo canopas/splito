@@ -102,37 +102,14 @@ private struct PhoneLoginOtpView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            VStack(alignment: .center, spacing: 0) {
-                TextField("", text: $otp)
-                    .font(.subTitle1(34))
-                    .foregroundColor(primaryText)
-                    .kerning(16)
-                    .multilineTextAlignment(.center)
-                    .keyboardType(.numberPad)
-                    .textContentType(.oneTimeCode)
-                    .disableAutocorrection(true)
-                    .focused($isFocused)
-                    .onChange(of: otp) { newValue in
-                        if newValue.count > OTP_TOTAL_CHARACTERS {
-                            otp = String(newValue.prefix(OTP_TOTAL_CHARACTERS))
-                        }
-                        if newValue.count == OTP_TOTAL_CHARACTERS {
-                            onVerify()
-                            UIApplication.shared.endEditing()
-                        }
+            OtpTextInputView(text: $otp, isFocused: $isFocused, onOtpVerify: onVerify)
+                .onAppear {
+                    if otp.isEmpty {
+                        isFocused = true
+                    } else {
+                        isFocused = false
+                        UIApplication.shared.endEditing()
                     }
-
-                Divider()
-                    .background(outlineColor)
-                    .padding(.horizontal, 60)
-            }
-            .onAppear {
-                if otp.isEmpty {
-                    isFocused = true
-                } else {
-                    isFocused = false
-                    UIApplication.shared.endEditing()
-                }
             }
 
             VSpacer(40)

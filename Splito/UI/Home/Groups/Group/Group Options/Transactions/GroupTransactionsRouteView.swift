@@ -2,7 +2,7 @@
 //  GroupTransactionsRouteView.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 20/06/24.
+//  Created by Amisha Italiya on 20/06/24.
 //
 
 import BaseStyle
@@ -25,12 +25,21 @@ struct GroupTransactionsRouteView: View {
             switch route {
             case .TransactionListView(let groupId):
                 GroupTransactionListView(viewModel: GroupTransactionListViewModel(router: appRoute, groupId: groupId))
+
             case .TransactionDetailView(let transactionId, let groupId):
-                GroupTransactionDetailView(viewModel: GroupTransactionDetailViewModel(router: appRoute, transactionId: transactionId, groupId: groupId))
+                GroupTransactionDetailView(
+                    viewModel: GroupTransactionDetailViewModel(
+                        router: appRoute, transactionId: transactionId, groupId: groupId
+                    )
+                )
             case .GroupPaymentView(let transactionId, let groupId, let payerId, let receiverId, let amount):
-                GroupPaymentView(viewModel: GroupPaymentViewModel(router: appRoute, transactionId: transactionId, groupId: groupId,
-                                                                  payerId: payerId, receiverId: receiverId,
-                                                                  amount: amount, dismissPaymentFlow: dismissPaymentFlow))
+                GroupPaymentView(
+                    viewModel: GroupPaymentViewModel(
+                        router: appRoute, transactionId: transactionId,
+                        groupId: groupId, payerId: payerId, receiverId: receiverId,
+                        amount: amount, dismissPaymentFlow: dismissPaymentFlow
+                    )
+                )
             default:
                 EmptyRouteView(routeName: self)
             }
