@@ -6,24 +6,7 @@
 //
 
 import Data
-import Combine
 import SwiftUI
-
-enum GroupTotalsTabType: Int, CaseIterable {
-
-    case thisMonth, lastMonth, allTime
-
-    var tabItem: String {
-        switch self {
-        case .thisMonth:
-            return "This month"
-        case .lastMonth:
-            return "Last month"
-        case .allTime:
-            return "All time"
-        }
-    }
-}
 
 class GroupTotalsViewModel: BaseViewModel, ObservableObject {
 
@@ -32,23 +15,16 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     @Inject var expenseRepository: ExpenseRepository
     @Inject var transactionRepository: TransactionRepository
 
-    @Published var viewState: ViewState = .initial
-    @Published var selectedTab: GroupTotalsTabType = .thisMonth
+    @Published private(set) var viewState: ViewState = .initial
+    @Published private(set) var selectedTab: GroupTotalsTabType = .thisMonth
 
-    @Published var group: Groups?
-    @Published private var expenses: [Expense] = []
-    @Published var filteredExpenses: [Expense] = []
-
-    @Published private(set) var filteredTransactions: [Transactions] = []
-    @Published private var transactions: [Transactions] = []
-
-    static private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter
-    }()
+    @Published private(set) var group: Groups?
+    @Published private(set) var filteredExpenses: [Expense] = []
 
     private let groupId: String
+    private var expenses: [Expense] = []
+    private var transactions: [Transactions] = []
+    private var filteredTransactions: [Transactions] = []
 
     init(groupId: String) {
         self.groupId = groupId
@@ -108,72 +84,56 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     }
 
     private func filteredExpensesForSelectedTab() {
-        switch selectedTab {
-        case .thisMonth:
-            let calendar = Calendar.current
-            let currentMonth = calendar.component(.month, from: Date())
-            let currentYear = calendar.component(.year, from: Date())
-
-            filteredExpenses = expenses.filter {
-                let expenseDate = $0.date.dateValue()
-                let expenseMonth = calendar.component(.month, from: expenseDate)
-                let expenseYear = calendar.component(.year, from: expenseDate)
-                return expenseMonth == currentMonth && expenseYear == currentYear
-            }
-        case .lastMonth:
-            let calendar = Calendar.current
-            let currentDate = Date()
-
-            guard let lastMonthDate = calendar.date(byAdding: .month, value: -1, to: currentDate) else {
-                return
-            }
-
-            let lastMonth = calendar.component(.month, from: lastMonthDate)
-            let lastMonthYear = calendar.component(.year, from: lastMonthDate)
-
-            filteredExpenses = expenses.filter {
-                let expenseDate = $0.date.dateValue()
-                let expenseMonth = calendar.component(.month, from: expenseDate)
-                let expenseYear = calendar.component(.year, from: expenseDate)
-                return expenseMonth == lastMonth && expenseYear == lastMonthYear
-            }
-        case .allTime:
-            filteredExpenses = expenses
-        }
+        filteredExpenses = filterItemsForSelectedTab(
+            items: expenses,
+            dateExtractor: { $0.date.dateValue() },
+            for: selectedTab
+        )
     }
 
     private func filteredTransactionsForSelectedTab() {
-        switch selectedTab {
+        filteredTransactions = filterItemsForSelectedTab(
+            items: transactions,
+            dateExtractor: { $0.date.dateValue() },
+            for: selectedTab
+        )
+    }
+
+    private func filterItemsForSelectedTab<T>(
+        items: [T],
+        dateExtractor: (T) -> Date,
+        for tab: GroupTotalsTabType
+    ) -> [T] {
+        let calendar = Calendar.current
+
+        switch tab {
         case .thisMonth:
-            let calendar = Calendar.current
             let currentMonth = calendar.component(.month, from: Date())
             let currentYear = calendar.component(.year, from: Date())
 
-            filteredTransactions = transactions.filter {
-                let transactionDate = $0.date.dateValue()
-                let transactionMonth = calendar.component(.month, from: transactionDate)
-                let transactionYear = calendar.component(.year, from: transactionDate)
-                return transactionMonth == currentMonth && transactionYear == currentYear
+            return items.filter {
+                let itemDate = dateExtractor($0)
+                let itemMonth = calendar.component(.month, from: itemDate)
+                let itemYear = calendar.component(.year, from: itemDate)
+                return itemMonth == currentMonth && itemYear == currentYear
             }
         case .lastMonth:
-            let calendar = Calendar.current
             let currentDate = Date()
-
             guard let lastMonthDate = calendar.date(byAdding: .month, value: -1, to: currentDate) else {
-                return
+                return []
             }
 
             let lastMonth = calendar.component(.month, from: lastMonthDate)
             let lastMonthYear = calendar.component(.year, from: lastMonthDate)
 
-            filteredTransactions = transactions.filter {
-                let transactionDate = $0.date.dateValue()
-                let transactionMonth = calendar.component(.month, from: transactionDate)
-                let transactionYear = calendar.component(.year, from: transactionDate)
-                return transactionMonth == lastMonth && transactionYear == lastMonthYear
+            return items.filter {
+                let itemDate = dateExtractor($0)
+                let itemMonth = calendar.component(.month, from: itemDate)
+                let itemYear = calendar.component(.year, from: itemDate)
+                return itemMonth == lastMonth && itemYear == lastMonthYear
             }
         case .allTime:
-            filteredTransactions = transactions
+            return items
         }
     }
 
@@ -201,8 +161,17 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
 
     func getTotalPaid() -> Double {
         guard let user = preference.user else { return 0 }
-        let userExpenses = filteredExpenses.filter { $0.paidBy == user.id }
-        return userExpenses.reduce(0) { $0 + $1.amount }
+        return filteredExpenses.filter { $0.paidBy == user.id }.reduce(0) { $0 + $1.amount }
+    }
+
+    func getPaymentsMade() -> Double {
+        guard let user = preference.user else { return 0 }
+        return filteredTransactions.filter { $0.payerId == user.id }.reduce(0) { $0 + $1.amount }
+    }
+
+    func getPaymentsReceived() -> Double {
+        guard let user = preference.user else { return 0 }
+        return filteredTransactions.filter { $0.receiverId == user.id }.reduce(0) { $0 + $1.amount }
     }
 
     func getTotalChangeInBalance() -> Double {
@@ -221,20 +190,6 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
         return amountOweByMember[user.id] ?? 0
     }
 
-    func getPaymentsMade() -> Double {
-        guard let user = preference.user else { return 0 }
-        let paymentsMade = filteredTransactions
-            .filter { $0.payerId == user.id }
-        return paymentsMade.reduce(0) { $0 + $1.amount }
-    }
-
-    func getPaymentsReceived() -> Double {
-        guard let user = preference.user else { return 0 }
-        let paymentsReceived = filteredTransactions
-            .filter { $0.receiverId == user.id }
-        return paymentsReceived.reduce(0) { $0 + $1.amount }
-    }
-
     // MARK: - Error Handling
     private func handleServiceError(_ error: ServiceError) {
         viewState = .initial
@@ -247,5 +202,22 @@ extension GroupTotalsViewModel {
     enum ViewState {
         case initial
         case loading
+    }
+}
+
+// MARK: - Tab Types
+enum GroupTotalsTabType: Int, CaseIterable {
+
+    case thisMonth, lastMonth, allTime
+
+    var tabItem: String {
+        switch self {
+        case .thisMonth:
+            return "This month"
+        case .lastMonth:
+            return "Last month"
+        case .allTime:
+            return "All time"
+        }
     }
 }

@@ -7,7 +7,6 @@
 
 import SwiftUI
 import BaseStyle
-import Data
 
 struct GroupTotalsView: View {
 
@@ -35,11 +34,9 @@ struct GroupTotalsView: View {
                     }
                     .padding(.horizontal, 16)
                 }
-                .scrollIndicators(.hidden)
             }
         }
         .background(backgroundColor)
-        .interactiveDismissDisabled()
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationBarTitle("Group spending summary", displayMode: .inline)
