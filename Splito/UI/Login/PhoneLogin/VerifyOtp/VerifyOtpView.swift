@@ -103,14 +103,6 @@ private struct PhoneLoginOtpView: View {
     var body: some View {
         VStack(spacing: 0) {
             OtpTextInputView(text: $otp, isFocused: $isFocused, onOtpVerify: onVerify)
-                .onAppear {
-                    if otp.isEmpty {
-                        isFocused = true
-                    } else {
-                        isFocused = false
-                        UIApplication.shared.endEditing()
-                    }
-            }
 
             VSpacer(40)
 

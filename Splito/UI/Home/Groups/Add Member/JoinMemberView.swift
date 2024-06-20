@@ -21,16 +21,7 @@ struct JoinMemberView: View {
 
             HeaderTextView(title: "Enter the Invite Code", alignment: .center)
 
-            OtpTextInputView(text: $viewModel.code, isFocused: $isFocused,
-                             keyboardType: .alphabet, onOtpVerify: nil)
-                .onAppear {
-                    if viewModel.code.isEmpty {
-                        isFocused = true
-                    } else {
-                        isFocused = false
-                        UIApplication.shared.endEditing()
-                    }
-                }
+            OtpTextInputView(text: $viewModel.code, isFocused: $isFocused, keyboardType: .alphabet, onOtpVerify: viewModel.joinMemberWithCode)
 
             SubtitleTextView(text: "Get the code from the group creator to join.")
 

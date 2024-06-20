@@ -49,5 +49,13 @@ public struct OtpTextInputView: View {
                 .background(outlineColor)
                 .padding(.horizontal, 60)
         }
+        .onAppear {
+            if text.isEmpty {
+                isFocused.wrappedValue = true
+            } else {
+                isFocused.wrappedValue = false
+                UIApplication.shared.endEditing()
+            }
+        }
     }
 }
