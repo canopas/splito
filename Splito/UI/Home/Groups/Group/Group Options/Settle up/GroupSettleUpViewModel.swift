@@ -72,6 +72,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             }
         } receiveValue: { [weak self] transactions in
             guard let self else { return }
+            print("transactions data: \(transactions)")
             self.transactions = transactions
         }.store(in: &cancelable)
     }
@@ -85,6 +86,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] expenses in
                 guard let self, let group else { return }
                 self.expenses = expenses
+                print("expenses data: \(expenses)")
                 if group.isDebtSimplified {
                     self.calculateExpensesSimply()
                 } else {
@@ -96,34 +98,52 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     private func calculateExpenses() {
         guard let userId = preference.user?.id else { return }
 
-        print("xxx expenses \(expenses)")
-        print("xxx transactions \(transactions)")
-
-        var owesToUser: [String: Double] = [:]
-        var owedByUser: [String: Double] = [:]
+        var ownAmounts: [String: Double] = [:]
 
         memberOwingAmount = [:]
 
+        // Calculate total amounts owed and paid by each user
         for expense in expenses {
+            ownAmounts[expense.paidBy, default: 0.0] += expense.amount
             let splitAmount = expense.amount / Double(expense.splitTo.count)
 
-            if expense.paidBy == userId {
-                for member in expense.splitTo where member != userId {
-                    owesToUser[member, default: 0.0] += splitAmount
-                }
-            } else if expense.splitTo.contains(where: { $0 == userId }) {
-                owedByUser[expense.paidBy, default: 0.0] += splitAmount
+            for member in expense.splitTo {
+                ownAmounts[member, default: 0.0] -= splitAmount
             }
         }
 
-        DispatchQueue.main.async {
-            owesToUser.forEach { userId, owesAmount in
-                self.memberOwingAmount[userId] = owesAmount
-            }
-            owedByUser.forEach { userId, owedAmount in
-                self.memberOwingAmount[userId] = (self.memberOwingAmount[userId] ?? 0) - owedAmount
+        let debts = settleDebts(users: ownAmounts)
+        for debt in debts {
+            memberOwingAmount[debt.0, default: 0.0] += debt.2
+            memberOwingAmount[debt.1, default: 0.0] -= debt.2
+        }
+        memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
+
+        // Adjust memberOwingAmount based on transactions
+        for transaction in transactions {
+            let payer = transaction.payerId
+            let receiver = transaction.receiverId
+            let amount = transaction.amount
+
+            if payer == userId {
+                if let currentAmount = memberOwingAmount[receiver] {
+                    let newAmount = currentAmount + amount
+                    memberOwingAmount[receiver] = newAmount
+                } else {
+                    memberOwingAmount[receiver] = amount
+                }
+            } else if receiver == userId {
+                if let currentAmount = memberOwingAmount[payer] {
+                    let newAmount = currentAmount - amount
+                    memberOwingAmount[payer] = newAmount
+                } else {
+                    memberOwingAmount[payer] = -amount
+                }
             }
         }
+
+        // Remove zero balances from memberOwingAmount
+        memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
     }
 
     private func calculateExpensesSimply() {
