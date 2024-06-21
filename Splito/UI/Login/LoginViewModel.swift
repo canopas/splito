@@ -16,7 +16,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
-    
+
     @Published private(set) var showGoogleLoading = false
     @Published private(set) var showAppleLoading = false
 
