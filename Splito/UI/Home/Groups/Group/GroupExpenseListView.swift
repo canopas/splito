@@ -182,10 +182,10 @@ private struct GroupExpenseHeaderView: View {
             } else {
                 if viewModel.memberOwingAmount.count < 2, let member = viewModel.memberOwingAmount.first {
                     let name = viewModel.getMemberDataBy(id: member.key)?.nameWithLastInitial ?? "Unknown"
-                    GroupExpenseMemberOweView(name: name, amount: viewModel.overallOwingAmount)
+                    GroupExpenseMemberOweView(name: name, amount: member.value)
                 } else {
                     let isDue = viewModel.overallOwingAmount < 0
-                    Text("You \(isDue ? "owe" : "are owed") \(viewModel.overallOwingAmount.formattedCurrency) overall")
+                    Text("You \(isDue ? "owe" : "are owed") \(abs(viewModel.overallOwingAmount).formattedCurrency) overall")
                         .font(.subTitle2())
                         .foregroundStyle(isDue ? amountBorrowedColor : amountLentColor)
 
