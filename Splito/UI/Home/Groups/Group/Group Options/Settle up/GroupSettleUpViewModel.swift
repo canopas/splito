@@ -72,7 +72,6 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             }
         } receiveValue: { [weak self] transactions in
             guard let self else { return }
-            print("transactions data: \(transactions)")
             self.transactions = transactions
         }.store(in: &cancelable)
     }
@@ -86,7 +85,6 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] expenses in
                 guard let self, let group else { return }
                 self.expenses = expenses
-                print("expenses data: \(expenses)")
                 if group.isDebtSimplified {
                     self.calculateExpensesSimply()
                 } else {

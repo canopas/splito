@@ -116,9 +116,9 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         guard let user = preference.user else { return }
 
         var newUser = user
-        newUser.firstName = firstName.capitalized
-        newUser.lastName = lastName.capitalized
-        newUser.emailId = email
+        newUser.firstName = firstName.trimming(spaces: .leadingAndTrailing).capitalized
+        newUser.lastName = lastName.trimming(spaces: .leadingAndTrailing).capitalized
+        newUser.emailId = email.trimming(spaces: .leadingAndTrailing)
         newUser.phoneNumber = phoneNumber
 
         let resizedImage = profileImage?.aspectFittedToHeight(200)
