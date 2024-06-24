@@ -185,11 +185,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         queue.notify(queue: .main) { [self] in
-            owesToUser.forEach { payerId, amount in
-                memberOwingAmount[payerId, default: 0.0] += amount
+            owesToUser.forEach { payerId, owesAmount in
+                memberOwingAmount[payerId, default: 0.0] += owesAmount
             }
-            owedByUser.forEach { receiverId, amount in
-                memberOwingAmount[receiverId, default: 0.0] -= amount
+            owedByUser.forEach { receiverId, owedAmount in
+                memberOwingAmount[receiverId, default: 0.0] -= owedAmount
             }
 
             self.expensesWithUser = combinedData

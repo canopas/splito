@@ -11,19 +11,19 @@ import SwiftUI
 
 class GroupListViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var preference: SplitoPreference
-    @Inject var groupRepository: GroupRepository
-    @Inject var expenseRepository: ExpenseRepository
+    @Inject private var preference: SplitoPreference
+    @Inject private var groupRepository: GroupRepository
+    @Inject private var expenseRepository: ExpenseRepository
+    @Inject private var transactionRepository: TransactionRepository
 
-    @Published var groups: [Groups] = []
-    @Published var currentViewState: ViewState = .loading
-    @Published var groupListState: GroupListState = .noGroup
+    @Published private(set) var currentViewState: ViewState = .loading
+    @Published private(set) var groupListState: GroupListState = .noGroup
 
-    @Published private(set) var showSearchBar = false
-
-    @Published var usersTotalExpense = 0.0
     @Published var searchedGroup: String = ""
+    @Published private(set) var showSearchBar = false
+    @Published private(set) var usersTotalExpense = 0.0
 
+    private var groups: [Groups] = []
     private let router: Router<AppRoute>
 
     var filteredGroups: [GroupInformation] {
@@ -127,17 +127,43 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         groupRepository.fetchMembersBy(groupId: groupId)
     }
 
+    private func fetchTransactions(groupId: String?) -> [Transactions] {
+        var transactionsData: [Transactions] = []
+        guard let groupId else { return transactionsData }
+
+        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
+            if case .failure(let error) = completion {
+                self?.currentViewState = .initial
+                self?.showToastFor(error)
+            }
+        } receiveValue: { transactions in
+            transactionsData = transactions
+        }.store(in: &cancelable)
+
+        return transactionsData
+    }
+
     private func fetchExpenses(group: Groups) -> AnyPublisher<(Double, [String: Double], Bool), ServiceError> {
-        expenseRepository.fetchExpensesBy(groupId: group.id ?? "")
-            .flatMap { [weak self] expenses -> AnyPublisher<(Double, [String: Double], Bool), ServiceError> in
-                guard let self else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
+        guard let groupId = group.id else {
+            return Fail(error: ServiceError.dataNotFound).eraseToAnyPublisher()
+        }
+
+        let expensesPublisher = expenseRepository.fetchExpensesBy(groupId: groupId)
+        let transactionsPublisher = transactionRepository.fetchTransactionsBy(groupId: groupId)
+            .mapError { _ in ServiceError.dataNotFound }
+            .catch { _ in Just([]).setFailureType(to: ServiceError.self) }
+
+        return expensesPublisher
+            .combineLatest(transactionsPublisher)
+            .flatMap { [weak self] (expenses, transactions) -> AnyPublisher<(Double, [String: Double], Bool), ServiceError> in
+                guard let self else { return Fail(error: ServiceError.dataNotFound).eraseToAnyPublisher() }
 
                 let expensesPublisher: AnyPublisher<(Double, [String: Double]), ServiceError>
 
                 if group.isDebtSimplified {
-                    expensesPublisher = self.calculateExpensesSimply(expenses: expenses)
+                    expensesPublisher = self.calculateExpensesSimply(expenses: expenses, transactions: transactions)
                 } else {
-                    expensesPublisher = self.calculateExpenses(expenses: expenses)
+                    expensesPublisher = self.calculateExpenses(expenses: expenses, transactions: transactions)
                 }
 
                 return expensesPublisher
@@ -149,7 +175,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    private func calculateExpenses(expenses: [Expense]) -> AnyPublisher<(Double, [String: Double]), ServiceError> {
+    private func calculateExpenses(expenses: [Expense], transactions: [Transactions]) -> AnyPublisher<(Double, [String: Double]), ServiceError> {
         guard let userId = self.preference.user?.id else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
 
         var expenseByUser = 0.0
@@ -170,16 +196,39 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             }
         }
 
+        for transaction in transactions {
+            let payer = transaction.payerId
+            let receiver = transaction.receiverId
+            let amount = transaction.amount
+
+            if transaction.payerId == userId {
+                if owedByUser[receiver] != nil {
+                    owesToUser[transaction.receiverId, default: 0.0] += amount
+                } else {
+                    owedByUser[transaction.payerId, default: 0.0] -= amount
+                }
+            } else if transaction.receiverId == userId {
+                if owesToUser[payer] != nil {
+                    owedByUser[transaction.payerId, default: 0.0] += amount
+                } else {
+                    owesToUser[payer] = -amount
+                }
+            }
+        }
+
         owesToUser.forEach { userId, owesAmount in
             ownAmount[userId] = owesAmount
         }
         owedByUser.forEach { userId, owedAmount in
             ownAmount[userId] = (ownAmount[userId] ?? 0) - owedAmount
         }
+
+        expenseByUser = ownAmount.values.reduce(0, +)
+
         return Just((expenseByUser, ownAmount)).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
     }
 
-    private func calculateExpensesSimply(expenses: [Expense]) -> AnyPublisher<(Double, [String: Double]), ServiceError> {
+    private func calculateExpensesSimply(expenses: [Expense], transactions: [Transactions]) -> AnyPublisher<(Double, [String: Double]), ServiceError> {
         guard let userId = self.preference.user?.id else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
 
         var expenseByUser = 0.0
@@ -201,6 +250,21 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             expenseByUser += debt.1 == userId ? debt.2 : -debt.2
             oweByUser[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
         }
+
+        for transaction in transactions {
+            let payer = transaction.payerId
+            let receiver = transaction.receiverId
+            let amount = transaction.amount
+
+            if payer == userId, let currentAmount = oweByUser[receiver] {
+                oweByUser[receiver] = currentAmount + amount
+            } else if receiver == userId, let currentAmount = oweByUser[payer] {
+                oweByUser[payer] = currentAmount - amount
+            }
+        }
+
+        expenseByUser = oweByUser.values.reduce(0, +)
+
         return Just((expenseByUser, oweByUser)).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
     }
 
