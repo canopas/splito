@@ -109,7 +109,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }
         } receiveValue: { [weak self] transactions in
             guard let self else { return }
-            print("xxx transactions: \(transactions)")
             self.transactions = transactions
         }.store(in: &cancelable)
     }
@@ -124,7 +123,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] expenses in
                 guard let self, let group else { return }
                 self.expenses = expenses
-                print("xxx expenses: \(expenses)")
                 if group.isDebtSimplified {
                     self.calculateExpensesSimply()
                 } else {
@@ -145,47 +143,43 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         overallOwingAmount = 0.0
         memberOwingAmount = [:]
 
-        // Step 1: Process each expense
         for expense in expenses {
             queue.enter()
 
             let splitAmount = expense.amount / Double(expense.splitTo.count)
 
             if expense.paidBy == userId {
-                // User paid this expense
                 expenseByUser += expense.splitTo.contains(userId) ? expense.amount - splitAmount : expense.amount
                 for member in expense.splitTo where member != userId {
                     owesToUser[member, default: 0.0] += splitAmount
                 }
             } else if expense.splitTo.contains(userId) {
-                // User owes part of this expense
                 expenseByUser -= splitAmount
                 owedByUser[expense.paidBy, default: 0.0] += splitAmount
             }
 
-            // Fetch user data asynchronously
             self.fetchUserData(for: expense.paidBy) { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
                 queue.leave()
             }
         }
 
-        // Calculate owesToUser and owedByUser
         for transaction in transactions {
             let payer = transaction.payerId
             let receiver = transaction.receiverId
+            let amount = transaction.amount
 
             if transaction.payerId == userId {
-                if let currentAmount = owedByUser[receiver] {
-                    owesToUser[transaction.receiverId, default: 0.0] += transaction.amount
+                if owedByUser[receiver] != nil {
+                    owesToUser[transaction.receiverId, default: 0.0] += amount
                 } else {
-                    owedByUser[transaction.payerId, default: 0.0] -= transaction.amount
+                    owedByUser[transaction.payerId, default: 0.0] -= amount
                 }
             } else if transaction.receiverId == userId {
-                if let currentAmount = owesToUser[payer] {
-                    owedByUser[transaction.payerId, default: 0.0] += transaction.amount
+                if owesToUser[payer] != nil {
+                    owedByUser[transaction.payerId, default: 0.0] += amount
                 } else {
-                    owesToUser[payer] = -transaction.amount
+                    owesToUser[payer] = -amount
                 }
             }
         }
@@ -198,9 +192,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 memberOwingAmount[receiverId, default: 0.0] -= amount
             }
 
-            // Store the prepared data
             self.expensesWithUser = combinedData
-            self.overallOwingAmount = expenseByUser
+            self.overallOwingAmount =  self.memberOwingAmount.values.reduce(0, +)
             self.setGroupViewState()
         }
     }
