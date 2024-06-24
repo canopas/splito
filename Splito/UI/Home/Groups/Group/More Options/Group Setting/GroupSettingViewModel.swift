@@ -14,6 +14,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
+    @Inject private var transactionRepository: TransactionRepository
 
     private let groupId: String
     private let router: Router<AppRoute>
@@ -35,6 +36,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             updateGroupForSimplifyDebt()
         }
     }
+
+    private var transactions: [Transactions] = []
 
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
@@ -66,6 +69,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] members in
                 guard let self else { return }
                 self.sortGroupMembers(members: members)
+                self.fetchTransactions()
                 self.fetchExpenses()
             }.store(in: &cancelable)
     }
@@ -91,6 +95,18 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         return needFullName ? member.fullName : member.nameWithLastInitial
     }
 
+    private func fetchTransactions() {
+        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
+            if case .failure(let error) = completion {
+                self?.handleServiceError(error)
+            }
+        } receiveValue: { [weak self] transactions in
+            guard let self else { return }
+            self.transactions = transactions
+            print("xxx \(transactions)")
+        }.store(in: &cancelable)
+    }
+
     private func fetchExpenses() {
         expenseRepository.fetchExpensesBy(groupId: groupId)
             .sink { [weak self] completion in
@@ -99,20 +115,28 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] expenses in
                 guard let self else { return }
-
-                for expense in expenses {
-                    self.amountOweByMember[expense.paidBy, default: 0.0] += expense.amount
-
-                    let splitAmount = expense.amount / Double(expense.splitTo.count)
-                    for member in expense.splitTo {
-                        self.amountOweByMember[member, default: 0.0] -= splitAmount
-                    }
-                }
-
-                DispatchQueue.main.async {
-                    self.currentViewState = .initial
-                }
+                self.calculateExpenses(expenses: expenses)
             }.store(in: &cancelable)
+    }
+
+    private func calculateExpenses(expenses: [Expense]) {
+        for expense in expenses {
+            self.amountOweByMember[expense.paidBy, default: 0.0] += expense.amount
+
+            let splitAmount = expense.amount / Double(expense.splitTo.count)
+            for member in expense.splitTo {
+                self.amountOweByMember[member, default: 0.0] -= splitAmount
+            }
+        }
+
+        for transaction in transactions {
+            self.amountOweByMember[transaction.payerId, default: 0.0] += transaction.amount
+            self.amountOweByMember[transaction.receiverId, default: 0.0] -= transaction.amount
+        }
+
+        DispatchQueue.main.async {
+            self.currentViewState = .initial
+        }
     }
 
     private func checkForGroupAdmin() {
