@@ -146,7 +146,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             queue.enter()
 
             let splitAmount = expense.amount / Double(expense.splitTo.count)
-
             if expense.paidBy == userId {
                 for member in expense.splitTo where member != userId {
                     owesToUser[member, default: 0.0] += splitAmount
@@ -154,41 +153,15 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             } else if expense.splitTo.contains(userId) {
                 owedByUser[expense.paidBy, default: 0.0] += splitAmount
             }
-
             fetchUserData(for: expense.paidBy) { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
                 queue.leave()
             }
         }
 
-        for transaction in transactions {
-            let payer = transaction.payerId
-            let receiver = transaction.receiverId
-            let amount = transaction.amount
-
-            if transaction.payerId == userId {
-                if owedByUser[receiver] != nil {
-                    owesToUser[transaction.receiverId, default: 0.0] += amount
-                } else {
-                    owedByUser[transaction.payerId, default: 0.0] -= amount
-                }
-            } else if transaction.receiverId == userId {
-                if owesToUser[payer] != nil {
-                    owedByUser[transaction.payerId, default: 0.0] += amount
-                } else {
-                    owesToUser[payer] = -amount
-                }
-            }
-        }
-
         queue.notify(queue: .main) { [self] in
-            owesToUser.forEach { payerId, owesAmount in
-                memberOwingAmount[payerId, default: 0.0] += owesAmount
-            }
-            owedByUser.forEach { receiverId, owedAmount in
-                memberOwingAmount[receiverId, default: 0.0] -= owedAmount
-            }
-
+            let memberOwingAmount = processTransactions(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
+            self.memberOwingAmount = memberOwingAmount
             expensesWithUser = combinedData
             overallOwingAmount = memberOwingAmount.values.reduce(0, +)
             setGroupViewState()
@@ -210,7 +183,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
             ownAmounts[expense.paidBy, default: 0.0] += expense.amount
             let splitAmount = expense.amount / Double(expense.splitTo.count)
-
             for member in expense.splitTo {
                 ownAmounts[member, default: 0.0] -= splitAmount
             }
@@ -222,7 +194,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         queue.notify(queue: .main) { [self] in
             let debts = settleDebts(users: ownAmounts)
-
             for debt in debts where debt.0 == userId || debt.1 == userId {
                 memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
             }
@@ -244,30 +215,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             expensesWithUser = combinedData
             setGroupViewState()
         }
-    }
-
-    private func settleDebts(users: [String: Double]) -> [(String, String, Double)] {
-        var mutableUsers = users
-        var debts: [(String, String, Double)] = []
-        let positiveAmounts = mutableUsers.filter { $0.value > 0 }
-        let negativeAmounts = mutableUsers.filter { $0.value < 0 }
-
-        for (creditor, creditAmount) in positiveAmounts {
-            var remainingCredit = creditAmount
-
-            for (debtor, debtAmount) in negativeAmounts {
-                if remainingCredit == 0 { break }
-                let amountToSettle = min(remainingCredit, -debtAmount)
-                if amountToSettle > 0 {
-                    debts.append((debtor, creditor, amountToSettle))
-                    remainingCredit -= amountToSettle
-                    mutableUsers[debtor]! += amountToSettle
-                    mutableUsers[creditor]! -= amountToSettle
-                }
-            }
-        }
-
-        return debts
     }
 
     private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
