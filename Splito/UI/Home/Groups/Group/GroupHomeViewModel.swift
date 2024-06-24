@@ -134,7 +134,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     private func calculateExpenses() {
-        guard let userId = self.preference.user?.id else { return }
+        guard let userId = preference.user?.id else { return }
 
         let queue = DispatchGroup()
         var expenseByUser = 0.0
@@ -170,40 +170,35 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }
         }
 
-        // Step 2: Adjust amounts based on transactions
+        // Calculate owesToUser and owedByUser
         for transaction in transactions {
             let payer = transaction.payerId
             let receiver = transaction.receiverId
-            let amount = transaction.amount
 
-            if payer == userId {
-                // User paid, reduce owed amount to receiver
+            if transaction.payerId == userId {
                 if let currentAmount = owedByUser[receiver] {
-                    owedByUser[receiver] = currentAmount - amount
+                    owesToUser[transaction.receiverId, default: 0.0] += transaction.amount
                 } else {
-                    owedByUser[receiver] = -amount
+                    owedByUser[transaction.payerId, default: 0.0] -= transaction.amount
                 }
-            } else if receiver == userId {
-                // User received, increase owed amount from payer
+            } else if transaction.receiverId == userId {
                 if let currentAmount = owesToUser[payer] {
-                    owesToUser[payer] = currentAmount - amount
+                    owedByUser[transaction.payerId, default: 0.0] += transaction.amount
                 } else {
-                    owesToUser[payer] = -amount
+                    owesToUser[payer] = -transaction.amount
                 }
             }
         }
 
-        // Step 3: Notify main queue and update state
-        queue.notify(queue: .main) {
-            // Assign final amounts to memberOwingAmount
-            owesToUser.forEach { userId, amount in
-                self.memberOwingAmount[userId, default: 0.0] += amount
+        queue.notify(queue: .main) { [self] in
+            owesToUser.forEach { payerId, amount in
+                memberOwingAmount[payerId, default: 0.0] += amount
             }
-            owedByUser.forEach { userId, amount in
-                self.memberOwingAmount[userId, default: 0.0] -= amount
+            owedByUser.forEach { receiverId, amount in
+                memberOwingAmount[receiverId, default: 0.0] -= amount
             }
 
-            // Update other state variables
+            // Store the prepared data
             self.expensesWithUser = combinedData
             self.overallOwingAmount = expenseByUser
             self.setGroupViewState()

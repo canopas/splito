@@ -167,18 +167,18 @@ private struct GroupExpenseItemView: View {
     }
 }
 
-private struct GroupExpenseHeaderView: View {
-
+struct GroupExpenseHeaderView: View {
     @ObservedObject var viewModel: GroupHomeViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(viewModel.group?.name ?? "")
                 .font(.body2(28))
-                .foregroundStyle(primaryText)
+                .foregroundColor(.primary)
 
             if viewModel.overallOwingAmount == 0 {
-                Text("You are all settled up in this group.") // no due or lent
+                Text("You are all settled up in this group.")
+                    .font(.subTitle2())
             } else {
                 if viewModel.memberOwingAmount.count < 2, let member = viewModel.memberOwingAmount.first {
                     let name = viewModel.getMemberDataBy(id: member.key)?.nameWithLastInitial ?? "Unknown"
@@ -187,7 +187,7 @@ private struct GroupExpenseHeaderView: View {
                     let isDue = viewModel.overallOwingAmount < 0
                     Text("You \(isDue ? "owe" : "are owed") \(abs(viewModel.overallOwingAmount).formattedCurrency) overall")
                         .font(.subTitle2())
-                        .foregroundStyle(isDue ? amountBorrowedColor : amountLentColor)
+                        .foregroundColor(isDue ? amountBorrowedColor : amountLentColor)
 
                     VStack(alignment: .leading, spacing: 6) {
                         ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
