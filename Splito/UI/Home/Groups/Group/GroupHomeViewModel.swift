@@ -107,7 +107,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 if case .failure(let error) = completion {
                     guard let self else { return }
                     self.showToastFor(error)
-                    self.fetchExpenses()
                 }
             } receiveValue: { [weak self] transactions in
                 guard let self else { return }

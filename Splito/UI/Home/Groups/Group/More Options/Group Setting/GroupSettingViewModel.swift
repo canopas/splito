@@ -16,20 +16,15 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     @Inject private var expenseRepository: ExpenseRepository
     @Inject private var transactionRepository: TransactionRepository
 
-    private let groupId: String
-    private let router: Router<AppRoute>
-    private var memberRemoveType: MemberRemoveType = .leave
-
-    @Published var isAdmin = false
+    @Published private(set) var isAdmin = false
     @Published var showLeaveGroupDialog = false
     @Published var showRemoveMemberDialog = false
 
-    @Published var groupTotalExpense = 0.0
-    @Published var amountOweByMember: [String: Double] = [:]
+    @Published private(set) var group: Groups?
+    @Published private(set) var members: [AppUser] = []
+    @Published private(set) var amountOweByMember: [String: Double] = [:]
 
-    @Published var group: Groups?
-    @Published var members: [AppUser] = []
-    @Published var currentViewState: ViewState = .loading
+    @Published private(set) var currentViewState: ViewState = .loading
 
     @Published var isDebtSimplified = false {
         didSet {
@@ -37,7 +32,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    private let groupId: String
+    private let router: Router<AppRoute>
     private var transactions: [Transactions] = []
+    private var memberRemoveType: MemberRemoveType = .leave
 
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
@@ -103,7 +101,6 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         } receiveValue: { [weak self] transactions in
             guard let self else { return }
             self.transactions = transactions
-            print("xxx \(transactions)")
         }.store(in: &cancelable)
     }
 
