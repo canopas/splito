@@ -174,7 +174,7 @@ struct GroupExpenseHeaderView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(viewModel.group?.name ?? "")
                 .font(.body2(28))
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
 
             if viewModel.overallOwingAmount == 0 {
                 Text(viewModel.memberOwingAmount.isEmpty ? "You are all settled up in this group." : "You are settled up overall.")

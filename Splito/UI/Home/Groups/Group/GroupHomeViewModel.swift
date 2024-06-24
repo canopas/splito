@@ -104,7 +104,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private func fetchTransactions() {
         transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
             if case .failure(let error) = completion {
-                self?.groupState = .noMember
                 self?.showToastFor(error)
             }
         } receiveValue: { [weak self] transactions in
@@ -176,7 +175,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         var combinedData: [ExpenseWithUser] = []
 
         overallOwingAmount = 0.0
-        memberOwingAmount = [:]
 
         for expense in expenses {
             queue.enter()
@@ -193,25 +191,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         queue.notify(queue: .main) { [self] in
-            let debts = settleDebts(users: ownAmounts)
-            for debt in debts where debt.0 == userId || debt.1 == userId {
-                memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
-            }
+            let memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, ownAmounts: ownAmounts)
 
-            for transaction in transactions {
-                let payer = transaction.payerId
-                let receiver = transaction.receiverId
-                let amount = transaction.amount
-
-                if payer == userId, let currentAmount = memberOwingAmount[receiver] {
-                    memberOwingAmount[receiver] = currentAmount + amount
-                } else if receiver == userId, let currentAmount = memberOwingAmount[payer] {
-                    memberOwingAmount[payer] = currentAmount - amount
-                }
-            }
-
-            memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
-            overallOwingAmount = memberOwingAmount.values.reduce(0, +)
+            self.memberOwingAmount = memberOwingAmount
+            overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
             expensesWithUser = combinedData
             setGroupViewState()
         }

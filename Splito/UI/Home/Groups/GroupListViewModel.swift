@@ -163,16 +163,14 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         guard let userId = self.preference.user?.id else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
 
         let memberOwingAmount = calculateExpensesNonSimplify(userId: userId, expenses: expenses, transactions: transactions)
-
         return Just((memberOwingAmount.values.reduce(0, +), memberOwingAmount)).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
     }
 
     private func calculateExpensesSimply(expenses: [Expense], transactions: [Transactions]) -> AnyPublisher<(Double, [String: Double]), ServiceError> {
         guard let userId = self.preference.user?.id else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
 
-        let oweByUser = calculateExpensesSimplify(userId: userId, expenses: expenses, transactions: transactions)
-
-        return Just((oweByUser.values.reduce(0, +), oweByUser)).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
+        let memberOwingAmount = calculateExpensesSimplify(userId: userId, expenses: expenses, transactions: transactions)
+        return Just((memberOwingAmount.values.reduce(0, +), memberOwingAmount)).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
     }
 }
 

@@ -61,6 +61,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
                 self.members = members
                 self.members.removeAll(where: { $0.id == user.id })
                 self.fetchTransactions()
+                self.fetchExpenses()
             }.store(in: &cancelable)
     }
 
@@ -72,7 +73,6 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
         } receiveValue: { [weak self] transactions in
             guard let self else { return }
             self.transactions = transactions
-            self.fetchExpenses()
         }.store(in: &cancelable)
     }
 
@@ -85,7 +85,6 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] expenses in
                 guard let self, let group, let userId = preference.user?.id else { return }
                 self.expenses = expenses
-                memberOwingAmount = [:]
                 if group.isDebtSimplified {
                     self.memberOwingAmount = calculateExpensesSimplify(userId: userId, expenses: expenses, transactions: transactions)
                 } else {
