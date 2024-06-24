@@ -177,23 +177,25 @@ struct GroupExpenseHeaderView: View {
                 .foregroundColor(.primary)
 
             if viewModel.overallOwingAmount == 0 {
-                Text("You are all settled up in this group.")
+                Text(viewModel.memberOwingAmount.isEmpty ? "You are all settled up in this group." : "You are settled up overall.")
                     .font(.subTitle2())
+            }
+
+            if viewModel.memberOwingAmount.count < 2, let member = viewModel.memberOwingAmount.first {
+                let name = viewModel.getMemberDataBy(id: member.key)?.nameWithLastInitial ?? "Unknown"
+                GroupExpenseMemberOweView(name: name, amount: member.value)
             } else {
-                if viewModel.memberOwingAmount.count < 2, let member = viewModel.memberOwingAmount.first {
-                    let name = viewModel.getMemberDataBy(id: member.key)?.nameWithLastInitial ?? "Unknown"
-                    GroupExpenseMemberOweView(name: name, amount: member.value)
-                } else {
+                if viewModel.overallOwingAmount != 0 {
                     let isDue = viewModel.overallOwingAmount < 0
                     Text("You \(isDue ? "owe" : "are owed") \(abs(viewModel.overallOwingAmount).formattedCurrency) overall")
                         .font(.subTitle2())
                         .foregroundColor(isDue ? amountBorrowedColor : amountLentColor)
+                }
 
-                    VStack(alignment: .leading, spacing: 6) {
-                        ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
-                            let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
-                            GroupExpenseMemberOweView(name: name, amount: amount)
-                        }
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
+                        let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
+                        GroupExpenseMemberOweView(name: name, amount: amount)
                     }
                 }
             }

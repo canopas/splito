@@ -96,51 +96,50 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     private func calculateExpenses() {
         guard let userId = preference.user?.id else { return }
 
-        var ownAmounts: [String: Double] = [:]
+        var owesToUser: [String: Double] = [:]
+        var owedByUser: [String: Double] = [:]
 
         memberOwingAmount = [:]
 
-        // Calculate total amounts owed and paid by each user
         for expense in expenses {
-            ownAmounts[expense.paidBy, default: 0.0] += expense.amount
             let splitAmount = expense.amount / Double(expense.splitTo.count)
 
-            for member in expense.splitTo {
-                ownAmounts[member, default: 0.0] -= splitAmount
+            if expense.paidBy == userId {
+                for member in expense.splitTo where member != userId {
+                    owesToUser[member, default: 0.0] += splitAmount
+                }
+            } else if expense.splitTo.contains(userId) {
+                owedByUser[expense.paidBy, default: 0.0] += splitAmount
             }
         }
 
-        let debts = settleDebts(users: ownAmounts)
-        for debt in debts {
-            memberOwingAmount[debt.0, default: 0.0] += debt.2
-            memberOwingAmount[debt.1, default: 0.0] -= debt.2
-        }
-        memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
-
-        // Adjust memberOwingAmount based on transactions
         for transaction in transactions {
             let payer = transaction.payerId
             let receiver = transaction.receiverId
             let amount = transaction.amount
 
-            if payer == userId {
-                if let currentAmount = memberOwingAmount[receiver] {
-                    let newAmount = currentAmount + amount
-                    memberOwingAmount[receiver] = newAmount
+            if transaction.payerId == userId {
+                if owedByUser[receiver] != nil {
+                    owesToUser[transaction.receiverId, default: 0.0] += amount
                 } else {
-                    memberOwingAmount[receiver] = amount
+                    owedByUser[transaction.payerId, default: 0.0] -= amount
                 }
-            } else if receiver == userId {
-                if let currentAmount = memberOwingAmount[payer] {
-                    let newAmount = currentAmount - amount
-                    memberOwingAmount[payer] = newAmount
+            } else if transaction.receiverId == userId {
+                if owesToUser[payer] != nil {
+                    owedByUser[transaction.payerId, default: 0.0] += amount
                 } else {
-                    memberOwingAmount[payer] = -amount
+                    owesToUser[payer] = -amount
                 }
             }
         }
 
-        // Remove zero balances from memberOwingAmount
+        owesToUser.forEach { payerId, owesAmount in
+            memberOwingAmount[payerId, default: 0.0] += owesAmount
+        }
+        owedByUser.forEach { receiverId, owedAmount in
+            memberOwingAmount[receiverId, default: 0.0] -= owedAmount
+        }
+
         memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
     }
 

@@ -251,42 +251,27 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     private func settleDebts(users: [String: Double]) -> [(String, String, Double)] {
-        var creditors: [(String, Double)] = []
-        var debtors: [(String, Double)] = []
+        var mutableUsers = users
+        var debts: [(String, String, Double)] = []
+        let positiveAmounts = mutableUsers.filter { $0.value > 0 }
+        let negativeAmounts = mutableUsers.filter { $0.value < 0 }
 
-        // Separate users into creditors and debtors
-        for (user, balance) in users {
-            if balance > 0 {
-                creditors.append((user, balance))
-            } else if balance < 0 {
-                debtors.append((user, -balance)) // Store as positive for ease of calculation
+        for (creditor, creditAmount) in positiveAmounts {
+            var remainingCredit = creditAmount
+
+            for (debtor, debtAmount) in negativeAmounts {
+                if remainingCredit == 0 { break }
+                let amountToSettle = min(remainingCredit, -debtAmount)
+                if amountToSettle > 0 {
+                    debts.append((debtor, creditor, amountToSettle))
+                    remainingCredit -= amountToSettle
+                    mutableUsers[debtor]! += amountToSettle
+                    mutableUsers[creditor]! -= amountToSettle
+                }
             }
         }
 
-        // Sort creditors and debtors by the amount they owe or are owed
-        creditors.sort { $0.1 < $1.1 }
-        debtors.sort { $0.1 < $1.1 }
-
-        var transactions: [(String, String, Double)] = [] // (debtor, creditor, amount)
-        var cIdx = 0
-        var dIdx = 0
-
-        while cIdx < creditors.count && dIdx < debtors.count { // Process all debts
-            let (creditor, credAmt) = creditors[cIdx]
-            let (debtor, debtAmt) = debtors[dIdx]
-            let minAmt = min(credAmt, debtAmt)
-
-            transactions.append((debtor, creditor, minAmt)) // Record the transaction
-
-            // Update the amounts
-            creditors[cIdx] = (creditor, credAmt - minAmt)
-            debtors[dIdx] = (debtor, debtAmt - minAmt)
-
-            // Move the index forward if someone's balance is settled
-            if creditors[cIdx].1 == 0 { cIdx += 1 }
-            if debtors[dIdx].1 == 0 { dIdx += 1 }
-        }
-        return transactions
+        return debts
     }
 
     private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
