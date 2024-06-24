@@ -127,22 +127,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         groupRepository.fetchMembersBy(groupId: groupId)
     }
 
-    private func fetchTransactions(groupId: String?) -> [Transactions] {
-        var transactionsData: [Transactions] = []
-        guard let groupId else { return transactionsData }
-
-        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
-            if case .failure(let error) = completion {
-                self?.currentViewState = .initial
-                self?.showToastFor(error)
-            }
-        } receiveValue: { transactions in
-            transactionsData = transactions
-        }.store(in: &cancelable)
-
-        return transactionsData
-    }
-
     private func fetchExpenses(group: Groups) -> AnyPublisher<(Double, [String: Double], Bool), ServiceError> {
         guard let groupId = group.id else {
             return Fail(error: ServiceError.dataNotFound).eraseToAnyPublisher()
@@ -222,7 +206,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         owedByUser.forEach { userId, owedAmount in
             ownAmount[userId] = (ownAmount[userId] ?? 0) - owedAmount
         }
-
         expenseByUser = ownAmount.values.reduce(0, +)
 
         return Just((expenseByUser, ownAmount)).setFailureType(to: ServiceError.self).eraseToAnyPublisher()

@@ -35,7 +35,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Data Loading
-    func fetchGroupDetails() {
+    private func fetchGroupDetails() {
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -65,7 +65,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func fetchTransactions() {
+    private func fetchTransactions() {
         transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
             if case .failure(let error) = completion {
                 self?.handleServiceError(error)
@@ -159,27 +159,24 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             }
         }
 
-        let debts = self.settleDebts(users: ownAmounts)
+        let debts = settleDebts(users: ownAmounts)
         for debt in debts where debt.0 == userId || debt.1 == userId {
-            self.memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
+            memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
         }
-        self.memberOwingAmount = self.memberOwingAmount.filter { $0.value != 0 }
 
-        // Adjust memberOwingAmount based on transactions
-        for transaction in self.transactions {
+        for transaction in transactions {
             let payer = transaction.payerId
             let receiver = transaction.receiverId
             let amount = transaction.amount
 
-            if payer == userId, let currentAmount = self.memberOwingAmount[receiver] {
-                self.memberOwingAmount[receiver] = currentAmount + amount
-            } else if receiver == userId, let currentAmount = self.memberOwingAmount[payer] {
-                self.memberOwingAmount[payer] = currentAmount - amount
+            if payer == userId, let currentAmount = memberOwingAmount[receiver] {
+                memberOwingAmount[receiver] = currentAmount + amount
+            } else if receiver == userId, let currentAmount = memberOwingAmount[payer] {
+                memberOwingAmount[payer] = currentAmount - amount
             }
         }
 
-        // Remove zero or settled debts
-        self.memberOwingAmount = self.memberOwingAmount.filter { $0.value != 0 }
+        memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
     }
 
     private func settleDebts(users: [String: Double]) -> [(String, String, Double)] {

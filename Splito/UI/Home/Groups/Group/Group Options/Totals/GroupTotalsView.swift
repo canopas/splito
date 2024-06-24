@@ -34,6 +34,7 @@ struct GroupTotalsView: View {
                     }
                     .padding(.horizontal, 16)
                 }
+                .scrollIndicators(.hidden)
             }
         }
         .background(backgroundColor)

@@ -10,10 +10,10 @@ import SwiftUI
 
 class GroupTotalsViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var preference: SplitoPreference
-    @Inject var groupRepository: GroupRepository
-    @Inject var expenseRepository: ExpenseRepository
-    @Inject var transactionRepository: TransactionRepository
+    @Inject private var preference: SplitoPreference
+    @Inject private var groupRepository: GroupRepository
+    @Inject private var expenseRepository: ExpenseRepository
+    @Inject private var transactionRepository: TransactionRepository
 
     @Published private(set) var viewState: ViewState = .initial
     @Published private(set) var selectedTab: GroupTotalsTabType = .thisMonth
@@ -62,7 +62,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func fetchTransactions() {
+    private func fetchTransactions() {
         transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
             if case .failure(let error) = completion {
                 self?.handleServiceError(error)
