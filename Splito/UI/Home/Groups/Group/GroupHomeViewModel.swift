@@ -57,7 +57,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
         self.onGroupSelected = onGroupSelected
         super.init()
-        self.fetchLatestTransactions()
+        self.fetchLatestExpenses()
 
         self.onGroupSelected?(groupId)
     }
@@ -72,11 +72,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] expenses in
                 guard let self, let group else { return }
                 self.expenses = expenses
-                if group.isDebtSimplified {
-                    self.calculateExpensesSimply()
-                } else {
-                    self.calculateExpenses()
-                }
+                self.fetchLatestTransactions()
             }.store(in: &cancelable)
     }
 
@@ -87,9 +83,13 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] transactions in
-                guard let self else { return }
+                guard let self, let group else { return }
                 self.transactions = transactions
-                self.fetchExpenses()
+                if group.isDebtSimplified {
+                    self.calculateExpensesSimply()
+                } else {
+                    self.calculateExpenses()
+                }
             }.store(in: &cancelable)
     }
 

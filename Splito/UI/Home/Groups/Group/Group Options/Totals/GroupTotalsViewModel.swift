@@ -187,6 +187,12 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
                 amountOweByMember[member, default: 0.0] -= splitAmount
             }
         }
+
+        for transaction in filteredTransactions {
+            amountOweByMember[transaction.payerId, default: 0.0] += transaction.amount
+            amountOweByMember[transaction.receiverId, default: 0.0] -= transaction.amount
+        }
+
         return amountOweByMember[user.id] ?? 0
     }
 
