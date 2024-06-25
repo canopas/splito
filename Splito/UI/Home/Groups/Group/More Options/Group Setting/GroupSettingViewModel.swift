@@ -8,6 +8,7 @@
 import Data
 import Combine
 import BaseStyle
+import SwiftUI
 
 class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
@@ -191,7 +192,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     private func showRemoveMemberAlert(memberId: String) {
-        guard amountOweByMember[memberId] == 0 else {
+        guard amountOweByMember[memberId] == 0 || amountOweByMember[memberId] == nil else {
             memberRemoveType = .remove
             showDebtOutstandingAlert(memberId: memberId)
             return
@@ -248,6 +249,11 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                     self.goBackToGroupList()
                 } else {
                     self.showAlert = false
+                    withAnimation {
+                        if let index = self.members.firstIndex(where: { $0.id == memberId }) {
+                            self.members.remove(at: index)
+                        }
+                    }
                     self.showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed"))
                 }
             }.store(in: &cancelable)
