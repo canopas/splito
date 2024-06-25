@@ -154,7 +154,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         overallOwingAmount = 0.0
         memberOwingAmount = [:]
 
-        // Process each expense to calculate the amounts owed by and to the user
         for expense in expenses {
             queue.enter()
 
@@ -176,7 +175,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         queue.notify(queue: .main) { [self] in
-            // Process the transactions to update the owesToUser and owedByUser
             let memberOwingAmount = processTransactions(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
 
             withAnimation(.easeOut) {
@@ -197,7 +195,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         overallOwingAmount = 0.0
 
-        // Process each expense to calculate net amounts for each user
         for expense in expenses {
             queue.enter()
 
@@ -213,7 +210,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         queue.notify(queue: .main) { [self] in
-            // Process the transactions and settle debts
             let memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, ownAmounts: ownAmounts)
 
             withAnimation(.easeOut) {
