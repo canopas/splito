@@ -85,7 +85,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     }
 
     private func calculateExpenses(expenses: [Expense]) {
-        let groupMembers = Array(Set(expenses.flatMap { $0.splitTo + [$0.paidBy] }))
+        let groupMembers = Array(Set(groupMemberData.map { $0.id }))
         var memberBalances = groupMembers.map { GroupMemberBalance(id: $0) }
 
         for expense in expenses {
@@ -123,7 +123,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     }
 
     private func calculateExpensesSimply(expenses: [Expense]) {
-        let groupMembers = Array(Set(expenses.flatMap { $0.splitTo + [$0.paidBy] }))
+        let groupMembers = Array(Set(groupMemberData.map { $0.id }))
         var memberBalances = groupMembers.map { GroupMemberBalance(id: $0) }
 
         for expense in expenses {
