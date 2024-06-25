@@ -57,7 +57,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
         self.onGroupSelected = onGroupSelected
         super.init()
-        self.fetchLatestExpenses()
+        self.fetchLatestTransactions()
 
         self.onGroupSelected?(groupId)
     }
@@ -72,7 +72,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] expenses in
                 guard let self, let group else { return }
                 self.expenses = expenses
-                self.fetchLatestTransactions()
+                if group.isDebtSimplified {
+                    self.calculateExpensesSimply()
+                } else {
+                    self.calculateExpenses()
+                }
             }.store(in: &cancelable)
     }
 
@@ -83,13 +87,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] transactions in
-                guard let self, let group else { return }
+                guard let self else { return }
                 self.transactions = transactions
-                if group.isDebtSimplified {
-                    self.calculateExpensesSimply()
-                } else {
-                    self.calculateExpenses()
-                }
+                self.fetchLatestExpenses()
             }.store(in: &cancelable)
     }
 
@@ -179,10 +179,12 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             // Process the transactions to update the owesToUser and owedByUser
             let memberOwingAmount = processTransactions(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
 
-            self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
-            expensesWithUser = combinedData
-            overallOwingAmount = memberOwingAmount.values.reduce(0, +)
-            setGroupViewState()
+            withAnimation(.easeOut) {
+                self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
+                expensesWithUser = combinedData
+                overallOwingAmount = memberOwingAmount.values.reduce(0, +)
+                setGroupViewState()
+            }
         }
     }
 
@@ -214,10 +216,12 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             // Process the transactions and settle debts
             let memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, ownAmounts: ownAmounts)
 
-            self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
-            overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
-            expensesWithUser = combinedData
-            setGroupViewState()
+            withAnimation(.easeOut) {
+                self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
+                overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
+                expensesWithUser = combinedData
+                setGroupViewState()
+            }
         }
     }
 
