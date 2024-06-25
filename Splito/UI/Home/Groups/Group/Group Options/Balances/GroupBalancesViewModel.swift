@@ -64,7 +64,6 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             }
         } receiveValue: { [weak self] transactions in
             self?.transactions = transactions
-            print("xxx \(transactions)")
         }.store(in: &cancelable)
     }
 
@@ -77,7 +76,6 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] expenses in
                 guard let self else { return }
-                print("xxx \(expenses)")
                 if group.isDebtSimplified {
                     calculateExpensesSimply(expenses: expenses)
                 } else {
