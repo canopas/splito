@@ -99,7 +99,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - User Actions
     func handleMoreButtonTap() {
-        router?.push(.GroupWhoIsPayingView(groupId: groupId))
+        router?.push(.GroupWhoIsPayingView(groupId: groupId, memberOwingAmount: memberOwingAmount))
     }
 
     func onMemberTap(memberId: String, amount: Double) {

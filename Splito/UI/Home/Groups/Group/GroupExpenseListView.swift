@@ -36,7 +36,8 @@ struct GroupExpenseListView: View {
                     Group {
                         GroupExpenseHeaderView(viewModel: viewModel)
 
-                        GroupOptionsListView(isSettleUpEnable: viewModel.group?.members.count ?? 1 > 1,
+                        GroupOptionsListView(isSettleUpEnable: (!viewModel.memberOwingAmount.isEmpty && viewModel.group?.members.count ?? 1 > 1),
+                                             showTransactionsOption: !viewModel.transactions.isEmpty,
                                              onSettleUpTap: viewModel.handleSettleUpBtnTap,
                                              onTransactionsTap: viewModel.handleTransactionsBtnTap,
                                              onBalanceTap: viewModel.handleBalancesBtnTap,
@@ -167,7 +168,7 @@ private struct GroupExpenseItemView: View {
     }
 }
 
-struct GroupExpenseHeaderView: View {
+private struct GroupExpenseHeaderView: View {
     @ObservedObject var viewModel: GroupHomeViewModel
 
     var body: some View {

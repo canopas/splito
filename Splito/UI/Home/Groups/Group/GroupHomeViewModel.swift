@@ -15,13 +15,13 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Inject private var expenseRepository: ExpenseRepository
     @Inject private var transactionRepository: TransactionRepository
 
-    @Published private var expenses: [Expense] = []
-    @Published var expensesWithUser: [ExpenseWithUser] = []
-    @Published var groupState: GroupState = .loading
-
-    @Published var overallOwingAmount = 0.0
     @Published var searchedExpense: String = ""
-    @Published var memberOwingAmount: [String: Double] = [:]
+    @Published private(set) var overallOwingAmount = 0.0
+
+    @Published private(set) var transactions: [Transactions] = []
+    @Published private(set) var expensesWithUser: [ExpenseWithUser] = []
+    @Published private(set) var memberOwingAmount: [String: Double] = [:]
+    @Published private(set) var groupState: GroupState = .loading
 
     @Published var showSettleUpSheet = false
     @Published var showTransactionsSheet = false
@@ -29,7 +29,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var showGroupTotalSheet = false
     @Published private(set) var showSearchBar = false
 
-    @Published var group: Groups?
+    @Published private(set) var group: Groups?
 
     static private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -48,8 +48,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     private let groupId: String
     private let router: Router<AppRoute>
+    private var expenses: [Expense] = []
     private var groupUserData: [AppUser] = []
-    private var transactions: [Transactions] = []
     private let onGroupSelected: ((String?) -> Void)?
 
     init(router: Router<AppRoute>, groupId: String, onGroupSelected: ((String?) -> Void)?) {
@@ -60,27 +60,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         self.fetchLatestTransactions()
 
         self.onGroupSelected?(groupId)
-    }
-
-    func fetchGroupAndExpenses() {
-        groupState = .loading
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.groupState = .noMember
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.group = group
-                for member in group.members where member != self.preference.user?.id {
-                    self.fetchUserData(for: member) { memberData in
-                        self.groupUserData.append(memberData)
-                    }
-                }
-                self.fetchTransactions()
-                self.fetchExpenses()
-            }.store(in: &cancelable)
     }
 
     private func fetchLatestExpenses() {
@@ -105,12 +84,32 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         transactionRepository.fetchLatestTransactionsBy(groupId: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    guard let self else { return }
-                    self.showToastFor(error)
+                    self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] transactions in
                 guard let self else { return }
                 self.transactions = transactions
+                self.fetchExpenses()
+            }.store(in: &cancelable)
+    }
+
+    func fetchGroupAndExpenses() {
+        groupState = .loading
+        groupRepository.fetchGroupBy(id: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.groupState = .noMember
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] group in
+                guard let self, let group else { return }
+                self.group = group
+                for member in group.members where member != self.preference.user?.id {
+                    self.fetchUserData(for: member) { memberData in
+                        self.groupUserData.append(memberData)
+                    }
+                }
+                self.fetchTransactions()
                 self.fetchExpenses()
             }.store(in: &cancelable)
     }
@@ -155,17 +154,21 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         overallOwingAmount = 0.0
         memberOwingAmount = [:]
 
+        // Process each expense to calculate the amounts owed by and to the user
         for expense in expenses {
             queue.enter()
 
             let splitAmount = expense.amount / Double(expense.splitTo.count)
             if expense.paidBy == userId {
+                // If the user paid for the expense, calculate how much each member owes the user
                 for member in expense.splitTo where member != userId {
                     owesToUser[member, default: 0.0] += splitAmount
                 }
             } else if expense.splitTo.contains(userId) {
+                // If the user is one of the members who should split the expense, calculate how much the user owes to the payer
                 owedByUser[expense.paidBy, default: 0.0] += splitAmount
             }
+
             fetchUserData(for: expense.paidBy) { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
                 queue.leave()
@@ -173,8 +176,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         queue.notify(queue: .main) { [self] in
+            // Process the transactions to update the owesToUser and owedByUser
             let memberOwingAmount = processTransactions(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
-            self.memberOwingAmount = memberOwingAmount
+
+            self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
             expensesWithUser = combinedData
             overallOwingAmount = memberOwingAmount.values.reduce(0, +)
             setGroupViewState()
@@ -190,6 +195,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         overallOwingAmount = 0.0
 
+        // Process each expense to calculate net amounts for each user
         for expense in expenses {
             queue.enter()
 
@@ -205,9 +211,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         queue.notify(queue: .main) { [self] in
+            // Process the transactions and settle debts
             let memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, ownAmounts: ownAmounts)
 
-            self.memberOwingAmount = memberOwingAmount
+            self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
             overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
             expensesWithUser = combinedData
             setGroupViewState()

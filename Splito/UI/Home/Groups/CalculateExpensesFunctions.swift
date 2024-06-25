@@ -10,20 +10,26 @@ import Combine
 
 public func calculateExpensesNonSimplify(userId: String, expenses: [Expense], transactions: [Transactions]) -> ([String: Double]) {
 
+    // To keep track of amounts the user owes to others and is owed by others
     var owesToUser: [String: Double] = [:]
     var owedByUser: [String: Double] = [:]
 
+    // Process each expense to calculate how much the user owes and is owed
     for expense in expenses {
         let splitAmount = expense.amount / Double(expense.splitTo.count)
+
         if expense.paidBy == userId {
+            // If the user paid for the expense, calculate how much each member owes the user
             for member in expense.splitTo where member != userId {
                 owesToUser[member, default: 0.0] += splitAmount
             }
         } else if expense.splitTo.contains(where: { $0 == userId }) {
+            // If the user is one of the members who should split the expense, calculate how much the user owes to the payer
             owedByUser[expense.paidBy, default: 0.0] += splitAmount
         }
     }
 
+    // Process the transactions to update the owesToUser and owedByUser
     let memberOwingAmount = processTransactions(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
 
     return memberOwingAmount.filter { $0.value != 0 }
@@ -35,6 +41,7 @@ public func processTransactions(userId: String, transactions: [Transactions], ow
     var owedByUser: [String: Double] = owedByUser
     var memberOwingAmount: [String: Double] = [:]
 
+    // Process each transaction to update the owesToUser and owedByUser
     for transaction in transactions {
         let payer = transaction.payerId
         let receiver = transaction.receiverId
@@ -42,19 +49,24 @@ public func processTransactions(userId: String, transactions: [Transactions], ow
 
         if transaction.payerId == userId {
             if owedByUser[receiver] != nil {
+                // If the receiver owes money to the user, increase the amount the user owes to the receiver
                 owesToUser[transaction.receiverId, default: 0.0] += amount
             } else {
+                // If the receiver does not owe money to the user, decrease the amount the user owes to the payer
                 owedByUser[transaction.payerId, default: 0.0] -= amount
             }
         } else if transaction.receiverId == userId {
             if owesToUser[payer] != nil {
+                // If the payer owes money to the user, increase the amount the payer owes to the user
                 owedByUser[transaction.payerId, default: 0.0] += amount
             } else {
+                // If the payer does not owe money to the user, set the amount the payer owes to the user
                 owesToUser[payer] = -amount
             }
         }
     }
 
+    // Consolidate the owesToUser and owedByUser into memberOwingAmount
     owesToUser.forEach { payerId, owesAmount in
         memberOwingAmount[payerId, default: 0.0] += owesAmount
     }
@@ -67,8 +79,10 @@ public func processTransactions(userId: String, transactions: [Transactions], ow
 
 public func calculateExpensesSimplify(userId: String, expenses: [Expense], transactions: [Transactions]) -> ([String: Double]) {
 
+    // To keep track of the net amount each user owes or is owed
     var ownAmounts: [String: Double] = [:]
 
+    // Process each expense to calculate net amounts
     for expense in expenses {
         ownAmounts[expense.paidBy, default: 0.0] += expense.amount
         let splitAmount = expense.amount / Double(expense.splitTo.count)
@@ -78,19 +92,25 @@ public func calculateExpensesSimplify(userId: String, expenses: [Expense], trans
         }
     }
 
+    // Process the transactions and settle debts
     let owingAmount = processTransactionsSimply(userId: userId, transactions: transactions, ownAmounts: ownAmounts)
+
     return owingAmount.filter { $0.value != 0 }
 }
 
 public func processTransactionsSimply(userId: String, transactions: [Transactions], ownAmounts: [String: Double]) -> ([String: Double]) {
 
+    // To keep track of the final amounts each user owes or is owed
     var memberOwingAmount: [String: Double] = [:]
 
+    // Settle debts among users
     let debts = settleDebts(users: ownAmounts)
     for debt in debts where debt.0 == userId || debt.1 == userId {
+        // Update the amounts for the user
         memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
     }
 
+    // Process each transaction to update the memberOwingAmount
     for transaction in transactions {
         let payer = transaction.payerId
         let receiver = transaction.receiverId
@@ -110,9 +130,12 @@ public func settleDebts(users: [String: Double]) -> [(String, String, Double)] {
 
     var mutableUsers = users
     var debts: [(String, String, Double)] = []
+
+    // Separate users into creditors and debtors
     let positiveAmounts = mutableUsers.filter { $0.value > 0 }
     let negativeAmounts = mutableUsers.filter { $0.value < 0 }
 
+    // Settle debts by matching creditors and debtors
     for (creditor, creditAmount) in positiveAmounts {
         var remainingCredit = creditAmount
 

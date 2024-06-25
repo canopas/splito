@@ -43,8 +43,8 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
                 self.group = group
-                self.fetchExpenses(group: group)
                 self.fetchTransactions()
+                self.fetchExpenses(group: group)
                 self.viewState = .initial
             }.store(in: &cancelable)
     }

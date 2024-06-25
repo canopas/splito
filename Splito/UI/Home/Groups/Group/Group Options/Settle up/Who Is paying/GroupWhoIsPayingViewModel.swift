@@ -10,16 +10,18 @@ import Combine
 
 class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var groupRepository: GroupRepository
+    @Inject private var groupRepository: GroupRepository
 
-    @Published var members: [AppUser] = []
-    @Published var viewState: ViewState = .initial
+    @Published private(set) var members: [AppUser] = []
+    @Published private(set) var viewState: ViewState = .initial
+    @Published private(set) var memberOwingAmount: [String: Double]
 
     private let groupId: String
     private let router: Router<AppRoute>?
 
-    init(router: Router<AppRoute>? = nil, groupId: String) {
+    init(router: Router<AppRoute>? = nil, groupId: String, memberOwingAmount: [String: Double]) {
         self.groupId = groupId
+        self.memberOwingAmount = memberOwingAmount
         self.router = router
         super.init()
     }

@@ -13,6 +13,8 @@ struct GroupWhoIsPayingView: View {
 
     @StateObject var viewModel: GroupWhoIsPayingViewModel
 
+    @Environment(\.dismiss) var dismiss
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if case .loading = viewModel.viewState {
@@ -41,8 +43,15 @@ struct GroupWhoIsPayingView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .navigationBarTitle("Who is paying?", displayMode: .inline)
-        .onAppear {
-            viewModel.fetchGroupMembers()
+        .onAppear(perform: viewModel.fetchGroupMembers)
+        .toolbar {
+            if viewModel.memberOwingAmount.isEmpty {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
         }
     }
 }
@@ -96,5 +105,5 @@ struct GroupPayingMemberView: View {
 }
 
 #Preview {
-    GroupWhoIsPayingView(viewModel: GroupWhoIsPayingViewModel(groupId: ""))
+    GroupWhoIsPayingView(viewModel: GroupWhoIsPayingViewModel(groupId: "", memberOwingAmount: [:]))
 }

@@ -26,8 +26,8 @@ struct GroupSettleUpRouteView: View {
             case .GroupSettleUpView(let groupId):
                 GroupSettleUpView(viewModel: GroupSettleUpViewModel(router: appRoute, groupId: groupId))
 
-            case .GroupWhoIsPayingView(let groupId):
-                GroupWhoIsPayingView(viewModel: GroupWhoIsPayingViewModel(router: appRoute, groupId: groupId))
+            case .GroupWhoIsPayingView(let groupId, let memberOwingAmount):
+                GroupWhoIsPayingView(viewModel: GroupWhoIsPayingViewModel(router: appRoute, groupId: groupId, memberOwingAmount: memberOwingAmount))
 
             case .GroupWhoGettingPaidView(let groupId, let selectedMemberId):
                 GroupWhoGettingPaidView(viewModel: GroupWhoGettingPaidViewModel(router: appRoute,
