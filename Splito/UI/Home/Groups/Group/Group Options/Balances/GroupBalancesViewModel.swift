@@ -13,6 +13,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     @Inject var preference: SplitoPreference
     @Inject var groupRepository: GroupRepository
     @Inject var expenseRepository: ExpenseRepository
+    @Inject private var transactionRepository: TransactionRepository
 
     @Published var viewState: ViewState = .initial
     @Published var memberBalances: [GroupMemberBalance] = []
@@ -20,6 +21,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
     private let groupId: String
     private var groupMemberData: [AppUser] = []
+    private var transactions: [Transactions] = []
 
     init(groupId: String) {
         self.groupId = groupId
@@ -50,8 +52,20 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
+                self.fetchTransactions()
                 self.fetchExpenses(group: group)
             }.store(in: &cancelable)
+    }
+
+    private func fetchTransactions() {
+        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
+            if case .failure(let error) = completion {
+                self?.showToastFor(error)
+            }
+        } receiveValue: { [weak self] transactions in
+            self?.transactions = transactions
+            print("xxx \(transactions)")
+        }.store(in: &cancelable)
     }
 
     private func fetchExpenses(group: Groups) {
@@ -63,6 +77,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] expenses in
                 guard let self else { return }
+                print("xxx \(expenses)")
                 if group.isDebtSimplified {
                     calculateExpensesSimply(expenses: expenses)
                 } else {
@@ -93,6 +108,17 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             }
         }
 
+        for transaction in transactions {
+            if let payerIndex = memberBalances.firstIndex(where: { $0.id == transaction.payerId }),
+               let receiverIndex = memberBalances.firstIndex(where: { $0.id == transaction.receiverId }) {
+                memberBalances[payerIndex].totalOwedAmount += transaction.amount
+                memberBalances[receiverIndex].totalOwedAmount -= transaction.amount
+
+                memberBalances[payerIndex].balances[transaction.receiverId, default: 0.0] += transaction.amount
+                memberBalances[receiverIndex].balances[transaction.payerId, default: 0.0] -= transaction.amount
+            }
+        }
+
         DispatchQueue.main.async {
             self.sortMemberBalances(memberBalances: memberBalances)
         }
@@ -116,9 +142,16 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             }
         }
 
-        DispatchQueue.main.async {
-            let debts = self.settleDebts(balances: memberBalances)
-            self.sortMemberBalances(memberBalances: debts)
+        for transaction in transactions {
+            if let payerIndex = memberBalances.firstIndex(where: { $0.id == transaction.payerId }),
+               let receiverIndex = memberBalances.firstIndex(where: { $0.id == transaction.receiverId }) {
+                memberBalances[payerIndex].totalOwedAmount += transaction.amount
+                memberBalances[receiverIndex].totalOwedAmount -= transaction.amount
+            }
+        }
+
+        DispatchQueue.main.async { [self] in
+            sortMemberBalances(memberBalances: settleDebts(balances: memberBalances))
         }
     }
 
