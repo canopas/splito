@@ -169,7 +169,7 @@ private struct GroupExpenseItemView: View {
 }
 
 private struct GroupExpenseHeaderView: View {
-    
+
     @ObservedObject var viewModel: GroupHomeViewModel
 
     var body: some View {
