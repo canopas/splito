@@ -181,8 +181,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
                 expensesWithUser = combinedData
                 overallOwingAmount = memberOwingAmount.values.reduce(0, +)
-                setGroupViewState()
             }
+            setGroupViewState()
         }
     }
 
@@ -216,8 +216,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
                 overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
                 expensesWithUser = combinedData
-                setGroupViewState()
             }
+            setGroupViewState()
         }
     }
 
