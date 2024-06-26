@@ -143,3 +143,23 @@ public func settleDebts(users: [String: Double]) -> [(String, String, Double)] {
 
     return debts
 }
+
+public func calculateSettingsExpenses(expenses: [Expense], transactions: [Transactions]) -> [String: Double] {
+    var amountOweByMember: [String: Double] = [:]
+
+    for expense in expenses {
+        amountOweByMember[expense.paidBy, default: 0.0] += expense.amount
+
+        let splitAmount = expense.amount / Double(expense.splitTo.count)
+        for member in expense.splitTo {
+            amountOweByMember[member, default: 0.0] -= splitAmount
+        }
+    }
+
+    for transaction in transactions {
+        amountOweByMember[transaction.payerId, default: 0.0] += transaction.amount
+        amountOweByMember[transaction.receiverId, default: 0.0] -= transaction.amount
+    }
+
+    return amountOweByMember
+}

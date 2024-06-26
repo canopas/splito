@@ -113,28 +113,11 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] expenses in
                 guard let self else { return }
-                self.calculateExpenses(expenses: expenses)
+                self.amountOweByMember = calculateSettingsExpenses(expenses: expenses, transactions: transactions)
+                DispatchQueue.main.async {
+                    self.currentViewState = .initial
+                }
             }.store(in: &cancelable)
-    }
-
-    private func calculateExpenses(expenses: [Expense]) {
-        for expense in expenses {
-            self.amountOweByMember[expense.paidBy, default: 0.0] += expense.amount
-
-            let splitAmount = expense.amount / Double(expense.splitTo.count)
-            for member in expense.splitTo {
-                self.amountOweByMember[member, default: 0.0] -= splitAmount
-            }
-        }
-
-        for transaction in transactions {
-            self.amountOweByMember[transaction.payerId, default: 0.0] += transaction.amount
-            self.amountOweByMember[transaction.receiverId, default: 0.0] -= transaction.amount
-        }
-
-        DispatchQueue.main.async {
-            self.currentViewState = .initial
-        }
     }
 
     private func checkForGroupAdmin() {
