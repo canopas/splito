@@ -62,6 +62,19 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         self.onGroupSelected?(groupId)
     }
 
+    private func fetchLatestTransactions() {
+        transactionRepository.fetchLatestTransactionsBy(groupId: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] transactions in
+                guard let self else { return }
+                self.transactions = transactions
+                self.fetchLatestExpenses()
+            }.store(in: &cancelable)
+    }
+
     private func fetchLatestExpenses() {
         expenseRepository.fetchLatestExpensesBy(groupId: groupId)
             .sink { [weak self] completion in
@@ -77,19 +90,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 } else {
                     self.calculateExpenses()
                 }
-            }.store(in: &cancelable)
-    }
-
-    private func fetchLatestTransactions() {
-        transactionRepository.fetchLatestTransactionsBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] transactions in
-                guard let self else { return }
-                self.transactions = transactions
-                self.fetchLatestExpenses()
             }.store(in: &cancelable)
     }
 

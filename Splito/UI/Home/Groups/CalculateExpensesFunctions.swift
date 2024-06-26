@@ -2,7 +2,7 @@
 //  CalculateExpensesFunctions.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 24/06/24.
+//  Created by Amisha Italiya on 24/06/24.
 //
 
 import Data

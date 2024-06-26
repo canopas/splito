@@ -45,7 +45,7 @@ struct GroupWhoIsPayingView: View {
         .navigationBarTitle("Who is paying?", displayMode: .inline)
         .onAppear(perform: viewModel.fetchGroupMembers)
         .toolbar {
-            if viewModel.memberOwingAmount.isEmpty {
+            if viewModel.isPaymentSettled {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") {
                         dismiss()
@@ -105,5 +105,5 @@ struct GroupPayingMemberView: View {
 }
 
 #Preview {
-    GroupWhoIsPayingView(viewModel: GroupWhoIsPayingViewModel(groupId: "", memberOwingAmount: [:]))
+    GroupWhoIsPayingView(viewModel: GroupWhoIsPayingViewModel(groupId: "", isPaymentSettled: true))
 }

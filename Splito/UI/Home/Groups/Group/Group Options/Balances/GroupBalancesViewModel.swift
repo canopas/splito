@@ -10,9 +10,9 @@ import Foundation
 
 class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var preference: SplitoPreference
-    @Inject var groupRepository: GroupRepository
-    @Inject var expenseRepository: ExpenseRepository
+    @Inject private var preference: SplitoPreference
+    @Inject private var groupRepository: GroupRepository
+    @Inject private var expenseRepository: ExpenseRepository
     @Inject private var transactionRepository: TransactionRepository
 
     @Published var viewState: ViewState = .initial

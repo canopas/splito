@@ -42,7 +42,7 @@ struct GroupHomeView: View {
                     viewModel.showSettleUpSheet = false
                 }
             } else {
-                GroupSettleUpRouteView(appRoute: .init(root: .GroupWhoIsPayingView(groupId: viewModel.group?.id ?? "", memberOwingAmount: viewModel.memberOwingAmount))) {
+                GroupSettleUpRouteView(appRoute: .init(root: .GroupWhoIsPayingView(groupId: viewModel.group?.id ?? "", isPaymentSettled: true))) {
                     viewModel.showSettleUpSheet = false
                 }
             }

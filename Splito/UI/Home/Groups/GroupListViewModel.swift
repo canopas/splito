@@ -134,8 +134,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
         let expensesPublisher = expenseRepository.fetchExpensesBy(groupId: groupId)
         let transactionsPublisher = transactionRepository.fetchTransactionsBy(groupId: groupId)
-            .mapError { _ in ServiceError.dataNotFound }
-            .catch { _ in Just([]).setFailureType(to: ServiceError.self) }
 
         return expensesPublisher
             .combineLatest(transactionsPublisher)

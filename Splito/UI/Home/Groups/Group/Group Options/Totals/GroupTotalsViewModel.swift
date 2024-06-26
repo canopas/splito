@@ -99,11 +99,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
         )
     }
 
-    private func filterItemsForSelectedTab<T>(
-        items: [T],
-        dateExtractor: (T) -> Date,
-        for tab: GroupTotalsTabType
-    ) -> [T] {
+    private func filterItemsForSelectedTab<T>(items: [T], dateExtractor: (T) -> Date, for tab: GroupTotalsTabType) -> [T] {
         let calendar = Calendar.current
 
         switch tab {
