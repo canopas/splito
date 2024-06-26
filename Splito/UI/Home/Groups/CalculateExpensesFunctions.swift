@@ -75,6 +75,7 @@ public func processTransactions(userId: String, transactions: [Transactions], ow
 public func calculateExpensesSimplify(userId: String, expenses: [Expense], transactions: [Transactions]) -> ([String: Double]) {
 
     var ownAmounts: [String: Double] = [:]
+    var memberOwingAmount: [String: Double] = [:]
 
     for expense in expenses {
         ownAmounts[expense.paidBy, default: 0.0] += expense.amount
@@ -85,30 +86,29 @@ public func calculateExpensesSimplify(userId: String, expenses: [Expense], trans
         }
     }
 
-    let owingAmount = processTransactionsSimply(userId: userId, transactions: transactions, ownAmounts: ownAmounts)
+    memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: ownAmounts)
 
-    return owingAmount.filter { $0.value != 0 }
-}
-
-public func processTransactionsSimply(userId: String, transactions: [Transactions], ownAmounts: [String: Double]) -> ([String: Double]) {
-
-    var memberOwingAmount: [String: Double] = [:]
-
-    // Settle debts among users
     let debts = settleDebts(users: ownAmounts)
     for debt in debts where debt.0 == userId || debt.1 == userId {
-        memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2  // Update the amounts for the user
+        memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
     }
+
+    return memberOwingAmount.filter { $0.value != 0 }
+}
+
+public func processTransactionsSimply(userId: String, transactions: [Transactions], memberOwingAmount: [String: Double]) -> ([String: Double]) {
+
+    var memberOwingAmount: [String: Double] = [:]
 
     for transaction in transactions {
         let payer = transaction.payerId
         let receiver = transaction.receiverId
         let amount = transaction.amount
 
-        if payer == userId, let currentAmount = memberOwingAmount[receiver] {
-            memberOwingAmount[receiver] = currentAmount + amount
-        } else if receiver == userId, let currentAmount = memberOwingAmount[payer] {
-            memberOwingAmount[payer] = currentAmount - amount
+        if payer == userId {
+            memberOwingAmount[receiver, default: 0.0] += amount
+        } else if receiver == userId {
+            memberOwingAmount[payer, default: 0.0] -= amount
         }
     }
 

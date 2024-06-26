@@ -194,6 +194,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         var combinedData: [ExpenseWithUser] = []
 
         overallOwingAmount = 0.0
+        memberOwingAmount = [:]
 
         for expense in expenses {
             queue.enter()
@@ -210,13 +211,16 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         queue.notify(queue: .main) { [self] in
-            let memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, ownAmounts: ownAmounts)
+            let owingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: memberOwingAmount)
+            memberOwingAmount = owingAmount.filter { $0.value != 0 }
 
-            withAnimation(.easeOut) {
-                self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
-                overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
-                expensesWithUser = combinedData
+            let debts = settleDebts(users: ownAmounts)
+            for debt in debts where debt.0 == userId || debt.1 == userId {
+                self.memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
             }
+
+            overallOwingAmount = memberOwingAmount.values.reduce(0, +)
+            expensesWithUser = combinedData
             setGroupViewState()
         }
     }
