@@ -175,7 +175,13 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         queue.notify(queue: .main) { [self] in
-            let memberOwingAmount = processTransactions(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser, isSimplify: false)
+            (owesToUser, owedByUser) = processTransactionsNonSimply(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
+            owesToUser.forEach { userId, owesAmount in
+                memberOwingAmount[userId, default: 0.0] = owesAmount
+            }
+            owedByUser.forEach { userId, owedAmount in
+                memberOwingAmount[userId, default: 0.0] = (memberOwingAmount[userId] ?? 0) - owedAmount
+            }
 
             withAnimation(.easeOut) {
                 self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
@@ -216,10 +222,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 self.memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
             }
 
-            let memberOwingAmount = processTransactions(userId: userId, transactions: transactions, ownAmounts: memberOwingAmount, isSimplify: true)
-
-            withAnimation(.easeOut) {
-                self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
+            withAnimation(.easeOut) {        
+                memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: memberOwingAmount)
                 overallOwingAmount = memberOwingAmount.values.reduce(0, +)
                 expensesWithUser = combinedData
             }
