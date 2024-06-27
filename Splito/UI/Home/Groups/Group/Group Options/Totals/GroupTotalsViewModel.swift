@@ -6,39 +6,25 @@
 //
 
 import Data
-import Combine
 import SwiftUI
-
-enum GroupTotalsTabType: Int, CaseIterable {
-
-    case thisMonth, lastMonth, allTime
-
-    var tabItem: String {
-        switch self {
-        case .thisMonth:
-            return "This month"
-        case .lastMonth:
-            return "Last month"
-        case .allTime:
-            return "All time"
-        }
-    }
-}
 
 class GroupTotalsViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var preference: SplitoPreference
-    @Inject var groupRepository: GroupRepository
-    @Inject var expenseRepository: ExpenseRepository
+    @Inject private var preference: SplitoPreference
+    @Inject private var groupRepository: GroupRepository
+    @Inject private var expenseRepository: ExpenseRepository
+    @Inject private var transactionRepository: TransactionRepository
 
-    @Published var viewState: ViewState = .initial
-    @Published var selectedTab: GroupTotalsTabType = .thisMonth
+    @Published private(set) var viewState: ViewState = .initial
+    @Published private(set) var selectedTab: GroupTotalsTabType = .thisMonth
 
-    @Published var group: Groups?
-    @Published private var expenses: [Expense] = []
-    @Published var filteredExpenses: [Expense] = []
+    @Published private(set) var group: Groups?
+    @Published private(set) var filteredExpenses: [Expense] = []
 
     private let groupId: String
+    private var expenses: [Expense] = []
+    private var transactions: [Transactions] = []
+    private var filteredTransactions: [Transactions] = []
 
     init(groupId: String) {
         self.groupId = groupId
@@ -46,18 +32,20 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
         self.fetchGroupAndExpenses()
     }
 
+    // MARK: - Data Loading
     private func fetchGroupAndExpenses() {
         viewState = .loading
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
                 self.group = group
+                self.fetchTransactions()
                 self.fetchExpenses(group: group)
+                self.viewState = .initial
             }.store(in: &cancelable)
     }
 
@@ -65,56 +53,83 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
         expenseRepository.fetchExpensesBy(groupId: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
+                    self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] expenses in
                 guard let self else { return }
                 self.expenses = expenses
                 self.filteredExpensesForSelectedTab()
-                self.viewState = .initial
             }.store(in: &cancelable)
     }
 
+    private func fetchTransactions() {
+        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
+            if case .failure(let error) = completion {
+                self?.handleServiceError(error)
+            }
+        } receiveValue: { [weak self] transactions in
+            guard let self else { return }
+            self.transactions = transactions
+            self.filteredTransactionsForSelectedTab()
+        }.store(in: &cancelable)
+    }
+
+    // MARK: - User Actions
     func handleTabItemSelection(_ selection: GroupTotalsTabType) {
         withAnimation(.easeInOut(duration: 0.3), {
             selectedTab = selection
             filteredExpensesForSelectedTab()
+            filteredTransactionsForSelectedTab()
         })
     }
 
     private func filteredExpensesForSelectedTab() {
-        switch selectedTab {
+        filteredExpenses = filterItemsForSelectedTab(
+            items: expenses,
+            dateExtractor: { $0.date.dateValue() },
+            for: selectedTab
+        )
+    }
+
+    private func filteredTransactionsForSelectedTab() {
+        filteredTransactions = filterItemsForSelectedTab(
+            items: transactions,
+            dateExtractor: { $0.date.dateValue() },
+            for: selectedTab
+        )
+    }
+
+    private func filterItemsForSelectedTab<T>(items: [T], dateExtractor: (T) -> Date, for tab: GroupTotalsTabType) -> [T] {
+        let calendar = Calendar.current
+
+        switch tab {
         case .thisMonth:
-            let calendar = Calendar.current
             let currentMonth = calendar.component(.month, from: Date())
             let currentYear = calendar.component(.year, from: Date())
 
-            filteredExpenses = expenses.filter {
-                let expenseDate = $0.date.dateValue()
-                let expenseMonth = calendar.component(.month, from: expenseDate)
-                let expenseYear = calendar.component(.year, from: expenseDate)
-                return expenseMonth == currentMonth && expenseYear == currentYear
+            return items.filter {
+                let itemDate = dateExtractor($0)
+                let itemMonth = calendar.component(.month, from: itemDate)
+                let itemYear = calendar.component(.year, from: itemDate)
+                return itemMonth == currentMonth && itemYear == currentYear
             }
         case .lastMonth:
-            let calendar = Calendar.current
             let currentDate = Date()
-
             guard let lastMonthDate = calendar.date(byAdding: .month, value: -1, to: currentDate) else {
-                return
+                return []
             }
 
             let lastMonth = calendar.component(.month, from: lastMonthDate)
             let lastMonthYear = calendar.component(.year, from: lastMonthDate)
 
-            filteredExpenses = expenses.filter {
-                let expenseDate = $0.date.dateValue()
-                let expenseMonth = calendar.component(.month, from: expenseDate)
-                let expenseYear = calendar.component(.year, from: expenseDate)
-                return expenseMonth == lastMonth && expenseYear == lastMonthYear
+            return items.filter {
+                let itemDate = dateExtractor($0)
+                let itemMonth = calendar.component(.month, from: itemDate)
+                let itemYear = calendar.component(.year, from: itemDate)
+                return itemMonth == lastMonth && itemYear == lastMonthYear
             }
         case .allTime:
-            filteredExpenses = expenses
+            return items
         }
     }
 
@@ -142,24 +157,30 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
 
     func getTotalPaid() -> Double {
         guard let user = preference.user else { return 0 }
-        let userExpenses = filteredExpenses.filter { $0.paidBy == user.id }
-        return userExpenses.reduce(0) { $0 + $1.amount }
+        return filteredExpenses.filter { $0.paidBy == user.id }.reduce(0) { $0 + $1.amount }
+    }
+
+    func getPaymentsMade() -> Double {
+        guard let user = preference.user else { return 0 }
+        return filteredTransactions.filter { $0.payerId == user.id }.reduce(0) { $0 + $1.amount }
+    }
+
+    func getPaymentsReceived() -> Double {
+        guard let user = preference.user else { return 0 }
+        return filteredTransactions.filter { $0.receiverId == user.id }.reduce(0) { $0 + $1.amount }
     }
 
     func getTotalChangeInBalance() -> Double {
         guard let user = preference.user else { return 0 }
 
-        var amountOweByMember: [String: Double] = [:]
-
-        for expense in filteredExpenses {
-            amountOweByMember[expense.paidBy, default: 0.0] += expense.amount
-
-            let splitAmount = expense.amount / Double(expense.splitTo.count)
-            for member in expense.splitTo {
-                amountOweByMember[member, default: 0.0] -= splitAmount
-            }
-        }
+        let amountOweByMember = calculateTransactionsWithExpenses(expenses: filteredExpenses, transactions: filteredTransactions)
         return amountOweByMember[user.id] ?? 0
+    }
+
+    // MARK: - Error Handling
+    private func handleServiceError(_ error: ServiceError) {
+        viewState = .initial
+        showToastFor(error)
     }
 }
 
@@ -168,5 +189,22 @@ extension GroupTotalsViewModel {
     enum ViewState {
         case initial
         case loading
+    }
+}
+
+// MARK: - Tab Types
+enum GroupTotalsTabType: Int, CaseIterable {
+
+    case thisMonth, lastMonth, allTime
+
+    var tabItem: String {
+        switch self {
+        case .thisMonth:
+            return "This month"
+        case .lastMonth:
+            return "Last month"
+        case .allTime:
+            return "All time"
+        }
     }
 }

@@ -37,8 +37,14 @@ struct GroupHomeView: View {
         .navigationBarTitle(viewModel.group?.name ?? "", displayMode: .inline)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
-            GroupSettleUpRouteView(appRoute: .init(root: .GroupSettleUpView(groupId: viewModel.group?.id ?? ""))) {
-                viewModel.showSettleUpSheet = false
+            if !(viewModel.memberOwingAmount.isEmpty) {
+                GroupSettleUpRouteView(appRoute: .init(root: .GroupSettleUpView(groupId: viewModel.group?.id ?? ""))) {
+                    viewModel.showSettleUpSheet = false
+                }
+            } else {
+                GroupSettleUpRouteView(appRoute: .init(root: .GroupWhoIsPayingView(groupId: viewModel.group?.id ?? "", isPaymentSettled: true))) {
+                    viewModel.showSettleUpSheet = false
+                }
             }
         }
         .fullScreenCover(isPresented: $viewModel.showTransactionsSheet) {
@@ -86,6 +92,7 @@ struct GroupHomeView: View {
 struct GroupOptionsListView: View {
 
     var isSettleUpEnable: Bool
+    let showTransactionsOption: Bool
 
     let onSettleUpTap: () -> Void
     let onTransactionsTap: () -> Void
@@ -97,7 +104,9 @@ struct GroupOptionsListView: View {
             HStack(spacing: 16) {
                 GroupOptionsButtonView(text: "Settle up", isForSettleUp: isSettleUpEnable, onTap: onSettleUpTap)
 
-                GroupOptionsButtonView(text: "Transactions", onTap: onTransactionsTap)
+                if showTransactionsOption {
+                    GroupOptionsButtonView(text: "Transactions", onTap: onTransactionsTap)
+                }
 
                 GroupOptionsButtonView(text: "Balances", onTap: onBalanceTap)
 

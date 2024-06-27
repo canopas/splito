@@ -209,7 +209,7 @@ extension AddExpenseViewModel {
 
         if let expense {
             var newExpense = expense
-            newExpense.name = expenseName.capitalized
+            newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing).capitalized
             newExpense.amount = expenseAmount
             newExpense.date = Timestamp(date: expenseDate)
             newExpense.paidBy = selectedPayer.id
@@ -217,7 +217,7 @@ extension AddExpenseViewModel {
 
             updateExpense(expense: newExpense)
         } else {
-            let expense = Expense(name: expenseName.capitalized, amount: expenseAmount,
+            let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing).capitalized, amount: expenseAmount,
                                   date: Timestamp(date: expenseDate), paidBy: selectedPayer.id,
                                   addedBy: user.id, splitTo: selectedMembers, groupId: groupId)
 
