@@ -6,22 +6,24 @@
 //
 
 import Data
+import Combine
+import BaseStyle
 import GoogleSignIn
 import FirebaseCore
 import FirebaseAuth
 import AuthenticationServices
-import BaseStyle
 
 public class LoginViewModel: BaseViewModel, ObservableObject {
-
-    @Inject private var preference: SplitoPreference
-    @Inject private var userRepository: UserRepository
 
     @Published private(set) var showGoogleLoading = false
     @Published private(set) var showAppleLoading = false
 
+    @Inject private var preference: SplitoPreference
+    @Inject private var userRepository: UserRepository
+
     private var currentNonce: String = ""
     private var appleSignInDelegates: SignInWithAppleDelegates! = nil
+
     private let router: Router<AppRoute>
 
     init(router: Router<AppRoute>) {
@@ -109,7 +111,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 					self.alert = .init(message: error.localizedDescription)
 					self.showAlert = true
 				}
-            } receiveValue: { [weak self] user in
+            } receiveValue: { [weak self] _ in
                 guard let self else { return }
 				self.preference.user = user
                 self.onLoginSuccess()

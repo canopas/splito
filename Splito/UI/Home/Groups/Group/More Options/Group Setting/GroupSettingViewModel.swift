@@ -8,35 +8,33 @@
 import Data
 import Combine
 import BaseStyle
-import SwiftUI
 
 class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
-    @Inject private var transactionRepository: TransactionRepository
 
-    @Published private(set) var isAdmin = false
+    private let groupId: String
+    private let router: Router<AppRoute>
+    private var memberRemoveType: MemberRemoveType = .leave
+
+    @Published var isAdmin = false
     @Published var showLeaveGroupDialog = false
     @Published var showRemoveMemberDialog = false
 
-    @Published private(set) var group: Groups?
-    @Published private(set) var members: [AppUser] = []
-    @Published private(set) var amountOweByMember: [String: Double] = [:]
+    @Published var groupTotalExpense = 0.0
+    @Published var amountOweByMember: [String: Double] = [:]
 
-    @Published private(set) var currentViewState: ViewState = .loading
+    @Published var group: Groups?
+    @Published var members: [AppUser] = []
+    @Published var currentViewState: ViewState = .loading
 
     @Published var isDebtSimplified = false {
         didSet {
             updateGroupForSimplifyDebt()
         }
     }
-
-    private let groupId: String
-    private let router: Router<AppRoute>
-    private var transactions: [Transactions] = []
-    private var memberRemoveType: MemberRemoveType = .leave
 
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
@@ -68,7 +66,6 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] members in
                 guard let self else { return }
                 self.sortGroupMembers(members: members)
-                self.fetchTransactions()
                 self.fetchExpenses()
             }.store(in: &cancelable)
     }
@@ -94,17 +91,6 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         return needFullName ? member.fullName : member.nameWithLastInitial
     }
 
-    private func fetchTransactions() {
-        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
-            if case .failure(let error) = completion {
-                self?.handleServiceError(error)
-            }
-        } receiveValue: { [weak self] transactions in
-            guard let self else { return }
-            self.transactions = transactions
-        }.store(in: &cancelable)
-    }
-
     private func fetchExpenses() {
         expenseRepository.fetchExpensesBy(groupId: groupId)
             .sink { [weak self] completion in
@@ -113,7 +99,16 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] expenses in
                 guard let self else { return }
-                self.amountOweByMember = calculateTransactionsWithExpenses(expenses: expenses, transactions: transactions)
+
+                for expense in expenses {
+                    self.amountOweByMember[expense.paidBy, default: 0.0] += expense.amount
+
+                    let splitAmount = expense.amount / Double(expense.splitTo.count)
+                    for member in expense.splitTo {
+                        self.amountOweByMember[member, default: 0.0] -= splitAmount
+                    }
+                }
+
                 DispatchQueue.main.async {
                     self.currentViewState = .initial
                 }
@@ -175,7 +170,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     private func showRemoveMemberAlert(memberId: String) {
-        guard amountOweByMember[memberId] == 0 || amountOweByMember[memberId] == nil else {
+        guard amountOweByMember[memberId] == 0 else {
             memberRemoveType = .remove
             showDebtOutstandingAlert(memberId: memberId)
             return
@@ -232,11 +227,6 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                     self.goBackToGroupList()
                 } else {
                     self.showAlert = false
-                    withAnimation {
-                        if let index = self.members.firstIndex(where: { $0.id == memberId }) {
-                            self.members.remove(at: index)
-                        }
-                    }
                     self.showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed"))
                 }
             }.store(in: &cancelable)

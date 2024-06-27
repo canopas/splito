@@ -14,11 +14,11 @@ struct GroupPaymentView: View {
     @StateObject var viewModel: GroupPaymentViewModel
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .center, spacing: 0) {
-                if case .loading = viewModel.viewState {
-                    LoaderView()
-                } else {
+        VStack(alignment: .center, spacing: 0) {
+            if case .loading = viewModel.viewState {
+                LoaderView()
+            } else {
+                ScrollView {
                     VStack(alignment: .center, spacing: 20) {
                         VSpacer(80)
 
@@ -52,26 +52,26 @@ struct GroupPaymentView: View {
 
                         VSpacer(20)
                     }
-                    .padding(.horizontal, 20)
                 }
+                .padding(.horizontal, 20)
+                .scrollIndicators(.hidden)
             }
-            .background(backgroundColor)
-            .toastView(toast: $viewModel.toast)
-            .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-            .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-            .navigationBarTitle(viewModel.transactionId != nil ? "Edit payment" : "Record a payment", displayMode: .inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save", action: viewModel.handleSaveAction)
-                }
-                if viewModel.transactionId != nil {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button("Cancel", action: viewModel.dismissPaymentFlow)
-                    }
+        }
+        .background(backgroundColor)
+        .toastView(toast: $viewModel.toast)
+        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .navigationBarTitle(viewModel.transactionId != nil ? "Edit payment" : "Record a payment", displayMode: .inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Save", action: viewModel.handleSaveAction)
+            }
+            if viewModel.transactionId != nil {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel", action: viewModel.dismissPaymentFlow)
                 }
             }
         }
-        .scrollIndicators(.hidden)
     }
 }
 

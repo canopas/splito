@@ -57,7 +57,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                 self?.handleServiceError(error)
             }
         } receiveValue: { [weak self] transactions in
-            guard let self else { return }
+            guard let self, !self.transactions.isEmpty else { return }
             self.transactions = transactions
             self.combinedTransactionsWithUser()
         }.store(in: &cancelable)

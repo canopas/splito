@@ -32,7 +32,6 @@ struct GroupTransactionDetailView: View {
                             .font(.body2())
                             .lineSpacing(2)
                             .foregroundStyle(disableText)
-                            .multilineTextAlignment(.center)
                             .padding(.horizontal, 16)
 
                         VSpacer()

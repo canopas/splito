@@ -31,7 +31,7 @@ public enum AppRoute: Hashable {
     case JoinMemberView
     case GroupSettingView(groupId: String)
     case GroupSettleUpView(groupId: String)
-    case GroupWhoIsPayingView(groupId: String, isPaymentSettled: Bool)
+    case GroupWhoIsPayingView(groupId: String)
     case GroupWhoGettingPaidView(groupId: String, selectedMemberId: String)
     case GroupPaymentView(transactionId: String?, groupId: String, payerId: String, receiverId: String, amount: Double)
     case TransactionListView(groupId: String)

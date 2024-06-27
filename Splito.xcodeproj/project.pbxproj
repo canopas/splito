@@ -10,7 +10,6 @@
 		0BF8F99614F85846D78DE106 /* Pods_Splito_SplitoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2B9BBF3F71277A6AA5329CB /* Pods_Splito_SplitoUITests.framework */; };
 		213BA0602C0F465000116130 /* GroupSettleUpRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213BA05F2C0F465000116130 /* GroupSettleUpRouteView.swift */; };
 		213BA0662C11B70F00116130 /* HomeRouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */; };
-		214CF8492C2977E10044C188 /* CalculateExpensesFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 214CF8482C2977E10044C188 /* CalculateExpensesFunctions.swift */; };
 		2156A8B02C24069800CFAB64 /* GroupTransactionsRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2156A8AF2C24069800CFAB64 /* GroupTransactionsRouteView.swift */; };
 		2177692B2C203160009B3B37 /* GroupTransactionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2177692A2C203160009B3B37 /* GroupTransactionDetailView.swift */; };
 		2177692D2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2177692C2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift */; };
@@ -140,7 +139,6 @@
 		038CCD15E82A4E16A4AD213C /* Pods-Splito-SplitoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito-SplitoUITests.release.xcconfig"; path = "Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests.release.xcconfig"; sourceTree = "<group>"; };
 		213BA05F2C0F465000116130 /* GroupSettleUpRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSettleUpRouteView.swift; sourceTree = "<group>"; };
 		213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRouteViewModel.swift; sourceTree = "<group>"; };
-		214CF8482C2977E10044C188 /* CalculateExpensesFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculateExpensesFunctions.swift; sourceTree = "<group>"; };
 		2156A8AF2C24069800CFAB64 /* GroupTransactionsRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionsRouteView.swift; sourceTree = "<group>"; };
 		2177692A2C203160009B3B37 /* GroupTransactionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionDetailView.swift; sourceTree = "<group>"; };
 		2177692C2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionDetailViewModel.swift; sourceTree = "<group>"; };
@@ -577,7 +575,6 @@
 		D89DBE552B8DE8C600E5F1BD /* Groups */ = {
 			isa = PBXGroup;
 			children = (
-				214CF8482C2977E10044C188 /* CalculateExpensesFunctions.swift */,
 				D89DBE5A2B8DE97000E5F1BD /* GroupRouteView.swift */,
 				D88721442B9B2C78009DC5BE /* GroupListView.swift */,
 				D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */,
@@ -1012,7 +1009,6 @@
 				D8302DA02B9F282F005ACA13 /* InviteMemberView.swift in Sources */,
 				D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */,
 				21B1C09C2C1C5A050098B4FD /* GroupTransactionListViewModel.swift in Sources */,
-				214CF8492C2977E10044C188 /* CalculateExpensesFunctions.swift in Sources */,
 				213BA0602C0F465000116130 /* GroupSettleUpRouteView.swift in Sources */,
 				D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */,
 				D8CD952E2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift in Sources */,

@@ -13,15 +13,14 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
-    @Inject private var transactionRepository: TransactionRepository
 
+    @Published private var expenses: [Expense] = []
+    @Published var expensesWithUser: [ExpenseWithUser] = []
+    @Published var groupState: GroupState = .loading
+
+    @Published var overallOwingAmount = 0.0
     @Published var searchedExpense: String = ""
-    @Published private(set) var overallOwingAmount = 0.0
-
-    @Published private(set) var transactions: [Transactions] = []
-    @Published private(set) var expensesWithUser: [ExpenseWithUser] = []
-    @Published private(set) var memberOwingAmount: [String: Double] = [:]
-    @Published private(set) var groupState: GroupState = .loading
+    @Published var memberOwingAmount: [String: Double] = [:]
 
     @Published var showSettleUpSheet = false
     @Published var showTransactionsSheet = false
@@ -29,7 +28,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var showGroupTotalSheet = false
     @Published private(set) var showSearchBar = false
 
-    @Published private(set) var group: Groups?
+    @Published var group: Groups?
 
     static private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -48,7 +47,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     private let groupId: String
     private let router: Router<AppRoute>
-    private var expenses: [Expense] = []
     private var groupUserData: [AppUser] = []
     private let onGroupSelected: ((String?) -> Void)?
 
@@ -57,40 +55,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
         self.onGroupSelected = onGroupSelected
         super.init()
-        self.fetchLatestTransactions()
+        self.fetchLatestExpenses()
 
         self.onGroupSelected?(groupId)
-    }
-
-    private func fetchLatestTransactions() {
-        transactionRepository.fetchLatestTransactionsBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] transactions in
-                guard let self else { return }
-                self.transactions = transactions
-                self.fetchLatestExpenses()
-            }.store(in: &cancelable)
-    }
-
-    private func fetchLatestExpenses() {
-        expenseRepository.fetchLatestExpensesBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.groupState = .noMember
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] expenses in
-                guard let self, let group else { return }
-                self.expenses = expenses
-                if group.isDebtSimplified {
-                    self.calculateExpensesSimply()
-                } else {
-                    self.calculateExpenses()
-                }
-            }.store(in: &cancelable)
     }
 
     func fetchGroupAndExpenses() {
@@ -109,20 +76,26 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                         self.groupUserData.append(memberData)
                     }
                 }
-                self.fetchTransactions()
                 self.fetchExpenses()
             }.store(in: &cancelable)
     }
 
-    private func fetchTransactions() {
-        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
-            if case .failure(let error) = completion {
-                self?.showToastFor(error)
-            }
-        } receiveValue: { [weak self] transactions in
-            guard let self else { return }
-            self.transactions = transactions
-        }.store(in: &cancelable)
+    private func fetchLatestExpenses() {
+        expenseRepository.fetchLatestExpensesBy(groupId: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.groupState = .noMember
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] expenses in
+                guard let self, let group, !self.expenses.isEmpty else { return }
+                self.expenses = expenses
+                if group.isDebtSimplified {
+                    self.calculateExpensesSimply()
+                } else {
+                    self.calculateExpenses()
+                }
+            }.store(in: &cancelable)
     }
 
     private func fetchExpenses() {
@@ -144,10 +117,12 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     private func calculateExpenses() {
-        guard let userId = preference.user?.id else { return }
+        guard let userId = self.preference.user?.id else { return }
 
         let queue = DispatchGroup()
+        var expenseByUser = 0.0
         var combinedData: [ExpenseWithUser] = []
+
         var owesToUser: [String: Double] = [:]
         var owedByUser: [String: Double] = [:]
 
@@ -158,42 +133,38 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             queue.enter()
 
             let splitAmount = expense.amount / Double(expense.splitTo.count)
+
             if expense.paidBy == userId {
-                // If the user paid for the expense, calculate how much each member owes the user
+                expenseByUser += expense.splitTo.contains(userId) ? expense.amount - splitAmount : expense.amount
                 for member in expense.splitTo where member != userId {
                     owesToUser[member, default: 0.0] += splitAmount
                 }
-            } else if expense.splitTo.contains(userId) {
-                // If the user is one of the members who should split the expense, calculate how much the user owes to the payer
+            } else if expense.splitTo.contains(where: { $0 == userId }) {
+                expenseByUser -= splitAmount
                 owedByUser[expense.paidBy, default: 0.0] += splitAmount
             }
 
-            fetchUserData(for: expense.paidBy) { user in
+            self.fetchUserData(for: expense.paidBy) { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
                 queue.leave()
             }
         }
 
-        queue.notify(queue: .main) { [self] in
-            (owesToUser, owedByUser) = processTransactionsNonSimply(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
+        queue.notify(queue: .main) {
             owesToUser.forEach { userId, owesAmount in
-                memberOwingAmount[userId, default: 0.0] = owesAmount
+                self.memberOwingAmount[userId] = owesAmount
             }
             owedByUser.forEach { userId, owedAmount in
-                memberOwingAmount[userId, default: 0.0] = (memberOwingAmount[userId] ?? 0) - owedAmount
+                self.memberOwingAmount[userId] = (self.memberOwingAmount[userId] ?? 0) - owedAmount
             }
-
-            withAnimation(.easeOut) {
-                self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
-                overallOwingAmount = memberOwingAmount.values.reduce(0, +)
-                expensesWithUser = combinedData
-            }
-            setGroupViewState()
+            self.expensesWithUser = combinedData
+            self.overallOwingAmount = expenseByUser
+            self.setGroupViewState()
         }
     }
 
     private func calculateExpensesSimply() {
-        guard let userId = preference.user?.id else { return }
+        guard let userId = self.preference.user?.id else { return }
 
         let queue = DispatchGroup()
         var ownAmounts: [String: Double] = [:]
@@ -207,28 +178,67 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
             ownAmounts[expense.paidBy, default: 0.0] += expense.amount
             let splitAmount = expense.amount / Double(expense.splitTo.count)
+
             for member in expense.splitTo {
                 ownAmounts[member, default: 0.0] -= splitAmount
             }
+
             self.fetchUserData(for: expense.paidBy) { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
                 queue.leave()
             }
         }
 
-        queue.notify(queue: .main) { [self] in
-            let debts = settleDebts(users: ownAmounts)
+        queue.notify(queue: .main) {
+            let debts = self.settleDebts(users: ownAmounts)
+
             for debt in debts where debt.0 == userId || debt.1 == userId {
+                self.overallOwingAmount += debt.1 == userId ? debt.2 : -debt.2
                 self.memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
             }
 
-            withAnimation(.easeOut) {        
-                memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: memberOwingAmount)
-                overallOwingAmount = memberOwingAmount.values.reduce(0, +)
-                expensesWithUser = combinedData
-            }
-            setGroupViewState()
+            self.expensesWithUser = combinedData
+            self.setGroupViewState()
         }
+    }
+
+    private func settleDebts(users: [String: Double]) -> [(String, String, Double)] {
+        var creditors: [(String, Double)] = []
+        var debtors: [(String, Double)] = []
+
+        // Separate users into creditors and debtors
+        for (user, balance) in users {
+            if balance > 0 {
+                creditors.append((user, balance))
+            } else if balance < 0 {
+                debtors.append((user, -balance)) // Store as positive for ease of calculation
+            }
+        }
+
+        // Sort creditors and debtors by the amount they owe or are owed
+        creditors.sort { $0.1 < $1.1 }
+        debtors.sort { $0.1 < $1.1 }
+
+        var transactions: [(String, String, Double)] = [] // (debtor, creditor, amount)
+        var cIdx = 0
+        var dIdx = 0
+
+        while cIdx < creditors.count && dIdx < debtors.count { // Process all debts
+            let (creditor, credAmt) = creditors[cIdx]
+            let (debtor, debtAmt) = debtors[dIdx]
+            let minAmt = min(credAmt, debtAmt)
+
+            transactions.append((debtor, creditor, minAmt)) // Record the transaction
+
+            // Update the amounts
+            creditors[cIdx] = (creditor, credAmt - minAmt)
+            debtors[dIdx] = (debtor, debtAmt - minAmt)
+
+            // Move the index forward if someone's balance is settled
+            if creditors[cIdx].1 == 0 { cIdx += 1 }
+            if debtors[dIdx].1 == 0 { dIdx += 1 }
+        }
+        return transactions
     }
 
     private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {

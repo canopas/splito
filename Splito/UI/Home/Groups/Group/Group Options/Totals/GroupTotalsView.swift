@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BaseStyle
+import Data
 
 struct GroupTotalsView: View {
 
@@ -38,6 +39,7 @@ struct GroupTotalsView: View {
             }
         }
         .background(backgroundColor)
+        .interactiveDismissDisabled()
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationBarTitle("Group spending summary", displayMode: .inline)
@@ -99,7 +101,7 @@ private struct GroupTotalSummaryView: View {
     }
 
     private var totalShare: Double {
-        return viewModel.getTotalShareAmount()
+        viewModel.getTotalShareAmount()
     }
 
     private var totalChangeInBalance: Double {
@@ -107,11 +109,11 @@ private struct GroupTotalSummaryView: View {
     }
 
     private var paymentsMade: Double {
-        return viewModel.getPaymentsMade()
+        return 0 // Add calculation for payments made
     }
 
     private var paymentsReceived: Double {
-        return viewModel.getPaymentsReceived()
+        return 0 // Add calculation for payments received
     }
 
     var body: some View {
@@ -122,7 +124,7 @@ private struct GroupTotalSummaryView: View {
             GroupSummaryAmountView(text: "Payments made", amount: paymentsMade)
             GroupSummaryAmountView(text: "Payments received", amount: paymentsReceived)
             GroupSummaryAmountView(text: "Total change in balance", amount: totalChangeInBalance,
-                                   fontColor: (totalChangeInBalance < 0 ? amountBorrowedColor : amountLentColor))
+                             fontColor: (totalChangeInBalance < 0 ? amountBorrowedColor : amountLentColor))
         }
         .padding(.horizontal, 4)
     }
