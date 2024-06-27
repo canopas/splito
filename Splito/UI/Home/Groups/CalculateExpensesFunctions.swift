@@ -86,19 +86,19 @@ public func calculateExpensesSimplify(userId: String, expenses: [Expense], trans
         }
     }
 
-    memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: ownAmounts)
-
     let debts = settleDebts(users: ownAmounts)
     for debt in debts where debt.0 == userId || debt.1 == userId {
         memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
     }
+
+    memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: memberOwingAmount)
 
     return memberOwingAmount.filter { $0.value != 0 }
 }
 
 public func processTransactionsSimply(userId: String, transactions: [Transactions], memberOwingAmount: [String: Double]) -> ([String: Double]) {
 
-    var memberOwingAmount: [String: Double] = [:]
+    var memberOwingAmount: [String: Double] = memberOwingAmount
 
     for transaction in transactions {
         let payer = transaction.payerId

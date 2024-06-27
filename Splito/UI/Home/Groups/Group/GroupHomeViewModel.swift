@@ -211,14 +211,14 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         queue.notify(queue: .main) { [self] in
-            let owingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: memberOwingAmount)
-            memberOwingAmount = owingAmount.filter { $0.value != 0 }
-
             let debts = settleDebts(users: ownAmounts)
             for debt in debts where debt.0 == userId || debt.1 == userId {
                 self.memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
             }
 
+            let owingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: memberOwingAmount)
+
+            memberOwingAmount = owingAmount.filter { $0.value != 0 }
             overallOwingAmount = memberOwingAmount.values.reduce(0, +)
             expensesWithUser = combinedData
             setGroupViewState()
