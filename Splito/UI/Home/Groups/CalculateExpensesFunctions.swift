@@ -136,6 +136,7 @@ public func settleDebts(users: [String: Double]) -> [(String, String, Double)] {
     return debts
 }
 
+// Used in settings and totals screen's total change in balance calculation
 public func calculateTransactionsWithExpenses(expenses: [Expense], transactions: [Transactions]) -> [String: Double] {
     var amountOweByMember: [String: Double] = [:]
 

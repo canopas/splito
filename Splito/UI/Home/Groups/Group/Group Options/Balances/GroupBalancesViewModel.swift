@@ -106,17 +106,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             }
         }
 
-        for transaction in transactions {
-            if let payerIndex = memberBalances.firstIndex(where: { $0.id == transaction.payerId }),
-               let receiverIndex = memberBalances.firstIndex(where: { $0.id == transaction.receiverId }) {
-                memberBalances[payerIndex].totalOwedAmount += transaction.amount
-                memberBalances[receiverIndex].totalOwedAmount -= transaction.amount
-
-                memberBalances[payerIndex].balances[transaction.receiverId, default: 0.0] += transaction.amount
-                memberBalances[receiverIndex].balances[transaction.payerId, default: 0.0] -= transaction.amount
-            }
-        }
-
+        memberBalances = processTransactions(transactions: transactions, memberBalances: memberBalances, isSimplify: false)
         DispatchQueue.main.async {
             self.sortMemberBalances(memberBalances: memberBalances)
         }
@@ -140,17 +130,29 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             }
         }
 
+        memberBalances = processTransactions(transactions: transactions, memberBalances: memberBalances, isSimplify: true)
+        DispatchQueue.main.async { [self] in
+            sortMemberBalances(memberBalances: settleDebts(balances: memberBalances))
+        }
+    }
+
+    private func processTransactions(transactions: [Transactions], memberBalances: [GroupMemberBalance], isSimplify: Bool) -> [GroupMemberBalance] {
+        var memberBalances: [GroupMemberBalance] = memberBalances
+
         for transaction in transactions {
             if let payerIndex = memberBalances.firstIndex(where: { $0.id == transaction.payerId }),
                let receiverIndex = memberBalances.firstIndex(where: { $0.id == transaction.receiverId }) {
                 memberBalances[payerIndex].totalOwedAmount += transaction.amount
                 memberBalances[receiverIndex].totalOwedAmount -= transaction.amount
+
+                if !(isSimplify) {
+                    memberBalances[payerIndex].balances[transaction.receiverId, default: 0.0] += transaction.amount
+                    memberBalances[receiverIndex].balances[transaction.payerId, default: 0.0] -= transaction.amount
+                }
             }
         }
 
-        DispatchQueue.main.async { [self] in
-            sortMemberBalances(memberBalances: settleDebts(balances: memberBalances))
-        }
+        return memberBalances
     }
 
     private func settleDebts(balances: [GroupMemberBalance]) -> [GroupMemberBalance] {
