@@ -173,7 +173,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     func getTotalChangeInBalance() -> Double {
         guard let user = preference.user else { return 0 }
 
-        let amountOweByMember = calculateSettingsExpenses(expenses: filteredExpenses, transactions: filteredTransactions)
+        let amountOweByMember = calculateTransactionsWithExpenses(expenses: filteredExpenses, transactions: filteredTransactions)
         return amountOweByMember[user.id] ?? 0
     }
 

@@ -27,49 +27,9 @@ public func calculateExpensesNonSimplify(userId: String, expenses: [Expense], tr
         }
     }
 
-    let memberOwingAmount = processTransactions(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
+    let memberOwingAmount = processTransactions(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser, isSimplify: false)
 
     return memberOwingAmount.filter { $0.value != 0 }
-}
-
-public func processTransactions(userId: String, transactions: [Transactions], owesToUser: [String: Double], owedByUser: [String: Double]) -> ([String: Double]) {
-
-    var owesToUser: [String: Double] = owesToUser
-    var owedByUser: [String: Double] = owedByUser
-    var memberOwingAmount: [String: Double] = [:]
-
-    for transaction in transactions {
-        let payer = transaction.payerId
-        let receiver = transaction.receiverId
-        let amount = transaction.amount
-
-        if transaction.payerId == userId {
-            if owedByUser[receiver] != nil {
-                // If the receiver owes money to the user, increase the amount the user owes to the receiver
-                owesToUser[transaction.receiverId, default: 0.0] += amount
-            } else {
-                // If the receiver does not owe money to the user, decrease the amount the user owes to the payer
-                owedByUser[transaction.payerId, default: 0.0] -= amount
-            }
-        } else if transaction.receiverId == userId {
-            if owesToUser[payer] != nil {
-                // If the payer owes money to the user, increase the amount the payer owes to the user
-                owedByUser[transaction.payerId, default: 0.0] += amount
-            } else {
-                // If the payer does not owe money to the user, set the amount the payer owes to the user
-                owesToUser[payer] = -amount
-            }
-        }
-    }
-
-    owesToUser.forEach { payerId, owesAmount in
-        memberOwingAmount[payerId, default: 0.0] += owesAmount
-    }
-    owedByUser.forEach { receiverId, owedAmount in
-        memberOwingAmount[receiverId, default: 0.0] -= owedAmount
-    }
-
-    return memberOwingAmount
 }
 
 public func calculateExpensesSimplify(userId: String, expenses: [Expense], transactions: [Transactions]) -> ([String: Double]) {
@@ -91,24 +51,56 @@ public func calculateExpensesSimplify(userId: String, expenses: [Expense], trans
         memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
     }
 
-    memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: memberOwingAmount)
+    memberOwingAmount = processTransactions(userId: userId, transactions: transactions, ownAmounts: memberOwingAmount, isSimplify: true)
 
     return memberOwingAmount.filter { $0.value != 0 }
 }
 
-public func processTransactionsSimply(userId: String, transactions: [Transactions], memberOwingAmount: [String: Double]) -> ([String: Double]) {
+public func processTransactions(userId: String, transactions: [Transactions], owesToUser: [String: Double]? = nil, owedByUser: [String: Double]? = nil, ownAmounts: [String: Double]? = nil, isSimplify: Bool) -> ([String: Double]) {
 
-    var memberOwingAmount: [String: Double] = memberOwingAmount
+    var memberOwingAmount: [String: Double] = isSimplify ? ownAmounts! : [:]
 
     for transaction in transactions {
         let payer = transaction.payerId
         let receiver = transaction.receiverId
         let amount = transaction.amount
 
-        if payer == userId {
-            memberOwingAmount[receiver, default: 0.0] += amount
-        } else if receiver == userId {
-            memberOwingAmount[payer, default: 0.0] -= amount
+        if isSimplify {
+            if payer == userId {
+                // If the user is the payer, the receiver owes the user the specified amount
+                memberOwingAmount[receiver, default: 0.0] += amount
+            } else if receiver == userId {
+                // If the user is the receiver, the payer owes the user the specified amount
+                memberOwingAmount[payer, default: 0.0] -= amount
+            }
+        } else {
+            var owesToUser = owesToUser!
+            var owedByUser = owedByUser!
+
+            if transaction.payerId == userId {
+                if owedByUser[receiver] != nil {
+                    // If the receiver owes money to the user, increase the amount the user owes to the receiver
+                    owesToUser[transaction.receiverId, default: 0.0] += amount
+                } else {
+                    // Otherwise decrease the amount the user owes to the payer
+                    owedByUser[transaction.payerId, default: 0.0] -= amount
+                }
+            } else if transaction.receiverId == userId {
+                if owesToUser[payer] != nil {
+                    // If the payer owes money to the user, increase the amount the payer owes to the user
+                    owedByUser[transaction.payerId, default: 0.0] += amount
+                } else {
+                    // Otherwise set the amount the payer owes to the user
+                    owesToUser[payer] = -amount
+                }
+            }
+
+            owesToUser.forEach { payerId, owesAmount in
+                memberOwingAmount[payerId, default: 0.0] += owesAmount
+            }
+            owedByUser.forEach { receiverId, owedAmount in
+                memberOwingAmount[receiverId, default: 0.0] -= owedAmount
+            }
         }
     }
 
@@ -144,7 +136,7 @@ public func settleDebts(users: [String: Double]) -> [(String, String, Double)] {
     return debts
 }
 
-public func calculateSettingsExpenses(expenses: [Expense], transactions: [Transactions]) -> [String: Double] {
+public func calculateTransactionsWithExpenses(expenses: [Expense], transactions: [Transactions]) -> [String: Double] {
     var amountOweByMember: [String: Double] = [:]
 
     for expense in expenses {
