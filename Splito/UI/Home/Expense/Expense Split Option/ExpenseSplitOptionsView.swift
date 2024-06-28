@@ -37,6 +37,8 @@ struct ExpenseSplitOptionsView: View {
                             }
 
                             SplitOptionsTabView(viewModel: viewModel)
+
+                            VSpacer(80)
                         }
                     }
                     .scrollIndicators(.hidden)
@@ -105,13 +107,14 @@ private struct SplitOptionsTopView: View {
     var body: some View {
         VStack(spacing: 8) {
             Text(title)
-                .font(.Header4())
+                .font(.subTitle1())
+                .foregroundStyle(primaryText)
 
             Text(subtitle)
                 .font(.body1())
+                .foregroundStyle(secondaryText)
         }
         .padding(.horizontal, 20)
-        .foregroundStyle(primaryText)
         .multilineTextAlignment(.center)
     }
 }
@@ -150,10 +153,10 @@ private struct EqualShareView: View {
 
 private struct ExpenseMemberCellView: View {
 
-    var member: AppUser
-    var isSelected: Bool
+    let member: AppUser
+    let isSelected: Bool
 
-    var onTap: () -> Void
+    let onTap: () -> Void
 
     var body: some View {
         VStack(spacing: 12) {
@@ -183,17 +186,15 @@ private struct ExpenseMemberCellView: View {
                 .frame(height: 1)
                 .background(outlineColor.opacity(0.3))
         }
-        .onTouchGesture {
-            onTap()
-        }
+        .onTouchGesture(onTap)
     }
 }
 
 private struct ExpenseSplitAmountView: View {
 
-    var memberCount: Int
-    var splitAmount: Double
-    var isAllSelected: Bool
+    let memberCount: Int
+    let splitAmount: Double
+    let isAllSelected: Bool
 
     let onAllBtnTap: () -> Void
 
@@ -248,7 +249,7 @@ private struct ExpenseSplitAmountView: View {
 
 private struct TotalPercentageView: View {
 
-    var totalPercentage: Double
+    let totalPercentage: Double
 
     var body: some View {
         VStack(spacing: 0) {
@@ -279,7 +280,7 @@ private struct TotalPercentageView: View {
 
 private struct TotalSharesView: View {
 
-    var totalShares: Double
+    let totalShares: Double
 
     var body: some View {
         VStack(spacing: 0) {
@@ -307,52 +308,14 @@ private struct PercentageView: View {
     @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                ForEach(viewModel.groupMembers, id: \.id) { member in
-                    PercentageMemberCellView(percentage: Binding(
-                        get: { viewModel.percentages[member.id] ?? 0 },
-                        set: { viewModel.updatePercentage(for: member.id, percentage: $0) }
-                    ), member: member, onPercentageChange: {_ in
-
-                    })
-                }
+        VStack(spacing: 20) {
+            ForEach(viewModel.groupMembers, id: \.id) { member in
+                MemberCellView(value: Binding(
+                    get: { viewModel.percentages[member.id] ?? 0 },
+                    set: { viewModel.updatePercentage(for: member.id, percentage: $0) }
+                ), member: member, suffixText: "%", onValueChange: {_ in })
             }
-            .padding()
         }
-    }
-}
-
-private struct PercentageMemberCellView: View {
-
-    @Binding var percentage: Double
-
-    var member: AppUser
-    var onPercentageChange: (Double) -> Void
-
-    var body: some View {
-        HStack(spacing: 20) {
-            MemberProfileImageView(imageUrl: member.imageUrl)
-            Text(member.fullName)
-                .font(.subTitle1())
-                .foregroundStyle(primaryText)
-
-            Spacer()
-
-            TextField("0", value: $percentage, formatter: NumberFormatter())
-                .keyboardType(.decimalPad)
-                .frame(width: 50)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .multilineTextAlignment(.trailing)
-                .onChange(of: percentage) { newValue in
-                    onPercentageChange(newValue)
-                }
-
-            Text("%")
-                .font(.subTitle1())
-                .foregroundStyle(primaryText)
-        }
-        .padding(.horizontal, 16)
     }
 }
 
@@ -361,8 +324,70 @@ private struct ShareView: View {
     @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
 
     var body: some View {
-        Text("Share View")
-        // Implement share-based splitting logic here
+        VStack(spacing: 20) {
+            ForEach(viewModel.groupMembers, id: \.id) { member in
+                MemberCellView(value: Binding(
+                    get: { viewModel.shares[member.id] ?? 0 },
+                    set: { viewModel.updateShare(for: member.id, share: $0) }
+                ), member: member, suffixText: "share(s)", totalShares: viewModel.totalShares, expenseAmount: viewModel.totalAmount, onValueChange: {_ in })
+            }
+        }
+    }
+}
+
+private struct MemberCellView: View {
+
+    @Binding var value: Double
+
+    let member: AppUser
+    let suffixText: String
+    var totalShares: Double?
+    var expenseAmount: Double?
+    let onValueChange: (Double) -> Void
+
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 20) {
+                MemberProfileImageView(imageUrl: member.imageUrl)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(member.fullName)
+                        .font(.subTitle1())
+                        .foregroundStyle(primaryText)
+
+                    if totalShares != nil {
+                        let calculatedValue = totalShares! == 0 ? 0 : ((expenseAmount!) * value / (totalShares!))
+                        Text((calculatedValue).formattedCurrency)
+                            .font(.body2())
+                            .foregroundStyle(disableText)
+                    }
+                }
+                .multilineTextAlignment(.leading)
+
+                Spacer(minLength: 0)
+
+                HStack(spacing: 4) {
+                    TextField("0", value: $value, formatter: NumberFormatter())
+                        .font(.subTitle1())
+                        .keyboardType(.decimalPad)
+                        .frame(width: 70)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .onChange(of: value) { newValue in
+                            onValueChange(newValue)
+                        }
+
+                    Text(suffixText)
+                        .font(.body1())
+                        .foregroundStyle(primaryText)
+                }
+                .fixedSize()
+            }
+            .padding(.horizontal, 16)
+
+            Divider()
+                .frame(height: 1)
+                .background(outlineColor.opacity(0.3))
+        }
     }
 }
 

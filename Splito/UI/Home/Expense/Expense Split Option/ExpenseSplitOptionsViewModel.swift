@@ -15,15 +15,17 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     @Inject private var userRepository: UserRepository
     @Inject private var expenseRepository: ExpenseRepository
 
+    @Published private(set) var totalAmount: Double = 0
     @Published private(set) var splitAmount: Double = 0
     @Published private(set) var totalPercentage: Double = 0
     @Published private(set) var totalShares: Double = 0
 
     @Published private(set) var groupMembers: [AppUser] = []
+    @Published private(set) var shares: [String: Double] = [:]
     @Published private(set) var percentages: [String: Double] = [:]
 
-    @Published private(set) var viewState: ViewState = .initial
     @Published var selectedTab: SplitType = .equally
+    @Published private(set) var viewState: ViewState = .initial
 
     @Published var selectedMembers: [String] {
         didSet {
@@ -36,7 +38,6 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     }
 
     private var members: [String] = []
-    private var totalAmount: Double = 0
     private var onMemberSelection: (([String]) -> Void)
 
     init(amount: Double, members: [String], selectedMembers: [String], onMemberSelection: @escaping (([String]) -> Void)) {
@@ -84,6 +85,11 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     func updatePercentage(for memberId: String, percentage: Double) {
         percentages[memberId] = percentage
         totalPercentage = percentages.values.reduce(0, +)
+    }
+
+    func updateShare(for memberId: String, share: Double) {
+        shares[memberId] = share
+        totalShares = shares.values.reduce(0, +)
     }
 
     func handleAllBtnAction() {
