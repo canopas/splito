@@ -222,7 +222,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 self.memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
             }
 
-            withAnimation(.easeOut) {        
+            withAnimation(.easeOut) {
                 memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: memberOwingAmount)
                 overallOwingAmount = memberOwingAmount.values.reduce(0, +)
                 expensesWithUser = combinedData

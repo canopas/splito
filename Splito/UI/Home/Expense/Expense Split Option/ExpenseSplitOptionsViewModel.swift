@@ -11,13 +11,19 @@ import BaseStyle
 
 class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var preference: SplitoPreference
+    @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
     @Inject private var expenseRepository: ExpenseRepository
 
-    @Published var splitAmount: Double = 0
-    @Published var groupMembers: [AppUser] = []
-    @Published var viewState: ViewState = .initial
+    @Published private(set) var splitAmount: Double = 0
+    @Published private(set) var totalPercentage: Double = 0
+    @Published private(set) var totalShares: Double = 0
+
+    @Published private(set) var groupMembers: [AppUser] = []
+    @Published private(set) var percentages: [String: Double] = [:]
+
+    @Published private(set) var viewState: ViewState = .initial
+    @Published var selectedTab: SplitType = .equally
 
     @Published var selectedMembers: [String] {
         didSet {
@@ -30,9 +36,8 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     }
 
     private var members: [String] = []
-
-    var totalAmount: Double = 0
-    var onMemberSelection: (([String]) -> Void)
+    private var totalAmount: Double = 0
+    private var onMemberSelection: (([String]) -> Void)
 
     init(amount: Double, members: [String], selectedMembers: [String], onMemberSelection: @escaping (([String]) -> Void)) {
         self.totalAmount = amount
@@ -45,7 +50,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         splitAmount = totalAmount / Double(selectedMembers.count)
     }
 
-    func fetchUsersData() {
+    private func fetchUsersData() {
         var users: [AppUser] = []
         let queue = DispatchGroup()
 
@@ -74,6 +79,11 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
 
     func checkIsMemberSelected(_ memberId: String) -> Bool {
         return selectedMembers.contains(memberId)
+    }
+
+    func updatePercentage(for memberId: String, percentage: Double) {
+        percentages[memberId] = percentage
+        totalPercentage = percentages.values.reduce(0, +)
     }
 
     func handleAllBtnAction() {

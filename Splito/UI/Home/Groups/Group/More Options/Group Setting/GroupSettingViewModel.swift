@@ -169,7 +169,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             showLeaveGroupDialog = true
             showLeaveGroupAlert(memberId: member.id)
         } else {
-            showRemoveMemberDialog = true
+            showRemoveMemberDialog = isAdmin
             showRemoveMemberAlert(memberId: member.id)
         }
     }

@@ -22,6 +22,9 @@
     "(%lld people)" : {
 
     },
+    "%" : {
+
+    },
     "%@" : {
 
     },
@@ -61,7 +64,25 @@
         }
       }
     },
+    "%@ total shares" : {
+
+    },
     "%@/person" : {
+
+    },
+    "%@%% left" : {
+
+    },
+    "%@%% of 100%%" : {
+
+    },
+    "=" : {
+
+    },
+    "|||" : {
+
+    },
+    "0" : {
 
     },
     "00:%@" : {
@@ -335,9 +356,6 @@
     "Select group" : {
       "extractionState" : "manual"
     },
-    "Select which people owe an equal share." : {
-
-    },
     "Settings" : {
 
     },
@@ -354,6 +372,9 @@
       "extractionState" : "manual"
     },
     "Share this invitation code with your trusted one in your own style. Connecting with your friends is as flexible as you are." : {
+
+    },
+    "Share View" : {
 
     },
     "Sign in with Apple" : {
@@ -374,7 +395,7 @@
     "Simplify group debts" : {
 
     },
-    "Split equally" : {
+    "Split Option" : {
 
     },
     "Split options" : {

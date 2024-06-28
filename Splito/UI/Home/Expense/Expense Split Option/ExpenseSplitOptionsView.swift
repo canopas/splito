@@ -27,31 +27,21 @@ struct ExpenseSplitOptionsView: View {
                                 .frame(height: 1)
                                 .background(outlineColor.opacity(0.4))
 
-                            VStack(spacing: 8) {
-                                Text("Split equally")
-                                    .font(.Header4())
-
-                                Text("Select which people owe an equal share.")
-                                    .font(.body1())
-                            }
-                            .padding(.horizontal, 20)
-                            .foregroundStyle(primaryText)
-
-                            VStack(spacing: 12) {
-                                ForEach(viewModel.groupMembers, id: \.id) { member in
-                                    ExpenseMemberCellView(member: member, isSelected: viewModel.checkIsMemberSelected(member.id)) {
-                                        viewModel.handleMemberSelection(member.id)
-                                    }
-                                }
+                            switch viewModel.selectedTab {
+                            case .equally:
+                                SplitOptionsTopView(title: "Split equally", subtitle: "Select which people owe an equal share.")
+                            case .percentage:
+                                SplitOptionsTopView(title: "Split by percentages", subtitle: "Enter the percentage split that's fair for your situation.")
+                            case .fixedAmount:
+                                SplitOptionsTopView(title: "Split by share", subtitle: "Great for time-based splitting (2 nights -> 2 shares) and splitting across families (family of 3 -> 3 shares).")
                             }
 
-                            VSpacer(80)
+                            SplitOptionsTabView(viewModel: viewModel)
                         }
                     }
                     .scrollIndicators(.hidden)
 
-                    ExpenseSplitAmountView(memberCount: viewModel.selectedMembers.count, splitAmount: viewModel.splitAmount,
-                                           isAllSelected: viewModel.isAllSelected, onAllBtnTap: viewModel.handleAllBtnAction)
+                    SplitOptionsBottomView(viewModel: viewModel)
                 }
             }
         }
@@ -73,6 +63,86 @@ struct ExpenseSplitOptionsView: View {
                     }
                 }
                 .foregroundStyle(primaryColor)
+            }
+        }
+    }
+}
+
+private struct SplitOptionsTabView: View {
+
+    @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
+
+    var body: some View {
+        VStack(spacing: 30) {
+            Picker("Split Option", selection: $viewModel.selectedTab) {
+                Text("=")
+                    .tag(SplitType.equally)
+                Text("%")
+                    .tag(SplitType.percentage)
+                Text("|||")
+                    .tag(SplitType.fixedAmount)
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding(.horizontal, 12)
+
+            switch viewModel.selectedTab {
+            case .equally:
+                EqualShareView(viewModel: viewModel)
+            case .percentage:
+                PercentageView(viewModel: viewModel)
+            case .fixedAmount:
+                ShareView(viewModel: viewModel)
+            }
+        }
+    }
+}
+
+private struct SplitOptionsTopView: View {
+
+    let title: String
+    let subtitle: String
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Text(title)
+                .font(.Header4())
+
+            Text(subtitle)
+                .font(.body1())
+        }
+        .padding(.horizontal, 20)
+        .foregroundStyle(primaryText)
+        .multilineTextAlignment(.center)
+    }
+}
+
+private struct SplitOptionsBottomView: View {
+
+    @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
+
+    var body: some View {
+        switch viewModel.selectedTab {
+        case .equally:
+            ExpenseSplitAmountView(memberCount: viewModel.selectedMembers.count, splitAmount: viewModel.splitAmount,
+                                   isAllSelected: viewModel.isAllSelected, onAllBtnTap: viewModel.handleAllBtnAction)
+        case .percentage:
+            TotalPercentageView(totalPercentage: viewModel.totalPercentage)
+        case .fixedAmount:
+            TotalSharesView(totalShares: viewModel.totalShares)
+        }
+    }
+}
+
+private struct EqualShareView: View {
+
+    @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
+
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(viewModel.groupMembers, id: \.id) { member in
+                ExpenseMemberCellView(member: member, isSelected: viewModel.checkIsMemberSelected(member.id)) {
+                    viewModel.handleMemberSelection(member.id)
+                }
             }
         }
     }
@@ -173,6 +243,126 @@ private struct ExpenseSplitAmountView: View {
             .background(backgroundColor)
             .shadow(color: primaryText.opacity(0.1), radius: 5, x: 0, y: -5)
         }
+    }
+}
+
+private struct TotalPercentageView: View {
+
+    var totalPercentage: Double
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            HStack(alignment: .center) {
+                Spacer()
+
+                VStack(alignment: .center, spacing: 4) {
+                    Text("\(String(format: "%.0f", totalPercentage))% of 100%")
+                        .font(.Header3())
+                        .foregroundColor(primaryText)
+
+                    Text("\(String(format: "%.0f", 100 - totalPercentage))% left")
+                        .font(.body1())
+                        .foregroundColor(secondaryText)
+                }
+                .padding(20)
+
+                Spacer()
+            }
+            .frame(height: 80)
+            .background(backgroundColor)
+            .shadow(color: primaryText.opacity(0.1), radius: 5, x: 0, y: -5)
+        }
+    }
+}
+
+private struct TotalSharesView: View {
+
+    var totalShares: Double
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            HStack(alignment: .center) {
+                Spacer()
+
+                Text("\(String(format: "%.0f", totalShares)) total shares")
+                    .font(.Header3())
+                    .foregroundColor(primaryText)
+                    .padding(20)
+
+                Spacer()
+            }
+            .frame(height: 80)
+            .background(backgroundColor)
+            .shadow(color: primaryText.opacity(0.1), radius: 5, x: 0, y: -5)
+        }
+    }
+}
+
+private struct PercentageView: View {
+
+    @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                ForEach(viewModel.groupMembers, id: \.id) { member in
+                    PercentageMemberCellView(percentage: Binding(
+                        get: { viewModel.percentages[member.id] ?? 0 },
+                        set: { viewModel.updatePercentage(for: member.id, percentage: $0) }
+                    ), member: member, onPercentageChange: {_ in
+
+                    })
+                }
+            }
+            .padding()
+        }
+    }
+}
+
+private struct PercentageMemberCellView: View {
+
+    @Binding var percentage: Double
+
+    var member: AppUser
+    var onPercentageChange: (Double) -> Void
+
+    var body: some View {
+        HStack(spacing: 20) {
+            MemberProfileImageView(imageUrl: member.imageUrl)
+            Text(member.fullName)
+                .font(.subTitle1())
+                .foregroundStyle(primaryText)
+
+            Spacer()
+
+            TextField("0", value: $percentage, formatter: NumberFormatter())
+                .keyboardType(.decimalPad)
+                .frame(width: 50)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .multilineTextAlignment(.trailing)
+                .onChange(of: percentage) { newValue in
+                    onPercentageChange(newValue)
+                }
+
+            Text("%")
+                .font(.subTitle1())
+                .foregroundStyle(primaryText)
+        }
+        .padding(.horizontal, 16)
+    }
+}
+
+private struct ShareView: View {
+
+    @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
+
+    var body: some View {
+        Text("Share View")
+        // Implement share-based splitting logic here
     }
 }
 
