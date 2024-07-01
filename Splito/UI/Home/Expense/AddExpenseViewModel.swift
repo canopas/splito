@@ -17,22 +17,24 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
 
-    @Published var expenseId: String?
     @Published var expenseName = ""
+    @Published private(set) var payerName = "You"
+    @Published private(set) var expenseId: String?
+
     @Published var expenseAmount = 0.0
     @Published var expenseDate = Date()
-
-    @Published var groupMembers: [String] = []
-    @Published var selectedMembers: [String] = []
 
     @Published var showGroupSelection = false
     @Published var showPayerSelection = false
     @Published var showSplitTypeSelection = false
 
-    @Published var payerName = "You"
-    @Published var expense: Expense?
-    @Published var selectedGroup: Groups?
-    @Published var viewState: ViewState = .initial
+    @Published private(set) var expense: Expense?
+    @Published private(set) var selectedGroup: Groups?
+    @Published private(set) var groupMembers: [String] = []
+    @Published private(set) var selectedMembers: [String] = []
+
+    @Published private(set) var viewState: ViewState = .initial
+    @Published private(set) var splitType: SplitType = .equally
 
     @Published var selectedPayer: AppUser? {
         didSet {
@@ -40,6 +42,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    private var shares: [String: Double]?
+    private var percentages: [String: Double]?
     private let router: Router<AppRoute>
 
     init(router: Router<AppRoute>, expenseId: String? = nil, groupId: String? = nil) {
@@ -191,8 +195,11 @@ extension AddExpenseViewModel {
         showSplitTypeSelection = true
     }
 
-    func handleSplitTypeSelection(members: [String]) {
+    func handleSplitTypeSelection(members: [String], percentages: [String: Double], shares: [String: Double], splitType: SplitType) {
         selectedMembers = members
+        self.percentages = percentages
+        self.shares = shares
+        self.splitType = splitType
     }
 
     func handleSaveAction(completion: @escaping () -> Void) {
@@ -214,12 +221,13 @@ extension AddExpenseViewModel {
             newExpense.date = Timestamp(date: expenseDate)
             newExpense.paidBy = selectedPayer.id
             newExpense.splitTo = selectedMembers
+            newExpense.splitType = splitType
 
             updateExpense(expense: newExpense)
         } else {
             let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing).capitalized, amount: expenseAmount,
-                                  date: Timestamp(date: expenseDate), paidBy: selectedPayer.id,
-                                  addedBy: user.id, splitTo: selectedMembers, groupId: groupId)
+                                  date: Timestamp(date: expenseDate), paidBy: selectedPayer.id, addedBy: user.id,
+                                  splitTo: selectedMembers, groupId: groupId, splitType: splitType)
 
             addExpense(expense: expense, completion: completion)
         }

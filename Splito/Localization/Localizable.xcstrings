@@ -498,6 +498,9 @@
     "You must enter an amount." : {
       "extractionState" : "manual"
     },
+    "You must select at least one person to split with." : {
+
+    },
     "you owe" : {
 
     },

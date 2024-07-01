@@ -50,8 +50,19 @@ public struct Expense: Codable, Hashable {
     }
 }
 
-public enum SplitType: String, Codable {
-    case equally = "Equally"
-    case percentage = "Percentage"
-    case shares = "Shares"
+public enum SplitType: String, Codable, CaseIterable {
+    case equally
+    case percentage
+    case shares
+
+    public var image: String {
+        switch self {
+        case .equally:
+            return "equal"
+        case .percentage:
+            return "percent"
+        case .shares:
+            return "blinds.vertical.open"
+        }
+    }
 }

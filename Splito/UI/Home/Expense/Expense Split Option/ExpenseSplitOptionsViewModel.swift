@@ -38,13 +38,13 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     }
 
     private var members: [String] = []
-    private var onMemberSelection: (([String]) -> Void)
+    private var handleSplitTypeSelection: ((_ members: [String], _ percentages: [String: Double], _ shares: [String: Double], _ splitType: SplitType) -> Void)
 
-    init(amount: Double, members: [String], selectedMembers: [String], onMemberSelection: @escaping (([String]) -> Void)) {
+    init(amount: Double, members: [String], selectedMembers: [String], handleSplitTypeSelection: @escaping ((_ members: [String], _ percentages: [String: Double], _ shares: [String: Double], _ splitType: SplitType) -> Void)) {
         self.totalAmount = amount
         self.members = members
         self.selectedMembers = selectedMembers
-        self.onMemberSelection = onMemberSelection
+        self.handleSplitTypeSelection = handleSplitTypeSelection
         super.init()
 
         fetchUsersData()
@@ -102,18 +102,33 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
 
     func handleMemberSelection(_ memberId: String) {
         if selectedMembers.contains(memberId) {
-            if selectedMembers.count > 1 {
-                selectedMembers.removeAll(where: { $0 == memberId })
-            } else {
-                showToastFor(toast: ToastPrompt(type: .warning, title: "Warning", message: "You must select at least one person to split with."))
-            }
+            selectedMembers.removeAll(where: { $0 == memberId })
         } else {
             selectedMembers.append(memberId)
         }
     }
 
     func handleDoneAction(completion: @escaping () -> Void) {
-        onMemberSelection(selectedMembers)
+        if selectedTab == .equally && selectedMembers.count == 0 {
+            showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "You must select at least one person to split with."))
+            return
+        }
+
+        if selectedTab == .percentage && totalPercentage != 100 {
+            if totalPercentage < 100 {
+                self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "The shares do not add up to 100%. You are short by \(String(format: "%.0f", 100 - totalPercentage))%"))
+            } else if totalPercentage > 100 {
+                self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "The shares do not add up to 100%. You are over by \(String(format: "%.0f", totalPercentage - 100))%"))
+            }
+            return
+        }
+
+        if selectedTab == .shares && totalShares <= 0 {
+            self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "You must assign a non-zero share to at least one person."))
+            return
+        }
+
+        handleSplitTypeSelection(selectedMembers, percentages, shares, selectedTab)
         completion()
     }
 }

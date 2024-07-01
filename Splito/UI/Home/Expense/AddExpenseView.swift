@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BaseStyle
+import Data
 
 struct AddExpenseView: View {
 
@@ -34,7 +35,7 @@ struct AddExpenseView: View {
                     }
                     .padding(.trailing, 20)
 
-                    PaidByBottomView(payerName: viewModel.payerName, onPayerTap: viewModel.handlePayerBtnAction,
+                    PaidByBottomView(splitType: viewModel.splitType, payerName: viewModel.payerName, onPayerTap: viewModel.handlePayerBtnAction,
                                      onSplitTypeTap: viewModel.handleSplitTypeBtnAction)
                 }
             }
@@ -62,7 +63,7 @@ struct AddExpenseView: View {
                     viewModel: ExpenseSplitOptionsViewModel(amount: viewModel.expenseAmount,
                                                             members: viewModel.groupMembers,
                                                             selectedMembers: viewModel.selectedMembers,
-                                                            onMemberSelection: viewModel.handleSplitTypeSelection(members:))
+                                                            handleSplitTypeSelection: viewModel.handleSplitTypeSelection(members:percentages:shares:splitType:))
                 )
             }
         }
@@ -163,6 +164,7 @@ private struct GroupSelectionView: View {
 
 private struct PaidByBottomView: View {
 
+    let splitType: SplitType
     let payerName: String
     var onPayerTap: () -> Void
     var onSplitTypeTap: () -> Void
@@ -175,7 +177,7 @@ private struct PaidByBottomView: View {
 
             Text("and split")
 
-            PaidByBtnView(name: "equally", onTap: onSplitTypeTap)
+            PaidByBtnView(name: splitType == .equally ? "equally" : "unequally", onTap: onSplitTypeTap)
         }
         .font(.subTitle2())
         .foregroundStyle(primaryText)

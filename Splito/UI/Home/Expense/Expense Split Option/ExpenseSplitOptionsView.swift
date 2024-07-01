@@ -76,16 +76,16 @@ private struct SplitOptionsTabView: View {
 
     var body: some View {
         VStack(spacing: 30) {
-            Picker("Split Option", selection: $viewModel.selectedTab) {
-                Image(systemName: "equal")
-                    .tag(SplitType.equally)
-                Image(systemName: "percent")
-                    .tag(SplitType.percentage)
-                Image(systemName: "blinds.vertical.open")
-                    .tag(SplitType.shares)
+            HStack(spacing: 0) {
+                ForEach(SplitType.allCases, id: \.self) { type in
+                    Picker("Split Option", selection: $viewModel.selectedTab) {
+                        Image(systemName: type.image)
+                            .tag(type)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                }
+                .padding(.horizontal, 12)
             }
-            .pickerStyle(SegmentedPickerStyle())
-            .padding(.horizontal, 12)
 
             switch viewModel.selectedTab {
             case .equally:
@@ -206,12 +206,19 @@ private struct ExpenseSplitAmountView: View {
                 Spacer()
 
                 VStack(alignment: .center) {
-                    Text("\(splitAmount.formattedCurrency)/person")
-                        .font(.Header3())
-                        .foregroundStyle(primaryText)
-                    Text("(\(memberCount) people)")
-                        .font(.body1())
-                        .foregroundStyle(secondaryText)
+                    if memberCount == 0 {
+                        Text("You must select at least one person to split with.")
+                            .font(.body2())
+                            .foregroundStyle(awarenessColor)
+                            .multilineTextAlignment(.center)
+                    } else {
+                        Text("\(splitAmount.formattedCurrency)/person")
+                            .font(.Header3())
+                            .foregroundStyle(primaryText)
+                        Text("(\(memberCount) people)")
+                            .font(.body1())
+                            .foregroundStyle(secondaryText)
+                    }
                 }
                 .padding(20)
 
@@ -392,5 +399,5 @@ private struct MemberCellView: View {
 }
 
 #Preview {
-    ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: 0, members: [], selectedMembers: [], onMemberSelection: { _ in }))
+    ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: 0, members: [], selectedMembers: [], handleSplitTypeSelection: { _, _, _, _   in }))
 }
