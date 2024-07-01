@@ -15,14 +15,44 @@ public func calculateExpensesNonSimplify(userId: String, expenses: [Expense], tr
     var memberOwingAmount: [String: Double] = [:]
 
     for expense in expenses {
-        let splitAmount = expense.amount / Double(expense.splitTo.count)
-
-        if expense.paidBy == userId {
-            for member in expense.splitTo where member != userId {
-                owesToUser[member, default: 0.0] += splitAmount
+        switch expense.splitType {
+        case .equally:
+            let splitAmount = expense.amount / Double(expense.splitTo.count)
+            if expense.paidBy == userId {
+                // If the user paid for the expense, calculate how much each member owes the user
+                for member in expense.splitTo where member != userId {
+                    owesToUser[member, default: 0.0] += splitAmount
+                }
+            } else if expense.splitTo.contains(userId) {
+                // If the user is one of the members who should split the expense, calculate how much the user owes to the payer
+                owedByUser[expense.paidBy, default: 0.0] += splitAmount
             }
-        } else if expense.splitTo.contains(where: { $0 == userId }) {
-            owedByUser[expense.paidBy, default: 0.0] += splitAmount
+
+        case .percentage:
+            let totalPercentage = expense.splitData?.values.reduce(0, +) ?? 0.0
+            for (member, percentage) in expense.splitData ?? [:] {
+                let splitAmount = (expense.amount * (percentage / totalPercentage))
+                if expense.paidBy == userId {
+                    if member != userId {
+                        owesToUser[member, default: 0.0] += splitAmount
+                    }
+                } else if member == userId {
+                    owedByUser[expense.paidBy, default: 0.0] += splitAmount
+                }
+            }
+
+        case .shares:
+            let totalShares = expense.splitData?.values.reduce(0, +) ?? 0
+            for (member, shares) in expense.splitData ?? [:] {
+                let splitAmount = expense.amount * (Double(shares) / Double(totalShares))
+                if expense.paidBy == userId {
+                    if member != userId {
+                        owesToUser[member, default: 0.0] += splitAmount
+                    }
+                } else if member == userId {
+                    owedByUser[expense.paidBy, default: 0.0] += splitAmount
+                }
+            }
         }
     }
 
@@ -149,9 +179,26 @@ public func calculateTransactionsWithExpenses(expenses: [Expense], transactions:
     for expense in expenses {
         amountOweByMember[expense.paidBy, default: 0.0] += expense.amount
 
-        let splitAmount = expense.amount / Double(expense.splitTo.count)
-        for member in expense.splitTo {
-            amountOweByMember[member, default: 0.0] -= splitAmount
+        switch expense.splitType {
+        case .equally:
+            let splitAmount = expense.amount / Double(expense.splitTo.count)
+            for member in expense.splitTo {
+                amountOweByMember[member, default: 0.0] -= splitAmount
+            }
+        case .percentage:
+            guard let splitData = expense.splitData else { return [:] }
+            let totalPercentage = splitData.values.reduce(0, +)
+            for (member, percentage) in splitData {
+                let splitAmount = (expense.amount * percentage / totalPercentage)
+                amountOweByMember[member, default: 0.0] -= splitAmount
+            }
+        case .shares:
+            guard let splitData = expense.splitData else { continue }
+            let totalShares = splitData.values.reduce(0, +)
+            for (member, shares) in splitData {
+                let splitAmount = (expense.amount * Double(shares) / Double(totalShares))
+                amountOweByMember[member, default: 0.0] -= splitAmount
+            }
         }
     }
 

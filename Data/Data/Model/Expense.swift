@@ -19,7 +19,7 @@ public struct Expense: Codable, Hashable {
     public var splitTo: [String] // Reference to user ids involved in the split
     public let groupId: String
     public var splitType: SplitType
-    public var splitData: [String: Double]?  // Use this to store percentage or share data
+    public var splitData: [String: Double]? // Use this to store percentage or share data
 
     // Calculated properties for better UI representation
     public var formattedAmount: String {

@@ -116,13 +116,6 @@ private struct ExpenseInfoView: View {
         viewModel.expense
     }
 
-    var splitAmount: String {
-        let totalAmount = expense?.amount ?? 0
-        let splitTo = expense?.splitTo.count ?? 1
-        let finalAmount = totalAmount / Double(splitTo)
-        return finalAmount.formattedCurrency
-    }
-
     var userName: String {
         let user = viewModel.getMemberDataBy(id: expense?.paidBy ?? "")
         return viewModel.preference.user?.id == user?.id ? "You" : user?.nameWithLastInitial ?? "someone"
@@ -153,7 +146,7 @@ private struct ExpenseInfoView: View {
                                 }
                                 HStack(spacing: 10) {
                                     MemberProfileImageView(imageUrl: member.imageUrl, height: subImageHeight)
-                                    Text("\(memberName.localized) \(owes) \(splitAmount)")
+                                    Text("\(memberName.localized) \(owes) \(viewModel.getSplitAmount(for: member.id))")
                                 }
                             }
                         }

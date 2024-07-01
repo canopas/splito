@@ -113,6 +113,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 self.expenseName = expense.name
                 self.expenseAmount = expense.amount
                 self.expenseDate = expense.date.dateValue()
+                self.splitType = expense.splitType
                 self.selectedMembers = expense.splitTo
 
                 self.fetchGroupData(for: expense.groupId) { group in
