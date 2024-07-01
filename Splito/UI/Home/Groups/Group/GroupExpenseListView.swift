@@ -106,17 +106,14 @@ private struct GroupExpenseItemView: View {
             case .equally:
                 let singleExpense = expense.splitTo.count == 1 ? 0 : expense.amount / Double(expense.splitTo.count)
                 amount = expense.amount - singleExpense
-
             case .percentage:
                 let totalPercentage = expense.splitData?.values.reduce(0, +) ?? 0.0
                 let userPercentage = expense.splitData?[user.id] ?? 0.0
                 amount = expense.amount - (expense.amount * (userPercentage / totalPercentage))
-
             case .shares:
                 let totalShares = expense.splitData?.values.reduce(0, +) ?? 0
                 let userShares = expense.splitData?[user.id] ?? 0
-                amount = expense.amount * (Double(userShares) / Double(totalShares))
-
+                amount = expense.amount * (userShares / totalShares)
             }
 
             isSettled = expense.paidBy == user.id && expense.splitTo.contains(user.id) && expense.splitTo.count == 1
@@ -127,20 +124,17 @@ private struct GroupExpenseItemView: View {
             switch expense.splitType {
             case .equally:
                 amount = expense.amount / Double(expense.splitTo.count)
-
             case .percentage:
                 let totalPercentage = expense.splitData?.values.reduce(0, +) ?? 0.0
-                let userPercentage = expense.splitData?[expenseWithUser.user.id] ?? 0.0
+                let userPercentage = expense.splitData?[preference.user?.id ?? ""] ?? 0.0
                 amount = expense.amount * (userPercentage / totalPercentage)
-
             case .shares:
                 let totalShares = expense.splitData?.values.reduce(0, +) ?? 0
-                let userShares = expense.splitData?[expenseWithUser.user.id] ?? 0
+                let userShares = expense.splitData?[preference.user?.id ?? ""] ?? 0
                 amount = expense.amount * (Double(userShares) / Double(totalShares))
-
             }
 
-            isInvolved = expense.splitTo.contains(where: { $0 == expenseWithUser.user.id })
+            isInvolved = expense.splitTo.contains(where: { $0 == preference.user?.id })
         }
     }
 
