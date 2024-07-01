@@ -32,7 +32,7 @@ struct ExpenseSplitOptionsView: View {
                                 SplitOptionsTopView(title: "Split equally", subtitle: "Select which people owe an equal share.")
                             case .percentage:
                                 SplitOptionsTopView(title: "Split by percentages", subtitle: "Enter the percentage split that's fair for your situation.")
-                            case .fixedAmount:
+                            case .shares:
                                 SplitOptionsTopView(title: "Split by share", subtitle: "Great for time-based splitting (2 nights -> 2 shares) and splitting across families (family of 3 -> 3 shares).")
                             }
 
@@ -77,12 +77,12 @@ private struct SplitOptionsTabView: View {
     var body: some View {
         VStack(spacing: 30) {
             Picker("Split Option", selection: $viewModel.selectedTab) {
-                Text("=")
+                Image(systemName: "equal")
                     .tag(SplitType.equally)
-                Text("%")
+                Image(systemName: "percent")
                     .tag(SplitType.percentage)
-                Text("|||")
-                    .tag(SplitType.fixedAmount)
+                Image(systemName: "blinds.vertical.open")
+                    .tag(SplitType.shares)
             }
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal, 12)
@@ -92,7 +92,7 @@ private struct SplitOptionsTabView: View {
                 EqualShareView(viewModel: viewModel)
             case .percentage:
                 PercentageView(viewModel: viewModel)
-            case .fixedAmount:
+            case .shares:
                 ShareView(viewModel: viewModel)
             }
         }
@@ -130,7 +130,7 @@ private struct SplitOptionsBottomView: View {
                                    isAllSelected: viewModel.isAllSelected, onAllBtnTap: viewModel.handleAllBtnAction)
         case .percentage:
             TotalPercentageView(totalPercentage: viewModel.totalPercentage)
-        case .fixedAmount:
+        case .shares:
             TotalSharesView(totalShares: viewModel.totalShares)
         }
     }

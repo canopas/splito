@@ -51,7 +51,7 @@ public struct Expense: Codable, Hashable {
 }
 
 public enum SplitType: String, Codable {
-    case equally = "equally"
+    case equally = "Equally"
     case percentage = "Percentage"
-    case fixedAmount = "Fixed Amount"
+    case shares = "Shares"
 }

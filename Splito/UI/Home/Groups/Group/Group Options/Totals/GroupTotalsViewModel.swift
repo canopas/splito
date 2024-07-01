@@ -146,7 +146,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
             case .percentage:
                 let userPercentage: Double = 1.0 / Double(expense.splitTo.count)
                 share = expense.amount * userPercentage
-            case .fixedAmount:
+            case .shares:
                 let userFixedAmount: Double = expense.amount / Double(expense.splitTo.count)
                 share = userFixedAmount
             }
