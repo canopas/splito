@@ -222,12 +222,13 @@ extension AddExpenseViewModel {
             newExpense.paidBy = selectedPayer.id
             newExpense.splitTo = selectedMembers
             newExpense.splitType = splitType
+            newExpense.splitData = splitType == .percentage ? percentages : shares
 
             updateExpense(expense: newExpense)
         } else {
             let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing).capitalized, amount: expenseAmount,
                                   date: Timestamp(date: expenseDate), paidBy: selectedPayer.id, addedBy: user.id,
-                                  splitTo: selectedMembers, groupId: groupId, splitType: splitType)
+                                  splitTo: selectedMembers, groupId: groupId, splitType: splitType, splitData: splitType == .percentage ? percentages : shares)
 
             addExpense(expense: expense, completion: completion)
         }

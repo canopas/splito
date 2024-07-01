@@ -129,9 +129,12 @@ private struct SplitOptionsBottomView: View {
             ExpenseSplitAmountView(memberCount: viewModel.selectedMembers.count, splitAmount: viewModel.splitAmount,
                                    isAllSelected: viewModel.isAllSelected, onAllBtnTap: viewModel.handleAllBtnAction)
         case .percentage:
-            TotalPercentageView(totalPercentage: viewModel.totalPercentage)
+            BottomInfoCardView(
+                title: "\(String(format: "%.0f", viewModel.totalPercentage))% of 100%",
+                value: "\(String(format: "%.0f", 100 - viewModel.totalPercentage))% left"
+            )
         case .shares:
-            TotalSharesView(totalShares: viewModel.totalShares)
+            BottomInfoCardView(title: "\(String(format: "%.0f", viewModel.totalShares)) total shares")
         }
     }
 }
@@ -187,6 +190,94 @@ private struct ExpenseMemberCellView: View {
                 .background(outlineColor.opacity(0.3))
         }
         .onTouchGesture(onTap)
+    }
+}
+
+private struct PercentageView: View {
+
+    @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
+
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(viewModel.groupMembers, id: \.id) { member in
+                MemberCellView(value: Binding(
+                    get: { viewModel.percentages[member.id] ?? 0 },
+                    set: { viewModel.updatePercentage(for: member.id, percentage: $0) }
+                ), member: member, suffixText: "%", onValueChange: {_ in })
+            }
+        }
+    }
+}
+
+private struct ShareView: View {
+
+    @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
+
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(viewModel.groupMembers, id: \.id) { member in
+                MemberCellView(value: Binding(
+                    get: { viewModel.shares[member.id] ?? 0 },
+                    set: { viewModel.updateShare(for: member.id, share: $0) }
+                ), member: member, suffixText: "share(s)", totalShares: viewModel.totalShares, expenseAmount: viewModel.totalAmount, onValueChange: {_ in })
+            }
+        }
+    }
+}
+
+private struct MemberCellView: View {
+
+    @Binding var value: Double
+
+    let member: AppUser
+    let suffixText: String
+    var totalShares: Double?
+    var expenseAmount: Double?
+    let onValueChange: (Double) -> Void
+
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 20) {
+                MemberProfileImageView(imageUrl: member.imageUrl)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(member.fullName)
+                        .font(.subTitle1())
+                        .foregroundStyle(primaryText)
+
+                    if totalShares != nil {
+                        let calculatedValue = totalShares! == 0 ? 0 : ((expenseAmount!) * value / (totalShares!))
+                        Text((calculatedValue).formattedCurrency)
+                            .font(.body2())
+                            .foregroundStyle(disableText)
+                    }
+                }
+                .multilineTextAlignment(.leading)
+
+                Spacer(minLength: 0)
+
+                HStack(spacing: 4) {
+                    TextField("0", value: $value, formatter: NumberFormatter())
+                        .font(.subTitle1())
+                        .keyboardType(.decimalPad)
+                        .frame(width: 70)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .onChange(of: value) { newValue in
+                            onValueChange(newValue)
+                        }
+
+                    Text(suffixText)
+                        .font(.body1())
+                        .foregroundStyle(primaryText)
+                }
+                .fixedSize()
+            }
+            .padding(.horizontal, 16)
+
+            Divider()
+                .frame(height: 1)
+                .background(outlineColor.opacity(0.3))
+        }
     }
 }
 
@@ -254,9 +345,10 @@ private struct ExpenseSplitAmountView: View {
     }
 }
 
-private struct TotalPercentageView: View {
+private struct BottomInfoCardView: View {
 
-    let totalPercentage: Double
+    let title: String
+    var value: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -266,13 +358,15 @@ private struct TotalPercentageView: View {
                 Spacer()
 
                 VStack(alignment: .center, spacing: 4) {
-                    Text("\(String(format: "%.0f", totalPercentage))% of 100%")
+                    Text(title)
                         .font(.Header3())
                         .foregroundColor(primaryText)
 
-                    Text("\(String(format: "%.0f", 100 - totalPercentage))% left")
-                        .font(.body1())
-                        .foregroundColor(secondaryText)
+                    if value != nil {
+                        Text(value!)
+                            .font(.body1())
+                            .foregroundColor(secondaryText)
+                    }
                 }
                 .padding(20)
 
@@ -281,119 +375,6 @@ private struct TotalPercentageView: View {
             .frame(height: 80)
             .background(backgroundColor)
             .shadow(color: primaryText.opacity(0.1), radius: 5, x: 0, y: -5)
-        }
-    }
-}
-
-private struct TotalSharesView: View {
-
-    let totalShares: Double
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-
-            HStack(alignment: .center) {
-                Spacer()
-
-                Text("\(String(format: "%.0f", totalShares)) total shares")
-                    .font(.Header3())
-                    .foregroundColor(primaryText)
-                    .padding(20)
-
-                Spacer()
-            }
-            .frame(height: 80)
-            .background(backgroundColor)
-            .shadow(color: primaryText.opacity(0.1), radius: 5, x: 0, y: -5)
-        }
-    }
-}
-
-private struct PercentageView: View {
-
-    @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
-
-    var body: some View {
-        VStack(spacing: 20) {
-            ForEach(viewModel.groupMembers, id: \.id) { member in
-                MemberCellView(value: Binding(
-                    get: { viewModel.percentages[member.id] ?? 0 },
-                    set: { viewModel.updatePercentage(for: member.id, percentage: $0) }
-                ), member: member, suffixText: "%", onValueChange: {_ in })
-            }
-        }
-    }
-}
-
-private struct ShareView: View {
-
-    @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
-
-    var body: some View {
-        VStack(spacing: 20) {
-            ForEach(viewModel.groupMembers, id: \.id) { member in
-                MemberCellView(value: Binding(
-                    get: { viewModel.shares[member.id] ?? 0 },
-                    set: { viewModel.updateShare(for: member.id, share: $0) }
-                ), member: member, suffixText: "share(s)", totalShares: viewModel.totalShares, expenseAmount: viewModel.totalAmount, onValueChange: {_ in })
-            }
-        }
-    }
-}
-
-private struct MemberCellView: View {
-
-    @Binding var value: Double
-
-    let member: AppUser
-    let suffixText: String
-    var totalShares: Double?
-    var expenseAmount: Double?
-    let onValueChange: (Double) -> Void
-
-    var body: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 20) {
-                MemberProfileImageView(imageUrl: member.imageUrl)
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(member.fullName)
-                        .font(.subTitle1())
-                        .foregroundStyle(primaryText)
-
-                    if totalShares != nil {
-                        let calculatedValue = totalShares! == 0 ? 0 : ((expenseAmount!) * value / (totalShares!))
-                        Text((calculatedValue).formattedCurrency)
-                            .font(.body2())
-                            .foregroundStyle(disableText)
-                    }
-                }
-                .multilineTextAlignment(.leading)
-
-                Spacer(minLength: 0)
-
-                HStack(spacing: 4) {
-                    TextField("0", value: $value, formatter: NumberFormatter())
-                        .font(.subTitle1())
-                        .keyboardType(.decimalPad)
-                        .frame(width: 70)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .onChange(of: value) { newValue in
-                            onValueChange(newValue)
-                        }
-
-                    Text(suffixText)
-                        .font(.body1())
-                        .foregroundStyle(primaryText)
-                }
-                .fixedSize()
-            }
-            .padding(.horizontal, 16)
-
-            Divider()
-                .frame(height: 1)
-                .background(outlineColor.opacity(0.3))
         }
     }
 }
