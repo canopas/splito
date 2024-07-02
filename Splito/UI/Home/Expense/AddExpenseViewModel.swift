@@ -30,8 +30,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var expense: Expense?
     @Published private(set) var selectedGroup: Groups?
-    @Published private(set) var shares: [String: Double]?
-    @Published private(set) var percentages: [String: Double]?
+    @Published private(set) var shares: [String: Double] = [:]
+    @Published private(set) var percentages: [String: Double] = [:]
 
     @Published private(set) var groupMembers: [String] = []
     @Published private(set) var selectedMembers: [String] = []
@@ -115,6 +115,13 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 self.expenseAmount = expense.amount
                 self.expenseDate = expense.date.dateValue()
                 self.splitType = expense.splitType
+                if let splitData = expense.splitData {
+                    if expense.splitType == .percentage {
+                        self.percentages = splitData
+                    } else if expense.splitType == .shares {
+                        self.shares = splitData
+                    }
+                }
                 self.selectedMembers = expense.splitTo
 
                 self.fetchGroupData(for: expense.groupId) { group in
@@ -222,7 +229,7 @@ extension AddExpenseViewModel {
             newExpense.amount = expenseAmount
             newExpense.date = Timestamp(date: expenseDate)
             newExpense.paidBy = selectedPayer.id
-            newExpense.splitTo = selectedMembers
+            newExpense.splitTo = splitType == .percentage ? percentages.map({ $0.key }) : splitType == .shares ? shares.map({ $0.key }) : selectedMembers
             newExpense.splitType = splitType
             newExpense.splitData = splitType == .percentage ? percentages : shares
 

@@ -135,7 +135,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        handleSplitTypeSelection(selectedMembers, percentages, shares, selectedTab)
+        handleSplitTypeSelection(selectedMembers, percentages.filter({ $0.value != 0 }), shares.filter({ $0.value != 0 }), selectedTab)
         completion()
     }
 }
