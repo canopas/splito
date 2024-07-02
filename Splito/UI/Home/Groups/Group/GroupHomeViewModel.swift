@@ -233,10 +233,31 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             queue.enter()
 
             ownAmounts[expense.paidBy, default: 0.0] += expense.amount
-            let splitAmount = expense.amount / Double(expense.splitTo.count)
-            for member in expense.splitTo {
-                ownAmounts[member, default: 0.0] -= splitAmount
+
+            switch expense.splitType {
+            case .equally:
+                let splitAmount = expense.amount / Double(expense.splitTo.count)
+                for member in expense.splitTo {
+                    ownAmounts[member, default: 0.0] -= splitAmount
+                }
+            case .percentage:
+                if let splitData = expense.splitData {
+                    let totalPercentage = splitData.values.reduce(0, +)
+                    for (member, percentage) in splitData {
+                        let splitAmount = expense.amount * (percentage / totalPercentage)
+                        ownAmounts[member, default: 0.0] -= splitAmount
+                    }
+                }
+            case .shares:
+                if let splitData = expense.splitData {
+                    let totalShares = splitData.values.reduce(0, +)
+                    for (member, shares) in splitData {
+                        let splitAmount = expense.amount * (Double(shares) / Double(totalShares))
+                        ownAmounts[member, default: 0.0] -= splitAmount
+                    }
+                }
             }
+
             self.fetchUserData(for: expense.paidBy) { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
                 queue.leave()
