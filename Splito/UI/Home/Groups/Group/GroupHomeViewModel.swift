@@ -169,7 +169,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     // If the user is one of the members who should split the expense, calculate how much the user owes to the payer
                     owedByUser[expense.paidBy, default: 0.0] += splitAmount
                 }
-
             case .percentage:
                 let totalPercentage = expense.splitData?.values.reduce(0, +) ?? 0.0
                 for (member, percentage) in expense.splitData ?? [:] {
@@ -182,7 +181,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                         owedByUser[expense.paidBy, default: 0.0] += splitAmount
                     }
                 }
-
             case .shares:
                 let totalShares = expense.splitData?.values.reduce(0, +) ?? 0
                 for (member, shares) in expense.splitData ?? [:] {

@@ -30,6 +30,9 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var expense: Expense?
     @Published private(set) var selectedGroup: Groups?
+    @Published private(set) var shares: [String: Double]?
+    @Published private(set) var percentages: [String: Double]?
+
     @Published private(set) var groupMembers: [String] = []
     @Published private(set) var selectedMembers: [String] = []
 
@@ -41,9 +44,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             updatePayerName()
         }
     }
-
-    private var shares: [String: Double]?
-    private var percentages: [String: Double]?
+    
     private let router: Router<AppRoute>
 
     init(router: Router<AppRoute>, expenseId: String? = nil, groupId: String? = nil) {

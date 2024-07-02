@@ -24,7 +24,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var shares: [String: Double] = [:]
     @Published private(set) var percentages: [String: Double] = [:]
 
-    @Published var selectedTab: SplitType = .equally
+    @Published var selectedTab: SplitType
     @Published private(set) var viewState: ViewState = .initial
 
     @Published var selectedMembers: [String] {
@@ -40,13 +40,20 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     private var members: [String] = []
     private var handleSplitTypeSelection: ((_ members: [String], _ percentages: [String: Double], _ shares: [String: Double], _ splitType: SplitType) -> Void)
 
-    init(amount: Double, members: [String], selectedMembers: [String], handleSplitTypeSelection: @escaping ((_ members: [String], _ percentages: [String: Double], _ shares: [String: Double], _ splitType: SplitType) -> Void)) {
+    init(amount: Double, splitType: SplitType = .equally, splitData: [String: Double]? = nil, members: [String], selectedMembers: [String], handleSplitTypeSelection: @escaping ((_ members: [String], _ percentages: [String: Double], _ shares: [String: Double], _ splitType: SplitType) -> Void)) {
         self.totalAmount = amount
+        self.selectedTab = splitType
         self.members = members
         self.selectedMembers = selectedMembers
         self.handleSplitTypeSelection = handleSplitTypeSelection
         super.init()
 
+        if splitType == .percentage {
+            self.percentages = splitData ?? [:]
+        } else if splitType == .shares {
+            self.shares = splitData ?? [:]
+            self.totalShares = splitData?.values.reduce(0, +) ?? 0
+        }
         fetchUsersData()
         splitAmount = totalAmount / Double(selectedMembers.count)
     }

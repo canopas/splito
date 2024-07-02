@@ -200,10 +200,14 @@ private struct PercentageView: View {
     var body: some View {
         VStack(spacing: 12) {
             ForEach(viewModel.groupMembers, id: \.id) { member in
-                MemberCellView(value: Binding(
-                    get: { viewModel.percentages[member.id] ?? 0 },
-                    set: { viewModel.updatePercentage(for: member.id, percentage: $0) }
-                ), member: member, suffixText: "%", onValueChange: {_ in })
+                MemberCellView(
+                    value: Binding(
+                        get: { viewModel.percentages[member.id] ?? 0 },
+                        set: { viewModel.updatePercentage(for: member.id, percentage: $0) }
+                    ),
+                    member: member, 
+                    suffixText: "%"
+                )
             }
         }
     }
@@ -216,10 +220,16 @@ private struct ShareView: View {
     var body: some View {
         VStack(spacing: 12) {
             ForEach(viewModel.groupMembers, id: \.id) { member in
-                MemberCellView(value: Binding(
-                    get: { viewModel.shares[member.id] ?? 0 },
-                    set: { viewModel.updateShare(for: member.id, share: $0) }
-                ), member: member, suffixText: "share(s)", totalShares: viewModel.totalShares, expenseAmount: viewModel.totalAmount, onValueChange: {_ in })
+                MemberCellView(
+                    value: Binding(
+                        get: { viewModel.shares[member.id] ?? 0 },
+                        set: { viewModel.updateShare(for: member.id, share: $0) }
+                    ),
+                    member: member,
+                    suffixText: "share(s)",
+                    totalShares: viewModel.totalShares,
+                    expenseAmount: viewModel.totalAmount
+                )
             }
         }
     }
@@ -233,7 +243,6 @@ private struct MemberCellView: View {
     let suffixText: String
     var totalShares: Double?
     var expenseAmount: Double?
-    let onValueChange: (Double) -> Void
 
     var body: some View {
         VStack(spacing: 12) {
@@ -262,9 +271,6 @@ private struct MemberCellView: View {
                         .keyboardType(.decimalPad)
                         .frame(width: 70)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .onChange(of: value) { newValue in
-                            onValueChange(newValue)
-                        }
 
                     Text(suffixText)
                         .font(.body1())
