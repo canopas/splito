@@ -139,27 +139,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
         let userSharedExpenses = filteredExpenses.filter { $0.splitTo.contains(user.id) }
 
         let totalSharedAmount = userSharedExpenses.reduce(0.0) { total, expense in
-            var share = 0.0
-
-            switch expense.splitType {
-            case .equally:
-                share = expense.amount / Double(expense.splitTo.count)
-            case .percentage:
-                if let splitData = expense.splitData {
-                    let totalPercentage = splitData.values.reduce(0, +)
-                    if let userPercentage = splitData[user.id] {
-                        share = expense.amount * (userPercentage / totalPercentage)
-                    }
-                }
-            case .shares:
-                if let splitData = expense.splitData {
-                    let totalShares = Double(splitData.values.reduce(0, +))
-                    if let userShares = splitData[user.id] {
-                        share = expense.amount * (Double(userShares) / totalShares)
-                    }
-                }
-            }
-            return total + share
+            return total + calculateSplitAmount(for: user.id, in: expense)
         }
         return totalSharedAmount
     }

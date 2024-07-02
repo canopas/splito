@@ -157,43 +157,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         for expense in expenses {
             queue.enter()
 
-            switch expense.splitType {
-            case .equally:
-                let splitAmount = expense.amount / Double(expense.splitTo.count)
-                if expense.paidBy == userId {
-                    // If the user paid for the expense, calculate how much each member owes the user
-                    for member in expense.splitTo where member != userId {
-                        owesToUser[member, default: 0.0] += splitAmount
-                    }
-                } else if expense.splitTo.contains(userId) {
-                    // If the user is one of the members who should split the expense, calculate how much the user owes to the payer
-                    owedByUser[expense.paidBy, default: 0.0] += splitAmount
-                }
-            case .percentage:
-                let totalPercentage = expense.splitData?.values.reduce(0, +) ?? 0.0
-                for (member, percentage) in expense.splitData ?? [:] {
-                    let splitAmount = (expense.amount * (percentage / totalPercentage))
-                    if expense.paidBy == userId {
-                        if member != userId {
-                            owesToUser[member, default: 0.0] += splitAmount
-                        }
-                    } else if member == userId {
-                        owedByUser[expense.paidBy, default: 0.0] += splitAmount
-                    }
-                }
-            case .shares:
-                let totalShares = expense.splitData?.values.reduce(0, +) ?? 0
-                for (member, shares) in expense.splitData ?? [:] {
-                    let splitAmount = expense.amount * (Double(shares) / Double(totalShares))
-                    if expense.paidBy == userId {
-                        if member != userId {
-                            owesToUser[member, default: 0.0] += splitAmount
-                        }
-                    } else if member == userId {
-                        owedByUser[expense.paidBy, default: 0.0] += splitAmount
-                    }
-                }
-            }
+            (owesToUser, owedByUser) = typeWiseCalculateExpensesNonSimplify(userId: userId, expense: expense, owesToUser: owesToUser, owedByUser: owedByUser)
 
             fetchUserData(for: expense.paidBy) { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
@@ -233,30 +197,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             queue.enter()
 
             ownAmounts[expense.paidBy, default: 0.0] += expense.amount
-
-            switch expense.splitType {
-            case .equally:
-                let splitAmount = expense.amount / Double(expense.splitTo.count)
-                for member in expense.splitTo {
-                    ownAmounts[member, default: 0.0] -= splitAmount
-                }
-            case .percentage:
-                if let splitData = expense.splitData {
-                    let totalPercentage = splitData.values.reduce(0, +)
-                    for (member, percentage) in splitData {
-                        let splitAmount = expense.amount * (percentage / totalPercentage)
-                        ownAmounts[member, default: 0.0] -= splitAmount
-                    }
-                }
-            case .shares:
-                if let splitData = expense.splitData {
-                    let totalShares = splitData.values.reduce(0, +)
-                    for (member, shares) in splitData {
-                        let splitAmount = expense.amount * (Double(shares) / Double(totalShares))
-                        ownAmounts[member, default: 0.0] -= splitAmount
-                    }
-                }
-            }
+            (ownAmounts) = typeWiseCalculateExpensesSimplify(userId: userId, expense: expense, ownAmounts: ownAmounts)
 
             self.fetchUserData(for: expense.paidBy) { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))

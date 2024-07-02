@@ -205,7 +205,7 @@ private struct PercentageView: View {
                         get: { viewModel.percentages[member.id] ?? 0 },
                         set: { viewModel.updatePercentage(for: member.id, percentage: $0) }
                     ),
-                    member: member, 
+                    member: member,
                     suffixText: "%"
                 )
             }

@@ -66,22 +66,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     func getSplitAmount(for member: String) -> String {
         guard let expense = expense else { return "" }
 
-        let finalAmount: Double
-
-        switch expense.splitType {
-        case .equally:
-            let splitTo = expense.splitTo.count
-            finalAmount = expense.amount / Double(splitTo)
-        case .percentage:
-            let totalPercentage = expense.splitData?.values.reduce(0, +) ?? 0.0
-            let userPercentage = expense.splitData?[member] ?? 0.0
-            finalAmount = expense.amount * (userPercentage / totalPercentage)
-        case .shares:
-            let totalShares = expense.splitData?.values.reduce(0, +) ?? 0
-            let userShares = expense.splitData?[member] ?? 0
-            finalAmount = expense.amount * (Double(userShares) / Double(totalShares))
-        }
-
+        let finalAmount = calculateSplitAmount(for: member, in: expense)
         return finalAmount.formattedCurrency
     }
 

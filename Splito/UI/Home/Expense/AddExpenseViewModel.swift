@@ -44,7 +44,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             updatePayerName()
         }
     }
-    
+
     private let router: Router<AppRoute>
 
     init(router: Router<AppRoute>, expenseId: String? = nil, groupId: String? = nil) {
