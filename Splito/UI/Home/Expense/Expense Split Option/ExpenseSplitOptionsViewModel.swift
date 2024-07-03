@@ -58,6 +58,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         splitAmount = totalAmount / Double(selectedMembers.count)
     }
 
+    // MARK: - Data Loading
     private func fetchUsersData() {
         var users: [AppUser] = []
         let queue = DispatchGroup()
@@ -85,6 +86,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    // MARK: - User Actions
     func checkIsMemberSelected(_ memberId: String) -> Bool {
         return selectedMembers.contains(memberId)
     }
@@ -123,15 +125,15 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
 
         if selectedTab == .percentage && totalPercentage != 100 {
             if totalPercentage < 100 {
-                self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "The shares do not add up to 100%. You are short by \(String(format: "%.0f", 100 - totalPercentage))%"))
+                showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "The shares do not add up to 100%. You are short by \(String(format: "%.0f", 100 - totalPercentage))%"))
             } else if totalPercentage > 100 {
-                self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "The shares do not add up to 100%. You are over by \(String(format: "%.0f", totalPercentage - 100))%"))
+                showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "The shares do not add up to 100%. You are over by \(String(format: "%.0f", totalPercentage - 100))%"))
             }
             return
         }
 
         if selectedTab == .shares && totalShares <= 0 {
-            self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "You must assign a non-zero share to at least one person."))
+            showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "You must assign a non-zero share to at least one person."))
             return
         }
 

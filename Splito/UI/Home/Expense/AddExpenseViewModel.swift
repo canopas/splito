@@ -61,6 +61,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    // MARK: - Data Loading
     private func fetchGroup(groupId: String) {
         viewState = .loading
         groupRepository.fetchGroupBy(id: groupId)
@@ -91,14 +92,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 self.selectedPayer = user
                 self.viewState = .initial
             }.store(in: &cancelable)
-    }
-
-    private func updatePayerName() {
-        if let user = preference.user, let selectedPayer, selectedPayer.id == user.id {
-            self.payerName = "You"
-        } else {
-            self.payerName = selectedPayer?.nameWithLastInitial ?? "You"
-        }
     }
 
     private func fetchExpenseDetails(expenseId: String) {
@@ -157,7 +150,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 completion(user)
             }.store(in: &cancelable)
     }
-
+    
+    // MARK: - Error Handling
     private func handleServerError(_ error: ServiceError) {
         viewState = .initial
         showToastFor(error)
@@ -165,9 +159,16 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 }
 
 // MARK: - User Actions
-
 extension AddExpenseViewModel {
-
+    
+    private func updatePayerName() {
+        if let user = preference.user, let selectedPayer, selectedPayer.id == user.id {
+            self.payerName = "You"
+        } else {
+            self.payerName = selectedPayer?.nameWithLastInitial ?? "You"
+        }
+    }
+    
     func handleGroupBtnAction() {
         showGroupSelection = expenseId == nil
     }
@@ -236,8 +237,8 @@ extension AddExpenseViewModel {
             updateExpense(expense: newExpense)
         } else {
             let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing).capitalized, amount: expenseAmount,
-                                  date: Timestamp(date: expenseDate), paidBy: selectedPayer.id, addedBy: user.id,
-                                  splitTo: selectedMembers, groupId: groupId, splitType: splitType, splitData: splitType == .percentage ? percentages : shares)
+                                  date: Timestamp(date: expenseDate), paidBy: selectedPayer.id, addedBy: user.id, splitTo: selectedMembers,
+                                  groupId: groupId, splitType: splitType, splitData: splitType == .percentage ? percentages : shares)
 
             addExpense(expense: expense, completion: completion)
         }

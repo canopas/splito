@@ -29,6 +29,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         self.expenseId = expenseId
     }
 
+    // MARK: - Data Loading
     func fetchExpense() {
         viewState = .loading
         expenseRepository.fetchExpenseBy(expenseId: expenseId)
@@ -63,13 +64,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func getSplitAmount(for member: String) -> String {
-        guard let expense = expense else { return "" }
-
-        let finalAmount = calculateSplitAmount(member: member, expense: expense)
-        return finalAmount.formattedCurrency
-    }
-
     func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
         userRepository.fetchUserBy(userID: userId)
             .sink { [weak self] completion in
@@ -82,7 +76,22 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 completion(user)
             }.store(in: &cancelable)
     }
+    
+    private func deleteExpense() {
+        viewState = .loading
+        expenseRepository.deleteExpense(id: expenseId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.viewState = .initial
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.viewState = .initial
+                self?.router.pop()
+            }.store(in: &cancelable)
+    }
 
+    // MARK: - User Actions
     func getMemberDataBy(id: String) -> AppUser? {
         return expenseUsersData.first(where: { $0.id == id })
     }
@@ -100,19 +109,12 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
+    
+    func getSplitAmount(for member: String) -> String {
+        guard let expense = expense else { return "" }
 
-    private func deleteExpense() {
-        viewState = .loading
-        expenseRepository.deleteExpense(id: expenseId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.viewState = .initial
-                self?.router.pop()
-            }.store(in: &cancelable)
+        let finalAmount = calculateSplitAmount(member: member, expense: expense)
+        return finalAmount.formattedCurrency
     }
 }
 

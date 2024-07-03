@@ -180,7 +180,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         var memberOwingAmount: [String: Double] = [:]
 
         let (owesToUser, owedByUser) = processTransactionsNonSimply(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
-        
+
         owesToUser.forEach { userId, owesAmount in
             memberOwingAmount[userId, default: 0.0] = owesAmount
         }

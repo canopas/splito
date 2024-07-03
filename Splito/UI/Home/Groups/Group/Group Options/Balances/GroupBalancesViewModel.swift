@@ -29,6 +29,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         fetchGroupMembers()
     }
 
+    // MARK: - Data Loading
     func fetchGroupMembers() {
         viewState = .loading
         groupRepository.fetchMembersBy(groupId: groupId)
@@ -79,7 +80,8 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
                 calculateExpenses(expenses: expenses, isSimplify: group.isDebtSimplified)
             }.store(in: &cancelable)
     }
-
+    
+    // MARK: - Helper Methods
     private func calculateExpenses(expenses: [Expense], isSimplify: Bool) {
         let groupMembers = Array(Set(groupMemberData.map { $0.id }))
         var memberBalances = groupMembers.map { GroupMemberBalance(id: $0) }
@@ -216,7 +218,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         self.memberBalances = sortedMembers
         self.viewState = .initial
     }
-
+    
     private func getMemberDataBy(id: String) -> AppUser? {
         return groupMemberData.first(where: { $0.id == id })
     }
@@ -230,7 +232,8 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         guard let member = getMemberDataBy(id: id) else { return "" }
         return needFullName ? member.fullName : member.nameWithLastInitial
     }
-
+    
+    // MARK: - User Actions
     func handleBalanceExpandView(id: String) {
         if let index = memberBalances.firstIndex(where: { $0.id == id }) {
             memberBalances[index].isExpanded.toggle()
