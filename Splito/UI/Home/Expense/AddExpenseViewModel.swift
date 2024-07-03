@@ -150,7 +150,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 completion(user)
             }.store(in: &cancelable)
     }
-    
+
     // MARK: - Error Handling
     private func handleServerError(_ error: ServiceError) {
         viewState = .initial
@@ -160,7 +160,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
 // MARK: - User Actions
 extension AddExpenseViewModel {
-    
+
     private func updatePayerName() {
         if let user = preference.user, let selectedPayer, selectedPayer.id == user.id {
             self.payerName = "You"
@@ -168,7 +168,7 @@ extension AddExpenseViewModel {
             self.payerName = selectedPayer?.nameWithLastInitial ?? "You"
         }
     }
-    
+
     func handleGroupBtnAction() {
         showGroupSelection = expenseId == nil
     }

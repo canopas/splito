@@ -156,12 +156,13 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         for expense in expenses {
             queue.enter()
 
-            let splitAmount = calculateSplitAmount(member: userId, expense: expense)
             if expense.paidBy == userId {
                 for member in expense.splitTo where member != userId {
+                    let splitAmount = calculateSplitAmount(member: member, expense: expense)
                     owesToUser[member, default: 0.0] += splitAmount
                 }
             } else if expense.splitTo.contains(userId) {
+                let splitAmount = calculateSplitAmount(member: userId, expense: expense)
                 owedByUser[expense.paidBy, default: 0.0] += splitAmount
             }
 
@@ -211,8 +212,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
             ownAmounts[expense.paidBy, default: 0.0] += expense.amount
 
-            let splitAmount = calculateSplitAmount(member: userId, expense: expense)
             for member in expense.splitTo {
+                let splitAmount = calculateSplitAmount(member: member, expense: expense)
                 ownAmounts[member, default: 0.0] -= splitAmount
             }
 
@@ -228,9 +229,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 self.memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
             }
 
-            memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: memberOwingAmount)
-
             withAnimation(.easeOut) {
+                memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: memberOwingAmount)
                 overallOwingAmount = memberOwingAmount.values.reduce(0, +)
                 expensesWithUser = combinedData
             }

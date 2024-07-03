@@ -15,13 +15,13 @@ public func calculateExpensesNonSimplify(userId: String, expenses: [Expense], tr
     var owedByUser: [String: Double] = [:]
 
     for expense in expenses {
-        let splitAmount = calculateSplitAmount(member: userId, expense: expense)
-
         if expense.paidBy == userId {
             for member in expense.splitTo where member != userId {
+                let splitAmount = calculateSplitAmount(member: member, expense: expense)
                 owesToUser[member, default: 0.0] += splitAmount
             }
         } else if expense.splitTo.contains(userId) {
+            let splitAmount = calculateSplitAmount(member: userId, expense: expense)
             owedByUser[expense.paidBy, default: 0.0] += splitAmount
         }
     }
@@ -77,8 +77,8 @@ public func calculateExpensesSimplify(userId: String, expenses: [Expense], trans
     for expense in expenses {
         ownAmounts[expense.paidBy, default: 0.0] += expense.amount
 
-        let splitAmount = calculateSplitAmount(member: userId, expense: expense)
         for member in expense.splitTo {
+            let splitAmount = calculateSplitAmount(member: member, expense: expense)
             ownAmounts[member, default: 0.0] -= splitAmount
         }
     }

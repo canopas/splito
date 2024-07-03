@@ -76,7 +76,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 completion(user)
             }.store(in: &cancelable)
     }
-    
+
     private func deleteExpense() {
         viewState = .loading
         expenseRepository.deleteExpense(id: expenseId)
@@ -109,7 +109,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
-    
+
     func getSplitAmount(for member: String) -> String {
         guard let expense = expense else { return "" }
 

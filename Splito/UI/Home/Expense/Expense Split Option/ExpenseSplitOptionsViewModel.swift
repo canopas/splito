@@ -49,10 +49,11 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         super.init()
 
         if splitType == .percentage {
-            self.percentages = splitData ?? [:]
+            percentages = splitData ?? [:]
+            totalPercentage = splitData?.values.reduce(0, +) ?? 0
         } else if splitType == .shares {
-            self.shares = splitData ?? [:]
-            self.totalShares = splitData?.values.reduce(0, +) ?? 0
+            shares = splitData ?? [:]
+            totalShares = splitData?.values.reduce(0, +) ?? 0
         }
         fetchUsersData()
         splitAmount = totalAmount / Double(selectedMembers.count)

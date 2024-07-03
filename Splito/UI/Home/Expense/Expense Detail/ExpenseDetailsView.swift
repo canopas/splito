@@ -115,7 +115,7 @@ private struct ExpenseInfoView: View {
     var expense: Expense? {
         viewModel.expense
     }
-    
+
     var userName: String {
         let user = viewModel.getMemberDataBy(id: expense?.paidBy ?? "")
         return viewModel.preference.user?.id == user?.id ? "You" : user?.nameWithLastInitial ?? "someone"
@@ -144,10 +144,10 @@ private struct ExpenseInfoView: View {
                                 var owes: String {
                                     return viewModel.preference.user?.id == member.id ? "owe" : "owes"
                                 }
-                                
+
                                 HStack(spacing: 10) {
                                     MemberProfileImageView(imageUrl: member.imageUrl, height: subImageHeight)
-                                    
+
                                     let splitAmount = viewModel.getSplitAmount(for: member.id)
                                     Text("\(memberName.localized) \(owes) \(splitAmount)")
                                 }

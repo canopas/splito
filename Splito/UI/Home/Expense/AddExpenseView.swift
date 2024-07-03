@@ -62,7 +62,7 @@ struct AddExpenseView: View {
                 ExpenseSplitOptionsView(
                     viewModel: ExpenseSplitOptionsViewModel(amount: viewModel.expenseAmount,
                                                             splitType: viewModel.splitType,
-                                                            splitData: viewModel.expenseId != nil ? viewModel.expense?.splitData : viewModel.splitType == .percentage ? viewModel.percentages : viewModel.shares,
+                                                            splitData: viewModel.splitType == .percentage ? viewModel.percentages : viewModel.shares,
                                                             members: viewModel.groupMembers,
                                                             selectedMembers: viewModel.selectedMembers,
                                                             handleSplitTypeSelection: viewModel.handleSplitTypeSelection(members:percentages:shares:splitType:))
