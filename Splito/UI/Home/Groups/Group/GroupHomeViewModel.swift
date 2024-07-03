@@ -152,12 +152,18 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         var owedByUser: [String: Double] = [:]
 
         overallOwingAmount = 0.0
-        memberOwingAmount = [:]
 
         for expense in expenses {
             queue.enter()
 
-            (owesToUser, owedByUser) = typeWiseCalculateExpensesNonSimplify(userId: userId, expense: expense, owesToUser: owesToUser, owedByUser: owedByUser)
+            let splitAmount = calculateSplitAmount(member: userId, expense: expense)
+            if expense.paidBy == userId {
+                for member in expense.splitTo where member != userId {
+                    owesToUser[member, default: 0.0] += splitAmount
+                }
+            } else if expense.splitTo.contains(userId) {
+                owedByUser[expense.paidBy, default: 0.0] += splitAmount
+            }
 
             fetchUserData(for: expense.paidBy) { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
@@ -166,21 +172,28 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         queue.notify(queue: .main) { [self] in
-            (owesToUser, owedByUser) = processTransactionsNonSimply(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
-            owesToUser.forEach { userId, owesAmount in
-                memberOwingAmount[userId, default: 0.0] = owesAmount
-            }
-            owedByUser.forEach { userId, owedAmount in
-                memberOwingAmount[userId, default: 0.0] = (memberOwingAmount[userId] ?? 0) - owedAmount
-            }
-
-            withAnimation(.easeOut) {
-                self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
-                overallOwingAmount = memberOwingAmount.values.reduce(0, +)
-                expensesWithUser = combinedData
-            }
-            setGroupViewState()
+            finalizeOwingAmounts(userId: userId, owesToUser: owesToUser, owedByUser: owedByUser, combinedData: combinedData)
         }
+    }
+
+    private func finalizeOwingAmounts(userId: String, owesToUser: [String: Double], owedByUser: [String: Double], combinedData: [ExpenseWithUser]) {
+        var memberOwingAmount: [String: Double] = [:]
+
+        let (owesToUser, owedByUser) = processTransactionsNonSimply(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
+        
+        owesToUser.forEach { userId, owesAmount in
+            memberOwingAmount[userId, default: 0.0] = owesAmount
+        }
+        owedByUser.forEach { userId, owedAmount in
+            memberOwingAmount[userId, default: 0.0] = (memberOwingAmount[userId] ?? 0) - owedAmount
+        }
+
+        withAnimation(.easeOut) {
+            self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
+            overallOwingAmount = memberOwingAmount.values.reduce(0, +)
+            expensesWithUser = combinedData
+        }
+        setGroupViewState()
     }
 
     private func calculateExpensesSimply() {
@@ -197,7 +210,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             queue.enter()
 
             ownAmounts[expense.paidBy, default: 0.0] += expense.amount
-            (ownAmounts) = typeWiseCalculateExpensesSimplify(userId: userId, expense: expense, ownAmounts: ownAmounts)
+
+            let splitAmount = calculateSplitAmount(member: userId, expense: expense)
+            for member in expense.splitTo {
+                ownAmounts[member, default: 0.0] -= splitAmount
+            }
 
             self.fetchUserData(for: expense.paidBy) { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
@@ -211,8 +228,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 self.memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
             }
 
+            memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: memberOwingAmount)
+
             withAnimation(.easeOut) {
-                memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: memberOwingAmount)
                 overallOwingAmount = memberOwingAmount.values.reduce(0, +)
                 expensesWithUser = combinedData
             }
