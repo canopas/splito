@@ -212,7 +212,7 @@ public func settleDebts(users: [String: Double]) -> [(String, String, Double)] {
         if creditors[cIdx].1 == 0 { cIdx += 1 }
         if debtors[dIdx].1 == 0 { dIdx += 1 }
     }
-    
+
     return transactions
 }
 
