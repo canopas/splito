@@ -108,6 +108,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 self.expenseAmount = expense.amount
                 self.expenseDate = expense.date.dateValue()
                 self.splitType = expense.splitType
+                
                 if let splitData = expense.splitData {
                     if expense.splitType == .percentage {
                         self.percentages = splitData
@@ -230,8 +231,8 @@ extension AddExpenseViewModel {
             newExpense.amount = expenseAmount
             newExpense.date = Timestamp(date: expenseDate)
             newExpense.paidBy = selectedPayer.id
-            newExpense.splitTo = splitType == .percentage ? percentages.map({ $0.key }) : splitType == .shares ? shares.map({ $0.key }) : selectedMembers
             newExpense.splitType = splitType
+            newExpense.splitTo = splitType == .percentage ? percentages.map({ $0.key }) : splitType == .shares ? shares.map({ $0.key }) : selectedMembers
             newExpense.splitData = splitType == .percentage ? percentages : shares
 
             updateExpense(expense: newExpense)

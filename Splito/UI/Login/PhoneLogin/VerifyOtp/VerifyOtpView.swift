@@ -55,15 +55,15 @@ public struct VerifyOtpView: View {
 
                 HStack(spacing: 0) {
                     Spacer()
-
-                    PhoneLoginOtpView(otp: $viewModel.otp, resendOtpCount: $viewModel.resendOtpCount, showLoader: viewModel.showLoader,
+                    PhoneLoginOtpView(otp: $viewModel.otp,
+                                      resendOtpCount: $viewModel.resendOtpCount,
+                                      showLoader: viewModel.showLoader,
                                       onVerify: {
                                             viewModel.verifyOTP()
                                             UIApplication.shared.endEditing()
                                       },
                                       onResendOtp: viewModel.resendOtp)
                     .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-
                     Spacer()
                 }
                 Spacer()

@@ -106,11 +106,11 @@ private struct SplitOptionsTopView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            Text(title)
+            Text(title.localized)
                 .font(.subTitle1())
                 .foregroundStyle(primaryText)
 
-            Text(subtitle)
+            Text(subtitle.localized)
                 .font(.body1())
                 .foregroundStyle(secondaryText)
         }
@@ -129,10 +129,8 @@ private struct SplitOptionsBottomView: View {
             ExpenseSplitAmountView(memberCount: viewModel.selectedMembers.count, splitAmount: viewModel.splitAmount,
                                    isAllSelected: viewModel.isAllSelected, onAllBtnTap: viewModel.handleAllBtnAction)
         case .percentage:
-            BottomInfoCardView(
-                title: "\(String(format: "%.0f", viewModel.totalPercentage))% of 100%",
-                value: "\(String(format: "%.0f", 100 - viewModel.totalPercentage))% left"
-            )
+            BottomInfoCardView(title: "\(String(format: "%.0f", viewModel.totalPercentage))% of 100%",
+                               value: "\(String(format: "%.0f", 100 - viewModel.totalPercentage))% left")
         case .shares:
             BottomInfoCardView(title: "\(String(format: "%.0f", viewModel.totalShares)) total shares")
         }
@@ -396,7 +394,7 @@ private struct BottomInfoCardView: View {
                 Spacer()
 
                 VStack(alignment: .center, spacing: 4) {
-                    Text(title)
+                    Text(title.localized)
                         .font(.Header3())
                         .foregroundColor(primaryText)
 
