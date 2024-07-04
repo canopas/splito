@@ -98,6 +98,19 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
+    // MARK: - User Actions
+    func showTransactionDeleteAlert(_ transactionId: String?) {
+        guard let transactionId else { return }
+
+        showAlert = true
+        alert = .init(title: "Delete transaction",
+                      message: "Are you sure you want to delete this transaction?",
+                      positiveBtnTitle: "Ok",
+                      positiveBtnAction: { self.deleteTransaction(transactionId: transactionId) },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false })
+    }
+    
     private func deleteTransaction(transactionId: String) {
         transactionRepository.deleteTransaction(transactionId: transactionId)
             .sink { [weak self] completion in
@@ -113,19 +126,6 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                 }
                 self.showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully"))
             }.store(in: &cancelable)
-    }
-
-    // MARK: - User Actions
-    func showTransactionDeleteAlert(_ transactionId: String?) {
-        guard let transactionId else { return }
-
-        showAlert = true
-        alert = .init(title: "Delete transaction",
-                      message: "Are you sure you want to delete this transaction?",
-                      positiveBtnTitle: "Ok",
-                      positiveBtnAction: { self.deleteTransaction(transactionId: transactionId) },
-                      negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false })
     }
 
     func handleTransactionItemTap(_ transactionId: String?) {

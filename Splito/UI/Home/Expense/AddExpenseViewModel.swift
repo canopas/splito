@@ -108,7 +108,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 self.expenseAmount = expense.amount
                 self.expenseDate = expense.date.dateValue()
                 self.splitType = expense.splitType
-                
+
                 if let splitData = expense.splitData {
                     if expense.splitType == .percentage {
                         self.percentages = splitData

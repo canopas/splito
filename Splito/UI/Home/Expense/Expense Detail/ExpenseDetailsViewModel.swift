@@ -77,20 +77,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    private func deleteExpense() {
-        viewState = .loading
-        expenseRepository.deleteExpense(id: expenseId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.viewState = .initial
-                self?.router.pop()
-            }.store(in: &cancelable)
-    }
-
     // MARK: - User Actions
     func getMemberDataBy(id: String) -> AppUser? {
         return expenseUsersData.first(where: { $0.id == id })
@@ -108,6 +94,20 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                       positiveBtnAction: { self.deleteExpense() },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
+    }
+
+    private func deleteExpense() {
+        viewState = .loading
+        expenseRepository.deleteExpense(id: expenseId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.viewState = .initial
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.viewState = .initial
+                self?.router.pop()
+            }.store(in: &cancelable)
     }
 
     func getSplitAmount(for member: String) -> String {

@@ -152,16 +152,19 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         var owedByUser: [String: Double] = [:]
 
         overallOwingAmount = 0.0
+        memberOwingAmount = [:]
 
         for expense in expenses {
             queue.enter()
 
             if expense.paidBy == userId {
+                // If the user paid for the expense, calculate how much each member owes the user
                 for member in expense.splitTo where member != userId {
                     let splitAmount = calculateSplitAmount(member: member, expense: expense)
                     owesToUser[member, default: 0.0] += splitAmount
                 }
             } else if expense.splitTo.contains(userId) {
+                // If the user is one of the members who should split the expense, calculate how much the user owes to the payer
                 let splitAmount = calculateSplitAmount(member: userId, expense: expense)
                 owedByUser[expense.paidBy, default: 0.0] += splitAmount
             }
@@ -173,28 +176,22 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         queue.notify(queue: .main) { [self] in
-            finalizeOwingAmounts(userId: userId, owesToUser: owesToUser, owedByUser: owedByUser, combinedData: combinedData)
-        }
-    }
+            (owesToUser, owedByUser) = processTransactionsNonSimply(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
 
-    private func finalizeOwingAmounts(userId: String, owesToUser: [String: Double], owedByUser: [String: Double], combinedData: [ExpenseWithUser]) {
-        var memberOwingAmount: [String: Double] = [:]
+            owesToUser.forEach { userId, owesAmount in
+                memberOwingAmount[userId, default: 0.0] = owesAmount
+            }
+            owedByUser.forEach { userId, owedAmount in
+                memberOwingAmount[userId, default: 0.0] = (memberOwingAmount[userId] ?? 0) - owedAmount
+            }
 
-        let (owesToUser, owedByUser) = processTransactionsNonSimply(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
-
-        owesToUser.forEach { userId, owesAmount in
-            memberOwingAmount[userId, default: 0.0] = owesAmount
+            withAnimation(.easeOut) {
+                self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
+                overallOwingAmount = memberOwingAmount.values.reduce(0, +)
+                expensesWithUser = combinedData
+            }
+            setGroupViewState()
         }
-        owedByUser.forEach { userId, owedAmount in
-            memberOwingAmount[userId, default: 0.0] = (memberOwingAmount[userId] ?? 0) - owedAmount
-        }
-
-        withAnimation(.easeOut) {
-            self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
-            overallOwingAmount = memberOwingAmount.values.reduce(0, +)
-            expensesWithUser = combinedData
-        }
-        setGroupViewState()
     }
 
     private func calculateExpensesSimply() {
@@ -256,28 +253,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         (expenses.isEmpty ? .noExpense : .hasExpense) :
         (expenses.isEmpty ? .noMember : .hasExpense)
     }
-
-    func showExpenseDeleteAlert(expenseId: String) {
-        showAlert = true
-        alert = .init(title: "Delete expense",
-                      message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
-                      positiveBtnTitle: "Ok",
-                      positiveBtnAction: { self.deleteExpense(expenseId: expenseId) },
-                      negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false })
-    }
-
-    private func deleteExpense(expenseId: String) {
-        expenseRepository.deleteExpense(id: expenseId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] _ in
-                withAnimation { self?.expensesWithUser.removeAll { $0.expense.id == expenseId } }
-                self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully"))
-            }.store(in: &cancelable)
-    }
 }
 
 // MARK: - User Actions
@@ -334,6 +309,28 @@ extension GroupHomeViewModel {
             searchedExpense = ""
             showSearchBar = false
         }
+    }
+    
+    func showExpenseDeleteAlert(expenseId: String) {
+        showAlert = true
+        alert = .init(title: "Delete expense",
+                      message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
+                      positiveBtnTitle: "Ok",
+                      positiveBtnAction: { self.deleteExpense(expenseId: expenseId) },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false })
+    }
+    
+    private func deleteExpense(expenseId: String) {
+        expenseRepository.deleteExpense(id: expenseId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] _ in
+                withAnimation { self?.expensesWithUser.removeAll { $0.expense.id == expenseId } }
+                self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully"))
+            }.store(in: &cancelable)
     }
 }
 

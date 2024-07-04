@@ -22,6 +22,12 @@
     "(%lld people)" : {
 
     },
+    "% left" : {
+      "extractionState" : "manual"
+    },
+    "% of 100%" : {
+      "extractionState" : "manual"
+    },
     "%@" : {
 
     },
@@ -185,6 +191,9 @@
     "Enter the Invite Code" : {
       "extractionState" : "manual"
     },
+    "Enter the percentage split that's fair for your situation." : {
+      "extractionState" : "manual"
+    },
     "equally" : {
       "extractionState" : "manual"
     },
@@ -202,6 +211,9 @@
     },
     "gets back" : {
 
+    },
+    "Great for time-based splitting (2 nights -> 2 shares) and splitting across families (family of 3 -> 3 shares)." : {
+      "extractionState" : "manual"
     },
     "Group balances" : {
 
@@ -338,6 +350,9 @@
     "Select group" : {
       "extractionState" : "manual"
     },
+    "Select which people owe an equal share." : {
+      "extractionState" : "manual"
+    },
     "Settings" : {
 
     },
@@ -355,6 +370,9 @@
     },
     "Share this invitation code with your trusted one in your own style. Connecting with your friends is as flexible as you are." : {
 
+    },
+    "share(s)" : {
+      "extractionState" : "manual"
     },
     "Sign in with Apple" : {
       "extractionState" : "manual"
@@ -374,8 +392,14 @@
     "Simplify group debts" : {
 
     },
-    "Split Option" : {
-
+    "Split by percentages" : {
+      "extractionState" : "manual"
+    },
+    "Split by share" : {
+      "extractionState" : "manual"
+    },
+    "Split equally" : {
+      "extractionState" : "manual"
     },
     "Split options" : {
 
@@ -411,6 +435,9 @@
       "extractionState" : "manual"
     },
     "Total group spending" : {
+      "extractionState" : "manual"
+    },
+    "total shares" : {
       "extractionState" : "manual"
     },
     "Total you paid for" : {

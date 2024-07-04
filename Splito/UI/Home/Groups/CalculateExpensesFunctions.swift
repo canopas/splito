@@ -16,11 +16,13 @@ public func calculateExpensesNonSimplify(userId: String, expenses: [Expense], tr
 
     for expense in expenses {
         if expense.paidBy == userId {
+            // If the user paid for the expense, calculate how much each member owes the user
             for member in expense.splitTo where member != userId {
                 let splitAmount = calculateSplitAmount(member: member, expense: expense)
                 owesToUser[member, default: 0.0] += splitAmount
             }
         } else if expense.splitTo.contains(userId) {
+            // If the user is one of the members who should split the expense, calculate how much the user owes to the payer
             let splitAmount = calculateSplitAmount(member: userId, expense: expense)
             owedByUser[expense.paidBy, default: 0.0] += splitAmount
         }

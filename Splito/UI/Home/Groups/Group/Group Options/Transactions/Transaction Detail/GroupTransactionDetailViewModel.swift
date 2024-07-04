@@ -86,20 +86,6 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         return transactionUsersData.first(where: { $0.id == id })
     }
 
-    private func deleteTransaction() {
-        viewState = .loading
-
-        transactionRepository.deleteTransaction(transactionId: transactionId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.viewState = .initial
-                self?.router.pop()
-            }.store(in: &cancelable)
-    }
-
     // MARK: - User Actions
     func handleEditBtnAction() {
         showEditTransactionSheet = true
@@ -118,6 +104,20 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                       positiveBtnAction: { self.deleteTransaction() },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
+    }
+    
+    private func deleteTransaction() {
+        viewState = .loading
+
+        transactionRepository.deleteTransaction(transactionId: transactionId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServiceError(error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.viewState = .initial
+                self?.router.pop()
+            }.store(in: &cancelable)
     }
 
     // MARK: - Error Handling
