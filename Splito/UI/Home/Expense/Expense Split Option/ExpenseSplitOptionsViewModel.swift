@@ -17,12 +17,14 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var totalAmount: Double = 0
     @Published private(set) var splitAmount: Double = 0
+    @Published private(set) var totalFixedAmount: Double = 0
     @Published private(set) var totalPercentage: Double = 0
     @Published private(set) var totalShares: Double = 0
 
     @Published private(set) var groupMembers: [AppUser] = []
     @Published private(set) var shares: [String: Double] = [:]
     @Published private(set) var percentages: [String: Double] = [:]
+    @Published private(set) var fixedAmounts: [String: Double] = [:]
 
     @Published var selectedTab: SplitType
     @Published private(set) var viewState: ViewState = .initial
@@ -38,9 +40,9 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     }
 
     private var members: [String] = []
-    private var handleSplitTypeSelection: ((_ members: [String], _ percentages: [String: Double], _ shares: [String: Double], _ splitType: SplitType) -> Void)
+    private var handleSplitTypeSelection: ((_ members: [String], _ splitData: [String: Double], _ splitType: SplitType) -> Void)
 
-    init(amount: Double, splitType: SplitType = .equally, splitData: [String: Double]? = nil, members: [String], selectedMembers: [String], handleSplitTypeSelection: @escaping ((_ members: [String], _ percentages: [String: Double], _ shares: [String: Double], _ splitType: SplitType) -> Void)) {
+    init(amount: Double, splitType: SplitType = .equally, splitData: [String: Double]? = nil, members: [String], selectedMembers: [String], handleSplitTypeSelection: @escaping ((_ members: [String], _ splitData: [String: Double], _ splitType: SplitType) -> Void)) {
         self.totalAmount = amount
         self.selectedTab = splitType
         self.members = members
@@ -51,6 +53,9 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         if splitType == .percentage {
             percentages = splitData ?? [:]
             totalPercentage = splitData?.values.reduce(0, +) ?? 0
+        } else if splitType == .fixedAmount {
+            fixedAmounts = splitData ?? [:]
+            totalFixedAmount = splitData?.values.reduce(0, +) ?? 0
         } else if splitType == .shares {
             shares = splitData ?? [:]
             totalShares = splitData?.values.reduce(0, +) ?? 0
@@ -90,6 +95,11 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     // MARK: - User Actions
     func checkIsMemberSelected(_ memberId: String) -> Bool {
         return selectedMembers.contains(memberId)
+    }
+
+    func updateFixedAmount(for memberId: String, amount: Double) {
+        fixedAmounts[memberId] = amount
+        totalFixedAmount = fixedAmounts.values.reduce(0, +)
     }
 
     func updatePercentage(for memberId: String, percentage: Double) {
@@ -138,7 +148,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        handleSplitTypeSelection(selectedMembers, percentages.filter({ $0.value != 0 }), shares.filter({ $0.value != 0 }), selectedTab)
+        handleSplitTypeSelection(selectedMembers, (selectedTab == .fixedAmount) ? fixedAmounts.filter({ $0.value != 0 }) : (selectedTab == .percentage) ? percentages.filter({ $0.value != 0 }) : shares.filter({ $0.value != 0 }), selectedTab)
         completion()
     }
 }

@@ -30,8 +30,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var expense: Expense?
     @Published private(set) var selectedGroup: Groups?
-    @Published private(set) var shares: [String: Double] = [:]
-    @Published private(set) var percentages: [String: Double] = [:]
+    @Published private(set) var splitData: [String: Double] = [:]
 
     @Published private(set) var groupMembers: [String] = []
     @Published private(set) var selectedMembers: [String] = []
@@ -110,11 +109,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 self.splitType = expense.splitType
 
                 if let splitData = expense.splitData {
-                    if expense.splitType == .percentage {
-                        self.percentages = splitData
-                    } else if expense.splitType == .shares {
-                        self.shares = splitData
-                    }
+                    self.splitData = splitData
                 }
                 self.selectedMembers = expense.splitTo
 
@@ -206,10 +201,9 @@ extension AddExpenseViewModel {
         showSplitTypeSelection = true
     }
 
-    func handleSplitTypeSelection(members: [String], percentages: [String: Double], shares: [String: Double], splitType: SplitType) {
+    func handleSplitTypeSelection(members: [String], splitData: [String: Double], splitType: SplitType) {
         selectedMembers = members
-        self.percentages = percentages
-        self.shares = shares
+        self.splitData = splitData
         self.splitType = splitType
     }
 
@@ -232,14 +226,15 @@ extension AddExpenseViewModel {
             newExpense.date = Timestamp(date: expenseDate)
             newExpense.paidBy = selectedPayer.id
             newExpense.splitType = splitType
-            newExpense.splitTo = splitType == .percentage ? percentages.map({ $0.key }) : splitType == .shares ? shares.map({ $0.key }) : selectedMembers
-            newExpense.splitData = splitType == .percentage ? percentages : shares
+            newExpense.splitTo = (splitType == .equally) ? selectedMembers : splitData.map({ $0.key })
+            newExpense.splitData = splitData
 
             updateExpense(expense: newExpense)
         } else {
             let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing).capitalized, amount: expenseAmount,
-                                  date: Timestamp(date: expenseDate), paidBy: selectedPayer.id, addedBy: user.id, splitTo: selectedMembers,
-                                  groupId: groupId, splitType: splitType, splitData: splitType == .percentage ? percentages : shares)
+                                  date: Timestamp(date: expenseDate), paidBy: selectedPayer.id, addedBy: user.id,
+                                  splitTo: (splitType == .equally) ? selectedMembers : splitData.map({ $0.key }),
+                                  groupId: groupId, splitType: splitType, splitData: splitData)
 
             addExpense(expense: expense, completion: completion)
         }

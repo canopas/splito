@@ -55,17 +55,20 @@ public struct Expense: Codable, Hashable {
 
 public enum SplitType: String, Codable, CaseIterable {
     case equally
+    case fixedAmount
     case percentage
     case shares
 
-    public var image: String {
+    public var tabIcon: String {
         switch self {
         case .equally:
-            return "equal"
+            return "="
+        case .fixedAmount:
+            return "1.23"
         case .percentage:
-            return "percent"
+            return "%"
         case .shares:
-            return "blinds.vertical.open"
+            return "|||"
         }
     }
 }

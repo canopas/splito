@@ -121,6 +121,12 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             for member in expense.splitTo {
                 splitAmounts[member] = splitAmount
             }
+        case .fixedAmount:
+            if let splitData = expense.splitData {
+                for (member, fixedAmount) in splitData {
+                    splitAmounts[member] = fixedAmount
+                }
+            }
         case .percentage:
             if let splitData = expense.splitData {
                 let totalPercentage = splitData.values.reduce(0, +)

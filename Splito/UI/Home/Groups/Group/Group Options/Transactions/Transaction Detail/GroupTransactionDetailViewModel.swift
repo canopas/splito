@@ -105,7 +105,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
-    
+
     private func deleteTransaction() {
         viewState = .loading
 

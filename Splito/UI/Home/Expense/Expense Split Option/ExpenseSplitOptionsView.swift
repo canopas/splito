@@ -30,6 +30,8 @@ struct ExpenseSplitOptionsView: View {
                             switch viewModel.selectedTab {
                             case .equally:
                                 SplitOptionsTopView(title: "Split equally", subtitle: "Select which people owe an equal share.")
+                            case .fixedAmount:
+                                SplitOptionsTopView(title: "Split by exact amounts", subtitle: "Specify exactly how much each person owes.")
                             case .percentage:
                                 SplitOptionsTopView(title: "Split by percentages", subtitle: "Enter the percentage split that's fair for your situation.")
                             case .shares:
@@ -99,6 +101,9 @@ private struct SplitOptionsBottomView: View {
         case .equally:
             ExpenseSplitAmountView(memberCount: viewModel.selectedMembers.count, splitAmount: viewModel.splitAmount,
                                    isAllSelected: viewModel.isAllSelected, onAllBtnTap: viewModel.handleAllBtnAction)
+        case .fixedAmount:
+            BottomInfoCardView(title: "₹ \(String(format: "%.0f", viewModel.totalFixedAmount)) of ₹ \(viewModel.totalAmount)",
+                               value: "₹ \(String(format: "%.0f", (viewModel.totalAmount - viewModel.totalFixedAmount))) left")
         case .percentage:
             BottomInfoCardView(title: "\(String(format: "%.0f", viewModel.totalPercentage))% of 100%",
                                value: "\(String(format: "%.0f", 100 - viewModel.totalPercentage))% left")
@@ -207,5 +212,5 @@ private struct BottomInfoCardView: View {
 }
 
 #Preview {
-    ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: 0, members: [], selectedMembers: [], handleSplitTypeSelection: { _, _, _, _   in }))
+    ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: 0, members: [], selectedMembers: [], handleSplitTypeSelection: {_, _, _ in }))
 }

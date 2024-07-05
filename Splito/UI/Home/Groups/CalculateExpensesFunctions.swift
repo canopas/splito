@@ -161,6 +161,8 @@ public func calculateSplitAmount(member: String, expense: Expense) -> Double {
     switch expense.splitType {
     case .equally:
         splitAmount = expense.amount / Double(expense.splitTo.count)
+    case .fixedAmount:
+        splitAmount = expense.splitData?[member] ?? 0.0
     case .percentage:
         let totalPercentage = expense.splitData?.values.reduce(0, +) ?? 0.0
         splitAmount = expense.amount * (expense.splitData?[member] ?? 0.0) / totalPercentage

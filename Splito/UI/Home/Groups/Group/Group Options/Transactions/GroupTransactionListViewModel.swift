@@ -110,7 +110,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
-    
+
     private func deleteTransaction(transactionId: String) {
         transactionRepository.deleteTransaction(transactionId: transactionId)
             .sink { [weak self] completion in
