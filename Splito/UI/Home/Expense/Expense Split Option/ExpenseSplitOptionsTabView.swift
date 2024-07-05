@@ -18,7 +18,7 @@ struct ExpenseSplitOptionsTabView: View {
             HStack(spacing: 0) {
                 ForEach(SplitType.allCases, id: \.self) { type in
                     Picker("", selection: $viewModel.selectedTab) {
-                        Image(systemName: type.image)
+                        Text(type.tabIcon)
                             .tag(type)
                     }
                     .pickerStyle(SegmentedPickerStyle())
@@ -29,6 +29,8 @@ struct ExpenseSplitOptionsTabView: View {
             switch viewModel.selectedTab {
             case .equally:
                 EqualShareView(viewModel: viewModel)
+            case .fixedAmount:
+                FixedAmountView(viewModel: viewModel)
             case .percentage:
                 PercentageView(viewModel: viewModel)
             case .shares:
@@ -92,6 +94,29 @@ private struct ExpenseMemberCellView: View {
     }
 }
 
+private struct FixedAmountView: View {
+
+    @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
+
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(viewModel.groupMembers, id: \.id) { member in
+                MemberCellView(
+                    value: Binding(
+                        get: { viewModel.fixedAmounts[member.id] ?? 0 },
+                        set: { viewModel.updateFixedAmount(for: member.id, amount: $0) }
+                    ),
+                    member: member, suffixText: "",
+                    expenseAmount: viewModel.totalAmount,
+                    onChange: { amount in
+                        viewModel.updateFixedAmount(for: member.id, amount: amount)
+                    }
+                )
+            }
+        }
+    }
+}
+
 private struct PercentageView: View {
 
     @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
@@ -146,14 +171,14 @@ private struct MemberCellView: View {
 
     let member: AppUser
     let suffixText: String
-    var totalValue: Double
+    var totalValue: Double?
     var expenseAmount: Double
 
     let onChange: (Double) -> Void
 
     @State private var textValue: String
 
-    init(value: Binding<Double>, member: AppUser, suffixText: String, totalValue: Double, expenseAmount: Double, onChange: @escaping (Double) -> Void) {
+    init(value: Binding<Double>, member: AppUser, suffixText: String, totalValue: Double? = nil, expenseAmount: Double, onChange: @escaping (Double) -> Void) {
         self._value = value
         self.member = member
         self.suffixText = suffixText
@@ -173,10 +198,12 @@ private struct MemberCellView: View {
                         .font(.subTitle1())
                         .foregroundStyle(primaryText)
 
-                    let calculatedValue = totalValue == 0 ? 0 : ((expenseAmount) * (Double(value)) / (totalValue))
-                    Text((calculatedValue).formattedCurrency)
-                        .font(.body2())
-                        .foregroundStyle(disableText)
+                    if totalValue != nil {
+                        let calculatedValue = totalValue == 0 ? 0 : ((expenseAmount) * (Double(value)) / (totalValue!))
+                        Text((calculatedValue).formattedCurrency)
+                            .font(.body2())
+                            .foregroundStyle(disableText)
+                    }
                 }
                 .multilineTextAlignment(.leading)
 
