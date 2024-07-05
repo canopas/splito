@@ -106,7 +106,7 @@ private struct FixedAmountView: View {
                         get: { viewModel.fixedAmounts[member.id] ?? 0 },
                         set: { viewModel.updateFixedAmount(for: member.id, amount: $0) }
                     ),
-                    member: member, suffixText: "",
+                    member: member, suffixText: "₹",
                     expenseAmount: viewModel.totalAmount,
                     onChange: { amount in
                         viewModel.updateFixedAmount(for: member.id, amount: amount)
