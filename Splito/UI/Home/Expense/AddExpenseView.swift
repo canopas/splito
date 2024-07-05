@@ -7,10 +7,11 @@
 
 import SwiftUI
 import BaseStyle
+import Data
 
 struct AddExpenseView: View {
 
-    @ObservedObject var viewModel: AddExpenseViewModel
+    @StateObject var viewModel: AddExpenseViewModel
 
     @Environment(\.dismiss) var dismiss
 
@@ -22,7 +23,7 @@ struct AddExpenseView: View {
                 VStack(spacing: 25) {
                     VSpacer(80)
 
-                    GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Group", onTap: viewModel.handleGroupBtnAction)
+                    GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Select group", onTap: viewModel.handleGroupBtnAction)
 
                     VStack(spacing: 16) {
                         ExpenseDetailRow(imageName: "note.text", placeholder: "Enter a description",
@@ -34,7 +35,7 @@ struct AddExpenseView: View {
                     }
                     .padding(.trailing, 20)
 
-                    PaidByBottomView(payerName: viewModel.payerName, onPayerTap: viewModel.handlePayerBtnAction,
+                    PaidByBottomView(splitType: viewModel.splitType, payerName: viewModel.payerName, onPayerTap: viewModel.handlePayerBtnAction,
                                      onSplitTypeTap: viewModel.handleSplitTypeBtnAction)
                 }
             }
@@ -48,33 +49,30 @@ struct AddExpenseView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showGroupSelection) {
             NavigationStack {
-                ChooseGroupView(viewModel: ChooseGroupViewModel(selectedGroup: viewModel.selectedGroup) { group in
-                    viewModel.handleGroupSelection(group: group)
-                })
+                ChooseGroupView(viewModel: ChooseGroupViewModel(selectedGroup: viewModel.selectedGroup, onGroupSelection: viewModel.handleGroupSelection(group:)))
             }
         }
         .sheet(isPresented: $viewModel.showPayerSelection) {
             NavigationStack {
-                ChoosePayerView(viewModel: ChoosePayerViewModel(groupId: viewModel.selectedGroup?.id ?? "", selectedPayer: viewModel.selectedPayer) { payer in
-                    viewModel.handlePayerSelection(payer: payer)
-                })
+                ChoosePayerView(viewModel: ChoosePayerViewModel(groupId: viewModel.selectedGroup?.id ?? "", selectedPayer: viewModel.selectedPayer, onPayerSelection: viewModel.handlePayerSelection(payer:)))
             }
         }
         .sheet(isPresented: $viewModel.showSplitTypeSelection) {
             NavigationStack {
-                ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: viewModel.expenseAmount, members: viewModel.groupMembers,
-                                                                                selectedMembers: viewModel.selectedMembers,
-                                                                                onMemberSelection: { members in
-                    viewModel.handleSplitTypeSelection(members: members)
-                }))
+                ExpenseSplitOptionsView(
+                    viewModel: ExpenseSplitOptionsViewModel(amount: viewModel.expenseAmount,
+                                                            splitType: viewModel.splitType,
+                                                            splitData: viewModel.splitType == .percentage ? viewModel.percentages : viewModel.shares,
+                                                            members: viewModel.groupMembers,
+                                                            selectedMembers: viewModel.selectedMembers,
+                                                            handleSplitTypeSelection: viewModel.handleSplitTypeSelection(members:percentages:shares:splitType:))
+                )
             }
         }
         .toolbar {
-            if viewModel.expenseId == nil {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
+            ToolbarItem(placement: .topBarLeading) {
+                Button("Cancel") {
+                    dismiss()
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
@@ -120,10 +118,10 @@ private struct ExpenseDetailRow: View {
             } else {
                 VStack {
                     if keyboardType == .default {
-                        TextField(placeholder, text: $name)
+                        TextField(placeholder.localized, text: $name)
                             .font(.subTitle2())
                     } else {
-                        TextField("Amount", value: $amount, formatter: NumberFormatter())
+                        TextField("", value: $amount, formatter: NumberFormatter())
                             .font(.subTitle2())
                             .keyboardType(keyboardType)
                     }
@@ -150,7 +148,7 @@ private struct GroupSelectionView: View {
             Button {
                 onTap()
             } label: {
-                Text(name)
+                Text(name.localized)
                     .font(.subTitle2())
                     .foregroundStyle(secondaryText)
             }
@@ -168,6 +166,7 @@ private struct GroupSelectionView: View {
 
 private struct PaidByBottomView: View {
 
+    let splitType: SplitType
     let payerName: String
     var onPayerTap: () -> Void
     var onSplitTypeTap: () -> Void
@@ -180,7 +179,7 @@ private struct PaidByBottomView: View {
 
             Text("and split")
 
-            PaidByBtnView(name: "equally", onTap: onSplitTypeTap)
+            PaidByBtnView(name: splitType == .equally ? "equally" : "unequally", onTap: onSplitTypeTap)
         }
         .font(.subTitle2())
         .foregroundStyle(primaryText)
@@ -196,7 +195,7 @@ private struct PaidByBtnView: View {
         Button {
             onTap()
         } label: {
-            Text(name)
+            Text(name.localized)
                 .font(.subTitle2())
                 .foregroundStyle(secondaryText)
         }
@@ -211,5 +210,5 @@ private struct PaidByBtnView: View {
 }
 
 #Preview {
-    AddExpenseView(viewModel: AddExpenseViewModel(router: .init(root: .AddExpenseView(expenseId: "")), expenseId: ""))
+    AddExpenseView(viewModel: AddExpenseViewModel(router: .init(root: .AddExpenseView(expenseId: "", groupId: ""))))
 }

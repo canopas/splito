@@ -11,13 +11,21 @@ import BaseStyle
 
 class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var preference: SplitoPreference
+    @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
     @Inject private var expenseRepository: ExpenseRepository
 
-    @Published var splitAmount: Double = 0
-    @Published var groupMembers: [AppUser] = []
-    @Published var viewState: ViewState = .initial
+    @Published private(set) var totalAmount: Double = 0
+    @Published private(set) var splitAmount: Double = 0
+    @Published private(set) var totalPercentage: Double = 0
+    @Published private(set) var totalShares: Double = 0
+
+    @Published private(set) var groupMembers: [AppUser] = []
+    @Published private(set) var shares: [String: Double] = [:]
+    @Published private(set) var percentages: [String: Double] = [:]
+
+    @Published var selectedTab: SplitType
+    @Published private(set) var viewState: ViewState = .initial
 
     @Published var selectedMembers: [String] {
         didSet {
@@ -30,22 +38,29 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     }
 
     private var members: [String] = []
+    private var handleSplitTypeSelection: ((_ members: [String], _ percentages: [String: Double], _ shares: [String: Double], _ splitType: SplitType) -> Void)
 
-    var totalAmount: Double = 0
-    var onMemberSelection: (([String]) -> Void)
-
-    init(amount: Double, members: [String], selectedMembers: [String], onMemberSelection: @escaping (([String]) -> Void)) {
+    init(amount: Double, splitType: SplitType = .equally, splitData: [String: Double]? = nil, members: [String], selectedMembers: [String], handleSplitTypeSelection: @escaping ((_ members: [String], _ percentages: [String: Double], _ shares: [String: Double], _ splitType: SplitType) -> Void)) {
         self.totalAmount = amount
+        self.selectedTab = splitType
         self.members = members
         self.selectedMembers = selectedMembers
-        self.onMemberSelection = onMemberSelection
+        self.handleSplitTypeSelection = handleSplitTypeSelection
         super.init()
 
+        if splitType == .percentage {
+            percentages = splitData ?? [:]
+            totalPercentage = splitData?.values.reduce(0, +) ?? 0
+        } else if splitType == .shares {
+            shares = splitData ?? [:]
+            totalShares = splitData?.values.reduce(0, +) ?? 0
+        }
         fetchUsersData()
         splitAmount = totalAmount / Double(selectedMembers.count)
     }
 
-    func fetchUsersData() {
+    // MARK: - Data Loading
+    private func fetchUsersData() {
         var users: [AppUser] = []
         let queue = DispatchGroup()
 
@@ -72,8 +87,19 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    // MARK: - User Actions
     func checkIsMemberSelected(_ memberId: String) -> Bool {
         return selectedMembers.contains(memberId)
+    }
+
+    func updatePercentage(for memberId: String, percentage: Double) {
+        percentages[memberId] = percentage
+        totalPercentage = percentages.values.reduce(0, +)
+    }
+
+    func updateShare(for memberId: String, share: Double) {
+        shares[memberId] = share
+        totalShares = shares.values.reduce(0, +)
     }
 
     func handleAllBtnAction() {
@@ -86,18 +112,33 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
 
     func handleMemberSelection(_ memberId: String) {
         if selectedMembers.contains(memberId) {
-            if selectedMembers.count > 1 {
-                selectedMembers.removeAll(where: { $0 == memberId })
-            } else {
-                showToastFor(toast: ToastPrompt(type: .warning, title: "Warning", message: "You must select at least one person to split with."))
-            }
+            selectedMembers.removeAll(where: { $0 == memberId })
         } else {
             selectedMembers.append(memberId)
         }
     }
 
     func handleDoneAction(completion: @escaping () -> Void) {
-        onMemberSelection(selectedMembers)
+        if selectedTab == .equally && selectedMembers.count == 0 {
+            showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "You must select at least one person to split with."))
+            return
+        }
+
+        if selectedTab == .percentage && totalPercentage != 100 {
+            if totalPercentage < 100 {
+                showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "The shares do not add up to 100%. You are short by \(String(format: "%.0f", 100 - totalPercentage))%"))
+            } else if totalPercentage > 100 {
+                showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "The shares do not add up to 100%. You are over by \(String(format: "%.0f", totalPercentage - 100))%"))
+            }
+            return
+        }
+
+        if selectedTab == .shares && totalShares <= 0 {
+            showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "You must assign a non-zero share to at least one person."))
+            return
+        }
+
+        handleSplitTypeSelection(selectedMembers, percentages.filter({ $0.value != 0 }), shares.filter({ $0.value != 0 }), selectedTab)
         completion()
     }
 }

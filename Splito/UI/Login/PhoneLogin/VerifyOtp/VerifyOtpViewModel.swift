@@ -17,22 +17,25 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var showLoader: Bool = false
 
-    @Inject var mainRouter: Router<MainRoute>
     @Inject var preference: SplitoPreference
     @Inject var userRepository: UserRepository
 
     var resendTimer: Timer?
     var phoneNumber: String
     var verificationId: String
+    var isFromPhoneLogin = false
 
-    private let router: Router<AppRoute>
+    private let router: Router<AppRoute>?
+    private var onLoginSuccess: ((String) -> Void)?
 
-    init(router: Router<AppRoute>, phoneNumber: String, verificationId: String) {
+    init(router: Router<AppRoute>? = nil, phoneNumber: String, verificationId: String, onLoginSuccess: ((String) -> Void)? = nil) {
         self.router = router
         self.phoneNumber = phoneNumber
         self.verificationId = verificationId
+        self.onLoginSuccess = onLoginSuccess
         super.init()
         runTimer()
+        isFromPhoneLogin = onLoginSuccess == nil
     }
 
     func verifyOTP() {
@@ -61,7 +64,7 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
                 if (error! as NSError).code == FirebaseAuth.AuthErrorCode.webContextCancelled.rawValue {
                     self.showAlertFor(message: "Something went wrong! Please try after some time.")
                 } else if (error! as NSError).code == FirebaseAuth.AuthErrorCode.tooManyRequests.rawValue {
-                    self.showAlertFor(title: "Warning !!!", message: "Too many attempts, please try after some time")
+                    self.showAlertFor(title: "Warning !!!", message: "Too many attempts, please try after some time.")
                 } else if (error! as NSError).code == FirebaseAuth.AuthErrorCode.missingPhoneNumber.rawValue || (error! as NSError).code == FirebaseAuth.AuthErrorCode.invalidPhoneNumber.rawValue {
                     self.showAlertFor(message: "Enter a valid phone number")
                 } else {
@@ -109,16 +112,19 @@ extension VerifyOtpViewModel {
             } receiveValue: { [weak self] user in
                 guard let self else { return }
                 self.preference.user = user
-                self.onLoginSuccess()
+                self.onVerificationSuccess()
             }.store(in: &cancelable)
     }
 
     func editButtonAction() {
-        router.pop()
+        router?.pop()
     }
 
-    private func onLoginSuccess() {
-        router.popToRoot()
-        mainRouter.updateRoot(root: .HomeView)
+    private func onVerificationSuccess() {
+        if onLoginSuccess == nil {
+            router?.popToRoot()
+        } else {
+            onLoginSuccess?(otp)
+        }
     }
 }

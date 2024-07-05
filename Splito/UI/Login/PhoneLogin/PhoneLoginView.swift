@@ -11,7 +11,7 @@ import BaseStyle
 
 public struct PhoneLoginView: View {
 
-    @ObservedObject var viewModel: PhoneLoginViewModel
+    @StateObject var viewModel: PhoneLoginViewModel
 
     public var body: some View {
         ScrollView {
@@ -136,6 +136,7 @@ private struct PhoneLoginCountryPicker: View {
     @Binding var isPresented: Bool
 
     @State private var searchCountry: String = ""
+    @FocusState private var isFocused: Bool
 
     private var filteredCountries: [Country] {
         countries.filter { country in
@@ -150,7 +151,8 @@ private struct PhoneLoginCountryPicker: View {
                 .font(.headline)
                 .padding(.top, 24)
 
-            SearchBar(text: $searchCountry, placeholder: "Search")
+            SearchBar(text: $searchCountry, isFocused: $isFocused, placeholder: "Search")
+                .focused($isFocused)
 
             List(filteredCountries) { country in
                 PhoneLoginCountryCell(country: country) {

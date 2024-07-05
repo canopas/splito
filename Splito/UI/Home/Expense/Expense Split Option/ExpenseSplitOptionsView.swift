@@ -11,7 +11,7 @@ import BaseStyle
 
 struct ExpenseSplitOptionsView: View {
 
-    @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
+    @StateObject var viewModel: ExpenseSplitOptionsViewModel
 
     @Environment(\.dismiss) var dismiss
 
@@ -27,31 +27,23 @@ struct ExpenseSplitOptionsView: View {
                                 .frame(height: 1)
                                 .background(outlineColor.opacity(0.4))
 
-                            VStack(spacing: 8) {
-                                Text("Split equally")
-                                    .font(.Header4())
-
-                                Text("Select which people owe an equal share.")
-                                    .font(.body1())
+                            switch viewModel.selectedTab {
+                            case .equally:
+                                SplitOptionsTopView(title: "Split equally", subtitle: "Select which people owe an equal share.")
+                            case .percentage:
+                                SplitOptionsTopView(title: "Split by percentages", subtitle: "Enter the percentage split that's fair for your situation.")
+                            case .shares:
+                                SplitOptionsTopView(title: "Split by share", subtitle: "Great for time-based splitting (2 nights -> 2 shares) and splitting across families (family of 3 -> 3 shares).")
                             }
-                            .padding(.horizontal, 20)
-                            .foregroundStyle(primaryText)
 
-                            VStack(spacing: 12) {
-                                ForEach(viewModel.groupMembers, id: \.self) { member in
-                                    ExpenseMemberCellView(member: member, isSelected: viewModel.checkIsMemberSelected(member.id)) {
-                                        viewModel.handleMemberSelection(member.id)
-                                    }
-                                }
-                            }
+                            ExpenseSplitOptionsTabView(viewModel: viewModel)
 
                             VSpacer(80)
                         }
                     }
                     .scrollIndicators(.hidden)
 
-                    ExpenseSplitAmountView(memberCount: viewModel.selectedMembers.count, splitAmount: viewModel.splitAmount,
-                                           isAllSelected: viewModel.isAllSelected, onAllBtnTap: viewModel.handleAllBtnAction)
+                    SplitOptionsBottomView(viewModel: viewModel)
                 }
             }
         }
@@ -78,52 +70,49 @@ struct ExpenseSplitOptionsView: View {
     }
 }
 
-private struct ExpenseMemberCellView: View {
+private struct SplitOptionsTopView: View {
 
-    var member: AppUser
-    var isSelected: Bool
-
-    var onTap: () -> Void
+    let title: String
+    let subtitle: String
 
     var body: some View {
-        VStack(spacing: 12) {
-            HStack(alignment: .center, spacing: 20) {
-                MemberProfileImageView(imageUrl: member.imageUrl)
+        VStack(spacing: 8) {
+            Text(title.localized)
+                .font(.subTitle1())
+                .foregroundStyle(primaryText)
 
-                Text(member.fullName)
-                    .font(.subTitle1())
-                    .foregroundStyle(primaryText)
-
-                Spacer()
-
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .resizable()
-                        .frame(width: 26, height: 26)
-                        .foregroundStyle(successColor)
-                } else {
-                    Circle()
-                        .strokeBorder(outlineColor.opacity(0.3), lineWidth: 1)
-                        .frame(width: 26, height: 26)
-                }
-            }
-            .padding(.horizontal, 16)
-
-            Divider()
-                .frame(height: 1)
-                .background(outlineColor.opacity(0.3))
+            Text(subtitle.localized)
+                .font(.body1())
+                .foregroundStyle(secondaryText)
         }
-        .onTouchGesture {
-            onTap()
+        .padding(.horizontal, 20)
+        .multilineTextAlignment(.center)
+    }
+}
+
+private struct SplitOptionsBottomView: View {
+
+    @ObservedObject var viewModel: ExpenseSplitOptionsViewModel
+
+    var body: some View {
+        switch viewModel.selectedTab {
+        case .equally:
+            ExpenseSplitAmountView(memberCount: viewModel.selectedMembers.count, splitAmount: viewModel.splitAmount,
+                                   isAllSelected: viewModel.isAllSelected, onAllBtnTap: viewModel.handleAllBtnAction)
+        case .percentage:
+            BottomInfoCardView(title: "\(String(format: "%.0f", viewModel.totalPercentage))% of 100%",
+                               value: "\(String(format: "%.0f", 100 - viewModel.totalPercentage))% left")
+        case .shares:
+            BottomInfoCardView(title: "\(String(format: "%.0f", viewModel.totalShares)) total shares")
         }
     }
 }
 
 private struct ExpenseSplitAmountView: View {
 
-    var memberCount: Int
-    var splitAmount: Double
-    var isAllSelected: Bool
+    let memberCount: Int
+    let splitAmount: Double
+    let isAllSelected: Bool
 
     let onAllBtnTap: () -> Void
 
@@ -135,12 +124,19 @@ private struct ExpenseSplitAmountView: View {
                 Spacer()
 
                 VStack(alignment: .center) {
-                    Text("\(splitAmount.formattedCurrency)/person")
-                        .font(.Header3())
-                        .foregroundStyle(primaryText)
-                    Text("(\(memberCount) people)")
-                        .font(.body1())
-                        .foregroundStyle(secondaryText)
+                    if memberCount == 0 {
+                        Text("You must select at least one person to split with.")
+                            .font(.body2())
+                            .foregroundStyle(awarenessColor)
+                            .multilineTextAlignment(.center)
+                    } else {
+                        Text("\(splitAmount.formattedCurrency)/person")
+                            .font(.Header3())
+                            .foregroundStyle(primaryText)
+                        Text("(\(memberCount) people)")
+                            .font(.body1())
+                            .foregroundStyle(secondaryText)
+                    }
                 }
                 .padding(20)
 
@@ -176,6 +172,40 @@ private struct ExpenseSplitAmountView: View {
     }
 }
 
+private struct BottomInfoCardView: View {
+
+    let title: String
+    var value: String?
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            HStack(alignment: .center) {
+                Spacer()
+
+                VStack(alignment: .center, spacing: 4) {
+                    Text(title.localized)
+                        .font(.Header3())
+                        .foregroundColor(primaryText)
+
+                    if value != nil {
+                        Text(value!.localized)
+                            .font(.body1())
+                            .foregroundColor(secondaryText)
+                    }
+                }
+                .padding(20)
+
+                Spacer()
+            }
+            .frame(height: 80)
+            .background(backgroundColor)
+            .shadow(color: primaryText.opacity(0.1), radius: 5, x: 0, y: -5)
+        }
+    }
+}
+
 #Preview {
-    ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: 0, members: [], selectedMembers: [], onMemberSelection: { _ in }))
+    ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: 0, members: [], selectedMembers: [], handleSplitTypeSelection: { _, _, _, _   in }))
 }

@@ -11,7 +11,7 @@ import Data
 
 struct ExpenseDetailsView: View {
 
-    @ObservedObject var viewModel: ExpenseDetailsViewModel
+    @StateObject var viewModel: ExpenseDetailsViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -45,6 +45,11 @@ struct ExpenseDetailsView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationBarTitle("Details", displayMode: .inline)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .fullScreenCover(isPresented: $viewModel.showEditExpenseSheet) {
+            NavigationStack {
+                AddExpenseView(viewModel: AddExpenseViewModel(router: viewModel.router, expenseId: viewModel.expenseId))
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -66,6 +71,9 @@ struct ExpenseDetailsView: View {
                 }
                 .foregroundStyle(primaryColor)
             }
+        }
+        .onAppear {
+            viewModel.fetchExpense()
         }
     }
 }
@@ -96,7 +104,7 @@ private struct ExpenseHeaderView: View {
                 .padding(.top, 6)
         }
         .lineLimit(1)
-        .padding(.horizontal, 40)
+        .padding(.horizontal, 30)
     }
 }
 
@@ -106,13 +114,6 @@ private struct ExpenseInfoView: View {
 
     var expense: Expense? {
         viewModel.expense
-    }
-
-    var splitAmount: String {
-        let totalAmount = expense?.amount ?? 0
-        let splitTo = expense?.splitTo.count ?? 1
-        let finalAmount = totalAmount / Double(splitTo)
-        return finalAmount.formattedCurrency
     }
 
     var userName: String {
@@ -128,7 +129,7 @@ private struct ExpenseInfoView: View {
             MemberProfileImageView(imageUrl: userImageUrl, height: mainImageHeight)
 
             VStack(alignment: .leading, spacing: 0) {
-                Text("\(userName) paid \(expense?.formattedAmount ?? "nothing")")
+                Text("\(userName.localized) paid \(expense?.formattedAmount ?? "nothing")")
                     .font(.body1(18))
                     .frame(height: mainImageHeight)
 
@@ -143,9 +144,12 @@ private struct ExpenseInfoView: View {
                                 var owes: String {
                                     return viewModel.preference.user?.id == member.id ? "owe" : "owes"
                                 }
+
                                 HStack(spacing: 10) {
                                     MemberProfileImageView(imageUrl: member.imageUrl, height: subImageHeight)
-                                    Text("\(memberName) \(owes) \(splitAmount)")
+
+                                    let splitAmount = viewModel.getSplitAmount(for: member.id)
+                                    Text("\(memberName.localized) \(owes) \(splitAmount)")
                                 }
                             }
                         }
@@ -161,29 +165,4 @@ private struct ExpenseInfoView: View {
 
 #Preview {
     ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: .init(root: .ExpenseDetailView(expenseId: "")), expenseId: ""))
-}
-
-struct ConnectionLineView: View {
-    let fromPoint: CGPoint
-    let toPoint: CGPoint
-    let color: Color
-
-    var body: some View {
-        Path { path in
-            path.move(to: fromPoint)
-            path.addLine(to: toPoint)
-        }
-        .stroke(color, lineWidth: 2)
-    }
-}
-
-struct LabelView: View {
-    let text: String
-    let color: Color
-
-    var body: some View {
-        Text(text)
-            .font(.caption)
-            .foregroundColor(color)
-    }
 }

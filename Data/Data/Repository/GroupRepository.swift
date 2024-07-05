@@ -6,6 +6,7 @@
 //
 
 import Combine
+import SwiftUI
 
 public class GroupRepository: ObservableObject {
 
@@ -14,6 +15,8 @@ public class GroupRepository: ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
     @Inject private var storageManager: StorageManager
+    @Inject private var expenseRepository: ExpenseRepository
+    @Inject private var transactionRepository: TransactionRepository
 
     private var cancelable = Set<AnyCancellable>()
 
@@ -81,21 +84,12 @@ public class GroupRepository: ObservableObject {
         store.fetchGroupBy(id: id)
     }
 
-    public func fetchGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
-        Future { [weak self] promise in
-            guard let self else { return }
+    public func fetchLatestGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
+        store.fetchLatestGroups(userId: userId)
+    }
 
-            self.store.fetchGroups()
-                .sink { completion in
-                    if case .failure(let error) = completion {
-                        promise(.failure(error))
-                    }
-                } receiveValue: { groups in
-                    // Show only those groups in which the user is part of
-                    let filteredGroups = groups.filter { $0.createdBy == userId || $0.members.contains { $0 == userId } }
-                    promise(.success(filteredGroups))
-                }.store(in: &self.cancelable)
-        }.eraseToAnyPublisher()
+    public func fetchGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
+        store.fetchGroups(userId: userId)
     }
 
     public func addMemberToGroup(memberId: String, groupId: String) -> AnyPublisher<Void, ServiceError> {
@@ -149,6 +143,12 @@ public class GroupRepository: ObservableObject {
     }
 
     public func deleteGroup(groupID: String) -> AnyPublisher<Void, ServiceError> {
-        store.deleteGroup(groupID: groupID)
+        return expenseRepository.deleteExpensesOf(groupId: groupID)
+            .flatMap { _ in
+                self.transactionRepository.deleteTransactionsOf(groupId: groupID)
+            }
+            .flatMap { _ in
+                self.store.deleteGroup(groupID: groupID)
+            }.eraseToAnyPublisher()
     }
 }

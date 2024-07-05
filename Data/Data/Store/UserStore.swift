@@ -10,7 +10,7 @@ import FirebaseFirestore
 
 class UserStore: ObservableObject {
 
-    private let DATABASE_NAME: String = "users"
+    private let COLLECTION_NAME: String = "users"
 
     @Inject private var database: Firestore
 
@@ -22,11 +22,11 @@ class UserStore: ObservableObject {
             }
 
             do {
-                try self.database.collection(self.DATABASE_NAME).document(user.id).setData(from: user)
+                try self.database.collection(self.COLLECTION_NAME).document(user.id).setData(from: user)
                 promise(.success(()))
             } catch {
                 LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError))
+                promise(.failure(.databaseError(error: error.localizedDescription)))
             }
         }.eraseToAnyPublisher()
     }
@@ -39,11 +39,11 @@ class UserStore: ObservableObject {
             }
 
             do {
-                try self.database.collection(self.DATABASE_NAME).document(user.id).setData(from: user, merge: true)
+                try self.database.collection(self.COLLECTION_NAME).document(user.id).setData(from: user, merge: true)
                 promise(.success(user))
             } catch {
                 LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError))
+                promise(.failure(.databaseError(error: error.localizedDescription)))
             }
         }.eraseToAnyPublisher()
     }
@@ -55,10 +55,10 @@ class UserStore: ObservableObject {
                 return
             }
 
-            self.database.collection(self.DATABASE_NAME).getDocuments { snapshot, error in
+            self.database.collection(self.COLLECTION_NAME).getDocuments { snapshot, error in
                 if let error {
                     LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError))
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
                     return
                 }
 
@@ -81,21 +81,23 @@ class UserStore: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    func deleteUser(id: String) -> AnyPublisher<Void, ServiceError> {
+    func deactivateUserAfterDelete(userId: String) -> AnyPublisher<Void, ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return
             }
 
-            self.database.collection(self.DATABASE_NAME).document(id).delete { error in
-                if let error {
-                    LogE("UserStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
-                    promise(.failure(.databaseError))
-                } else {
-                    promise(.success(())) // Success if deletion is completed without error
+            self.database.collection(self.COLLECTION_NAME)
+                .document(userId)
+                .updateData(["is_active": false]) { error in
+                    if let error {
+                        LogE("UserStore :: \(#function): Deleting user from Auth failed with error: \(error.localizedDescription).")
+                        promise(.failure(.deleteFailed(error: error.localizedDescription)))
+                    } else {
+                        promise(.success(()))
+                    }
                 }
-            }
         }.eraseToAnyPublisher()
     }
 }

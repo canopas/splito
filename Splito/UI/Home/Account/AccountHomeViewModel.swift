@@ -11,14 +11,14 @@ import BaseStyle
 
 class AccountHomeViewModel: BaseViewModel, ObservableObject {
 
-    @Inject private var mainRouter: Router<MainRoute>
-    @Inject private var preference: SplitoPreference
+    @Inject var preference: SplitoPreference
     @Inject private var ddLoggerProvider: DDLoggerProvider
 
     @Published var currentState: ViewState = .initial
 
     @Published var logFilePath: URL?
     @Published var showShareSheet = false
+    @Published var showShareAppSheet = false
     @Published var showMailToast = false
 
     private let router: Router<AppRoute>
@@ -50,7 +50,33 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     func onRateAppTap() {
+        let urlStr = Constants.rateAppURL // Open App Review Page
+        guard let url = URL(string: urlStr), UIApplication.shared.canOpenURL(url) else { return }
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+    }
 
+    func onShareAppTap() {
+        showShareAppSheet = true
+    }
+
+    func handlePrivacyOptionTap() {
+        if let url = URL(string: Constants.privacyPolicyURL) {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:])
+            } else {
+                showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Privacy policy cannot be accessed."))
+            }
+        }
+    }
+
+    func handleAcknowledgementsOptionTap() {
+        if let url = URL(string: Constants.acknowledgementsURL) {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:])
+            } else {
+                showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Acknowledgements cannot be accessed."))
+            }
+        }
     }
 
     func handleLogoutBtnTap() {
@@ -67,16 +93,11 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
             currentState = .loading
             try FirebaseProvider.auth.signOut()
             preference.clearPreferenceSession()
-            goToLoginScreen()
         } catch let signOutError as NSError {
             currentState = .initial
             showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Something went wrong."))
             LogE("AccountHomeViewModel: Error signing out: \(signOutError)")
         }
-    }
-
-    private func goToLoginScreen() {
-        mainRouter.updateRoot(root: .OnboardView)
     }
 }
 

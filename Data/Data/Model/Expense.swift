@@ -19,6 +19,7 @@ public struct Expense: Codable, Hashable {
     public var splitTo: [String] // Reference to user ids involved in the split
     public let groupId: String
     public var splitType: SplitType
+    public var splitData: [String: Double]? // Use this to store percentage or share data
 
     // Calculated properties for better UI representation
     public var formattedAmount: String {
@@ -26,7 +27,7 @@ public struct Expense: Codable, Hashable {
     }
 
     public init(name: String, amount: Double, date: Timestamp, paidBy: String, addedBy: String,
-                splitTo: [String], groupId: String, splitType: SplitType = .equally) {
+                splitTo: [String], groupId: String, splitType: SplitType = .equally, splitData: [String: Double]? = [:]) {
         self.name = name
         self.amount = amount
         self.date = date
@@ -35,6 +36,7 @@ public struct Expense: Codable, Hashable {
         self.splitTo = splitTo
         self.groupId = groupId
         self.splitType = splitType
+        self.splitData = splitData
     }
 
     enum CodingKeys: String, CodingKey {
@@ -47,11 +49,23 @@ public struct Expense: Codable, Hashable {
         case splitTo = "split_to"
         case groupId = "group_id"
         case splitType = "split_type"
+        case splitData = "split_data"
     }
 }
 
-public enum SplitType: String, Codable {
-    case equally = "equally"
-    case percentage = "Percentage"
-    case fixedAmount = "Fixed Amount"
+public enum SplitType: String, Codable, CaseIterable {
+    case equally
+    case percentage
+    case shares
+
+    public var image: String {
+        switch self {
+        case .equally:
+            return "equal"
+        case .percentage:
+            return "percent"
+        case .shares:
+            return "blinds.vertical.open"
+        }
+    }
 }

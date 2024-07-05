@@ -17,45 +17,43 @@ struct OnboardView: View {
         OnboardItem(image: .payBack, title: "Pay Back", description: "Settle up and pay back your friends any time.")
     ]
 
-    @ObservedObject var viewModel: OnboardViewModel
+    @StateObject var viewModel: OnboardViewModel
 
     public var body: some View {
         VStack(alignment: .center, spacing: 0) {
-            if case .loading = viewModel.currentState {
-                LoaderView()
-            } else {
-                GeometryReader { proxy in
-                    TabView(selection: $viewModel.currentPageIndex) {
-                        ForEach(0..<onboardItems.count, id: \.self) { index in
-                            OnboardPageView(index: index, items: onboardItems, proxy: proxy, onStartBtnTap: viewModel.loginAnonymous)
-                        }
+            GeometryReader { proxy in
+                TabView(selection: $viewModel.currentPageIndex) {
+                    ForEach(0..<onboardItems.count, id: \.self) { index in
+                        OnboardPageView(index: index, items: onboardItems, proxy: proxy,
+                                        onStartBtnTap: viewModel.handleGetStartedAction)
                     }
-                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 }
-
-                Spacer()
-
-                ZStack(alignment: .center) {
-                    PageControl(numberOfPages: onboardItems.count, currentIndex: $viewModel.currentPageIndex)
-                        .frame(height: 10)
-                        .padding(.horizontal, 16)
-
-                    HStack {
-                        Spacer()
-                        Button("Next") {
-                            withAnimation {
-                                viewModel.currentPageIndex += 1
-                            }
-                        }
-                        .fontWeight(.bold)
-                        .foregroundStyle(primaryText)
-                    }
-                    .padding(.horizontal, 30)
-                    .opacity(viewModel.currentPageIndex == (onboardItems.count - 1) ? 0 : 1)
-                }
-
-                VSpacer(30)
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             }
+
+            Spacer()
+
+            ZStack(alignment: .center) {
+                PageControl(numberOfPages: onboardItems.count, currentIndex: $viewModel.currentPageIndex)
+                    .frame(height: 10)
+                    .padding(.horizontal, 16)
+
+                HStack {
+                    Spacer()
+                    Button("Next") {
+                        withAnimation {
+                            viewModel.currentPageIndex += 1
+                        }
+                    }
+                    .fontWeight(.bold)
+                    .foregroundStyle(primaryText)
+                }
+                .padding(.horizontal, 30)
+                .opacity(viewModel.currentPageIndex == (onboardItems.count - 1) ? 0 : 1)
+            }
+
+            VSpacer(30)
+
         }
         .frame(maxWidth: .infinity, alignment: .center)
     }
@@ -82,12 +80,12 @@ struct OnboardPageView: View {
 
                 VSpacer(20)
 
-                Text(items[index].title)
+                Text(items[index].title.localized)
                     .font(.largeTitle)
                     .fontWeight(.heavy)
                     .foregroundStyle(primaryColor)
 
-                Text(items[index].description)
+                Text(items[index].description.localized)
                     .font(.title3)
                     .foregroundStyle(secondaryText)
                     .multilineTextAlignment(.center)
@@ -95,7 +93,7 @@ struct OnboardPageView: View {
 
                 VSpacer(70)
 
-                PrimaryButton(text: "Get Started", showLoader: false) {
+                PrimaryButton(text: "Get Started") {
                     onStartBtnTap()
                 }
                 .opacity(index == (items.count - 1) ? 1 : 0)

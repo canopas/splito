@@ -6,6 +6,8 @@
 //
 
 import Combine
+import SwiftUI
+import FirebaseAuth
 
 public class UserRepository: ObservableObject {
 
@@ -17,7 +19,7 @@ public class UserRepository: ObservableObject {
     private var cancelable = Set<AnyCancellable>()
 
     public func storeUser(user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
-        self.store.fetchUsers()
+        store.fetchUsers()
             .flatMap { [weak self] users -> AnyPublisher<AppUser, ServiceError> in
                 guard let self else {
                     return Fail(error: .unexpectedError).eraseToAnyPublisher()
@@ -29,7 +31,7 @@ public class UserRepository: ObservableObject {
                     return self.store.addUser(user: user)
                         .mapError { error in
                             LogE("UserRepository :: \(#function) addUser failed, error: \(error.localizedDescription).")
-                            return .databaseError
+                            return .databaseError(error: error.localizedDescription)
                         }
                         .map { _ in user }
                         .eraseToAnyPublisher()
@@ -39,13 +41,13 @@ public class UserRepository: ObservableObject {
     }
 
     public func fetchUserBy(userID: String) -> AnyPublisher<AppUser?, ServiceError> {
-        self.store.fetchUsers()
+        store.fetchUsers()
             .map { users -> AppUser? in
                 return users.first(where: { $0.id == userID })
             }
             .mapError { error -> ServiceError in
                 LogE("UserRepository :: \(#function) fetchUserByID failed, error: \(error.localizedDescription).")
-                return .databaseError
+                return .databaseError(error: error.localizedDescription)
             }
             .eraseToAnyPublisher()
     }
@@ -89,6 +91,27 @@ public class UserRepository: ObservableObject {
     }
 
     public func deleteUser(id: String) -> AnyPublisher<Void, ServiceError> {
-        store.deleteUser(id: id)
+        self.store.deactivateUserAfterDelete(userId: id)
+            .flatMap { [weak self] _ -> AnyPublisher<Void, ServiceError> in
+                guard let self else {
+                    return Fail(error: .unexpectedError).eraseToAnyPublisher()
+                }
+                return deleteUserFromAuth()
+            }
+            .eraseToAnyPublisher()
+    }
+
+    private func deleteUserFromAuth() -> AnyPublisher<Void, ServiceError> {
+        Future { promise in
+            FirebaseProvider.auth.currentUser?.delete { error in
+                if let error {
+                    LogE("UserRepository :: \(#function): Deleting user from Auth failed with error: \(error.localizedDescription).")
+                    promise(.failure(.deleteFailed(error: error.localizedDescription)))
+                } else {
+                    promise(.success(()))
+                }
+            }
+        }
+        .eraseToAnyPublisher()
     }
 }

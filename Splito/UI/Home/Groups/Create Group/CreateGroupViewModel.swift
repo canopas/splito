@@ -14,13 +14,6 @@ import FirebaseFirestoreInternal
 
 class CreateGroupViewModel: BaseViewModel, ObservableObject {
 
-    enum GroupType: String, CaseIterable {
-        case trip = "Trip"
-        case home = "Home"
-        case couple = "Couple"
-        case other = "Other"
-    }
-
     @Inject var preference: SplitoPreference
     @Inject var storageManager: StorageManager
     @Inject var groupRepository: GroupRepository
@@ -100,7 +93,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     private func createGroup() {
         currentState = .loading
         let userId = preference.user?.id ?? ""
-        let group = Groups(name: groupName.capitalized, createdBy: userId, members: [userId], imageUrl: nil, createdAt: Timestamp())
+        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing).capitalized, createdBy: userId, members: [userId], imageUrl: nil, createdAt: Timestamp())
 
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)

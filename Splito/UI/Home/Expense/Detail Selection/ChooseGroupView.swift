@@ -12,7 +12,7 @@ import Kingfisher
 
 struct ChooseGroupView: View {
 
-    @ObservedObject var viewModel: ChooseGroupViewModel
+    @StateObject var viewModel: ChooseGroupViewModel
 
     @Environment(\.dismiss) var dismiss
 
@@ -61,11 +61,23 @@ struct ChooseGroupView: View {
 private struct NoGroupFoundView: View {
 
     var body: some View {
-        VStack {
+        VStack(spacing: 12) {
+            Spacer()
+
             Text("You are not part of any group.")
-                .font(.subTitle1())
+                .font(.Header1(22))
                 .foregroundStyle(primaryColor)
+                .multilineTextAlignment(.center)
+
+            Text("Groups help you stay organized by tracking and splitting expenses for various activities.")
+                .font(.subTitle3(15))
+                .foregroundStyle(secondaryText)
+                .multilineTextAlignment(.center)
+                .lineSpacing(5)
+
+            Spacer()
         }
+        .padding(.horizontal, 22)
     }
 }
 

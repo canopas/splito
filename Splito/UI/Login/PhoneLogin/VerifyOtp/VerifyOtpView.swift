@@ -10,9 +10,7 @@ import BaseStyle
 
 public struct VerifyOtpView: View {
 
-    @ObservedObject var viewModel: VerifyOtpViewModel
-
-    @State var selectedField: Int = 0
+    @StateObject var viewModel: VerifyOtpViewModel
 
     public var body: some View {
         ScrollView {
@@ -41,12 +39,14 @@ public struct VerifyOtpView: View {
                             .font(.subTitle2())
                             .foregroundStyle(primaryText)
 
-                        Button(action: viewModel.editButtonAction, label: {
-                            Image(.editPencil)
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 24, height: 24, alignment: .center)
-                        })
+                        if viewModel.isFromPhoneLogin {
+                            Button(action: viewModel.editButtonAction, label: {
+                                Image(.editPencil)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 24, height: 24, alignment: .center)
+                            })
+                        }
                     }
                 }
                 .padding(.horizontal, 40)
@@ -55,17 +55,15 @@ public struct VerifyOtpView: View {
 
                 HStack(spacing: 0) {
                     Spacer()
-
-                    PhoneLoginOtpView(otp: $viewModel.otp, resendOtpCount: $viewModel.resendOtpCount,
-                                      selectedField: $selectedField, showLoader: viewModel.showLoader,
+                    PhoneLoginOtpView(otp: $viewModel.otp,
+                                      resendOtpCount: $viewModel.resendOtpCount,
+                                      showLoader: viewModel.showLoader,
                                       onVerify: {
-                                         viewModel.verifyOTP()
-                                         selectedField = 0
-                                         UIApplication.shared.endEditing()
+                                            viewModel.verifyOTP()
+                                            UIApplication.shared.endEditing()
                                       },
                                       onResendOtp: viewModel.resendOtp)
                     .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-
                     Spacer()
                 }
                 Spacer()
@@ -76,7 +74,6 @@ public struct VerifyOtpView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toastView(toast: $viewModel.toast)
         .onTapGesture {
-            selectedField = 0
             UIApplication.shared.endEditing()
         }
         .onDisappear {
@@ -89,35 +86,16 @@ private struct PhoneLoginOtpView: View {
 
     @Binding var otp: String
     @Binding var resendOtpCount: Int
-    @Binding var selectedField: Int
     let showLoader: Bool
 
     let onVerify: () -> Void
     let onResendOtp: () -> Void
 
-    private let OTP_TOTAL_CHARACTERS = 6
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
-            VStack(alignment: .center, spacing: 0) {
-                CustomTextField(text: $otp, selectedField: $selectedField, placeholder: "Enter code", font: .inter(.medium, size: 34),
-                                placeholderFont: .inter(.medium, size: 16), tag: 1, isDisabled: showLoader, keyboardType: .numberPad,
-                                returnKey: .default, textAlignment: .center, characterLimit: 6, textContentType: .oneTimeCode)
-                .frame(height: 45, alignment: .center)
-                .background(Color.clear)
-
-                Divider()
-                    .background(outlineColor)
-                    .padding(.horizontal, 60)
-            }
-            .onAppear {
-                if otp.isEmpty {
-                    selectedField = 1
-                } else {
-                    selectedField = 0
-                    UIApplication.shared.endEditing()
-                }
-            }
+            OtpTextInputView(text: $otp, isFocused: $isFocused, onOtpVerify: onVerify)
 
             VSpacer(40)
 
@@ -148,12 +126,6 @@ private struct PhoneLoginOtpView: View {
             }
         }
         .padding(.horizontal, 16)
-        .onChange(of: otp) { _ in
-            if otp.count == OTP_TOTAL_CHARACTERS {
-                onVerify()
-                UIApplication.shared.endEditing()
-            }
-        }
     }
 }
 

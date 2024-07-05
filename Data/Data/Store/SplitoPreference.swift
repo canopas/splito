@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 public class SplitoPreference {
 
@@ -19,6 +20,7 @@ public class SplitoPreference {
 
     init() {
         self.userDefaults = UserDefaults.standard
+        self.isVerifiedUser = userDefaults.bool(forKey: Key.isVerifiedUser.rawValue)
     }
 
     public var isOnboardShown: Bool {
@@ -30,12 +32,9 @@ public class SplitoPreference {
         }
     }
 
-    public var isVerifiedUser: Bool {
-        get {
-            return userDefaults.bool(forKey: Key.isVerifiedUser.rawValue)
-        } set {
-            userDefaults.set(newValue, forKey: Key.isVerifiedUser.rawValue)
-            userDefaults.synchronize()
+    @Published public var isVerifiedUser: Bool {
+        didSet {
+            userDefaults.set(isVerifiedUser, forKey: Key.isVerifiedUser.rawValue)
         }
     }
 

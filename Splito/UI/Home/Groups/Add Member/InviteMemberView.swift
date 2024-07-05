@@ -10,7 +10,7 @@ import BaseStyle
 
 struct InviteMemberView: View {
 
-    @ObservedObject var viewModel: InviteMemberViewModel
+    @StateObject var viewModel: InviteMemberViewModel
 
     var body: some View {
         VStack(alignment: .center, spacing: 40) {

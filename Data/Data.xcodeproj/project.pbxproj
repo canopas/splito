@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		21D8D0832C0857F10061B365 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8D0822C0857F10061B365 /* Constants.swift */; };
 		64E499C5CFAEA368EC21313F /* Pods_DataTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */; };
 		7EF3A291581F7EA20CB1042D /* Pods_Data.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E91B3E23688435064A60C0C4 /* Pods_Data.framework */; };
 		D826C0DF2BDA95C900AAA449 /* Timestamp+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826C0DE2BDA95C900AAA449 /* Timestamp+Extension.swift */; };
@@ -14,6 +15,7 @@
 		D83B15092B999789004A5F4F /* GroupRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83B15082B999789004A5F4F /* GroupRepository.swift */; };
 		D85E86DE2BAB0292002EDF76 /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86DD2BAB0292002EDF76 /* Expense.swift */; };
 		D85E86E52BAB088F002EDF76 /* ExpenseRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86E42BAB088F002EDF76 /* ExpenseRepository.swift */; };
+		D8613F682BFDECC4008BD53D /* Query+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8613F672BFDECC4008BD53D /* Query+Extension.swift */; };
 		D865F8AE2BD7CB0B0084BD36 /* Array+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D865F8AD2BD7CB0B0084BD36 /* Array+Extension.swift */; };
 		D88721432B99F133009DC5BE /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721422B99F133009DC5BE /* StorageManager.swift */; };
 		D8910E382BB6D1D300877CE0 /* ExpenseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8910E372BB6D1D300877CE0 /* ExpenseStore.swift */; };
@@ -35,6 +37,9 @@
 		D8AC25BE2B7F359B00CEAAD3 /* FirebaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC25BD2B7F359B00CEAAD3 /* FirebaseProvider.swift */; };
 		D8AC25C12B7F38D300CEAAD3 /* Injector.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC25C02B7F38D300CEAAD3 /* Injector.swift */; };
 		D8AC25C32B7F390B00CEAAD3 /* AppAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AC25C22B7F390B00CEAAD3 /* AppAssembly.swift */; };
+		D8CF5A212C1986250014E3AD /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8CF5A202C1986250014E3AD /* Transaction.swift */; };
+		D8CF5A232C1989640014E3AD /* TransactionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8CF5A222C1989630014E3AD /* TransactionStore.swift */; };
+		D8CF5A252C199ADB0014E3AD /* TransactionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8CF5A242C199ADB0014E3AD /* TransactionRepository.swift */; };
 		D8D14A522BA0917D00F45FF2 /* SharedCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A512BA0917D00F45FF2 /* SharedCode.swift */; };
 		D8D14A542BA092F500F45FF2 /* ShareCodeRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A532BA092F400F45FF2 /* ShareCodeRepository.swift */; };
 		D8D42AA92B872726009B345D /* DDLogProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42AA82B872726009B345D /* DDLogProvider.swift */; };
@@ -55,6 +60,7 @@
 
 /* Begin PBXFileReference section */
 		1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DataTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		21D8D0822C0857F10061B365 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		5B14CF1A2EEF27479BF50566 /* Pods-DataTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DataTests.debug.xcconfig"; path = "Target Support Files/Pods-DataTests/Pods-DataTests.debug.xcconfig"; sourceTree = "<group>"; };
 		803094012FE4C155F2A347B6 /* Pods-DataTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DataTests.release.xcconfig"; path = "Target Support Files/Pods-DataTests/Pods-DataTests.release.xcconfig"; sourceTree = "<group>"; };
 		BED6C37AA3F8FD2A6350DE1C /* Pods-Data.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Data.debug.xcconfig"; path = "Target Support Files/Pods-Data/Pods-Data.debug.xcconfig"; sourceTree = "<group>"; };
@@ -63,6 +69,7 @@
 		D83B15082B999789004A5F4F /* GroupRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupRepository.swift; sourceTree = "<group>"; };
 		D85E86DD2BAB0292002EDF76 /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
 		D85E86E42BAB088F002EDF76 /* ExpenseRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseRepository.swift; sourceTree = "<group>"; };
+		D8613F672BFDECC4008BD53D /* Query+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Query+Extension.swift"; sourceTree = "<group>"; };
 		D865F8AD2BD7CB0B0084BD36 /* Array+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extension.swift"; sourceTree = "<group>"; };
 		D88721422B99F133009DC5BE /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 		D8910E372BB6D1D300877CE0 /* ExpenseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseStore.swift; sourceTree = "<group>"; };
@@ -84,6 +91,9 @@
 		D8AC25BD2B7F359B00CEAAD3 /* FirebaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseProvider.swift; sourceTree = "<group>"; };
 		D8AC25C02B7F38D300CEAAD3 /* Injector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Injector.swift; sourceTree = "<group>"; };
 		D8AC25C22B7F390B00CEAAD3 /* AppAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAssembly.swift; sourceTree = "<group>"; };
+		D8CF5A202C1986250014E3AD /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
+		D8CF5A222C1989630014E3AD /* TransactionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionStore.swift; sourceTree = "<group>"; };
+		D8CF5A242C199ADB0014E3AD /* TransactionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionRepository.swift; sourceTree = "<group>"; };
 		D8D14A512BA0917D00F45FF2 /* SharedCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedCode.swift; sourceTree = "<group>"; };
 		D8D14A532BA092F400F45FF2 /* ShareCodeRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCodeRepository.swift; sourceTree = "<group>"; };
 		D8D42A9E2B870BBA009B345D /* BaseStyle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BaseStyle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -145,6 +155,7 @@
 				D89DBE452B8CBE0F00E5F1BD /* UserRepository.swift */,
 				D83B15082B999789004A5F4F /* GroupRepository.swift */,
 				D85E86E42BAB088F002EDF76 /* ExpenseRepository.swift */,
+				D8CF5A242C199ADB0014E3AD /* TransactionRepository.swift */,
 				D8D14A532BA092F400F45FF2 /* ShareCodeRepository.swift */,
 			);
 			path = Repository;
@@ -157,6 +168,7 @@
 				D89DBE472B8CBE4C00E5F1BD /* AppUser.swift */,
 				D83B15042B9996C0004A5F4F /* Groups.swift */,
 				D85E86DD2BAB0292002EDF76 /* Expense.swift */,
+				D8CF5A202C1986250014E3AD /* Transaction.swift */,
 				D8D14A512BA0917D00F45FF2 /* SharedCode.swift */,
 			);
 			path = Model;
@@ -166,6 +178,7 @@
 			isa = PBXGroup;
 			children = (
 				D89DBE2A2B88817E00E5F1BD /* JSONUtils.swift */,
+				21D8D0822C0857F10061B365 /* Constants.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -195,6 +208,7 @@
 				D8A7CA7F2BA867F80014EC67 /* String+Extension.swift */,
 				D89C934D2BC694C200FACD16 /* Double+Extension.swift */,
 				D826C0DE2BDA95C900AAA449 /* Timestamp+Extension.swift */,
+				D8613F672BFDECC4008BD53D /* Query+Extension.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -206,6 +220,7 @@
 				D8A7CA742BA5AB670014EC67 /* UserStore.swift */,
 				D8A7CA762BA5AB800014EC67 /* GroupStore.swift */,
 				D8910E372BB6D1D300877CE0 /* ExpenseStore.swift */,
+				D8CF5A222C1989630014E3AD /* TransactionStore.swift */,
 				D8A7CA7A2BA5B6AC0014EC67 /* ShareCodeStore.swift */,
 			);
 			path = Store;
@@ -471,14 +486,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8CF5A232C1989640014E3AD /* TransactionStore.swift in Sources */,
 				D88721432B99F133009DC5BE /* StorageManager.swift in Sources */,
 				D89DBE4A2B8CBEAE00E5F1BD /* ServiceError.swift in Sources */,
+				D8613F682BFDECC4008BD53D /* Query+Extension.swift in Sources */,
 				D89DBE482B8CBE4C00E5F1BD /* AppUser.swift in Sources */,
 				D8D14A522BA0917D00F45FF2 /* SharedCode.swift in Sources */,
 				D89DBE462B8CBE0F00E5F1BD /* UserRepository.swift in Sources */,
 				D83B15052B9996C0004A5F4F /* Groups.swift in Sources */,
+				D8CF5A252C199ADB0014E3AD /* TransactionRepository.swift in Sources */,
 				D8AC25BB2B7F327A00CEAAD3 /* SplitoPreference.swift in Sources */,
 				D8AC25C32B7F390B00CEAAD3 /* AppAssembly.swift in Sources */,
+				21D8D0832C0857F10061B365 /* Constants.swift in Sources */,
 				D8AC25C12B7F38D300CEAAD3 /* Injector.swift in Sources */,
 				D8D14A542BA092F500F45FF2 /* ShareCodeRepository.swift in Sources */,
 				D8A7CA7B2BA5B6AC0014EC67 /* ShareCodeStore.swift in Sources */,
@@ -487,6 +506,7 @@
 				D8A7CA802BA867F80014EC67 /* String+Extension.swift in Sources */,
 				D89DBE282B88802800E5F1BD /* Country.swift in Sources */,
 				D8910E382BB6D1D300877CE0 /* ExpenseStore.swift in Sources */,
+				D8CF5A212C1986250014E3AD /* Transaction.swift in Sources */,
 				D89C934C2BC68D9000FACD16 /* Date+Extension.swift in Sources */,
 				D826C0DF2BDA95C900AAA449 /* Timestamp+Extension.swift in Sources */,
 				D83B15092B999789004A5F4F /* GroupRepository.swift in Sources */,

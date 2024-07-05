@@ -7,6 +7,7 @@
 
 import Data
 import Combine
+import SwiftUI
 
 class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
@@ -18,16 +19,17 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     @Published var expenseUsersData: [AppUser] = []
     @Published var viewState: ViewState = .initial
 
+    @Published var showEditExpenseSheet = false
+
     var expenseId: String
     let router: Router<AppRoute>
 
     init(router: Router<AppRoute>, expenseId: String) {
         self.router = router
         self.expenseId = expenseId
-        super.init()
-        self.fetchExpense()
     }
 
+    // MARK: - Data Loading
     func fetchExpense() {
         viewState = .loading
         expenseRepository.fetchExpenseBy(expenseId: expenseId)
@@ -75,12 +77,13 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
+    // MARK: - User Actions
     func getMemberDataBy(id: String) -> AppUser? {
         return expenseUsersData.first(where: { $0.id == id })
     }
 
     func handleEditBtnAction() {
-        router.push(.AddExpenseView(expenseId: expenseId))
+        showEditExpenseSheet = true
     }
 
     func handleDeleteBtnAction() {
@@ -105,6 +108,13 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 self?.viewState = .initial
                 self?.router.pop()
             }.store(in: &cancelable)
+    }
+
+    func getSplitAmount(for member: String) -> String {
+        guard let expense = expense else { return "" }
+
+        let finalAmount = calculateSplitAmount(member: member, expense: expense)
+        return finalAmount.formattedCurrency
     }
 }
 

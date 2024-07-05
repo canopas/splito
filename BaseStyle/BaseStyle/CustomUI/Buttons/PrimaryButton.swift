@@ -49,7 +49,7 @@ public struct PrimaryButton: View {
                         .onAppear(perform: loaderModel.onViewAppear)
                 }
 
-                Text(text)
+                Text(text.localized)
                     .foregroundStyle(textColor)
             }
             .frame(maxWidth: .infinity, alignment: .center)

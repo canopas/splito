@@ -6,6 +6,13 @@
 //
 
 import Foundation
+import SwiftUI
+
+public extension String {
+    var localized: String {
+        String(localized: String.LocalizationValue(self))
+    }
+}
 
 extension String {
     public var isValidEmail: Bool {
@@ -45,7 +52,6 @@ public extension String {
         guard let index = firstIndex(where: { !CharacterSet(charactersIn: String($0)).isSubset(of: characterSet) }) else {
             return self
         }
-
         return String(self[index...])
     }
 
@@ -53,7 +59,6 @@ public extension String {
         guard let index = lastIndex(where: { !CharacterSet(charactersIn: String($0)).isSubset(of: characterSet) }) else {
             return self
         }
-
         return String(self[...index])
     }
 

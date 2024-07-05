@@ -66,7 +66,7 @@ public struct CustomTextField: UIViewRepresentable {
         textField.delegate = context.coordinator
         textField.keyboardType = keyboardType
         textField.returnKeyType = returnKey
-        textField.placeholder = placeholder
+        textField.placeholder = placeholder.localized
         textField.tag = tag
         textField.textColor = UIColor(primaryText)
         textField.textAlignment = textAlignment

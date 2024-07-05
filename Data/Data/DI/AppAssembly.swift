@@ -15,10 +15,6 @@ public class AppAssembly: Assembly {
 
     public func assemble(container: Container) {
 
-        container.register(Router<MainRoute>.self) { _ in
-                .init(root: .OnboardView)
-        }.inObjectScope(.container)
-
         container.register(SplitoPreference.self) { _ in
             SplitoPreference.init()
         }.inObjectScope(.container)
@@ -53,6 +49,10 @@ public class AppAssembly: Assembly {
             ExpenseStore.init()
         }.inObjectScope(.container)
 
+        container.register(TransactionStore.self) { _ in
+            TransactionStore.init()
+        }.inObjectScope(.container)
+
         // MARK: - Repositories
 
         container.register(UserRepository.self) { _ in
@@ -69,6 +69,10 @@ public class AppAssembly: Assembly {
 
         container.register(ExpenseRepository.self) { _ in
             ExpenseRepository.init()
+        }.inObjectScope(.container)
+
+        container.register(TransactionRepository.self) { _ in
+            TransactionRepository.init()
         }.inObjectScope(.container)
     }
 }

@@ -7,25 +7,6 @@
 
 import Foundation
 
-public enum MainRoute: Hashable {
-
-    public static func == (lhs: MainRoute, rhs: MainRoute) -> Bool {
-        return lhs.key == rhs.key
-    }
-
-    case OnboardView
-    case HomeView
-
-    var key: String {
-        switch self {
-        case .OnboardView:
-            "onboard"
-        case .HomeView:
-            "home"
-        }
-    }
-}
-
 public enum AppRoute: Hashable {
 
     public static func == (lhs: AppRoute, rhs: AppRoute) -> Bool {
@@ -49,9 +30,15 @@ public enum AppRoute: Hashable {
     case InviteMemberView(groupId: String)
     case JoinMemberView
     case GroupSettingView(groupId: String)
+    case GroupSettleUpView(groupId: String)
+    case GroupWhoIsPayingView(groupId: String, isPaymentSettled: Bool)
+    case GroupWhoGettingPaidView(groupId: String, selectedMemberId: String)
+    case GroupPaymentView(transactionId: String?, groupId: String, payerId: String, receiverId: String, amount: Double)
+    case TransactionListView(groupId: String)
+    case TransactionDetailView(transactionId: String, groupId: String)
 
     // MARK: - Expense Button
-    case AddExpenseView(expenseId: String?)
+    case AddExpenseView(expenseId: String?, groupId: String?)
     case ExpenseDetailView(expenseId: String)
 
     // MARK: - Activity Tab
@@ -95,6 +82,18 @@ public enum AppRoute: Hashable {
             "joinMemberView"
         case .GroupSettingView:
             "groupSettingView"
+        case .GroupSettleUpView:
+            "groupSettleUpView"
+        case .GroupWhoIsPayingView:
+            "groupWhoIsPayingView"
+        case .GroupWhoGettingPaidView:
+            "groupWhoGettingPaidView"
+        case .GroupPaymentView:
+            "groupPaymentView"
+        case .TransactionListView:
+            "transactionListView"
+        case .TransactionDetailView:
+            "transactionDetailView"
 
         case .AddExpenseView:
             "addExpenseView"

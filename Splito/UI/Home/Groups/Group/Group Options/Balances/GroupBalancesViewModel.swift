@@ -10,9 +10,10 @@ import Foundation
 
 class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var preference: SplitoPreference
-    @Inject var groupRepository: GroupRepository
-    @Inject var expenseRepository: ExpenseRepository
+    @Inject private var preference: SplitoPreference
+    @Inject private var groupRepository: GroupRepository
+    @Inject private var expenseRepository: ExpenseRepository
+    @Inject private var transactionRepository: TransactionRepository
 
     @Published var viewState: ViewState = .initial
     @Published var memberBalances: [GroupMemberBalance] = []
@@ -20,14 +21,16 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
     private let groupId: String
     private var groupMemberData: [AppUser] = []
+    private var transactions: [Transactions] = []
 
     init(groupId: String) {
         self.groupId = groupId
         super.init()
-        fetchGroupMembers(groupId: groupId)
+        fetchGroupMembers()
     }
 
-    private func fetchGroupMembers(groupId: String) {
+    // MARK: - Data Loading
+    func fetchGroupMembers() {
         viewState = .loading
         groupRepository.fetchMembersBy(groupId: groupId)
             .sink { [weak self] completion in
@@ -50,8 +53,19 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
+                self.fetchTransactions()
                 self.fetchExpenses(group: group)
             }.store(in: &cancelable)
+    }
+
+    private func fetchTransactions() {
+        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
+            if case .failure(let error) = completion {
+                self?.showToastFor(error)
+            }
+        } receiveValue: { [weak self] transactions in
+            self?.transactions = transactions
+        }.store(in: &cancelable)
     }
 
     private func fetchExpenses(group: Groups) {
@@ -63,28 +77,26 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] expenses in
                 guard let self else { return }
-                if group.isDebtSimplified {
-                    calculateExpensesSimply(expenses: expenses)
-                } else {
-                    calculateExpenses(expenses: expenses)
-                }
+                calculateExpenses(expenses: expenses, isSimplify: group.isDebtSimplified)
             }.store(in: &cancelable)
     }
 
-    private func calculateExpenses(expenses: [Expense]) {
-        let groupMembers = Array(Set(expenses.flatMap { $0.splitTo + [$0.paidBy] }))
+    // MARK: - Helper Methods
+    private func calculateExpenses(expenses: [Expense], isSimplify: Bool) {
+        let groupMembers = Array(Set(groupMemberData.map { $0.id }))
         var memberBalances = groupMembers.map { GroupMemberBalance(id: $0) }
 
         for expense in expenses {
-            let splitAmount = expense.amount / Double(expense.splitTo.count)
+            let splitAmounts = calculateSplitAmount(expense: expense)
 
             if let paidByIndex = memberBalances.firstIndex(where: { $0.id == expense.paidBy }) {
                 memberBalances[paidByIndex].totalOwedAmount += expense.amount
 
-                for member in expense.splitTo {
+                for (member, splitAmount) in splitAmounts {
                     if let owedMemberIndex = memberBalances.firstIndex(where: { $0.id == member }) {
                         memberBalances[owedMemberIndex].totalOwedAmount -= splitAmount
-                        if member != expense.paidBy {
+
+                        if !isSimplify && member != expense.paidBy {
                             memberBalances[owedMemberIndex].balances[expense.paidBy, default: 0.0] -= splitAmount
                             memberBalances[paidByIndex].balances[member, default: 0.0] += splitAmount
                         }
@@ -93,33 +105,58 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             }
         }
 
-        DispatchQueue.main.async {
-            self.sortMemberBalances(memberBalances: memberBalances)
+        memberBalances = processTransactions(transactions: transactions, memberBalances: memberBalances, isSimplify: isSimplify)
+
+        DispatchQueue.main.async { [self] in
+            sortMemberBalances(memberBalances: isSimplify ? settleDebts(balances: memberBalances) : memberBalances)
         }
     }
 
-    private func calculateExpensesSimply(expenses: [Expense]) {
-        let groupMembers = Array(Set(expenses.flatMap { $0.splitTo + [$0.paidBy] }))
-        var memberBalances = groupMembers.map { GroupMemberBalance(id: $0) }
+    private func calculateSplitAmount(expense: Expense) -> [String: Double] {
+        var splitAmounts: [String: Double] = [:]
 
-        for expense in expenses {
+        switch expense.splitType {
+        case .equally:
             let splitAmount = expense.amount / Double(expense.splitTo.count)
-
-            if let paidByIndex = memberBalances.firstIndex(where: { $0.id == expense.paidBy }) {
-                memberBalances[paidByIndex].totalOwedAmount += expense.amount
-            }
-
             for member in expense.splitTo {
-                if let owedMemberIndex = memberBalances.firstIndex(where: { $0.id == member }) {
-                    memberBalances[owedMemberIndex].totalOwedAmount -= splitAmount
+                splitAmounts[member] = splitAmount
+            }
+        case .percentage:
+            if let splitData = expense.splitData {
+                let totalPercentage = splitData.values.reduce(0, +)
+                for (member, percentage) in splitData {
+                    splitAmounts[member] = expense.amount * (percentage / totalPercentage)
+                }
+            }
+        case .shares:
+            if let splitData = expense.splitData {
+                let totalShares = splitData.values.reduce(0, +)
+                for (member, shares) in splitData {
+                    splitAmounts[member] = expense.amount * (Double(shares) / Double(totalShares))
                 }
             }
         }
 
-        DispatchQueue.main.async {
-            let debts = self.settleDebts(balances: memberBalances)
-            self.sortMemberBalances(memberBalances: debts)
+        return splitAmounts
+    }
+
+    private func processTransactions(transactions: [Transactions], memberBalances: [GroupMemberBalance], isSimplify: Bool) -> [GroupMemberBalance] {
+        var memberBalances: [GroupMemberBalance] = memberBalances
+
+        for transaction in transactions {
+            if let payerIndex = memberBalances.firstIndex(where: { $0.id == transaction.payerId }),
+               let receiverIndex = memberBalances.firstIndex(where: { $0.id == transaction.receiverId }) {
+                memberBalances[payerIndex].totalOwedAmount += transaction.amount
+                memberBalances[receiverIndex].totalOwedAmount -= transaction.amount
+
+                if !(isSimplify) {
+                    memberBalances[payerIndex].balances[transaction.receiverId, default: 0.0] += transaction.amount
+                    memberBalances[receiverIndex].balances[transaction.payerId, default: 0.0] -= transaction.amount
+                }
+            }
         }
+
+        return memberBalances
     }
 
     private func settleDebts(balances: [GroupMemberBalance]) -> [GroupMemberBalance] {
@@ -196,6 +233,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         return needFullName ? member.fullName : member.nameWithLastInitial
     }
 
+    // MARK: - User Actions
     func handleBalanceExpandView(id: String) {
         if let index = memberBalances.firstIndex(where: { $0.id == id }) {
             memberBalances[index].isExpanded.toggle()

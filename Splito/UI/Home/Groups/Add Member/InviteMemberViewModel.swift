@@ -24,11 +24,9 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
         self.groupId = groupId
-
         super.init()
-
-        self.generateInviteCode()
-        self.fetchGroup()
+        fetchGroup()
+        generateInviteCode()
     }
 
     private func generateInviteCode() {
@@ -45,7 +43,7 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func fetchGroup() {
+    private func fetchGroup() {
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {

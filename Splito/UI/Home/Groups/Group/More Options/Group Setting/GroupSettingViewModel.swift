@@ -8,27 +8,24 @@
 import Data
 import Combine
 import BaseStyle
+import SwiftUI
 
 class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var preference: SplitoPreference
-    @Inject var groupRepository: GroupRepository
-    @Inject var expenseRepository: ExpenseRepository
+    @Inject private var preference: SplitoPreference
+    @Inject private var groupRepository: GroupRepository
+    @Inject private var expenseRepository: ExpenseRepository
+    @Inject private var transactionRepository: TransactionRepository
 
-    private let groupId: String
-    private let router: Router<AppRoute>
-    private var memberRemoveType: MemberRemoveType = .leave
-
-    @Published var isAdmin = false
+    @Published private(set) var isAdmin = false
     @Published var showLeaveGroupDialog = false
     @Published var showRemoveMemberDialog = false
 
-    @Published var groupTotalExpense = 0.0
-    @Published var amountOweByMember: [String: Double] = [:]
+    @Published private(set) var group: Groups?
+    @Published private(set) var members: [AppUser] = []
+    @Published private(set) var amountOweByMember: [String: Double] = [:]
 
-    @Published var group: Groups?
-    @Published var members: [AppUser] = []
-    @Published var currentViewState: ViewState = .loading
+    @Published private(set) var currentViewState: ViewState = .loading
 
     @Published var isDebtSimplified = false {
         didSet {
@@ -36,15 +33,18 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    private let groupId: String
+    private let router: Router<AppRoute>
+    private var transactions: [Transactions] = []
+    private var memberRemoveType: MemberRemoveType = .leave
+
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
         self.groupId = groupId
-        super.init()
-        fetchGroupDetails()
     }
 
     // MARK: - Data Loading
-    private func fetchGroupDetails() {
+    func fetchGroupDetails() {
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -68,6 +68,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] members in
                 guard let self else { return }
                 self.sortGroupMembers(members: members)
+                self.fetchTransactions()
                 self.fetchExpenses()
             }.store(in: &cancelable)
     }
@@ -93,6 +94,17 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         return needFullName ? member.fullName : member.nameWithLastInitial
     }
 
+    private func fetchTransactions() {
+        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
+            if case .failure(let error) = completion {
+                self?.handleServiceError(error)
+            }
+        } receiveValue: { [weak self] transactions in
+            guard let self else { return }
+            self.transactions = transactions
+        }.store(in: &cancelable)
+    }
+
     private func fetchExpenses() {
         expenseRepository.fetchExpensesBy(groupId: groupId)
             .sink { [weak self] completion in
@@ -101,16 +113,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] expenses in
                 guard let self else { return }
-
-                for expense in expenses {
-                    self.amountOweByMember[expense.paidBy, default: 0.0] += expense.amount
-
-                    let splitAmount = expense.amount / Double(expense.splitTo.count)
-                    for member in expense.splitTo {
-                        self.amountOweByMember[member, default: 0.0] -= splitAmount
-                    }
-                }
-
+                self.amountOweByMember = calculateTransactionsWithExpenses(expenses: expenses, transactions: transactions)
                 DispatchQueue.main.async {
                     self.currentViewState = .initial
                 }
@@ -142,6 +145,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - User Actions
 
+    func onRemoveAndLeaveFromGroupTap() {
+        showAlert = true
+    }
+
     func handleEditGroupTap() {
         router.push(.CreateGroupView(group: group))
     }
@@ -162,13 +169,13 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             showLeaveGroupDialog = true
             showLeaveGroupAlert(memberId: member.id)
         } else {
-            showRemoveMemberDialog = true
+            showRemoveMemberDialog = isAdmin
             showRemoveMemberAlert(memberId: member.id)
         }
     }
 
     private func showRemoveMemberAlert(memberId: String) {
-        guard amountOweByMember[memberId] == 0 else {
+        guard amountOweByMember[memberId] == 0 || amountOweByMember[memberId] == nil else {
             memberRemoveType = .remove
             showDebtOutstandingAlert(memberId: memberId)
             return
@@ -183,7 +190,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     private func showLeaveGroupAlert(memberId: String) {
-        guard amountOweByMember[memberId] == 0 else {
+        guard amountOweByMember[memberId] == 0 || amountOweByMember[memberId] == nil else {
             memberRemoveType = .leave
             showDebtOutstandingAlert(memberId: memberId)
             return
@@ -225,6 +232,11 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                     self.goBackToGroupList()
                 } else {
                     self.showAlert = false
+                    withAnimation {
+                        if let index = self.members.firstIndex(where: { $0.id == memberId }) {
+                            self.members.remove(at: index)
+                        }
+                    }
                     self.showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed"))
                 }
             }.store(in: &cancelable)
@@ -232,7 +244,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     func handleDeleteGroupTap() {
         alert = .init(title: "Delete Group",
-                      message: "Are you ABSOLUTELY sure you want to leave this group? This will remove the group for ALL users involved, not just yourself.",
+                      message: "Are you ABSOLUTELY sure you want to delete this group? This will remove this group for ALL users involved, not just yourself.",
                       positiveBtnTitle: "Delete",
                       positiveBtnAction: { self.deleteGroupWithMembers() },
                       negativeBtnTitle: "Cancel",

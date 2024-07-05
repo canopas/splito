@@ -7,11 +7,7 @@
 
 import Foundation
 
-public struct AppUser: Identifiable, Equatable, Codable, Hashable {
-
-    public static func == (lhs: AppUser, rhs: AppUser) -> Bool {
-        return lhs.id == rhs.id
-    }
+public struct AppUser: Identifiable, Codable, Hashable {
 
     public var id: String
     public var firstName: String?
@@ -20,6 +16,7 @@ public struct AppUser: Identifiable, Equatable, Codable, Hashable {
     public var phoneNumber: String?
     public var imageUrl: String?
     public let loginType: LoginType
+    public var isActive: Bool
 
     public var fullName: String {
         if let firstName, let lastName {
@@ -36,7 +33,7 @@ public struct AppUser: Identifiable, Equatable, Codable, Hashable {
     }
 
     public init(id: String, firstName: String?, lastName: String?, emailId: String?,
-                phoneNumber: String?, profileImageUrl: String? = nil, loginType: LoginType) {
+                phoneNumber: String?, profileImageUrl: String? = nil, loginType: LoginType, isActive: Bool = true) {
         self.id = id
         self.firstName = firstName
         self.lastName = lastName
@@ -44,6 +41,7 @@ public struct AppUser: Identifiable, Equatable, Codable, Hashable {
         self.phoneNumber = phoneNumber
         self.imageUrl = profileImageUrl
         self.loginType = loginType
+        self.isActive = isActive
     }
 
     enum CodingKeys: String, CodingKey {
@@ -54,6 +52,7 @@ public struct AppUser: Identifiable, Equatable, Codable, Hashable {
         case phoneNumber = "phone_number"
         case imageUrl = "image_url"
         case loginType = "login_type"
+        case isActive = "is_active"
     }
 }
 
