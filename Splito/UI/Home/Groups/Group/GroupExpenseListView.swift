@@ -101,7 +101,8 @@ private struct GroupExpenseItemView: View {
         if let user = preference.user, expenseWithUser.user.id == user.id {
             userName = "You"
             isBorrowed = false
-            amount = expense.amount - calculateSplitAmount(member: user.id, expense: expense)
+            let splitAmount = calculateSplitAmount(member: user.id, expense: expense)
+            amount = expense.splitTo.contains(where: { $0 == preference.user?.id }) ? expense.amount - splitAmount : expense.amount
             isSettled = expense.paidBy == user.id && expense.splitTo.contains(user.id) && expense.splitTo.count == 1
         } else {
             isBorrowed = true
@@ -134,10 +135,16 @@ private struct GroupExpenseItemView: View {
                     .font(.body1(17))
                     .foregroundStyle(primaryText)
 
-                let amountText = isSettled ? "You paid for yourself" : "\(userName) paid \(expense.formattedAmount)"
-                Text(amountText.localized)
-                    .font(.body1(12))
-                    .foregroundStyle(secondaryText)
+                if isInvolved {
+                    let amountText = isSettled ? "You paid for yourself" : "\(userName) paid \(expense.formattedAmount)"
+                    Text(amountText.localized)
+                        .font(.body1(12))
+                        .foregroundStyle(secondaryText)
+                } else {
+                    Text("You were not involved")
+                        .font(.body1(12))
+                        .foregroundStyle(secondaryText)
+                }
             }
             .lineLimit(1)
             .frame(maxWidth: .infinity, alignment: .leading)

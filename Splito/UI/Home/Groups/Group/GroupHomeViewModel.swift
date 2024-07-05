@@ -310,7 +310,7 @@ extension GroupHomeViewModel {
             showSearchBar = false
         }
     }
-    
+
     func showExpenseDeleteAlert(expenseId: String) {
         showAlert = true
         alert = .init(title: "Delete expense",
@@ -320,7 +320,7 @@ extension GroupHomeViewModel {
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
-    
+
     private func deleteExpense(expenseId: String) {
         expenseRepository.deleteExpense(id: expenseId)
             .sink { [weak self] completion in

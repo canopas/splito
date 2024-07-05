@@ -531,6 +531,9 @@
     "You paid for yourself" : {
       "extractionState" : "manual"
     },
+    "You were not involved" : {
+
+    },
     "You're the only member in this group, and there's no point in settling up with yourself :)" : {
       "extractionState" : "manual"
     },
