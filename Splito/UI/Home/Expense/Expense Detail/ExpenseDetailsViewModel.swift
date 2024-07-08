@@ -45,7 +45,9 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 var userData: [AppUser] = []
 
                 var members = expense.splitTo
-                members.append(expense.paidBy.first!.key)
+                for (payer, _) in expense.paidBy {
+                    members.append(payer)
+                }
                 members.append(expense.addedBy)
 
                 for member in members.uniqued() {

@@ -14,19 +14,23 @@ public func calculateExpensesNonSimplify(userId: String, expenses: [Expense], tr
     var owesToUser: [String: Double] = [:]
     var owedByUser: [String: Double] = [:]
 
-//    for expense in expenses {
-//        if expense.paidBy == userId {
-//            // If the user paid for the expense, calculate how much each member owes the user
-//            for member in expense.splitTo where member != userId {
-//                let splitAmount = calculateSplitAmount(member: member, expense: expense)
-//                owesToUser[member, default: 0.0] += splitAmount
-//            }
-//        } else if expense.splitTo.contains(userId) {
-//            // If the user is one of the members who should split the expense, calculate how much the user owes to the payer
-//            let splitAmount = calculateSplitAmount(member: userId, expense: expense)
-//            owedByUser[expense.paidBy, default: 0.0] += splitAmount
-//        }
-//    }
+    for expense in expenses {
+        if expense.paidBy.keys.contains(userId) {
+            // If the user paid for the expense, calculate how much each member owes the user
+            for member in expense.splitTo where member != userId {
+                let splitAmount = calculateSplitAmount(member: member, expense: expense)
+                owesToUser[member, default: 0.0] += splitAmount
+            }
+        }
+
+        // Check if the user is one of the members who should split the expense
+        for (payerId, _) in expense.paidBy where payerId != userId {
+            if expense.splitTo.contains(userId) {
+                let splitAmount = calculateSplitAmount(member: userId, expense: expense)
+                owedByUser[payerId, default: 0.0] += splitAmount
+            }
+        }
+    }
 
     (owesToUser, owedByUser) = processTransactionsNonSimply(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
 
@@ -77,7 +81,9 @@ public func calculateExpensesSimplify(userId: String, expenses: [Expense], trans
     var memberOwingAmount: [String: Double] = [:]
 
     for expense in expenses {
-        ownAmounts[expense.paidBy.first!.key, default: 0.0] += expense.amount
+        for (payerId, paidAmount) in expense.paidBy {
+            ownAmounts[payerId, default: 0.0] += paidAmount
+        }
 
         for member in expense.splitTo {
             let splitAmount = calculateSplitAmount(member: member, expense: expense)
@@ -179,7 +185,9 @@ public func calculateTransactionsWithExpenses(expenses: [Expense], transactions:
     var amountOweByMember: [String: Double] = [:]
 
     for expense in expenses {
-//        amountOweByMember[expense.paidBy, default: 0.0] += expense.amount
+        for (payerId, paidAmount) in expense.paidBy {
+            amountOweByMember[payerId, default: 0.0] += paidAmount
+        }
 
         for member in expense.splitTo {
             let splitAmount = calculateSplitAmount(member: member, expense: expense)
