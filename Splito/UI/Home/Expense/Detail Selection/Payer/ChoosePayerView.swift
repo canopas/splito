@@ -32,38 +32,40 @@ struct ChoosePayerView: View {
 
                     VStack(alignment: .leading, spacing: 12) {
                         ForEach(users) { user in
-                            ChooseMemberCellView(member: user, isSelected: viewModel.selectedPayers.keys.contains(user.id))
+                            ChooseMemberCellView(member: user, isSelected: (viewModel.selectedPayers.count > 1) ? viewModel.selectedPayers.keys.contains(user.id) : false)
                                 .onTapGesture {
                                     viewModel.handlePayerSelection(user: user)
                                     dismiss()
                                 }
                         }
 
-                        HStack(spacing: 0) {
-                            Text("Multiple people")
-                                .font(.subTitle2())
-                                .foregroundStyle(primaryText)
+                        if users.count > 1 {
+                            HStack(spacing: 0) {
+                                Text("Multiple people")
+                                    .font(.subTitle2())
+                                    .foregroundStyle(primaryText)
 
-                            Spacer()
+                                Spacer()
 
-                            if viewModel.isMultiplePayerselected {
-                                Image(.checkMarkTick)
-                                    .resizable()
-                                    .frame(width: 24, height: 24)
+                                if viewModel.isMultiplePayerselected {
+                                    Image(.checkMarkTick)
+                                        .resizable()
+                                        .frame(width: 24, height: 24)
+                                }
+
+                                ForwardIcon()
                             }
+                            .onTapGestureForced {
+                                viewModel.handleMultiplePayerTap()
+                            }
+                            .padding(.vertical, 12)
+                            .padding(.leading, 30)
+                            .padding(.trailing, 15)
 
-                            ForwardIcon()
+                            Divider()
+                                .frame(height: 1)
+                                .background(outlineColor.opacity(0.3))
                         }
-                        .onTapGestureForced {
-                            viewModel.handleMultiplePayerTap()
-                        }
-                        .padding(.vertical, 12)
-                        .padding(.leading, 30)
-                        .padding(.trailing, 15)
-
-                        Divider()
-                            .frame(height: 1)
-                            .background(outlineColor.opacity(0.3))
                     }
                 }
                 .scrollIndicators(.hidden)

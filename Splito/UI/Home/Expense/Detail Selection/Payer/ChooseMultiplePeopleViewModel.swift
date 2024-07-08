@@ -21,15 +21,15 @@ class ChooseMultiplePeopleViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var groupMembers: [AppUser] = []
     @Published private(set) var membersAmount: [String: Double] = [:]
 
-    @Published var selectedPayer: AppUser?
     @Published var currentViewState: ViewState = .initial
 
     @Published private(set) var dismissChoosePayerFlow: () -> Void
 
     var onPayerSelection: (([String: Double]) -> Void)
 
-    init(groupId: String, expenseAmount: Double, onPayerSelection: @escaping (([String: Double]) -> Void), dismissChoosePayerFlow: @escaping () -> Void) {
+    init(groupId: String, selectedPayers: [String: Double] = [:], expenseAmount: Double, onPayerSelection: @escaping (([String: Double]) -> Void), dismissChoosePayerFlow: @escaping () -> Void) {
         self.groupId = groupId
+        self.membersAmount = selectedPayers
         self.expenseAmount = expenseAmount
         self.onPayerSelection = onPayerSelection
         self.dismissChoosePayerFlow = dismissChoosePayerFlow
