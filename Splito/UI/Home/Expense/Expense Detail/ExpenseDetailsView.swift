@@ -117,7 +117,7 @@ private struct ExpenseInfoView: View {
     }
 
     var userName: String {
-        let user = viewModel.getMemberDataBy(id: expense?.paidBy ?? "")
+        let user = viewModel.getMemberDataBy(id: expense?.paidBy.first?.key ?? "")
         return viewModel.preference.user?.id == user?.id ? "You" : user?.nameWithLastInitial ?? "someone"
     }
 
@@ -125,7 +125,7 @@ private struct ExpenseInfoView: View {
         HStack(alignment: .top, spacing: 10) {
 
             let mainImageHeight: CGFloat = 60
-            let userImageUrl = viewModel.getMemberDataBy(id: expense?.paidBy ?? "")?.imageUrl
+            let userImageUrl = viewModel.getMemberDataBy(id: expense?.paidBy.first?.key ?? "")?.imageUrl
             MemberProfileImageView(imageUrl: userImageUrl, height: mainImageHeight)
 
             VStack(alignment: .leading, spacing: 0) {

@@ -103,7 +103,7 @@ private struct GroupExpenseItemView: View {
             isBorrowed = false
             let splitAmount = calculateSplitAmount(member: user.id, expense: expense)
             amount = expense.splitTo.contains(where: { $0 == preference.user?.id }) ? expense.amount - splitAmount : expense.amount
-            isSettled = expense.paidBy == user.id && expense.splitTo.contains(user.id) && expense.splitTo.count == 1
+            isSettled = expense.paidBy.first?.key == user.id && expense.splitTo.contains(user.id) && expense.splitTo.count == 1
         } else {
             isBorrowed = true
             userName = expenseWithUser.user.nameWithLastInitial

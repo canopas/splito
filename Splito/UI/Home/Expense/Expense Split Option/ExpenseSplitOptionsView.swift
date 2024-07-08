@@ -177,7 +177,7 @@ private struct ExpenseSplitAmountView: View {
     }
 }
 
-private struct BottomInfoCardView: View {
+struct BottomInfoCardView: View {
 
     let title: String
     var value: String?

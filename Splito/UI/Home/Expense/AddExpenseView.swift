@@ -54,7 +54,9 @@ struct AddExpenseView: View {
         }
         .sheet(isPresented: $viewModel.showPayerSelection) {
             NavigationStack {
-                ChoosePayerView(viewModel: ChoosePayerViewModel(groupId: viewModel.selectedGroup?.id ?? "", selectedPayer: viewModel.selectedPayer, onPayerSelection: viewModel.handlePayerSelection(payer:)))
+                ChoosePayerRouteView(appRoute: .init(root: .ChoosePayerView(groupId: viewModel.selectedGroup?.id ?? "", amount: viewModel.expenseAmount, selectedPayer: viewModel.selectedPayers, onPayerSelection: viewModel.handlePayerSelection(payers:)))) {
+                    viewModel.showPayerSelection = false
+                }
             }
         }
         .sheet(isPresented: $viewModel.showSplitTypeSelection) {

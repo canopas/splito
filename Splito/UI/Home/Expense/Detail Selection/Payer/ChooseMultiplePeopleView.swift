@@ -1,0 +1,83 @@
+//
+//  ChooseMultiplePeopleView.swift
+//  Splito
+//
+//  Created by Nirali Sonani on 08/07/24.
+//
+
+import SwiftUI
+import BaseStyle
+
+struct ChooseMultiplePeopleView: View {
+
+    @StateObject var viewModel: ChooseMultiplePeopleViewModel
+
+    var body: some View {
+        VStack(alignment: .center, spacing: 0) {
+            Divider()
+                .frame(height: 1)
+                .background(outlineColor.opacity(0.4))
+
+            if case .loading = viewModel.currentViewState {
+                LoaderView()
+            } else {
+                ZStack {
+                    ScrollView {
+                        VStack(spacing: 50) {
+                            Divider()
+                                .frame(height: 1)
+                                .background(outlineColor.opacity(0.4))
+
+                            EnterPaidAmountsView(viewModel: viewModel)
+
+                            VSpacer(80)
+                        }
+                    }
+                    .scrollIndicators(.hidden)
+
+                    BottomInfoCardView(title: "₹ \(String(format: "%.0f", viewModel.totalAmount)) of ₹ \(viewModel.expenseAmount)",
+                                       value: "₹ \(String(format: "%.0f", (viewModel.expenseAmount - viewModel.totalAmount))) left")
+                }
+            }
+        }
+        .background(backgroundColor)
+        .interactiveDismissDisabled()
+        .navigationBarTitle("Choose Payer", displayMode: .inline)
+        .toastView(toast: $viewModel.toast)
+        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Done") {
+                    viewModel.handleDoneBtnTap()
+                }
+            }
+        }
+    }
+}
+
+private struct EnterPaidAmountsView: View {
+
+    @ObservedObject var viewModel: ChooseMultiplePeopleViewModel
+
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(viewModel.groupMembers, id: \.id) { member in
+                MemberCellView(
+                    value: Binding(
+                        get: { viewModel.membersAmount[member.id] ?? 0 },
+                        set: { viewModel.updateAmount(for: member.id, amount: $0) }
+                    ),
+                    member: member, suffixText: "₹",
+                    expenseAmount: viewModel.totalAmount,
+                    onChange: { amount in
+                        viewModel.updateAmount(for: member.id, amount: amount)
+                    }
+                )
+            }
+        }
+    }
+}
+
+#Preview {
+    ChooseMultiplePeopleView(viewModel: ChooseMultiplePeopleViewModel(groupId: "", expenseAmount: 0, onPayerSelection: {_ in }, dismissChoosePayerFlow: {}))
+}

@@ -30,14 +30,40 @@ struct ChoosePayerView: View {
                 ScrollView {
                     VSpacer(40)
 
-                    LazyVStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 12) {
                         ForEach(users) { user in
-                            ChooseMemberCellView(member: user, isSelected: user.id == viewModel.selectedPayer?.id)
+                            ChooseMemberCellView(member: user, isSelected: viewModel.selectedPayers.keys.contains(user.id))
                                 .onTapGesture {
                                     viewModel.handlePayerSelection(user: user)
                                     dismiss()
                                 }
                         }
+
+                        HStack(spacing: 0) {
+                            Text("Multiple people")
+                                .font(.subTitle2())
+                                .foregroundStyle(primaryText)
+
+                            Spacer()
+
+                            if viewModel.isMultiplePayerselected {
+                                Image(.checkMarkTick)
+                                    .resizable()
+                                    .frame(width: 24, height: 24)
+                            }
+
+                            ForwardIcon()
+                        }
+                        .onTapGestureForced {
+                            viewModel.handleMultiplePayerTap()
+                        }
+                        .padding(.vertical, 12)
+                        .padding(.leading, 30)
+                        .padding(.trailing, 15)
+
+                        Divider()
+                            .frame(height: 1)
+                            .background(outlineColor.opacity(0.3))
                     }
                 }
                 .scrollIndicators(.hidden)
@@ -89,26 +115,32 @@ private struct ChooseMemberCellView: View {
     }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 20) {
-            MemberProfileImageView(imageUrl: member.imageUrl)
+        VStack(spacing: 12) {
+            HStack(alignment: .center, spacing: 20) {
+                MemberProfileImageView(imageUrl: member.imageUrl)
 
-            Text((userName ?? "").isEmpty ? "Unknown" : userName!)
-                .font(.subTitle2())
-                .foregroundStyle(primaryText)
+                Text((userName ?? "").isEmpty ? "Unknown" : userName!)
+                    .font(.subTitle2())
+                    .foregroundStyle(primaryText)
 
-            Spacer()
+                Spacer()
 
-            if isSelected {
-                Image(.checkMarkTick)
-                    .resizable()
-                    .frame(width: 24, height: 24)
+                if isSelected {
+                    Image(.checkMarkTick)
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                }
             }
+            .padding(.horizontal, 30)
+            .background(backgroundColor)
         }
-        .padding(.horizontal, 30)
-        .background(backgroundColor)
+
+        Divider()
+            .frame(height: 1)
+            .background(outlineColor.opacity(0.3))
     }
 }
 
 #Preview {
-    ChoosePayerView(viewModel: ChoosePayerViewModel(groupId: "", selectedPayer: nil, onPayerSelection: { _ in }))
+    ChoosePayerView(viewModel: ChoosePayerViewModel(router: nil, groupId: "", amount: 0.0, selectedPayers: [:], onPayerSelection: { _ in }))
 }

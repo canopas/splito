@@ -165,7 +165,7 @@ private struct ShareView: View {
     }
 }
 
-private struct MemberCellView: View {
+struct MemberCellView: View {
 
     @Binding var value: Double
 

@@ -40,6 +40,8 @@ public enum AppRoute: Hashable {
     // MARK: - Expense Button
     case AddExpenseView(expenseId: String?, groupId: String?)
     case ExpenseDetailView(expenseId: String)
+    case ChoosePayerView(groupId: String, amount: Double, selectedPayer: [String: Double], onPayerSelection: (([String: Double]) -> Void))
+    case ChooseMultiplePayerView(groupId: String, amount: Double, onPayerSelection: (([String: Double]) -> Void))
 
     // MARK: - Activity Tab
     case ActivityHomeView
@@ -97,9 +99,17 @@ public enum AppRoute: Hashable {
 
         case .AddExpenseView:
             "addExpenseView"
+        case .ChoosePayerView:
+            "choosePayerView"
+        case .ChooseMultiplePayerView:
+            "chooseMultiplePayerView"
 
         case .AccountHomeView:
             "accountHomeView"
         }
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(key)
     }
 }

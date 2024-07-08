@@ -38,7 +38,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var viewState: ViewState = .initial
     @Published private(set) var splitType: SplitType = .equally
 
-    @Published var selectedPayer: AppUser? {
+    @Published private(set) var selectedPayers: [String: Double] = [:] {
         didSet {
             updatePayerName()
         }
@@ -88,7 +88,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] user in
                 guard let self, let user else { return }
-                self.selectedPayer = user
+                self.selectedPayers = [user.id: 0]
                 self.viewState = .initial
             }.store(in: &cancelable)
     }
@@ -116,8 +116,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 self.fetchGroupData(for: expense.groupId) { group in
                     self.selectedGroup = group
                     self.groupMembers = group?.members ?? []
-                    self.fetchUserData(for: expense.paidBy) { user in
-                        self.selectedPayer = user
+                    self.fetchUserData(for: expense.paidBy.first!.key) { _ in
+                        self.selectedPayers = expense.paidBy
                         self.viewState = .initial
                     }
                 }
@@ -158,10 +158,10 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 extension AddExpenseViewModel {
 
     private func updatePayerName() {
-        if let user = preference.user, let selectedPayer, selectedPayer.id == user.id {
+        if selectedPayers.count == 1, let user = preference.user, let payerId = selectedPayers.keys.first, payerId == user.id {
             self.payerName = "You"
         } else {
-            self.payerName = selectedPayer?.nameWithLastInitial ?? "You"
+            self.payerName = "\(selectedPayers.count) people"
         }
     }
 
@@ -170,7 +170,7 @@ extension AddExpenseViewModel {
     }
 
     func handleGroupSelection(group: Groups) {
-        selectedPayer = nil
+        selectedPayers = [:]
         selectedGroup = group
         groupMembers = group.members
         selectedMembers = group.members
@@ -184,8 +184,8 @@ extension AddExpenseViewModel {
         showPayerSelection = true
     }
 
-    func handlePayerSelection(payer: AppUser) {
-        selectedPayer = payer
+    func handlePayerSelection(payers: [String: Double]) {
+        selectedPayers = payers
     }
 
     func handleSplitTypeBtnAction() {
@@ -208,23 +208,23 @@ extension AddExpenseViewModel {
     }
 
     func handleSaveAction(completion: @escaping () -> Void) {
-        if let user = preference.user, selectedPayer == nil {
-            selectedPayer = user
+        if let user = preference.user, selectedPayers == [:] {
+            selectedPayers = [user.id: expenseAmount]
         }
 
-        if expenseName == "" || expenseAmount == 0 || selectedGroup == nil || selectedPayer == nil {
+        if expenseName == "" || expenseAmount == 0 || selectedGroup == nil || selectedPayers == [:] {
             showToastFor(toast: ToastPrompt(type: .warning, title: "Warning", message: "Please fill all data to add expense."))
             return
         }
 
-        guard let selectedGroup, let selectedPayer, let groupId = selectedGroup.id, let user = preference.user else { return }
+        guard let selectedGroup, let groupId = selectedGroup.id, let user = preference.user else { return }
 
         if let expense {
             var newExpense = expense
             newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing).capitalized
             newExpense.amount = expenseAmount
             newExpense.date = Timestamp(date: expenseDate)
-            newExpense.paidBy = selectedPayer.id
+            newExpense.paidBy = selectedPayers
             newExpense.splitType = splitType
             newExpense.splitTo = (splitType == .equally) ? selectedMembers : splitData.map({ $0.key })
             newExpense.splitData = splitData
@@ -232,7 +232,7 @@ extension AddExpenseViewModel {
             updateExpense(expense: newExpense)
         } else {
             let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing).capitalized, amount: expenseAmount,
-                                  date: Timestamp(date: expenseDate), paidBy: selectedPayer.id, addedBy: user.id,
+                                  date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: user.id,
                                   splitTo: (splitType == .equally) ? selectedMembers : splitData.map({ $0.key }),
                                   groupId: groupId, splitType: splitType, splitData: splitData)
 

@@ -18,6 +18,9 @@
 		21B1C09A2C1C59F10098B4FD /* GroupTransactionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21B1C0992C1C59F10098B4FD /* GroupTransactionListView.swift */; };
 		21B1C09C2C1C5A050098B4FD /* GroupTransactionListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21B1C09B2C1C5A040098B4FD /* GroupTransactionListViewModel.swift */; };
 		21B1C09E2C1C5AA30098B4FD /* GroupExpenseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21B1C09D2C1C5AA30098B4FD /* GroupExpenseListView.swift */; };
+		21BA6D4A2C3BB63B0020ED04 /* ChooseMultiplePeopleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D492C3BB63B0020ED04 /* ChooseMultiplePeopleView.swift */; };
+		21BA6D4D2C3BB6AD0020ED04 /* ChooseMultiplePeopleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D4C2C3BB6AD0020ED04 /* ChooseMultiplePeopleViewModel.swift */; };
+		21BA6D4F2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D4E2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift */; };
 		21F27BDE2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F27BDD2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift */; };
 		741540F86E36400CE27B1FAD /* Pods_SplitoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 701193A10871F36C3EDB356C /* Pods_SplitoTests.framework */; };
 		D815DFD72BEA26C200C0F862 /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D815DFD62BEA26C200C0F862 /* Secrets.xcconfig */; };
@@ -150,6 +153,9 @@
 		21B1C0992C1C59F10098B4FD /* GroupTransactionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionListView.swift; sourceTree = "<group>"; };
 		21B1C09B2C1C5A040098B4FD /* GroupTransactionListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionListViewModel.swift; sourceTree = "<group>"; };
 		21B1C09D2C1C5AA30098B4FD /* GroupExpenseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupExpenseListView.swift; sourceTree = "<group>"; };
+		21BA6D492C3BB63B0020ED04 /* ChooseMultiplePeopleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseMultiplePeopleView.swift; sourceTree = "<group>"; };
+		21BA6D4C2C3BB6AD0020ED04 /* ChooseMultiplePeopleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseMultiplePeopleViewModel.swift; sourceTree = "<group>"; };
+		21BA6D4E2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoosePayerRouteView.swift; sourceTree = "<group>"; };
 		21F27BDD2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseSplitOptionsTabView.swift; sourceTree = "<group>"; };
 		43FFDB1561C565EE6E3DC86A /* Pods_Splito.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splito.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		44312D517F674E980CBAE838 /* Pods-Splito.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito.debug.xcconfig"; path = "Target Support Files/Pods-Splito/Pods-Splito.debug.xcconfig"; sourceTree = "<group>"; };
@@ -308,6 +314,18 @@
 			path = "More Options";
 			sourceTree = "<group>";
 		};
+		21BA6D4B2C3BB64B0020ED04 /* Payer */ = {
+			isa = PBXGroup;
+			children = (
+				21BA6D4E2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift */,
+				D85E86E82BB3FD49002EDF76 /* ChoosePayerView.swift */,
+				D85E86EA2BB3FD59002EDF76 /* ChoosePayerViewModel.swift */,
+				21BA6D492C3BB63B0020ED04 /* ChooseMultiplePeopleView.swift */,
+				21BA6D4C2C3BB6AD0020ED04 /* ChooseMultiplePeopleViewModel.swift */,
+			);
+			path = Payer;
+			sourceTree = "<group>";
+		};
 		7530D0A01F0D8D2C363B2A6E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -460,8 +478,7 @@
 			children = (
 				D85E86EC2BB41B87002EDF76 /* ChooseGroupView.swift */,
 				D85E86EE2BB41B9F002EDF76 /* ChooseGroupViewModel.swift */,
-				D85E86E82BB3FD49002EDF76 /* ChoosePayerView.swift */,
-				D85E86EA2BB3FD59002EDF76 /* ChoosePayerViewModel.swift */,
+				21BA6D4B2C3BB64B0020ED04 /* Payer */,
 			);
 			path = "Detail Selection";
 			sourceTree = "<group>";
@@ -975,11 +992,14 @@
 			files = (
 				D83344672C0F2D0000CD9F05 /* GroupWhoIsPayingViewModel.swift in Sources */,
 				D8D14A692BA3133500F45FF2 /* OnboardRouteView.swift in Sources */,
+				21BA6D4A2C3BB63B0020ED04 /* ChooseMultiplePeopleView.swift in Sources */,
 				D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */,
 				D83344712C0F2D7D00CD9F05 /* GroupPaymentViewModel.swift in Sources */,
+				21BA6D4D2C3BB6AD0020ED04 /* ChooseMultiplePeopleViewModel.swift in Sources */,
 				D85E86EF2BB41B9F002EDF76 /* ChooseGroupViewModel.swift in Sources */,
 				D8E244B72B972BE700C6C82A /* BaseViewModel.swift in Sources */,
 				D8AC26F22B84B12800CEAAD3 /* MainRouteView.swift in Sources */,
+				21BA6D4F2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift in Sources */,
 				D85E86E02BAB06A3002EDF76 /* AddExpenseView.swift in Sources */,
 				D856C7322BCFD21C0008A341 /* ExpenseDetailsView.swift in Sources */,
 				D83344612C0EF1F100CD9F05 /* GroupTotalsView.swift in Sources */,

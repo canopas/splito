@@ -13,14 +13,21 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
     @Inject var groupRepository: GroupRepository
 
     @Published var groupId: String
-    @Published var selectedPayer: AppUser?
+    @Published var selectedPayers: [String: Double]
+
+    @Published var isMultiplePayerselected: Bool = false
+
     @Published var currentViewState: ViewState = .initial
+    @Published private(set) var amount: Double = 0
 
-    var onPayerSelection: ((AppUser) -> Void)
+    var onPayerSelection: (([String: Double]) -> Void)
+    private let router: Router<AppRoute>?
 
-    init(groupId: String, selectedPayer: AppUser?, onPayerSelection: @escaping ((AppUser) -> Void)) {
+    init(router: Router<AppRoute>?, groupId: String, amount: Double, selectedPayers: [String: Double], onPayerSelection: @escaping (([String: Double]) -> Void)) {
+        self.router = router
         self.groupId = groupId
-        self.selectedPayer = selectedPayer
+        self.amount = amount
+        self.selectedPayers = selectedPayers
         self.onPayerSelection = onPayerSelection
         super.init()
 
@@ -44,8 +51,14 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
     }
 
     func handlePayerSelection(user: AppUser) {
-        selectedPayer = user
-        onPayerSelection(user)
+        selectedPayers = [user.id: amount]
+        onPayerSelection([user.id: amount])
+    }
+
+    func handleMultiplePayerTap() {
+        router?.push(.ChooseMultiplePayerView(groupId: groupId, amount: amount, onPayerSelection: { payer in
+            self.onPayerSelection(payer)
+        }))
     }
 }
 
