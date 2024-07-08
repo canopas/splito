@@ -56,8 +56,8 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleMultiplePayerTap() {
-        router?.push(.ChooseMultiplePayerView(groupId: groupId, amount: amount, onPayerSelection: { payer in
-            self.onPayerSelection(payer)
+        router?.push(.ChooseMultiplePayerView(groupId: groupId, selectedPayers: selectedPayers, amount: amount, onPayerSelection: { payers in
+            self.onPayerSelection(payers)
         }))
     }
 }

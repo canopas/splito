@@ -88,7 +88,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] user in
                 guard let self, let user else { return }
-                self.selectedPayers = [user.id: 0]
+                self.selectedPayers = [user.id: expenseAmount]
                 self.viewState = .initial
             }.store(in: &cancelable)
     }
@@ -116,10 +116,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 self.fetchGroupData(for: expense.groupId) { group in
                     self.selectedGroup = group
                     self.groupMembers = group?.members ?? []
-                    self.fetchUserData(for: expense.paidBy.first!.key) { _ in
-                        self.selectedPayers = expense.paidBy
-                        self.viewState = .initial
-                    }
+                    self.selectedPayers = expense.paidBy
+                    self.viewState = .initial
                 }
             }.store(in: &cancelable)
     }
@@ -159,9 +157,13 @@ extension AddExpenseViewModel {
 
     private func updatePayerName() {
         if selectedPayers.count == 1, let user = preference.user, let payerId = selectedPayers.keys.first, payerId == user.id {
-            self.payerName = "You"
+            payerName = "You"
+        } else if selectedPayers.count == 1 {
+            fetchUserData(for: selectedPayers.keys.first ?? "") { user in
+                self.payerName = user.nameWithLastInitial
+            }
         } else {
-            self.payerName = "\(selectedPayers.count) people"
+            payerName = "\(selectedPayers.count) people"
         }
     }
 
