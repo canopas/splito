@@ -47,6 +47,9 @@ struct AddExpenseView: View {
         .navigationBarTitle(viewModel.expenseId == nil ? "Add expense" : "Edit expense", displayMode: .inline)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .onTapGesture {
+            UIApplication.shared.endEditing()
+        }
         .sheet(isPresented: $viewModel.showGroupSelection) {
             NavigationStack {
                 ChooseGroupView(viewModel: ChooseGroupViewModel(selectedGroup: viewModel.selectedGroup, onGroupSelection: viewModel.handleGroupSelection(group:)))

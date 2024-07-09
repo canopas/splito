@@ -147,6 +147,11 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "You must assign a non-zero share to at least one person."))
             return
         }
+        
+        if selectedTab == .fixedAmount && totalFixedAmount != totalAmount {
+            showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "The amounts do not add up to the total cost of \(totalAmount.formattedCurrency). You are short by \(totalAmount - totalFixedAmount)."))
+            return
+        }
 
         handleSplitTypeSelection(selectedMembers, (selectedTab == .fixedAmount) ? fixedAmounts.filter({ $0.value != 0 }) : (selectedTab == .percentage) ? percentages.filter({ $0.value != 0 }) : shares.filter({ $0.value != 0 }), selectedTab)
         completion()
