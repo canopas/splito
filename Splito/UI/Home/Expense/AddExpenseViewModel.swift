@@ -156,11 +156,13 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 extension AddExpenseViewModel {
 
     private func updatePayerName() {
-        if selectedPayers.count == 1, let user = preference.user, let payerId = selectedPayers.keys.first, payerId == user.id {
-            payerName = "You"
-        } else if selectedPayers.count == 1 {
-            fetchUserData(for: selectedPayers.keys.first ?? "") { user in
-                self.payerName = user.nameWithLastInitial
+        if selectedPayers.count == 1 {
+            if let user = preference.user, selectedPayers.keys.first == user.id {
+                payerName = "You"
+            } else {
+                fetchUserData(for: selectedPayers.keys.first ?? "") { user in
+                    self.payerName = user.nameWithLastInitial
+                }
             }
         } else {
             payerName = "\(selectedPayers.count) people"

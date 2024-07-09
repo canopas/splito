@@ -2,7 +2,7 @@
 //  ExpenseSplitOptionsTabView.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 04/07/24.
+//  Created by Amisha Italiya on 04/07/24.
 //
 
 import SwiftUI

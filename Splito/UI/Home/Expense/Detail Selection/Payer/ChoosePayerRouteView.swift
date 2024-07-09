@@ -2,7 +2,7 @@
 //  ChoosePayerRouteView.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 08/07/24.
+//  Created by Amisha Italiya on 08/07/24.
 //
 
 import Data
