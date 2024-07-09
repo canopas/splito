@@ -152,7 +152,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             let amountDescription = totalFixedAmount < totalAmount ? "short" : "over"
             let differenceAmount = totalFixedAmount < totalAmount ? (totalAmount - totalFixedAmount) : (totalFixedAmount - totalAmount)
 
-            showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "The amounts do not add up to the total cost of \(totalAmount.formattedCurrency). You are \(differenceAmount) by \(amount.formattedCurrency)."))
+            showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "The amounts do not add up to the total cost of \(totalAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency)."))
             return
         }
 
