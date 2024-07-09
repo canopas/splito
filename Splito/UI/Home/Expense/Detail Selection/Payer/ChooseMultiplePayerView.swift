@@ -1,5 +1,5 @@
 //
-//  ChooseMultiplePeopleView.swift
+//  ChooseMultiplePayerView.swift
 //  Splito
 //
 //  Created by Nirali Sonani on 08/07/24.
@@ -8,9 +8,9 @@
 import SwiftUI
 import BaseStyle
 
-struct ChooseMultiplePeopleView: View {
+struct ChooseMultiplePayerView: View {
 
-    @StateObject var viewModel: ChooseMultiplePeopleViewModel
+    @StateObject var viewModel: ChooseMultiplePayerViewModel
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
@@ -57,7 +57,7 @@ struct ChooseMultiplePeopleView: View {
 
 private struct EnterPaidAmountsView: View {
 
-    @ObservedObject var viewModel: ChooseMultiplePeopleViewModel
+    @ObservedObject var viewModel: ChooseMultiplePayerViewModel
 
     var body: some View {
         VStack(spacing: 12) {
@@ -79,5 +79,5 @@ private struct EnterPaidAmountsView: View {
 }
 
 #Preview {
-    ChooseMultiplePeopleView(viewModel: ChooseMultiplePeopleViewModel(groupId: "", expenseAmount: 0, onPayerSelection: {_ in }, dismissChoosePayerFlow: {}))
+    ChooseMultiplePayerView(viewModel: ChooseMultiplePayerViewModel(groupId: "", expenseAmount: 0, onPayerSelection: {_ in }, dismissChoosePayerFlow: {}))
 }

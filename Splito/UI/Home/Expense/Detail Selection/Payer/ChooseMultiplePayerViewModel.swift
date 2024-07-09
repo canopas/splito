@@ -1,5 +1,5 @@
 //
-//  ChooseMultiplePeopleViewModel.swift
+//  ChooseMultiplePayerViewModel.swift
 //  Splito
 //
 //  Created by Nirali Sonani on 08/07/24.
@@ -9,7 +9,7 @@ import Data
 import Combine
 import BaseStyle
 
-class ChooseMultiplePeopleViewModel: BaseViewModel, ObservableObject {
+class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
 
     @Inject var groupRepository: GroupRepository
 
@@ -71,7 +71,7 @@ class ChooseMultiplePeopleViewModel: BaseViewModel, ObservableObject {
     }
 }
 
-extension ChooseMultiplePeopleViewModel {
+extension ChooseMultiplePayerViewModel {
     enum ViewState {
         case initial
         case loading

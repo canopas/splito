@@ -27,7 +27,7 @@ struct ChoosePayerRouteView: View {
                 ChoosePayerView(viewModel: ChoosePayerViewModel(router: appRoute, groupId: groupId, amount: amount, selectedPayers: selectedPayer, onPayerSelection: onPayerSelection))
 
             case .ChooseMultiplePayerView(let groupId, let selectedPayers, let amount, let onPayerSelection):
-                ChooseMultiplePeopleView(viewModel: ChooseMultiplePeopleViewModel(groupId: groupId, selectedPayers: selectedPayers, expenseAmount: amount, onPayerSelection: onPayerSelection, dismissChoosePayerFlow: dismissChoosePayerFlow))
+                ChooseMultiplePayerView(viewModel: ChooseMultiplePayerViewModel(groupId: groupId, selectedPayers: selectedPayers, expenseAmount: amount, onPayerSelection: onPayerSelection, dismissChoosePayerFlow: dismissChoosePayerFlow))
 
             default:
                 EmptyRouteView(routeName: self)

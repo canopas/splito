@@ -32,7 +32,7 @@ struct ChoosePayerView: View {
 
                     VStack(alignment: .leading, spacing: 12) {
                         ForEach(users) { user in
-                            ChooseMemberCellView(member: user, isSelected: (viewModel.selectedPayers.count > 1) ? viewModel.selectedPayers.keys.contains(user.id) : false)
+                            ChooseMemberCellView(member: user, isSelected: (viewModel.selectedPayers.count > 1) ? false : viewModel.selectedPayers.keys.contains(user.id))
                                 .onTapGesture {
                                     viewModel.handlePayerSelection(user: user)
                                     dismiss()

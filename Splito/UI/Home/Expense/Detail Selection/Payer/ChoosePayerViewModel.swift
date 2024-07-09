@@ -31,6 +31,7 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
         self.onPayerSelection = onPayerSelection
         super.init()
 
+        self.isMultiplePayerselected = selectedPayers.count > 1
         self.fetchMembers()
     }
 
