@@ -86,24 +86,26 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         let groupMembers = Array(Set(groupMemberData.map { $0.id }))
         var memberBalances = groupMembers.map { GroupMemberBalance(id: $0) }
 
-//        for expense in expenses {
-//            let splitAmounts = calculateSplitAmount(expense: expense)
-//
-//            if let paidByIndex = memberBalances.firstIndex(where: { $0.id == expense.paidBy }) {
-//                memberBalances[paidByIndex].totalOwedAmount += expense.amount
-//
-//                for (member, splitAmount) in splitAmounts {
-//                    if let owedMemberIndex = memberBalances.firstIndex(where: { $0.id == member }) {
-//                        memberBalances[owedMemberIndex].totalOwedAmount -= splitAmount
-//
-//                        if !isSimplify && member != expense.paidBy {
-//                            memberBalances[owedMemberIndex].balances[expense.paidBy, default: 0.0] -= splitAmount
-//                            memberBalances[paidByIndex].balances[member, default: 0.0] += splitAmount
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        for expense in expenses {
+            let splitAmounts = calculateSplitAmount(expense: expense)
+            
+            for (payerId, paidAmount) in expense.paidBy {
+                if let paidByIndex = memberBalances.firstIndex(where: { $0.id == payerId }) {
+                    memberBalances[paidByIndex].totalOwedAmount += paidAmount
+                    
+                    for (member, splitAmount) in splitAmounts {
+                        if let owedMemberIndex = memberBalances.firstIndex(where: { $0.id == member }) {
+                            memberBalances[owedMemberIndex].totalOwedAmount -= splitAmount * (paidAmount / expense.amount)
+                            
+                            if !isSimplify && member != payerId {
+                                memberBalances[owedMemberIndex].balances[payerId, default: 0.0] -= splitAmount * (paidAmount / expense.amount)
+                                memberBalances[paidByIndex].balances[member, default: 0.0] += splitAmount * (paidAmount / expense.amount)
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         memberBalances = processTransactions(transactions: transactions, memberBalances: memberBalances, isSimplify: isSimplify)
 
@@ -220,6 +222,8 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         sortedMembers.sort { member1, member2 in
             if member1.id == userId { true } else if member2.id == userId { false } else { getMemberName(id: member1.id) < getMemberName(id: member2.id) }
         }
+
+        print("xxx \(sortedMembers)")
 
         self.memberBalances = sortedMembers
         self.viewState = .initial
