@@ -147,9 +147,12 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "You must assign a non-zero share to at least one person."))
             return
         }
-        
+
         if selectedTab == .fixedAmount && totalFixedAmount != totalAmount {
-            showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "The amounts do not add up to the total cost of \(totalAmount.formattedCurrency). You are short by \(totalAmount - totalFixedAmount)."))
+            let amountDescription = totalFixedAmount < totalAmount ? "short" : "over"
+            let differenceAmount = totalFixedAmount < totalAmount ? (totalAmount - totalFixedAmount) : (totalFixedAmount - totalAmount)
+
+            showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "The amounts do not add up to the total cost of \(totalAmount.formattedCurrency). You are \(differenceAmount) by \(amount.formattedCurrency)."))
             return
         }
 
