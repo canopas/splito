@@ -155,21 +155,26 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         memberOwingAmount = [:]
 
         for expense in expenses {
-            queue.enter()
-
-            if expense.paidBy == userId {
+            // Check if the user is one of the payers
+            if expense.paidBy.keys.contains(userId) {
                 // If the user paid for the expense, calculate how much each member owes the user
                 for member in expense.splitTo where member != userId {
                     let splitAmount = calculateSplitAmount(member: member, expense: expense)
                     owesToUser[member, default: 0.0] += splitAmount
                 }
-            } else if expense.splitTo.contains(userId) {
-                // If the user is one of the members who should split the expense, calculate how much the user owes to the payer
-                let splitAmount = calculateSplitAmount(member: userId, expense: expense)
-                owedByUser[expense.paidBy, default: 0.0] += splitAmount
             }
 
-            fetchUserData(for: expense.paidBy) { user in
+            // Check if the user is one of the members who should split the expense
+            for (payerId, _) in expense.paidBy where payerId != userId {
+                if expense.splitTo.contains(userId) {
+                    let splitAmount = calculateSplitAmount(member: userId, expense: expense)
+                    owedByUser[payerId, default: 0.0] += splitAmount
+                }
+            }
+
+            // Fetch user data for each payer once per expense
+            queue.enter()
+            fetchUserData(for: expense.paidBy.keys.first!) { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
                 queue.leave()
             }
@@ -205,16 +210,18 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         memberOwingAmount = [:]
 
         for expense in expenses {
-            queue.enter()
-
-            ownAmounts[expense.paidBy, default: 0.0] += expense.amount
+            for (payerId, paidAmount) in expense.paidBy {
+                ownAmounts[payerId, default: 0.0] += paidAmount
+            }
 
             for member in expense.splitTo {
                 let splitAmount = calculateSplitAmount(member: member, expense: expense)
                 ownAmounts[member, default: 0.0] -= splitAmount
             }
 
-            self.fetchUserData(for: expense.paidBy) { user in
+            // Fetch user data for each payer once per expense
+            queue.enter()
+            fetchUserData(for: expense.paidBy.keys.first!) { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
                 queue.leave()
             }

@@ -148,6 +148,14 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             return
         }
 
+        if selectedTab == .fixedAmount && totalFixedAmount != totalAmount {
+            let amountDescription = totalFixedAmount < totalAmount ? "short" : "over"
+            let differenceAmount = totalFixedAmount < totalAmount ? (totalAmount - totalFixedAmount) : (totalFixedAmount - totalAmount)
+
+            showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "The amounts do not add up to the total cost of \(totalAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency)."))
+            return
+        }
+
         handleSplitTypeSelection(selectedMembers, (selectedTab == .fixedAmount) ? fixedAmounts.filter({ $0.value != 0 }) : (selectedTab == .percentage) ? percentages.filter({ $0.value != 0 }) : shares.filter({ $0.value != 0 }), selectedTab)
         completion()
     }

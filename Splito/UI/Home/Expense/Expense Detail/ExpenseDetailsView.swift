@@ -117,15 +117,22 @@ private struct ExpenseInfoView: View {
     }
 
     var userName: String {
-        let user = viewModel.getMemberDataBy(id: expense?.paidBy ?? "")
-        return viewModel.preference.user?.id == user?.id ? "You" : user?.nameWithLastInitial ?? "someone"
+        if expense?.paidBy.count ?? 0 > 1 {
+            if let payerCount = expense?.paidBy.count {
+                return "\(String(describing: payerCount)) people"
+            }
+            return "You"
+        } else {
+            let user = viewModel.getMemberDataBy(id: expense?.paidBy.first?.key ?? "")
+            return viewModel.preference.user?.id == user?.id ? "You" : user?.nameWithLastInitial ?? "someone"
+        }
     }
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
 
             let mainImageHeight: CGFloat = 60
-            let userImageUrl = viewModel.getMemberDataBy(id: expense?.paidBy ?? "")?.imageUrl
+            let userImageUrl = viewModel.getMemberDataBy(id: expense?.paidBy.first?.key ?? "")?.imageUrl
             MemberProfileImageView(imageUrl: userImageUrl, height: mainImageHeight)
 
             VStack(alignment: .leading, spacing: 0) {
@@ -134,23 +141,25 @@ private struct ExpenseInfoView: View {
                     .frame(height: mainImageHeight)
 
                 VStack(alignment: .leading, spacing: 10) {
-                    if let members = expense?.splitTo {
-                        ForEach(members, id: \.self) { id in
-                            let subImageHeight: CGFloat = 36
-                            if let member = viewModel.getMemberDataBy(id: id) {
-                                var memberName: String {
-                                    return viewModel.preference.user?.id == member.id ? "You" : member.nameWithLastInitial
-                                }
-                                var owes: String {
-                                    return viewModel.preference.user?.id == member.id ? "owe" : "owes"
-                                }
+                    ForEach(viewModel.expenseUsersData, id: \.self) { userData in
+                        let subImageHeight: CGFloat = 36
+                        let owes = viewModel.preference.user?.id == userData.id ? "owe" : "owes"
+                        let memberName = viewModel.preference.user?.id == userData.id ? "You" : userData.nameWithLastInitial
 
-                                HStack(spacing: 10) {
-                                    MemberProfileImageView(imageUrl: member.imageUrl, height: subImageHeight)
+                        let paidAmount = expense?.paidBy[userData.id] ?? 0.0
+                        let splitAmount = viewModel.getSplitAmount(for: userData.id)
 
-                                    let splitAmount = viewModel.getSplitAmount(for: member.id)
-                                    Text("\(memberName.localized) \(owes) \(splitAmount)")
+                        HStack(spacing: 10) {
+                            if let paidBy = expense?.paidBy, paidBy.contains(where: { $0.key == userData.id }), paidBy.count > 1 {
+                                MemberProfileImageView(imageUrl: userData.imageUrl, height: subImageHeight)
+                                if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
+                                    Text("\(memberName.localized) paid \(paidAmount.formattedCurrency) and \(owes) \(splitAmount)")
+                                } else {
+                                    Text("\(memberName.localized) paid \(paidAmount.formattedCurrency)")
                                 }
+                            } else if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
+                                MemberProfileImageView(imageUrl: userData.imageUrl, height: subImageHeight)
+                                Text("\(memberName.localized) \(owes) \(splitAmount)")
                             }
                         }
                     }

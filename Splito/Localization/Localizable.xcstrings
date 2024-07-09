@@ -67,6 +67,16 @@
         }
       }
     },
+    "%@ paid %@ and %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ paid %2$@ and %3$@ %4$@"
+          }
+        }
+      }
+    },
     "%@/person" : {
 
     },
@@ -267,6 +277,9 @@
 
     },
     "More options" : {
+
+    },
+    "Multiple people" : {
 
     },
     "Next" : {

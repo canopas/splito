@@ -2,7 +2,7 @@
 //  ExpenseSplitOptionsTabView.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 04/07/24.
+//  Created by Amisha Italiya on 04/07/24.
 //
 
 import SwiftUI
@@ -165,7 +165,7 @@ private struct ShareView: View {
     }
 }
 
-private struct MemberCellView: View {
+struct MemberCellView: View {
 
     @Binding var value: Double
 

@@ -146,7 +146,12 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
 
     func getTotalPaid() -> Double {
         guard let user = preference.user else { return 0 }
-        return filteredExpenses.filter { $0.paidBy == user.id }.reduce(0) { $0 + $1.amount }
+        return filteredExpenses.reduce(0.0) { (totalPaid, expense) in
+            guard let paidAmount = expense.paidBy[user.id] else {
+                return totalPaid
+            }
+            return totalPaid + paidAmount
+        }
     }
 
     func getPaymentsMade() -> Double {

@@ -14,7 +14,7 @@ public struct Expense: Codable, Hashable {
     public var name: String
     public var amount: Double
     public var date: Timestamp
-    public var paidBy: String
+    public var paidBy: [String: Double]
     public let addedBy: String
     public var splitTo: [String] // Reference to user ids involved in the split
     public let groupId: String
@@ -26,7 +26,7 @@ public struct Expense: Codable, Hashable {
         return amount.formattedCurrency
     }
 
-    public init(name: String, amount: Double, date: Timestamp, paidBy: String, addedBy: String,
+    public init(name: String, amount: Double, date: Timestamp, paidBy: [String: Double], addedBy: String,
                 splitTo: [String], groupId: String, splitType: SplitType = .equally, splitData: [String: Double]? = [:]) {
         self.name = name
         self.amount = amount
