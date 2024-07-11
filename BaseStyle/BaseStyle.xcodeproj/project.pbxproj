@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		213F377A2C3EB23F00972316 /* BottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213F37792C3EB23F00972316 /* BottomSheetView.swift */; };
+		213F377C2C400EC500972316 /* NumberFormatterHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213F377B2C400EC500972316 /* NumberFormatterHelper.swift */; };
 		5DAEE93D2D2208132D031984 /* Pods_BaseStyleTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4AFAF996FB5C233D40D81D5 /* Pods_BaseStyleTests.framework */; };
 		A40018A9B957803B8105BEA5 /* Pods_BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 174198EE4AF2FC82DADEB060 /* Pods_BaseStyle.framework */; };
 		D82174BE2BBAD86D00DB42C3 /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82174BD2BBAD86D00DB42C3 /* ProfileImageView.swift */; };
@@ -68,6 +70,8 @@
 
 /* Begin PBXFileReference section */
 		174198EE4AF2FC82DADEB060 /* Pods_BaseStyle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BaseStyle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		213F37792C3EB23F00972316 /* BottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetView.swift; sourceTree = "<group>"; };
+		213F377B2C400EC500972316 /* NumberFormatterHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFormatterHelper.swift; sourceTree = "<group>"; };
 		2CE85328C46B183FC3F074A3 /* Pods-BaseStyle.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyle.release.xcconfig"; path = "Target Support Files/Pods-BaseStyle/Pods-BaseStyle.release.xcconfig"; sourceTree = "<group>"; };
 		5BDB5B9B63CFD771230CD759 /* Pods-BaseStyleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyleTests.release.xcconfig"; path = "Target Support Files/Pods-BaseStyleTests/Pods-BaseStyleTests.release.xcconfig"; sourceTree = "<group>"; };
 		CC9EC1F1C0A5A0821118E6CA /* Pods-BaseStyleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyleTests.debug.xcconfig"; path = "Target Support Files/Pods-BaseStyleTests/Pods-BaseStyleTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -269,6 +273,7 @@
 				D8D42A9C2B870A5D009B345D /* ToastPrompt.swift */,
 				D8E244B42B972AD200C6C82A /* EmptyRouteView.swift */,
 				D89DBE302B8884E300E5F1BD /* SectionHeaderView.swift */,
+				213F37792C3EB23F00972316 /* BottomSheetView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -278,6 +283,7 @@
 			children = (
 				D887213E2B99992A009DC5BE /* LoaderViewModel.swift */,
 				D8D42AA22B8715B4009B345D /* TopViewController.swift */,
+				213F377B2C400EC500972316 /* NumberFormatterHelper.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -507,9 +513,11 @@
 				D89C933F2BC3C0F800FACD16 /* ForwardIcon.swift in Sources */,
 				D89DBE352B88A05F00E5F1BD /* UIApplication+Extension.swift in Sources */,
 				D89DBE3C2B88AA1500E5F1BD /* CustomTextField.swift in Sources */,
+				213F377C2C400EC500972316 /* NumberFormatterHelper.swift in Sources */,
 				D8D42A772B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift in Sources */,
 				D8D42A832B85D07C009B345D /* View+Extension.swift in Sources */,
 				D89DBE3E2B8C67CE00E5F1BD /* String+Extension.swift in Sources */,
+				213F377A2C3EB23F00972316 /* BottomSheetView.swift in Sources */,
 				D8E244C32B986D4F00C6C82A /* UIImage+Extension.swift in Sources */,
 				D8D42A822B85D07C009B345D /* PrimaryButton.swift in Sources */,
 				D8D42A8A2B85D525009B345D /* AppColors.swift in Sources */,

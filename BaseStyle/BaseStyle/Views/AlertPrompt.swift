@@ -55,7 +55,7 @@ public extension Backport where Content: View {
                     })
                 }
                 if alertStruct.positiveBtnTitle == nil && alertStruct.negativeBtnTitle == nil {
-                    Button("Ok", role: .cancel, action: {
+                    Button("Ok".localized, role: .cancel, action: {
                         isPresented.wrappedValue = false
                     })
                 }

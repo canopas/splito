@@ -16,15 +16,24 @@ struct ExpenseSplitOptionsTabView: View {
     var body: some View {
         VStack(spacing: 30) {
             HStack(spacing: 0) {
-                ForEach(SplitType.allCases, id: \.self) { type in
-                    Picker("", selection: $viewModel.selectedTab) {
-                        Text(type.tabIcon)
-                            .tag(type)
+                ForEach(SplitType.allCases, id: \.self) { tab in
+                    Button {
+                        viewModel.handleTabItemSelection(tab)
+                    } label: {
+                        Text(tab.tabItem.localized)
+                            .font(.body2())
+                            .foregroundColor(viewModel.selectedTab == tab ? surfaceColor : primaryText)
+                            .padding(.vertical, 8)
+                            .lineLimit(1)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .background(viewModel.selectedTab == tab ? inverseSurfaceColor : containerNormalColor)
+                            .cornerRadius(8)
+                            .padding(.horizontal, 8)
+                            .minimumScaleFactor(0.5)
                     }
-                    .pickerStyle(SegmentedPickerStyle())
                 }
-                .padding(.horizontal, 12)
             }
+            .frame(maxWidth: .infinity, alignment: .center)
 
             switch viewModel.selectedTab {
             case .equally:
@@ -36,6 +45,9 @@ struct ExpenseSplitOptionsTabView: View {
             case .shares:
                 ShareView(viewModel: viewModel)
             }
+        }
+        .transaction { transaction in
+            transaction.animation = nil
         }
     }
 }
@@ -107,7 +119,9 @@ private struct FixedAmountView: View {
                         set: { viewModel.updateFixedAmount(for: member.id, amount: $0) }
                     ),
                     member: member, suffixText: "₹",
-                    expenseAmount: viewModel.totalAmount,
+                    formatString: "%.2f",
+                    expenseAmount: viewModel.expenseAmount,
+                    inputFieldWidth: 80,
                     onChange: { amount in
                         viewModel.updateFixedAmount(for: member.id, amount: amount)
                     }
@@ -131,7 +145,7 @@ private struct PercentageView: View {
                     ),
                     member: member, suffixText: "%",
                     totalValue: viewModel.totalPercentage,
-                    expenseAmount: viewModel.totalAmount,
+                    expenseAmount: viewModel.expenseAmount,
                     onChange: { percentage in
                         viewModel.updatePercentage(for: member.id, percentage: percentage)
                     }
@@ -155,7 +169,7 @@ private struct ShareView: View {
                     ),
                     member: member, suffixText: "share(s)",
                     totalValue: viewModel.totalShares,
-                    expenseAmount: viewModel.totalAmount,
+                    expenseAmount: viewModel.expenseAmount,
                     onChange: { share in
                         viewModel.updateShare(for: member.id, share: share)
                     }
@@ -171,21 +185,26 @@ struct MemberCellView: View {
 
     let member: AppUser
     let suffixText: String
+    let formatString: String
+
     var totalValue: Double?
     var expenseAmount: Double
+    var inputFieldWidth: Double
 
     let onChange: (Double) -> Void
 
     @State private var textValue: String
 
-    init(value: Binding<Double>, member: AppUser, suffixText: String, totalValue: Double? = nil, expenseAmount: Double, onChange: @escaping (Double) -> Void) {
+    init(value: Binding<Double>, member: AppUser, suffixText: String, formatString: String = "%.0f", totalValue: Double? = nil, expenseAmount: Double, inputFieldWidth: Double = 60, onChange: @escaping (Double) -> Void) {
         self._value = value
         self.member = member
         self.suffixText = suffixText
+        self.formatString = formatString
         self.totalValue = totalValue
         self.expenseAmount = expenseAmount
+        self.inputFieldWidth = inputFieldWidth
         self.onChange = onChange
-        self._textValue = State(initialValue: String(format: "%.0f", value.wrappedValue))
+        self._textValue = State(initialValue: String(format: formatString, value.wrappedValue))
     }
 
     var body: some View {
@@ -213,9 +232,9 @@ struct MemberCellView: View {
                     TextField("0", text: $textValue, onCommit: {
                         updateValue(from: textValue)
                     })
-                    .font(.subTitle1())
+                    .font(.subTitle3())
                     .keyboardType(.decimalPad)
-                    .frame(width: 70)
+                    .frame(width: inputFieldWidth)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
 
                     Text(suffixText.localized)

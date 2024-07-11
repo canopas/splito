@@ -35,8 +35,8 @@ struct ChooseMultiplePayerView: View {
                     }
                     .scrollIndicators(.hidden)
 
-                    BottomInfoCardView(title: "₹ \(String(format: "%.0f", viewModel.totalAmount)) of ₹ \(viewModel.expenseAmount)",
-                                       value: "₹ \(String(format: "%.0f", (viewModel.expenseAmount - viewModel.totalAmount))) left")
+                    BottomInfoCardView(title: "₹ \(String(format: "%.2f", viewModel.totalAmount)) of ₹ \(viewModel.expenseAmount)",
+                                       value: "₹ \(String(format: "%.2f", (viewModel.expenseAmount - viewModel.totalAmount))) left")
                 }
             }
         }
@@ -68,7 +68,9 @@ private struct EnterPaidAmountsView: View {
                         set: { viewModel.updateAmount(for: member.id, amount: $0) }
                     ),
                     member: member, suffixText: "₹",
+                    formatString: "%.2f",
                     expenseAmount: viewModel.totalAmount,
+                    inputFieldWidth: 80,
                     onChange: { amount in
                         viewModel.updateAmount(for: member.id, amount: amount)
                     }

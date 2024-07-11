@@ -10,6 +10,7 @@ import SwiftUI
 public let backgroundColor = Color.background
 public let awarenessColor = Color.awareness
 public let successColor = Color.success
+public let bottomSheetBgColor = Color.bottomSheetBg
 
 public let containerHighColor = Color.containerHigh
 public let containerLowColor = Color.containerLow

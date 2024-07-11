@@ -22,11 +22,11 @@ struct ToastView: View {
                     .padding(.trailing, 4)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
+                    Text(title.localized)
                         .font(.buttonText())
                         .foregroundStyle(primaryText)
 
-                    Text(message)
+                    Text(message.localized)
                         .font(.body1(12))
                         .foregroundStyle(secondaryText)
                 }

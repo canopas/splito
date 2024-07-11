@@ -47,6 +47,11 @@ struct GroupHomeView: View {
                 }
             }
         }
+        .transparentFullScreenCover(isPresented: $viewModel.showSimplifyInfoSheet, content: {
+            BottomSheetView(content: {
+                SimplifyInfoSheetView()
+            }, onDismiss: viewModel.dismissSimplifyInfoSheet)
+        })
         .fullScreenCover(isPresented: $viewModel.showTransactionsSheet) {
             GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.group?.id ?? ""))) {
                 viewModel.showTransactionsSheet = false
@@ -84,7 +89,9 @@ struct GroupHomeView: View {
         .onAppear(perform: viewModel.fetchGroupAndExpenses)
         .onDisappear {
             isFocused = false
-            viewModel.onSearchBarCancelBtnTap()
+            if viewModel.showSearchBar {
+                viewModel.onSearchBarCancelBtnTap()
+            }
         }
     }
 }

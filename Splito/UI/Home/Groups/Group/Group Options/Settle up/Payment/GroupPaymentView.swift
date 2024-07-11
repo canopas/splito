@@ -34,7 +34,7 @@ struct GroupPaymentView: View {
                         }
                         .padding(.top, 20)
 
-                        Text("\(viewModel.payerName) paid \(viewModel.payableName)")
+                        Text("\(viewModel.payerName.localized) paid \(viewModel.payableName.localized)")
                             .font(.body1())
                             .foregroundStyle(primaryText)
 
@@ -45,6 +45,7 @@ struct GroupPaymentView: View {
 
                             DatePicker("", selection: $viewModel.paymentDate, in: ...viewModel.maximumDate, displayedComponents: .date)
                                 .labelsHidden()
+                                .onTapGesture(count: 99) {}
                         }
                         .padding(.top, 16)
 
@@ -72,6 +73,9 @@ struct GroupPaymentView: View {
             }
         }
         .scrollIndicators(.hidden)
+        .onTapGesture {
+            UIApplication.shared.endEditing()
+        }
     }
 }
 
@@ -87,8 +91,8 @@ private struct GroupPaymentAmountView: View {
                 .frame(width: 30, height: 30)
                 .padding(.top, 5)
 
-            TextField("0.00", value: $amount, formatter: NumberFormatter())
-                .keyboardType(.numberPad)
+            TextField("0.00", value: $amount, formatter: numberFormatter)
+                .keyboardType(.decimalPad)
                 .frame(width: 140)
                 .font(.Header1(30))
                 .focused($isAmountFocused)

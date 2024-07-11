@@ -59,7 +59,7 @@ public enum SplitType: String, Codable, CaseIterable {
     case percentage
     case shares
 
-    public var tabIcon: String {
+    public var tabItem: String {
         switch self {
         case .equally:
             return "="

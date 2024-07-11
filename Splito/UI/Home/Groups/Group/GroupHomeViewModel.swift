@@ -28,6 +28,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var showBalancesSheet = false
     @Published var showGroupTotalSheet = false
     @Published private(set) var showSearchBar = false
+    @Published var showSimplifyInfoSheet: Bool = false
 
     @Published private(set) var group: Groups?
 
@@ -302,6 +303,14 @@ extension GroupHomeViewModel {
 
     func handleTransactionsBtnTap() {
         showTransactionsSheet = true
+    }
+
+    func handleSimplifyInfoSheet() {
+        showSimplifyInfoSheet = true
+    }
+
+    func dismissSimplifyInfoSheet() {
+        showSimplifyInfoSheet = false
     }
 
     func handleSearchOptionTap() {

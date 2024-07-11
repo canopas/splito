@@ -21,7 +21,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var payerName = "You"
     @Published private(set) var expenseId: String?
 
-    @Published var expenseAmount = 0.0
+    @Published var expenseAmount: Double = 0.00
     @Published var expenseDate = Date()
 
     @Published var showGroupSelection = false
@@ -44,11 +44,13 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    private let onDismissSheet: (() -> Void)?
     private let router: Router<AppRoute>
 
-    init(router: Router<AppRoute>, expenseId: String? = nil, groupId: String? = nil) {
+    init(router: Router<AppRoute>, expenseId: String? = nil, groupId: String? = nil, onDismissSheet: (() -> Void)? = nil) {
         self.router = router
         self.expenseId = expenseId
+        self.onDismissSheet = onDismissSheet
 
         super.init()
 
@@ -185,6 +187,9 @@ extension AddExpenseViewModel {
             self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "Please select group to get payer list."))
             return
         }
+        if let user = preference.user, selectedPayers == [:] || selectedPayers[user.id] == 0 {
+            selectedPayers = [user.id: expenseAmount]
+        }
         showPayerSelection = true
     }
 
@@ -194,12 +199,14 @@ extension AddExpenseViewModel {
 
     func handleSplitTypeBtnAction() {
         guard selectedGroup != nil else {
-            self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "Please select group to get payer list."))
+            showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!",
+                                            message: "Please select group to get payer list."))
             return
         }
 
         guard expenseAmount > 0 else {
-            self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "Please enter a cost for your expense first!"))
+            showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!",
+                                            message: "Please enter a cost for your expense first!"))
             return
         }
         showSplitTypeSelection = true
@@ -212,12 +219,24 @@ extension AddExpenseViewModel {
     }
 
     func handleSaveAction(completion: @escaping () -> Void) {
-        if let user = preference.user, selectedPayers == [:] {
+        if let user = preference.user, selectedPayers == [:] || selectedPayers[user.id] == 0 {
             selectedPayers = [user.id: expenseAmount]
         }
 
         if expenseName == "" || expenseAmount == 0 || selectedGroup == nil || selectedPayers == [:] {
-            showToastFor(toast: ToastPrompt(type: .warning, title: "Warning", message: "Please fill all data to add expense."))
+            showToastFor(toast: ToastPrompt(type: .warning, title: "Warning",
+                                            message: "Please fill all data to add expense."))
+            return
+        }
+
+        let totalPaidAmount = selectedPayers.map { $0.value }.reduce(0, +)
+        let totalSharedAmount = splitData.map { $0.value }.reduce(0, +)
+
+        if (splitType == .fixedAmount && totalSharedAmount != expenseAmount) || (selectedPayers.count > 1 && totalPaidAmount != expenseAmount) {
+            let differenceAmount = (splitType == .fixedAmount && totalSharedAmount != expenseAmount) ? totalSharedAmount : totalPaidAmount
+
+            showAlertFor(title: "Error",
+                         message: "The total of everyone's paid shares (\(differenceAmount.formattedCurrency)) is different than the total cost (\(expenseAmount.formattedCurrency))")
             return
         }
 
@@ -266,7 +285,7 @@ extension AddExpenseViewModel {
                 }
             } receiveValue: { [weak self] _ in
                 self?.viewState = .initial
-                self?.router.pop()
+                self?.onDismissSheet?()
             }.store(in: &cancelable)
     }
 }
@@ -275,5 +294,10 @@ extension AddExpenseViewModel {
     enum ViewState {
         case initial
         case loading
+    }
+
+    enum AddExpenseField {
+        case expenseName
+        case expenseAmount
     }
 }

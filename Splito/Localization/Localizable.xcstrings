@@ -19,6 +19,9 @@
     " to %@" : {
 
     },
+    "\"Simplify debts\" is ENABLED in this group. This feature shuffles \"who owes who\" to minimize repayments. For example:\n" : {
+
+    },
     "(%lld people)" : {
 
     },
@@ -77,6 +80,12 @@
         }
       }
     },
+    "%@ people" : {
+      "extractionState" : "manual"
+    },
+    "%@ people paid %@" : {
+      "extractionState" : "manual"
+    },
     "%@/person" : {
 
     },
@@ -89,11 +98,20 @@
     "0.00" : {
 
     },
+    "1.23" : {
+      "extractionState" : "manual"
+    },
     "About" : {
 
     },
     "Account" : {
 
+    },
+    "Acknowledgements" : {
+      "extractionState" : "manual"
+    },
+    "Acknowledgements cannot be accessed." : {
+      "extractionState" : "manual"
     },
     "Add & split expenses with groups or individuals." : {
       "extractionState" : "manual"
@@ -123,16 +141,49 @@
     "All time" : {
       "extractionState" : "manual"
     },
+    "Allow" : {
+      "extractionState" : "manual"
+    },
+    "Ana borrows $10 from Bob\nBob borrows $10 from Charlie\n" : {
+
+    },
     "and split" : {
 
     },
+    "Apologies, we were not able to complete the authentication process. Please try again later." : {
+      "extractionState" : "manual"
+    },
+    "Are you ABSOLUTELY sure you want to close your splito account? You will no longer be able to log into your account or access your account history from your splito app." : {
+      "extractionState" : "manual"
+    },
+    "Are you ABSOLUTELY sure you want to delete this group? This will remove this group for ALL users involved, not just yourself." : {
+      "extractionState" : "manual"
+    },
+    "Are you absolutely sure you want to leave this group?" : {
+      "extractionState" : "manual"
+    },
     "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you." : {
+      "extractionState" : "manual"
+    },
+    "Are you sure you want to delete this transaction?" : {
+      "extractionState" : "manual"
+    },
+    "Are you sure you want to remove this member from the group?" : {
+      "extractionState" : "manual"
+    },
+    "Are you sure you want to sign out?" : {
+      "extractionState" : "manual"
+    },
+    "Authentication failed" : {
       "extractionState" : "manual"
     },
     "Automatically combines debts to reduce the total number of repayments between group members." : {
 
     },
     "Balances" : {
+      "extractionState" : "manual"
+    },
+    "Camera access is required to take picture for your profile" : {
       "extractionState" : "manual"
     },
     "Cancel" : {
@@ -146,6 +197,15 @@
     },
     "Choose Payer" : {
 
+    },
+    "Contact Support" : {
+      "extractionState" : "manual"
+    },
+    "Contact us" : {
+      "extractionState" : "manual"
+    },
+    "Couldn't decode the response." : {
+      "extractionState" : "manual"
     },
     "Countries" : {
 
@@ -171,6 +231,12 @@
     "Delete group" : {
       "extractionState" : "manual"
     },
+    "Delete Transaction" : {
+      "extractionState" : "manual"
+    },
+    "Delete your account" : {
+      "extractionState" : "manual"
+    },
     "Details" : {
 
     },
@@ -189,10 +255,28 @@
     "Edit payment" : {
 
     },
+    "Email" : {
+      "extractionState" : "manual"
+    },
+    "Email sent successfully!" : {
+      "extractionState" : "manual"
+    },
     "Enter a description" : {
       "extractionState" : "manual"
     },
+    "Enter a valid phone number." : {
+      "extractionState" : "manual"
+    },
     "Enter code" : {
+      "extractionState" : "manual"
+    },
+    "Enter email" : {
+      "extractionState" : "manual"
+    },
+    "Enter first name" : {
+      "extractionState" : "manual"
+    },
+    "Enter last name" : {
       "extractionState" : "manual"
     },
     "Enter phone number" : {
@@ -204,13 +288,34 @@
     "Enter the percentage split that's fair for your situation." : {
       "extractionState" : "manual"
     },
+    "Entered code is expired." : {
+      "extractionState" : "manual"
+    },
+    "Entered code not exists." : {
+      "extractionState" : "manual"
+    },
+    "Entered number is too long, Please check the phone number." : {
+      "extractionState" : "manual"
+    },
     "equally" : {
+      "extractionState" : "manual"
+    },
+    "Error" : {
       "extractionState" : "manual"
     },
     "Expense date" : {
       "extractionState" : "manual"
     },
+    "Expense deleted successfully" : {
+      "extractionState" : "manual"
+    },
     "Expenses" : {
+      "extractionState" : "manual"
+    },
+    "Failed to perform database operation." : {
+      "extractionState" : "manual"
+    },
+    "First name" : {
       "extractionState" : "manual"
     },
     "Get Started" : {
@@ -227,6 +332,9 @@
     },
     "Group balances" : {
 
+    },
+    "Group member removed" : {
+      "extractionState" : "manual"
     },
     "Group members" : {
 
@@ -249,6 +357,15 @@
     "Groups make it easy to split apartment bills, share travel expenses, and more." : {
 
     },
+    "Important!" : {
+      "extractionState" : "manual"
+    },
+    "In a group with \"simplify debts\" enabled, Splito will tell Ana to repay Charlie $10. Bob does nothing. This is the most efficient way for the group to settle up. With simplify debts enabled, it's normal to owe someone who didn't directly loan you money." : {
+
+    },
+    "Invalid OTP" : {
+      "extractionState" : "manual"
+    },
     "Invite Code" : {
 
     },
@@ -267,7 +384,22 @@
     "keep track of balances between friends and loved ones." : {
       "extractionState" : "manual"
     },
+    "Key" : {
+      "extractionState" : "manual"
+    },
+    "Key 1" : {
+      "extractionState" : "manual"
+    },
+    "Key 2" : {
+      "extractionState" : "manual"
+    },
     "Last month" : {
+      "extractionState" : "manual"
+    },
+    "Last name" : {
+      "extractionState" : "manual"
+    },
+    "Leave" : {
       "extractionState" : "manual"
     },
     "Leave group" : {
@@ -275,6 +407,15 @@
     },
     "Leave Group" : {
 
+    },
+    "Leave Group?" : {
+      "extractionState" : "manual"
+    },
+    "Let's split the expense! Use invite code %@ to join the %@ group, don't have an app then please download it." : {
+      "extractionState" : "manual"
+    },
+    "Minimum 3 characters are required" : {
+      "extractionState" : "manual"
     },
     "More options" : {
 
@@ -297,6 +438,9 @@
     "No expenses here yet." : {
 
     },
+    "No internet connection!" : {
+      "extractionState" : "manual"
+    },
     "No members in your selected group." : {
 
     },
@@ -309,7 +453,16 @@
     "not involved" : {
 
     },
+    "Ok" : {
+      "extractionState" : "manual"
+    },
     "Oops" : {
+      "extractionState" : "manual"
+    },
+    "Oops!" : {
+      "extractionState" : "manual"
+    },
+    "over" : {
       "extractionState" : "manual"
     },
     "Overall, %@  " : {
@@ -336,8 +489,38 @@
     "Phone number" : {
 
     },
+    "Please enter a cost for your expense first!" : {
+      "extractionState" : "manual"
+    },
+    "Please enter valid email" : {
+      "extractionState" : "manual"
+    },
+    "Please enter valid phone number" : {
+      "extractionState" : "manual"
+    },
+    "Please fill all data to add expense." : {
+      "extractionState" : "manual"
+    },
+    "Please select group to get payer list." : {
+      "extractionState" : "manual"
+    },
+    "Please, enter a valid OTP code." : {
+      "extractionState" : "manual"
+    },
+    "Privacy" : {
+      "extractionState" : "manual"
+    },
+    "Privacy policy cannot be accessed." : {
+      "extractionState" : "manual"
+    },
     "Profile" : {
 
+    },
+    "Rate Splito" : {
+      "extractionState" : "manual"
+    },
+    "Reauthenticate" : {
+      "extractionState" : "manual"
     },
     "Record a payment" : {
 
@@ -347,6 +530,12 @@
     },
     "Remove from group" : {
 
+    },
+    "Remove from group?" : {
+      "extractionState" : "manual"
+    },
+    "requires recent authentication" : {
+      "extractionState" : "manual"
     },
     "Resend code" : {
 
@@ -360,10 +549,22 @@
     "Search expenses" : {
       "extractionState" : "manual"
     },
+    "Search groups" : {
+      "extractionState" : "manual"
+    },
+    "See you soon!" : {
+      "extractionState" : "manual"
+    },
     "Select group" : {
       "extractionState" : "manual"
     },
     "Select which people owe an equal share." : {
+      "extractionState" : "manual"
+    },
+    "Server error" : {
+      "extractionState" : "manual"
+    },
+    "Server error encountered." : {
       "extractionState" : "manual"
     },
     "Settings" : {
@@ -378,6 +579,9 @@
     "settled up" : {
 
     },
+    "Share app" : {
+      "extractionState" : "manual"
+    },
     "Share Code" : {
       "extractionState" : "manual"
     },
@@ -385,6 +589,9 @@
 
     },
     "share(s)" : {
+      "extractionState" : "manual"
+    },
+    "short" : {
       "extractionState" : "manual"
     },
     "Sign in with Apple" : {
@@ -404,6 +611,24 @@
     },
     "Simplify group debts" : {
 
+    },
+    "Someone" : {
+      "extractionState" : "manual"
+    },
+    "Something went wrong! Please try after some time." : {
+      "extractionState" : "manual"
+    },
+    "Something went wrong." : {
+      "extractionState" : "manual"
+    },
+    "Sorry, we can not perform your request as the data is already exists." : {
+      "extractionState" : "manual"
+    },
+    "Specify exactly how much each person owes." : {
+      "extractionState" : "manual"
+    },
+    "Split by exact amounts" : {
+      "extractionState" : "manual"
     },
     "Split by percentages" : {
       "extractionState" : "manual"
@@ -426,11 +651,26 @@
     "Stay In Touch" : {
 
     },
+    "Success" : {
+      "extractionState" : "manual"
+    },
     "Take Picture" : {
 
     },
     "Tap the plus button to add an expense with any group." : {
 
+    },
+    "The amounts do not add up to the total cost of %@. You are %@ by %@." : {
+      "extractionState" : "manual"
+    },
+    "The payment values do not add up to the total cost of ₹ %@. You are short by ₹ %@." : {
+      "extractionState" : "manual"
+    },
+    "The shares do not add up to 100%. You are %@ by %@%" : {
+      "extractionState" : "manual"
+    },
+    "The total of everyone's paid shares (₹%@) is different than the total cost (₹%@)" : {
+      "extractionState" : "manual"
     },
     "This code will be active for 2 days." : {
 
@@ -442,6 +682,9 @@
 
     },
     "Today" : {
+      "extractionState" : "manual"
+    },
+    "Too many attempts, please try after some time." : {
       "extractionState" : "manual"
     },
     "Total change in balance" : {
@@ -456,7 +699,13 @@
     "Total you paid for" : {
       "extractionState" : "manual"
     },
+    "Totals" : {
+      "extractionState" : "manual"
+    },
     "Tracking" : {
+      "extractionState" : "manual"
+    },
+    "Transaction deleted successfully" : {
       "extractionState" : "manual"
     },
     "Transactions" : {
@@ -465,10 +714,16 @@
     "unequally" : {
       "extractionState" : "manual"
     },
+    "Unknown" : {
+      "extractionState" : "manual"
+    },
     "Verification code" : {
       "extractionState" : "manual"
     },
     "Verify" : {
+      "extractionState" : "manual"
+    },
+    "Warning" : {
       "extractionState" : "manual"
     },
     "We'll verify your phone number with a verification code" : {
@@ -488,6 +743,9 @@
     },
     "Whoops!" : {
       "extractionState" : "manual"
+    },
+    "Why do I owe this person?" : {
+
     },
     "You" : {
       "extractionState" : "manual"
@@ -511,6 +769,9 @@
     "You are all settled up in this group." : {
 
     },
+    "You are an unauthorised user." : {
+      "extractionState" : "manual"
+    },
     "You are not part of any group." : {
 
     },
@@ -523,11 +784,20 @@
     "you borrowed" : {
 
     },
+    "You can't leave this group because you have outstanding debts with other group members. Please make sure all of your debts have been settle up, and try again." : {
+      "extractionState" : "manual"
+    },
+    "You can't remove %@ from this group because they have outstanding debts with other group members. Please make sure all of %@'s debts have been settle up, and try again." : {
+      "extractionState" : "manual"
+    },
     "You do not have any groups yet." : {
 
     },
     "you lent" : {
 
+    },
+    "You must assign a non-zero share to at least one person." : {
+      "extractionState" : "manual"
     },
     "You must enter an amount." : {
       "extractionState" : "manual"
@@ -552,6 +822,12 @@
     },
     "You're the only one here!" : {
 
+    },
+    "Your device cannot send email." : {
+      "extractionState" : "manual"
+    },
+    "Your requested data not found." : {
+      "extractionState" : "manual"
     },
     "Your total share" : {
       "extractionState" : "manual"
