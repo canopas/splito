@@ -231,7 +231,7 @@ private struct GroupMemberCellView: View {
 
             VStack(alignment: .leading, spacing: 5) {
                 HStack(alignment: .center, spacing: 2) {
-                    Text(userName)
+                    Text(userName.localized)
                         .lineLimit(1)
                         .font(.body1())
                         .foregroundStyle(primaryText)
@@ -243,7 +243,7 @@ private struct GroupMemberCellView: View {
                     }
                 }
 
-                Text(subInfo)
+                Text(subInfo.localized)
                     .lineLimit(1)
                     .font(.subTitle3())
                     .foregroundStyle(secondaryText)

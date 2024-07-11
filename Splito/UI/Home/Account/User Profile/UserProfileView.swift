@@ -173,7 +173,7 @@ private struct UserDetailCell: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(subtitleText)
+            Text(subtitleText.localized)
                 .font(.body2())
                 .lineSpacing(1)
                 .foregroundStyle(disableText)
@@ -191,7 +191,7 @@ private struct UserDetailCell: View {
                     Divider()
                         .frame(height: 1)
                         .background(awarenessColor)
-                    Text(validationType.errorText)
+                    Text(validationType.errorText.localized)
                         .font(.body1(12))
                         .foregroundStyle(awarenessColor)
                         .frame(maxWidth: .infinity, alignment: .leading)

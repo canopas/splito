@@ -127,7 +127,7 @@ private struct TransactionItemView: View {
                 .frame(width: 1)
                 .background(outlineColor)
 
-            Text("\(payerName) paid \(receiverName) \(transactionWithUser.transaction.amount.formattedCurrency).")
+            Text("\(payerName.localized) paid \(receiverName.localized) \(transactionWithUser.transaction.amount.formattedCurrency).")
                 .font(.body1(17))
                 .foregroundStyle(primaryText)
                 .frame(maxWidth: .infinity, alignment: .leading)

@@ -98,7 +98,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     func handleDeleteBtnAction() {
         showAlert = true
-        alert = .init(title: "Delete transaction",
+        alert = .init(title: "Delete Transaction",
                       message: "Are you sure you want to delete this transaction?",
                       positiveBtnTitle: "Ok",
                       positiveBtnAction: { self.deleteTransaction() },

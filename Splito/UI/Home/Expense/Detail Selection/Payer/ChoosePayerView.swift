@@ -121,7 +121,7 @@ private struct ChooseMemberCellView: View {
             HStack(alignment: .center, spacing: 20) {
                 MemberProfileImageView(imageUrl: member.imageUrl)
 
-                Text((userName ?? "").isEmpty ? "Unknown" : userName!)
+                Text(((userName ?? "").isEmpty ? "Unknown" : userName?.localized) ?? "")
                     .font(.subTitle2())
                     .foregroundStyle(primaryText)
 

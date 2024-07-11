@@ -80,6 +80,11 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
+    func dismissEditExpenseSheet() {
+        showEditExpenseSheet = false
+        fetchExpense()
+    }
+
     func getMemberDataBy(id: String) -> AppUser? {
         return expenseUsersData.first(where: { $0.id == id })
     }

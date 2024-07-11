@@ -156,7 +156,7 @@ private struct AccountItemCellView: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
-            Text(optionText)
+            Text(optionText.localized)
                 .font(.subTitle2())
                 .foregroundStyle(primaryText)
 

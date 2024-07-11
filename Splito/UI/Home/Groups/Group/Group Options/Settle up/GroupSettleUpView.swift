@@ -136,7 +136,7 @@ private struct GroupMemberCellView: View {
                     .font(.body1())
                     .foregroundStyle(primaryText)
 
-                Text(subInfo)
+                Text(subInfo.localized)
                     .lineLimit(1)
                     .font(.subTitle3())
                     .foregroundStyle(secondaryText)

@@ -47,7 +47,7 @@ struct ExpenseDetailsView: View {
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .fullScreenCover(isPresented: $viewModel.showEditExpenseSheet) {
             NavigationStack {
-                AddExpenseView(viewModel: AddExpenseViewModel(router: viewModel.router, expenseId: viewModel.expenseId))
+                AddExpenseView(viewModel: AddExpenseViewModel(router: viewModel.router, expenseId: viewModel.expenseId, onDismissSheet: viewModel.dismissEditExpenseSheet))
             }
         }
         .toolbar {
@@ -97,7 +97,7 @@ private struct ExpenseHeaderView: View {
                 .font(.H1Text(36))
                 .foregroundStyle(primaryText)
 
-            Text("Added by \(username) on \(viewModel.expense?.date.dateValue().longDate ?? "Today")")
+            Text("Added by \(username.localized) on \(viewModel.expense?.date.dateValue().longDate ?? "Today")")
                 .lineLimit(0)
                 .font(.body1(17))
                 .foregroundStyle(secondaryText)
@@ -153,13 +153,13 @@ private struct ExpenseInfoView: View {
                             if let paidBy = expense?.paidBy, paidBy.contains(where: { $0.key == userData.id }), paidBy.count > 1 {
                                 MemberProfileImageView(imageUrl: userData.imageUrl, height: subImageHeight)
                                 if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
-                                    Text("\(memberName.localized) paid \(paidAmount.formattedCurrency) and \(owes) \(splitAmount)")
+                                    Text("\(memberName.localized) paid \(paidAmount.formattedCurrency) and \(owes.localized) \(splitAmount)")
                                 } else {
                                     Text("\(memberName.localized) paid \(paidAmount.formattedCurrency)")
                                 }
                             } else if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
                                 MemberProfileImageView(imageUrl: userData.imageUrl, height: subImageHeight)
-                                Text("\(memberName.localized) \(owes) \(splitAmount)")
+                                Text("\(memberName.localized) \(owes.localized) \(splitAmount)")
                             }
                         }
                     }

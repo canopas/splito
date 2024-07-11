@@ -103,7 +103,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         guard let transactionId else { return }
 
         showAlert = true
-        alert = .init(title: "Delete transaction",
+        alert = .init(title: "Delete Transaction",
                       message: "Are you sure you want to delete this transaction?",
                       positiveBtnTitle: "Ok",
                       positiveBtnAction: { self.deleteTransaction(transactionId: transactionId) },

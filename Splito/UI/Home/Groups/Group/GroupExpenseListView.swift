@@ -193,7 +193,9 @@ private struct GroupExpenseHeaderView: View {
 
             if viewModel.memberOwingAmount.count < 2, let member = viewModel.memberOwingAmount.first {
                 let name = viewModel.getMemberDataBy(id: member.key)?.nameWithLastInitial ?? "Unknown"
-                GroupExpenseMemberOweView(name: name, amount: member.value)
+                GroupExpenseMemberOweView(name: name, amount: member.value,
+                                          isDebtSimplified: viewModel.group?.isDebtSimplified ?? false,
+                                          handleSimplifyInfoSheet: viewModel.handleSimplifyInfoSheet)
             } else {
                 if viewModel.overallOwingAmount != 0 {
                     let isDue = viewModel.overallOwingAmount < 0
@@ -205,7 +207,9 @@ private struct GroupExpenseHeaderView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
                         let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
-                        GroupExpenseMemberOweView(name: name, amount: amount)
+                        GroupExpenseMemberOweView(name: name, amount: amount,
+                                                  isDebtSimplified: viewModel.group?.isDebtSimplified ?? false,
+                                                  handleSimplifyInfoSheet: viewModel.handleSimplifyInfoSheet)
                     }
                 }
             }
@@ -219,25 +223,69 @@ private struct GroupExpenseMemberOweView: View {
 
     let name: String
     let amount: Double
+    let isDebtSimplified: Bool
+
+    let handleSimplifyInfoSheet: () -> Void
 
     var body: some View {
-        if amount > 0 {
-            Group {
-                Text("\(name) owes you ")
-                    .foregroundColor(primaryText)
-                + Text("\(amount.formattedCurrency)")
-                    .foregroundColor(amountLentColor)
+        HStack(spacing: 6) {
+            if amount > 0 {
+                Group {
+                    Text("\(name.localized) owes you ")
+                        .foregroundColor(primaryText)
+                    + Text("\(amount.formattedCurrency)")
+                        .foregroundColor(amountLentColor)
+                }
+                .font(.body1(14))
+            } else if amount < 0 {
+                Group {
+                    Text("You owe \(name.localized) ")
+                        .foregroundColor(primaryText)
+                    + Text("\(amount.formattedCurrency)")
+                        .foregroundColor(amountBorrowedColor)
+                }
+                .font(.body1(14))
             }
-            .font(.body1(14))
-        } else if amount < 0 {
-            Group {
-                Text("You owe \(name) ")
-                    .foregroundColor(primaryText)
-                + Text("\(amount.formattedCurrency)")
-                    .foregroundColor(amountBorrowedColor)
+
+            if isDebtSimplified {
+                Button(action: handleSimplifyInfoSheet) {
+                    Image(systemName: "questionmark.circle")
+                        .resizable()
+                        .frame(width: 14, height: 14)
+                        .scaledToFit()
+                        .foregroundColor(primaryText)
+                }
             }
-            .font(.body1(14))
         }
+    }
+}
+
+struct SimplifyInfoSheetView: View {
+
+    var body: some View {
+        VStack(alignment: .center, spacing: 0) {
+            VSpacer(24)
+
+            Text("Why do I owe this person?")
+                .font(.subTitle1())
+                .foregroundStyle(primaryText)
+
+            VSpacer(24)
+
+            Group {
+                Text("\"Simplify debts\" is ENABLED in this group. This feature shuffles \"who owes who\" to minimize repayments. For example:\n")
+
+                Text("Ana borrows $10 from Bob\nBob borrows $10 from Charlie\n")
+
+                Text("In a group with \"simplify debts\" enabled, Splito will tell Ana to repay Charlie $10. Bob does nothing. This is the most efficient way for the group to settle up. With simplify debts enabled, it's normal to owe someone who didn't directly loan you money.")
+            }
+            .font(.body1(14))
+            .foregroundStyle(primaryText)
+            .multilineTextAlignment(.center)
+
+            VSpacer(40)
+        }
+        .padding(.horizontal, 16)
     }
 }
 

@@ -108,7 +108,7 @@ private struct TransactionInfoView: View {
                 .frame(width: 50, height: 60)
                 .padding(10)
 
-            Text("\(payerName) paid \(receiverName)")
+            Text("\(payerName.localized) paid \(receiverName.localized)")
                 .font(.body1(22))
                 .foregroundStyle(primaryText)
 
@@ -116,7 +116,7 @@ private struct TransactionInfoView: View {
                 .font(.H1Text(36))
                 .foregroundStyle(primaryText)
 
-            Text("Added by \(addedUserName) on \(viewModel.transaction?.date.dateValue().longDate ?? "Today")")
+            Text("Added by \(addedUserName.localized) on \(viewModel.transaction?.date.dateValue().longDate ?? "Today")")
                 .lineLimit(0)
                 .font(.body1())
                 .foregroundStyle(secondaryText)

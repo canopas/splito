@@ -69,6 +69,9 @@ struct ExpenseSplitOptionsView: View {
                 .foregroundStyle(primaryColor)
             }
         }
+        .onTapGesture {
+            UIApplication.shared.endEditing()
+        }
     }
 }
 
@@ -102,8 +105,8 @@ private struct SplitOptionsBottomView: View {
             ExpenseSplitAmountView(memberCount: viewModel.selectedMembers.count, splitAmount: viewModel.splitAmount,
                                    isAllSelected: viewModel.isAllSelected, onAllBtnTap: viewModel.handleAllBtnAction)
         case .fixedAmount:
-            BottomInfoCardView(title: "₹ \(String(format: "%.0f", viewModel.totalFixedAmount)) of ₹ \(viewModel.totalAmount)",
-                               value: "₹ \(String(format: "%.0f", (viewModel.totalAmount - viewModel.totalFixedAmount))) left")
+            BottomInfoCardView(title: "₹ \(String(format: "%.2f", viewModel.totalFixedAmount)) of ₹ \(viewModel.expenseAmount)",
+                               value: "₹ \(String(format: "%.2f", (viewModel.expenseAmount - viewModel.totalFixedAmount))) left")
         case .percentage:
             BottomInfoCardView(title: "\(String(format: "%.0f", viewModel.totalPercentage))% of 100%",
                                value: "\(String(format: "%.0f", 100 - viewModel.totalPercentage))% left")
@@ -212,5 +215,5 @@ struct BottomInfoCardView: View {
 }
 
 #Preview {
-    ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: 0, members: [], selectedMembers: [], handleSplitTypeSelection: {_, _, _ in }))
+    ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: 0, splitData: [:], members: [], selectedMembers: [], handleSplitTypeSelection: {_, _, _ in }))
 }

@@ -15,28 +15,31 @@ struct AddExpenseView: View {
 
     @Environment(\.dismiss) var dismiss
 
+    @FocusState private var focusedField: AddExpenseViewModel.AddExpenseField?
+
     var body: some View {
-        ScrollView {
+        VStack {
             if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
-                VStack(spacing: 25) {
-                    VSpacer(80)
+                ScrollView {
+                    VStack(spacing: 25) {
+                        VSpacer(80)
 
-                    GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Select group", onTap: viewModel.handleGroupBtnAction)
+                        GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Select group", onTap: viewModel.handleGroupBtnAction)
 
-                    VStack(spacing: 16) {
-                        ExpenseDetailRow(imageName: "note.text", placeholder: "Enter a description",
-                                         name: $viewModel.expenseName, amount: .constant(0), date: $viewModel.expenseDate)
-                        ExpenseDetailRow(imageName: "indianrupeesign.square", placeholder: "0.00",
-                                         name: .constant(""), amount: $viewModel.expenseAmount, date: $viewModel.expenseDate, keyboardType: .numberPad)
-                        ExpenseDetailRow(imageName: "calendar", placeholder: "Expense date", forDatePicker: true,
-                                         name: .constant(""), amount: .constant(0), date: $viewModel.expenseDate)
+                        VStack(spacing: 16) {
+                            ExpenseDetailRow(name: $viewModel.expenseName, amount: .constant(0), date: $viewModel.expenseDate, focusedField: $focusedField, imageName: "note.text", placeholder: "Enter a description", field: .expenseName)
+
+                            ExpenseDetailRow(name: .constant(""), amount: $viewModel.expenseAmount, date: $viewModel.expenseDate, focusedField: $focusedField, imageName: "indianrupeesign.square", placeholder: "0.00", field: .expenseAmount, keyboardType: .decimalPad)
+
+                            ExpenseDetailRow(name: .constant(""), amount: .constant(0), date: $viewModel.expenseDate, focusedField: $focusedField, imageName: "calendar", placeholder: "Expense date", forDatePicker: true)
+                        }
+                        .padding(.trailing, 20)
+
+                        PaidByBottomView(splitType: viewModel.splitType, payerName: viewModel.payerName, onPayerTap: viewModel.handlePayerBtnAction,
+                                         onSplitTypeTap: viewModel.handleSplitTypeBtnAction)
                     }
-                    .padding(.trailing, 20)
-
-                    PaidByBottomView(splitType: viewModel.splitType, payerName: viewModel.payerName, onPayerTap: viewModel.handlePayerBtnAction,
-                                     onSplitTypeTap: viewModel.handleSplitTypeBtnAction)
                 }
             }
         }
@@ -47,9 +50,6 @@ struct AddExpenseView: View {
         .navigationBarTitle(viewModel.expenseId == nil ? "Add expense" : "Edit expense", displayMode: .inline)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .onTapGesture {
-            UIApplication.shared.endEditing()
-        }
         .sheet(isPresented: $viewModel.showGroupSelection) {
             NavigationStack {
                 ChooseGroupView(viewModel: ChooseGroupViewModel(selectedGroup: viewModel.selectedGroup, onGroupSelection: viewModel.handleGroupSelection(group:)))
@@ -89,20 +89,29 @@ struct AddExpenseView: View {
                 .foregroundStyle(primaryColor)
             }
         }
+        .onAppear {
+            focusedField = .expenseName
+        }
+        .onTapGesture {
+            focusedField = nil
+        }
     }
 }
 
 private struct ExpenseDetailRow: View {
 
+    @Binding var name: String
+    @Binding var amount: Double
+    @Binding var date: Date
+    var focusedField: FocusState<AddExpenseViewModel.AddExpenseField?>.Binding
+
     var imageName: String
     var placeholder: String
     var forDatePicker: Bool = false
 
-    @Binding var name: String
-    @Binding var amount: Double
-    @Binding var date: Date
-
+    var field: AddExpenseViewModel.AddExpenseField?
     var keyboardType: UIKeyboardType = .default
+
     let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date())!
 
     var body: some View {
@@ -118,17 +127,30 @@ private struct ExpenseDetailRow: View {
                 )
 
             if forDatePicker {
-                DatePicker(placeholder, selection: $date, in: ...maximumDate, displayedComponents: .date)
+                DatePicker(placeholder.localized, selection: $date, in: ...maximumDate, displayedComponents: .date)
                     .font(.subTitle2())
+                    .onTapGesture(count: 99) {}
             } else {
                 VStack {
                     if keyboardType == .default {
                         TextField(placeholder.localized, text: $name)
                             .font(.subTitle2())
+                            .onTapGesture {
+                                focusedField.wrappedValue = .expenseName
+                            }
+                            .focused(focusedField, equals: field)
+                            .submitLabel(.next)
+                            .onSubmit {
+                                focusedField.wrappedValue = .expenseAmount
+                            }
                     } else {
-                        TextField("", value: $amount, formatter: NumberFormatter())
+                        TextField("", value: $amount, formatter: numberFormatter)
                             .font(.subTitle2())
                             .keyboardType(keyboardType)
+                            .onTapGesture {
+                                focusedField.wrappedValue = .expenseAmount
+                            }
+                            .focused(focusedField, equals: field)
                     }
 
                     Divider()

@@ -16,7 +16,7 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
     @Published var groupId: String
 
     @Published private(set) var expenseAmount: Double = 0
-    @Published private(set) var totalAmount: Double = 0
+    @Published private(set) var totalAmount: Double
 
     @Published private(set) var groupMembers: [AppUser] = []
     @Published private(set) var membersAmount: [String: Double] = [:]
@@ -27,14 +27,20 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
 
     var onPayerSelection: (([String: Double]) -> Void)
 
-    init(groupId: String, selectedPayers: [String: Double] = [:], expenseAmount: Double, onPayerSelection: @escaping (([String: Double]) -> Void), dismissChoosePayerFlow: @escaping () -> Void) {
+    init(groupId: String, selectedPayers: [String: Double] = [:], expenseAmount: Double,
+         onPayerSelection: @escaping (([String: Double]) -> Void), dismissChoosePayerFlow: @escaping () -> Void) {
         self.groupId = groupId
         self.membersAmount = selectedPayers
         self.expenseAmount = expenseAmount
+        self.totalAmount = selectedPayers.map { $0.value }.reduce(0, +)
         self.onPayerSelection = onPayerSelection
         self.dismissChoosePayerFlow = dismissChoosePayerFlow
         super.init()
 
+        if membersAmount.count == 1 {
+            membersAmount[membersAmount.keys.first ?? ""] = expenseAmount
+            totalAmount = expenseAmount
+        }
         self.fetchMembers()
     }
 
@@ -62,11 +68,11 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
 
     func handleDoneBtnTap() {
         if totalAmount != expenseAmount {
-            showToastFor(toast: ToastPrompt(type: .warning, title: "Oops!", message: "The payment values do not add up to the total cost of ₹ \(String(format: "%.0f", expenseAmount)). You are short by ₹ \(String(format: "%.0f", expenseAmount - totalAmount))."))
+            showAlertFor(title: "Oops!", message: "The payment values do not add up to the total cost of \(expenseAmount.formattedCurrency). You are short by \((expenseAmount - totalAmount).formattedCurrency).")
             return
         }
 
-        onPayerSelection(membersAmount)
+        onPayerSelection(membersAmount.filter({ $0.value != 0 }))
         dismissChoosePayerFlow()
     }
 }
