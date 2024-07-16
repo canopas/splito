@@ -393,9 +393,6 @@
     "Key 2" : {
       "extractionState" : "manual"
     },
-    "Last month" : {
-      "extractionState" : "manual"
-    },
     "Last name" : {
       "extractionState" : "manual"
     },
@@ -460,6 +457,9 @@
       "extractionState" : "manual"
     },
     "Oops!" : {
+      "extractionState" : "manual"
+    },
+    "Oops! No groups here... yet!" : {
       "extractionState" : "manual"
     },
     "over" : {
@@ -680,6 +680,9 @@
     },
     "This payment was added using the \"record a payment\" feature. No money has been moved." : {
 
+    },
+    "This year" : {
+      "extractionState" : "manual"
     },
     "Today" : {
       "extractionState" : "manual"

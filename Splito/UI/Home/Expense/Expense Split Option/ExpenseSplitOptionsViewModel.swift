@@ -79,26 +79,36 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
                         self?.viewState = .initial
                         self?.showToastFor(error)
                     }
-                } receiveValue: { [self] user in
+                } receiveValue: { [weak self] user in
                     guard let user else { return }
                     users.append(user)
-                    if selectedTab == .equally {
-                        fixedAmounts[memberId] = splitAmount
-                    } else if selectedTab == .percentage {
-                        let calculatedAmount = totalPercentage == 0 ? 0 : (expenseAmount * (Double(percentages[memberId] ?? 0) / totalPercentage))
-                        fixedAmounts[memberId] = calculatedAmount
-                    } else if selectedTab == .shares {
-                        let calculatedAmount = totalShares == 0 ? 0 : (expenseAmount * (Double(shares[memberId] ?? 0) / totalShares))
-                        fixedAmounts[memberId] = calculatedAmount
-                    }
+                    self?.calculateFixedAmountForMember(memberId: memberId)
                     queue.leave()
                 }.store(in: &cancelable)
         }
 
-        queue.notify(queue: .main) { [self] in
-            groupMembers = users
-            totalFixedAmount = fixedAmounts.values.reduce(0, +)
-            viewState = .initial
+        queue.notify(queue: .main) { [weak self] in
+            guard let self else { return }
+            self.groupMembers = users
+            self.totalFixedAmount = fixedAmounts.values.reduce(0, +)
+            self.viewState = .initial
+        }
+    }
+
+    func calculateFixedAmountForMember(memberId: String) {
+        switch selectedTab {
+        case .equally:
+            if selectedMembers.contains(memberId) {
+                fixedAmounts[memberId] = splitAmount
+            }
+        case .fixedAmount:
+            break
+        case .percentage:
+            let calculatedAmount = totalPercentage == 0 ? 0 : (expenseAmount * (Double(percentages[memberId] ?? 0) / totalPercentage))
+            fixedAmounts[memberId] = calculatedAmount
+        case .shares:
+            let calculatedAmount = totalShares == 0 ? 0 : (expenseAmount * (Double(shares[memberId] ?? 0) / totalShares))
+            fixedAmounts[memberId] = calculatedAmount
         }
     }
 

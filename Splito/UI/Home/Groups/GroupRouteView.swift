@@ -13,15 +13,13 @@ struct GroupRouteView: View {
 
     @StateObject var appRoute = Router(root: AppRoute.GroupListView)
 
-    let onGroupSelected: (String?) -> Void
-
     var body: some View {
         RouterView(router: appRoute) { route in
             switch route {
             case .GroupListView:
                 GroupListView(viewModel: GroupListViewModel(router: appRoute))
             case .GroupHomeView(let id):
-                GroupHomeView(viewModel: GroupHomeViewModel(router: appRoute, groupId: id, onGroupSelected: onGroupSelected))
+                GroupHomeView(viewModel: GroupHomeViewModel(router: appRoute, groupId: id))
             case .CreateGroupView(let group):
                 CreateGroupView(viewModel: CreateGroupViewModel(router: appRoute, group: group))
             case .InviteMemberView(let id):
@@ -32,8 +30,8 @@ struct GroupRouteView: View {
                 GroupSettingView(viewModel: GroupSettingViewModel(router: appRoute, groupId: id))
             case .ExpenseDetailView(let expenseId):
                 ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: appRoute, expenseId: expenseId))
-            case .AddExpenseView(let expenseId, let groupId):
-                AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, expenseId: expenseId, groupId: groupId))
+            case .AddExpenseView(let expenseId):
+                AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, expenseId: expenseId))
             case .TransactionListView(let groupId):
                 GroupTransactionListView(viewModel: GroupTransactionListViewModel(router: appRoute, groupId: groupId))
             case .TransactionDetailView(let transactionId, let groupId):

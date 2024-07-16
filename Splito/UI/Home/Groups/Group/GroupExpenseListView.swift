@@ -18,58 +18,82 @@ struct GroupExpenseListView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            VStack(alignment: .leading, spacing: 0) {
-                if viewModel.showSearchBar {
-                    SearchBar(
-                        text: $viewModel.searchedExpense,
-                        isFocused: isFocused,
-                        placeholder: "Search expenses",
-                        showCancelButton: true,
-                        clearButtonMode: .never,
-                        onCancel: viewModel.onSearchBarCancelBtnTap
-                    )
-                    .padding(.horizontal, 8)
-                    .onAppear(perform: onSearchBarAppear)
-                }
+            ScrollViewReader { scrollProxy in
+                VStack(alignment: .leading, spacing: 0) {
+                    if viewModel.showSearchBar {
+                        SearchBar(
+                            text: $viewModel.searchedExpense,
+                            isFocused: isFocused,
+                            placeholder: "Search expenses",
+                            showCancelButton: true,
+                            clearButtonMode: .never,
+                            onCancel: viewModel.onSearchBarCancelBtnTap
+                        )
+                        .padding(.horizontal, 8)
+                        .onAppear(perform: onSearchBarAppear)
+                    }
 
-                List {
-                    Group {
-                        GroupExpenseHeaderView(viewModel: viewModel)
+                    List {
+                        Group {
+                            GroupExpenseHeaderView(viewModel: viewModel)
+                                .id("expenseList")
 
-                        GroupOptionsListView(isSettleUpEnable: (!viewModel.memberOwingAmount.isEmpty && viewModel.group?.members.count ?? 1 > 1),
-                                             showTransactionsOption: !viewModel.transactions.isEmpty,
-                                             onSettleUpTap: viewModel.handleSettleUpBtnTap,
-                                             onTransactionsTap: viewModel.handleTransactionsBtnTap,
-                                             onBalanceTap: viewModel.handleBalancesBtnTap,
-                                             onTotalsTap: viewModel.handleTotalBtnTap)
+                            GroupOptionsListView(isSettleUpEnable: (!viewModel.memberOwingAmount.isEmpty && viewModel.group?.members.count ?? 1 > 1),
+                                                 showTransactionsOption: !viewModel.transactions.isEmpty,
+                                                 onSettleUpTap: viewModel.handleSettleUpBtnTap,
+                                                 onTransactionsTap: viewModel.handleTransactionsBtnTap,
+                                                 onBalanceTap: viewModel.handleBalancesBtnTap,
+                                                 onTotalsTap: viewModel.handleTotalBtnTap)
 
-                        if viewModel.groupExpenses.isEmpty {
-                            ExpenseNotFoundView(geometry: geometry, searchedExpense: viewModel.searchedExpense)
-                        } else {
-                            ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
-                                Section(header: sectionHeader(month: month)) {
-                                    ForEach(viewModel.groupExpenses[month]!, id: \.expense.id) { expense in
-                                        GroupExpenseItemView(expenseWithUser: expense)
-                                            .onTouchGesture {
-                                                viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
-                                            }
-                                            .swipeActions {
-                                                Button("Delete") {
-                                                    viewModel.showExpenseDeleteAlert(expenseId: expense.expense.id ?? "")
+                            if viewModel.groupExpenses.isEmpty {
+                                ExpenseNotFoundView(geometry: geometry, searchedExpense: viewModel.searchedExpense)
+                            } else {
+                                let firstMonth = viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings).first
+
+                                ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
+                                    Section(header: sectionHeader(month: month)) {
+                                        ForEach(viewModel.groupExpenses[month] ?? [], id: \.expense.id) { expense in
+                                            GroupExpenseItemView(expenseWithUser: expense)
+                                                .onTouchGesture {
+                                                    viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
                                                 }
-                                                .tint(.red)
-                                            }
+                                                .swipeActions {
+                                                    Button("Delete") {
+                                                        viewModel.showExpenseDeleteAlert(expenseId: expense.expense.id ?? "")
+                                                    }
+                                                    .tint(.red)
+                                                }
+                                                .onAppear {
+                                                    if month == firstMonth && viewModel.groupExpenses[month]?.first?.expense.id == expense.expense.id {
+                                                        viewModel.manageScrollToTopBtnVisibility(false)
+                                                    }
+                                                }
+                                                .onDisappear {
+                                                    if month == firstMonth && viewModel.groupExpenses[month]?.first?.expense.id == expense.expense.id {
+                                                        viewModel.manageScrollToTopBtnVisibility(true)
+                                                    }
+                                                }
+                                        }
                                     }
                                 }
                             }
                         }
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .listRowBackground(backgroundColor)
                     }
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    .listRowBackground(backgroundColor)
+                    .overlay(alignment: .bottomTrailing) {
+                        if viewModel.showScrollToTopBtn {
+                            ScrollToTopButton {
+                                withAnimation {
+                                    scrollProxy.scrollTo("expenseList", anchor: .top)
+                                }
+                            }
+                        }
+                    }
+                    .listStyle(.plain)
+                    .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .leading)
                 }
-                .listStyle(.plain)
-                .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .leading)
             }
         }
     }

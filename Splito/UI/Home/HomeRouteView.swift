@@ -15,7 +15,7 @@ struct HomeRouteView: View {
     var body: some View {
         ZStack {
             TabView(selection: $viewModel.selectedTab) {
-                GroupRouteView(onGroupSelected: viewModel.setSelectedGroupId(_:))
+                GroupRouteView()
                     .onAppear {
                         viewModel.setLastSelectedTab(0)
                     }
@@ -46,7 +46,7 @@ struct HomeRouteView: View {
                 }
             }
             .fullScreenCover(isPresented: $viewModel.openExpenseSheet) {
-                ExpenseRouteView(groupId: viewModel.selectedGroupId)
+                ExpenseRouteView()
             }
             .sheet(isPresented: $viewModel.openProfileView) {
                 UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenFromOnboard: true, onDismiss: viewModel.dismissProfileView))

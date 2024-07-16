@@ -18,17 +18,30 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var currentViewState: ViewState = .loading
     @Published private(set) var groupListState: GroupListState = .noGroup
+    @Published private(set) var selectedTab: GroupListTabType = .all
 
     @Published var searchedGroup: String = ""
-    @Published private(set) var showSearchBar = false
+    @Published var selectedGroup: Groups?
     @Published private(set) var usersTotalExpense = 0.0
+
+    @Published var showActionSheet = false
+    @Published private(set) var showSearchBar = false
+    @Published private(set) var showScrollToTopBtn = false
 
     private var groups: [Groups] = []
     private let router: Router<AppRoute>
 
     var filteredGroups: [GroupInformation] {
         guard case .hasGroup(let groups) = groupListState else { return [] }
-        return searchedGroup.isEmpty ? groups : groups.filter { $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
+
+        switch selectedTab {
+        case .all:
+            return searchedGroup.isEmpty ? groups : groups.filter { $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
+        case .settled:
+            return searchedGroup.isEmpty ? groups.filter { $0.oweAmount == 0 } : groups.filter { $0.oweAmount == 0 && $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
+        case .unsettled:
+            return searchedGroup.isEmpty ? groups.filter { $0.oweAmount != 0 } : groups.filter { $0.oweAmount != 0 && $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
+        }
     }
 
     init(router: Router<AppRoute>) {
@@ -46,7 +59,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func observeLatestExpenses() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.fetchLatestExpenses()
         }
     }
@@ -187,10 +200,14 @@ extension GroupListViewModel {
         router.push(.JoinMemberView)
     }
 
-    func handleGroupItemTap(_ group: Groups) {
-        onSearchBarCancelBtnTap()
-        if let id = group.id {
-            router.push(.GroupHomeView(groupId: id))
+    func handleGroupItemTap(_ group: Groups, isTapped: Bool = true) {
+        if isTapped {
+            onSearchBarCancelBtnTap()
+            if let id = group.id {
+                router.push(.GroupHomeView(groupId: id))
+            }
+        } else {
+            handleGroupItemLongPress(group)
         }
     }
 
@@ -206,6 +223,59 @@ extension GroupListViewModel {
             searchedGroup = ""
             showSearchBar = false
         }
+    }
+
+    func handleTabItemSelection(_ selection: GroupListTabType) {
+        withAnimation(.easeInOut(duration: 0.3), {
+            selectedTab = selection
+        })
+    }
+
+    func manageScrollToTopBtnVisibility(offset: CGFloat) {
+        showScrollToTopBtn = offset < 0
+    }
+
+    func onDismissActionSheet() {
+        showActionSheet = false
+    }
+
+    func handleGroupItemLongPress(_ group: Groups) {
+        selectedGroup = group
+        showActionSheet = true
+    }
+
+    func handleOptionSelection(with selection: OptionList) {
+        showActionSheet = false
+        guard let group = selectedGroup else { return }
+
+        switch selection {
+        case .editGroup:
+            router.push(.CreateGroupView(group: group))
+        case .deleteGroup:
+            handleDeleteGroupTap(groupId: group.id)
+        }
+    }
+
+    func handleDeleteGroupTap(groupId: String?) {
+        alert = .init(title: "Delete Group",
+                      message: "Are you ABSOLUTELY sure you want to delete this group? This will remove this group for ALL users involved, not just yourself.",
+                      positiveBtnTitle: "Delete",
+                      positiveBtnAction: { self.deleteGroup(groupId: groupId) },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
+        showAlert = true
+    }
+
+    private func deleteGroup(groupId: String?) {
+        guard let groupId else { return }
+
+        groupRepository.deleteGroup(groupID: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { _ in
+            }.store(in: &cancelable)
     }
 }
 
@@ -241,6 +311,46 @@ extension GroupListViewModel {
             case .hasGroup:
                 "hasGroup"
             }
+        }
+    }
+}
+
+// MARK: - Tab Types
+enum GroupListTabType: Int, CaseIterable {
+
+    case all, settled, unsettled
+
+    var tabItem: String {
+        switch self {
+        case .all:
+            return "All"
+        case .settled:
+            return "Settled"
+        case .unsettled:
+            return "Unsettled"
+        }
+    }
+}
+
+enum OptionList: CaseIterable {
+    case editGroup
+    case deleteGroup
+
+    var title: String {
+        switch self {
+        case .editGroup:
+            return "Edit group"
+        case .deleteGroup:
+            return "Delete group"
+        }
+    }
+
+    var image: String {
+        switch self {
+        case .editGroup:
+            return "pencil.line"
+        case .deleteGroup:
+            return "trash"
         }
     }
 }

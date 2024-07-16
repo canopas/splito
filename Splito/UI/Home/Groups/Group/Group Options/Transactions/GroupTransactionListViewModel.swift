@@ -77,11 +77,12 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             }
         }
 
-        queue.notify(queue: .main) { [self] in
+        queue.notify(queue: .main) { [weak self] in
+            guard let self else { return }
             withAnimation {
-                transactionsWithUser = combinedData
-                filteredTransactionsForSelectedTab()
-                currentViewState = .initial
+                self.transactionsWithUser = combinedData
+                self.filteredTransactionsForSelectedTab()
+                self.currentViewState = .initial
             }
         }
     }
@@ -146,9 +147,9 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             return GroupTransactionListViewModel.dateFormatter.string(from: currentMonth)
         }
 
-        var lastMonth: String {
-            let lastMonth = Calendar.current.date(byAdding: .month, value: -1, to: Date())
-            return GroupTransactionListViewModel.dateFormatter.string(from: lastMonth ?? Date())
+        var currentYear: Int {
+            let currentDate = Date()
+            return Calendar.current.component(.year, from: currentDate)
         }
 
         var groupedTransactions: [String: [TransactionWithUser]] {
@@ -161,8 +162,14 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         switch selectedTab {
         case .thisMonth:
             filteredTransactions = groupedTransactions.filter { $0.key == currentMonth }
-        case .lastMonth:
-            filteredTransactions = groupedTransactions.filter { $0.key == lastMonth }
+        case .thisYear:
+            filteredTransactions = groupedTransactions.filter { _, transactions in
+                transactions.contains { transaction in
+                    let date = transaction.transaction.date.dateValue()
+                    let year = Calendar.current.component(.year, from: date)
+                    return year == currentYear
+                }
+            }
         case .all:
             filteredTransactions = groupedTransactions
         }
@@ -183,9 +190,9 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
         // Compare years first
         if components1.year != components2.year {
-            return components1.year! > components2.year!
+            return (components1.year ?? 0) > (components2.year ?? 0)
         } else {
-            return components1.month! > components2.month!
+            return (components1.month ?? 0) > (components2.month ?? 0)
         }
     }
 
@@ -219,14 +226,14 @@ extension GroupTransactionListViewModel {
 
 enum TransactionTabType: Int, CaseIterable {
 
-    case thisMonth, lastMonth, all
+    case thisMonth, thisYear, all
 
     var tabItem: String {
         switch self {
         case .thisMonth:
             return "This month"
-        case .lastMonth:
-            return "Last month"
+        case .thisYear:
+            return "This year"
         case .all:
             return "All"
         }

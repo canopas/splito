@@ -44,6 +44,7 @@ public struct OtpTextInputView: View {
                         UIApplication.shared.endEditing()
                     }
                 }
+                .autocapitalization(.none)
 
             Divider()
                 .background(outlineColor)

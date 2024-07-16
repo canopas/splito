@@ -15,6 +15,7 @@ struct GroupListView: View {
     @StateObject var viewModel: GroupListViewModel
 
     @FocusState private var isFocused: Bool
+    @State private var sheetHeight: CGFloat = .zero
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
@@ -25,6 +26,10 @@ struct GroupListView: View {
                     if case .noGroup = viewModel.groupListState {
                         CreateGroupState(viewModel: .constant(viewModel))
                     } else if case .hasGroup = viewModel.groupListState {
+                        VSpacer(16)
+
+                        GroupListTabBarView(selectedTab: viewModel.selectedTab, onSelect: viewModel.handleTabItemSelection(_:))
+
                         VSpacer(16)
 
                         GroupListHeaderView(expense: viewModel.usersTotalExpense)
@@ -43,6 +48,8 @@ struct GroupListView: View {
                         }
 
                         GroupListWithDetailView(viewModel: viewModel)
+
+                        VSpacer(20)
                     }
                 }
                 .frame(maxHeight: .infinity)
@@ -83,6 +90,50 @@ struct GroupListView: View {
         .onDisappear {
             isFocused = false
         }
+        .sheet(isPresented: $viewModel.showActionSheet) {
+            GroupActionSheetView(onSelectionWith: viewModel.handleOptionSelection(with:))
+                .overlay {
+                    GeometryReader { geometry in
+                        Color.clear.preference(key: HeightPreferenceKey.self, value: geometry.size.height)
+                    }
+                }
+                .onPreferenceChange(HeightPreferenceKey.self) { newHeight in
+                    sheetHeight = newHeight
+                }
+                .presentationDetents([.height(sheetHeight)])
+                .presentationCornerRadius(16)
+        }
+    }
+}
+
+private struct GroupListTabBarView: View {
+
+    let selectedTab: GroupListTabType
+    let onSelect: ((GroupListTabType) -> Void)
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            HStack(spacing: 10) {
+                ForEach(GroupListTabType.allCases, id: \.self) { tab in
+                    Button {
+                        onSelect(tab)
+                    } label: {
+                        Text(tab.tabItem)
+                            .font(tab == selectedTab ? .bodyBold(14) : .body2())
+                            .lineLimit(1)
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, 24)
+                            .foregroundColor(tab == selectedTab ? surfaceColor : secondaryText)
+                            .background(tab == selectedTab ? inverseSurfaceColor : containerNormalColor)
+                            .cornerRadius(30)
+                            .minimumScaleFactor(0.5)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+                Spacer()
+            }
+        }
+        .padding(.horizontal, 12)
     }
 }
 
@@ -108,7 +159,7 @@ private struct GroupListHeaderView: View {
             }
             Spacer()
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 12)
     }
 }
 
@@ -118,23 +169,43 @@ private struct GroupListWithDetailView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            ScrollView {
-                VSpacer(10)
-                LazyVStack(spacing: 16) {
-                    if viewModel.filteredGroups.isEmpty {
-                        GroupNotFoundView(geometry: geometry, searchedGroup: viewModel.searchedGroup)
-                    } else {
-                        ForEach(viewModel.filteredGroups, id: \.group.id) { group in
-                            GroupListCellView(group: group, viewModel: viewModel)
-                                .onTapGesture {
-                                    viewModel.handleGroupItemTap(group.group)
-                                }
+            ScrollViewReader { scrollProxy in
+                ScrollView {
+                    VSpacer(10)
+                    LazyVStack(spacing: 16) {
+                        if viewModel.filteredGroups.isEmpty {
+                            GroupNotFoundView(geometry: geometry, text: (viewModel.showSearchBar) ? "No results found for \"\(viewModel.searchedGroup)\"" : "Oops! No groups here... yet!")
+                        } else {
+                            ForEach(viewModel.filteredGroups, id: \.group.id) { group in
+                                GroupListCellView(group: group, viewModel: viewModel)
+                                    .onTapGesture {
+                                        viewModel.handleGroupItemTap(group.group)
+                                    }
+                                    .onLongPressGesture {
+                                        viewModel.handleGroupItemTap(group.group, isTapped: false)
+                                    }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .id("groupList")
+                    .background(GeometryReader { geo in
+                        Color.clear
+                            .onChange(of: geo.frame(in: .global).minY,
+                                      perform: viewModel.manageScrollToTopBtnVisibility(offset:)
+                            )
+                    })
+                }
+                .overlay(alignment: .bottomTrailing) {
+                    if viewModel.showScrollToTopBtn {
+                        ScrollToTopButton {
+                            withAnimation {
+                                scrollProxy.scrollTo("groupList", anchor: .top)
+                            }
                         }
                     }
                 }
-                .padding(.horizontal, 20)
             }
-            .scrollIndicators(.hidden)
         }
     }
 }
@@ -142,13 +213,13 @@ private struct GroupListWithDetailView: View {
 private struct GroupNotFoundView: View {
 
     let geometry: GeometryProxy
-    let searchedGroup: String
+    let text: String
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             VSpacer()
 
-            Text("No results found for \"\(searchedGroup)\"")
+            Text(text.localized)
                 .font(.subTitle2())
                 .lineSpacing(2)
                 .foregroundColor(secondaryText)
@@ -264,9 +335,7 @@ private struct CreateGroupButtonView: View {
     let onClick: () -> Void
 
     var body: some View {
-        Button {
-            onClick()
-        } label: {
+        Button(action: onClick) {
             HStack(spacing: 20) {
                 Image(systemName: "person.3.fill")
                     .resizable()
@@ -283,6 +352,48 @@ private struct CreateGroupButtonView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.scale)
+    }
+}
+
+struct GroupActionSheetView: View {
+
+    let onSelectionWith: (_ option: OptionList) -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ForEach(OptionList.allCases, id: \.self) { option in
+                Button {
+                    onSelectionWith(option)
+                } label: {
+                    HStack(spacing: 20) {
+                        Image(systemName: option.image)
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(primaryText)
+                            .frame(width: 20, height: 20, alignment: .center)
+
+                        Text(option.title)
+                            .font(.buttonText())
+                            .foregroundStyle(primaryText)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding(.vertical, 20)
+                    .padding(.horizontal, 24)
+                }
+
+                if OptionList.allCases.last != option {
+                    Divider()
+                        .background(outlineColor)
+                }
+            }
+        }
+    }
+}
+
+struct HeightPreferenceKey: PreferenceKey {
+    static let defaultValue: CGFloat = .zero
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 

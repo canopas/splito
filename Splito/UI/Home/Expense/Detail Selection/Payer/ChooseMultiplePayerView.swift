@@ -52,6 +52,9 @@ struct ChooseMultiplePayerView: View {
                 }
             }
         }
+        .onTapGesture {
+            UIApplication.shared.endEditing()
+        }
     }
 }
 

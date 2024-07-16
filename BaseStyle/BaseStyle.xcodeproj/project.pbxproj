@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		213F377A2C3EB23F00972316 /* BottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213F37792C3EB23F00972316 /* BottomSheetView.swift */; };
 		213F377C2C400EC500972316 /* NumberFormatterHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213F377B2C400EC500972316 /* NumberFormatterHelper.swift */; };
+		213F377E2C416C9C00972316 /* ScrollToTopButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213F377D2C416C9C00972316 /* ScrollToTopButton.swift */; };
 		5DAEE93D2D2208132D031984 /* Pods_BaseStyleTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4AFAF996FB5C233D40D81D5 /* Pods_BaseStyleTests.framework */; };
 		A40018A9B957803B8105BEA5 /* Pods_BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 174198EE4AF2FC82DADEB060 /* Pods_BaseStyle.framework */; };
 		D82174BE2BBAD86D00DB42C3 /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82174BD2BBAD86D00DB42C3 /* ProfileImageView.swift */; };
@@ -72,6 +73,7 @@
 		174198EE4AF2FC82DADEB060 /* Pods_BaseStyle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BaseStyle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		213F37792C3EB23F00972316 /* BottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetView.swift; sourceTree = "<group>"; };
 		213F377B2C400EC500972316 /* NumberFormatterHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFormatterHelper.swift; sourceTree = "<group>"; };
+		213F377D2C416C9C00972316 /* ScrollToTopButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollToTopButton.swift; sourceTree = "<group>"; };
 		2CE85328C46B183FC3F074A3 /* Pods-BaseStyle.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyle.release.xcconfig"; path = "Target Support Files/Pods-BaseStyle/Pods-BaseStyle.release.xcconfig"; sourceTree = "<group>"; };
 		5BDB5B9B63CFD771230CD759 /* Pods-BaseStyleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyleTests.release.xcconfig"; path = "Target Support Files/Pods-BaseStyleTests/Pods-BaseStyleTests.release.xcconfig"; sourceTree = "<group>"; };
 		CC9EC1F1C0A5A0821118E6CA /* Pods-BaseStyleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyleTests.debug.xcconfig"; path = "Target Support Files/Pods-BaseStyleTests/Pods-BaseStyleTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 				D8D42A7E2B85D07C009B345D /* PrimaryButton.swift */,
 				D8D42A7D2B85D07C009B345D /* SecondaryButton.swift */,
 				D8302D9B2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift */,
+				213F377D2C416C9C00972316 /* ScrollToTopButton.swift */,
 			);
 			path = Buttons;
 			sourceTree = "<group>";
@@ -510,6 +513,7 @@
 				D8D42AB02B872E44009B345D /* LoaderView.swift in Sources */,
 				D8D42A9D2B870A5D009B345D /* ToastPrompt.swift in Sources */,
 				D82174BE2BBAD86D00DB42C3 /* ProfileImageView.swift in Sources */,
+				213F377E2C416C9C00972316 /* ScrollToTopButton.swift in Sources */,
 				D89C933F2BC3C0F800FACD16 /* ForwardIcon.swift in Sources */,
 				D89DBE352B88A05F00E5F1BD /* UIApplication+Extension.swift in Sources */,
 				D89DBE3C2B88AA1500E5F1BD /* CustomTextField.swift in Sources */,
