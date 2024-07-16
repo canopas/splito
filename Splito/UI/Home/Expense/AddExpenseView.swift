@@ -112,7 +112,7 @@ private struct ExpenseDetailRow: View {
     var field: AddExpenseViewModel.AddExpenseField?
     var keyboardType: UIKeyboardType = .default
 
-    let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date())!
+    let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date()) ?? Date()
 
     var body: some View {
         HStack(spacing: 16) {
@@ -237,5 +237,5 @@ private struct PaidByBtnView: View {
 }
 
 #Preview {
-    AddExpenseView(viewModel: AddExpenseViewModel(router: .init(root: .AddExpenseView(expenseId: "", groupId: ""))))
+    AddExpenseView(viewModel: AddExpenseViewModel(router: .init(root: .AddExpenseView(expenseId: ""))))
 }

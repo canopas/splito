@@ -68,7 +68,11 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
 
     func handleDoneBtnTap() {
         if totalAmount != expenseAmount {
-            showAlertFor(title: "Oops!", message: "The payment values do not add up to the total cost of \(expenseAmount.formattedCurrency). You are short by \((expenseAmount - totalAmount).formattedCurrency).")
+            let amountDescription = totalAmount < expenseAmount ? "short" : "over"
+            let differenceAmount = totalAmount < expenseAmount ? (expenseAmount - totalAmount) : (totalAmount - expenseAmount)
+
+            showAlertFor(title: "Oops!",
+                         message: "The payment values do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
             return
         }
 

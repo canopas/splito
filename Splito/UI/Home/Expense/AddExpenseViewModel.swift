@@ -47,7 +47,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     private let onDismissSheet: (() -> Void)?
     private let router: Router<AppRoute>
 
-    init(router: Router<AppRoute>, expenseId: String? = nil, groupId: String? = nil, onDismissSheet: (() -> Void)? = nil) {
+    init(router: Router<AppRoute>, expenseId: String? = nil, onDismissSheet: (() -> Void)? = nil) {
         self.router = router
         self.expenseId = expenseId
         self.onDismissSheet = onDismissSheet
@@ -56,29 +56,12 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
         if let expenseId {
             fetchExpenseDetails(expenseId: expenseId)
-        } else if let groupId {
-            fetchGroup(groupId: groupId)
+        } else {
             fetchDefaultUser()
         }
     }
 
     // MARK: - Data Loading
-    private func fetchGroup(groupId: String) {
-        viewState = .loading
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServerError(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.selectedGroup = group
-                self.groupMembers = group.members
-                self.selectedMembers = group.members
-                self.viewState = .initial
-            }.store(in: &cancelable)
-    }
-
     private func fetchDefaultUser() {
         guard let id = preference.user?.id else { return }
         viewState = .loading
@@ -176,7 +159,6 @@ extension AddExpenseViewModel {
     }
 
     func handleGroupSelection(group: Groups) {
-        selectedPayers = [:]
         selectedGroup = group
         groupMembers = group.members
         selectedMembers = group.members

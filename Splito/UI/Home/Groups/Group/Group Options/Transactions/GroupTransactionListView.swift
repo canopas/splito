@@ -61,7 +61,7 @@ private struct TransactionListWithDetailView: View {
                     } else {
                         ForEach(viewModel.filteredTransactions.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
                             Section(header: sectionHeader(month: month)) {
-                                ForEach(viewModel.filteredTransactions[month]!, id: \.transaction.id) { transaction in
+                                ForEach(viewModel.filteredTransactions[month] ?? [], id: \.transaction.id) { transaction in
                                     TransactionItemView(transactionWithUser: transaction)
                                         .onTouchGesture {
                                             viewModel.handleTransactionItemTap(transaction.transaction.id)

@@ -25,9 +25,9 @@ struct GroupHomeView: View {
             } else if case .hasExpense = viewModel.groupState {
                 VSpacer(10)
 
-                GroupExpenseListView(viewModel: viewModel, isFocused: $isFocused, onSearchBarAppear: {
+                GroupExpenseListView(viewModel: viewModel, isFocused: $isFocused) {
                     isFocused = true
-                })
+                }
                 .focused($isFocused)
             }
         }
@@ -202,5 +202,5 @@ private struct NoExpenseView: View {
 }
 
 #Preview {
-    GroupHomeView(viewModel: GroupHomeViewModel(router: .init(root: .GroupHomeView(groupId: "")), groupId: "", onGroupSelected: ({_ in})))
+    GroupHomeView(viewModel: GroupHomeViewModel(router: .init(root: .GroupHomeView(groupId: "")), groupId: ""))
 }

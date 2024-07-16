@@ -101,11 +101,12 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
 
     private func filterItemsForSelectedTab<T>(items: [T], dateExtractor: (T) -> Date, for tab: GroupTotalsTabType) -> [T] {
         let calendar = Calendar.current
+        let currentDate = Date()
 
         switch tab {
         case .thisMonth:
-            let currentMonth = calendar.component(.month, from: Date())
-            let currentYear = calendar.component(.year, from: Date())
+            let currentMonth = calendar.component(.month, from: currentDate)
+            let currentYear = calendar.component(.year, from: currentDate)
 
             return items.filter {
                 let itemDate = dateExtractor($0)
@@ -113,20 +114,13 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
                 let itemYear = calendar.component(.year, from: itemDate)
                 return itemMonth == currentMonth && itemYear == currentYear
             }
-        case .lastMonth:
-            let currentDate = Date()
-            guard let lastMonthDate = calendar.date(byAdding: .month, value: -1, to: currentDate) else {
-                return []
-            }
-
-            let lastMonth = calendar.component(.month, from: lastMonthDate)
-            let lastMonthYear = calendar.component(.year, from: lastMonthDate)
+        case .thisYear:
+            let currentYear = calendar.component(.year, from: currentDate)
 
             return items.filter {
                 let itemDate = dateExtractor($0)
-                let itemMonth = calendar.component(.month, from: itemDate)
                 let itemYear = calendar.component(.year, from: itemDate)
-                return itemMonth == lastMonth && itemYear == lastMonthYear
+                return itemYear == currentYear
             }
         case .allTime:
             return items
@@ -189,14 +183,14 @@ extension GroupTotalsViewModel {
 // MARK: - Tab Types
 enum GroupTotalsTabType: Int, CaseIterable {
 
-    case thisMonth, lastMonth, allTime
+    case thisMonth, thisYear, allTime
 
     var tabItem: String {
         switch self {
         case .thisMonth:
             return "This month"
-        case .lastMonth:
-            return "Last month"
+        case .thisYear:
+            return "This year"
         case .allTime:
             return "All time"
         }

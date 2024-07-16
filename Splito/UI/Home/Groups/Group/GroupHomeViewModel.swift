@@ -29,6 +29,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var showGroupTotalSheet = false
     @Published private(set) var showSearchBar = false
     @Published var showSimplifyInfoSheet: Bool = false
+    @Published private(set) var showScrollToTopBtn = false
 
     @Published private(set) var group: Groups?
 
@@ -51,16 +52,12 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private let router: Router<AppRoute>
     private var expenses: [Expense] = []
     private var groupUserData: [AppUser] = []
-    private let onGroupSelected: ((String?) -> Void)?
 
-    init(router: Router<AppRoute>, groupId: String, onGroupSelected: ((String?) -> Void)?) {
+    init(router: Router<AppRoute>, groupId: String) {
         self.router = router
         self.groupId = groupId
-        self.onGroupSelected = onGroupSelected
         super.init()
         self.fetchLatestTransactions()
-
-        self.onGroupSelected?(groupId)
     }
 
     private func fetchLatestTransactions() {
@@ -175,26 +172,27 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
             // Fetch user data for each payer once per expense
             queue.enter()
-            fetchUserData(for: expense.paidBy.keys.first!) { user in
+            fetchUserData(for: expense.paidBy.keys.first ?? "") { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
                 queue.leave()
             }
         }
 
-        queue.notify(queue: .main) { [self] in
+        queue.notify(queue: .main) { [weak self] in
+            guard let self else { return }
             (owesToUser, owedByUser) = processTransactionsNonSimply(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
 
             owesToUser.forEach { userId, owesAmount in
-                memberOwingAmount[userId, default: 0.0] = owesAmount
+                self.memberOwingAmount[userId, default: 0.0] = owesAmount
             }
             owedByUser.forEach { userId, owedAmount in
-                memberOwingAmount[userId, default: 0.0] = (memberOwingAmount[userId] ?? 0) - owedAmount
+                self.memberOwingAmount[userId, default: 0.0] = (self.memberOwingAmount[userId] ?? 0) - owedAmount
             }
 
             withAnimation(.easeOut) {
-                self.memberOwingAmount = memberOwingAmount.filter { $0.value != 0 }
-                overallOwingAmount = memberOwingAmount.values.reduce(0, +)
-                expensesWithUser = combinedData
+                self.memberOwingAmount = self.memberOwingAmount.filter { $0.value != 0 }
+                self.overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
+                self.expensesWithUser = combinedData
             }
             setGroupViewState()
         }
@@ -222,22 +220,23 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
             // Fetch user data for each payer once per expense
             queue.enter()
-            fetchUserData(for: expense.paidBy.keys.first!) { user in
+            fetchUserData(for: expense.paidBy.keys.first ?? "") { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
                 queue.leave()
             }
         }
 
-        queue.notify(queue: .main) { [self] in
+        queue.notify(queue: .main) { [weak self] in
+            guard let self else { return }
             let debts = settleDebts(users: ownAmounts)
             for debt in debts where debt.0 == userId || debt.1 == userId {
                 self.memberOwingAmount[debt.1 == userId ? debt.0 : debt.1] = debt.1 == userId ? debt.2 : -debt.2
             }
 
             withAnimation(.easeOut) {
-                memberOwingAmount = processTransactionsSimply(userId: userId, transactions: transactions, memberOwingAmount: memberOwingAmount)
-                overallOwingAmount = memberOwingAmount.values.reduce(0, +)
-                expensesWithUser = combinedData
+                self.memberOwingAmount = processTransactionsSimply(userId: userId, transactions: self.transactions, memberOwingAmount: self.memberOwingAmount)
+                self.overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
+                self.expensesWithUser = combinedData
             }
             setGroupViewState()
         }
@@ -293,6 +292,10 @@ extension GroupHomeViewModel {
         }
     }
 
+    func manageScrollToTopBtnVisibility(_ value: Bool) {
+        showScrollToTopBtn = value
+    }
+
     func handleBalancesBtnTap() {
         showBalancesSheet = true
     }
@@ -329,7 +332,7 @@ extension GroupHomeViewModel {
 
     func showExpenseDeleteAlert(expenseId: String) {
         showAlert = true
-        alert = .init(title: "Delete expense",
+        alert = .init(title: "Delete Expense",
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
                       positiveBtnTitle: "Ok",
                       positiveBtnAction: { self.deleteExpense(expenseId: expenseId) },
@@ -366,11 +369,11 @@ extension GroupHomeViewModel {
 
         // Compare years first
         if components1.year != components2.year {
-            return components1.year! > components2.year!
+            return (components1.year ?? 0) > (components2.year ?? 0)
         }
         // If years are the same, compare months
         else {
-            return components1.month! > components2.month!
+            return (components1.month ?? 0) > (components2.month ?? 0)
         }
     }
 }

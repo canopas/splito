@@ -18,7 +18,6 @@ class HomeRouteViewModel: ObservableObject {
 
     @Published var selectedTab = 0
     @Published private(set) var lastSelectedTab = 0
-    @Published private(set) var selectedGroupId: String?
 
     func openUserProfileIfNeeded() {
         if preference.isVerifiedUser {
@@ -30,12 +29,6 @@ class HomeRouteViewModel: ObservableObject {
 
     func setLastSelectedTab(_ index: Int) {
         lastSelectedTab = index
-    }
-
-    func setSelectedGroupId(_ groupId: String?) {
-        DispatchQueue.main.async {
-            self.selectedGroupId = groupId
-        }
     }
 
     func openAddExpenseSheet() {

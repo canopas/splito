@@ -17,7 +17,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     @Published var amount: Double = 0
     @Published var paymentDate = Date()
-    @Published private(set) var maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date())!
+    @Published private(set) var maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date()) ?? Date()
 
     @Published private(set) var payer: AppUser?
     @Published private(set) var receiver: AppUser?

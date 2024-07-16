@@ -21,7 +21,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var showAppleLoading = false
 
     private var currentNonce: String = ""
-    private var appleSignInDelegates: SignInWithAppleDelegates! = nil
+    private var appleSignInDelegates: SignInWithAppleDelegates?
     private let router: Router<AppRoute>
 
     init(router: Router<AppRoute>) {
