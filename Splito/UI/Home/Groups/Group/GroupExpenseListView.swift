@@ -122,17 +122,23 @@ private struct GroupExpenseItemView: View {
     init(expenseWithUser: ExpenseWithUser) {
         self.expense = expenseWithUser.expense
 
-        if let user = preference.user, expenseWithUser.user.id == user.id {
+        if let user = preference.user, expense.paidBy.count == 1 && expense.paidBy.keys.contains(user.id) {
             userName = "You"
-            isBorrowed = false
-            let splitAmount = calculateSplitAmount(member: user.id, expense: expense)
-            amount = expense.splitTo.contains(where: { $0 == preference.user?.id }) ? expense.amount - splitAmount : expense.amount
-            isSettled = expense.paidBy.keys.contains(user.id) && expense.splitTo.contains(user.id) && expense.splitTo.count == 1
+            amount = getCalculatedSplitAmount(member: user.id, expense: expense)
+            isBorrowed = amount < 0
+            isSettled = expense.paidBy.count == 1 && expense.paidBy.keys.contains(user.id) && expense.splitTo.contains(user.id) && expense.splitTo.count == 1
+        } else if let userId = preference.user?.id, expense.paidBy.count > 1 && (expense.paidBy.keys.contains(userId) || expense.splitTo.contains(userId)) {
+            userName = "\(expense.paidBy.count) people"
+            if let userId = preference.user?.id {
+                amount = getCalculatedSplitAmount(member: userId, expense: expense)
+                isBorrowed = amount < 0
+                isSettled = amount == 0
+            }
         } else {
             isBorrowed = true
             userName = expenseWithUser.user.nameWithLastInitial
             if let userId = preference.user?.id {
-                amount = calculateSplitAmount(member: userId, expense: expense)
+                amount = getCalculatedSplitAmount(member: userId, expense: expense)
             }
             isInvolved = expense.splitTo.contains(where: { $0 == preference.user?.id })
         }
@@ -160,7 +166,7 @@ private struct GroupExpenseItemView: View {
                     .foregroundStyle(primaryText)
 
                 if isInvolved {
-                    let amountText = isSettled ? "You paid for yourself" : (expense.paidBy.count > 1) ? "\(expense.paidBy.count) people paid \(expense.formattedAmount)" : "\(userName) paid \(expense.formattedAmount)"
+                    let amountText = isSettled ? "You paid for yourself" : "\(userName) paid \(expense.formattedAmount)"
                     Text(amountText.localized)
                         .font(.body1(12))
                         .foregroundStyle(secondaryText)

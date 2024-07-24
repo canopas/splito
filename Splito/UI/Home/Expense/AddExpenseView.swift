@@ -65,12 +65,15 @@ struct AddExpenseView: View {
         .sheet(isPresented: $viewModel.showSplitTypeSelection) {
             NavigationStack {
                 ExpenseSplitOptionsView(
-                    viewModel: ExpenseSplitOptionsViewModel(amount: viewModel.expenseAmount,
-                                                            splitType: viewModel.splitType,
-                                                            splitData: viewModel.splitData,
-                                                            members: viewModel.groupMembers,
-                                                            selectedMembers: viewModel.selectedMembers,
-                                                            handleSplitTypeSelection: viewModel.handleSplitTypeSelection(members:splitData:splitType:))
+                    viewModel:
+                        ExpenseSplitOptionsViewModel(
+                            amount: viewModel.expenseAmount,
+                            splitType: viewModel.splitType,
+                            splitData: viewModel.splitData,
+                            members: viewModel.groupMembers,
+                            selectedMembers: viewModel.selectedMembers,
+                            handleSplitTypeSelection: viewModel.handleSplitTypeSelection(members:splitData:splitType:)
+                        )
                 )
             }
         }

@@ -41,7 +41,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     var groupExpenses: [String: [ExpenseWithUser]] {
         let filteredExpenses = expensesWithUser.filter { expense in
-            searchedExpense.isEmpty || expense.expense.name.lowercased().contains(searchedExpense.lowercased()) || expense.expense.amount == Double(searchedExpense)
+            searchedExpense.isEmpty ||
+            expense.expense.name.lowercased().contains(searchedExpense.lowercased()) ||
+            expense.expense.amount == Double(searchedExpense)
         }
         return Dictionary(grouping: filteredExpenses.sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
             return GroupHomeViewModel.dateFormatter.string(from: expense.expense.date.dateValue())
@@ -146,56 +148,101 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         let queue = DispatchGroup()
         var combinedData: [ExpenseWithUser] = []
-        var owesToUser: [String: Double] = [:]
-        var owedByUser: [String: Double] = [:]
+
+        var owingAmount: [String: Double] = [:]
 
         overallOwingAmount = 0.0
         memberOwingAmount = [:]
 
         for expense in expenses {
-            // Check if the user is one of the payers
-            if expense.paidBy.keys.contains(userId) {
-                // If the user paid for the expense, calculate how much each member owes the user
-                for member in expense.splitTo where member != userId {
-                    let splitAmount = calculateSplitAmount(member: member, expense: expense)
-                    owesToUser[member, default: 0.0] += splitAmount
-                }
-            }
-
-            // Check if the user is one of the members who should split the expense
-            for (payerId, _) in expense.paidBy where payerId != userId {
-                if expense.splitTo.contains(userId) {
-                    let splitAmount = calculateSplitAmount(member: userId, expense: expense)
-                    owedByUser[payerId, default: 0.0] += splitAmount
-                }
-            }
-
-            // Fetch user data for each payer once per expense
             queue.enter()
+
+            let usersSplitAmount = getCalculatedSplitAmount2(member: userId, expense: expense)
+
+            if expense.paidBy.keys.contains(userId) && usersSplitAmount != 0 {
+                // If the user paid for the expense, calculate how much each member owes to the user
+                if expense.paidBy.count == 1 {
+                    for member in expense.splitTo where member != userId {
+                        let splitAmount = getCalculatedSplitAmount2(member: member, expense: expense)
+                        owingAmount[member, default: 0.0] += splitAmount // Amount user will get back
+                    }
+                } else {
+                    for member in expense.splitTo {
+                        let splitAmount = getCalculatedSplitAmount2(member: member, expense: expense)
+//                        if !(expense.paidBy.keys.contains(member) && splitAmount > 0) {
+                            owingAmount[member, default: 0.0] += splitAmount // Amount user will get back
+//                        }
+                    }
+                }
+            } else if expense.splitTo.contains(userId) && usersSplitAmount != 0 {
+                // Check if the user is one of the members who should split the expense
+                for (payerId, _) in expense.paidBy {
+                    let memberId = expense.paidBy.count == 1 ? userId : payerId
+                    let splitAmount = getCalculatedSplitAmount2(member: memberId, expense: expense)
+                    owingAmount[payerId, default: 0.0] -= splitAmount // Amount user need to pay
+                }
+            }
+
+            // Fetching only first user data as we are showing payer data for single payer, otherwise we shows payer's count
             fetchUserData(for: expense.paidBy.keys.first ?? "") { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
                 queue.leave()
             }
         }
 
+        print("XXX --- All Amount: \(owingAmount)")
+
         queue.notify(queue: .main) { [weak self] in
             guard let self else { return }
-            (owesToUser, owedByUser) = processTransactionsNonSimply(userId: userId, transactions: transactions, owesToUser: owesToUser, owedByUser: owedByUser)
-
-            owesToUser.forEach { userId, owesAmount in
-                self.memberOwingAmount[userId, default: 0.0] = owesAmount
-            }
-            owedByUser.forEach { userId, owedAmount in
-                self.memberOwingAmount[userId, default: 0.0] = (self.memberOwingAmount[userId] ?? 0) - owedAmount
-            }
+            owingAmount = processTransactions(userId: userId, transactions: self.transactions, memberOwingAmount: owingAmount.filter { $0.key != userId })
 
             withAnimation(.easeOut) {
-                self.memberOwingAmount = self.memberOwingAmount.filter { $0.value != 0 }
+                self.memberOwingAmount = owingAmount.filter { $0.value != 0 }
                 self.overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
                 self.expensesWithUser = combinedData
             }
+
             setGroupViewState()
         }
+    }
+
+    func calculateTransactions(from owingAmount: [String: Double]) -> [(from: String, to: String, amount: Double)] {
+        var positiveBalances: [String: Double] = [:]
+        var negativeBalances: [String: Double] = [:]
+
+        // Separate positive and negative balances
+        for (member, amount) in owingAmount {
+            if amount < 0 {
+                negativeBalances[member, default: 0] += amount
+            } else if amount > 0 {
+                positiveBalances[member, default: 0] += amount
+            }
+        }
+
+        var transactions: [(from: String, to: String, amount: Double)] = []
+
+        // Calculate payments
+        for (debtorName, debtAmount) in negativeBalances {
+            var remainingDebt = -debtAmount // convert to positive for calculation
+
+            for (creditorName, creditAmount) in positiveBalances {
+                if remainingDebt == 0 { break }
+
+                let paymentAmount = min(remainingDebt, creditAmount)
+
+                transactions.append((from: debtorName, to: creditorName, amount: paymentAmount))
+
+                remainingDebt -= paymentAmount
+                positiveBalances[creditorName, default: 0] -= paymentAmount
+
+                // Remove creditor if their balance is zero
+                if positiveBalances[creditorName]! <= 0 {
+                    positiveBalances.removeValue(forKey: creditorName)
+                }
+            }
+        }
+
+        return transactions
     }
 
     private func calculateExpensesSimply() {
@@ -214,7 +261,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }
 
             for member in expense.splitTo {
-                let splitAmount = calculateSplitAmount(member: member, expense: expense)
+                let splitAmount = getCalculatedSplitAmount(member: member, expense: expense)
                 ownAmounts[member, default: 0.0] -= splitAmount
             }
 
@@ -234,11 +281,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }
 
             withAnimation(.easeOut) {
-                self.memberOwingAmount = processTransactionsSimply(userId: userId, transactions: self.transactions, memberOwingAmount: self.memberOwingAmount)
+                self.memberOwingAmount = processTransactions(userId: userId, transactions: self.transactions, memberOwingAmount: self.memberOwingAmount)
                 self.overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
                 self.expensesWithUser = combinedData
             }
-            setGroupViewState()
+            self.setGroupViewState()
         }
     }
 

@@ -101,16 +101,14 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             // Update balances for each member splitting the expense
             for member in expense.splitTo {
                 if let owedMemberIndex = memberBalances.firstIndex(where: { $0.id == member }) {
-                    let splitAmount = calculateSplitAmount(member: member, expense: expense)
+                    let splitAmount = getCalculatedSplitAmount(member: member, expense: expense)
                     memberBalances[owedMemberIndex].totalOwedAmount -= splitAmount
 
                     // Adjust balances for each payer if member is not the payer
-                    for (payerId, _) in expense.paidBy {
-                        if member != payerId {
-                            memberBalances[owedMemberIndex].balances[payerId, default: 0.0] -= splitAmount
-                            if let paidByIndex = memberBalances.firstIndex(where: { $0.id == payerId }) {
-                                memberBalances[paidByIndex].balances[member, default: 0.0] += splitAmount
-                            }
+                    for (payerId, _) in expense.paidBy where member != payerId {
+                        memberBalances[owedMemberIndex].balances[payerId, default: 0.0] -= splitAmount
+                        if let paidByIndex = memberBalances.firstIndex(where: { $0.id == payerId }) {
+                            memberBalances[paidByIndex].balances[member, default: 0.0] += splitAmount
                         }
                     }
                 }
@@ -140,7 +138,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             // Calculate and update owed amounts for all members splitting the expense
             for member in expense.splitTo {
                 if let owedMemberIndex = memberBalances.firstIndex(where: { $0.id == member }) {
-                    let splitAmount = calculateSplitAmount(member: member, expense: expense)
+                    let splitAmount = getCalculatedSplitAmount(member: member, expense: expense)
                     memberBalances[owedMemberIndex].totalOwedAmount -= splitAmount
                 }
             }
