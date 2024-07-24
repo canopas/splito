@@ -184,13 +184,15 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }
 
             // Fetching only first user data as we are showing payer data for single payer, otherwise we shows payer's count
-            fetchUserData(for: expense.paidBy.keys.first ?? "") { user in
-                combinedData.append(ExpenseWithUser(expense: expense, user: user))
+            if let userId = expense.paidBy.keys.first {
+                fetchUserData(for: userId) { user in
+                    combinedData.append(ExpenseWithUser(expense: expense, user: user))
+                    queue.leave()
+                }
+            } else {
                 queue.leave()
             }
         }
-
-        print("XXX --- All Amount: \(owingAmount)")
 
         queue.notify(queue: .main) { [weak self] in
             guard let self else { return }

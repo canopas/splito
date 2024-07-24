@@ -8,42 +8,46 @@
 import Data
 import Combine
 
-public func getCalculatedSplitAmount(member: String, expense: Expense) -> Double {
-    let splitAmount: Double
+public func getTotalSplitAmount(member: String, expense: Expense) -> Double {
+    switch expense.splitType {
+    case .equally:
+        return expense.amount / Double(expense.splitTo.count)
+    case .fixedAmount:
+        return expense.splitData?[member] ?? 0
+    case .percentage:
+        let totalPercentage = expense.splitData?.values.reduce(0, +) ?? 0
+        return expense.amount * (expense.splitData?[member] ?? 0.0) / totalPercentage
+    case .shares:
+        let totalShares = expense.splitData?.values.reduce(0, +) ?? 0
+        return expense.amount * (Double(expense.splitData?[member] ?? 0)) / Double(totalShares)
+    }
+}
 
+public func getCalculatedSplitAmount(member: String, expense: Expense) -> Double {
     let totalAmount = expense.amount
     let paidAmount = expense.paidBy[member] ?? 0
 
-    switch expense.splitType {
-    case .equally:
-        if !expense.splitTo.contains(member) && expense.paidBy.keys.contains(member) {
-            splitAmount = paidAmount
-        } else {
-            splitAmount = paidAmount - (totalAmount / Double(expense.splitTo.count))
-        }
-    case .fixedAmount:
-        if !expense.splitTo.contains(member) && expense.paidBy.keys.contains(member) {
-            splitAmount = paidAmount
-        } else {
-            splitAmount = paidAmount - (expense.splitData?[member] ?? 0.0)
-        }
-    case .percentage:
-        if !expense.splitTo.contains(member) && expense.paidBy.keys.contains(member) {
-            splitAmount = paidAmount
-        } else {
-            let totalPercentage = expense.splitData?.values.reduce(0, +) ?? 0.0
-            splitAmount = paidAmount - (totalAmount * (expense.splitData?[member] ?? 0.0) / totalPercentage)
-        }
-    case .shares:
-        if !expense.splitTo.contains(member) && expense.paidBy.keys.contains(member) {
-            splitAmount = paidAmount
-        } else {
-            let totalShares = expense.splitData?.values.reduce(0, +) ?? 0
-            splitAmount = paidAmount - (totalAmount * (Double(expense.splitData?[member] ?? 0)) / Double(totalShares))
-        }
+    // If the member is not part of the split and has paid, then return the paid amount
+    if !expense.splitTo.contains(member) && expense.paidBy.keys.contains(member) {
+        return paidAmount
     }
 
-    return splitAmount
+    switch expense.splitType {
+    case .equally:
+        let splitAmount = totalAmount / Double(expense.splitTo.count)
+        return paidAmount - splitAmount
+    case .fixedAmount:
+        let splitAmount = expense.splitData?[member] ?? 0.0
+        return paidAmount - splitAmount
+    case .percentage:
+        let totalPercentage = expense.splitData?.values.reduce(0, +) ?? 0.0
+        let splitAmount = totalAmount * (expense.splitData?[member] ?? 0.0 / totalPercentage)
+        return paidAmount - splitAmount
+    case .shares:
+        let totalShares = expense.splitData?.values.reduce(0, +) ?? 0
+        let splitAmount = totalAmount * (expense.splitData?[member] ?? 0 / totalShares)
+        return paidAmount - splitAmount
+    }
 }
 
 public func getCalculatedSplitAmount2(member: String, expense: Expense) -> Double {
@@ -81,31 +85,11 @@ public func getCalculatedSplitAmount2(member: String, expense: Expense) -> Doubl
     return splitAmount
 }
 
-public func getTotalSplitAmount(member: String, expense: Expense) -> Double {
-    let splitAmount: Double
-
-    switch expense.splitType {
-    case .equally:
-        splitAmount = expense.amount / Double(expense.splitTo.count)
-    case .fixedAmount:
-        splitAmount = expense.splitData?[member] ?? 0
-    case .percentage:
-        let totalPercentage = expense.splitData?.values.reduce(0, +) ?? 0
-        splitAmount = expense.amount * (expense.splitData?[member] ?? 0.0) / totalPercentage
-    case .shares:
-        let totalShares = expense.splitData?.values.reduce(0, +) ?? 0
-        splitAmount = expense.amount * (Double(expense.splitData?[member] ?? 0)) / Double(totalShares)
-    }
-
-    return splitAmount
-}
-
 // MARK: - Non Simplified expense calculation
 
 public func calculateExpensesNonSimplify(userId: String, expenses: [Expense], transactions: [Transactions]) -> ([String: Double]) {
 
     var memberOwingAmount: [String: Double] = [:]
-
     var userOwingAmount: [String: Double] = [:]
 
     for expense in expenses {
