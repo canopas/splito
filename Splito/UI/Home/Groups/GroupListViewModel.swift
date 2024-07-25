@@ -156,9 +156,9 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
                 let expensesPublisher: AnyPublisher<(Double, [String: Double]), ServiceError>
 
                 if group.isDebtSimplified {
-                    expensesPublisher = self.calculateExpensesSimply(expenses: expenses, transactions: transactions)
+                    expensesPublisher = self.calculateExpenses(members: group.members, expenses: expenses, transactions: transactions)
                 } else {
-                    expensesPublisher = self.calculateExpenses(expenses: expenses, transactions: transactions)
+                    expensesPublisher = self.calculateExpenses(members: group.members, expenses: expenses, transactions: transactions)
                 }
 
                 return expensesPublisher
@@ -170,17 +170,10 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    private func calculateExpenses(expenses: [Expense], transactions: [Transactions]) -> AnyPublisher<(Double, [String: Double]), ServiceError> {
+    private func calculateExpenses(members: [String], expenses: [Expense], transactions: [Transactions]) -> AnyPublisher<(Double, [String: Double]), ServiceError> {
         guard let userId = self.preference.user?.id else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
 
-        let memberOwingAmount = calculateExpensesNonSimplify(userId: userId, expenses: expenses, transactions: transactions)
-        return Just((memberOwingAmount.values.reduce(0, +), memberOwingAmount)).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
-    }
-
-    private func calculateExpensesSimply(expenses: [Expense], transactions: [Transactions]) -> AnyPublisher<(Double, [String: Double]), ServiceError> {
-        guard let userId = self.preference.user?.id else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
-
-        let memberOwingAmount = calculateExpensesSimplify(userId: userId, expenses: expenses, transactions: transactions)
+        let memberOwingAmount = calculateExpensesSimplified(userId: userId, members: members, expenses: expenses, transactions: transactions)
         return Just((memberOwingAmount.values.reduce(0, +), memberOwingAmount)).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
     }
 }

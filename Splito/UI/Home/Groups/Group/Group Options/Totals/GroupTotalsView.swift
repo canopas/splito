@@ -102,16 +102,16 @@ private struct GroupTotalSummaryView: View {
         return viewModel.getTotalShareAmount()
     }
 
-    private var totalChangeInBalance: Double {
-        return viewModel.getTotalChangeInBalance()
-    }
-
     private var paymentsMade: Double {
         return viewModel.getPaymentsMade()
     }
 
     private var paymentsReceived: Double {
         return viewModel.getPaymentsReceived()
+    }
+
+    private var totalChangeInBalance: Double {
+        return viewModel.getTotalChangeInBalance()
     }
 
     var body: some View {

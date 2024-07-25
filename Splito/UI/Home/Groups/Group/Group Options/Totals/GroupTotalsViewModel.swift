@@ -127,17 +127,6 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func getTotalShareAmount() -> Double {
-        guard let user = preference.user else { return 0 }
-
-        let userSharedExpenses = filteredExpenses.filter { $0.splitTo.contains(user.id) }
-
-        let totalSharedAmount = userSharedExpenses.reduce(0.0) { total, expense in
-            return total + getCalculatedSplitAmount(member: user.id, expense: expense)
-        }
-        return totalSharedAmount
-    }
-
     func getTotalPaid() -> Double {
         guard let user = preference.user else { return 0 }
         return filteredExpenses.reduce(0.0) { (totalPaid, expense) in
@@ -146,6 +135,18 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
             }
             return totalPaid + paidAmount
         }
+    }
+
+    func getTotalShareAmount() -> Double {
+        guard let user = preference.user else { return 0 }
+
+        // Store total amount that user owes with expenses
+        let userSharedExpenses = filteredExpenses.filter { $0.splitTo.contains(user.id) }
+
+        let totalSharedAmount = userSharedExpenses.reduce(0.0) { total, expense in
+            return total - getTotalSplitAmount(member: user.id, expense: expense)
+        }
+        return abs(totalSharedAmount)
     }
 
     func getPaymentsMade() -> Double {
@@ -159,9 +160,8 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     }
 
     func getTotalChangeInBalance() -> Double {
-        guard let user = preference.user else { return 0 }
-
-        let amountOweByMember = calculateTransactionsWithExpenses(expenses: filteredExpenses, transactions: filteredTransactions)
+        guard let user = preference.user, let group else { return 0 }
+        let amountOweByMember = calculateMemberBalanceWithTransactions(members: group.members, expenses: filteredExpenses, transactions: filteredTransactions)
         return amountOweByMember[user.id] ?? 0
     }
 
