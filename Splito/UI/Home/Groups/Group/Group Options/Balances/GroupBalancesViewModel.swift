@@ -78,70 +78,25 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] expenses in
                 guard let self else { return }
                 if group.isDebtSimplified {
-                    calculateExpensesSimply(expenses: expenses)
+                    calculateExpensesSimplified(expenses: expenses)
                 } else {
-                    calculateExpenses(expenses: expenses)
+                    calculateExpensesSimplified(expenses: expenses)
                 }
             }.store(in: &cancelable)
     }
 
     // MARK: - Helper Methods
-    private func calculateExpenses(expenses: [Expense]) {
-        let groupMembers = Array(Set(groupMemberData.map { $0.id }))
-        var memberBalances = groupMembers.map { GroupMemberBalance(id: $0) }
-
-        for expense in expenses {
-            // Update total owed amount for each payer in paidBy
-            for (payerId, paidAmount) in expense.paidBy {
-                if let paidByIndex = memberBalances.firstIndex(where: { $0.id == payerId }) {
-                    memberBalances[paidByIndex].totalOwedAmount += paidAmount
-                }
-            }
-
-            // Update balances for each member splitting the expense
-            for member in expense.splitTo {
-                if let owedMemberIndex = memberBalances.firstIndex(where: { $0.id == member }) {
-                    let splitAmount = calculateSplitAmount(member: member, expense: expense)
-                    memberBalances[owedMemberIndex].totalOwedAmount -= splitAmount
-
-                    // Adjust balances for each payer if member is not the payer
-                    for (payerId, _) in expense.paidBy {
-                        if member != payerId {
-                            memberBalances[owedMemberIndex].balances[payerId, default: 0.0] -= splitAmount
-                            if let paidByIndex = memberBalances.firstIndex(where: { $0.id == payerId }) {
-                                memberBalances[paidByIndex].balances[member, default: 0.0] += splitAmount
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Process transactions and settle debts
-        memberBalances = processTransactions(transactions: transactions, memberBalances: memberBalances, isSimplify: false)
-
-        DispatchQueue.main.async {
-            self.sortMemberBalances(memberBalances: memberBalances)
-        }
-    }
-
-    private func calculateExpensesSimply(expenses: [Expense]) {
+    private func calculateExpensesSimplified(expenses: [Expense]) {
         let groupMembers = Array(Set(groupMemberData.map { $0.id }))
         var memberBalances = groupMembers.map { GroupMemberBalance(id: $0) }
 
         for expense in expenses {
             // Update total owed amount for each payer
-            for (payerId, paidAmount) in expense.paidBy {
-                if let paidByIndex = memberBalances.firstIndex(where: { $0.id == payerId }) {
-                    memberBalances[paidByIndex].totalOwedAmount += paidAmount
-                }
-            }
 
-            // Calculate and update owed amounts for all members splitting the expense
-            for member in expense.splitTo {
-                if let owedMemberIndex = memberBalances.firstIndex(where: { $0.id == member }) {
-                    let splitAmount = calculateSplitAmount(member: member, expense: expense)
-                    memberBalances[owedMemberIndex].totalOwedAmount -= splitAmount
+            for member in groupMemberData {
+                if let owedMemberIndex = memberBalances.firstIndex(where: { $0.id == member.id }) {
+                    let splitAmount = getCalculatedSplitAmount(member: member.id, expense: expense)
+                    memberBalances[owedMemberIndex].totalOwedAmount += splitAmount
                 }
             }
         }

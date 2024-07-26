@@ -113,7 +113,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] expenses in
                 guard let self else { return }
-                self.amountOweByMember = calculateTransactionsWithExpenses(expenses: expenses, transactions: transactions)
+                self.amountOweByMember = calculateMemberBalanceWithTransactions(members: members.map({ $0.id }), expenses: expenses, transactions: transactions)
                 DispatchQueue.main.async {
                     self.currentViewState = .initial
                 }

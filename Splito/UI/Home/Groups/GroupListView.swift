@@ -277,8 +277,7 @@ private struct GroupListCellView: View {
                     }
                 }
             }
-        }
-        .background(backgroundColor)
+        }.background(backgroundColor)
     }
 }
 
@@ -392,9 +391,7 @@ struct GroupActionSheetView: View {
 
 struct HeightPreferenceKey: PreferenceKey {
     static let defaultValue: CGFloat = .zero
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
 }
 
 #Preview {

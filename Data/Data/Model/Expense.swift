@@ -21,11 +21,6 @@ public struct Expense: Codable, Hashable {
     public var splitType: SplitType
     public var splitData: [String: Double]? // Use this to store percentage or share data
 
-    // Calculated properties for better UI representation
-    public var formattedAmount: String {
-        return amount.formattedCurrency
-    }
-
     public init(name: String, amount: Double, date: Timestamp, paidBy: [String: Double], addedBy: String,
                 splitTo: [String], groupId: String, splitType: SplitType = .equally, splitData: [String: Double]? = [:]) {
         self.name = name
@@ -50,6 +45,11 @@ public struct Expense: Codable, Hashable {
         case groupId = "group_id"
         case splitType = "split_type"
         case splitData = "split_data"
+    }
+
+    // Calculated properties for better UI representation
+    public var formattedAmount: String {
+        return amount.formattedCurrency
     }
 }
 

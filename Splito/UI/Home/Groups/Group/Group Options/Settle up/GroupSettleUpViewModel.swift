@@ -86,9 +86,11 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
                 guard let self, let group, let userId = preference.user?.id else { return }
                 self.expenses = expenses
                 if group.isDebtSimplified {
-                    self.memberOwingAmount = calculateExpensesSimplify(userId: userId, expenses: expenses, transactions: transactions)
+                    self.memberOwingAmount = calculateExpensesSimplified(userId: userId, members: group.members,
+                                                                       expenses: expenses, transactions: transactions)
                 } else {
-                    self.memberOwingAmount = calculateExpensesNonSimplify(userId: userId, expenses: expenses, transactions: transactions)
+                    self.memberOwingAmount = calculateExpensesSimplified(userId: userId, members: group.members,
+                                                                       expenses: expenses, transactions: transactions)
                 }
             }.store(in: &cancelable)
     }
