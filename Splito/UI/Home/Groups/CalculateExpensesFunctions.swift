@@ -131,12 +131,13 @@ public func processTransactions(userId: String, transactions: [Transactions], me
     for transaction in transactions {
         if transaction.payerId == userId {
             // If the user is the payer, the receiver owes the user the specified amount
-            memberOwingAmount[transaction.receiverId, default: 0.0] -= transaction.amount
+            memberOwingAmount[transaction.receiverId, default: 0.0] += transaction.amount
         } else if transaction.receiverId == userId {
             // If the user is the receiver, the payer owes the user the specified amount
-            memberOwingAmount[transaction.payerId, default: 0.0] += transaction.amount
+            memberOwingAmount[transaction.payerId, default: 0.0] -= transaction.amount
         }
     }
+
     return memberOwingAmount.filter { $0.value != 0 }
 }
 
