@@ -17,19 +17,17 @@ public struct Expense: Codable, Hashable {
     public var paidBy: [String: Double]
     public let addedBy: String
     public var splitTo: [String] // Reference to user ids involved in the split
-    public let groupId: String
     public var splitType: SplitType
     public var splitData: [String: Double]? // Use this to store percentage or share data
 
     public init(name: String, amount: Double, date: Timestamp, paidBy: [String: Double], addedBy: String,
-                splitTo: [String], groupId: String, splitType: SplitType = .equally, splitData: [String: Double]? = [:]) {
+                splitTo: [String], splitType: SplitType = .equally, splitData: [String: Double]? = [:]) {
         self.name = name
         self.amount = amount
         self.date = date
         self.paidBy = paidBy
         self.addedBy = addedBy
         self.splitTo = splitTo
-        self.groupId = groupId
         self.splitType = splitType
         self.splitData = splitData
     }
@@ -42,7 +40,6 @@ public struct Expense: Codable, Hashable {
         case paidBy = "paid_by"
         case addedBy = "added_by"
         case splitTo = "split_to"
-        case groupId = "group_id"
         case splitType = "split_type"
         case splitData = "split_data"
     }

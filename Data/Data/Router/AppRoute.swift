@@ -38,8 +38,8 @@ public enum AppRoute: Hashable {
     case TransactionDetailView(transactionId: String, groupId: String)
 
     // MARK: - Expense Button
-    case AddExpenseView(expenseId: String?)
-    case ExpenseDetailView(expenseId: String)
+    case AddExpenseView(groupId: String, expenseId: String?)
+    case ExpenseDetailView(groupId: String, expenseId: String)
     case ChoosePayerView(groupId: String, amount: Double, selectedPayer: [String: Double], onPayerSelection: (([String: Double]) -> Void))
     case ChooseMultiplePayerView(groupId: String, selectedPayers: [String: Double], amount: Double, onPayerSelection: (([String: Double]) -> Void))
 

@@ -12,7 +12,8 @@ public class TransactionStore: ObservableObject {
 
     @Inject private var database: Firestore
 
-    private let COLLECTION_NAME: String = "transactions"
+    private let COLLECTION_NAME: String = "groups"
+    private let SUB_COLLECTION_NAME: String = "transactions"
 
     func addTransaction(transaction: Transactions) -> AnyPublisher<Void, ServiceError> {
         Future { [weak self] promise in
@@ -22,7 +23,7 @@ public class TransactionStore: ObservableObject {
             }
 
             do {
-                _ = try self.database.collection(self.COLLECTION_NAME).addDocument(from: transaction)
+                _ = try self.database.collection(self.SUB_COLLECTION_NAME).addDocument(from: transaction)
                 promise(.success(()))
             } catch {
                 LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
@@ -39,7 +40,7 @@ public class TransactionStore: ObservableObject {
                 return
             }
             do {
-                try self.database.collection(self.COLLECTION_NAME).document(transactionId).setData(from: transaction, merge: false)
+                try self.database.collection(self.SUB_COLLECTION_NAME).document(transactionId).setData(from: transaction, merge: false)
                 promise(.success(()))
             } catch {
                 LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
@@ -49,7 +50,7 @@ public class TransactionStore: ObservableObject {
     }
 
     func fetchLatestTransactionsBy(groupId: String) -> AnyPublisher<[Transactions], ServiceError> {
-        database.collection(COLLECTION_NAME)
+        database.collection(SUB_COLLECTION_NAME)
             .whereField("group_id", isEqualTo: groupId)
             .limit(to: 20)
             .snapshotPublisher(as: Transactions.self)
@@ -62,7 +63,7 @@ public class TransactionStore: ObservableObject {
                 return
             }
 
-            self.database.collection(COLLECTION_NAME).whereField("payer_id", isEqualTo: userId).getDocuments { snapshot, error in
+            self.database.collection(SUB_COLLECTION_NAME).whereField("payer_id", isEqualTo: userId).getDocuments { snapshot, error in
                 if let error {
                     LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error.localizedDescription)))
@@ -95,7 +96,7 @@ public class TransactionStore: ObservableObject {
                 return
             }
 
-            self.database.collection(COLLECTION_NAME).whereField("group_id", isEqualTo: groupId).addSnapshotListener { snapshot, error in
+            self.database.collection(SUB_COLLECTION_NAME).whereField("group_id", isEqualTo: groupId).addSnapshotListener { snapshot, error in
                 if let error {
                     LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error.localizedDescription)))
@@ -129,7 +130,7 @@ public class TransactionStore: ObservableObject {
                 return
             }
 
-            self.database.collection(COLLECTION_NAME).document(transactionId).getDocument { snapshot, error in
+            self.database.collection(SUB_COLLECTION_NAME).document(transactionId).getDocument { snapshot, error in
                 if let error {
                     LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error.localizedDescription)))
@@ -160,7 +161,7 @@ public class TransactionStore: ObservableObject {
                 return
             }
 
-            self.database.collection(self.COLLECTION_NAME).document(transactionId).delete { error in
+            self.database.collection(self.SUB_COLLECTION_NAME).document(transactionId).delete { error in
                 if let error {
                     LogE("TransactionStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
                     promise(.failure(.databaseError(error: error.localizedDescription)))
@@ -179,7 +180,7 @@ public class TransactionStore: ObservableObject {
                 return
             }
 
-            self.database.collection(COLLECTION_NAME).whereField("group_id", isEqualTo: groupId).getDocuments { snapshot, error in
+            self.database.collection(SUB_COLLECTION_NAME).whereField("group_id", isEqualTo: groupId).getDocuments { snapshot, error in
                 if let error {
                     LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error.localizedDescription)))

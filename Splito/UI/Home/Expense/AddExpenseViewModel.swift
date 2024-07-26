@@ -44,11 +44,13 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    private var groupId: String
     private let onDismissSheet: (() -> Void)?
     private let router: Router<AppRoute>
 
-    init(router: Router<AppRoute>, expenseId: String? = nil, onDismissSheet: (() -> Void)? = nil) {
+    init(router: Router<AppRoute>, groupId: String, expenseId: String? = nil, onDismissSheet: (() -> Void)? = nil) {
         self.router = router
+        self.groupId = groupId
         self.expenseId = expenseId
         self.onDismissSheet = onDismissSheet
 
@@ -80,7 +82,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     private func fetchExpenseDetails(expenseId: String) {
         viewState = .loading
-        expenseRepository.fetchExpenseBy(expenseId: expenseId)
+        expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.handleServerError(error)
@@ -98,7 +100,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 }
                 self.selectedMembers = expense.splitTo
 
-                self.fetchGroupData(for: expense.groupId) { group in
+                self.fetchGroupData(for: groupId) { group in
                     self.selectedGroup = group
                     self.groupMembers = group?.members ?? []
                     self.selectedPayers = expense.paidBy
@@ -226,7 +228,7 @@ extension AddExpenseViewModel {
 
         if let expense {
             var newExpense = expense
-            newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing).capitalized
+            newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing)
             newExpense.amount = expenseAmount
             newExpense.date = Timestamp(date: expenseDate)
             newExpense.paidBy = selectedPayers
@@ -236,18 +238,18 @@ extension AddExpenseViewModel {
 
             updateExpense(expense: newExpense)
         } else {
-            let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing).capitalized, amount: expenseAmount,
+            let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
                                   date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: user.id,
                                   splitTo: (splitType == .equally) ? selectedMembers : splitData.map({ $0.key }),
-                                  groupId: groupId, splitType: splitType, splitData: splitData)
+                                  splitType: splitType, splitData: splitData)
 
-            addExpense(expense: expense, completion: completion)
+            addExpense(groupId: groupId, expense: expense, completion: completion)
         }
     }
 
-    private func addExpense(expense: Expense, completion: @escaping () -> Void) {
+    private func addExpense(groupId: String, expense: Expense, completion: @escaping () -> Void) {
         viewState = .loading
-        expenseRepository.addExpense(expense: expense)
+        expenseRepository.addExpense(groupId: groupId, expense: expense)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.handleServerError(error)
@@ -260,7 +262,7 @@ extension AddExpenseViewModel {
 
     private func updateExpense(expense: Expense) {
         viewState = .loading
-        expenseRepository.updateExpense(expense: expense)
+        expenseRepository.updateExpense(groupId: groupId, expense: expense)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.handleServerError(error)

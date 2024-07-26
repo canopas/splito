@@ -93,7 +93,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     private func createGroup() {
         currentState = .loading
         let userId = preference.user?.id ?? ""
-        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing).capitalized, createdBy: userId, members: [userId], imageUrl: nil, createdAt: Timestamp())
+        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId, members: [userId], imageUrl: nil, createdAt: Timestamp())
 
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
@@ -113,7 +113,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         currentState = .loading
 
         var newGroup = group
-        newGroup.name = groupName
+        newGroup.name = groupName.trimming(spaces: .leadingAndTrailing)
 
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
