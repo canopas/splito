@@ -1,6 +1,6 @@
 <p align="center"> <a href="https://canopas.com/contact"> <img src="./Screenshots/banner.png"></a></p>
 
-# Splito - Divide, Conquer, Enjoy Together! 💰
+# Splito - Divide, Conquer & Enjoy Together! 💰
 Simplifying group expense management is easy and fair among friends and family with advanced tracking and splitting features.
 
 <img src="./Screenshots/SplitoCover.png"/>
