@@ -62,7 +62,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         guard let transactionId else { return }
 
         viewState = .loading
-        transactionRepository.fetchTransactionBy(transactionId: transactionId)
+        transactionRepository.fetchTransactionBy(groupId: groupId, transactionId: transactionId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.handleServiceError(error)
@@ -113,13 +113,13 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             updateTransaction(transaction: newTransaction)
         } else {
             addTransaction(transaction: Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
-                                                     groupId: groupId, amount: amount, date: .init(date: paymentDate)))
+                                                     amount: amount, date: .init(date: paymentDate)))
         }
     }
 
     private func addTransaction(transaction: Transactions) {
         viewState = .loading
-        transactionRepository.addTransaction(transaction: transaction)
+        transactionRepository.addTransaction(groupId: groupId, transaction: transaction)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.handleServiceError(error)
@@ -132,7 +132,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     private func updateTransaction(transaction: Transactions) {
         viewState = .loading
-        transactionRepository.updateTransaction(transaction: transaction)
+        transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.handleServiceError(error)

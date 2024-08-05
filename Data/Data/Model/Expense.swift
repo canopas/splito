@@ -9,7 +9,7 @@ import FirebaseFirestore
 
 public struct Expense: Codable, Hashable {
 
-    @DocumentID public var id: String? // Automatically generated ID by Firestore
+    public var id: String? // Automatically generated ID by Firestore
 
     public var name: String
     public var amount: Double

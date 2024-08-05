@@ -127,5 +127,5 @@ private struct TransactionInfoView: View {
 }
 
 #Preview {
-    GroupTransactionDetailView(viewModel: GroupTransactionDetailViewModel(router: .init(root: .TransactionDetailView(transactionId: "", groupId: "")), transactionId: "", groupId: ""))
+    GroupTransactionDetailView(viewModel: GroupTransactionDetailViewModel(router: .init(root: .TransactionDetailView(transactionId: "", groupId: "")), groupId: "", transactionId: ""))
 }

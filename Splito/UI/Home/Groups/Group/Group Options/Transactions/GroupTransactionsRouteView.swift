@@ -29,7 +29,7 @@ struct GroupTransactionsRouteView: View {
             case .TransactionDetailView(let transactionId, let groupId):
                 GroupTransactionDetailView(
                     viewModel: GroupTransactionDetailViewModel(
-                        router: appRoute, transactionId: transactionId, groupId: groupId
+                        router: appRoute, groupId: groupId, transactionId: transactionId
                     )
                 )
             case .GroupPaymentView(let transactionId, let groupId, let payerId, let receiverId, let amount):
