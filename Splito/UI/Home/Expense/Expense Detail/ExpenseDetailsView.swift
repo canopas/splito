@@ -47,7 +47,8 @@ struct ExpenseDetailsView: View {
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .fullScreenCover(isPresented: $viewModel.showEditExpenseSheet) {
             NavigationStack {
-                AddExpenseView(viewModel: AddExpenseViewModel(router: viewModel.router, expenseId: viewModel.expenseId, onDismissSheet: viewModel.dismissEditExpenseSheet))
+                AddExpenseView(viewModel: AddExpenseViewModel(router: viewModel.router, groupId: viewModel.groupId,
+                                                              expenseId: viewModel.expenseId, onDismissSheet: viewModel.dismissEditExpenseSheet))
             }
         }
         .toolbar {
@@ -173,5 +174,5 @@ private struct ExpenseInfoView: View {
 }
 
 #Preview {
-    ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: .init(root: .ExpenseDetailView(expenseId: "")), expenseId: ""))
+    ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: .init(root: .ExpenseDetailView(groupId: "", expenseId: "")), groupId: "", expenseId: ""))
 }

@@ -21,18 +21,20 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     @Published var showEditExpenseSheet = false
 
+    var groupId: String
     var expenseId: String
     let router: Router<AppRoute>
 
-    init(router: Router<AppRoute>, expenseId: String) {
+    init(router: Router<AppRoute>, groupId: String, expenseId: String) {
         self.router = router
+        self.groupId = groupId
         self.expenseId = expenseId
     }
 
     // MARK: - Data Loading
     func fetchExpense() {
         viewState = .loading
-        expenseRepository.fetchExpenseBy(expenseId: expenseId)
+        expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.viewState = .initial
@@ -105,7 +107,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     private func deleteExpense() {
         viewState = .loading
-        expenseRepository.deleteExpense(id: expenseId)
+        expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.viewState = .initial

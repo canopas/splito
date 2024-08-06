@@ -19,21 +19,20 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     @Published var showEditTransactionSheet = false
 
-    @Published private(set) var transactionId: String
-    @Published private(set) var groupId: String
-
     let router: Router<AppRoute>
+    let groupId: String
+    let transactionId: String
 
-    init(router: Router<AppRoute>, transactionId: String, groupId: String) {
+    init(router: Router<AppRoute>, groupId: String, transactionId: String) {
         self.router = router
-        self.transactionId = transactionId
         self.groupId = groupId
+        self.transactionId = transactionId
     }
 
     // MARK: - Data Loading
     func fetchTransaction() {
         viewState = .loading
-        transactionRepository.fetchTransactionBy(transactionId: transactionId)
+        transactionRepository.fetchTransactionBy(groupId: groupId, transactionId: transactionId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.handleServiceError(error)
@@ -109,7 +108,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     private func deleteTransaction() {
         viewState = .loading
 
-        transactionRepository.deleteTransaction(transactionId: transactionId)
+        transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.handleServiceError(error)

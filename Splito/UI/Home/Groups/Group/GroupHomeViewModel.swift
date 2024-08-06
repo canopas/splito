@@ -225,7 +225,7 @@ extension GroupHomeViewModel {
     }
 
     func handleExpenseItemTap(expenseId: String) {
-        router.push(.ExpenseDetailView(expenseId: expenseId))
+        router.push(.ExpenseDetailView(groupId: groupId, expenseId: expenseId))
     }
 
     func handleSettleUpBtnTap() {
@@ -285,7 +285,7 @@ extension GroupHomeViewModel {
     }
 
     private func deleteExpense(expenseId: String) {
-        expenseRepository.deleteExpense(id: expenseId)
+        expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.showToastFor(error)

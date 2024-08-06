@@ -14,28 +14,28 @@ public class ExpenseRepository: ObservableObject {
 
     private var cancelable = Set<AnyCancellable>()
 
-    public func addExpense(expense: Expense) -> AnyPublisher<Void, ServiceError> {
-        store.addExpense(expense: expense)
+    public func addExpense(groupId: String, expense: Expense) -> AnyPublisher<Void, ServiceError> {
+        store.addExpense(groupId: groupId, expense: expense)
     }
 
-    public func updateExpense(expense: Expense) -> AnyPublisher<Void, ServiceError> {
-        store.updateExpense(expense: expense)
+    public func updateExpense(groupId: String, expense: Expense) -> AnyPublisher<Void, ServiceError> {
+        store.updateExpense(groupId: groupId, expense: expense)
     }
 
     public func fetchLatestExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
         store.fetchLatestExpensesBy(groupId: groupId)
     }
 
-    public func fetchExpenseBy(expenseId: String) -> AnyPublisher<Expense, ServiceError> {
-        store.fetchExpenseBy(expenseId: expenseId)
+    public func fetchExpenseBy(groupId: String, expenseId: String) -> AnyPublisher<Expense, ServiceError> {
+        store.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
     }
 
     public func fetchExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
         store.fetchExpensesBy(groupId: groupId)
     }
 
-    public func deleteExpense(id: String) -> AnyPublisher<Void, ServiceError> {
-        store.deleteExpense(id: id)
+    public func deleteExpense(groupId: String, expenseId: String) -> AnyPublisher<Void, ServiceError> {
+        store.deleteExpense(groupId: groupId, expenseId: expenseId)
     }
 
     public func deleteExpensesOf(groupId: String) -> AnyPublisher<Void, ServiceError> {

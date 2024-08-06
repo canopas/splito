@@ -12,9 +12,17 @@ public class ExpenseStore: ObservableObject {
 
     @Inject private var database: Firestore
 
-    private let COLLECTION_NAME: String = "expenses"
+    private let COLLECTION_NAME: String = "groups"
+    private let SUB_COLLECTION_NAME: String = "expenses"
 
-    func addExpense(expense: Expense) -> AnyPublisher<Void, ServiceError> {
+    private func expenseReference(groupId: String) -> CollectionReference {
+        database
+            .collection(COLLECTION_NAME)
+            .document(groupId)
+            .collection(SUB_COLLECTION_NAME)
+    }
+
+    func addExpense(groupId: String, expense: Expense) -> AnyPublisher<Void, ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
@@ -22,7 +30,12 @@ public class ExpenseStore: ObservableObject {
             }
 
             do {
-                _ = try self.database.collection(self.COLLECTION_NAME).addDocument(from: expense)
+                let documentRef = self.expenseReference(groupId: groupId).document()
+
+                var newExpense = expense
+                newExpense.id = documentRef.documentID
+
+                try documentRef.setData(from: newExpense)
                 promise(.success(()))
             } catch {
                 LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
@@ -32,14 +45,14 @@ public class ExpenseStore: ObservableObject {
         .eraseToAnyPublisher()
     }
 
-    func updateExpense(expense: Expense) -> AnyPublisher<Void, ServiceError> {
+    func updateExpense(groupId: String, expense: Expense) -> AnyPublisher<Void, ServiceError> {
         Future { [weak self] promise in
             guard let self, let expenseId = expense.id else {
                 promise(.failure(.unexpectedError))
                 return
             }
             do {
-                try self.database.collection(self.COLLECTION_NAME).document(expenseId).setData(from: expense, merge: false)
+                try self.expenseReference(groupId: groupId).document(expenseId).setData(from: expense, merge: false)
                 promise(.success(()))
             } catch {
                 LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
@@ -48,14 +61,14 @@ public class ExpenseStore: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    func fetchExpenseBy(expenseId: String) -> AnyPublisher<Expense, ServiceError> {
+    func fetchExpenseBy(groupId: String, expenseId: String) -> AnyPublisher<Expense, ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return
             }
 
-            self.database.collection(COLLECTION_NAME).document(expenseId).getDocument { snapshot, error in
+            self.expenseReference(groupId: groupId).document(expenseId).getDocument { snapshot, error in
                 if let error {
                     LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error.localizedDescription)))
@@ -80,8 +93,7 @@ public class ExpenseStore: ObservableObject {
     }
 
     func fetchLatestExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
-        database.collection(COLLECTION_NAME)
-            .whereField("group_id", isEqualTo: groupId)
+        expenseReference(groupId: groupId)
             .limit(to: 20)
             .snapshotPublisher(as: Expense.self)
     }
@@ -93,7 +105,7 @@ public class ExpenseStore: ObservableObject {
                 return
             }
 
-            self.database.collection(COLLECTION_NAME).whereField("group_id", isEqualTo: groupId).addSnapshotListener { snapshot, error in
+            self.expenseReference(groupId: groupId).addSnapshotListener { snapshot, error in
                 if let error {
                     LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error.localizedDescription)))
@@ -120,14 +132,14 @@ public class ExpenseStore: ObservableObject {
         .eraseToAnyPublisher()
     }
 
-    func deleteExpense(id: String) -> AnyPublisher<Void, ServiceError> {
+    func deleteExpense(groupId: String, expenseId: String) -> AnyPublisher<Void, ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return
             }
 
-            self.database.collection(self.COLLECTION_NAME).document(id).delete { error in
+            self.expenseReference(groupId: groupId).document(expenseId).delete { error in
                 if let error {
                     LogE("ExpenseStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
                     promise(.failure(.databaseError(error: error.localizedDescription)))
@@ -136,7 +148,8 @@ public class ExpenseStore: ObservableObject {
                     promise(.success(()))
                 }
             }
-        }.eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
     }
 
     func deleteExpensesOf(groupId: String) -> AnyPublisher<Void, ServiceError> {
@@ -146,7 +159,7 @@ public class ExpenseStore: ObservableObject {
                 return
             }
 
-            self.database.collection(COLLECTION_NAME).whereField("group_id", isEqualTo: groupId).getDocuments { snapshot, error in
+            self.expenseReference(groupId: groupId).getDocuments { snapshot, error in
                 if let error {
                     LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error.localizedDescription)))

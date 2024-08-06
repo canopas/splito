@@ -12,12 +12,12 @@ public class TransactionRepository: ObservableObject {
 
     @Inject private var store: TransactionStore
 
-    public func addTransaction(transaction: Transactions) -> AnyPublisher<Void, ServiceError> {
-        store.addTransaction(transaction: transaction)
+    public func addTransaction(groupId: String, transaction: Transactions) -> AnyPublisher<Void, ServiceError> {
+        store.addTransaction(groupId: groupId, transaction: transaction)
     }
 
-    public func updateTransaction(transaction: Transactions) -> AnyPublisher<Void, ServiceError> {
-        store.updateTransaction(transaction: transaction)
+    public func updateTransaction(groupId: String, transaction: Transactions) -> AnyPublisher<Void, ServiceError> {
+        store.updateTransaction(groupId: groupId, transaction: transaction)
     }
 
     public func fetchLatestTransactionsBy(groupId: String) -> AnyPublisher<[Transactions], ServiceError> {
@@ -32,12 +32,12 @@ public class TransactionRepository: ObservableObject {
         store.fetchTransactionsBy(groupId: groupId)
     }
 
-    public func fetchTransactionBy(transactionId: String) -> AnyPublisher<Transactions, ServiceError> {
-        store.fetchTransactionsBy(transactionId: transactionId)
+    public func fetchTransactionBy(groupId: String, transactionId: String) -> AnyPublisher<Transactions, ServiceError> {
+        store.fetchTransactionsBy(groupId: groupId, transactionId: transactionId)
     }
 
-    public func deleteTransaction(transactionId: String) -> AnyPublisher<Void, ServiceError> {
-        store.deleteTransaction(transactionId: transactionId)
+    public func deleteTransaction(groupId: String, transactionId: String) -> AnyPublisher<Void, ServiceError> {
+        store.deleteTransaction(groupId: groupId, transactionId: transactionId)
     }
 
     public func deleteTransactionsOf(groupId: String) -> AnyPublisher<Void, ServiceError> {

@@ -28,14 +28,14 @@ struct GroupRouteView: View {
                 JoinMemberView(viewModel: JoinMemberViewModel(router: appRoute))
             case .GroupSettingView(let id):
                 GroupSettingView(viewModel: GroupSettingViewModel(router: appRoute, groupId: id))
-            case .ExpenseDetailView(let expenseId):
-                ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: appRoute, expenseId: expenseId))
-            case .AddExpenseView(let expenseId):
-                AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, expenseId: expenseId))
+            case .ExpenseDetailView(let groupId, let expenseId):
+                ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: appRoute, groupId: groupId, expenseId: expenseId))
+            case .AddExpenseView(let groupId, let expenseId):
+                AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, groupId: groupId, expenseId: expenseId))
             case .TransactionListView(let groupId):
                 GroupTransactionListView(viewModel: GroupTransactionListViewModel(router: appRoute, groupId: groupId))
             case .TransactionDetailView(let transactionId, let groupId):
-                GroupTransactionDetailView(viewModel: GroupTransactionDetailViewModel(router: appRoute, transactionId: transactionId, groupId: groupId))
+                GroupTransactionDetailView(viewModel: GroupTransactionDetailViewModel(router: appRoute, groupId: groupId, transactionId: transactionId))
             default:
                 EmptyRouteView(routeName: self)
             }

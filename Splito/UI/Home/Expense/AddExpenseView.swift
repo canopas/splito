@@ -238,7 +238,3 @@ private struct PaidByBtnView: View {
         )
     }
 }
-
-#Preview {
-    AddExpenseView(viewModel: AddExpenseViewModel(router: .init(root: .AddExpenseView(expenseId: ""))))
-}

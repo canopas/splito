@@ -113,7 +113,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteTransaction(transactionId: String) {
-        transactionRepository.deleteTransaction(transactionId: transactionId)
+        transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.handleServiceError(error)
