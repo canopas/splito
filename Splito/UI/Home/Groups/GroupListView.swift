@@ -188,24 +188,32 @@ private struct GroupListHeaderView: View {
 private struct NoGroupsState: View {
 
     var body: some View {
-        VStack(alignment: .center, spacing: 0) {
-            Image(.emptyGroupList)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 156, height: 156)
-                .padding(.bottom, 40)
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(alignment: .center, spacing: 0) {
+                    Image(.emptyGroupList)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 156, height: 156)
+                        .padding(.bottom, 40)
 
-            Text("No groups yet.")
-                .font(.Header1(22))
-                .foregroundStyle(primaryText)
-                .padding(.bottom, 16)
+                    Text("No groups yet.")
+                        .font(.Header1(22))
+                        .foregroundStyle(primaryText)
+                        .padding(.bottom, 16)
 
-            Text("You don’t have any groups. Groups that you a part of will be listed here.")
-                .font(.subTitle1())
-                .foregroundStyle(disableText)
+                    Text("You don’t have any groups. Groups that you a part of will be listed here.")
+                        .font(.subTitle1())
+                        .foregroundStyle(disableText)
+                }
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .frame(minHeight: geometry.size.height - 80, maxHeight: .infinity, alignment: .center)
+            }
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
         }
-        .multilineTextAlignment(.center)
-        .padding(.horizontal, 16)
     }
 }
 
