@@ -6,7 +6,7 @@
 //
 
 import Data
-import Foundation
+import SwiftUI
 
 class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
@@ -16,14 +16,22 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     @Inject private var transactionRepository: TransactionRepository
 
     @Published var viewState: ViewState = .initial
+
+    @Published var groupId: String
+    @Published var showSettleUpSheet: Bool = false
     @Published var memberBalances: [GroupMemberBalance] = []
     @Published var memberOwingAmount: [String: Double] = [:]
 
-    private let groupId: String
+    @Published var payerId: String?
+    @Published var receiverId: String?
+    @Published var amount: Double?
+
     private var groupMemberData: [AppUser] = []
     private var transactions: [Transactions] = []
+    let router: Router<AppRoute>
 
-    init(groupId: String) {
+    init(router: Router<AppRoute>, groupId: String) {
+        self.router = router
         self.groupId = groupId
         super.init()
         fetchGroupMembers()
@@ -178,7 +186,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         var sortedMembers = memberBalances
 
         var userBalance = sortedMembers.remove(at: userIndex)
-        userBalance.isExpanded = true
+        userBalance.isExpanded = userBalance.totalOwedAmount != 0
         sortedMembers.insert(userBalance, at: 0)
 
         sortedMembers.sort { member1, member2 in
@@ -206,8 +214,22 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     // MARK: - User Actions
     func handleBalanceExpandView(id: String) {
         if let index = memberBalances.firstIndex(where: { $0.id == id }) {
-            memberBalances[index].isExpanded.toggle()
+            withAnimation(.interactiveSpring(response: 0.6, dampingFraction: 0.7, blendDuration: 0.7)) {
+                memberBalances[index].isExpanded.toggle()
+            }
         }
+    }
+
+    func handleSettleUpTap(payerId: String, receiverId: String, amount: Double) {
+        self.payerId = payerId
+        self.receiverId = receiverId
+        self.amount = amount
+        showSettleUpSheet = true
+    }
+
+    func dismissSettleUpSheet() {
+        fetchGroupMembers()
+        showSettleUpSheet = false
     }
 }
 

@@ -7,32 +7,31 @@
 
 import SwiftUI
 
-public let backgroundColor = Color.background
-public let awarenessColor = Color.awareness
+public let primaryColor = Color.mainPrimary
+public let primaryDarkColor = Color.primaryDark
+public let surfaceColor = Color.surface
+public let settleUpColor = Color.settleUp
+public let alertColor = Color.alert
 public let successColor = Color.success
-public let bottomSheetBgColor = Color.bottomSheetBg
-
-public let containerHighColor = Color.containerHigh
-public let containerLowColor = Color.containerLow
-public let containerNormalColor = Color.containerNormal
+public let warningColor = Color.warning
+public let infoColor = Color.info
 
 public let outlineColor = Color.outline
-public let primaryColor = Color.mainPrimary
+public let inverseOutlineColor = Color.inverseOutline
+public let dividerColor = Color.divider
 
-public let disableText = Color.disableText
-public let disableLightText = Color.disableLightText
+public let containerColor = Color.container
+public let container2Color = Color.container2
+
+public let bottomSheetBgColor = Color.bottomSheetBg
 
 public let primaryText = Color.primaryText
-public let secondaryText = Color.secondaryText
-
-public let primaryDarkText = Color.primaryDarkText
+public let inversePrimaryText = Color.inversePrimaryText
 public let primaryLightText = Color.primaryLightText
+public let primaryDarkText = Color.primaryDarkText
 
-public let surfaceColor = Color.surface
-public let surfaceDarkColor = Color.surfaceDark
-public let surfaceLightColor = Color.surfaceLight
-public let inverseSurfaceColor = Color.inverseSurface
+public let disableText = Color.disableText
+public let inverseDisableText = Color.inverseDisableText
 
-public let amountLentColor = Color.amountLent
-public let amountBorrowedColor = Color.amountBorrowed
-public let settleUpColor = Color.settleUp
+public let secondaryText = Color.secondaryText
+public let lowestText = Color.lowestText

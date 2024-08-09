@@ -12,25 +12,33 @@ import FirebaseAuth
 
 public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
 
-    @Published var otp = ""
-    @Published var resendOtpCount: Int = 30
-
-    @Published private(set) var showLoader: Bool = false
-
     @Inject var preference: SplitoPreference
     @Inject var userRepository: UserRepository
 
-    var resendTimer: Timer?
-    var phoneNumber: String
-    var verificationId: String
-    var isFromPhoneLogin = false
+    @Published var otp = ""
+    @Published var resendOtpCount: Int = 30
+    @Published private(set) var showLoader: Bool = false
+    @Published private(set) var resendTimer: Timer?
+
+    var hiddenPhoneNumber: String {
+        let count = phoneNumber.count
+        guard count > 4 else { return phoneNumber }
+        let middleNumbers = String(repeating: "*", count: count - 4)
+        return "\(phoneNumber.prefix(2))\(middleNumbers)\(phoneNumber.suffix(2))"
+    }
 
     private let router: Router<AppRoute>?
+    private let dialCode: String
+    private var phoneNumber: String
+    private var verificationId: String
+    private var isFromPhoneLogin = false
+
     private var onLoginSuccess: ((String) -> Void)?
 
-    init(router: Router<AppRoute>? = nil, phoneNumber: String, verificationId: String, onLoginSuccess: ((String) -> Void)? = nil) {
+    init(router: Router<AppRoute>? = nil, phoneNumber: String, dialCode: String = "", verificationId: String, onLoginSuccess: ((String) -> Void)? = nil) {
         self.router = router
         self.phoneNumber = phoneNumber
+        self.dialCode = dialCode
         self.verificationId = verificationId
         self.onLoginSuccess = onLoginSuccess
         super.init()
@@ -38,6 +46,7 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
         isFromPhoneLogin = onLoginSuccess == nil
     }
 
+    // MARK: - Data Loading
     func verifyOTP() {
         guard !otp.isEmpty else { return }
 
@@ -57,7 +66,7 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
 
     func resendOtp() {
         showLoader = true
-        FirebaseProvider.phoneAuthProvider.verifyPhoneNumber((phoneNumber), uiDelegate: nil) { [weak self] (verificationID, error) in
+        FirebaseProvider.phoneAuthProvider.verifyPhoneNumber((dialCode + phoneNumber), uiDelegate: nil) { [weak self] (verificationID, error) in
             guard let self else { return }
             self.showLoader = false
             if error != nil {
@@ -76,6 +85,15 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
                 self.runTimer()
             }
         }
+    }
+
+    // MARK: - User Actions
+    func handleBackBtnTap() {
+        router?.pop()
+    }
+
+    func editButtonAction() {
+        router?.pop()
     }
 }
 
@@ -114,10 +132,6 @@ extension VerifyOtpViewModel {
                 self.preference.user = user
                 self.onVerificationSuccess()
             }.store(in: &cancelable)
-    }
-
-    func editButtonAction() {
-        router?.pop()
     }
 
     private func onVerificationSuccess() {

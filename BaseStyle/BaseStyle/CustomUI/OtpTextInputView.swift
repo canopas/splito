@@ -13,50 +13,49 @@ public struct OtpTextInputView: View {
 
     @Binding var text: String
 
-    var isFocused: FocusState<Bool>.Binding
-    var keyboardType: UIKeyboardType
+    let placeholder: String
+    let isFocused: FocusState<Bool>.Binding
+    let keyboardType: UIKeyboardType
+    let alignment: TextAlignment
 
     var onOtpVerify: (() -> Void)?
 
-    public init(text: Binding<String>, isFocused: FocusState<Bool>.Binding,
-                keyboardType: UIKeyboardType = .numberPad, onOtpVerify: ( () -> Void)? = nil) {
+    public init(text: Binding<String>, placeholder: String = "", isFocused: FocusState<Bool>.Binding,
+                keyboardType: UIKeyboardType = .numberPad, alignment: TextAlignment = .center,
+                onOtpVerify: ( () -> Void)? = nil) {
         self._text = text
+        self.placeholder = placeholder
         self.isFocused = isFocused
         self.keyboardType = keyboardType
+        self.alignment = alignment
         self.onOtpVerify = onOtpVerify
     }
 
     public var body: some View {
-        VStack(alignment: .center, spacing: 10) {
-            TextField("", text: $text)
-                .kerning(16)
-                .tint(primaryColor)
-                .font(.subTitle1(34))
-                .foregroundColor(primaryText)
-                .multilineTextAlignment(.center)
-                .keyboardType(keyboardType)
-                .textContentType(.oneTimeCode)
-                .disableAutocorrection(true)
-                .focused(isFocused)
-                .onChange(of: text) { newValue in
-                    if newValue.count == OTP_TOTAL_CHARACTERS {
-                        onOtpVerify?()
-                        UIApplication.shared.endEditing()
-                    }
+        TextField(placeholder.localized, text: $text)
+            .kerning(16)
+            .focused(isFocused)
+            .tint(primaryColor)
+            .font(.Header2())
+            .keyboardType(keyboardType)
+            .foregroundColor(primaryText)
+            .multilineTextAlignment(alignment)
+            .textContentType(.oneTimeCode)
+            .disableAutocorrection(true)
+            .onChange(of: text) { newValue in
+                if newValue.count == OTP_TOTAL_CHARACTERS {
+                    onOtpVerify?()
+                    UIApplication.shared.endEditing()
                 }
-                .autocapitalization(.none)
-
-            Divider()
-                .background(outlineColor)
-                .padding(.horizontal, 60)
-        }
-        .onAppear {
-            if text.isEmpty {
-                isFocused.wrappedValue = true
-            } else {
-                isFocused.wrappedValue = false
-                UIApplication.shared.endEditing()
             }
-        }
+            .autocapitalization(.none)
+            .onAppear {
+                if text.isEmpty {
+                    isFocused.wrappedValue = true
+                } else {
+                    isFocused.wrappedValue = false
+                    UIApplication.shared.endEditing()
+                }
+            }
     }
 }

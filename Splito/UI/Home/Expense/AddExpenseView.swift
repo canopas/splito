@@ -18,41 +18,58 @@ struct AddExpenseView: View {
     @FocusState private var focusedField: AddExpenseViewModel.AddExpenseField?
 
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
                 ScrollView {
-                    VStack(spacing: 25) {
-                        VSpacer(80)
-
-                        GroupSelectionView(name: viewModel.selectedGroup?.name ?? "Select group", onTap: viewModel.handleGroupBtnAction)
+                    VStack(spacing: 0) {
+                        VSpacer(16)
 
                         VStack(spacing: 16) {
-                            ExpenseDetailRow(name: $viewModel.expenseName, amount: .constant(0), date: $viewModel.expenseDate, focusedField: $focusedField, imageName: "note.text", placeholder: "Enter a description", field: .expenseName)
+                            ExpenseDetailRowWithBtn(name: viewModel.selectedGroup?.name ?? "Select group",
+                                                    subtitle: "With you and:", onTap: viewModel.handleGroupBtnAction)
 
-                            ExpenseDetailRow(name: .constant(""), amount: $viewModel.expenseAmount, date: $viewModel.expenseDate, focusedField: $focusedField, imageName: "indianrupeesign.square", placeholder: "0.00", field: .expenseAmount, keyboardType: .decimalPad)
+                            ExpenseDetailRow(name: $viewModel.expenseName, amount: .constant(0),
+                                             date: $viewModel.expenseDate, focusedField: $focusedField,
+                                             subtitle: "Expense description", placeholder: "Enter a description",
+                                             field: .expenseName)
 
-                            ExpenseDetailRow(name: .constant(""), amount: .constant(0), date: $viewModel.expenseDate, focusedField: $focusedField, imageName: "calendar", placeholder: "Expense date", forDatePicker: true)
+                            ExpenseDetailRow(name: .constant(""), amount: $viewModel.expenseAmount,
+                                             date: $viewModel.expenseDate, focusedField: $focusedField,
+                                             subtitle: "Amount of expense", placeholder: "0.00",
+                                             field: .amount, keyboardType: .decimalPad)
+
+                            ExpenseDetailRow(name: .constant(""), amount: .constant(0),
+                                             date: $viewModel.expenseDate, focusedField: $focusedField,
+                                             subtitle: "Date", placeholder: "Expense date", forDatePicker: true)
+
+                            ExpenseDetailRowWithBtn(name: viewModel.payerName, subtitle: "Paid by",
+                                                    onTap: viewModel.handlePayerBtnAction)
+
+                            ExpenseDetailRowWithBtn(name: "Select which people owe an equal split.",
+                                                    subtitle: "Spilt options",
+                                                    memberProfileUrls: viewModel.memberProfileUrls,
+                                                    onTap: viewModel.handleSplitTypeBtnAction)
                         }
-                        .padding(.trailing, 20)
-
-                        PaidByBottomView(splitType: viewModel.splitType, payerName: viewModel.payerName, onPayerTap: viewModel.handlePayerBtnAction,
-                                         onSplitTypeTap: viewModel.handleSplitTypeBtnAction)
+                        .padding(.horizontal, 1)
                     }
                 }
+                .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
             }
         }
-        .padding(.horizontal, 20)
-        .background(backgroundColor)
-        .scrollIndicators(.hidden)
+        .padding(.horizontal, 16)
+        .background(surfaceColor)
         .scrollDismissesKeyboard(.immediately)
-        .navigationBarTitle(viewModel.expenseId == nil ? "Add expense" : "Edit expense", displayMode: .inline)
+        .navigationTitle(viewModel.expenseId == nil ? "Add expense" : "Edit expense")
+        .navigationBarTitleDisplayMode(.inline)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showGroupSelection) {
             NavigationStack {
-                ChooseGroupView(viewModel: ChooseGroupViewModel(selectedGroup: viewModel.selectedGroup, onGroupSelection: viewModel.handleGroupSelection(group:)))
+                SelectGroupView(viewModel: SelectGroupViewModel(selectedGroup: viewModel.selectedGroup,
+                                                                onGroupSelection: viewModel.handleGroupSelection(group:)))
             }
         }
         .sheet(isPresented: $viewModel.showPayerSelection) {
@@ -82,14 +99,14 @@ struct AddExpenseView: View {
                 Button("Cancel") {
                     dismiss()
                 }
+                .foregroundStyle(.blue)
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Save") {
+                CheckmarkButton(onClick: {
                     viewModel.handleSaveAction {
                         dismiss()
                     }
-                }
-                .foregroundStyle(primaryColor)
+                })
             }
         }
         .onAppear {
@@ -108,133 +125,182 @@ private struct ExpenseDetailRow: View {
     @Binding var date: Date
     var focusedField: FocusState<AddExpenseViewModel.AddExpenseField?>.Binding
 
-    var imageName: String
-    var placeholder: String
+    let subtitle: String
+    let placeholder: String
     var forDatePicker: Bool = false
 
     var field: AddExpenseViewModel.AddExpenseField?
     var keyboardType: UIKeyboardType = .default
 
-    let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date()) ?? Date()
+    private let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date()) ?? Date()
+
+    @State private var showDatePicker = false
 
     var body: some View {
-        HStack(spacing: 16) {
-            Image(systemName: imageName)
-                .resizable()
-                .frame(width: 32, height: 32)
-                .padding(12)
-                .background(Color.clear)
-                .foregroundStyle(primaryText.opacity(0.9))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8).stroke(outlineColor, lineWidth: 1)
-                )
+        VStack(alignment: .leading, spacing: 8) {
+            Text(subtitle.localized)
+                .font(.body3())
+                .foregroundStyle(disableText)
 
-            if forDatePicker {
-                DatePicker(placeholder.localized, selection: $date, in: ...maximumDate, displayedComponents: .date)
-                    .font(.subTitle2())
-                    .onTapGesture(count: 99) {}
-            } else {
-                VStack {
+            VStack(alignment: .leading, spacing: 0) {
+                if forDatePicker {
+                    DatePickerRow(date: $date)
+                } else {
                     if keyboardType == .default {
                         TextField(placeholder.localized, text: $name)
                             .font(.subTitle2())
+                            .foregroundStyle(primaryText)
                             .onTapGesture {
                                 focusedField.wrappedValue = .expenseName
                             }
                             .focused(focusedField, equals: field)
                             .submitLabel(.next)
                             .onSubmit {
-                                focusedField.wrappedValue = .expenseAmount
+                                focusedField.wrappedValue = .amount
                             }
                     } else {
-                        TextField("", value: $amount, formatter: numberFormatter)
+                        TextField(placeholder.localized, value: $amount, formatter: numberFormatter)
                             .font(.subTitle2())
+                            .foregroundStyle(primaryText)
                             .keyboardType(keyboardType)
                             .onTapGesture {
-                                focusedField.wrappedValue = .expenseAmount
+                                focusedField.wrappedValue = .amount
                             }
                             .focused(focusedField, equals: field)
                     }
-
-                    Divider()
-                        .background(outlineColor)
-                        .frame(height: 1)
                 }
             }
-        }
-    }
-}
-
-private struct GroupSelectionView: View {
-
-    var name: String
-    var onTap: () -> Void
-
-    var body: some View {
-        HStack(spacing: 10) {
-            Text("You and: ")
-                .foregroundStyle(primaryText)
-
-            Button {
-                onTap()
-            } label: {
-                Text(name.localized)
-                    .font(.subTitle2())
-                    .foregroundStyle(secondaryText)
+            .padding(.vertical, 14)
+            .padding(.horizontal, 16)
+            .overlay {
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(outlineColor, lineWidth: 1)
             }
-            .buttonStyle(.scale)
-            .padding(.vertical, 10)
-            .padding(.horizontal, 12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20).stroke(outlineColor, lineWidth: 1)
-            )
-
-            Spacer()
         }
     }
 }
 
-private struct PaidByBottomView: View {
+private struct DatePickerRow: View {
 
-    let splitType: SplitType
-    let payerName: String
-    var onPayerTap: () -> Void
-    var onSplitTypeTap: () -> Void
+    @Binding var date: Date
 
-    var body: some View {
-        HStack(spacing: 8) {
-            Text("Paid by")
-
-            PaidByBtnView(name: payerName, onTap: onPayerTap)
-
-            Text("and split")
-
-            PaidByBtnView(name: splitType == .equally ? "equally" : "unequally", onTap: onSplitTypeTap)
-        }
-        .font(.subTitle2())
-        .foregroundStyle(primaryText)
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        return formatter
     }
-}
 
-private struct PaidByBtnView: View {
+    private let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date()) ?? Date()
 
-    var name: String
-    var onTap: () -> Void
+    @State private var tempDate: Date
+    @State private var showDatePicker = false
+
+    init(date: Binding<Date>) {
+        self._date = date
+        self._tempDate = State(initialValue: date.wrappedValue)
+    }
 
     var body: some View {
-        Button {
-            onTap()
-        } label: {
-            Text(name.localized)
+        HStack {
+            Text(dateFormatter.string(from: date))
                 .font(.subTitle2())
-                .foregroundStyle(secondaryText)
+                .foregroundStyle(primaryText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
         }
-        .buttonStyle(.scale)
-        .padding(.vertical, 8)
-        .padding(.horizontal, 10)
-        .background(Color.clear)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8).stroke(outlineColor, lineWidth: 1)
-        )
+        .onTapGesture {
+            tempDate = date
+            showDatePicker = true
+        }
+        .sheet(isPresented: $showDatePicker) {
+            VStack(spacing: 0) {
+                NavigationBarTopView(title: "Choose date", leadingButton: EmptyView(),
+                    trailingButton: DismissButton(padding: (16, 0), foregroundColor: primaryText, onDismissAction: {
+                        showDatePicker = false
+                    })
+                    .fontWeight(.regular)
+                )
+                .padding(.leading, 16)
+
+                ScrollView {
+                    DatePicker("", selection: $tempDate, in: ...maximumDate, displayedComponents: .date)
+                        .datePickerStyle(GraphicalDatePickerStyle())
+                        .labelsHidden()
+                        .padding(24)
+                }
+                .scrollIndicators(.hidden)
+
+                Spacer()
+
+                PrimaryButton(text: "Done") {
+                    date = tempDate
+                    showDatePicker = false
+                }
+                .padding(16)
+            }
+            .background(surfaceColor)
+        }
+    }
+}
+
+private struct ExpenseDetailRowWithBtn: View {
+
+    let name: String
+    let subtitle: String
+    var memberProfileUrls: [String] = []
+
+    let onTap: () -> Void
+
+    private var visibleProfileUrls: [String] {
+        Array(memberProfileUrls.prefix(5))
+    }
+
+    private var additionalMembersCount: Int {
+        max(memberProfileUrls.count - 5, 0)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(subtitle.localized)
+                .font(.body3())
+                .foregroundStyle(disableText)
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 0) {
+                    Text(name.localized)
+                        .font(.subTitle2())
+                        .foregroundStyle(primaryText)
+
+                    Spacer()
+
+                    ScrollToTopButton(icon: "chevron.down", iconColor: disableText,
+                                      bgColor: surfaceColor, size: (12, 12), padding: 0, onClick: onTap)
+                }
+
+                if !memberProfileUrls.isEmpty {
+                    HStack(spacing: -10) {
+                        ForEach(visibleProfileUrls, id: \.self) { imageUrl in
+                            MemberProfileImageView(imageUrl: imageUrl, height: 26)
+                        }
+
+                        if additionalMembersCount > 0 {
+                            Text("+\(additionalMembersCount)")
+                                .font(.caption1())
+                                .foregroundStyle(primaryText)
+                                .frame(width: 26, height: 26)
+                                .background(containerColor)
+                                .clipShape(Circle())
+                        }
+                    }
+                }
+            }
+            .padding(.vertical, 14)
+            .padding(.horizontal, 16)
+            .overlay {
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(outlineColor, lineWidth: 1)
+            }
+        }
+        .onTapGestureForced(perform: onTap)
     }
 }

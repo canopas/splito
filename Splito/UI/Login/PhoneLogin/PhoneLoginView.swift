@@ -14,91 +14,131 @@ public struct PhoneLoginView: View {
     @StateObject var viewModel: PhoneLoginViewModel
 
     public var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                VSpacer(50)
+        GeometryReader { proxy in
+            VStack(alignment: .leading, spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        AppLogoView(geometry: .constant(proxy))
 
-                Text("Splito")
-                    .font(.Header1(40))
-                    .foregroundStyle(primaryColor)
+                        Text("What’s your phone number?")
+                            .font(.Header1())
+                            .foregroundStyle(primaryText)
+                            .padding(.horizontal, 16)
 
-                Spacer(minLength: 40)
+                        VSpacer(16)
 
-                VStack(spacing: 16) {
-                    SubtitleTextView(text: "Enter phone number", fontSize: .Header1(), fontColor: primaryText)
+                        Text("We’ll verify your phone number with a verification code.")
+                            .font(.subTitle1())
+                            .foregroundStyle(disableText)
+                            .tracking(-0.2)
+                            .lineSpacing(4)
+                            .padding(.horizontal, 16)
 
-                    Text("We'll verify your phone number with a verification code")
-                        .font(.subTitle2())
-                        .foregroundStyle(disableText)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(2)
+                        VSpacer(40)
+
+                        HStack(spacing: 0) {
+                            Spacer()
+
+                            PhoneLoginContentView(phoneNumber: $viewModel.phoneNumber, countries: $viewModel.countries,
+                                                  selectedCountry: $viewModel.currentCountry, showLoader: viewModel.showLoader)
+                        }
+                    }
                 }
-                .padding(.horizontal, 16)
+                .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
 
-                VSpacer(40)
-
-                HStack(spacing: 0) {
-                    Spacer()
-                    PhoneLoginContentView(phoneNumber: $viewModel.phoneNumber, countries: $viewModel.countries,
-                                          selectedCountry: $viewModel.currentCountry, showLoader: viewModel.showLoader,
-                                          onNext: viewModel.verifyAndSendOtp)
-                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-                    Spacer()
-                }
-                Spacer()
+                GetOtpBtnView(phoneNumber: $viewModel.phoneNumber, showLoader: viewModel.showLoader, onNext: viewModel.verifyAndSendOtp)
             }
-            .padding(.horizontal, 20)
         }
-        .scrollIndicators(.hidden)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .toastView(toast: $viewModel.toast)
-        .navigationBarTitle("", displayMode: .inline)
+        .ignoresSafeArea(edges: .top)
+        .toolbar(.hidden, for: .navigationBar)
+        .overlay(alignment: .topLeading) {
+            BackButton(onClick: viewModel.handleBackBtnTap)
+        }
         .onTapGesture {
             UIApplication.shared.endEditing()
         }
     }
 }
 
-private struct PhoneLoginContentView: View {
+private struct GetOtpBtnView: View {
     let MIN_NUMBER_LENGTH: Int = 4
     let MAX_NUMBER_LENGTH: Int = 20
+
+    @Binding var phoneNumber: String
+
+    let showLoader: Bool
+    let onNext: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Group {
+                Text("By entering your number, you’re agreeing to our ")
+                    .foregroundColor(disableText)
+                + Text("terms of service")
+                    .foregroundColor(primaryText)
+                + Text(" and ")
+                    .foregroundColor(disableText)
+                + Text("privacy policy.")
+                    .foregroundColor(primaryText)
+            }
+            .font(.caption1())
+            .padding(.bottom, 24)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            PrimaryButton(text: "Get OTP", isEnabled: (phoneNumber.count >= MIN_NUMBER_LENGTH && phoneNumber.count <= MAX_NUMBER_LENGTH), showLoader: showLoader, onClick: onNext)
+
+            VSpacer(24)
+        }
+        .padding(.horizontal, 16)
+    }
+}
+
+private struct PhoneLoginContentView: View {
 
     @Binding var phoneNumber: String
     @Binding var countries: [Country]
     @Binding var selectedCountry: Country
 
     let showLoader: Bool
-    let onNext: () -> Void
 
     @State var showCountryPicker = false
-
     @FocusState var isFocused: Bool
 
     var body: some View {
-        VStack(spacing: 40) {
-            HStack(spacing: 12) {
-                HStack(spacing: 4) {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                HStack(spacing: 8) {
                     Text(selectedCountry.dialCode)
                         .font(.subTitle1())
-                        .foregroundStyle(secondaryText)
+                        .foregroundStyle(primaryText)
+                        .tracking(-0.2)
 
-                    Image(.downArrow)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 24, height: 24, alignment: .center)
+                    ScrollToTopButton(icon: "chevron.down", iconColor: primaryText, bgColor: surfaceColor, size: (12, 7.5), padding: 3, onClick: {
+                        showCountryPicker = true
+                    })
                 }
                 .onTapGestureForced {
                     showCountryPicker = true
                 }
 
-                HStack(spacing: 20) {
-                    Divider()
-                        .frame(width: 1)
-                        .overlay(outlineColor)
+                Divider()
+                    .frame(height: 50)
+                    .background(dividerColor)
+                    .padding(.horizontal, 16)
 
-                    TextField("Phone number", text: $phoneNumber)
-                        .font(.subTitle1())
+                ZStack(alignment: .leading) {
+                    if phoneNumber.isEmpty {
+                        Text(" Enter mobile number")
+                            .font(.subTitle3())
+                            .foregroundColor(disableText)
+                    }
+                    TextField("", text: $phoneNumber)
+                        .font(.Header2())
                         .textContentType(.telephoneNumber)
                         .keyboardType(.phonePad)
                         .foregroundStyle(primaryText)
@@ -110,18 +150,9 @@ private struct PhoneLoginContentView: View {
                         }
                 }
             }
-            .padding(.vertical, 16)
-            .padding(.horizontal, 20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(lineWidth: 1)
-                    .foregroundStyle(containerHighColor)
-            )
-            .padding(.horizontal, 20)
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            PrimaryButton(text: "Next", isEnabled: (phoneNumber.count >= MIN_NUMBER_LENGTH && phoneNumber.count <= MAX_NUMBER_LENGTH),
-                          showLoader: showLoader, onClick: onNext)
+            Spacer()
         }
         .padding(.horizontal, 16)
         .sheet(isPresented: $showCountryPicker) {
@@ -131,6 +162,7 @@ private struct PhoneLoginContentView: View {
 }
 
 private struct PhoneLoginCountryPicker: View {
+
     @Binding var countries: [Country]
     @Binding var selectedCountry: Country
     @Binding var isPresented: Bool
@@ -146,26 +178,68 @@ private struct PhoneLoginCountryPicker: View {
     }
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 0) {
             Text("Countries")
-                .font(.headline)
+                .font(.Header4())
+                .foregroundStyle(primaryText)
                 .padding(.top, 24)
+                .padding(.bottom, 16)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .onTapGestureForced {
+                    isFocused = false
+                }
 
             SearchBar(text: $searchCountry, isFocused: $isFocused, placeholder: "Search")
+                .padding(.vertical, -7)
+                .padding(.horizontal, 3)
+                .overlay(content: {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(outlineColor, lineWidth: 1)
+                })
                 .focused($isFocused)
-
-            List(filteredCountries) { country in
-                PhoneLoginCountryCell(country: country) {
-                    selectedCountry = country
-                    isPresented = false
+                .onAppear {
+                    isFocused = true
                 }
+                .padding([.horizontal, .bottom], 16)
+
+            if filteredCountries.isEmpty {
+                CountryNotFoundView(searchCountry: searchCountry)
+            } else {
+                List(filteredCountries) { country in
+                    PhoneLoginCountryCell(country: country) {
+                        selectedCountry = country
+                        isPresented = false
+                    }
+                }
+                .listStyle(PlainListStyle())
             }
-            .listStyle(PlainListStyle())
+        }
+    }
+}
+
+private struct CountryNotFoundView: View {
+
+    let searchCountry: String
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            Text("No results found for \"\(searchCountry)\"!")
+                .font(.subTitle1())
+                .foregroundColor(disableText)
+                .padding(.bottom, 60)
+
+            Spacer()
+        }
+        .onTapGestureForced {
+            UIApplication.shared.endEditing()
         }
     }
 }
 
 private struct PhoneLoginCountryCell: View {
+
     let country: Country
     let onCellSelect: () -> Void
 

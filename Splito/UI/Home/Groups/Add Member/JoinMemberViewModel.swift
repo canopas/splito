@@ -23,7 +23,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         self.router = router
     }
 
-    func joinMemberWithCode() {
+    func joinMemberWithCode(completion: @escaping () -> Void) {
         showLoader = true
         codeRepository.fetchSharedCode(code: code)
             .sink { [weak self] completion in
@@ -39,11 +39,11 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
                     self.showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Entered code not exists."))
                     return
                 }
-                self.addMemberIfCodeExists(code: code)
+                self.addMemberIfCodeExists(code: code, completion: completion)
             }.store(in: &cancelable)
     }
 
-    private func addMemberIfCodeExists(code: SharedCode) {
+    private func addMemberIfCodeExists(code: SharedCode, completion: @escaping () -> Void) {
         let expireDate = code.expireDate.dateValue()
         let daysDifference = Calendar.current.dateComponents([.day], from: expireDate, to: Date()).day
 
@@ -57,7 +57,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         addMember(groupId: code.groupId) {
             self.showLoader = false
             _ = self.codeRepository.deleteSharedCode(documentId: code.id ?? "")
-            self.goToGroupHome()
+            completion()
         }
     }
 
@@ -73,9 +73,5 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { _ in
                 completion()
             }.store(in: &cancelable)
-    }
-
-    private func goToGroupHome() {
-        self.router.pop()
     }
 }

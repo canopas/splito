@@ -26,7 +26,7 @@ struct HomeRouteView: View {
 
                 Text("")
                     .tabItem {
-                        Label("Add expense", systemImage: "plus.circle.fill")
+                        Label("", image: "AddExpense")
                     }
                     .tag(1)
 
@@ -35,11 +35,11 @@ struct HomeRouteView: View {
                         viewModel.setLastSelectedTab(2)
                     }
                     .tabItem {
-                        Label("Account", systemImage: "person.crop.square")
+                        Label("Account", systemImage: "person")
                     }
                     .tag(2)
             }
-            .tint(primaryColor)
+            .tint(primaryText)
             .onChange(of: viewModel.selectedTab) { newValue in
                 if newValue == 1 {
                     viewModel.openAddExpenseSheet()

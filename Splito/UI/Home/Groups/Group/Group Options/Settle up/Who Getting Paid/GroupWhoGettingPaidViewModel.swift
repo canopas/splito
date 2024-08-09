@@ -15,15 +15,16 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
     @Published var members: [AppUser] = []
     @Published var viewState: ViewState = .initial
 
-    @Published var selectedMemberId: String
+    @Published private(set) var payerId: String
+    @Published private(set) var selectedMemberId: String?
 
     private let groupId: String
     private let router: Router<AppRoute>?
 
-    init(router: Router<AppRoute>? = nil, groupId: String, selectedMemberId: String) {
+    init(router: Router<AppRoute>? = nil, groupId: String, payerId: String) {
         self.router = router
         self.groupId = groupId
-        self.selectedMemberId = selectedMemberId
+        self.payerId = payerId
         super.init()
     }
 
@@ -41,9 +42,8 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
     }
 
     func onMemberTap(memberId: String) {
-        if memberId != selectedMemberId {
-            router?.push(.GroupPaymentView(transactionId: nil, groupId: groupId, payerId: selectedMemberId, receiverId: memberId, amount: 0))
-        }
+        selectedMemberId = memberId
+        router?.push(.GroupPaymentView(transactionId: nil, groupId: groupId, payerId: payerId, receiverId: memberId, amount: 0))
     }
 
     // MARK: - Error Handling

@@ -7,6 +7,7 @@
 
 import Data
 import SwiftUI
+import BaseStyle
 
 class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
@@ -15,6 +16,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Inject private var expenseRepository: ExpenseRepository
     @Inject private var transactionRepository: TransactionRepository
 
+    @Published private(set) var groupId: String
     @Published var searchedExpense: String = ""
     @Published private(set) var overallOwingAmount = 0.0
 
@@ -23,6 +25,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var memberOwingAmount: [String: Double] = [:]
     @Published private(set) var groupState: GroupState = .loading
 
+    @Published var showAddExpenseSheet = false
     @Published var showSettleUpSheet = false
     @Published var showTransactionsSheet = false
     @Published var showBalancesSheet = false
@@ -30,6 +33,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var showSearchBar = false
     @Published var showSimplifyInfoSheet: Bool = false
     @Published private(set) var showScrollToTopBtn = false
+    @Published private(set) var showAddExpenseBtn = false
 
     @Published private(set) var group: Groups?
 
@@ -38,6 +42,25 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         formatter.dateFormat = "MMMM yyyy"
         return formatter
     }()
+
+    var currentMonthSpendingAmount: Double {
+        guard let userId = preference.user?.id else { return 0 }
+
+        let calendar = Calendar.current
+        let currentMonth = calendar.component(.month, from: Date())
+        let currentYear = calendar.component(.year, from: Date())
+
+        return expenses
+            .filter { expense in
+                let expenseMonth = calendar.component(.month, from: expense.date.dateValue())
+                let expenseYear = calendar.component(.year, from: expense.date.dateValue())
+                return expenseMonth == currentMonth && expenseYear == currentYear
+            }
+            .map { expense in
+                getTotalSplitAmount(member: userId, expense: expense)
+            }
+            .reduce(0.0, +)
+    }
 
     var groupExpenses: [String: [ExpenseWithUser]] {
         let filteredExpenses = expensesWithUser.filter { expense in
@@ -50,8 +73,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private let groupId: String
-    private let router: Router<AppRoute>
+    let router: Router<AppRoute>
     private var expenses: [Expense] = []
     private var groupUserData: [AppUser] = []
 
@@ -59,9 +81,12 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         super.init()
+
+        self.fetchGroupAndExpenses()
         self.fetchLatestTransactions()
     }
 
+    // MARK: - Data Loading
     private func fetchLatestTransactions() {
         transactionRepository.fetchLatestTransactionsBy(groupId: groupId)
             .sink { [weak self] completion in
@@ -225,12 +250,13 @@ extension GroupHomeViewModel {
     }
 
     func handleExpenseItemTap(expenseId: String) {
-        router.push(.ExpenseDetailView(groupId: groupId, expenseId: expenseId))
+        router.push(.ExpenseDetailView(groupId: groupId, expenseId: expenseId, groupImageUrl: group?.imageUrl ?? ""))
     }
 
     func handleSettleUpBtnTap() {
         if let group, group.members.count > 1 {
             showSettleUpSheet = true
+            onSearchBarCancelBtnTap()
         } else {
             showAlertFor(title: "Oops", message: "You're the only member in this group, and there's no point in settling up with yourself :)")
         }
@@ -242,25 +268,29 @@ extension GroupHomeViewModel {
 
     func handleBalancesBtnTap() {
         showBalancesSheet = true
+        onSearchBarCancelBtnTap()
     }
 
     func handleTotalBtnTap() {
         showGroupTotalSheet = true
+        onSearchBarCancelBtnTap()
     }
 
     func handleTransactionsBtnTap() {
         showTransactionsSheet = true
+        onSearchBarCancelBtnTap()
     }
 
     func handleSimplifyInfoSheet() {
+        UIApplication.shared.endEditing()
         showSimplifyInfoSheet = true
     }
 
-    func dismissSimplifyInfoSheet() {
-        showSimplifyInfoSheet = false
-    }
-
     func handleSearchOptionTap() {
+        guard groupState == .hasExpense else {
+            self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "Add an expense first to use the search functionality."))
+            return
+        }
         withAnimation {
             searchedExpense = ""
             showSearchBar.toggle()
@@ -268,9 +298,11 @@ extension GroupHomeViewModel {
     }
 
     func onSearchBarCancelBtnTap() {
-        withAnimation {
-            searchedExpense = ""
-            showSearchBar = false
+        if showSearchBar {
+            withAnimation {
+                searchedExpense = ""
+                showSearchBar = false
+            }
         }
     }
 
@@ -294,6 +326,15 @@ extension GroupHomeViewModel {
                 withAnimation { self?.expensesWithUser.removeAll { $0.expense.id == expenseId } }
                 self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully"))
             }.store(in: &cancelable)
+    }
+
+    func handleBackBtnTap() {
+        onSearchBarCancelBtnTap()
+        router.pop()
+    }
+
+    func openAddExpenseSheet() {
+        showAddExpenseSheet = true
     }
 }
 

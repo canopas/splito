@@ -9,33 +9,55 @@ import SwiftUI
 import BaseStyle
 
 struct GroupHomeView: View {
+    @EnvironmentObject var homeRouteViewModel: HomeRouteViewModel
 
     @StateObject var viewModel: GroupHomeViewModel
 
     @FocusState private var isFocused: Bool
+    @State private var sheetHeight: CGFloat = 400.0
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            if case .loading = viewModel.groupState {
-                LoaderView()
-            } else if case .noMember = viewModel.groupState {
-                AddMemberState(viewModel: .constant(viewModel))
-            } else if case .noExpense = viewModel.groupState {
-                NoExpenseView()
-            } else if case .hasExpense = viewModel.groupState {
-                VSpacer(10)
+        GeometryReader { geometry in
+            VStack(alignment: .leading, spacing: 0) {
+                if case .loading = viewModel.groupState {
+                    LoaderView()
+                } else {
+                    if case .noMember = viewModel.groupState {
+                        EmptyStateView(title: "You’re the only one here!", subtitle: "Invite some friends and make this group come alive!", buttonTitle: "Invite Member", image: .inviteFriends, geometry: geometry, onClick: viewModel.handleAddMemberClick)
+                    } else if case .noExpense = viewModel.groupState {
+                        EmptyStateView(geometry: geometry, onClick: viewModel.openAddExpenseSheet)
+                    } else if case .hasExpense = viewModel.groupState {
+                        GroupExpenseListView(viewModel: viewModel, isFocused: $isFocused) {
+                            isFocused = true
+                        }
+                        .focused($isFocused)
+                    }
 
-                GroupExpenseListView(viewModel: viewModel, isFocused: $isFocused) {
-                    isFocused = true
+                    if viewModel.groupState != .noMember && viewModel.showAddExpenseBtn {
+                        PrimaryButton(text: "Add expense", onClick: viewModel.openAddExpenseSheet)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                    }
                 }
-                .focused($isFocused)
             }
         }
-        .background(backgroundColor)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .navigationBarTitle(viewModel.group?.name ?? "", displayMode: .inline)
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .onDisappear {
+            if viewModel.showSearchBar {
+                isFocused = false
+                viewModel.onSearchBarCancelBtnTap()
+            }
+        }
+        .onAppear {
+            homeRouteViewModel.updateSelectedGroup(id: viewModel.groupId)
+        }
+        .fullScreenCover(isPresented: $viewModel.showAddExpenseSheet) {
+            ExpenseRouteView()
+        }
         .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
             if !(viewModel.memberOwingAmount.isEmpty) {
                 GroupSettleUpRouteView(appRoute: .init(root: .GroupSettleUpView(groupId: viewModel.group?.id ?? ""))) {
@@ -47,19 +69,22 @@ struct GroupHomeView: View {
                 }
             }
         }
-        .transparentFullScreenCover(isPresented: $viewModel.showSimplifyInfoSheet, content: {
-            BottomSheetView(content: {
-                SimplifyInfoSheetView()
-            }, onDismiss: viewModel.dismissSimplifyInfoSheet)
-        })
+        .sheet(isPresented: $viewModel.showSimplifyInfoSheet) {
+            SimplifyInfoSheetView()
+                .fixedSize(horizontal: false, vertical: true)
+                .modifier(BottomSheetHeightModifier(height: $sheetHeight))
+                .presentationDetents([.height(sheetHeight)])
+                .presentationCornerRadius(24)
+        }
         .fullScreenCover(isPresented: $viewModel.showTransactionsSheet) {
             GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.group?.id ?? ""))) {
                 viewModel.showTransactionsSheet = false
             }
+            .animation(nil)
         }
         .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
             NavigationStack {
-                GroupBalancesView(viewModel: GroupBalancesViewModel(groupId: viewModel.group?.id ?? ""))
+                GroupBalancesView(viewModel: GroupBalancesViewModel(router: viewModel.router, groupId: viewModel.group?.id ?? ""))
             }
         }
         .fullScreenCover(isPresented: $viewModel.showGroupTotalSheet) {
@@ -68,29 +93,16 @@ struct GroupHomeView: View {
             }
         }
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    if viewModel.groupState == .hasExpense {
-                        Button(action: viewModel.handleSearchOptionTap) {
-                            Label("Search", systemImage: "magnifyingglass")
-                        }
-                    }
-                    Button(action: viewModel.handleSettingsOptionTap) {
-                        Label("Settings", systemImage: "gearshape")
-                    }
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 18, height: 18)
-                }
+            ToolbarItem(placement: .topBarLeading) {
+                Text(viewModel.group?.name ?? "")
+                    .font(.Header2())
+                    .foregroundStyle(primaryText)
             }
-        }
-        .onAppear(perform: viewModel.fetchGroupAndExpenses)
-        .onDisappear {
-            isFocused = false
-            if viewModel.showSearchBar {
-                viewModel.onSearchBarCancelBtnTap()
+            ToolbarItem(placement: .topBarTrailing) {
+                ToolbarButtonView(systemImageName: "magnifyingglass", onClick: viewModel.handleSearchOptionTap)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                ToolbarButtonView(systemImageName: "gearshape", onClick: viewModel.handleSettingsOptionTap)
             }
         }
     }
@@ -108,7 +120,7 @@ struct GroupOptionsListView: View {
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 16) {
+            HStack(spacing: 8) {
                 GroupOptionsButtonView(text: "Settle up", isForSettleUp: isSettleUpEnable, onTap: onSettleUpTap)
 
                 if showTransactionsOption {
@@ -119,9 +131,8 @@ struct GroupOptionsListView: View {
 
                 GroupOptionsButtonView(text: "Totals", onTap: onTotalsTap)
             }
-            .padding(.bottom, 4)
-            .padding(.vertical, 6)
-            .padding(.horizontal, 20)
+            .padding([.horizontal, .bottom], 16)
+            .padding(.top, 27)
         }
     }
 }
@@ -135,69 +146,133 @@ private struct GroupOptionsButtonView: View {
 
     var body: some View {
         Text(text.localized)
-            .font(.subTitle2())
-            .foregroundColor(isForSettleUp ? .white : primaryText)
+            .font(.buttonText())
+            .foregroundColor(isForSettleUp ? primaryDarkText : primaryText)
             .padding(.vertical, 8)
-            .padding(.horizontal, 16)
-            .background(isForSettleUp ? settleUpColor : backgroundColor)
-            .cornerRadius(6)
-            .overlay(
-                RoundedRectangle(cornerRadius: 6).stroke(outlineColor, lineWidth: 1)
-            )
-            .shadow(color: secondaryText.opacity(0.2), radius: 1, x: 0, y: 1)
-            .onTouchGesture { onTap() }
+            .padding(.horizontal, 24)
+            .background(isForSettleUp ? settleUpColor : container2Color)
+            .cornerRadius(30)
+            .onTouchGesture(onTap)
     }
 }
 
-private struct AddMemberState: View {
+private struct EmptyStateView: View {
 
-    @Binding var viewModel: GroupHomeViewModel
+    var title: String = "No expenses here yet."
+    var subtitle: String = "Add an expense to get this party started."
+    var buttonTitle: String?
+
+    var image: ImageResource = .noExpense
+    let geometry: GeometryProxy
+
+    let onClick: () -> Void
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("You're the only one here!")
-                .font(.subTitle1())
-                .foregroundStyle(secondaryText)
-                .multilineTextAlignment(.center)
+        ScrollView {
+            VStack(alignment: .center, spacing: 0) {
+                Spacer()
 
-            Button {
-                viewModel.handleAddMemberClick()
-            } label: {
-                HStack(alignment: .center, spacing: 16) {
-                    Image(systemName: "person.fill.badge.plus")
-                        .resizable()
-                        .foregroundStyle(.white)
-                        .frame(width: 32, height: 30)
+                Image(image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: geometry.size.width * 0.5, height: geometry.size.width * 0.4)
+                    .padding(.bottom, 40)
 
-                    Text("Invite members")
-                        .foregroundStyle(.white)
-                        .font(.headline)
-                }
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity)
-                .background(primaryColor)
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                Text(title.localized)
+                    .font(.Header1())
+                    .foregroundStyle(primaryText)
+                    .padding(.bottom, 16)
+
+                Text(subtitle.localized)
+                    .font(.subTitle1())
+                    .foregroundStyle(disableText)
+                    .tracking(-0.2)
+                    .lineSpacing(4)
+
+                Spacer()
             }
-            .buttonStyle(.scale)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .frame(minHeight: geometry.size.height - 85, maxHeight: .infinity, alignment: .center)
         }
-        .padding(.horizontal, 22)
+        .scrollIndicators(.hidden)
+
+        if let buttonTitle {
+            PrimaryButton(text: buttonTitle, onClick: onClick)
+                .padding(16)
+        }
     }
 }
 
-private struct NoExpenseView: View {
+private struct SimplifyInfoSheetView: View {
 
     var body: some View {
-        VStack(alignment: .center, spacing: 16) {
-            Text("No expenses here yet.")
-                .font(.subTitle4(17))
-                .foregroundStyle(primaryText)
+        ScrollView {
+            VStack(spacing: 0) {
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(outlineColor)
+                    .frame(width: 40, height: 4)
+                    .padding(.vertical, 30)
 
-            Text("Tap the plus button to add an expense with any group.")
-                .font(.body1(18))
-                .foregroundStyle(secondaryText)
-                .multilineTextAlignment(.center)
+                Text("Why do I owe this person?")
+                    .font(.Header2())
+                    .foregroundStyle(primaryText)
+                    .padding(.bottom, 24)
+
+                Group {
+                    Text("\"Simplify debts\" is ENABLED in this group. This feature shuffles \"who owes who\" to minimize repayments. For example:")
+                        .padding(.bottom, 24)
+
+                    Image(.simplifyDebtsExample)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 277, height: 146)
+                        .padding(.bottom, 24)
+
+                    Text("Ana borrows $10 from Bob")
+                        .padding(.bottom, 4)
+
+                    Text("Bob borrows $10 from Charlie")
+                        .padding(.bottom, 24)
+
+                    Text("In a group with \"simplify debts\" enabled, Splito will tell Ana to repay Charlie $10. Bob does nothing. This is the most efficient way for the group to settle up. With simplify debts enabled, it's normal to owe someone who didn't directly loan you money.")
+                }
+                .font(.body3())
+                .foregroundStyle(disableText)
+            }
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.horizontal, 16)
         }
-        .padding(.horizontal, 30)
+    }
+}
+
+struct ToolbarButtonView: View {
+
+    var systemImageName: String?
+    var imageIcon: ImageResource?
+
+    let onClick: () -> Void
+
+    var body: some View {
+        Button {
+            onClick()
+        } label: {
+            if let imageIcon {
+                Image(imageIcon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(primaryText)
+            } else if let systemImageName {
+                Image(systemName: systemImageName)
+                    .resizable()
+                    .scaledToFit()
+                    .font(.system(size: 13).weight(.semibold))
+            }
+        }
+        .foregroundStyle(primaryText)
     }
 }
 

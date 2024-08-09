@@ -15,41 +15,41 @@ enum UserProfileList: Int, CaseIterable {
 
     case firstName
     case lastName
-    case email
     case phone
+    case email
 
     var subtitle: String {
         switch self {
         case .firstName:
-            return "First name"
+            return "First Name"
         case .lastName:
-            return "Last name"
+            return "Last Name"
+        case .phone:
+            return "Phone Number"
         case .email:
             return "Email"
-        case .phone:
-            return "Phone number"
         }
     }
 
     var placeholder: String {
         switch self {
         case .firstName:
-            return "Enter first name"
+            return "Enter your first name"
         case .lastName:
-            return "Enter last name"
-        case .email:
-            return "Enter email"
+            return "Enter your last name"
         case .phone:
-            return "Enter phone number"
+            return "Enter your phone number"
+        case .email:
+            return "Enter your email address"
         }
     }
 
     var keyboardType: UIKeyboardType {
         switch self {
-        case .email:
-            return .emailAddress
         case .phone:
             return .phonePad
+        case .email:
+            return .emailAddress
         default:
             return .default
         }
@@ -68,10 +68,10 @@ enum UserProfileList: Int, CaseIterable {
         switch self {
         case .firstName:
             return .firstName
-        case .email:
-            return .email
         case .phone:
             return .phone
+        case .email:
+            return .email
         default:
             return .nonEmpty
         }
@@ -83,10 +83,10 @@ enum UserProfileList: Int, CaseIterable {
             return .firstName
         case .lastName:
             return .lastName
-        case .email:
-            return .email
         case .phone:
             return .phone
+        case .email:
+            return .email
         }
     }
 
@@ -96,9 +96,9 @@ enum UserProfileList: Int, CaseIterable {
             return .words
         case .lastName:
             return .words
-        case .email:
-            return .none
         case .phone:
+            return .none
+        case .email:
             return .none
         }
     }
@@ -106,8 +106,8 @@ enum UserProfileList: Int, CaseIterable {
 
 enum TextFieldValidationType {
     case firstName
-    case email
     case phone
+    case email
     case nonEmpty
     case none
 
@@ -115,10 +115,10 @@ enum TextFieldValidationType {
         switch self {
         case .firstName:
             return "Minimum 3 characters are required"
-        case .email:
-            return "Please enter valid email"
         case .phone:
             return "Please enter valid phone number"
+        case .email:
+            return "Please enter valid email"
         default:
             return ""
         }

@@ -12,53 +12,71 @@ struct InviteMemberView: View {
 
     @StateObject var viewModel: InviteMemberViewModel
 
+    @Environment(\.dismiss) var dismiss
+
     var body: some View {
-        VStack(alignment: .center, spacing: 40) {
-            VSpacer(30)
+        GeometryReader { geometry in
+            VStack(alignment: .center, spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .center, spacing: 40) {
+                        VStack(spacing: 16) {
+                            Text("Share this code to invite friends.")
+                                .font(.Header1())
+                                .foregroundStyle(primaryText)
+                                .multilineTextAlignment(.center)
 
-            VStack(alignment: .leading, spacing: 10) {
-                Text("Invite members to the group")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
-                    .multilineTextAlignment(.leading)
+                            Text("Let's get the gang together! Invite your friends to join the group and make splitting expenses easier than ever.")
+                                .font(.subTitle1())
+                                .foregroundStyle(disableText)
+                                .tracking(-0.2)
+                                .lineSpacing(4)
+                        }
+                        .multilineTextAlignment(.center)
 
-                Text("Share this invitation code with your trusted one in your own style. Connecting with your friends is as flexible as you are.")
-                    .font(.subTitle1())
-                    .foregroundStyle(secondaryText)
-                    .multilineTextAlignment(.leading)
+                        VStack(spacing: 16) {
+                            Text(viewModel.inviteCode)
+                                .font(.Header2())
+                                .foregroundStyle(primaryDarkColor)
+
+                            Text("This code will be active for 2 days.")
+                                .font(.body1())
+                                .foregroundStyle(disableText)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 24)
+                        .padding(.horizontal, 40)
+                        .background(containerColor)
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal, 16)
+                    .frame(minHeight: geometry.size.height - 90)
+                }
+                .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
+
+                PrimaryFloatingButton(text: "Invite", onClick: viewModel.openShareSheet)
             }
-
-            VStack(spacing: 10) {
-                Text(viewModel.inviteCode)
-                    .font(.H1Text())
-                    .foregroundStyle(primaryColor)
-
-                Text("This code will be active for 2 days.")
-                    .font(.subTitle2())
-                    .foregroundStyle(secondaryText)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 30)
-            .background(primaryColor.opacity(0.12))
-            .cornerRadius(20)
-
-            PrimaryButton(text: "Share Code") {
-                viewModel.showShareSheet = true
-            }
-
-            Spacer()
         }
-        .padding(.horizontal, 20)
-        .background(backgroundColor)
-        .navigationBarTitle("Invite Code", displayMode: .inline)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showShareSheet) {
             ShareSheetView(activityItems: ["Let's split the expense! Use invite code \(viewModel.inviteCode) to join the \(viewModel.group?.name ?? "") group, don't have an app then please download it."]) { isCompleted in
                 if isCompleted {
-                    viewModel.storeSharedCode()
+                    viewModel.storeSharedCode {
+                        dismiss()
+                    }
                 }
+            }
+        }
+        .toolbarRole(.editor)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Text("Invite Code")
+                    .font(.Header2())
+                    .foregroundStyle(primaryText)
             }
         }
     }

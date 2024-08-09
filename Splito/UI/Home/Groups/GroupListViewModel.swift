@@ -27,9 +27,11 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var showActionSheet = false
     @Published private(set) var showSearchBar = false
     @Published private(set) var showScrollToTopBtn = false
+    @Published var showCreateGroupSheet = false
+    @Published var showJoinGroupSheet = false
 
     private var groups: [Groups] = []
-    private let router: Router<AppRoute>
+    let router: Router<AppRoute>
 
     var filteredGroups: [GroupInformation] {
         guard case .hasGroup(let groups) = groupListState else { return [] }
@@ -38,9 +40,11 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         case .all:
             return searchedGroup.isEmpty ? groups : groups.filter { $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         case .settled:
-            return searchedGroup.isEmpty ? groups.filter { $0.oweAmount == 0 } : groups.filter { $0.oweAmount == 0 && $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
+            return searchedGroup.isEmpty ? groups.filter { $0.oweAmount == 0 } : groups.filter { $0.oweAmount == 0 &&
+                $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         case .unsettled:
-            return searchedGroup.isEmpty ? groups.filter { $0.oweAmount != 0 } : groups.filter { $0.oweAmount != 0 && $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
+            return searchedGroup.isEmpty ? groups.filter { $0.oweAmount != 0 } : groups.filter { $0.oweAmount != 0 &&
+                $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         }
     }
 
@@ -51,6 +55,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         self.observeLatestExpenses()
     }
 
+    // MARK: - Data Loading
     func fetchGroups() {
         guard let userId = preference.user?.id else { return }
 
@@ -186,11 +191,11 @@ extension GroupListViewModel {
     }
 
     func handleCreateGroupBtnTap() {
-        router.push(.CreateGroupView(group: nil))
+        showCreateGroupSheet = true
     }
 
     func handleJoinGroupBtnTap() {
-        router.push(.JoinMemberView)
+        showJoinGroupSheet = true
     }
 
     func handleGroupItemTap(_ group: Groups, isTapped: Bool = true) {
@@ -205,31 +210,40 @@ extension GroupListViewModel {
     }
 
     func handleSearchBarTap() {
-        withAnimation {
-            searchedGroup = ""
-            showSearchBar.toggle()
+        if filteredGroups.isEmpty {
+            showToastFor(toast: .init(type: .info, title: "No groups yet", message: "There are no groups available to search."))
+        } else {
+            withAnimation {
+                searchedGroup = ""
+                showSearchBar.toggle()
+            }
         }
     }
 
     func onSearchBarCancelBtnTap() {
-        withAnimation {
-            searchedGroup = ""
-            showSearchBar = false
+        if showSearchBar {
+            withAnimation {
+                searchedGroup = ""
+                showSearchBar = false
+            }
         }
     }
 
     func handleTabItemSelection(_ selection: GroupListTabType) {
-        withAnimation(.easeInOut(duration: 0.3), {
+        guard case .hasGroup(let groups) = groupListState else { return }
+        let settledGroups = groups.filter { $0.oweAmount == 0 }
+        let unsettledGroups = groups.filter { $0.oweAmount != 0 }
+
+        withAnimation(.easeInOut(duration: 0.3)) {
             selectedTab = selection
-        })
+            if (selection == .settled && settledGroups.isEmpty || selection == .unsettled && unsettledGroups.isEmpty) && showSearchBar {
+                onSearchBarCancelBtnTap()
+            }
+        }
     }
 
     func manageScrollToTopBtnVisibility(offset: CGFloat) {
         showScrollToTopBtn = offset < 0
-    }
-
-    func onDismissActionSheet() {
-        showActionSheet = false
     }
 
     func handleGroupItemLongPress(_ group: Groups) {
@@ -338,12 +352,12 @@ enum OptionList: CaseIterable {
         }
     }
 
-    var image: String {
+    var image: ImageResource {
         switch self {
         case .editGroup:
-            return "pencil.line"
+            return .editPencilIcon
         case .deleteGroup:
-            return "trash"
+            return .binIcon
         }
     }
 }

@@ -14,101 +14,132 @@ struct GroupPaymentView: View {
     @StateObject var viewModel: GroupPaymentViewModel
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .center, spacing: 0) {
-                if case .loading = viewModel.viewState {
-                    LoaderView()
-                } else {
-                    VStack(alignment: .center, spacing: 20) {
-                        VSpacer(80)
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .center, spacing: 0) {
+                        if case .loading = viewModel.viewState {
+                            LoaderView()
+                        } else {
+                            VStack(alignment: .center, spacing: 0) {
+                                VSpacer(27)
 
-                        HStack(alignment: .center, spacing: 20) {
-                            MemberProfileImageView(imageUrl: viewModel.payer?.imageUrl, height: 80)
+                                VStack(alignment: .center, spacing: 24) {
+                                    HStack(alignment: .center, spacing: 24) {
+                                        ProfileCardView(name: viewModel.payerName, imageUrl: viewModel.payer?.imageUrl, geometry: geometry)
 
-                            Image(systemName: "arrowshape.forward.fill")
-                                .resizable()
-                                .frame(width: 36, height: 18)
-                                .foregroundStyle(primaryText.opacity(0.6))
+                                        Image(.transactionIcon)
+                                            .resizable()
+                                            .frame(width: 35, height: 36)
+                                            .padding(7)
 
-                            MemberProfileImageView(imageUrl: viewModel.receiver?.imageUrl, height: 80)
+                                        ProfileCardView(name: viewModel.payableName, imageUrl: viewModel.receiver?.imageUrl, geometry: geometry)
+                                    }
+
+                                    Text("\(viewModel.payerName.localized) paid \(viewModel.payableName.localized)")
+                                        .font(.body3())
+                                        .foregroundStyle(disableText)
+                                        .tracking(0.5)
+                                        .multilineTextAlignment(.center)
+                                }
+                                .padding(16)
+
+                                VSpacer(40)
+
+                                PaymentDetailRow(amount: $viewModel.amount, date: $viewModel.paymentDate, subtitle: "Date", placeholder: "Enter payment date", maximumDate: viewModel.maximumDate, forDatePicker: true)
+
+                                VSpacer(16)
+
+                                PaymentDetailRow(amount: $viewModel.amount, date: $viewModel.paymentDate, subtitle: "Enter amount", placeholder: "0.00", maximumDate: viewModel.maximumDate)
+
+                                Spacer(minLength: 40)
+                            }
+                            .padding(.horizontal, 16)
                         }
-                        .padding(.top, 20)
-
-                        Text("\(viewModel.payerName.localized) paid \(viewModel.payableName.localized)")
-                            .font(.body1())
-                            .foregroundStyle(primaryText)
-
-                        HStack(alignment: .center) {
-                            Text("Date:")
-                                .font(.subTitle2())
-                                .foregroundStyle(primaryText)
-
-                            DatePicker("", selection: $viewModel.paymentDate, in: ...viewModel.maximumDate, displayedComponents: .date)
-                                .labelsHidden()
-                                .onTapGesture(count: 99) {}
-                        }
-                        .padding(.top, 16)
-
-                        GroupPaymentAmountView(amount: $viewModel.amount)
-
-                        VSpacer(20)
                     }
-                    .padding(.horizontal, 20)
+                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
-            }
-            .background(backgroundColor)
-            .toastView(toast: $viewModel.toast)
-            .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-            .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-            .navigationBarTitle(viewModel.transactionId != nil ? "Edit payment" : "Record a payment", displayMode: .inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save", action: viewModel.handleSaveAction)
-                }
-                if viewModel.transactionId != nil {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button("Cancel", action: viewModel.dismissPaymentFlow)
-                    }
-                }
+                .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
+
+                PrimaryButton(text: "Done", showLoader: viewModel.showLoader, onClick: viewModel.handleSaveAction)
+                    .padding([.horizontal, .bottom], 16)
+                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
         }
-        .scrollIndicators(.hidden)
+        .background(surfaceColor)
+        .toastView(toast: $viewModel.toast)
+        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .onTapGesture {
             UIApplication.shared.endEditing()
+        }
+        .toolbarRole(.editor)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Text(viewModel.transactionId != nil ? "Edit payment" : "Record a payment")
+                    .font(.Header2())
+                    .foregroundStyle(primaryText)
+            }
         }
     }
 }
 
-private struct GroupPaymentAmountView: View {
+private struct PaymentDetailRow: View {
 
     @Binding var amount: Double
+    @Binding var date: Date
+
+    let subtitle: String
+    let placeholder: String
+    var maximumDate: Date
+    var forDatePicker: Bool = false
+
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        return formatter
+    }
+
     @FocusState var isAmountFocused: Bool
+    @State private var showDatePicker: Bool = false
 
     var body: some View {
-        HStack(alignment: .center, spacing: 16) {
-            Image(systemName: "indianrupeesign.square")
-                .resizable()
-                .frame(width: 30, height: 30)
-                .padding(.top, 5)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(subtitle.localized)
+                .font(.body3())
+                .foregroundStyle(disableText)
 
-            TextField("0.00", value: $amount, formatter: numberFormatter)
-                .keyboardType(.decimalPad)
-                .frame(width: 140)
-                .font(.Header1(30))
-                .focused($isAmountFocused)
-                .overlay(
-                    VStack(spacing: 40) {
-                        Spacer()
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundStyle(primaryColor)
-                    }
-                )
-        }
-        .padding(.vertical, 10)
-        .foregroundStyle(primaryText)
-        .onAppear {
-            isAmountFocused = true
+            VStack(alignment: .leading, spacing: 0) {
+                if forDatePicker {
+                    Text(dateFormatter.string(from: date))
+                        .font(.subTitle2())
+                        .foregroundStyle(primaryText)
+                        .overlay {
+                            DatePicker("", selection: $date, in: ...maximumDate, displayedComponents: .date)
+                                .blendMode(.destinationOver)
+                                .onTapGesture(count: 99) {}
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    TextField("0.00", value: $amount, formatter: numberFormatter)
+                        .keyboardType(.decimalPad)
+                        .font(.subTitle2())
+                        .foregroundStyle(primaryText)
+                        .focused($isAmountFocused)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding(.vertical, 14)
+            .padding(.horizontal, 16)
+            .overlay {
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(outlineColor, lineWidth: 1)
+            }
+            .onAppear {
+                isAmountFocused = true
+            }
         }
     }
 }

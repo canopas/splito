@@ -122,7 +122,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
                 let itemYear = calendar.component(.year, from: itemDate)
                 return itemYear == currentYear
             }
-        case .allTime:
+        case .all:
             return items
         }
     }
@@ -183,7 +183,7 @@ extension GroupTotalsViewModel {
 // MARK: - Tab Types
 enum GroupTotalsTabType: Int, CaseIterable {
 
-    case thisMonth, thisYear, allTime
+    case thisMonth, thisYear, all
 
     var tabItem: String {
         switch self {
@@ -191,8 +191,8 @@ enum GroupTotalsTabType: Int, CaseIterable {
             return "This month"
         case .thisYear:
             return "This year"
-        case .allTime:
-            return "All time"
+        case .all:
+            return "All"
         }
     }
 }

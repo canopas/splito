@@ -20,6 +20,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var isAdmin = false
     @Published var showLeaveGroupDialog = false
     @Published var showRemoveMemberDialog = false
+    @Published var showEditGroupSheet = false
+    @Published var showAddMemberSheet = false
 
     @Published private(set) var group: Groups?
     @Published private(set) var members: [AppUser] = []
@@ -34,7 +36,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     private let groupId: String
-    private let router: Router<AppRoute>
+    let router: Router<AppRoute>
     private var transactions: [Transactions] = []
     private var memberRemoveType: MemberRemoveType = .leave
 
@@ -145,16 +147,20 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - User Actions
 
+    func handleBackBtnTap() {
+        router.pop()
+    }
+
     func onRemoveAndLeaveFromGroupTap() {
         showAlert = true
     }
 
     func handleEditGroupTap() {
-        router.push(.CreateGroupView(group: group))
+        showEditGroupSheet = true
     }
 
     func handleAddMemberTap() {
-        router.push(.InviteMemberView(groupId: groupId))
+        showAddMemberSheet = true
     }
 
     func handleLeaveGroupTap() {

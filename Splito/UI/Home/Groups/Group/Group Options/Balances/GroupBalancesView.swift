@@ -12,8 +12,6 @@ struct GroupBalancesView: View {
 
     @StateObject var viewModel: GroupBalancesViewModel
 
-    @Environment(\.dismiss) var dismiss
-
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if case .loading = viewModel.viewState {
@@ -21,37 +19,51 @@ struct GroupBalancesView: View {
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-                        Divider()
-                            .frame(height: 1)
-                            .background(outlineColor.opacity(0.4))
-
-                        VSpacer(50)
+                        VSpacer(27)
 
                         VStack(alignment: .leading, spacing: 16) {
                             ForEach(viewModel.memberBalances, id: \.id) { memberBalance in
                                 GroupBalanceItemView(memberBalance: memberBalance, viewModel: viewModel, toggleExpandBtn: viewModel.handleBalanceExpandView(id:))
 
-                                Divider()
-                                    .frame(height: 1)
-                                    .background(outlineColor)
+                                if memberBalance.id != viewModel.memberBalances.last?.id {
+                                    Divider()
+                                        .frame(height: 1)
+                                        .background(dividerColor)
+                                }
                             }
                         }
+                        .padding(.vertical, 8)
                     }
+                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
             }
         }
-        .background(backgroundColor)
+        .background(surfaceColor)
         .interactiveDismissDisabled()
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .navigationBarTitle("Group balances", displayMode: .inline)
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
+            NavigationStack {
+                GroupPaymentView(
+                    viewModel: GroupPaymentViewModel(
+                        router: viewModel.router, transactionId: nil,
+                        groupId: viewModel.groupId, payerId: viewModel.payerId ?? "",
+                        receiverId: viewModel.receiverId ?? "",
+                        amount: viewModel.amount ?? 0,
+                        dismissPaymentFlow: viewModel.dismissSettleUpSheet
+                    )
+                )
+            }
+        }
+        .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button("Cancel") {
-                    dismiss()
-                }
+                Text("Group balances")
+                    .font(.Header2())
+                    .foregroundStyle(primaryText)
             }
         }
     }
@@ -64,57 +76,59 @@ private struct GroupBalanceItemView: View {
 
     let toggleExpandBtn: (String) -> Void
 
+    var imageUrl: String {
+        viewModel.getMemberImage(id: memberBalance.id)
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .center, spacing: 15) {
-                let mainImageHeight: CGFloat = 50
-                let imageUrl = viewModel.getMemberImage(id: memberBalance.id)
-                MemberProfileImageView(imageUrl: imageUrl, height: mainImageHeight)
+        VStack(alignment: .leading, spacing: 24) {
+            HStack(spacing: 16) {
+                HStack(spacing: 16) {
+                    MemberProfileImageView(imageUrl: imageUrl)
 
-                let hasDue = memberBalance.totalOwedAmount < 0
-                let name = viewModel.getMemberName(id: memberBalance.id, needFullName: true)
-                let owesOrGetsBack = hasDue ? "owes" : "gets back"
+                    let hasDue = memberBalance.totalOwedAmount < 0
+                    let name = viewModel.getMemberName(id: memberBalance.id, needFullName: true)
+                    let owesOrGetsBack = hasDue ? "owes" : "gets back"
 
-                if memberBalance.totalOwedAmount == 0 {
-                    Group {
-                        Text(name)
-                            .font(.Header4())
-                        + Text(" is settled up")
-                            .font(.body1(16))
+                    if memberBalance.totalOwedAmount == 0 {
+                        Group {
+                            Text(name)
+                                .font(.subTitle2())
+                            + Text(" is settled up")
+                                .font(.body1())
+                        }
+                        .foregroundStyle(primaryText)
+                    } else {
+                        Group {
+                            Text(name)
+                                .font(.subTitle2())
+
+                            + Text(" \(owesOrGetsBack.localized) ")
+
+                            + Text(memberBalance.totalOwedAmount.formattedCurrency)
+                                .foregroundColor(hasDue ? alertColor : successColor)
+
+                            + Text(" in total")
+                        }
+                        .lineSpacing(4)
+                        .font(.body1())
+                        .foregroundStyle(primaryText)
                     }
-                } else {
-                    Group {
-                        Text(name)
-                            .font(.Header4())
-
-                        + Text(" \(owesOrGetsBack.localized) ")
-
-                        + Text(memberBalance.totalOwedAmount.formattedCurrency)
-                            .font(.body1(17))
-                            .foregroundColor(hasDue ? amountBorrowedColor : amountLentColor)
-
-                        + Text(" in total")
-                    }
-                    .lineSpacing(3)
-                    .font(.body1(16))
                 }
-
-                Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 if memberBalance.totalOwedAmount != 0 {
-                    Image(systemName: memberBalance.isExpanded ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
-                        .resizable()
-                        .frame(width: 18, height: 18)
-                        .foregroundStyle(secondaryText.opacity(0.8))
-                        .onTouchGesture {
-                            withAnimation(Animation.easeInOut(duration: 0.3)) {
-                                toggleExpandBtn(memberBalance.id)
-                            }
+                    ScrollToTopButton(icon: "chevron.down", iconColor: primaryText, bgColor: container2Color, showWithAnimation: true, size: (10, 7), isFirstGroupCell: memberBalance.isExpanded, onClick: {
+                        toggleExpandBtn(memberBalance.id)
+                    })
+                    .onAppear {
+                        if memberBalance.isExpanded {
+                            toggleExpandBtn(memberBalance.id)
                         }
+                    }
                 }
             }
-            .foregroundStyle(primaryText)
-            .padding(.horizontal, 15)
+            .padding(.horizontal, 16)
 
             if memberBalance.isExpanded {
                 GroupBalanceItemMemberView(id: memberBalance.id, balances: memberBalance.balances, viewModel: viewModel)
@@ -124,15 +138,15 @@ private struct GroupBalanceItemView: View {
 }
 
 private struct GroupBalanceItemMemberView: View {
+    let SUBIMAGEHEIGHT: CGFloat = 24
 
     let id: String
     let balances: [String: Double]
     let viewModel: GroupBalancesViewModel
 
     var body: some View {
-        HStack(alignment: .top, spacing: 15) {
-            let mainImageHeight: CGFloat = 50
-            HSpacer(mainImageHeight)
+        HStack(alignment: .top, spacing: 0) {
+            HSpacer(32)
 
             VStack(alignment: .leading, spacing: 12) {
                 ForEach(balances.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
@@ -141,28 +155,44 @@ private struct GroupBalanceItemMemberView: View {
                     let owesMemberName = viewModel.getMemberName(id: hasDue ? memberId : id)
                     let owedMemberName = viewModel.getMemberName(id: hasDue ? id : memberId)
 
-                    HStack(alignment: .center, spacing: 10) {
-                        let subImageHeight: CGFloat = 36
-                        MemberProfileImageView(imageUrl: imageUrl, height: subImageHeight)
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(alignment: .center, spacing: 16) {
+                            MemberProfileImageView(imageUrl: imageUrl, height: SUBIMAGEHEIGHT)
 
-                        Group {
-                            Text("\(owedMemberName) owes ")
+                            Group {
+                                Text("\(owedMemberName) owes ")
 
-                            + Text(amount.formattedCurrency)
-                                .foregroundColor(hasDue ? amountBorrowedColor : amountLentColor)
+                                + Text(amount.formattedCurrency)
+                                    .foregroundColor(hasDue ? alertColor : successColor)
 
-                            + Text(" to \(owesMemberName)")
+                                + Text(" to \(owesMemberName)")
+                            }
+                            .font(.body3())
+                            .foregroundStyle(disableText)
                         }
-                        .font(.body1(16))
-                        .foregroundStyle(secondaryText)
+
+                        HStack(alignment: .center, spacing: 16) {
+                            HSpacer(SUBIMAGEHEIGHT)
+
+                            Button {
+                                viewModel.handleSettleUpTap(payerId: hasDue ? id : memberId, receiverId: hasDue ? memberId : id, amount: amount)
+                            } label: {
+                                Text("Settle up")
+                                    .font(.buttonText())
+                                    .foregroundStyle(disableText)
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 24)
+                                    .background(container2Color)
+                                    .cornerRadius(30)
+                            }
+                        }
                     }
                 }
             }
         }
-        .padding(.horizontal, 10)
     }
 }
 
 #Preview {
-    GroupBalancesView(viewModel: GroupBalancesViewModel(groupId: ""))
+    GroupBalancesView(viewModel: GroupBalancesViewModel(router: .init(root: .GroupListView), groupId: ""))
 }

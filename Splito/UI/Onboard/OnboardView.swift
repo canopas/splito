@@ -12,50 +12,48 @@ import Data
 struct OnboardView: View {
 
     var onboardItems: [OnboardItem] = [
-        OnboardItem(image: .tracking, title: "Tracking", description: "keep track of balances between friends and loved ones."),
-        OnboardItem(image: .expense, title: "Expenses", description: "Add & split expenses with groups or individuals."),
-        OnboardItem(image: .payBack, title: "Pay Back", description: "Settle up and pay back your friends any time.")
+        OnboardItem(title: "Split your expenses between friends and colleagues with ease!"),
+        OnboardItem(image: .addExpenses, title: "Let's add expenses!", subtitle: "Let's add an expense to get you started splitting bills with your friends!"),
+        OnboardItem(image: .settleUpBills, title: "Settle up bills together!", subtitle: "Time to settle up! Track shared expenses and split them in seconds.", description: "Use settle up to divide costs with your friends or colleagues. It's easy and ensures everyone pays or receives their fair share.\n\nLet's get started splitting bills easily with friends.")
     ]
 
     @StateObject var viewModel: OnboardViewModel
 
     public var body: some View {
-        VStack(alignment: .center, spacing: 0) {
+        VStack(spacing: 0) {
+            VSpacer(40)
+
             GeometryReader { proxy in
                 TabView(selection: $viewModel.currentPageIndex) {
                     ForEach(0..<onboardItems.count, id: \.self) { index in
-                        OnboardPageView(index: index, items: onboardItems, proxy: proxy,
-                                        onStartBtnTap: viewModel.handleGetStartedAction)
+                        OnboardPageView(index: index, items: onboardItems, proxy: proxy)
                     }
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                .onChange(of: viewModel.currentPageIndex) { newIndex in
+                    viewModel.handleGetStartedBtnVisibility(isLastIndex: newIndex == onboardItems.count - 1)
+                }
             }
 
-            Spacer()
+            if viewModel.showGetStartedButton {
+                PrimaryButton(text: "Get Started", onClick: viewModel.handleGetStartedAction)
+                    .padding(.top, 8)
+                    .padding(.horizontal, 16)
+
+                VSpacer(32)
+            }
 
             ZStack(alignment: .center) {
                 PageControl(numberOfPages: onboardItems.count, currentIndex: $viewModel.currentPageIndex)
                     .frame(height: 10)
-                    .padding(.horizontal, 16)
-
-                HStack {
-                    Spacer()
-                    Button("Next") {
-                        withAnimation {
-                            viewModel.currentPageIndex += 1
-                        }
-                    }
-                    .fontWeight(.bold)
-                    .foregroundStyle(primaryText)
-                }
-                .padding(.horizontal, 30)
-                .opacity(viewModel.currentPageIndex == (onboardItems.count - 1) ? 0 : 1)
+                    .padding(.top, viewModel.currentPageIndex == onboardItems.count - 1 ? 0 : 8)
+                    .padding([.horizontal, .bottom], 16)
+                    .animation(.easeInOut, value: viewModel.currentPageIndex)
             }
-
-            VSpacer(30)
-
         }
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
+        .background(surfaceColor)
     }
 }
 
@@ -65,52 +63,81 @@ struct OnboardPageView: View {
     var items: [OnboardItem]
     let proxy: GeometryProxy
 
-    var onStartBtnTap: (() -> Void)
-
     var body: some View {
         ScrollView {
-            VStack(alignment: .center, spacing: 12) {
-                VSpacer(20)
-
-                Image(items[index].image)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundStyle(primaryColor.opacity(0.4))
-                    .frame(width: 200, height: 200, alignment: .center)
-
-                VSpacer(20)
-
+            VStack(alignment: .leading, spacing: 0) {
                 Text(items[index].title.localized)
-                    .font(.largeTitle)
-                    .fontWeight(.heavy)
-                    .foregroundStyle(primaryColor)
+                    .font(.Header1())
+                    .foregroundStyle(primaryText)
+                    .padding(.horizontal, 16)
 
-                Text(items[index].description.localized)
-                    .font(.title3)
-                    .foregroundStyle(secondaryText)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 20)
+                if let subtitle = items[index].subtitle {
+                    VSpacer(16)
 
-                VSpacer(70)
-
-                PrimaryButton(text: "Get Started") {
-                    onStartBtnTap()
+                    Text(subtitle.localized)
+                        .font(.subTitle1())
+                        .foregroundStyle(disableText)
+                        .lineSpacing(4)
+                        .tracking(-0.2)
+                        .multilineTextAlignment(.leading)
+                        .padding(.horizontal, 16)
                 }
-                .opacity(index == (items.count - 1) ? 1 : 0)
 
-                VSpacer(20)
+                VSpacer((index == 1) ? 60 : 40)
+
+                if let image = items[index].image {
+                    Image(image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: proxy.size.width, height: (index == 1) ? 420 : 225, alignment: .center)
+                } else {
+                    FirstIndexImageView(image: .schoolBuddies, width: 180, height: 180)
+                    FirstIndexImageView(image: .colleagues, width: 200, height: 230, yOffset: -80, alignment: .leading)
+                    FirstIndexImageView(image: .roomies, width: 200, height: 200, yOffset: -140)
+                }
+
+                if let description = items[index].description {
+                    VSpacer(40)
+
+                    Text(description.localized)
+                        .font(.subTitle1())
+                        .foregroundStyle(disableText)
+                        .lineSpacing(4)
+                        .tracking(-0.2)
+                        .multilineTextAlignment(.leading)
+                        .padding(.horizontal, 16)
+                }
             }
-            .frame(maxWidth: isIpad ? 600 : .infinity, minHeight: proxy.size.height, alignment: .center)
+            .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .top)
         }
         .scrollIndicators(.hidden)
-        .padding(.horizontal, 20)
+        .scrollBounceBehavior(.basedOnSize)
+    }
+}
+
+struct FirstIndexImageView: View {
+
+    var image: ImageResource
+    var width: CGFloat
+    var height: CGFloat
+    var yOffset: CGFloat = 0
+    var alignment: Alignment = .trailing
+
+    var body: some View {
+        Image(image)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: width, height: height)
+            .offset(y: yOffset)
+            .frame(maxWidth: .infinity, alignment: alignment)
     }
 }
 
 public struct OnboardItem: Hashable {
-    let image: ImageResource
+    var image: ImageResource?
     let title: String
-    let description: String
+    var subtitle: String?
+    var description: String?
 }
 
 #Preview {

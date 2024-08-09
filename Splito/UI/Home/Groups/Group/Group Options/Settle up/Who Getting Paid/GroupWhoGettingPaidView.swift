@@ -18,34 +18,39 @@ struct GroupWhoGettingPaidView: View {
                 LoaderView()
             } else {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 10) {
-                        ForEach(viewModel.members) { member in
-                            GroupPayingMemberView(member: member, selectedMemberId: viewModel.selectedMemberId)
-                                .onTouchGesture {
-                                    viewModel.onMemberTap(memberId: member.id)
-                                }
+                    VStack(alignment: .leading, spacing: 0) {
+                        VSpacer(27)
 
-                            Divider()
-                                .frame(height: 1)
-                                .background(outlineColor.opacity(0.4))
+                        ForEach(viewModel.members) { member in
+                            GroupPayingMemberView(member: member, isSelected: member.id == viewModel.selectedMemberId,
+                                                  isLastMember: member.id == viewModel.members.last?.id,
+                                                  disableMemberTap: member.id == viewModel.payerId,
+                                                  onMemberTap: viewModel.onMemberTap(memberId:))
                         }
                     }
-                    .padding(.top, 24)
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
             }
         }
-        .background(backgroundColor)
+        .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .navigationBarTitle("Who is getting paid?", displayMode: .inline)
-        .onAppear {
-            viewModel.fetchGroupMembers()
+        .onAppear(perform: viewModel.fetchGroupMembers)
+        .toolbarRole(.editor)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Text("Who is getting paid?")
+                    .font(.Header2())
+                    .foregroundStyle(primaryText)
+            }
         }
     }
 }
 
 #Preview {
-    GroupWhoGettingPaidView(viewModel: GroupWhoGettingPaidViewModel(router: nil, groupId: "", selectedMemberId: ""))
+    GroupWhoGettingPaidView(viewModel: GroupWhoGettingPaidViewModel(router: nil, groupId: "", payerId: ""))
 }

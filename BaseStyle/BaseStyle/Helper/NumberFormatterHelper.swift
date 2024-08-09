@@ -12,6 +12,6 @@ public var numberFormatter: NumberFormatter {
     formatter.numberStyle = .decimal
     formatter.minimumFractionDigits = 2
     formatter.maximumFractionDigits = 2
-    formatter.usesGroupingSeparator = false
+    formatter.zeroSymbol  = ""
     return formatter
 }

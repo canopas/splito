@@ -12,41 +12,36 @@ struct GroupTotalsView: View {
 
     @StateObject var viewModel: GroupTotalsViewModel
 
-    @Environment(\.dismiss) var dismiss
-
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
-                        Text(viewModel.group?.name ?? "")
-                            .font(.body1(26))
-                            .foregroundStyle(primaryText)
-                            .padding(.vertical, 10)
-                            .padding(.top, 20)
+                    VStack(alignment: .leading, spacing: 16) {
+                        VSpacer(12)
 
                         GroupTotalTabView(selectedTab: viewModel.selectedTab,
                                           onSelect: viewModel.handleTabItemSelection(_:))
 
                         GroupTotalSummaryView(viewModel: viewModel)
                     }
-                    .padding(.horizontal, 16)
+                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
             }
         }
-        .background(backgroundColor)
+        .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .navigationBarTitle("Group spending summary", displayMode: .inline)
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button("Cancel") {
-                    dismiss()
-                }
+                Text("Group spending summary")
+                    .font(.Header2())
+                    .foregroundStyle(primaryText)
             }
         }
     }
@@ -58,31 +53,31 @@ private struct GroupTotalTabView: View {
     let onSelect: ((GroupTotalsTabType) -> Void)
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 8) {
             ForEach(GroupTotalsTabType.allCases, id: \.self) { tab in
                 Button {
                     onSelect(tab)
                 } label: {
                     Text(tab.tabItem.localized)
-                        .font(.body2())
-                        .foregroundColor(selectedTab == tab ? surfaceDarkColor : primaryText)
+                        .font(.buttonText())
+                        .foregroundColor(selectedTab == tab ? inversePrimaryText : disableText)
                         .padding(.vertical, 8)
+                        .padding(.horizontal, 24)
                         .lineLimit(1)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .background(selectedTab == tab ? surfaceLightColor : Color.clear)
-                        .cornerRadius(selectedTab == tab ? 8 : 0)
-                        .padding(.all, 2)
+                        .background(selectedTab == tab ? primaryDarkColor : container2Color)
+                        .cornerRadius(30)
                         .minimumScaleFactor(0.5)
                 }
+                .buttonStyle(PlainButtonStyle())
             }
+
+            Spacer()
         }
-        .background(containerNormalColor)
-        .cornerRadius(8)
         .frame(maxWidth: .infinity, alignment: .center)
         .transaction { transaction in
             transaction.animation = nil
         }
-        .padding(.bottom, 10)
+        .padding(.horizontal, 16)
     }
 }
 
@@ -115,16 +110,15 @@ private struct GroupTotalSummaryView: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
-            GroupSummaryAmountView(text: "Total group spending", amount: totalGroupSpending, fontColor: amountLentColor)
-            GroupSummaryAmountView(text: "Total you paid for", amount: totalPaid, fontColor: amountLentColor)
-            GroupSummaryAmountView(text: "Your total share", amount: totalShare, fontColor: amountBorrowedColor)
-            GroupSummaryAmountView(text: "Payments made", amount: paymentsMade)
+        VStack(spacing: 0) {
+            GroupSummaryAmountView(text: "Total group spending", amount: totalGroupSpending)
+            GroupSummaryAmountView(text: "Total you paid for", amount: totalPaid)
+            GroupSummaryAmountView(text: "Your total share", amount: totalShare, fontColor: alertColor)
+            GroupSummaryAmountView(text: "Payments made", amount: paymentsMade, fontColor: alertColor)
             GroupSummaryAmountView(text: "Payments received", amount: paymentsReceived)
             GroupSummaryAmountView(text: "Total change in balance", amount: totalChangeInBalance,
-                                   fontColor: (totalChangeInBalance < 0 ? amountBorrowedColor : amountLentColor))
+                                   fontColor: (totalChangeInBalance < 0 ? alertColor : successColor), isLast: true)
         }
-        .padding(.horizontal, 4)
     }
 }
 
@@ -133,24 +127,34 @@ private struct GroupSummaryAmountView: View {
     let text: String
     let amount: Double
     var fontColor: Color
+    var isLast: Bool
 
-    init(text: String, amount: Double, fontColor: Color = primaryText) {
+    init(text: String, amount: Double, fontColor: Color = successColor, isLast: Bool = false) {
         self.text = text
         self.amount = amount
         self.fontColor = fontColor
+        self.isLast = isLast
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 0) {
+        HStack(spacing: 0) {
             Text(text.localized)
-                .font(.body1())
+                .font(.subTitle2())
                 .foregroundColor(primaryText)
 
             Spacer()
 
             Text((amount < 0 ? "-" : "") + amount.formattedCurrency)
                 .font(.body1())
-                .foregroundColor(amount == 0 ? secondaryText : fontColor)
+                .foregroundColor(amount == 0 ? lowestText : fontColor)
+        }
+        .padding(.vertical, 20)
+        .padding(.horizontal, 16)
+
+        if !isLast {
+            Divider()
+                .frame(height: 1)
+                .background(dividerColor)
         }
     }
 }

@@ -9,13 +9,6 @@ import Foundation
 
 public extension Date {
 
-    // Mar \n 10
-    var shortDateWithNewLine: String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM\ndd"
-        return dateFormatter.string(from: self)
-    }
-
     // 10 March 2024
     var longDate: String {
         let dateFormatter = DateFormatter()
@@ -29,5 +22,22 @@ public extension Date {
 
     var secondsSince1970: Int {
         Int((self.timeIntervalSince1970).rounded())
+    }
+
+    var dayAndMonthText: (day: String, month: String) {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d"
+        let day = formatter.string(from: self)
+
+        formatter.dateFormat = "MMM"
+        let month = formatter.string(from: self)
+
+        return (day, month)
+    }
+
+    var dayOfMonth: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMMM"
+        return dateFormatter.string(from: self).capitalized
     }
 }

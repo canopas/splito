@@ -13,43 +13,36 @@ struct GroupSettleUpView: View {
 
     @StateObject var viewModel: GroupSettleUpViewModel
 
-    @Environment(\.dismiss) var dismiss
-
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
-                        VSpacer(10)
-
-                        Text("Which balance do you want to settle?")
-                            .font(.body1(24))
-                            .foregroundStyle(primaryText)
-                            .multilineTextAlignment(.leading)
-                            .padding(.horizontal, 20)
-                            .padding(.bottom, 10)
+                    VStack(alignment: .leading, spacing: 0) {
+                        VSpacer(27)
 
                         GroupMembersListView(viewModel: viewModel)
 
                         GroupSettleUpMoreOptionView(onMoreBtnTap: viewModel.handleMoreButtonTap)
                     }
+                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
             }
         }
-        .background(backgroundColor)
+        .background(surfaceColor)
         .interactiveDismissDisabled()
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .navigationBarTitle("Settle up", displayMode: .inline)
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button("Cancel") {
-                    dismiss()
-                }
+                Text("Settle up")
+                    .font(.Header2())
+                    .foregroundStyle(primaryText)
             }
         }
     }
@@ -60,19 +53,19 @@ private struct GroupSettleUpMoreOptionView: View {
     let onMoreBtnTap: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        HStack(alignment: .center, spacing: 0) {
             Text("More options")
-                .font(.body1())
+                .font(.Header4())
                 .foregroundStyle(primaryText)
-                .padding(.horizontal, 20)
 
-            Divider()
-                .frame(height: 1)
-                .background(outlineColor.opacity(0.4))
+            Spacer()
+
+            ScrollToTopButton(icon: "chevron.right", iconColor: primaryText, bgColor: .clear, size: (7, 14), padding: 3, onClick: onMoreBtnTap)
+                .fontWeight(.regular)
         }
-        .onTouchGesture {
-            onMoreBtnTap()
-        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 20)
+        .onTapGestureForced(perform: onMoreBtnTap)
     }
 }
 
@@ -81,7 +74,7 @@ private struct GroupMembersListView: View {
     @ObservedObject var viewModel: GroupSettleUpViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 0) {
             let sortedMembers = viewModel.memberOwingAmount
                 .sorted { (member1, member2) -> Bool in
                     guard let member1Data = viewModel.getMemberDataBy(id: member1.key),
@@ -104,7 +97,7 @@ private struct GroupMembersListView: View {
 
                     Divider()
                         .frame(height: 1)
-                        .background(outlineColor.opacity(0.4))
+                        .background(dividerColor)
                 }
             }
         }
@@ -116,46 +109,30 @@ private struct GroupMemberCellView: View {
     let member: AppUser
     let amount: Double
 
-    private var subInfo: String {
-        if let phoneNumber = member.phoneNumber, !phoneNumber.isEmpty {
-            return phoneNumber
-        } else if let emailId = member.emailId, !emailId.isEmpty {
-            return emailId
-        } else {
-            return "No email address"
-        }
-    }
-
     var body: some View {
-        HStack(alignment: .center, spacing: 20) {
+        HStack(alignment: .center, spacing: 16) {
             MemberProfileImageView(imageUrl: member.imageUrl)
 
-            VStack(alignment: .leading, spacing: 5) {
-                Text(member.fullName)
-                    .lineLimit(1)
-                    .font(.body1())
-                    .foregroundStyle(primaryText)
-
-                Text(subInfo.localized)
-                    .lineLimit(1)
-                    .font(.subTitle3())
-                    .foregroundStyle(secondaryText)
-            }
+            Text(member.fullName)
+                .lineLimit(1)
+                .font(.subTitle1())
+                .foregroundStyle(primaryText)
 
             Spacer()
 
             let isBorrowed = amount < 0
             VStack(alignment: .trailing, spacing: 4) {
                 Text(isBorrowed ? "you owe" : "owes you")
-                    .font(.body1(13))
+                    .font(.caption1())
 
                 Text(amount.formattedCurrency)
                     .font(.body1())
             }
             .lineLimit(1)
-            .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
+            .foregroundStyle(isBorrowed ? alertColor : successColor)
         }
-        .padding(.horizontal, 20)
+        .padding(.vertical, 20)
+        .padding(.horizontal, 16)
     }
 }
 

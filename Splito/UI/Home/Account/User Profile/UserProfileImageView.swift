@@ -15,12 +15,17 @@ struct UserProfileImageView: View {
 
     private let profileImageUrl: String?
 
+    private var size: (width: CGFloat, height: CGFloat)
     private var showOverlay: Bool
+
     private let handleProfileTap: (() -> Void)
 
-    public init(image: Binding<UIImage?>, profileImageUrl: String?, showOverlay: Bool = false, handleProfileTap: @escaping () -> Void) {
+    public init(image: Binding<UIImage?>, profileImageUrl: String?,
+                size: (width: CGFloat, height: CGFloat) = (106, 106),
+                showOverlay: Bool = false, handleProfileTap: @escaping () -> Void) {
         self._image = image
         self.profileImageUrl = profileImageUrl
+        self.size = size
         self.showOverlay = showOverlay
         self.handleProfileTap = handleProfileTap
     }
@@ -32,35 +37,35 @@ struct UserProfileImageView: View {
                     Circle()
                         .background(
                             Circle()
-                                .foregroundStyle(containerHighColor)
+                                .foregroundStyle(container2Color)
                         )
-                        .frame(width: 106, height: 106, alignment: .center)
+                        .frame(width: size.width, height: size.height, alignment: .center)
 
                     KFImage(url)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 106, height: 106, alignment: .center)
+                        .frame(width: size.width, height: size.height, alignment: .center)
                         .clipShape(Circle())
                 } else {
                     if let image {
                         Image(uiImage: image)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 106, height: 106, alignment: .center)
+                            .frame(width: size.width, height: size.height, alignment: .center)
                             .clipShape(Circle())
                     } else {
                         Circle()
                             .strokeBorder(.clear, lineWidth: 0)
                             .background(
                                 Circle()
-                                    .foregroundStyle(containerHighColor)
+                                    .foregroundStyle(container2Color)
                             )
-                            .frame(width: 106, height: 106, alignment: .center)
+                            .frame(width: size.width, height: size.height, alignment: .center)
 
                         Image(.user)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 106, height: 106, alignment: .center)
+                            .frame(width: size.width, height: size.height, alignment: .center)
                             .clipShape(Circle())
                     }
                 }
@@ -68,14 +73,14 @@ struct UserProfileImageView: View {
         }
         .overlay {
             if showOverlay {
-                VStack(spacing: 0) {
-                    Image(.profileEditPencil)
-                        .padding(8)
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 32, height: 32, alignment: .center)
-                }
-                .padding([.top, .leading], 75)
-                .padding(.bottom, 10)
+                Image(.editPencilIcon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 18, height: 18, alignment: .center)
+                    .padding(4)
+                    .background(containerColor)
+                    .clipShape(Circle())
+                    .padding([.top, .leading], 52)
             }
         }
         .onTapGesture(perform: handleProfileTap)

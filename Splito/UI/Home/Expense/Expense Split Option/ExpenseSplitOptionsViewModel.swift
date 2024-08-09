@@ -114,9 +114,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - User Actions
     func handleTabItemSelection(_ selection: SplitType) {
-        withAnimation {
-            selectedTab = selection
-        }
+        selectedTab = selection
     }
 
     func checkIsMemberSelected(_ memberId: String) -> Bool {
@@ -191,5 +189,33 @@ extension ExpenseSplitOptionsViewModel {
     enum ViewState {
         case initial
         case loading
+    }
+}
+
+extension SplitType {
+    var tabItem: ImageResource {
+        switch self {
+        case .equally:
+            return .equalIcon
+        case .fixedAmount:
+            return .fixedAmountIcon
+        case .percentage:
+            return .percentageIcon
+        case .shares:
+            return .sharesIcon
+        }
+    }
+
+    var selectedTabItem: ImageResource {
+        switch self {
+        case .equally:
+            return .selectedEqualIcon
+        case .fixedAmount:
+            return .selectedFixedAmount
+        case .percentage:
+            return .selectedPercentageIcon
+        case .shares:
+            return .selectedSharesIcon
+        }
     }
 }

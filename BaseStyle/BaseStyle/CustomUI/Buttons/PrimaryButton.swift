@@ -13,20 +13,18 @@ public struct PrimaryButton: View {
     @StateObject var loaderModel: LoaderViewModel = .init()
 
     private let text: String
+    private var bgColor: Color
+    private var textColor: Color
     private let isEnabled: Bool
     private let showLoader: Bool
+
     private let onClick: (() -> Void)?
 
-    private var color: Color {
-        return isEnabled ? primaryColor : primaryColor.opacity(0.6)
-    }
-
-    private var textColor: Color {
-        return (isEnabled && !showLoader) ? primaryDarkText : primaryDarkText.opacity(0.6)
-    }
-
-    public init(text: String, isEnabled: Bool = true, showLoader: Bool = false, onClick: (() -> Void)? = nil) {
+    public init(text: String, textColor: Color = primaryLightText, bgColor: Color = primaryColor,
+                isEnabled: Bool = true, showLoader: Bool = false, onClick: (() -> Void)? = nil) {
         self.text = text
+        self.textColor = textColor
+        self.bgColor = bgColor
         self.isEnabled = isEnabled
         self.showLoader = showLoader
         self.onClick = onClick
@@ -50,17 +48,17 @@ public struct PrimaryButton: View {
                 }
 
                 Text(text.localized)
+                    .font(.buttonText())
                     .foregroundStyle(textColor)
             }
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, 15)
             .minimumScaleFactor(0.5)
-            .background(color)
-            .clipShape(Capsule())
+            .background(bgColor)
+            .cornerRadius(12)
         }
         .frame(minHeight: 50)
         .buttonStyle(.scale)
         .disabled(!isEnabled || showLoader)
-        .opacity((isEnabled && !showLoader) ? 1 : 0.6)
     }
 }

@@ -16,7 +16,7 @@ public enum AppRoute: Hashable {
     case OnboardView
     case LoginView
     case PhoneLoginView
-    case VerifyOTPView(phoneNumber: String, verificationId: String)
+    case VerifyOTPView(phoneNumber: String, dialCode: String, verificationId: String)
     case ProfileView
     case HomeView
 
@@ -39,7 +39,7 @@ public enum AppRoute: Hashable {
 
     // MARK: - Expense Button
     case AddExpenseView(groupId: String, expenseId: String?)
-    case ExpenseDetailView(groupId: String, expenseId: String)
+    case ExpenseDetailView(groupId: String, expenseId: String, groupImageUrl: String)
     case ChoosePayerView(groupId: String, amount: Double, selectedPayer: [String: Double], onPayerSelection: (([String: Double]) -> Void))
     case ChooseMultiplePayerView(groupId: String, selectedPayers: [String: Double], amount: Double, onPayerSelection: (([String: Double]) -> Void))
 

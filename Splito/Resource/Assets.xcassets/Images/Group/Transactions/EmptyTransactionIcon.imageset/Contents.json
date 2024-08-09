@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "transactions graphic.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

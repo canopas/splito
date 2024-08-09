@@ -24,8 +24,8 @@ struct OnboardRouteView: View {
                 LoginView(viewModel: LoginViewModel(router: router))
             case .PhoneLoginView:
                 PhoneLoginView(viewModel: PhoneLoginViewModel(router: router))
-            case .VerifyOTPView(let phoneNumber, let verificationId):
-                VerifyOtpView(viewModel: VerifyOtpViewModel(router: router, phoneNumber: phoneNumber, verificationId: verificationId))
+            case .VerifyOTPView(let phoneNumber, let dialCode, let verificationId):
+                VerifyOtpView(viewModel: VerifyOtpViewModel(router: router, phoneNumber: phoneNumber, dialCode: dialCode, verificationId: verificationId))
             default:
                 EmptyRouteView(routeName: self)
             }
