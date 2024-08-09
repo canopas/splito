@@ -15,6 +15,7 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var members: [AppUser] = []
     @Published private(set) var viewState: ViewState = .initial
 
+    @Published private(set) var selectedMemberId: String?
     @Published private(set) var isPaymentSettled: Bool
 
     private let groupId: String
@@ -40,8 +41,9 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func onMemberTap(_ member: AppUser) {
-        router?.push(.GroupWhoGettingPaidView(groupId: groupId, selectedMemberId: member.id))
+    func onMemberTap(_ memberId: String) {
+        selectedMemberId = memberId
+        router?.push(.GroupWhoGettingPaidView(groupId: groupId, selectedMemberId: memberId))
     }
 
     // MARK: - Error Handling

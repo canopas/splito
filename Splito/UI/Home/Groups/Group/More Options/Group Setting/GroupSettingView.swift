@@ -15,50 +15,63 @@ struct GroupSettingView: View {
     @StateObject var viewModel: GroupSettingViewModel
 
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else if case .initial = viewModel.currentViewState {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 30) {
-                        VSpacer(20)
+                    VStack(alignment: .leading, spacing: 16) {
+                        VSpacer(10)
 
                         GroupTitleView(group: viewModel.group)
-                            .onTouchGesture {
-                                viewModel.handleEditGroupTap()
-                            }
+                            .onTouchGesture(viewModel.handleEditGroupTap)
 
-                        GroupMembersView(group: viewModel.group, members: viewModel.members, oweAmount: viewModel.amountOweByMember,
-                                         onAddMemberTap: viewModel.handleAddMemberTap, onMemberTap: viewModel.handleMemberTap(member:))
+                        GroupMembersView(group: viewModel.group, members: viewModel.members,
+                                         oweAmount: viewModel.amountOweByMember,
+                                         onAddMemberTap: viewModel.handleAddMemberTap,
+                                         onMemberTap: viewModel.handleMemberTap(member:))
 
                         GroupAdvanceSettingsView(isDebtSimplified: $viewModel.isDebtSimplified, isDisable: !viewModel.isAdmin,
                                                  onLeaveGroupTap: viewModel.handleLeaveGroupTap,
                                                  onDeleteGroupTap: viewModel.handleDeleteGroupTap)
 
-                        Spacer(minLength: 20)
+                        Spacer(minLength: 50)
                     }
                 }
                 .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
             }
         }
-        .background(backgroundColor)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .navigationBarTitle("Group settings", displayMode: .inline)
         .confirmationDialog("", isPresented: $viewModel.showLeaveGroupDialog, titleVisibility: .hidden) {
-            Button("Leave Group") {
-                viewModel.onRemoveAndLeaveFromGroupTap()
-            }
+            Button("Leave Group", action: viewModel.onRemoveAndLeaveFromGroupTap)
         }
         .confirmationDialog("", isPresented: $viewModel.showRemoveMemberDialog, titleVisibility: .hidden) {
-            Button("Remove from group") {
-                viewModel.onRemoveAndLeaveFromGroupTap()
+            Button("Remove from group", action: viewModel.onRemoveAndLeaveFromGroupTap)
+        }
+        .toolbarRole(.editor)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Text("Group settings")
+                    .font(.Header2())
+                    .foregroundStyle(primaryText)
             }
         }
-        .onAppear {
-            viewModel.fetchGroupDetails()
+        .fullScreenCover(isPresented: $viewModel.showEditGroupSheet) {
+            NavigationStack {
+                CreateGroupView(viewModel: CreateGroupViewModel(router: viewModel.router, group: viewModel.group))
+            }
         }
+        .fullScreenCover(isPresented: $viewModel.showAddMemberSheet) {
+            NavigationStack {
+                InviteMemberView(viewModel: InviteMemberViewModel(router: viewModel.router, groupId: viewModel.group?.id ?? ""))
+            }
+        }
+        .onAppear(perform: viewModel.fetchGroupDetails)
     }
 }
 
@@ -67,25 +80,41 @@ private struct GroupTitleView: View {
     let group: Groups?
 
     var body: some View {
-        VStack(spacing: 20) {
-            HStack(alignment: .center, spacing: 16) {
+        VStack(alignment: .leading, spacing: 24) {
+            HStack(spacing: 0) {
                 GroupProfileImageView(imageUrl: group?.imageUrl)
 
-                Text(group?.name ?? "")
-                    .font(.subTitle1())
-                    .foregroundStyle(primaryText)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(group?.name ?? "")
+                        .font(.Header3())
+                        .foregroundStyle(primaryText)
+
+                    if let group {
+                        Text("\(group.members.count) people")
+                            .font(.body3())
+                            .foregroundStyle(disableText)
+                    }
+                }
 
                 Spacer()
 
-                Text("Edit")
-                    .font(.bodyBold(17))
-                    .foregroundStyle(primaryColor)
+                Image(.editPencilIcon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                    .padding(8)
             }
-            .padding(.horizontal, 22)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .overlay {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(container2Color)
+            }
+            .padding(.horizontal, 16)
 
             Divider()
                 .frame(height: 1)
-                .background(outlineColor)
+                .background(dividerColor)
         }
     }
 }
@@ -108,93 +137,71 @@ private struct GroupMembersView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 30) {
+        VStack(alignment: .leading, spacing: 20) {
             Text("Group members")
-                .font(.bodyBold())
+                .font(.Header4())
                 .foregroundStyle(primaryText)
+                .padding(.horizontal, 16)
 
-            GroupListEditCellView(icon: "person.badge.plus", text: "Add people to group", onTap: onAddMemberTap)
+            VStack(spacing: 20) {
+                GroupListEditCellView(icon: .addMemberIcon, text: "Add a new member", onTap: onAddMemberTap)
 
-            LazyVStack(spacing: 20) {
-                ForEach(members) { member in
-                    GroupMemberCellView(member: member, amount: oweAmount[member.id] ?? 0, isAdmin: member.id == group?.createdBy)
-                        .onTouchGesture {
-                            onMemberTap(member)
-                        }
-                }
-            }
-        }
-        .padding(.horizontal, 22)
-    }
-}
-
-private struct GroupAdvanceSettingsView: View {
-
-    @Binding var isDebtSimplified: Bool
-
-    var isDisable: Bool
-    var onLeaveGroupTap: () -> Void
-    var onDeleteGroupTap: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 30) {
-            Text("Advanced settings")
-                .font(.bodyBold())
-
-            HStack(alignment: .top, spacing: 30) {
-                Image(systemName: "point.3.filled.connected.trianglepath.dotted")
-                    .resizable()
-                    .frame(width: 25, height: 22)
-                    .padding(.top, 6)
-
-                VStack(alignment: .leading, spacing: 10) {
-                    Toggle(isOn: $isDebtSimplified) {
-                        Text("Simplify group debts")
-                            .font(.body1(18))
+                LazyVStack(spacing: 20) {
+                    ForEach(members) { member in
+                        GroupMemberCellView(member: member, amount: oweAmount[member.id] ?? 0, isAdmin: member.id == group?.createdBy)
+                            .onTouchGesture {
+                                onMemberTap(member)
+                            }
                     }
-
-                    Text("Automatically combines debts to reduce the total number of repayments between group members.")
-                        .font(.body2())
-                        .foregroundStyle(secondaryText)
                 }
             }
-            .padding(.top, -6)
-            .padding(.leading, 16)
+            .padding(.leading, 24)
+            .padding(.trailing, 16)
 
-            GroupListEditCellView(icon: "arrow.left.square", text: "Leave group",
-                                  isDistructive: true, onTap: onLeaveGroupTap)
-
-            GroupListEditCellView(icon: "trash", text: "Delete group", isDisable: isDisable,
-                                  isDistructive: true, onTap: onDeleteGroupTap)
+            Divider()
+                .frame(height: 1)
+                .background(dividerColor)
         }
-        .padding(.horizontal, 22)
-        .foregroundStyle(primaryText)
     }
 }
 
 private struct GroupListEditCellView: View {
 
-    var icon: String
+    var icon: ImageResource?
     var text: String
+    var fontColor: Color = primaryText
+
     var isDisable: Bool = false
+    var showArrowBtn: Bool = false
     var isDistructive: Bool = false
 
     var onTap: () -> Void
 
     var body: some View {
-        HStack(spacing: 30) {
-            Image(systemName: icon)
-                .resizable()
-                .frame(width: 22, height: 22)
+        HStack(spacing: 16) {
+            if let icon {
+                Image(icon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                    .padding(8)
+                    .background(container2Color)
+                    .clipShape(Circle())
+            }
 
             Text(text.localized)
-                .font(.body1(18))
+                .font(.subTitle3())
+                .foregroundStyle(fontColor)
+
+            Spacer()
+
+            if showArrowBtn {
+                ScrollToTopButton(icon: "chevron.right", iconColor: primaryText, bgColor: .clear, size: (7, 14), padding: 3, onClick: onTap)
+                    .fontWeight(.regular)
+            }
         }
-        .padding(.leading, 16)
-        .foregroundStyle(isDisable ? disableText : (isDistructive ? awarenessColor : primaryText))
-        .onTouchGesture {
-            onTap()
-        }
+        .foregroundStyle(isDisable ? disableText : (isDistructive ? alertColor : primaryText))
+        .onTouchGesture(onTap)
         .disabled(isDisable)
     }
 }
@@ -226,27 +233,26 @@ private struct GroupMemberCellView: View {
     }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 20) {
+        HStack(alignment: .center, spacing: 16) {
             MemberProfileImageView(imageUrl: member.imageUrl)
 
-            VStack(alignment: .leading, spacing: 5) {
-                HStack(alignment: .center, spacing: 2) {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 0) {
                     Text(userName.localized)
                         .lineLimit(1)
-                        .font(.body1())
+                        .font(.subTitle2())
                         .foregroundStyle(primaryText)
 
                     if isAdmin {
                         Text(" (Admin)")
-                            .font(.caption)
+                            .font(.caption1())
                             .foregroundColor(secondaryText)
                     }
                 }
 
                 Text(subInfo.localized)
-                    .lineLimit(1)
-                    .font(.subTitle3())
-                    .foregroundStyle(secondaryText)
+                    .font(.caption1())
+                    .foregroundStyle(disableText)
             }
 
             Spacer()
@@ -255,19 +261,64 @@ private struct GroupMemberCellView: View {
             VStack(alignment: .trailing, spacing: 4) {
                 if amount == 0 {
                     Text("settled up")
-                        .font(.body1(13))
-                        .foregroundStyle(secondaryText)
+                        .font(.body1())
+                        .foregroundStyle(disableText)
                 } else {
                     Text(isBorrowed ? "owes" : "gets back")
-                        .font(.body1(13))
+                        .font(.caption1())
 
                     Text(amount.formattedCurrency)
                         .font(.body1())
                 }
             }
             .lineLimit(1)
-            .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
+            .foregroundStyle(isBorrowed ? alertColor : successColor)
         }
+    }
+}
+
+private struct GroupAdvanceSettingsView: View {
+
+    @Binding var isDebtSimplified: Bool
+
+    var isDisable: Bool
+    var showSimplifyDebtsToggle: Bool = false
+
+    var onLeaveGroupTap: () -> Void
+    var onDeleteGroupTap: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("Advanced settings")
+                .font(.Header4())
+                .foregroundStyle(primaryText)
+
+            VStack(spacing: 20) {
+                if showSimplifyDebtsToggle {
+                    HStack(alignment: .top, spacing: 0) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Toggle(isOn: $isDebtSimplified) {
+                                Text("Simplify group debts")
+                                    .font(.subTitle2())
+                                    .foregroundStyle(primaryText)
+                            }
+
+                            Text("Automatically combines debts to reduce the total number of repayments between group members.")
+                                .font(.caption1())
+                                .foregroundStyle(disableText)
+                        }
+                    }
+                    .padding(.top, -4)
+                    .padding(.horizontal, 16)
+                }
+
+                GroupListEditCellView(text: "Leave group", showArrowBtn: true, isDistructive: true, onTap: onLeaveGroupTap)
+
+                GroupListEditCellView(text: "Delete group", fontColor: alertColor, isDisable: isDisable, isDistructive: true, onTap: onDeleteGroupTap)
+            }
+            .padding(.horizontal, 8)
+        }
+        .padding(.horizontal, 16)
     }
 }
 

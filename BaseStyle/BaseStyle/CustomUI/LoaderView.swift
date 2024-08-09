@@ -26,7 +26,7 @@ public struct LoaderView: View {
         ZStack {
             if viewModel.isStillLoading {
                 if withDarkBG {
-                    surfaceDarkColor.opacity(0.05)
+                    primaryLightText.opacity(0.08)
                         .ignoresSafeArea()
                 } else {
                     Color.clear.ignoresSafeArea()

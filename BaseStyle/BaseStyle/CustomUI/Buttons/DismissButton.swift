@@ -10,16 +10,17 @@ import SwiftUI
 public struct DismissButton: View {
 
     private let iconSize: (CGFloat, weight: Font.Weight)
-    private let opacity: Double
-    private let padding: CGFloat
+    private let padding: (horizontal: CGFloat, vertical: CGFloat)
     private let borderColor: Color
     private let foregroundColor: Color
     private let backgroundColor: Color?
     private let onDismissAction: (() -> Void)?
 
-    public init(iconSize: (CGFloat, weight: Font.Weight) = (24, .regular), opacity: Double = 1, padding: CGFloat = 0, borderColor: Color = .clear, foregroundColor: Color = secondaryText, backgroundColor: Color? = nil, onDismissAction: (() -> Void)? = nil) {
+    public init(iconSize: (CGFloat, weight: Font.Weight) = (24, .regular),
+                padding: (horizontal: CGFloat, vertical: CGFloat) = (0, 0),
+                borderColor: Color = .clear, foregroundColor: Color = secondaryText,
+                backgroundColor: Color? = nil, onDismissAction: (() -> Void)? = nil) {
         self.iconSize = iconSize
-        self.opacity = opacity
         self.padding = padding
         self.borderColor = borderColor
         self.foregroundColor = foregroundColor
@@ -34,15 +35,14 @@ public struct DismissButton: View {
             Image(systemName: "multiply")
                 .font(.system(size: iconSize.0).weight(iconSize.weight))
                 .foregroundStyle(foregroundColor)
-                .padding(padding)
+                .padding(.horizontal, padding.horizontal)
+                .padding(.vertical, padding.vertical)
                 .background(backgroundColor)
                 .clipShape(Circle())
                 .overlay {
                     Circle()
                         .strokeBorder(borderColor, lineWidth: 1)
                 }
-                .opacity(opacity)
         })
-        .buttonStyle(.scale)
     }
 }

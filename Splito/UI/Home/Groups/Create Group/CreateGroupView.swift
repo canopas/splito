@@ -13,30 +13,49 @@ struct CreateGroupView: View {
 
     @StateObject var viewModel: CreateGroupViewModel
 
+    @FocusState private var isFocused: Bool
+    @Environment(\.dismiss) var dismiss
+
     var body: some View {
-        VStack {
+        VStack(alignment: .center, spacing: 0) {
             if case .loading = viewModel.currentState {
                 LoaderView()
             } else {
-                VStack {
-                    VSpacer(40)
+                ScrollView {
+                    VStack(spacing: 0) {
+                        VSpacer(40)
 
-                    AddGroupNameView(image: viewModel.profileImage, imageUrl: viewModel.profileImageUrl,
-                                     groupName: $viewModel.groupName, handleProfileTap: viewModel.handleProfileTap)
+                        AddGroupImageView(image: viewModel.profileImage, imageUrl: viewModel.profileImageUrl, handleProfileTap: viewModel.handleProfileTap)
 
-                    Spacer()
+                        VSpacer(30)
+
+                        AddGroupNameView(groupName: $viewModel.groupName)
+                            .focused($isFocused)
+
+                        Spacer(minLength: 130)
+                    }
+                    .padding(.horizontal, 16)
                 }
-                .padding(.horizontal, 20)
+                .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
+
+                PrimaryButton(text: viewModel.group != nil ? "Save" : "Create", isEnabled: viewModel.groupName.count > 3, showLoader: viewModel.showLoader, onClick: {
+                    viewModel.handleDoneAction {
+                        dismiss()
+                    }
+                })
+                .padding(.bottom, 20)
+                .padding(.horizontal, 16)
             }
         }
-        .background(surfaceColor)
+        .onAppear {
+            isFocused = true
+        }
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .navigationBarTitle(viewModel.group == nil ? "Create a group" : "Edit group", displayMode: .inline)
-        .onTapGesture {
-            UIApplication.shared.endEditing()
-        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .background(surfaceColor)
         .confirmationDialog("", isPresented: $viewModel.showImagePickerOptions, titleVisibility: .hidden) {
             Button("Take Picture") {
                 viewModel.handleActionSelection(.camera)
@@ -56,65 +75,80 @@ struct CreateGroupView: View {
                             sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
                             image: $viewModel.profileImage, isPresented: $viewModel.showImagePicker)
         }
+        .onTapGesture {
+            isFocused = false
+        }
+        .toolbarRole(.editor)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    viewModel.handleDoneAction()
-                } label: {
-                    Text("Done")
-                }
-                .font(.subTitle2())
-                .tint(primaryColor)
-                .disabled(viewModel.groupName.count < 3 || viewModel.currentState == .loading)
+            ToolbarItem(placement: .topBarLeading) {
+                Text(viewModel.group == nil ? "Create a group" : "Edit group")
+                    .font(.Header2())
+                    .foregroundStyle(primaryText)
             }
         }
     }
 }
 
-private struct AddGroupNameView: View {
+private struct AddGroupImageView: View {
 
-    var image: UIImage?
-    var imageUrl: String?
-    @Binding var groupName: String
+    let image: UIImage?
+    let imageUrl: String?
 
     let handleProfileTap: (() -> Void)
 
     var body: some View {
-        HStack(alignment: .top, spacing: 16) {
-            ZStack {
-                if let image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } else if let imageUrl, let url = URL(string: imageUrl) {
-                    KFImage(url)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } else {
-                    Image(.group)
-                        .resizable()
-                        .scaledToFill()
+        ZStack {
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else if let imageUrl, let url = URL(string: imageUrl) {
+                KFImage(url)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                Image(.group)
+                    .resizable()
+                    .scaledToFill()
+            }
+        }
+        .frame(width: 80, height: 80)
+        .background(container2Color)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay {
+            Image(.editPencilIcon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 18, height: 18, alignment: .center)
+                .padding(4)
+                .background(containerColor)
+                .clipShape(Circle())
+                .padding([.top, .leading], 67)
+        }
+        .padding(.horizontal, 16)
+        .onTapGesture(perform: handleProfileTap)
+    }
+}
+
+private struct AddGroupNameView: View {
+
+    @Binding var groupName: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Group Name")
+                .font(.body3())
+                .foregroundStyle(disableText)
+
+            TextField("", text: $groupName)
+                .font(.subTitle2())
+                .foregroundStyle(primaryText)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(outlineColor, lineWidth: 1)
                 }
-            }
-            .frame(width: 60, height: 60)
-            .background(secondaryText.opacity(0.12))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .foregroundStyle(secondaryText)
-            .onTapGesture {
-                handleProfileTap()
-            }
-
-            VStack(alignment: .leading, spacing: 7) {
-                Text("Group name")
-                    .font(.subTitle2())
-                    .foregroundStyle(secondaryText)
-
-                TextField("", text: $groupName)
-
-                Divider()
-                    .frame(height: 1)
-                    .background(outlineColor)
-            }
         }
     }
 }

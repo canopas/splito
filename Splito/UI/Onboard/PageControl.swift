@@ -17,7 +17,7 @@ struct PageControl: View {
 
     var body: some View {
         ScrollView {
-            HStack(spacing: 8) {
+            HStack(spacing: 4) {
                 ForEach(0..<numberOfPages, id: \.self) { index in
                     if currentIndex == index {
                         capsulePageIndicator()
@@ -31,16 +31,17 @@ struct PageControl: View {
     }
 
     func roundPageIndicationView() -> some View {
-        Circle()
-            .fill(containerHighColor)
-            .frame(width: 10, height: 10, alignment: .center)
+        Rectangle()
+            .fill(outlineColor)
+            .frame(width: 16, height: 8, alignment: .center)
+            .clipShape(Capsule())
     }
 
     func capsulePageIndicator() -> some View {
         VStack(spacing: 0) {
             Rectangle()
-                .fill(primaryColor)
-                .frame(width: 26, height: 10, alignment: .center)
+                .fill(primaryDarkColor)
+                .frame(width: 40, height: 8, alignment: .center)
                 .clipShape(Capsule())
         }
     }

@@ -20,59 +20,61 @@ struct GroupExpenseListView: View {
         GeometryReader { geometry in
             ScrollViewReader { scrollProxy in
                 VStack(alignment: .leading, spacing: 0) {
+                    GroupOptionsListView(isSettleUpEnable: (!viewModel.memberOwingAmount.isEmpty && viewModel.group?.members.count ?? 1 > 1),
+                                         showTransactionsOption: !viewModel.transactions.isEmpty,
+                                         onSettleUpTap: viewModel.handleSettleUpBtnTap,
+                                         onTransactionsTap: viewModel.handleTransactionsBtnTap,
+                                         onBalanceTap: viewModel.handleBalancesBtnTap,
+                                         onTotalsTap: viewModel.handleTotalBtnTap)
+
                     if viewModel.showSearchBar {
-                        SearchBar(
-                            text: $viewModel.searchedExpense,
-                            isFocused: isFocused,
-                            placeholder: "Search expenses",
-                            showCancelButton: true,
-                            clearButtonMode: .never,
-                            onCancel: viewModel.onSearchBarCancelBtnTap
-                        )
-                        .padding(.horizontal, 8)
-                        .onAppear(perform: onSearchBarAppear)
+                        SearchBar(text: $viewModel.searchedExpense, isFocused: isFocused, placeholder: "Search expenses")
+                            .padding(.vertical, -7)
+                            .padding(.horizontal, 3)
+                            .overlay(content: {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(outlineColor, lineWidth: 1)
+                            })
+                            .focused(isFocused)
+                            .padding(.bottom, 8)
+                            .padding(.horizontal, 16)
+                            .onAppear(perform: onSearchBarAppear)
                     }
 
                     List {
                         Group {
-                            GroupExpenseHeaderView(viewModel: viewModel)
-                                .id("expenseList")
-
-                            GroupOptionsListView(isSettleUpEnable: (!viewModel.memberOwingAmount.isEmpty && viewModel.group?.members.count ?? 1 > 1),
-                                                 showTransactionsOption: !viewModel.transactions.isEmpty,
-                                                 onSettleUpTap: viewModel.handleSettleUpBtnTap,
-                                                 onTransactionsTap: viewModel.handleTransactionsBtnTap,
-                                                 onBalanceTap: viewModel.handleBalancesBtnTap,
-                                                 onTotalsTap: viewModel.handleTotalBtnTap)
-
                             if viewModel.groupExpenses.isEmpty {
                                 ExpenseNotFoundView(geometry: geometry, searchedExpense: viewModel.searchedExpense)
                             } else {
+                                GroupExpenseHeaderView(viewModel: viewModel)
+                                    .id("expenseList")
+
                                 let firstMonth = viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings).first
 
                                 ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
                                     Section(header: sectionHeader(month: month)) {
                                         ForEach(viewModel.groupExpenses[month] ?? [], id: \.expense.id) { expense in
-                                            GroupExpenseItemView(expenseWithUser: expense)
-                                                .onTouchGesture {
-                                                    viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
+                                            GroupExpenseItemView(expenseWithUser: expense,
+                                                                 isLastItem: expense.expense == (viewModel.groupExpenses[month] ?? []).last?.expense)
+                                            .onTouchGesture {
+                                                viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
+                                            }
+                                            .swipeActions {
+                                                Button("Delete") {
+                                                    viewModel.showExpenseDeleteAlert(expenseId: expense.expense.id ?? "")
                                                 }
-                                                .swipeActions {
-                                                    Button("Delete") {
-                                                        viewModel.showExpenseDeleteAlert(expenseId: expense.expense.id ?? "")
-                                                    }
-                                                    .tint(.red)
+                                                .tint(.red)
+                                            }
+                                            .onAppear {
+                                                if month == firstMonth && viewModel.groupExpenses[month]?.first?.expense.id == expense.expense.id {
+                                                    viewModel.manageScrollToTopBtnVisibility(false)
                                                 }
-                                                .onAppear {
-                                                    if month == firstMonth && viewModel.groupExpenses[month]?.first?.expense.id == expense.expense.id {
-                                                        viewModel.manageScrollToTopBtnVisibility(false)
-                                                    }
+                                            }
+                                            .onDisappear {
+                                                if month == firstMonth && viewModel.groupExpenses[month]?.first?.expense.id == expense.expense.id {
+                                                    viewModel.manageScrollToTopBtnVisibility(true)
                                                 }
-                                                .onDisappear {
-                                                    if month == firstMonth && viewModel.groupExpenses[month]?.first?.expense.id == expense.expense.id {
-                                                        viewModel.manageScrollToTopBtnVisibility(true)
-                                                    }
-                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -80,7 +82,7 @@ struct GroupExpenseListView: View {
                         }
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        .listRowBackground(backgroundColor)
+                        .listRowBackground(surfaceColor)
                     }
                     .overlay(alignment: .bottomTrailing) {
                         if viewModel.showScrollToTopBtn {
@@ -89,21 +91,29 @@ struct GroupExpenseListView: View {
                                     scrollProxy.scrollTo("expenseList", anchor: .top)
                                 }
                             }
+                            .padding([.trailing, .bottom], 16)
                         }
                     }
                     .listStyle(.plain)
-                    .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .leading)
                 }
             }
+            .scrollBounceBehavior(.basedOnSize)
         }
     }
 
     private func sectionHeader(month: String) -> some View {
-        return Text(month)
-            .font(.subTitle2())
-            .foregroundStyle(primaryText)
-            .padding(.bottom, 8)
-            .padding(.horizontal, 20)
+        HStack(spacing: 0) {
+            Text(month)
+                .font(.Header4())
+                .foregroundStyle(primaryText)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 8)
+
+            Spacer()
+        }
+        .onTapGestureForced {
+            UIApplication.shared.endEditing()
+        }
     }
 }
 
@@ -112,6 +122,7 @@ private struct GroupExpenseItemView: View {
     @Inject var preference: SplitoPreference
 
     let expense: Expense
+    let isLastItem: Bool
 
     private var amount = 0.0
     private var isInvolved = true
@@ -119,8 +130,9 @@ private struct GroupExpenseItemView: View {
     private var isBorrowed = false
     private var userName: String = ""
 
-    init(expenseWithUser: ExpenseWithUser) {
+    init(expenseWithUser: ExpenseWithUser, isLastItem: Bool) {
         self.expense = expenseWithUser.expense
+        self.isLastItem = isLastItem
 
         if let user = preference.user, expense.paidBy.count == 1 && expense.paidBy.keys.contains(user.id) {
             userName = "You"
@@ -145,64 +157,80 @@ private struct GroupExpenseItemView: View {
     }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Text(expense.date.dateValue().shortDateWithNewLine)
-                .font(.body1())
-                .foregroundStyle(secondaryText)
-                .multilineTextAlignment(.center)
-
-            Image(systemName: "doc.plaintext")
-                .resizable()
-                .frame(width: 22)
-                .font(.system(size: 14).weight(.light))
-                .foregroundStyle(.white)
-                .padding(.vertical, 6)
-                .padding(.horizontal, 8)
-                .background(disableText.opacity(0.2))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(expense.name)
-                    .font(.body1(17))
-                    .foregroundStyle(primaryText)
-
-                if isInvolved {
-                    let amountText = isSettled ? "You paid for yourself" : "\(userName) paid \(expense.formattedAmount)"
-                    Text(amountText.localized)
-                        .font(.body1(12))
-                        .foregroundStyle(secondaryText)
-                } else {
-                    Text("You were not involved")
-                        .font(.body1(12))
-                        .foregroundStyle(secondaryText)
+        VStack(spacing: 0) {
+            HStack(alignment: .center, spacing: 0) {
+                let dateComponents = expense.date.dateValue().dayAndMonthText
+                VStack(spacing: 0) {
+                    Text(dateComponents.month)
+                        .font(.caption1())
+                        .foregroundColor(disableText)
+                    Text(dateComponents.day)
+                        .font(.Header4())
+                        .foregroundColor(primaryText)
                 }
-            }
-            .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(.center)
+                .padding(.trailing, 8)
 
-            VStack(alignment: .trailing, spacing: 4) {
-                if isSettled {
-                    Text("no balance")
-                        .font(.body1(12))
-                        .foregroundStyle(secondaryText)
-                } else {
+                Image(systemName: expense.paidBy.keys.contains(preference.user?.id ?? "") ? "arrow.up.forward" : "arrow.down.backward")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 16, height: 16)
+                    .foregroundStyle(primaryText)
+                    .padding(12)
+                    .background(container2Color)
+                    .cornerRadius(8)
+                    .padding(.trailing, 16)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(expense.name)
+                        .font(.subTitle2())
+                        .foregroundStyle(primaryText)
+
                     if isInvolved {
-                        Text(isBorrowed ? "you borrowed" : "you lent")
-                            .font(.body1(12))
-
-                        Text(amount.formattedCurrency)
-                            .font(.body1(16))
+                        let amountText = isSettled ? "You paid for yourself" : "\(userName) paid \(expense.formattedAmount)"
+                        Text(amountText.localized)
+                            .font(.body3())
+                            .foregroundStyle(disableText)
                     } else {
-                        Text("not involved")
-                            .font(.body1(12))
-                            .foregroundStyle(secondaryText)
+                        Text("You were not involved")
+                            .font(.body3())
+                            .foregroundStyle(disableText)
                     }
                 }
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                VStack(alignment: .trailing, spacing: 0) {
+                    if isSettled {
+                        Text("no balance")
+                            .font(.body1())
+                            .foregroundStyle(disableText)
+                    } else {
+                        if isInvolved {
+                            Text(isBorrowed ? "you borrowed" : "you lent")
+                                .font(.caption1())
+
+                            Text(amount.formattedCurrency)
+                                .font(.body1())
+                        } else {
+                            Text("not involved")
+                                .font(.body1())
+                                .foregroundStyle(disableText)
+                        }
+                    }
+                }
+                .lineLimit(1)
+                .foregroundStyle(isBorrowed ? alertColor : successColor)
             }
-            .lineLimit(1)
-            .foregroundStyle(isBorrowed ? amountBorrowedColor : amountLentColor)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 24)
+
+            if !isLastItem {
+                Divider()
+                    .frame(height: 1)
+                    .background(dividerColor)
+            }
         }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 26)
     }
 }
 
@@ -211,30 +239,20 @@ private struct GroupExpenseHeaderView: View {
     @ObservedObject var viewModel: GroupHomeViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(viewModel.group?.name ?? "")
-                .font(.body2(28))
-                .foregroundStyle(primaryText)
-
+        VStack(alignment: .leading, spacing: 0) {
             if viewModel.overallOwingAmount == 0 {
-                Text(viewModel.memberOwingAmount.isEmpty ? "You are all settled up in this group." : "You are settled up overall.")
+                Text("You are all settled up in this group.")
                     .font(.subTitle2())
-            }
-
-            if viewModel.memberOwingAmount.count < 2, let member = viewModel.memberOwingAmount.first {
-                let name = viewModel.getMemberDataBy(id: member.key)?.nameWithLastInitial ?? "Unknown"
-                GroupExpenseMemberOweView(name: name, amount: member.value,
-                                          isDebtSimplified: viewModel.group?.isDebtSimplified ?? false,
-                                          handleSimplifyInfoSheet: viewModel.handleSimplifyInfoSheet)
+                    .foregroundStyle(primaryText)
+                    .padding(16)
             } else {
-                if viewModel.overallOwingAmount != 0 {
-                    let isDue = viewModel.overallOwingAmount < 0
-                    Text("You \(isDue ? "owe" : "are owed") \(abs(viewModel.overallOwingAmount).formattedCurrency) overall")
-                        .font(.subTitle2())
-                        .foregroundColor(isDue ? amountBorrowedColor : amountLentColor)
-                }
+                GroupExpenseHeaderOverallView(viewModel: viewModel)
 
-                VStack(alignment: .leading, spacing: 6) {
+                Divider()
+                    .frame(height: 1)
+                    .background(dividerColor)
+
+                VStack(alignment: .leading, spacing: 12) {
                     ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
                         let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
                         GroupExpenseMemberOweView(name: name, amount: amount,
@@ -242,10 +260,56 @@ private struct GroupExpenseHeaderView: View {
                                                   handleSimplifyInfoSheet: viewModel.handleSimplifyInfoSheet)
                     }
                 }
+                .padding(16)
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 24)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(containerColor)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.horizontal, 16)
+        .padding(.top, 8)
+        .onTapGestureForced {
+            UIApplication.shared.endEditing()
+        }
+    }
+}
+
+private struct GroupExpenseHeaderOverallView: View {
+
+    @ObservedObject var viewModel: GroupHomeViewModel
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 0) {
+            let isDue = viewModel.overallOwingAmount < 0
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("You \(isDue ? "owe overall" : "are overall owed")")
+                    .font(.body3())
+                    .foregroundColor(disableText)
+
+                Text("\(abs(viewModel.overallOwingAmount).formattedCurrency)")
+                    .font(.body1())
+                    .foregroundColor(isDue ? alertColor : successColor)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+
+            Divider()
+                .frame(width: 1)
+                .background(dividerColor)
+
+            VStack(alignment: .trailing, spacing: 4) {
+                Text("Your \(Date().dayOfMonth) spending")
+                    .font(.body3())
+                    .foregroundColor(disableText)
+
+                Text("\(abs(viewModel.currentMonthSpendingAmount).formattedCurrency)")
+                    .font(.body1())
+                    .foregroundColor(primaryText)
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .padding(16)
+        }
     }
 }
 
@@ -258,64 +322,34 @@ private struct GroupExpenseMemberOweView: View {
     let handleSimplifyInfoSheet: () -> Void
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 8) {
             if amount > 0 {
                 Group {
                     Text("\(name.localized) owes you ")
-                        .foregroundColor(primaryText)
+                        .foregroundColor(disableText)
                     + Text("\(amount.formattedCurrency)")
-                        .foregroundColor(amountLentColor)
+                        .foregroundColor(successColor)
                 }
-                .font(.body1(14))
+                .font(.body3())
             } else if amount < 0 {
                 Group {
                     Text("You owe \(name.localized) ")
-                        .foregroundColor(primaryText)
+                        .foregroundColor(disableText)
                     + Text("\(amount.formattedCurrency)")
-                        .foregroundColor(amountBorrowedColor)
+                        .foregroundColor(alertColor)
                 }
-                .font(.body1(14))
+                .font(.body3())
             }
 
             if isDebtSimplified {
-                Button(action: handleSimplifyInfoSheet) {
-                    Image(systemName: "questionmark.circle")
-                        .resizable()
-                        .frame(width: 14, height: 14)
-                        .scaledToFit()
-                        .foregroundColor(primaryText)
-                }
+                Image(systemName: "questionmark.circle")
+                    .resizable()
+                    .frame(width: 14, height: 14)
+                    .scaledToFit()
+                    .foregroundColor(secondaryText)
             }
         }
-    }
-}
-
-struct SimplifyInfoSheetView: View {
-
-    var body: some View {
-        VStack(alignment: .center, spacing: 0) {
-            VSpacer(24)
-
-            Text("Why do I owe this person?")
-                .font(.subTitle1())
-                .foregroundStyle(primaryText)
-
-            VSpacer(24)
-
-            Group {
-                Text("\"Simplify debts\" is ENABLED in this group. This feature shuffles \"who owes who\" to minimize repayments. For example:\n")
-
-                Text("Ana borrows $10 from Bob\nBob borrows $10 from Charlie\n")
-
-                Text("In a group with \"simplify debts\" enabled, Splito will tell Ana to repay Charlie $10. Bob does nothing. This is the most efficient way for the group to settle up. With simplify debts enabled, it's normal to owe someone who didn't directly loan you money.")
-            }
-            .font(.body1(14))
-            .foregroundStyle(primaryText)
-            .multilineTextAlignment(.center)
-
-            VSpacer(40)
-        }
-        .padding(.horizontal, 16)
+        .onTouchGesture(handleSimplifyInfoSheet)
     }
 }
 
@@ -325,19 +359,23 @@ private struct ExpenseNotFoundView: View {
     let searchedExpense: String
 
     var body: some View {
-        VStack(alignment: .center, spacing: 0) {
-            VSpacer()
+        VStack(alignment: .center, spacing: 16) {
+            Text("No results found for \"\(searchedExpense)\"!")
+                .font(.Header1())
+                .foregroundColor(primaryText)
 
-            Text("No results found for \"\(searchedExpense)\"")
+            Text("No results were found that match your search criteria.")
                 .font(.subTitle2())
-                .lineSpacing(2)
-                .foregroundColor(secondaryText)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, alignment: .center)
-
-            VSpacer()
+                .foregroundColor(disableText)
+                .tracking(-0.2)
+                .lineSpacing(4)
         }
-        .padding(.horizontal, 20)
-        .frame(minHeight: geometry.size.height / 2, maxHeight: .infinity, alignment: .center)
+        .multilineTextAlignment(.center)
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .frame(minHeight: geometry.size.height - 130, maxHeight: .infinity, alignment: .center)
+        .onTapGestureForced {
+            UIApplication.shared.endEditing()
+        }
     }
 }

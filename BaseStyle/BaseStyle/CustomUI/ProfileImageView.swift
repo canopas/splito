@@ -13,7 +13,7 @@ public struct MemberProfileImageView: View {
     let imageUrl: String?
     let height: CGFloat
 
-    public init(imageUrl: String?, height: CGFloat = 50) {
+    public init(imageUrl: String?, height: CGFloat = 40) {
         self.imageUrl = imageUrl
         self.height = height
     }
@@ -52,9 +52,11 @@ public struct MemberProfileImageView: View {
 public struct GroupProfileImageView: View {
 
     let imageUrl: String?
+    let size: (width: CGFloat, height: CGFloat)
 
-    public init(imageUrl: String?) {
+    public init(imageUrl: String?, size: (width: CGFloat, height: CGFloat) = (40, 40)) {
         self.imageUrl = imageUrl
+        self.size = size
     }
 
     public var body: some View {
@@ -66,16 +68,15 @@ public struct GroupProfileImageView: View {
                     })
                     .setProcessor(ResizingImageProcessor(referenceSize: CGSize(width: (50 * UIScreen.main.scale), height: (50 * UIScreen.main.scale)), mode: .aspectFill))
                     .resizable()
-                    .scaledToFill()
-                    .frame(width: 50, height: 50, alignment: .center)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
                 Image(.group)
                     .resizable()
-                    .scaledToFill()
-                    .frame(width: 50, height: 50, alignment: .center)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
+        .scaledToFill()
+        .frame(width: size.width, height: size.height)
+        .background(container2Color)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .padding(.trailing, 16)
     }
 }

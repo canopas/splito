@@ -55,17 +55,4 @@ public enum SplitType: String, Codable, CaseIterable {
     case fixedAmount
     case percentage
     case shares
-
-    public var tabItem: String {
-        switch self {
-        case .equally:
-            return "="
-        case .fixedAmount:
-            return "1.23"
-        case .percentage:
-            return "%"
-        case .shares:
-            return "|||"
-        }
-    }
 }

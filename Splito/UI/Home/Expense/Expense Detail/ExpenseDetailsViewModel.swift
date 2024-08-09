@@ -19,16 +19,18 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     @Published var expenseUsersData: [AppUser] = []
     @Published var viewState: ViewState = .initial
 
+    @Published var groupImageUrl: String
     @Published var showEditExpenseSheet = false
 
     var groupId: String
     var expenseId: String
     let router: Router<AppRoute>
 
-    init(router: Router<AppRoute>, groupId: String, expenseId: String) {
+    init(router: Router<AppRoute>, groupId: String, expenseId: String, groupImageUrl: String) {
         self.router = router
         self.groupId = groupId
         self.expenseId = expenseId
+        self.groupImageUrl = groupImageUrl
     }
 
     // MARK: - Data Loading
@@ -124,6 +126,10 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
         let finalAmount = getTotalSplitAmount(member: member, expense: expense)
         return finalAmount.formattedCurrency
+    }
+
+    func handleBackBtnTap() {
+        router.pop()
     }
 }
 

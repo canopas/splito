@@ -39,6 +39,7 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
         super.init()
     }
 
+    // MARK: - Data Loading
     func verifyAndSendOtp() {
         showLoader = true
         FirebaseProvider.phoneAuthProvider
@@ -52,13 +53,18 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
                 }
             }
     }
+
+    // MARK: - User Actions
+    func handleBackBtnTap() {
+        router.pop()
+    }
 }
 
 // MARK: - Helper Methods
 extension PhoneLoginViewModel {
 
     private func openVerifyOtpView() {
-        router.push(.VerifyOTPView(phoneNumber: phoneNumber, verificationId: verificationId))
+        router.push(.VerifyOTPView(phoneNumber: phoneNumber, dialCode: currentCountry.dialCode, verificationId: verificationId))
     }
 
     private func handleFirebaseAuthErrors(_ error: Error) {

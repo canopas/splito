@@ -24,6 +24,7 @@ public struct MainRouteView: View {
             OnboardRouteView()
         } else {
             HomeRouteView()
+                .environmentObject(HomeRouteViewModel())
         }
     }
 }

@@ -29,6 +29,7 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
         generateInviteCode()
     }
 
+    // MARK: - Data Loading
     private func generateInviteCode() {
         inviteCode = inviteCode.randomString(length: 6).uppercased()
         codeRepository.checkForCodeAvailability(code: inviteCode)
@@ -55,15 +56,20 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func storeSharedCode() {
+    func storeSharedCode(completion: @escaping () -> Void) {
         let shareCode = SharedCode(code: inviteCode.encryptHexCode(), groupId: groupId, expireDate: Timestamp())
         codeRepository.addSharedCode(sharedCode: shareCode)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.showToastFor(error)
                 }
-            } receiveValue: { [weak self] _ in
-                self?.router.pop()
+            } receiveValue: { _ in
+                completion()
             }.store(in: &cancelable)
+    }
+
+    // MARK: - User Actions
+    func openShareSheet() {
+        showShareSheet = true
     }
 }

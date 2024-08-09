@@ -14,37 +14,47 @@ struct AccountHomeView: View {
     @StateObject var viewModel: AccountHomeViewModel
 
     var body: some View {
-        VStack(alignment: .center, spacing: 20) {
+        VStack(alignment: .center, spacing: 0) {
             if case .loading = viewModel.currentState {
                 LoaderView()
             } else {
-                Text("Account")
-                    .font(.Header4())
-                    .foregroundStyle(primaryText)
-                    .padding(.top, 10)
-
                 ScrollView {
-                    VStack(spacing: 20) {
-                        VSpacer(20)
-
+                    VStack(spacing: 24) {
                         AccountUserHeaderView(user: viewModel.preference.user, onTap: viewModel.openUserProfileView)
+
+                        Divider()
+                            .frame(height: 1)
+                            .background(dividerColor)
 
                         AccountStayInTouchSectionView(onContactTap: viewModel.onContactUsTap,
                                                       onRateAppTap: viewModel.onRateAppTap,
                                                       onShareAppTap: viewModel.onShareAppTap)
 
-                        AccountAboutSectionView(onPrivacyTap: viewModel.handlePrivacyOptionTap, onAcknowledgementsTap: viewModel.handleAcknowledgementsOptionTap)
+                        Divider()
+                            .frame(height: 1)
+                            .background(dividerColor)
 
-                        AccountLogoutSectionView(onLogoutTap: viewModel.handleLogoutBtnTap)
+                        AccountAboutSectionView(onPrivacyTap: viewModel.handlePrivacyOptionTap,
+                                                onAcknowledgementsTap: viewModel.handleAcknowledgementsOptionTap,
+                                                onLogoutTap: viewModel.handleLogoutBtnTap)
 
                         VSpacer(20)
                     }
                 }
                 .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
             }
         }
-        .background(backgroundColor)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Text("Account")
+                    .font(.Header2())
+                    .foregroundStyle(primaryText)
+            }
+        }
+        .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showShareSheet) {
@@ -59,66 +69,55 @@ struct AccountHomeView: View {
 private struct AccountUserHeaderView: View {
 
     let user: AppUser?
-    var onTap: () -> Void
+    let onTap: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Profile")
-                .font(.Header3())
-                .foregroundStyle(primaryText)
+        HStack(alignment: .center, spacing: 16) {
+            MemberProfileImageView(imageUrl: user?.imageUrl, height: 46)
 
-            HStack(alignment: .center, spacing: 16) {
-                MemberProfileImageView(imageUrl: user?.imageUrl)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(user?.fullName ?? "")
+                    .font(.Header3())
+                    .foregroundStyle(primaryText)
 
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(user?.fullName ?? "")
-                        .font(.subTitle1())
-                        .foregroundStyle(primaryText)
-
-                    if user?.emailId != nil && !(user?.emailId?.isEmpty ?? false) {
-                        Text(user?.emailId ?? "")
-                            .font(.subTitle3())
-                            .foregroundStyle(secondaryText)
-                    }
+                if user?.emailId != nil && !(user?.emailId?.isEmpty ?? false) {
+                    Text(user?.emailId ?? "")
+                        .font(.body3())
+                        .foregroundStyle(disableText)
                 }
-
-                Spacer()
-
-                ForwardIcon()
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 16)
-            .onTouchGesture(onTap)
-            .background(containerLowColor)
-            .cornerRadius(16)
+
+            Spacer()
+
+            ForwardIcon()
         }
-        .padding(.horizontal, 16)
+        .padding(16)
+        .onTouchGesture(onTap)
+        .background(container2Color)
+        .cornerRadius(12)
+        .padding([.horizontal, .top], 16)
     }
 }
 
 private struct AccountStayInTouchSectionView: View {
 
-    var onContactTap: () -> Void
-    var onRateAppTap: () -> Void
-    var onShareAppTap: () -> Void
+    let onContactTap: () -> Void
+    let onRateAppTap: () -> Void
+    let onShareAppTap: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 0) {
             Text("Stay In Touch")
-                .font(.Header3())
+                .font(.Header4())
                 .foregroundStyle(primaryText)
-                .padding(.vertical, 10)
 
-            VStack(spacing: 14) {
-                AccountItemCellView(optionText: "Contact us", onClick: onContactTap)
+            VSpacer(16)
 
-                AccountItemCellView(optionText: "Rate Splito", onClick: onRateAppTap)
+            AccountItemCellView(optionText: "Contact Us", onClick: onContactTap)
 
-                AccountItemCellView(optionText: "Share app", onClick: onShareAppTap)
-            }
-            .padding(.vertical, 16)
-            .background(containerLowColor)
-            .cornerRadius(16)
+            AccountItemCellView(optionText: "Rate Splito", onClick: onRateAppTap)
+
+            AccountItemCellView(optionText: "Share App", onClick: onShareAppTap)
         }
         .padding(.horizontal, 16)
     }
@@ -126,24 +125,24 @@ private struct AccountStayInTouchSectionView: View {
 
 private struct AccountAboutSectionView: View {
 
-    var onPrivacyTap: () -> Void
-    var onAcknowledgementsTap: () -> Void
+    let onPrivacyTap: () -> Void
+    let onAcknowledgementsTap: () -> Void
+    let onLogoutTap: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 0) {
             Text("About")
-                .font(.Header3())
+                .font(.Header4())
                 .foregroundStyle(primaryText)
-                .padding(.vertical, 10)
 
-            VStack(spacing: 14) {
-                AccountItemCellView(optionText: "Privacy", onClick: onPrivacyTap)
+            VSpacer(16)
 
-                AccountItemCellView(optionText: "Acknowledgements", onClick: onAcknowledgementsTap)
-            }
-            .padding(.vertical, 16)
-            .background(containerLowColor)
-            .cornerRadius(16)
+            AccountItemCellView(optionText: "Privacy Policy", onClick: onPrivacyTap)
+
+            AccountItemCellView(optionText: "Acknowledgements", onClick: onAcknowledgementsTap)
+
+            AccountItemCellView(optionText: "Sign Out", optionTextColor: alertColor, showForwardIcon: false, onClick: onLogoutTap)
+
         }
         .padding(.horizontal, 16)
     }
@@ -152,35 +151,25 @@ private struct AccountAboutSectionView: View {
 private struct AccountItemCellView: View {
 
     let optionText: String
+    var optionTextColor: Color = primaryText
+    var showForwardIcon: Bool = true
+
     var onClick: () -> Void
 
     var body: some View {
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: 12) {
             Text(optionText.localized)
                 .font(.subTitle2())
-                .foregroundStyle(primaryText)
+                .foregroundStyle(optionTextColor)
 
             Spacer()
 
-            ForwardIcon()
+            if showForwardIcon {
+                ForwardIcon()
+            }
         }
-        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .onTouchGesture(onClick)
-    }
-}
-
-private struct AccountLogoutSectionView: View {
-
-    var onLogoutTap: () -> Void
-
-    var body: some View {
-        VStack(alignment: .center, spacing: 10) {
-            Text("Sign out")
-                .font(.bodyBold(18))
-                .foregroundStyle(primaryColor)
-                .padding(.top, 30)
-                .onTouchGesture { onLogoutTap() }
-        }
     }
 }
 

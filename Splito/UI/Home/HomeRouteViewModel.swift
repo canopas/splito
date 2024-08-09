@@ -16,8 +16,10 @@ class HomeRouteViewModel: ObservableObject {
     @Published var openProfileView = false
     @Published var openExpenseSheet = false
 
-    @Published var selectedTab = 0
+    @Published var selectedTab: Int = 0
     @Published private(set) var lastSelectedTab = 0
+
+    @Published private(set) var selectedGroupId: String?
 
     func openUserProfileIfNeeded() {
         if preference.isVerifiedUser {
@@ -38,5 +40,9 @@ class HomeRouteViewModel: ObservableObject {
 
     func dismissProfileView() {
         openProfileView = false
+    }
+
+    func updateSelectedGroup(id: String?) {
+        selectedGroupId = id
     }
 }

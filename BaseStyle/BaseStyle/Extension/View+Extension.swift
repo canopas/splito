@@ -12,6 +12,11 @@ public extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape( RoundedCorner(radius: radius, corners: corners) )
     }
+
+    func addHapticEffect() {
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
+    }
 }
 
 public struct RoundedCorner: Shape {
@@ -22,30 +27,6 @@ public struct RoundedCorner: Shape {
         let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
         return Path(path.cgPath)
     }
-}
-
-public extension View {
-    func transparentFullScreenCover<Content: View>(isPresented: Binding<Bool>, content: @escaping () -> Content) -> some View {
-        fullScreenCover(isPresented: isPresented) {
-            ZStack {
-                content()
-            }
-            .background(TransparentBackground())
-        }
-    }
-}
-
-struct TransparentBackground: UIViewRepresentable {
-
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView()
-        DispatchQueue.main.async {
-            view.superview?.superview?.backgroundColor = .clear
-        }
-        return view
-    }
-
-    func updateUIView(_ uiView: UIView, context: Context) {}
 }
 
 public var isIpad: Bool {

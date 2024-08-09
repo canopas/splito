@@ -13,64 +13,54 @@ public struct VerifyOtpView: View {
     @StateObject var viewModel: VerifyOtpViewModel
 
     public var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                VSpacer(50)
+        GeometryReader { proxy in
+            VStack(alignment: .leading, spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        AppLogoView(geometry: .constant(proxy))
 
-                Text("Splito")
-                    .font(.Header1(40))
-                    .foregroundStyle(primaryColor)
-
-                Spacer(minLength: 40)
-
-                SubtitleTextView(text: "Verification code", fontSize: .Header1(), fontColor: primaryText)
-
-                VSpacer(16)
-
-                VStack(spacing: 16) {
-                    Text("We've sent a verification code to your phone")
-                        .font(.subTitle2())
-                        .foregroundStyle(disableText)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(2)
-
-                    HStack(alignment: .center, spacing: 8) {
-                        Text(viewModel.phoneNumber)
-                            .font(.subTitle2())
+                        Text("Verification code")
+                            .font(.Header1())
                             .foregroundStyle(primaryText)
+                            .padding(.horizontal, 16)
 
-                        if viewModel.isFromPhoneLogin {
-                            Button(action: viewModel.editButtonAction, label: {
-                                Image(.editPencil)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 24, height: 24, alignment: .center)
+                        VSpacer(16)
+
+                        Text("We’ve sent a verification code to your phone \(viewModel.hiddenPhoneNumber).")
+                            .font(.subTitle1())
+                            .foregroundStyle(disableText)
+                            .tracking(-0.2)
+                            .lineSpacing(4)
+                            .padding(.horizontal, 16)
+
+                        VSpacer(40)
+
+                        HStack {
+                            OtpTextFieldView(otp: $viewModel.otp, onVerify: {
+                                viewModel.verifyOTP()
+                                UIApplication.shared.endEditing()
                             })
+
+                            Spacer()
                         }
                     }
                 }
-                .padding(.horizontal, 40)
+                .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
 
-                VSpacer(40)
-
-                HStack(spacing: 0) {
-                    Spacer()
-                    PhoneLoginOtpView(otp: $viewModel.otp,
-                                      resendOtpCount: $viewModel.resendOtpCount,
-                                      showLoader: viewModel.showLoader,
-                                      onVerify: {
-                                            viewModel.verifyOTP()
-                                            UIApplication.shared.endEditing()
-                                      },
-                                      onResendOtp: viewModel.resendOtp)
-                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-                    Spacer()
-                }
-                Spacer()
+                PhoneLoginOtpBtnView(otp: $viewModel.otp,
+                                     resendOtpCount: $viewModel.resendOtpCount,
+                                     showLoader: viewModel.showLoader,
+                                     onVerify: {
+                    viewModel.verifyOTP()
+                    UIApplication.shared.endEditing()
+                },
+                                     onResendOtp: viewModel.resendOtp)
             }
         }
-        .scrollIndicators(.hidden)
-        .background(backgroundColor)
+        .background(surfaceColor)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .frame(maxWidth: .infinity, alignment: .center)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toastView(toast: $viewModel.toast)
         .onTapGesture {
@@ -79,10 +69,15 @@ public struct VerifyOtpView: View {
         .onDisappear {
             viewModel.resendTimer?.invalidate()
         }
+        .ignoresSafeArea(edges: .top)
+        .toolbar(.hidden, for: .navigationBar)
+        .overlay(alignment: .topLeading) {
+            BackButton(onClick: viewModel.handleBackBtnTap)
+        }
     }
 }
 
-private struct PhoneLoginOtpView: View {
+private struct PhoneLoginOtpBtnView: View {
 
     @Binding var otp: String
     @Binding var resendOtpCount: Int
@@ -91,44 +86,68 @@ private struct PhoneLoginOtpView: View {
     let onVerify: () -> Void
     let onResendOtp: () -> Void
 
-    @FocusState private var isFocused: Bool
-
     var body: some View {
         VStack(spacing: 0) {
-            OtpTextInputView(text: $otp, isFocused: $isFocused, onOtpVerify: onVerify)
+            if resendOtpCount > 0 {
+                Group {
+                    Text("Resend code ")
+                        .foregroundColor(secondaryText)
+                    + Text("00:\(String(format: "%02d", resendOtpCount))")
+                        .foregroundColor(primaryText)
+                }
+                .font(.caption1())
+            } else {
+                VStack(spacing: 0) {
+                    Button(action: onResendOtp) {
+                        Text("Resend code")
+                            .font(.buttonText())
+                            .foregroundStyle(primaryColor)
+                    }
 
-            VSpacer(40)
+                    Divider()
+                        .frame(height: 1)
+                        .background(primaryColor)
+                }
+                .fixedSize(horizontal: true, vertical: false)
+            }
+
+            VSpacer(12)
 
             PrimaryButton(text: "Verify", isEnabled: !otp.isEmpty, showLoader: showLoader, onClick: onVerify)
 
-            VSpacer(16)
-
-            if resendOtpCount > 0 {
-                HStack(spacing: 5) {
-                    Text("Resend code")
-                        .font(.subTitle2(14))
-                        .foregroundStyle(primaryColor)
-
-                    Text("00:\(String(format: "%02d", resendOtpCount))")
-                        .font(.subTitle2(14))
-                        .foregroundStyle(primaryText)
-                }
-                .lineSpacing(1)
-            } else {
-                Button(action: onResendOtp) {
-                    Text("Resend code")
-                        .font(.subTitle2(14))
-                        .foregroundStyle(primaryColor)
-                        .padding(.horizontal, 10)
-                        .lineSpacing(1)
-                }
-                .buttonStyle(.scale)
-            }
+            VSpacer(24)
         }
         .padding(.horizontal, 16)
     }
 }
 
+private struct OtpTextFieldView: View {
+
+    @Binding var otp: String
+
+    let onVerify: () -> Void
+
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Text("6 digits")
+                .font(.subTitle1())
+                .foregroundStyle(primaryText)
+                .tracking(-0.2)
+
+            Divider()
+                .frame(height: 50)
+                .background(dividerColor)
+                .padding(.horizontal, 16)
+
+            OtpTextInputView(text: $otp, placeholder: "000000", isFocused: $isFocused, alignment: .leading, onOtpVerify: onVerify)
+        }
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
 #Preview {
-    VerifyOtpView(viewModel: VerifyOtpViewModel(router: .init(root: .VerifyOTPView(phoneNumber: "", verificationId: "")), phoneNumber: "", verificationId: ""))
+    VerifyOtpView(viewModel: VerifyOtpViewModel(router: .init(root: .VerifyOTPView(phoneNumber: "", dialCode: "", verificationId: "")), phoneNumber: "", dialCode: "", verificationId: ""))
 }

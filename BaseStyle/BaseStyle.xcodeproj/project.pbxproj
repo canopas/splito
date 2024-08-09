@@ -7,12 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		213F377A2C3EB23F00972316 /* BottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213F37792C3EB23F00972316 /* BottomSheetView.swift */; };
+		213A1F2A2C52335D00BF9800 /* CheckmarkButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213A1F292C52335D00BF9800 /* CheckmarkButton.swift */; };
 		213F377C2C400EC500972316 /* NumberFormatterHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213F377B2C400EC500972316 /* NumberFormatterHelper.swift */; };
 		213F377E2C416C9C00972316 /* ScrollToTopButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213F377D2C416C9C00972316 /* ScrollToTopButton.swift */; };
+		217620462C4F7CE700FED0D4 /* BackButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 217620452C4F7CE700FED0D4 /* BackButton.swift */; };
+		2176204A2C521EDF00FED0D4 /* RadioButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 217620492C521EDF00FED0D4 /* RadioButton.swift */; };
+		21BEF8A52C637E4900FBC9CF /* NavigationBarTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BEF8A42C637E4900FBC9CF /* NavigationBarTopView.swift */; };
+		21BEF8A72C6399BA00FBC9CF /* BottomSheetHeightModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BEF8A62C6399BA00FBC9CF /* BottomSheetHeightModifier.swift */; };
 		5DAEE93D2D2208132D031984 /* Pods_BaseStyleTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4AFAF996FB5C233D40D81D5 /* Pods_BaseStyleTests.framework */; };
 		A40018A9B957803B8105BEA5 /* Pods_BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 174198EE4AF2FC82DADEB060 /* Pods_BaseStyle.framework */; };
 		D82174BE2BBAD86D00DB42C3 /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82174BD2BBAD86D00DB42C3 /* ProfileImageView.swift */; };
+		D82C65522C46886E009947DC /* Lato-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D82C654D2C46886E009947DC /* Lato-SemiBold.ttf */; };
+		D82C65532C46886E009947DC /* Lato-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D82C654E2C46886E009947DC /* Lato-Medium.ttf */; };
+		D82C65542C46886E009947DC /* Lato-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D82C654F2C46886E009947DC /* Lato-Regular.ttf */; };
+		D82C65552C46886E009947DC /* Roboto-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D82C65502C46886E009947DC /* Roboto-Bold.ttf */; };
+		D82C65562C46886E009947DC /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D82C65512C46886E009947DC /* Roboto-Medium.ttf */; };
 		D8302D9C2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8302D9B2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift */; };
 		D86632962C2410BB009D3EF5 /* OtpTextInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86632952C2410BB009D3EF5 /* OtpTextInputView.swift */; };
 		D887213F2B99992A009DC5BE /* LoaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D887213E2B99992A009DC5BE /* LoaderViewModel.swift */; };
@@ -29,17 +38,6 @@
 		D8D42A4B2B85CC85009B345D /* BaseStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A4A2B85CC85009B345D /* BaseStyleTests.swift */; };
 		D8D42A4C2B85CC85009B345D /* BaseStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = D8D42A402B85CC85009B345D /* BaseStyle.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D8D42A572B85CD42009B345D /* BaseAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A562B85CD42009B345D /* BaseAssets.xcassets */; };
-		D8D42A642B85CDB2009B345D /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A592B85CDB2009B345D /* Inter-Medium.ttf */; };
-		D8D42A652B85CDB2009B345D /* Inter-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A5A2B85CDB2009B345D /* Inter-Light.ttf */; };
-		D8D42A662B85CDB2009B345D /* inter-heavy-italic.otf in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A5B2B85CDB2009B345D /* inter-heavy-italic.otf */; };
-		D8D42A672B85CDB2009B345D /* inter-medium-italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A5C2B85CDB2009B345D /* inter-medium-italic.ttf */; };
-		D8D42A682B85CDB2009B345D /* Inter-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A5D2B85CDB2009B345D /* Inter-Thin.ttf */; };
-		D8D42A692B85CDB2009B345D /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A5E2B85CDB2009B345D /* Inter-Bold.ttf */; };
-		D8D42A6A2B85CDB2009B345D /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A5F2B85CDB2009B345D /* Inter-Regular.ttf */; };
-		D8D42A6B2B85CDB2009B345D /* Acme-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A602B85CDB2009B345D /* Acme-Regular.ttf */; };
-		D8D42A6C2B85CDB2009B345D /* Inter-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A612B85CDB2009B345D /* Inter-Italic.ttf */; };
-		D8D42A6D2B85CDB2009B345D /* inter-semi-bold-italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A622B85CDB2009B345D /* inter-semi-bold-italic.ttf */; };
-		D8D42A6E2B85CDB2009B345D /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D42A632B85CDB2009B345D /* Inter-SemiBold.ttf */; };
 		D8D42A772B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A762B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift */; };
 		D8D42A812B85D07C009B345D /* SecondaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A7D2B85D07C009B345D /* SecondaryButton.swift */; };
 		D8D42A822B85D07C009B345D /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D42A7E2B85D07C009B345D /* PrimaryButton.swift */; };
@@ -71,13 +69,22 @@
 
 /* Begin PBXFileReference section */
 		174198EE4AF2FC82DADEB060 /* Pods_BaseStyle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BaseStyle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		213F37792C3EB23F00972316 /* BottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetView.swift; sourceTree = "<group>"; };
+		213A1F292C52335D00BF9800 /* CheckmarkButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckmarkButton.swift; sourceTree = "<group>"; };
 		213F377B2C400EC500972316 /* NumberFormatterHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFormatterHelper.swift; sourceTree = "<group>"; };
 		213F377D2C416C9C00972316 /* ScrollToTopButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollToTopButton.swift; sourceTree = "<group>"; };
+		217620452C4F7CE700FED0D4 /* BackButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButton.swift; sourceTree = "<group>"; };
+		217620492C521EDF00FED0D4 /* RadioButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioButton.swift; sourceTree = "<group>"; };
+		21BEF8A42C637E4900FBC9CF /* NavigationBarTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarTopView.swift; sourceTree = "<group>"; };
+		21BEF8A62C6399BA00FBC9CF /* BottomSheetHeightModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetHeightModifier.swift; sourceTree = "<group>"; };
 		2CE85328C46B183FC3F074A3 /* Pods-BaseStyle.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyle.release.xcconfig"; path = "Target Support Files/Pods-BaseStyle/Pods-BaseStyle.release.xcconfig"; sourceTree = "<group>"; };
 		5BDB5B9B63CFD771230CD759 /* Pods-BaseStyleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyleTests.release.xcconfig"; path = "Target Support Files/Pods-BaseStyleTests/Pods-BaseStyleTests.release.xcconfig"; sourceTree = "<group>"; };
 		CC9EC1F1C0A5A0821118E6CA /* Pods-BaseStyleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyleTests.debug.xcconfig"; path = "Target Support Files/Pods-BaseStyleTests/Pods-BaseStyleTests.debug.xcconfig"; sourceTree = "<group>"; };
 		D82174BD2BBAD86D00DB42C3 /* ProfileImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageView.swift; sourceTree = "<group>"; };
+		D82C654D2C46886E009947DC /* Lato-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-SemiBold.ttf"; sourceTree = "<group>"; };
+		D82C654E2C46886E009947DC /* Lato-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Medium.ttf"; sourceTree = "<group>"; };
+		D82C654F2C46886E009947DC /* Lato-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Regular.ttf"; sourceTree = "<group>"; };
+		D82C65502C46886E009947DC /* Roboto-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Bold.ttf"; sourceTree = "<group>"; };
+		D82C65512C46886E009947DC /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Medium.ttf"; sourceTree = "<group>"; };
 		D8302D9B2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryFloatingButton.swift; sourceTree = "<group>"; };
 		D86632952C2410BB009D3EF5 /* OtpTextInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtpTextInputView.swift; sourceTree = "<group>"; };
 		D887213E2B99992A009DC5BE /* LoaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoaderViewModel.swift; path = BaseStyle/Views/LoaderViewModel.swift; sourceTree = SOURCE_ROOT; };
@@ -95,17 +102,6 @@
 		D8D42A452B85CC85009B345D /* BaseStyleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BaseStyleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8D42A4A2B85CC85009B345D /* BaseStyleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseStyleTests.swift; sourceTree = "<group>"; };
 		D8D42A562B85CD42009B345D /* BaseAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = BaseAssets.xcassets; sourceTree = "<group>"; };
-		D8D42A592B85CDB2009B345D /* Inter-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Medium.ttf"; sourceTree = "<group>"; };
-		D8D42A5A2B85CDB2009B345D /* Inter-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Light.ttf"; sourceTree = "<group>"; };
-		D8D42A5B2B85CDB2009B345D /* inter-heavy-italic.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "inter-heavy-italic.otf"; sourceTree = "<group>"; };
-		D8D42A5C2B85CDB2009B345D /* inter-medium-italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "inter-medium-italic.ttf"; sourceTree = "<group>"; };
-		D8D42A5D2B85CDB2009B345D /* Inter-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Thin.ttf"; sourceTree = "<group>"; };
-		D8D42A5E2B85CDB2009B345D /* Inter-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Bold.ttf"; sourceTree = "<group>"; };
-		D8D42A5F2B85CDB2009B345D /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
-		D8D42A602B85CDB2009B345D /* Acme-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Acme-Regular.ttf"; sourceTree = "<group>"; };
-		D8D42A612B85CDB2009B345D /* Inter-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Italic.ttf"; sourceTree = "<group>"; };
-		D8D42A622B85CDB2009B345D /* inter-semi-bold-italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "inter-semi-bold-italic.ttf"; sourceTree = "<group>"; };
-		D8D42A632B85CDB2009B345D /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.ttf"; sourceTree = "<group>"; };
 		D8D42A762B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonStyleTapGestureModifier.swift; sourceTree = "<group>"; };
 		D8D42A782B85CE81009B345D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D8D42A7D2B85D07C009B345D /* SecondaryButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecondaryButton.swift; sourceTree = "<group>"; };
@@ -178,6 +174,9 @@
 				D8D42A7D2B85D07C009B345D /* SecondaryButton.swift */,
 				D8302D9B2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift */,
 				213F377D2C416C9C00972316 /* ScrollToTopButton.swift */,
+				217620452C4F7CE700FED0D4 /* BackButton.swift */,
+				217620492C521EDF00FED0D4 /* RadioButton.swift */,
+				213A1F292C52335D00BF9800 /* CheckmarkButton.swift */,
 			);
 			path = Buttons;
 			sourceTree = "<group>";
@@ -239,17 +238,11 @@
 		D8D42A582B85CDB2009B345D /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
-				D8D42A592B85CDB2009B345D /* Inter-Medium.ttf */,
-				D8D42A5A2B85CDB2009B345D /* Inter-Light.ttf */,
-				D8D42A5B2B85CDB2009B345D /* inter-heavy-italic.otf */,
-				D8D42A5C2B85CDB2009B345D /* inter-medium-italic.ttf */,
-				D8D42A5D2B85CDB2009B345D /* Inter-Thin.ttf */,
-				D8D42A5E2B85CDB2009B345D /* Inter-Bold.ttf */,
-				D8D42A5F2B85CDB2009B345D /* Inter-Regular.ttf */,
-				D8D42A602B85CDB2009B345D /* Acme-Regular.ttf */,
-				D8D42A612B85CDB2009B345D /* Inter-Italic.ttf */,
-				D8D42A622B85CDB2009B345D /* inter-semi-bold-italic.ttf */,
-				D8D42A632B85CDB2009B345D /* Inter-SemiBold.ttf */,
+				D82C654E2C46886E009947DC /* Lato-Medium.ttf */,
+				D82C654F2C46886E009947DC /* Lato-Regular.ttf */,
+				D82C654D2C46886E009947DC /* Lato-SemiBold.ttf */,
+				D82C65502C46886E009947DC /* Roboto-Bold.ttf */,
+				D82C65512C46886E009947DC /* Roboto-Medium.ttf */,
 			);
 			path = Fonts;
 			sourceTree = "<group>";
@@ -276,7 +269,7 @@
 				D8D42A9C2B870A5D009B345D /* ToastPrompt.swift */,
 				D8E244B42B972AD200C6C82A /* EmptyRouteView.swift */,
 				D89DBE302B8884E300E5F1BD /* SectionHeaderView.swift */,
-				213F37792C3EB23F00972316 /* BottomSheetView.swift */,
+				21BEF8A42C637E4900FBC9CF /* NavigationBarTopView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -295,6 +288,7 @@
 			isa = PBXGroup;
 			children = (
 				D8D42A762B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift */,
+				21BEF8A62C6399BA00FBC9CF /* BottomSheetHeightModifier.swift */,
 			);
 			path = Modifier;
 			sourceTree = "<group>";
@@ -412,19 +406,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8D42A6E2B85CDB2009B345D /* Inter-SemiBold.ttf in Resources */,
-				D8D42A662B85CDB2009B345D /* inter-heavy-italic.otf in Resources */,
-				D8D42A6B2B85CDB2009B345D /* Acme-Regular.ttf in Resources */,
-				D8D42A642B85CDB2009B345D /* Inter-Medium.ttf in Resources */,
-				D8D42A682B85CDB2009B345D /* Inter-Thin.ttf in Resources */,
-				D8D42A692B85CDB2009B345D /* Inter-Bold.ttf in Resources */,
-				D8D42A6C2B85CDB2009B345D /* Inter-Italic.ttf in Resources */,
-				D8D42A6D2B85CDB2009B345D /* inter-semi-bold-italic.ttf in Resources */,
-				D8D42A672B85CDB2009B345D /* inter-medium-italic.ttf in Resources */,
-				D8D42A652B85CDB2009B345D /* Inter-Light.ttf in Resources */,
-				D8D42A6A2B85CDB2009B345D /* Inter-Regular.ttf in Resources */,
 				D89DBE2D2B88828300E5F1BD /* Countries.json in Resources */,
+				D82C65532C46886E009947DC /* Lato-Medium.ttf in Resources */,
+				D82C65552C46886E009947DC /* Roboto-Bold.ttf in Resources */,
+				D82C65562C46886E009947DC /* Roboto-Medium.ttf in Resources */,
+				D82C65542C46886E009947DC /* Lato-Regular.ttf in Resources */,
 				D8D42A572B85CD42009B345D /* BaseAssets.xcassets in Resources */,
+				D82C65522C46886E009947DC /* Lato-SemiBold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -519,20 +507,24 @@
 				D89DBE3C2B88AA1500E5F1BD /* CustomTextField.swift in Sources */,
 				213F377C2C400EC500972316 /* NumberFormatterHelper.swift in Sources */,
 				D8D42A772B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift in Sources */,
+				21BEF8A52C637E4900FBC9CF /* NavigationBarTopView.swift in Sources */,
 				D8D42A832B85D07C009B345D /* View+Extension.swift in Sources */,
 				D89DBE3E2B8C67CE00E5F1BD /* String+Extension.swift in Sources */,
-				213F377A2C3EB23F00972316 /* BottomSheetView.swift in Sources */,
 				D8E244C32B986D4F00C6C82A /* UIImage+Extension.swift in Sources */,
 				D8D42A822B85D07C009B345D /* PrimaryButton.swift in Sources */,
+				21BEF8A72C6399BA00FBC9CF /* BottomSheetHeightModifier.swift in Sources */,
 				D8D42A8A2B85D525009B345D /* AppColors.swift in Sources */,
 				D8D42AAC2B872A7C009B345D /* ToastView.swift in Sources */,
+				217620462C4F7CE700FED0D4 /* BackButton.swift in Sources */,
 				D8D42A952B85F8A2009B345D /* Bundle+Extension.swift in Sources */,
 				D89C93462BC42DE500FACD16 /* MailComposeView.swift in Sources */,
+				213A1F2A2C52335D00BF9800 /* CheckmarkButton.swift in Sources */,
 				D86632962C2410BB009D3EF5 /* OtpTextInputView.swift in Sources */,
 				D8E244C12B986CD800C6C82A /* ImagePickerView.swift in Sources */,
 				D89DBE312B8884E300E5F1BD /* SectionHeaderView.swift in Sources */,
 				D8D42A862B85D08F009B345D /* Font+Extension.swift in Sources */,
 				D8D42A992B870961009B345D /* AlertPrompt.swift in Sources */,
+				2176204A2C521EDF00FED0D4 /* RadioButton.swift in Sources */,
 				D8302D9C2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift in Sources */,
 				D887213F2B99992A009DC5BE /* LoaderViewModel.swift in Sources */,
 				D8D42AA32B8715B4009B345D /* TopViewController.swift in Sources */,

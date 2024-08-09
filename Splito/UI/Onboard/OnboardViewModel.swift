@@ -7,13 +7,14 @@
 
 import Data
 import BaseStyle
-import Foundation
+import SwiftUI
 
 class OnboardViewModel: BaseViewModel, ObservableObject {
 
-    @Published var currentPageIndex = 0
-
     @Inject private var preference: SplitoPreference
+
+    @Published var currentPageIndex = 0
+    @Published private(set) var showGetStartedButton = false
 
     private let router: Router<AppRoute>
 
@@ -24,5 +25,19 @@ class OnboardViewModel: BaseViewModel, ObservableObject {
     func handleGetStartedAction() {
         preference.isOnboardShown = true
         router.updateRoot(root: .LoginView)
+    }
+
+    func handleGetStartedBtnVisibility(isLastIndex: Bool) {
+        if isLastIndex {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation {
+                    self.showGetStartedButton = true
+                }
+            }
+        } else {
+            withAnimation {
+                showGetStartedButton = false
+            }
+        }
     }
 }

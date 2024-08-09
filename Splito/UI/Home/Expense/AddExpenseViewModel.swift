@@ -19,9 +19,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     @Published var expenseName = ""
     @Published private(set) var payerName = "You"
-    @Published private(set) var expenseId: String?
 
-    @Published var expenseAmount: Double = 0.00
+    @Published var expenseAmount: Double = 0
     @Published var expenseDate = Date()
 
     @Published var showGroupSelection = false
@@ -29,11 +28,12 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published var showSplitTypeSelection = false
 
     @Published private(set) var expense: Expense?
-    @Published private(set) var selectedGroup: Groups?
+    @Published var selectedGroup: Groups?
     @Published private(set) var splitData: [String: Double] = [:]
 
     @Published private(set) var groupMembers: [String] = []
     @Published private(set) var selectedMembers: [String] = []
+    @Published private(set) var memberProfileUrls: [String] = []
 
     @Published private(set) var viewState: ViewState = .initial
     @Published private(set) var splitType: SplitType = .equally
@@ -44,26 +44,46 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private var groupId: String
+    var expenseId: String?
+    private var groupId: String?
     private let onDismissSheet: (() -> Void)?
     private let router: Router<AppRoute>
 
-    init(router: Router<AppRoute>, groupId: String, expenseId: String? = nil, onDismissSheet: (() -> Void)? = nil) {
+    init(router: Router<AppRoute>, groupId: String? = nil, expenseId: String? = nil, onDismissSheet: (() -> Void)? = nil) {
         self.router = router
         self.groupId = groupId
         self.expenseId = expenseId
+        self.groupId = groupId
         self.onDismissSheet = onDismissSheet
 
         super.init()
 
         if let expenseId {
             fetchExpenseDetails(expenseId: expenseId)
-        } else {
+        } else if let groupId {
+            fetchGroup(groupId: groupId)
             fetchDefaultUser()
         }
     }
 
     // MARK: - Data Loading
+    private func fetchGroup(groupId: String) {
+        viewState = .loading
+        groupRepository.fetchGroupBy(id: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServerError(error)
+                }
+            } receiveValue: { [weak self] group in
+                guard let self, let group else { return }
+                self.selectedGroup = group
+                self.groupMembers = group.members
+                self.selectedMembers = group.members
+                self.fetchMemberProfileUrls()
+                self.viewState = .initial
+            }.store(in: &cancelable)
+    }
+
     private func fetchDefaultUser() {
         guard let id = preference.user?.id else { return }
         viewState = .loading
@@ -81,6 +101,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     }
 
     private func fetchExpenseDetails(expenseId: String) {
+        guard let groupId else { return }
+
         viewState = .loading
         expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
             .sink { [weak self] completion in
@@ -99,6 +121,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                     self.splitData = splitData
                 }
                 self.selectedMembers = expense.splitTo
+                self.fetchMemberProfileUrls()
 
                 self.fetchGroupData(for: groupId) { group in
                     self.selectedGroup = group
@@ -132,6 +155,25 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
+    func fetchMemberProfileUrls() {
+        var profileUrls: [String] = []
+        let dispatchGroup = DispatchGroup()
+
+        for member in selectedMembers {
+            dispatchGroup.enter()
+            fetchUserData(for: member) { user in
+                if let imageUrl = user.imageUrl {
+                    profileUrls.append(imageUrl)
+                }
+                dispatchGroup.leave()
+            }
+        }
+
+        dispatchGroup.notify(queue: .main) {
+            self.memberProfileUrls = profileUrls
+        }
+    }
+
     // MARK: - Error Handling
     private func handleServerError(_ error: ServiceError) {
         viewState = .initial
@@ -143,7 +185,9 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 extension AddExpenseViewModel {
 
     private func updatePayerName() {
-        if selectedPayers.count == 1 {
+        let payerCount = selectedPayers.count
+
+        if payerCount == 1 {
             if let user = preference.user, selectedPayers.keys.first == user.id {
                 payerName = "You"
             } else {
@@ -152,7 +196,17 @@ extension AddExpenseViewModel {
                 }
             }
         } else {
-            payerName = "\(selectedPayers.count) people"
+            let payerIds = Array(selectedPayers.keys.prefix(2))
+            fetchUserData(for: payerIds[0]) { user1 in
+                self.fetchUserData(for: payerIds[1]) { user2 in
+                    if payerCount == 2 {
+                        self.payerName = "\(user1.nameWithLastInitial) and \(user2.nameWithLastInitial)"
+                    } else {
+                        let remainingCount = payerCount - 2
+                        self.payerName = "\(user1.nameWithLastInitial), \(user2.nameWithLastInitial) and +\(remainingCount)"
+                    }
+                }
+            }
         }
     }
 
@@ -164,6 +218,7 @@ extension AddExpenseViewModel {
         selectedGroup = group
         groupMembers = group.members
         selectedMembers = group.members
+        fetchMemberProfileUrls()
     }
 
     func handlePayerBtnAction() {
@@ -197,9 +252,10 @@ extension AddExpenseViewModel {
     }
 
     func handleSplitTypeSelection(members: [String], splitData: [String: Double], splitType: SplitType) {
-        selectedMembers = members
+        selectedMembers = splitType == .equally ? members : splitData.map({ $0.key })
         self.splitData = splitData
         self.splitType = splitType
+        fetchMemberProfileUrls()
     }
 
     func handleSaveAction(completion: @escaping () -> Void) {
@@ -236,7 +292,7 @@ extension AddExpenseViewModel {
             newExpense.splitTo = (splitType == .equally) ? selectedMembers : splitData.map({ $0.key })
             newExpense.splitData = splitData
 
-            updateExpense(expense: newExpense)
+            updateExpense(groupId: groupId, expense: newExpense)
         } else {
             let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
                                   date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: user.id,
@@ -260,7 +316,7 @@ extension AddExpenseViewModel {
             }.store(in: &cancelable)
     }
 
-    private func updateExpense(expense: Expense) {
+    private func updateExpense(groupId: String, expense: Expense) {
         viewState = .loading
         expenseRepository.updateExpense(groupId: groupId, expense: expense)
             .sink { [weak self] completion in
@@ -282,6 +338,6 @@ extension AddExpenseViewModel {
 
     enum AddExpenseField {
         case expenseName
-        case expenseAmount
+        case amount
     }
 }

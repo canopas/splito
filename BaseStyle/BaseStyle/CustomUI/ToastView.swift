@@ -47,7 +47,7 @@ struct ToastView: View {
         )
         .frame(minWidth: 0, maxWidth: isIpad ? 600 : .infinity, alignment: .center)
         .cornerRadius(8)
-        .shadow(color: surfaceDarkColor.opacity(0.25), radius: 4, x: 0, y: 1)
+        .shadow(color: primaryLightText.opacity(0.8), radius: 4, x: 0, y: 1)
         .padding(.horizontal, 16)
     }
 }

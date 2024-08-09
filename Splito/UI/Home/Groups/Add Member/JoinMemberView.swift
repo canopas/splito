@@ -13,28 +13,66 @@ struct JoinMemberView: View {
     @StateObject var viewModel: JoinMemberViewModel
 
     @FocusState private var isFocused: Bool
+    @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        VStack(alignment: .center, spacing: 30) {
-            VSpacer(40)
+        GeometryReader { geometry in
+            VStack(alignment: .center, spacing: 0) {
+                ScrollView {
+                    VStack(spacing: 36) {
+                        Spacer()
 
-            HeaderTextView(title: "Enter the Invite Code", alignment: .center)
+                        Text("Enter the invite code")
+                            .font(.Header1())
+                            .foregroundStyle(primaryText)
+                            .multilineTextAlignment(.center)
 
-            OtpTextInputView(text: $viewModel.code, isFocused: $isFocused, keyboardType: .alphabet, onOtpVerify: viewModel.joinMemberWithCode)
+                        OtpTextInputView(text: $viewModel.code, placeholder: "AF0R00", isFocused: $isFocused,
+                                         keyboardType: .alphabet) {
+                            viewModel.joinMemberWithCode {
+                                dismiss()
+                            }
+                        }
 
-            SubtitleTextView(text: "Get the code from the group creator to join.")
+                        Text("Reach out to your friends to get the code of the group they created.")
+                            .font(.subTitle1())
+                            .foregroundStyle(disableText)
+                            .tracking(-0.2)
+                            .lineSpacing(4)
+                            .multilineTextAlignment(.center)
 
-            PrimaryButton(text: "Join Group", isEnabled: !viewModel.code.isEmpty,
-                          showLoader: viewModel.showLoader, onClick: viewModel.joinMemberWithCode)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .frame(minHeight: geometry.size.height - 90)
+                }
+                .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
 
-            Spacer()
+                PrimaryFloatingButton(text: "Join", isEnabled: !viewModel.code.isEmpty,
+                                      showLoader: viewModel.showLoader) {
+                    viewModel.joinMemberWithCode {
+                        dismiss()
+                    }
+                }
+            }
         }
-        .padding(.horizontal, 22)
-        .background(backgroundColor)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .navigationBarTitle("Join Group", displayMode: .inline)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .onTapGesture {
+            isFocused = false
+        }
+        .toolbarRole(.editor)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Text("Join Group")
+                    .font(.Header2())
+                    .foregroundStyle(primaryText)
+            }
+        }
     }
 }
 

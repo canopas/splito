@@ -19,63 +19,45 @@ struct ExpenseDetailsView: View {
                 LoaderView()
             } else {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 30) {
-                        VSpacer(20)
-
+                    VStack(alignment: .leading, spacing: 32) {
                         ExpenseHeaderView(viewModel: viewModel)
-
-                        Divider()
-                            .frame(height: 1)
-                            .background(outlineColor)
 
                         ExpenseInfoView(viewModel: viewModel)
 
-                        Divider()
-                            .frame(height: 1)
-                            .background(outlineColor)
-
-                        VSpacer()
+                        Spacer()
                     }
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
             }
         }
-        .background(backgroundColor)
+        .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .navigationBarTitle("Details", displayMode: .inline)
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .fullScreenCover(isPresented: $viewModel.showEditExpenseSheet) {
             NavigationStack {
                 AddExpenseView(viewModel: AddExpenseViewModel(router: viewModel.router, groupId: viewModel.groupId,
                                                               expenseId: viewModel.expenseId, onDismissSheet: viewModel.dismissEditExpenseSheet))
             }
         }
+        .toolbarRole(.editor)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    viewModel.handleDeleteBtnAction()
-                } label: {
-                    Image(systemName: "trash")
-                        .resizable()
-                        .frame(width: 24, height: 24)
-                }
-                .foregroundStyle(primaryColor)
+            ToolbarItem(placement: .topBarLeading) {
+                Text("Details")
+                    .font(.Header2())
+                    .foregroundStyle(primaryText)
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    viewModel.handleEditBtnAction()
-                } label: {
-                    Image(systemName: "pencil")
-                        .resizable()
-                        .frame(width: 24, height: 24)
-                }
-                .foregroundStyle(primaryColor)
+                ToolbarButtonView(imageIcon: .binIcon, onClick: viewModel.handleDeleteBtnAction)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                ToolbarButtonView(imageIcon: .editPencilIcon, onClick: viewModel.handleEditBtnAction)
             }
         }
-        .onAppear {
-            viewModel.fetchExpense()
-        }
+        .onAppear(perform: viewModel.fetchExpense)
     }
 }
 
@@ -89,23 +71,31 @@ private struct ExpenseHeaderView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(viewModel.expense?.name ?? "Expense")
-                .font(.body1(22))
-                .foregroundStyle(primaryText)
+        HStack(alignment: .top, spacing: 0) {
+            GroupProfileImageView(imageUrl: viewModel.groupImageUrl)
 
-            Text(viewModel.expense?.formattedAmount ?? "₹ 0")
-                .font(.H1Text(36))
-                .foregroundStyle(primaryText)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(viewModel.expense?.name ?? "Expense")
+                    .font(.subTitle2())
+                    .foregroundStyle(primaryText)
 
-            Text("Added by \(username.localized) on \(viewModel.expense?.date.dateValue().longDate ?? "Today")")
-                .lineLimit(0)
-                .font(.body1(17))
-                .foregroundStyle(secondaryText)
-                .padding(.top, 6)
+                Text(viewModel.expense?.formattedAmount ?? "₹ 0")
+                    .font(.Header3())
+                    .foregroundStyle(primaryText)
+
+                Text("Added by \(username.localized) on \(viewModel.expense?.date.dateValue().longDate ?? "Today")")
+                    .lineLimit(0)
+                    .font(.body3())
+                    .foregroundStyle(disableText)
+            }
         }
-        .lineLimit(1)
-        .padding(.horizontal, 30)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .overlay {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(container2Color)
+        }
+        .padding(.top, 24)
     }
 }
 
@@ -129,50 +119,49 @@ private struct ExpenseInfoView: View {
         }
     }
 
+    var userImageUrl: String? {
+        return viewModel.getMemberDataBy(id: expense?.paidBy.first?.key ?? "")?.imageUrl
+    }
+
     var body: some View {
-        HStack(alignment: .top, spacing: 10) {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .center, spacing: 16) {
+                MemberProfileImageView(imageUrl: userImageUrl)
 
-            let mainImageHeight: CGFloat = 60
-            let userImageUrl = viewModel.getMemberDataBy(id: expense?.paidBy.first?.key ?? "")?.imageUrl
-            MemberProfileImageView(imageUrl: userImageUrl, height: mainImageHeight)
-
-            VStack(alignment: .leading, spacing: 0) {
                 Text("\(userName.localized) paid \(expense?.formattedAmount ?? "nothing")")
-                    .font(.body1(18))
-                    .frame(height: mainImageHeight)
+                    .font(.subTitle2())
+                    .foregroundStyle(primaryText)
+            }
 
-                VStack(alignment: .leading, spacing: 10) {
-                    ForEach(viewModel.expenseUsersData, id: \.self) { userData in
-                        let subImageHeight: CGFloat = 36
-                        let owes = viewModel.preference.user?.id == userData.id ? "owe" : "owes"
-                        let memberName = viewModel.preference.user?.id == userData.id ? "You" : userData.nameWithLastInitial
+            VStack(alignment: .leading, spacing: 16) {
+                ForEach(viewModel.expenseUsersData, id: \.self) { userData in
+                    let subImageHeight: CGFloat = 24
+                    let owes = viewModel.preference.user?.id == userData.id ? "owe" : "owes"
+                    let memberName = viewModel.preference.user?.id == userData.id ? "You" : userData.nameWithLastInitial
 
-                        let paidAmount = expense?.paidBy[userData.id] ?? 0.0
-                        let splitAmount = viewModel.getSplitAmount(for: userData.id)
+                    let paidAmount = expense?.paidBy[userData.id] ?? 0.0
+                    let splitAmount = viewModel.getSplitAmount(for: userData.id)
 
-                        HStack(spacing: 10) {
-                            if let paidBy = expense?.paidBy, paidBy.contains(where: { $0.key == userData.id }), paidBy.count > 1 {
-                                MemberProfileImageView(imageUrl: userData.imageUrl, height: subImageHeight)
-                                if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
-                                    Text("\(memberName.localized) paid \(paidAmount.formattedCurrency) and \(owes.localized) \(splitAmount)")
-                                } else {
-                                    Text("\(memberName.localized) paid \(paidAmount.formattedCurrency)")
-                                }
-                            } else if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
-                                MemberProfileImageView(imageUrl: userData.imageUrl, height: subImageHeight)
-                                Text("\(memberName.localized) \(owes.localized) \(splitAmount)")
+                    HStack(spacing: 16) {
+                        if let paidBy = expense?.paidBy, paidBy.contains(where: { $0.key == userData.id }), paidBy.count > 1 {
+                            MemberProfileImageView(imageUrl: userData.imageUrl, height: subImageHeight)
+
+                            if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
+                                Text("\(memberName.localized) paid \(paidAmount.formattedCurrency) and \(owes.localized) \(splitAmount)")
+                            } else {
+                                Text("\(memberName.localized) paid \(paidAmount.formattedCurrency)")
                             }
+                        } else if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
+                            MemberProfileImageView(imageUrl: userData.imageUrl, height: subImageHeight)
+
+                            Text("\(memberName.localized) \(owes.localized) \(splitAmount)")
                         }
                     }
+                    .padding(.leading, 56)
                 }
-                .font(.body1())
-                .foregroundStyle(secondaryText)
             }
+            .font(.body3())
+            .foregroundStyle(disableText)
         }
-        .padding(.horizontal, 20)
     }
-}
-
-#Preview {
-    ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: .init(root: .ExpenseDetailView(groupId: "", expenseId: "")), groupId: "", expenseId: ""))
 }

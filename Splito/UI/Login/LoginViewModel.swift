@@ -28,6 +28,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         self.router = router
     }
 
+    // MARK: - Data Loading
     func onGoogleLoginClick() {
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
 
@@ -105,13 +106,13 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         userRepository.storeUser(user: user)
             .sink { [weak self] completion in
                 guard let self else { return }
-				if case .failure(let error) = completion {
-					self.alert = .init(message: error.localizedDescription)
-					self.showAlert = true
-				}
+                if case .failure(let error) = completion {
+                    self.alert = .init(message: error.localizedDescription)
+                    self.showAlert = true
+                }
             } receiveValue: { [weak self] user in
                 guard let self else { return }
-				self.preference.user = user
+                self.preference.user = user
                 self.onLoginSuccess()
             }.store(in: &cancelable)
     }
@@ -120,6 +121,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         preference.isVerifiedUser = true
     }
 
+    // MARK: - User Actions
     func onPhoneLoginClick() {
         router.push(.PhoneLoginView)
     }

@@ -7,6 +7,7 @@
 
 import Data
 import Combine
+import BaseStyle
 
 class ChoosePayerViewModel: BaseViewModel, ObservableObject {
 
@@ -14,8 +15,6 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
 
     @Published var groupId: String
     @Published var selectedPayers: [String: Double]
-
-    @Published var isMultiplePayerselected: Bool = false
 
     @Published var currentViewState: ViewState = .initial
     @Published private(set) var amount: Double = 0
@@ -31,10 +30,10 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
         self.onPayerSelection = onPayerSelection
         super.init()
 
-        self.isMultiplePayerselected = selectedPayers.count > 1
         self.fetchMembers()
     }
 
+    // MARK: - Data Loading
     func fetchMembers() {
         currentViewState = .loading
         groupRepository.fetchMembersBy(groupId: groupId)
@@ -51,15 +50,24 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
+    // MARK: - User Actions
     func handlePayerSelection(user: AppUser) {
         selectedPayers = [user.id: amount]
-        onPayerSelection([user.id: amount])
     }
 
     func handleMultiplePayerTap() {
+        guard amount > 0 else {
+            showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!",
+                                            message: "Please enter a cost for your expense first!"))
+            return
+        }
         router?.push(.ChooseMultiplePayerView(groupId: groupId, selectedPayers: selectedPayers, amount: amount, onPayerSelection: { payers in
             self.onPayerSelection(payers)
         }))
+    }
+
+    func handleSaveBtnTap() {
+        onPayerSelection(selectedPayers)
     }
 }
 

@@ -18,9 +18,10 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     @Inject var storageManager: StorageManager
     @Inject var groupRepository: GroupRepository
 
-    @Published var sourceTypeIsCamera = false
     @Published var showImagePicker = false
     @Published var showImagePickerOptions = false
+    @Published private(set) var showLoader = false
+    @Published private(set) var sourceTypeIsCamera = false
 
     @Published var groupName = ""
     @Published var profileImage: UIImage?
@@ -82,16 +83,17 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         showImagePickerOptions = true
     }
 
-    func handleDoneAction() {
+    func handleDoneAction(completion: @escaping () -> Void) {
         if let group {
-            updateGroup(group: group)
+            updateGroup(group: group, completion: completion)
         } else {
-            createGroup()
+            createGroup(completion: completion)
         }
     }
 
-    private func createGroup() {
-        currentState = .loading
+    private func createGroup(completion: @escaping () -> Void) {
+        showLoader = true
+
         let userId = preference.user?.id ?? ""
         let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId, members: [userId], imageUrl: nil, createdAt: Timestamp())
 
@@ -102,15 +104,17 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.currentState = .initial
+                    self?.showLoader = false
                     self?.showAlertFor(error)
                 }
-            } receiveValue: { id in
-                self.goToGroupHome(groupId: id)
+            } receiveValue: { _ in
+                self.showLoader = false
+                completion()
             }.store(in: &cancelable)
     }
 
-    private func updateGroup(group: Groups) {
-        currentState = .loading
+    private func updateGroup(group: Groups, completion: @escaping () -> Void) {
+        self.showLoader = true
 
         var newGroup = group
         newGroup.name = groupName.trimming(spaces: .leadingAndTrailing)
@@ -122,16 +126,13 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.currentState = .initial
+                    self?.showLoader = false
                     self?.showAlertFor(error)
                 }
             } receiveValue: { _ in
-                self.router.pop()
+                self.showLoader = false
+                completion()
             }.store(in: &cancelable)
-    }
-
-    private func goToGroupHome(groupId: String) {
-        self.router.pop()
-        self.router.push(.GroupHomeView(groupId: groupId))
     }
 }
 

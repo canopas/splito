@@ -12,46 +12,45 @@ struct ChooseMultiplePayerView: View {
 
     @StateObject var viewModel: ChooseMultiplePayerViewModel
 
+    @Environment(\.dismiss) var dismiss
+
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
-            Divider()
-                .frame(height: 1)
-                .background(outlineColor.opacity(0.4))
+            NavigationBarTopView(title: "Multiple people",
+                leadingButton: {
+                    BackButton(size: (10, 16), iconColor: primaryText, padding: (22, 0), onClick: {
+                        dismiss()
+                    })
+                    .fontWeight(.medium)
+                }(),
+                trailingButton: CheckmarkButton(padding: (.horizontal, 16), onClick: viewModel.handleDoneBtnTap)
+            )
 
             if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else {
-                ZStack {
-                    ScrollView {
-                        VStack(spacing: 50) {
-                            Divider()
-                                .frame(height: 1)
-                                .background(outlineColor.opacity(0.4))
+                ScrollView {
+                    VStack(spacing: 0) {
+                        VSpacer(27)
 
-                            EnterPaidAmountsView(viewModel: viewModel)
-
-                            VSpacer(80)
-                        }
+                        EnterPaidAmountsView(viewModel: viewModel)
+                            .padding(.bottom, 16)
                     }
-                    .scrollIndicators(.hidden)
-
-                    BottomInfoCardView(title: "₹ \(String(format: "%.2f", viewModel.totalAmount)) of ₹ \(viewModel.expenseAmount)",
-                                       value: "₹ \(String(format: "%.2f", (viewModel.expenseAmount - viewModel.totalAmount))) left")
+                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
+
+                BottomInfoCardView(title: "₹ \(String(format: "%.2f", viewModel.totalAmount)) of \(viewModel.expenseAmount.formattedCurrency)",
+                                   value: "\((viewModel.expenseAmount - viewModel.totalAmount).formattedCurrency) left")
             }
         }
-        .background(backgroundColor)
+        .background(surfaceColor)
         .interactiveDismissDisabled()
-        .navigationBarTitle("Choose Payer", displayMode: .inline)
+        .toolbar(.hidden, for: .navigationBar)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button("Done") {
-                    viewModel.handleDoneBtnTap()
-                }
-            }
-        }
         .onTapGesture {
             UIApplication.shared.endEditing()
         }
@@ -63,7 +62,7 @@ private struct EnterPaidAmountsView: View {
     @ObservedObject var viewModel: ChooseMultiplePayerViewModel
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 16) {
             ForEach(viewModel.groupMembers, id: \.id) { member in
                 MemberCellView(
                     value: Binding(
@@ -72,8 +71,9 @@ private struct EnterPaidAmountsView: View {
                     ),
                     member: member, suffixText: "₹",
                     formatString: "%.2f",
+                    isLastCell: member == viewModel.groupMembers.last,
                     expenseAmount: viewModel.totalAmount,
-                    inputFieldWidth: 80,
+                    inputFieldWidth: 70,
                     onChange: { amount in
                         viewModel.updateAmount(for: member.id, amount: amount)
                     }

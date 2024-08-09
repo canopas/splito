@@ -13,44 +13,39 @@ struct GroupWhoIsPayingView: View {
 
     @StateObject var viewModel: GroupWhoIsPayingViewModel
 
-    @Environment(\.dismiss) var dismiss
-
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 10) {
-                        ForEach(viewModel.members) { member in
-                            GroupPayingMemberView(member: member)
-                                .onTouchGesture {
-                                    viewModel.onMemberTap(member)
-                                }
+                    VStack(alignment: .leading, spacing: 0) {
+                        VSpacer(27)
 
-                            Divider()
-                                .frame(height: 1)
-                                .background(outlineColor.opacity(0.4))
+                        ForEach(viewModel.members) { member in
+                            GroupPayingMemberView(member: member, isSelected: member.id == viewModel.selectedMemberId,
+                                                  isLastMember: member.id == viewModel.members.last?.id,
+                                                  onMemberTap: viewModel.onMemberTap(_:))
                         }
                     }
-                    .padding(.top, 24)
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
             }
         }
-        .background(backgroundColor)
+        .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .navigationBarTitle("Who is paying?", displayMode: .inline)
         .onAppear(perform: viewModel.fetchGroupMembers)
+        .toolbarRole(.editor)
         .toolbar {
-            if viewModel.isPaymentSettled {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
+            ToolbarItem(placement: .topBarLeading) {
+                Text("Who is paying?")
+                    .font(.Header2())
+                    .foregroundStyle(primaryText)
             }
         }
     }
@@ -58,49 +53,53 @@ struct GroupWhoIsPayingView: View {
 
 struct GroupPayingMemberView: View {
 
-    @Inject var preference: SplitoPreference
-
     let member: AppUser
-    let selectedMemberId: String?
 
-    init(member: AppUser, selectedMemberId: String? = nil) {
+    let isSelected: Bool
+    let isLastMember: Bool
+    let disableMemberTap: Bool
+
+    let onMemberTap: (String) -> Void
+
+    init(member: AppUser, isSelected: Bool = false, isLastMember: Bool, disableMemberTap: Bool = false, onMemberTap: @escaping (String) -> Void) {
         self.member = member
-        self.selectedMemberId = selectedMemberId
-    }
-
-    private var subInfo: String {
-        if let phoneNumber = member.phoneNumber, !phoneNumber.isEmpty {
-            return phoneNumber
-        } else if let emailId = member.emailId, !emailId.isEmpty {
-            return emailId
-        } else {
-            return "No email address"
-        }
+        self.isSelected = isSelected
+        self.isLastMember = isLastMember
+        self.disableMemberTap = disableMemberTap
+        self.onMemberTap = onMemberTap
     }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 20) {
+        HStack(alignment: .center, spacing: 16) {
             MemberProfileImageView(imageUrl: member.imageUrl)
 
-            VStack(alignment: .leading, spacing: 5) {
-                HStack(alignment: .center, spacing: 2) {
-                    Text(member.fullName.localized)
-                        .lineLimit(1)
-                        .font(.body1())
-                        .foregroundStyle(primaryText)
-                }
-
-                Text(subInfo.localized)
-                    .lineLimit(1)
-                    .font(.subTitle3())
-                    .foregroundStyle(secondaryText)
-            }
-            .lineLimit(1)
+            Text(member.fullName.localized)
+                .font(.subTitle2())
+                .foregroundStyle(primaryText)
+                .lineLimit(1)
 
             Spacer()
+
+            if !disableMemberTap {
+                RadioButton(isSelected: isSelected, action: {
+                    onMemberTap(member.id)
+                })
+                .padding(.horizontal, 2)
+            }
         }
-        .padding(.horizontal, 20)
-        .opacity(member.id == selectedMemberId ? 0.2 : 1)
+        .padding(.vertical, 16)
+        .opacity(disableMemberTap ? 0.4 : 1)
+        .onTouchGesture {
+            if !disableMemberTap {
+                onMemberTap(member.id)
+            }
+        }
+
+        if !isLastMember {
+            Divider()
+                .frame(height: 1)
+                .background(dividerColor)
+        }
     }
 }
 

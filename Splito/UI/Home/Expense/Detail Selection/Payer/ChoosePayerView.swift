@@ -17,10 +17,14 @@ struct ChoosePayerView: View {
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        VStack(alignment: .center, spacing: 0) {
-            Divider()
-                .frame(height: 1)
-                .background(outlineColor.opacity(0.4))
+        VStack(spacing: 0) {
+            NavigationBarTopView(title: "Choose payer", leadingButton: EmptyView(),
+                trailingButton: DismissButton(padding: (16, 0), foregroundColor: primaryText, onDismissAction: {
+                    dismiss()
+                })
+                .fontWeight(.regular)
+            )
+            .padding(.leading, 16)
 
             if case .loading = viewModel.currentViewState {
                 LoaderView()
@@ -28,72 +32,56 @@ struct ChoosePayerView: View {
                 NoMemberFoundView()
             } else if case .hasMembers(let users) = viewModel.currentViewState {
                 ScrollView {
-                    VSpacer(40)
+                    VSpacer(27)
 
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 0) {
                         ForEach(users) { user in
                             ChooseMemberCellView(member: user, isSelected: (viewModel.selectedPayers.count > 1) ? false : viewModel.selectedPayers.keys.contains(user.id))
-                                .onTapGesture {
+                                .onTapGestureForced {
                                     viewModel.handlePayerSelection(user: user)
-                                    dismiss()
                                 }
                         }
 
                         if users.count > 1 {
-                            HStack(spacing: 0) {
-                                Text("Multiple people")
-                                    .font(.subTitle2())
-                                    .foregroundStyle(primaryText)
-
-                                Spacer()
-
-                                if viewModel.isMultiplePayerselected {
-                                    Image(.checkMarkTick)
-                                        .resizable()
-                                        .frame(width: 24, height: 24)
-                                }
-
-                                ForwardIcon()
-                            }
-                            .onTapGestureForced {
-                                viewModel.handleMultiplePayerTap()
-                            }
-                            .padding(.vertical, 12)
-                            .padding(.leading, 30)
-                            .padding(.trailing, 15)
-
-                            Divider()
-                                .frame(height: 1)
-                                .background(outlineColor.opacity(0.3))
+                            MultiplePeopleCellView(isMultiplePayerselected: viewModel.selectedPayers.count > 1,
+                                                   handleMultiplePayerTap: viewModel.handleMultiplePayerTap)
                         }
                     }
+                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
+
+                PrimaryButton(text: "Save", isEnabled: !viewModel.selectedPayers.isEmpty, onClick: {
+                    viewModel.handleSaveBtnTap()
+                    dismiss()
+                })
+                .padding([.bottom, .horizontal], 16)
+                .padding(.top, 8)
             }
         }
-        .background(backgroundColor)
+        .background(surfaceColor)
         .interactiveDismissDisabled()
-        .navigationBarTitle("Choose Payer", displayMode: .inline)
+        .toolbar(.hidden, for: .navigationBar)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button("Cancel") {
-                    dismiss()
-                }
-            }
-        }
     }
 }
 
 private struct NoMemberFoundView: View {
 
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
+            VSpacer()
+
             Text("No members in your selected group.")
-                .font(.subTitle1())
-                .foregroundStyle(primaryColor)
+                .font(.Header4())
+                .foregroundStyle(secondaryText)
+
+            VSpacer()
         }
+        .padding(.horizontal, 24)
     }
 }
 
@@ -101,8 +89,8 @@ private struct ChooseMemberCellView: View {
 
     @Inject var preference: SplitoPreference
 
-    var member: AppUser
-    var isSelected: Bool
+    let member: AppUser
+    let isSelected: Bool
 
     var userName: String?
 
@@ -117,29 +105,49 @@ private struct ChooseMemberCellView: View {
     }
 
     var body: some View {
-        VStack(spacing: 12) {
-            HStack(alignment: .center, spacing: 20) {
-                MemberProfileImageView(imageUrl: member.imageUrl)
+        HStack(spacing: 16) {
+            MemberProfileImageView(imageUrl: member.imageUrl)
 
-                Text(((userName ?? "").isEmpty ? "Unknown" : userName?.localized) ?? "")
-                    .font(.subTitle2())
-                    .foregroundStyle(primaryText)
+            Text(((userName ?? "").isEmpty ? "Unknown" : userName?.localized) ?? "")
+                .font(.subTitle2())
+                .foregroundStyle(primaryText)
 
-                Spacer()
+            Spacer()
 
-                if isSelected {
-                    Image(.checkMarkTick)
-                        .resizable()
-                        .frame(width: 24, height: 24)
-                }
+            if isSelected {
+                CheckmarkButton(iconSize: (24, 32), padding: (.all, 0))
             }
-            .padding(.horizontal, 30)
-            .background(backgroundColor)
         }
+        .padding(16)
 
         Divider()
             .frame(height: 1)
-            .background(outlineColor.opacity(0.3))
+            .background(dividerColor)
+    }
+}
+
+private struct MultiplePeopleCellView: View {
+
+    let isMultiplePayerselected: Bool
+    let handleMultiplePayerTap: () -> Void
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Text("Multiple people")
+                .font(.Header4())
+                .foregroundStyle(primaryText)
+
+            Spacer()
+
+            if isMultiplePayerselected {
+                CheckmarkButton(iconSize: (24, 32), padding: (.all, 0))
+            }
+        }
+        .onTapGestureForced {
+            handleMultiplePayerTap()
+        }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 16)
     }
 }
 

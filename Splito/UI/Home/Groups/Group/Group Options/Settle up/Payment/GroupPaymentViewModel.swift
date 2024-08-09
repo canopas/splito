@@ -17,6 +17,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     @Published var amount: Double = 0
     @Published var paymentDate = Date()
+    @Published private(set) var showLoader: Bool = false
     @Published private(set) var maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date()) ?? Date()
 
     @Published private(set) var payer: AppUser?
@@ -118,28 +119,30 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     }
 
     private func addTransaction(transaction: Transactions) {
-        viewState = .loading
+        showLoader = true
         transactionRepository.addTransaction(groupId: groupId, transaction: transaction)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
+                    self?.showLoader = false
                     self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] _ in
                 self?.dismissPaymentFlow()
-                self?.viewState = .initial
+                self?.showLoader = false
             }.store(in: &cancelable)
     }
 
     private func updateTransaction(transaction: Transactions) {
-        viewState = .loading
+        showLoader = true
         transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
+                    self?.showLoader = false
                     self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] _ in
                 self?.dismissPaymentFlow()
-                self?.viewState = .initial
+                self?.showLoader = false
             }.store(in: &cancelable)
     }
 
