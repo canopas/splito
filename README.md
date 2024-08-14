@@ -56,7 +56,7 @@ Whether it's a group trip, shared household bills, or any other collective expen
 - **Group Management:** Create and manage multiple expense groups for different purposes (e.g., games, trips, shared bills).
 - **Expense Tracking:** Add expenses with details such as description, amount, payer, and date.
 - **Expense Splitting:** Split expenses equally or based on customizable ratios among group members.
-- **Settle Up:** Easily settle up payments with other members of the group to clear outstanding balances.
+- **Payment Settlement:** Easily settle up the payments with other members of the group to clear outstanding balances.
 - **Real-time Sync:** All changes are synchronized across devices in real-time via Firebase.
 
 <details>
