@@ -81,7 +81,7 @@ private struct GroupBalanceItemView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 20) {
             HStack(spacing: 16) {
                 HStack(spacing: 16) {
                     MemberProfileImageView(imageUrl: imageUrl)
@@ -155,7 +155,7 @@ private struct GroupBalanceItemMemberView: View {
                     let owesMemberName = viewModel.getMemberName(id: hasDue ? memberId : id)
                     let owedMemberName = viewModel.getMemberName(id: hasDue ? id : memberId)
 
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 8) {
                         HStack(alignment: .center, spacing: 16) {
                             MemberProfileImageView(imageUrl: imageUrl, height: SUBIMAGEHEIGHT)
 
@@ -178,8 +178,8 @@ private struct GroupBalanceItemMemberView: View {
                                 viewModel.handleSettleUpTap(payerId: hasDue ? id : memberId, receiverId: hasDue ? memberId : id, amount: amount)
                             } label: {
                                 Text("Settle up")
-                                    .font(.buttonText())
-                                    .foregroundStyle(disableText)
+                                    .font(.caption1())
+                                    .foregroundStyle(primaryText)
                                     .padding(.vertical, 8)
                                     .padding(.horizontal, 24)
                                     .background(container2Color)

@@ -7,6 +7,7 @@
 
 import Data
 import FirebaseAuth
+import BaseStyle
 
 public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
 
@@ -57,6 +58,16 @@ public class PhoneLoginViewModel: BaseViewModel, ObservableObject {
     // MARK: - User Actions
     func handleBackBtnTap() {
         router.pop()
+    }
+
+    func handlePrivacyPolicyTap() {
+        if let url = URL(string: Constants.privacyPolicyURL) {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:])
+            } else {
+                showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Privacy policy cannot be accessed."))
+            }
+        }
     }
 }
 

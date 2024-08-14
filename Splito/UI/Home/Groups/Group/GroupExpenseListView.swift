@@ -43,12 +43,13 @@ struct GroupExpenseListView: View {
 
                     List {
                         Group {
-                            if viewModel.groupExpenses.isEmpty {
-                                ExpenseNotFoundView(geometry: geometry, searchedExpense: viewModel.searchedExpense)
-                            } else {
-                                GroupExpenseHeaderView(viewModel: viewModel)
-                                    .id("expenseList")
+                            GroupExpenseHeaderView(viewModel: viewModel)
+                                .id("expenseList")
 
+                            if viewModel.expenses.isEmpty && !viewModel.transactions.isEmpty {
+                                EmptyStateView(geometry: geometry, minHeight: geometry.size.height - 250,
+                                               onClick: viewModel.openAddExpenseSheet)
+                            } else if !viewModel.groupExpenses.isEmpty {
                                 let firstMonth = viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings).first
 
                                 ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
@@ -78,12 +79,15 @@ struct GroupExpenseListView: View {
                                         }
                                     }
                                 }
+                            } else {
+                                ExpenseNotFoundView(geometry: geometry, searchedExpense: viewModel.searchedExpense)
                             }
                         }
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                         .listRowBackground(surfaceColor)
                     }
+                    .listStyle(.plain)
                     .overlay(alignment: .bottomTrailing) {
                         if viewModel.showScrollToTopBtn {
                             ScrollToTopButton {
@@ -94,7 +98,8 @@ struct GroupExpenseListView: View {
                             .padding([.trailing, .bottom], 16)
                         }
                     }
-                    .listStyle(.plain)
+
+                    VSpacer(10)
                 }
             }
             .scrollBounceBehavior(.basedOnSize)
@@ -171,10 +176,11 @@ private struct GroupExpenseItemView: View {
                 .multilineTextAlignment(.center)
                 .padding(.trailing, 8)
 
-                Image(systemName: expense.paidBy.keys.contains(preference.user?.id ?? "") ? "arrow.up.forward" : "arrow.down.backward")
+                let iconName: ImageResource = (isSettled || !isInvolved) ? .notInvolved : (isBorrowed ? .downArrow : .upArrow)
+                Image(iconName)
                     .resizable()
-                    .scaledToFit()
-                    .frame(width: 16, height: 16)
+                    .renderingMode(.template)
+                    .frame(width: 24, height: 24)
                     .foregroundStyle(primaryText)
                     .padding(12)
                     .background(container2Color)
@@ -241,10 +247,20 @@ private struct GroupExpenseHeaderView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if viewModel.overallOwingAmount == 0 {
-                Text("You are all settled up in this group.")
-                    .font(.subTitle2())
-                    .foregroundStyle(primaryText)
-                    .padding(16)
+                VStack(alignment: .center, spacing: 16) {
+                    Image(.tickmarkIcon)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 60, height: 60)
+
+                    Text("You are all settled up in this group.")
+                        .font(.subTitle1())
+                        .foregroundStyle(primaryText)
+                        .tracking(-0.2)
+                        .lineSpacing(4)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(16)
             } else {
                 GroupExpenseHeaderOverallView(viewModel: viewModel)
 
@@ -373,7 +389,7 @@ private struct ExpenseNotFoundView: View {
         .multilineTextAlignment(.center)
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, alignment: .center)
-        .frame(minHeight: geometry.size.height - 130, maxHeight: .infinity, alignment: .center)
+        .frame(minHeight: geometry.size.height - 280, maxHeight: .infinity, alignment: .center)
         .onTapGestureForced {
             UIApplication.shared.endEditing()
         }

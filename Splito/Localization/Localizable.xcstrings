@@ -149,7 +149,7 @@
         }
       }
     },
-    "Advanced settings" : {
+    "Advanced Settings" : {
 
     },
     "AF0R00" : {
@@ -356,10 +356,13 @@
     "Group balances" : {
 
     },
+    "Group deleted successfully" : {
+      "extractionState" : "manual"
+    },
     "Group member removed" : {
       "extractionState" : "manual"
     },
-    "Group members" : {
+    "Group Members" : {
 
     },
     "Group Name" : {

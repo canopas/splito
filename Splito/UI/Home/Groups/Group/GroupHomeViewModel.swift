@@ -74,7 +74,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     let router: Router<AppRoute>
-    private var expenses: [Expense] = []
+    var expenses: [Expense] = []
     private var groupUserData: [AppUser] = []
 
     init(router: Router<AppRoute>, groupId: String) {
@@ -82,7 +82,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
         super.init()
 
-        self.fetchGroupAndExpenses()
         self.fetchLatestTransactions()
     }
 
@@ -226,7 +225,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private func setGroupViewState() {
         guard let group else { return }
         groupState = group.members.count > 1 ?
-        (expenses.isEmpty ? .noExpense : .hasExpense) :
+        ((expenses.isEmpty && transactions.isEmpty) ? .noExpense : .hasExpense) :
         (expenses.isEmpty ? .noMember : .hasExpense)
     }
 }
@@ -287,8 +286,8 @@ extension GroupHomeViewModel {
     }
 
     func handleSearchOptionTap() {
-        guard groupState == .hasExpense else {
-            self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "Add an expense first to use the search functionality."))
+        if expenses.isEmpty {
+            self.showToastFor(toast: ToastPrompt(type: .info, title: "Whoops!", message: "Add an expense first to use the search functionality."))
             return
         }
         withAnimation {

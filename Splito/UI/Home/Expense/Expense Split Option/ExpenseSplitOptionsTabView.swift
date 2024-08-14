@@ -118,7 +118,7 @@ private struct ExpenseMemberCellView: View {
                 Spacer()
 
                 if isSelected {
-                    CheckmarkButton(iconSize: (20, 28), padding: (.all, 2))
+                    CheckmarkButton(iconSize: (20, 28), padding: (.all, 2), onClick: onTap)
                         .background(primaryColor)
                         .clipShape(.circle)
                 }

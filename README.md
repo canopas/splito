@@ -1,14 +1,15 @@
 <p align="center"> <a href="https://canopas.com/contact"> <img src="./Screenshots/banner.png"></a></p>
 
 # Splito - Divide, Conquer & Enjoy Together! 💰
-Simplifying group expense management is easy and fair among friends and family with advanced tracking and splitting features.
+Simplifying group expense management is easy and fair among friends and family with advanced tracking, splitting, and settlement features.
 
 <img src="./Screenshots/SplitoCover.png"/>
 
 ## Overview
-Splito is an open-source expense tracking and splitting application inspired by Splitwise. It simplifies the management of shared expenses, making it easy for users to track and split costs among friends, family, or group members.
 
-Whether for a group trip, shared household bills, or any other collective expense, Splito ensures fairness and transparency in cost-sharing with its user-friendly interface and robust features.
+Splito is an open-source expense tracking and splitting application inspired by Splitwise. It simplifies the management of shared expenses, making it easy for users to track, split, and settle costs among friends, family, or group members.
+
+Whether it's a group trip, shared household bills, or any other collective expense, Splito ensures fairness and transparency in cost-sharing with its user-friendly interface and robust features. Users can effortlessly manage debts and settle up payments within their groups.
 
 ## Download App
 <img src="./Screenshots/AppStore.png" width="200"></img>
@@ -17,25 +18,37 @@ Whether for a group trip, shared household bills, or any other collective expens
 <table>
   <tr>
     <th width="32%"> Group List </th>
-    <th width="32%"> Invite Friends/Group Members </th>
     <th width="32%"> Group Expense List </th>
+    <th width="32%"> Invite Friends/Group Members </th>
   </tr>
   <tr>
     <td> <img src="./Screenshots/GroupList.png" /> </td>
-    <td> <img src="./Screenshots/InviteCode.png"/> </td>
-    <td> <img src="./Screenshots/ExpenseList.png"/> </td>
+    <td> <img src="./Screenshots/GroupHome.png"/> </td>
+    <td> <img src="./Screenshots/InviteMember.png"/> </td>
+  </tr>  
+</table>
+<table>
+  <tr>
+    <th width="32%"> Expense Edit </th>
+    <th width="32%"> Expense Split Option </th>
+    <th width="32%"> Group Payments </th>
+  </tr>
+  <tr>
+    <td> <img src="./Screenshots/AddExpense.png"/> </td>
+    <td> <img src="./Screenshots/SplitOptions.png"/> </td>
+    <td> <img src="./Screenshots/GroupPayment.png"/> </td>
   </tr>  
 </table>
 <table>
   <tr>
     <th width="32%"> Group Balance </th>
-    <th width="32%"> Expense Edit </th>
-    <th width="32%"> Expense Split Option </th>
+    <th width="32%"> Group Total Summary </th>
+    <th width="32%"> Transactions </th>
   </tr>
   <tr>
     <td> <img src="./Screenshots/GroupBalance.png"/> </td>
-    <td> <img src="./Screenshots/EditExpense.png"/> </td>
-    <td> <img src="./Screenshots/SplitOption.png"/> </td>
+    <td> <img src="./Screenshots/GroupSummary.png"/> </td>
+    <td> <img src="./Screenshots/Transactions.png"/> </td>
   </tr>  
 </table>
 
@@ -43,6 +56,8 @@ Whether for a group trip, shared household bills, or any other collective expens
 - **Group Management:** Create and manage multiple expense groups for different purposes (e.g., games, trips, shared bills).
 - **Expense Tracking:** Add expenses with details such as description, amount, payer, and date.
 - **Expense Splitting:** Split expenses equally or based on customizable ratios among group members.
+- **Settle Up:** Easily settle up payments with other members of the group to clear outstanding balances.
+- **Real-time Sync:** All changes are synchronized across devices in real-time via Firebase.
 
 <details>
   <summary> How to Use Splito </summary>
@@ -56,12 +71,14 @@ Whether for a group trip, shared household bills, or any other collective expens
 - Track Expenses:
   - Add expenses as they occur, detailing the amount, who paid, and any relevant notes.
 - Split Costs:
-  - Use its flexible splitting options to divide expenses fairly among the group members.
+  - It uses flexible splitting options to divide expenses fairly among group members.
+- Payment Settlements:
+  - Settle up the payment with any other group member as any payment occurs.
 
 </details>
 
 ## Requirements
-Make sure you have the latest stable version of Xcode installed. You can then proceed by cloning this repository to Xcode.
+Make sure you have the latest stable version of Xcode installed. You can then go ahead with cloning this repository to Xcode.
 
 To run Splito locally, you'll need:
 - iOS (version 16.4 or higher)

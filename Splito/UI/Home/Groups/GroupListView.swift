@@ -11,6 +11,7 @@ import Data
 import Kingfisher
 
 struct GroupListView: View {
+    @EnvironmentObject var homeRouteViewModel: HomeRouteViewModel
 
     @StateObject var viewModel: GroupListViewModel
 
@@ -24,7 +25,7 @@ struct GroupListView: View {
             } else {
                 VStack(spacing: 0) {
                     if case .noGroup = viewModel.groupListState {
-                        NoGroupsState()
+                        NoGroupsState(onCreateBtnTap: viewModel.handleCreateGroupBtnTap)
                     } else if case .hasGroup = viewModel.groupListState {
                         VSpacer(16)
 
@@ -60,9 +61,6 @@ struct GroupListView: View {
                         GroupListWithDetailView(viewModel: viewModel, onExpandBtnTap: {
                             isFocused = false
                         })
-                        .onTapGestureForced {
-                            isFocused = false
-                        }
                     }
                 }
                 .frame(maxHeight: .infinity)
@@ -102,9 +100,9 @@ struct GroupListView: View {
                 }
             }
         }
-        .onAppear(perform: viewModel.fetchGroups)
-        .onDisappear {
-            isFocused = false
+        .onAppear {
+            homeRouteViewModel.updateSelectedGroup(id: nil)
+            viewModel.fetchGroups()
         }
         .sheet(isPresented: $viewModel.showActionSheet) {
             GroupActionSheetView(onSelectionWith: viewModel.handleOptionSelection(with:))
@@ -187,25 +185,38 @@ private struct GroupListHeaderView: View {
 
 private struct NoGroupsState: View {
 
+    let onCreateBtnTap: () -> Void
+
     var body: some View {
-        VStack(alignment: .center, spacing: 0) {
-            Image(.emptyGroupList)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 156, height: 156)
-                .padding(.bottom, 40)
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(alignment: .center, spacing: 0) {
+                    Image(.emptyGroupList)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 156, height: 156)
+                        .padding(.bottom, 40)
 
-            Text("No groups yet.")
-                .font(.Header1(22))
-                .foregroundStyle(primaryText)
-                .padding(.bottom, 16)
+                    Text("No groups yet.")
+                        .font(.Header1(22))
+                        .foregroundStyle(primaryText)
+                        .padding(.bottom, 16)
 
-            Text("You don’t have any groups. Groups that you a part of will be listed here.")
-                .font(.subTitle1())
-                .foregroundStyle(disableText)
+                    Text("You don’t have any groups. Groups that you a part of will be listed here.")
+                        .font(.subTitle1())
+                        .foregroundStyle(disableText)
+
+                    PrimaryButton(text: "Create group", onClick: onCreateBtnTap)
+                        .padding(.top, 16)
+                }
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .frame(minHeight: geometry.size.height - 100, maxHeight: .infinity, alignment: .center)
+            }
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
         }
-        .multilineTextAlignment(.center)
-        .padding(.horizontal, 16)
     }
 }
 

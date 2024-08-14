@@ -64,7 +64,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
     private func addMember(groupId: String, completion: @escaping () -> Void) {
         guard let userId = preference.user?.id else { return }
 
-        groupRepository.addMemberToGroup(memberId: userId, groupId: groupId)
+        groupRepository.addMemberToGroup(groupId: groupId, memberId: userId)
             .sink { [weak self] result in
                 if case .failure(let error) = result {
                     self?.showToastFor(error)

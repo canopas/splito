@@ -72,7 +72,7 @@ public class ShareCodeStore: ObservableObject {
 
             self.database.collection(self.COLLECTION_NAME).document(documentId).delete { error in
                 if let error {
-                    LogE("ShareCodeStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
+                    LogE("ShareCodeStore :: \(#function): Deleting data failed with error: \(error.localizedDescription).")
                     promise(.failure(.databaseError(error: error.localizedDescription)))
                 } else {
                     LogD("ShareCodeStore :: \(#function): code deleted successfully.")

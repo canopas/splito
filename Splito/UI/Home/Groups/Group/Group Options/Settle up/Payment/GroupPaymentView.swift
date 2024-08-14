@@ -46,11 +46,11 @@ struct GroupPaymentView: View {
 
                                 VSpacer(40)
 
-                                PaymentDetailRow(amount: $viewModel.amount, date: $viewModel.paymentDate, subtitle: "Date", placeholder: "Enter payment date", maximumDate: viewModel.maximumDate, forDatePicker: true)
+                                PaymentDetailRow(amount: $viewModel.amount, date: $viewModel.paymentDate, subtitle: "Date", placeholder: "Enter payment date", forDatePicker: true)
 
                                 VSpacer(16)
 
-                                PaymentDetailRow(amount: $viewModel.amount, date: $viewModel.paymentDate, subtitle: "Enter amount", placeholder: "0.00", maximumDate: viewModel.maximumDate)
+                                PaymentDetailRow(amount: $viewModel.amount, date: $viewModel.paymentDate, subtitle: "Enter amount", placeholder: "0.00")
 
                                 Spacer(minLength: 40)
                             }
@@ -93,14 +93,7 @@ private struct PaymentDetailRow: View {
 
     let subtitle: String
     let placeholder: String
-    var maximumDate: Date
     var forDatePicker: Bool = false
-
-    private var dateFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .long
-        return formatter
-    }
 
     @FocusState var isAmountFocused: Bool
     @State private var showDatePicker: Bool = false
@@ -113,15 +106,7 @@ private struct PaymentDetailRow: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 if forDatePicker {
-                    Text(dateFormatter.string(from: date))
-                        .font(.subTitle2())
-                        .foregroundStyle(primaryText)
-                        .overlay {
-                            DatePicker("", selection: $date, in: ...maximumDate, displayedComponents: .date)
-                                .blendMode(.destinationOver)
-                                .onTapGesture(count: 99) {}
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    DatePickerRow(date: $date)
                 } else {
                     TextField("0.00", value: $amount, formatter: numberFormatter)
                         .keyboardType(.decimalPad)

@@ -10,6 +10,7 @@ import SwiftUI
 import BaseStyle
 
 struct AccountHomeView: View {
+    @EnvironmentObject var homeRouteViewModel: HomeRouteViewModel
 
     @StateObject var viewModel: AccountHomeViewModel
 
@@ -55,6 +56,9 @@ struct AccountHomeView: View {
             }
         }
         .background(surfaceColor)
+        .onAppear {
+            homeRouteViewModel.updateSelectedGroup(id: nil)
+        }
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showShareSheet) {
@@ -142,7 +146,6 @@ private struct AccountAboutSectionView: View {
             AccountItemCellView(optionText: "Acknowledgements", onClick: onAcknowledgementsTap)
 
             AccountItemCellView(optionText: "Sign Out", optionTextColor: alertColor, showForwardIcon: false, onClick: onLogoutTap)
-
         }
         .padding(.horizontal, 16)
     }

@@ -33,6 +33,28 @@ class GroupStore: ObservableObject {
         .eraseToAnyPublisher()
     }
 
+    func addMemberToGroup(groupId: String, memberId: String) -> AnyPublisher<Void, ServiceError> {
+        Future { [weak self] promise in
+            guard let self else {
+                promise(.failure(.unexpectedError))
+                return
+            }
+
+            let groupRef = self.database.collection(self.COLLECTION_NAME).document(groupId)
+
+            groupRef.updateData([
+                "members": FieldValue.arrayUnion([memberId])
+            ]) { error in
+                if let error {
+                    LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
+                    promise(.failure(.databaseError(error: error.localizedDescription)))
+                } else {
+                    promise(.success(()))
+                }
+            }
+        }.eraseToAnyPublisher()
+    }
+
     func updateGroup(group: Groups) -> AnyPublisher<Void, ServiceError> {
         Future { [weak self] promise in
             guard let self, let groupId = group.id else {
@@ -52,7 +74,7 @@ class GroupStore: ObservableObject {
     func fetchLatestGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
         database.collection(COLLECTION_NAME)
             .whereField("members", arrayContains: userId)
-            .limit(to: 10)
+            .limit(to: 20)
             .snapshotPublisher(as: Groups.self)
     }
 
