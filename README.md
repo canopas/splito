@@ -23,7 +23,7 @@ Whether it's a group trip, shared household bills, or any other collective expen
   </tr>
   <tr>
     <td> <img src="./Screenshots/GroupList.png" /> </td>
-    <td> <img src="./Screenshots/GroupHome.png"/> </td>
+    <td> <img src="./Screenshots/ExpenseList.png"/> </td>
     <td> <img src="./Screenshots/InviteMember.png"/> </td>
   </tr>  
 </table>
