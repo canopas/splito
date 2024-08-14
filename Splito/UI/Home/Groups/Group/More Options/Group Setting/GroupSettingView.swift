@@ -31,7 +31,7 @@ struct GroupSettingView: View {
                                          onAddMemberTap: viewModel.handleAddMemberTap,
                                          onMemberTap: viewModel.handleMemberTap(member:))
 
-                        GroupAdvanceSettingsView(isDebtSimplified: $viewModel.isDebtSimplified, isDisable: !viewModel.isAdmin,
+                        GroupAdvanceSettingsView(isDebtSimplified: $viewModel.isDebtSimplified,
                                                  onLeaveGroupTap: viewModel.handleLeaveGroupTap,
                                                  onDeleteGroupTap: viewModel.handleDeleteGroupTap)
 
@@ -63,7 +63,7 @@ struct GroupSettingView: View {
         }
         .fullScreenCover(isPresented: $viewModel.showEditGroupSheet) {
             NavigationStack {
-                CreateGroupView(viewModel: CreateGroupViewModel(router: viewModel.router, group: viewModel.group))
+                CreateGroupView(viewModel: CreateGroupViewModel(router: viewModel.router, group: viewModel.group, onDismissCallback: viewModel.dismissEditGroupSheet))
             }
         }
         .fullScreenCover(isPresented: $viewModel.showAddMemberSheet) {
@@ -138,7 +138,7 @@ private struct GroupMembersView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Group members")
+            Text("Group Members")
                 .font(.Header4())
                 .foregroundStyle(primaryText)
                 .padding(.horizontal, 16)
@@ -171,7 +171,6 @@ private struct GroupListEditCellView: View {
     var text: String
     var fontColor: Color = primaryText
 
-    var isDisable: Bool = false
     var showArrowBtn: Bool = false
     var isDistructive: Bool = false
 
@@ -200,9 +199,8 @@ private struct GroupListEditCellView: View {
                     .fontWeight(.regular)
             }
         }
-        .foregroundStyle(isDisable ? disableText : (isDistructive ? alertColor : primaryText))
+        .foregroundStyle(isDistructive ? alertColor : primaryText)
         .onTouchGesture(onTap)
-        .disabled(isDisable)
     }
 }
 
@@ -281,7 +279,6 @@ private struct GroupAdvanceSettingsView: View {
 
     @Binding var isDebtSimplified: Bool
 
-    var isDisable: Bool
     var showSimplifyDebtsToggle: Bool = false
 
     var onLeaveGroupTap: () -> Void
@@ -289,11 +286,11 @@ private struct GroupAdvanceSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Advanced settings")
+            Text("Advanced Settings")
                 .font(.Header4())
                 .foregroundStyle(primaryText)
 
-            VStack(spacing: 20) {
+            VStack(spacing: 24) {
                 if showSimplifyDebtsToggle {
                     HStack(alignment: .top, spacing: 0) {
                         VStack(alignment: .leading, spacing: 4) {
@@ -312,9 +309,9 @@ private struct GroupAdvanceSettingsView: View {
                     .padding(.horizontal, 16)
                 }
 
-                GroupListEditCellView(text: "Leave group", showArrowBtn: true, isDistructive: true, onTap: onLeaveGroupTap)
+                GroupListEditCellView(text: "Leave group", showArrowBtn: true, isDistructive: false, onTap: onLeaveGroupTap)
 
-                GroupListEditCellView(text: "Delete group", fontColor: alertColor, isDisable: isDisable, isDistructive: true, onTap: onDeleteGroupTap)
+                GroupListEditCellView(text: "Delete group", fontColor: alertColor, isDistructive: true, onTap: onDeleteGroupTap)
             }
             .padding(.horizontal, 8)
         }

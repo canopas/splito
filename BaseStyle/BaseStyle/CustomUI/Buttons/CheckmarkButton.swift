@@ -29,6 +29,5 @@ public struct CheckmarkButton: View {
                 .frame(width: iconSize.width, height: iconSize.height)
                 .padding(padding.edges, padding.value)
         })
-        .buttonStyle(.scale)
     }
 }

@@ -47,7 +47,7 @@ public struct PhoneLoginView: View {
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
 
-                GetOtpBtnView(phoneNumber: $viewModel.phoneNumber, showLoader: viewModel.showLoader, onNext: viewModel.verifyAndSendOtp)
+                GetOtpBtnView(phoneNumber: $viewModel.phoneNumber, showLoader: viewModel.showLoader, onNext: viewModel.verifyAndSendOtp, handlePrivacyPolicyTap: viewModel.handlePrivacyPolicyTap)
             }
         }
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
@@ -72,29 +72,41 @@ private struct GetOtpBtnView: View {
     @Binding var phoneNumber: String
 
     let showLoader: Bool
+
     let onNext: () -> Void
+    let handlePrivacyPolicyTap: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
             Group {
                 Text("By entering your number, you’re agreeing to our ")
                     .foregroundColor(disableText)
-                + Text("terms of service")
+                +
+                Text("terms of service")
                     .foregroundColor(primaryText)
-                + Text(" and ")
+                    .underline()
+                +
+                Text(" and ")
                     .foregroundColor(disableText)
-                + Text("privacy policy.")
+                +
+                Text("privacy policy.")
+                    .underline()
                     .foregroundColor(primaryText)
             }
             .font(.caption1())
             .padding(.bottom, 24)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .onTapGesture(perform: handlePrivacyPolicyTap)
 
             PrimaryButton(text: "Get OTP", isEnabled: (phoneNumber.count >= MIN_NUMBER_LENGTH && phoneNumber.count <= MAX_NUMBER_LENGTH), showLoader: showLoader, onClick: onNext)
 
             VSpacer(24)
         }
         .padding(.horizontal, 16)
+    }
+
+    func abc() -> some View {
+        return HStack {}
     }
 }
 

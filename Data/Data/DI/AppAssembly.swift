@@ -24,7 +24,11 @@ public class AppAssembly: Assembly {
         }.inObjectScope(.container)
 
         container.register(Firestore.self) { _ in
-            Firestore.firestore()
+            let db = Firestore.firestore()
+            let settings = FirestoreSettings()
+            settings.cacheSettings = MemoryCacheSettings(garbageCollectorSettings: MemoryLRUGCSettings())
+            db.settings = settings
+            return db
         }.inObjectScope(.container)
 
         container.register(StorageManager.self) { _ in

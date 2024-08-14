@@ -27,8 +27,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published var showPayerSelection = false
     @Published var showSplitTypeSelection = false
 
-    @Published private(set) var expense: Expense?
     @Published var selectedGroup: Groups?
+    @Published private(set) var expense: Expense?
     @Published private(set) var splitData: [String: Double] = [:]
 
     @Published private(set) var groupMembers: [String] = []
@@ -162,9 +162,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         for member in selectedMembers {
             dispatchGroup.enter()
             fetchUserData(for: member) { user in
-                if let imageUrl = user.imageUrl {
-                    profileUrls.append(imageUrl)
-                }
+                profileUrls.append(user.imageUrl != nil ? user.imageUrl! : "")
                 dispatchGroup.leave()
             }
         }
@@ -287,7 +285,13 @@ extension AddExpenseViewModel {
             newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing)
             newExpense.amount = expenseAmount
             newExpense.date = Timestamp(date: expenseDate)
-            newExpense.paidBy = selectedPayers
+
+            if expense.paidBy.count == 1 {
+                newExpense.paidBy = [selectedPayers.first?.key ?? "": expenseAmount]
+            } else {
+                newExpense.paidBy = selectedPayers
+            }
+
             newExpense.splitType = splitType
             newExpense.splitTo = (splitType == .equally) ? selectedMembers : splitData.map({ $0.key })
             newExpense.splitData = splitData

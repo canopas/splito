@@ -6,6 +6,7 @@
 //
 
 import Data
+import UIKit
 import Combine
 
 // Stores settlement amount with the persons
@@ -106,15 +107,19 @@ func calculateSettlements(balances: [String: Double]) -> [Settlement] {
 
     // Calculate settlements
     while i < creditors.count && j < debtors.count { // Process all debts
-        let (creditor, credAmt) = creditors[i]
-        let (debtor, debtAmt) = debtors[j]
+        var (creditor, credAmt) = creditors[i]
+        var (debtor, debtAmt) = debtors[j]
         let minAmount = min(credAmt, debtAmt)
 
         settlements.append(Settlement(sender: debtor, receiver: creditor, amount: minAmount))
 
         // Update the amounts
-        creditors[i].1 -= minAmount
-        debtors[j].1 -= minAmount
+        credAmt -= minAmount
+        debtAmt -= minAmount
+
+        // If the remaining amount is close to zero, treat it as zero
+        creditors[i].1 = round(credAmt * 100) / 100
+        debtors[j].1 = round(debtAmt * 100) / 100
 
         // Move the index forward if someone's balance is settled
         if creditors[i].1 == 0 { i += 1 }

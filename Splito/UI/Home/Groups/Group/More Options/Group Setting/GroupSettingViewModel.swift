@@ -159,6 +159,11 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         showEditGroupSheet = true
     }
 
+    func dismissEditGroupSheet() {
+        showEditGroupSheet = false
+        fetchGroupDetails()
+    }
+
     func handleAddMemberTap() {
         showAddMemberSheet = true
     }

@@ -74,7 +74,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
         groups.forEach { group in
             guard let groupId = group.id else { return }
-
             expenseRepository.fetchLatestExpensesBy(groupId: groupId)
                 .sink(receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
@@ -90,7 +89,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     private func fetchLatestGroups() {
         guard let userId = preference.user?.id else { return }
-
         let latestGroupsPublisher = groupRepository.fetchLatestGroups(userId: userId)
         processGroupsDetails(latestGroupsPublisher)
     }
@@ -128,21 +126,14 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func fetchGroupInformation(group: Groups) -> AnyPublisher<GroupInformation, ServiceError> {
-        guard let groupId = group.id else {
-            return Fail(error: ServiceError.dataNotFound).eraseToAnyPublisher()
-        }
-
-        return fetchExpenses(group: group)
-            .combineLatest(fetchGroupMembers(groupId: groupId))
+        fetchExpenses(group: group)
+            .combineLatest(groupRepository.fetchMemberDataOf(members: group.members))
             .map { (expenseTuple, members) -> GroupInformation in
                 let (expense, owingAmounts, hasExpenses) = expenseTuple
-                return GroupInformation(group: group, oweAmount: expense, memberOweAmount: owingAmounts, members: members, hasExpenses: hasExpenses)
+                return GroupInformation(group: group, oweAmount: expense,
+                                        memberOweAmount: owingAmounts, members: members, hasExpenses: hasExpenses)
             }
             .eraseToAnyPublisher()
-    }
-
-    private func fetchGroupMembers(groupId: String) -> AnyPublisher<[AppUser], ServiceError> {
-        groupRepository.fetchMembersBy(groupId: groupId)
     }
 
     private func fetchExpenses(group: Groups) -> AnyPublisher<(Double, [String: Double], Bool), ServiceError> {
@@ -282,6 +273,8 @@ extension GroupListViewModel {
                     self?.showToastFor(error)
                 }
             } receiveValue: { _ in
+                withAnimation { self.groups.removeAll { $0.id == groupId } }
+                self.showToastFor(toast: .init(type: .success, title: "Success", message: "Group deleted successfully"))
             }.store(in: &cancelable)
     }
 }

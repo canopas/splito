@@ -30,9 +30,13 @@ struct GroupListWithDetailView: View {
                                     viewModel.handleGroupItemTap(group.group)
                                 }
                                 .onLongPressGesture {
+                                    addHapticEffect()
+                                    onExpandBtnTap()
                                     viewModel.handleGroupItemTap(group.group, isTapped: false)
                                 }
                             }
+
+                            VSpacer(10)
                         }
                     }
                     .padding(.bottom, 24)
@@ -57,6 +61,7 @@ struct GroupListWithDetailView: View {
                 }
             }
         }
+        .onTapGesture(perform: onExpandBtnTap)
     }
 }
 
@@ -223,6 +228,6 @@ private struct GroupNotFoundView: View {
         .multilineTextAlignment(.center)
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, alignment: .center)
-        .frame(minHeight: geometry.size.height - 70, maxHeight: .infinity, alignment: .center)
+        .frame(minHeight: viewModel.showSearchBar ? geometry.size.height - 20 : geometry.size.height - 70, maxHeight: .infinity, alignment: .center)
     }
 }

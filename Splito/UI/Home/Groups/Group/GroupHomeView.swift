@@ -23,7 +23,10 @@ struct GroupHomeView: View {
                     LoaderView()
                 } else {
                     if case .noMember = viewModel.groupState {
-                        EmptyStateView(title: "You’re the only one here!", subtitle: "Invite some friends and make this group come alive!", buttonTitle: "Invite Member", image: .inviteFriends, geometry: geometry, onClick: viewModel.handleAddMemberClick)
+                        EmptyStateView(title: "You’re the only one here!",
+                                       subtitle: "Invite some friends and make this group come alive!",
+                                       buttonTitle: "Invite Member", image: .inviteFriends,
+                                       geometry: geometry, onClick: viewModel.handleAddMemberClick)
                     } else if case .noExpense = viewModel.groupState {
                         EmptyStateView(geometry: geometry, onClick: viewModel.openAddExpenseSheet)
                     } else if case .hasExpense = viewModel.groupState {
@@ -53,6 +56,7 @@ struct GroupHomeView: View {
             }
         }
         .onAppear {
+            viewModel.fetchGroupAndExpenses()
             homeRouteViewModel.updateSelectedGroup(id: viewModel.groupId)
         }
         .fullScreenCover(isPresented: $viewModel.showAddExpenseSheet) {
@@ -147,7 +151,7 @@ private struct GroupOptionsButtonView: View {
     var body: some View {
         Text(text.localized)
             .font(.buttonText())
-            .foregroundColor(isForSettleUp ? primaryDarkText : primaryText)
+            .foregroundColor(primaryText)
             .padding(.vertical, 8)
             .padding(.horizontal, 24)
             .background(isForSettleUp ? settleUpColor : container2Color)
@@ -156,7 +160,7 @@ private struct GroupOptionsButtonView: View {
     }
 }
 
-private struct EmptyStateView: View {
+struct EmptyStateView: View {
 
     var title: String = "No expenses here yet."
     var subtitle: String = "Add an expense to get this party started."
@@ -164,24 +168,23 @@ private struct EmptyStateView: View {
 
     var image: ImageResource = .noExpense
     let geometry: GeometryProxy
+    var minHeight: CGFloat?
 
     let onClick: () -> Void
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .center, spacing: 0) {
+            VStack(alignment: .center, spacing: 20) {
                 Spacer()
 
                 Image(image)
                     .resizable()
                     .scaledToFit()
                     .frame(width: geometry.size.width * 0.5, height: geometry.size.width * 0.4)
-                    .padding(.bottom, 40)
 
                 Text(title.localized)
                     .font(.Header1())
                     .foregroundStyle(primaryText)
-                    .padding(.bottom, 16)
 
                 Text(subtitle.localized)
                     .font(.subTitle1())
@@ -189,19 +192,21 @@ private struct EmptyStateView: View {
                     .tracking(-0.2)
                     .lineSpacing(4)
 
+                if let buttonTitle {
+                    PrimaryButton(text: buttonTitle, onClick: onClick)
+                }
+
+                VSpacer(10)
+
                 Spacer()
             }
             .multilineTextAlignment(.center)
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, alignment: .center)
-            .frame(minHeight: geometry.size.height - 85, maxHeight: .infinity, alignment: .center)
+            .frame(minHeight: minHeight ?? geometry.size.height - 50, maxHeight: .infinity, alignment: .center)
         }
         .scrollIndicators(.hidden)
-
-        if let buttonTitle {
-            PrimaryButton(text: buttonTitle, onClick: onClick)
-                .padding(16)
-        }
+        .scrollBounceBehavior(.basedOnSize)
     }
 }
 

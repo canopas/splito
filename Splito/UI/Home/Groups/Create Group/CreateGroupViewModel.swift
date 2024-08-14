@@ -32,10 +32,12 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
 
     let router: Router<AppRoute>
     var isOpenForEdit: Bool = false
+    var onDismissCallback: (() -> Void)?
 
-    init(router: Router<AppRoute>, group: Groups? = nil) {
+    init(router: Router<AppRoute>, group: Groups? = nil, onDismissCallback: (() -> Void)? = nil) {
         self.router = router
         self.group = group
+        self.onDismissCallback = onDismissCallback
         self.groupName = group?.name ?? ""
         self.profileImageUrl = group?.imageUrl
         super.init()
@@ -85,7 +87,9 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
 
     func handleDoneAction(completion: @escaping () -> Void) {
         if let group {
-            updateGroup(group: group, completion: completion)
+            updateGroup(group: group) {
+                self.onDismissCallback != nil ? self.onDismissCallback?() : completion()
+            }
         } else {
             createGroup(completion: completion)
         }

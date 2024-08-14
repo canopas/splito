@@ -12,10 +12,12 @@ public struct MemberProfileImageView: View {
 
     let imageUrl: String?
     let height: CGFloat
+    let defaultImageBgColor: Color
 
-    public init(imageUrl: String?, height: CGFloat = 40) {
+    public init(imageUrl: String?, height: CGFloat = 40, defaultImageBgColor: Color = .clear) {
         self.imageUrl = imageUrl
         self.height = height
+        self.defaultImageBgColor = defaultImageBgColor
     }
 
     public var body: some View {
@@ -39,6 +41,7 @@ public struct MemberProfileImageView: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: height, height: height, alignment: .center)
+                    .background(defaultImageBgColor)
                     .clipShape(RoundedRectangle(cornerRadius: height / 2))
                     .overlay(
                         Circle()

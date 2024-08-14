@@ -39,7 +39,7 @@ struct CreateGroupView: View {
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
 
-                PrimaryButton(text: viewModel.group != nil ? "Save" : "Create", isEnabled: viewModel.groupName.count > 3, showLoader: viewModel.showLoader, onClick: {
+                PrimaryButton(text: viewModel.group != nil ? "Save" : "Create", isEnabled: viewModel.groupName.count >= 3, showLoader: viewModel.showLoader, onClick: {
                     viewModel.handleDoneAction {
                         dismiss()
                     }

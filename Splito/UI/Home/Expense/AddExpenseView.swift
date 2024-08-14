@@ -132,8 +132,6 @@ private struct ExpenseDetailRow: View {
     var field: AddExpenseViewModel.AddExpenseField?
     var keyboardType: UIKeyboardType = .default
 
-    private let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date()) ?? Date()
-
     @State private var showDatePicker = false
 
     var body: some View {
@@ -180,7 +178,7 @@ private struct ExpenseDetailRow: View {
     }
 }
 
-private struct DatePickerRow: View {
+struct DatePickerRow: View {
 
     @Binding var date: Date
 
@@ -280,7 +278,7 @@ private struct ExpenseDetailRowWithBtn: View {
                 if !memberProfileUrls.isEmpty {
                     HStack(spacing: -10) {
                         ForEach(visibleProfileUrls, id: \.self) { imageUrl in
-                            MemberProfileImageView(imageUrl: imageUrl, height: 26)
+                            MemberProfileImageView(imageUrl: imageUrl, height: 26, defaultImageBgColor: containerColor)
                         }
 
                         if additionalMembersCount > 0 {

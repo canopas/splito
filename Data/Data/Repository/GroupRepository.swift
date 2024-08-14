@@ -52,6 +52,10 @@ public class GroupRepository: ObservableObject {
             .eraseToAnyPublisher()
     }
 
+    public func addMemberToGroup(groupId: String, memberId: String) -> AnyPublisher<Void, ServiceError> {
+        store.addMemberToGroup(groupId: groupId, memberId: memberId)
+    }
+
     public func updateGroup(group: Groups) -> AnyPublisher<Void, ServiceError> {
         store.updateGroup(group: group)
     }
@@ -92,19 +96,14 @@ public class GroupRepository: ObservableObject {
         store.fetchGroups(userId: userId)
     }
 
-    public func addMemberToGroup(memberId: String, groupId: String) -> AnyPublisher<Void, ServiceError> {
-        return fetchGroupBy(id: groupId)
-            .flatMap { group -> AnyPublisher<Void, ServiceError> in
-                guard var group else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
+    public func fetchMemberDataOf(members: [String]) -> AnyPublisher<[AppUser], ServiceError> {
+        let memberPublishers = members.map { (userId: String) -> AnyPublisher<AppUser?, ServiceError> in
+            return self.fetchMemberBy(userId: userId)
+        }
 
-                // Check if the member already exists in the group
-                if group.members.contains(memberId) {
-                    return Fail(error: .alreadyExists).eraseToAnyPublisher()
-                }
-
-                group.members.append(memberId)
-                return self.updateGroup(group: group)
-            }
+        return Publishers.MergeMany(memberPublishers)
+            .compactMap { $0 }
+            .collect()
             .eraseToAnyPublisher()
     }
 
