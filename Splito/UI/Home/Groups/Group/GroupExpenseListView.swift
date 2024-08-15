@@ -72,7 +72,7 @@ struct GroupExpenseListView: View {
                                                 }
                                             }
                                             .onDisappear {
-                                                if month == firstMonth && viewModel.groupExpenses[month]?.first?.expense.id == expense.expense.id {
+                                                if !viewModel.expenses.isEmpty && month == firstMonth && viewModel.groupExpenses[month]?.first?.expense.id == expense.expense.id {
                                                     viewModel.manageScrollToTopBtnVisibility(true)
                                                 }
                                             }

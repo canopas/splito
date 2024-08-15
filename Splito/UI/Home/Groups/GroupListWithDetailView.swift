@@ -12,7 +12,7 @@ struct GroupListWithDetailView: View {
 
     @ObservedObject var viewModel: GroupListViewModel
 
-    let onExpandBtnTap: () -> Void
+    let onLongPressGesture: () -> Void
 
     var body: some View {
         GeometryReader { geometry in
@@ -25,13 +25,13 @@ struct GroupListWithDetailView: View {
                             ForEach(viewModel.filteredGroups, id: \.group.id) { group in
                                 GroupListCellView(isFirstGroup: viewModel.filteredGroups.first?.group.id == group.group.id,
                                                   isLastGroup: viewModel.filteredGroups.last?.group.id == group.group.id,
-                                                  group: group, viewModel: viewModel, onExpandBtnTap: onExpandBtnTap)
+                                                  group: group, viewModel: viewModel)
                                 .onTapGestureForced {
                                     viewModel.handleGroupItemTap(group.group)
                                 }
                                 .onLongPressGesture {
                                     addHapticEffect()
-                                    onExpandBtnTap()
+                                    onLongPressGesture()
                                     viewModel.handleGroupItemTap(group.group, isTapped: false)
                                 }
                             }
@@ -61,7 +61,7 @@ struct GroupListWithDetailView: View {
                 }
             }
         }
-        .onTapGesture(perform: onExpandBtnTap)
+        .onTapGesture(perform: onLongPressGesture)
     }
 }
 
@@ -72,16 +72,13 @@ private struct GroupListCellView: View {
     let group: GroupInformation
     let viewModel: GroupListViewModel
 
-    let onExpandBtnTap: () -> Void
-
     @State var showInfo: Bool = false
 
-    init(isFirstGroup: Bool, isLastGroup: Bool = false, group: GroupInformation, viewModel: GroupListViewModel, onExpandBtnTap: @escaping () -> Void) {
+    init(isFirstGroup: Bool, isLastGroup: Bool = false, group: GroupInformation, viewModel: GroupListViewModel) {
         self.isFirstGroup = isFirstGroup
         self.isLastGroup = isLastGroup
         self.group = group
         self.viewModel = viewModel
-        self.onExpandBtnTap = onExpandBtnTap
         self._showInfo = State(initialValue: isFirstGroup && group.oweAmount != 0)
     }
 
@@ -119,7 +116,7 @@ private struct GroupListCellView: View {
                 .foregroundStyle(group.oweAmount < 0 ? alertColor : successColor)
 
                 if group.oweAmount != 0 {
-                    GroupExpandBtnView(showInfo: $showInfo, isFirstGroup: isFirstGroup, onExpandBtnTap: onExpandBtnTap)
+                    GroupExpandBtnView(showInfo: $showInfo, isFirstGroup: isFirstGroup)
                 }
             }
             .padding(.horizontal, 16)
@@ -155,14 +152,12 @@ private struct GroupExpandBtnView: View {
     @Binding var showInfo: Bool
 
     let isFirstGroup: Bool
-    let onExpandBtnTap: () -> Void
 
     var body: some View {
         ScrollToTopButton(icon: "chevron.down", iconColor: primaryText, bgColor: container2Color, showWithAnimation: true, size: (10, 7), isFirstGroupCell: isFirstGroup, onClick: {
             withAnimation(.interactiveSpring(response: 0.6, dampingFraction: 0.7, blendDuration: 0.7)) {
                 showInfo.toggle()
             }
-            onExpandBtnTap()
         })
         .onAppear {
             if isFirstGroup {

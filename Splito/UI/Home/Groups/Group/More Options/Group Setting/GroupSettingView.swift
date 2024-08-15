@@ -259,7 +259,7 @@ private struct GroupMemberCellView: View {
             VStack(alignment: .trailing, spacing: 4) {
                 if amount == 0 {
                     Text("settled up")
-                        .font(.body1())
+                        .font(.caption1())
                         .foregroundStyle(disableText)
                 } else {
                     Text(isBorrowed ? "owes" : "gets back")

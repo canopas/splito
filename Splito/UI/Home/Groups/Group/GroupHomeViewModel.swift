@@ -47,19 +47,25 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         guard let userId = preference.user?.id else { return 0 }
 
         let calendar = Calendar.current
-        let currentMonth = calendar.component(.month, from: Date())
-        let currentYear = calendar.component(.year, from: Date())
+        let isInCurrentMonth: (Date) -> Bool = {
+            calendar.isDate($0, equalTo: Date(), toGranularity: .month)
+        }
 
-        return expenses
+        let expenseAmount = expenses
             .filter { expense in
-                let expenseMonth = calendar.component(.month, from: expense.date.dateValue())
-                let expenseYear = calendar.component(.year, from: expense.date.dateValue())
-                return expenseMonth == currentMonth && expenseYear == currentYear
+                isInCurrentMonth(expense.date.dateValue()) && expense.splitTo.contains(userId) // Check if the user is involved in the expense
             }
-            .map { expense in
-                getTotalSplitAmount(member: userId, expense: expense)
-            }
+            .map { getTotalSplitAmount(member: userId, expense: $0) }
             .reduce(0.0, +)
+
+        let transactionAmount = transactions
+            .filter { transaction in
+                isInCurrentMonth(transaction.date.dateValue()) && transaction.payerId == userId
+            }
+            .map(\.amount)
+            .reduce(0.0, +)
+
+        return expenseAmount + transactionAmount
     }
 
     var groupExpenses: [String: [ExpenseWithUser]] {

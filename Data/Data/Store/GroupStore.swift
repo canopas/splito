@@ -74,7 +74,7 @@ class GroupStore: ObservableObject {
     func fetchLatestGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
         database.collection(COLLECTION_NAME)
             .whereField("members", arrayContains: userId)
-            .limit(to: 20)
+            .limit(to: 10)
             .snapshotPublisher(as: Groups.self)
     }
 

@@ -8,7 +8,7 @@
 import Data
 import Combine
 import BaseStyle
-import FirebaseFirestoreInternal
+import FirebaseFirestore
 
 class AddExpenseViewModel: BaseViewModel, ObservableObject {
 

@@ -89,8 +89,11 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     private func fetchLatestGroups() {
         guard let userId = preference.user?.id else { return }
-        let latestGroupsPublisher = groupRepository.fetchLatestGroups(userId: userId)
-        processGroupsDetails(latestGroupsPublisher)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            let latestGroupsPublisher = self.groupRepository.fetchLatestGroups(userId: userId)
+            self.processGroupsDetails(latestGroupsPublisher)
+        }
     }
 
     private func processGroupsDetails(_ groupsPublisher: AnyPublisher<[Groups], ServiceError>) {
