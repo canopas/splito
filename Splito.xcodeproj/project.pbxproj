@@ -52,11 +52,8 @@
 		D8682DF92BED0C1C00BB7273 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D8682DF82BED0C1C00BB7273 /* Localizable.xcstrings */; };
 		D8682E242BEE4B1000BB7273 /* cta.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E222BEE4B1000BB7273 /* cta.png */; };
 		D8682E252BEE4B1000BB7273 /* banner.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E232BEE4B1000BB7273 /* banner.png */; };
-		D8682E2C2BEE4B3C00BB7273 /* EditExpense.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E262BEE4B3B00BB7273 /* EditExpense.png */; };
-		D8682E2D2BEE4B3C00BB7273 /* InviteCode.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E272BEE4B3B00BB7273 /* InviteCode.png */; };
 		D8682E2E2BEE4B3C00BB7273 /* GroupList.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E282BEE4B3C00BB7273 /* GroupList.png */; };
 		D8682E2F2BEE4B3C00BB7273 /* GroupBalance.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E292BEE4B3C00BB7273 /* GroupBalance.png */; };
-		D8682E302BEE4B3C00BB7273 /* SplitOption.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E2A2BEE4B3C00BB7273 /* SplitOption.png */; };
 		D8682E312BEE4B3C00BB7273 /* ExpenseList.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E2B2BEE4B3C00BB7273 /* ExpenseList.png */; };
 		D8682E332BEE4BC100BB7273 /* AppStore.png in Resources */ = {isa = PBXBuildFile; fileRef = D8682E322BEE4BC100BB7273 /* AppStore.png */; };
 		D86BB33F2C05ED9D00463E6C /* MainRouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BB33E2C05ED9D00463E6C /* MainRouteViewModel.swift */; };
@@ -834,19 +831,16 @@
 				D896844C2B722D3700D5F721 /* Preview Assets.xcassets in Resources */,
 				D8682E2F2BEE4B3C00BB7273 /* GroupBalance.png in Resources */,
 				D89684492B722D3700D5F721 /* Assets.xcassets in Resources */,
-				D8682E302BEE4B3C00BB7273 /* SplitOption.png in Resources */,
 				D8682E242BEE4B1000BB7273 /* cta.png in Resources */,
 				D8682E252BEE4B1000BB7273 /* banner.png in Resources */,
 				D815DFD72BEA26C200C0F862 /* Secrets.xcconfig in Resources */,
 				D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */,
-				D8682E2C2BEE4B3C00BB7273 /* EditExpense.png in Resources */,
 				217BEC122C00AD78000CBBB4 /* GoogleService-Info.plist in Resources */,
 				D8682E2E2BEE4B3C00BB7273 /* GroupList.png in Resources */,
 				D8682E312BEE4B3C00BB7273 /* ExpenseList.png in Resources */,
 				D8682DF92BED0C1C00BB7273 /* Localizable.xcstrings in Resources */,
 				D8682E332BEE4BC100BB7273 /* AppStore.png in Resources */,
 				D863857B2B908AB600A8C6EB /* VERSION in Resources */,
-				D8682E2D2BEE4B3C00BB7273 /* InviteCode.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1265,8 +1259,6 @@
 					"-framework",
 					"\"CoreText\"",
 					"-framework",
-					"\"FBLPromises\"",
-					"-framework",
 					"\"FirebaseAppCheckInterop\"",
 					"-framework",
 					"\"FirebaseAuth\"",
@@ -1365,8 +1357,6 @@
 					"\"CoreGraphics\"",
 					"-framework",
 					"\"CoreText\"",
-					"-framework",
-					"\"FBLPromises\"",
 					"-framework",
 					"\"FirebaseAppCheckInterop\"",
 					"-framework",

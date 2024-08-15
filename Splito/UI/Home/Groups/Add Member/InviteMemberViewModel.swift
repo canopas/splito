@@ -7,7 +7,7 @@
 
 import Data
 import BaseStyle
-import FirebaseFirestoreInternal
+import FirebaseFirestore
 
 class InviteMemberViewModel: BaseViewModel, ObservableObject {
 

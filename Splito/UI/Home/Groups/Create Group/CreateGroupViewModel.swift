@@ -10,7 +10,7 @@ import UIKit
 import Combine
 import BaseStyle
 import AVFoundation
-import FirebaseFirestoreInternal
+import FirebaseFirestore
 
 class CreateGroupViewModel: BaseViewModel, ObservableObject {
 

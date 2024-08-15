@@ -7,7 +7,7 @@
 
 import Foundation
 import Swinject
-import FirebaseFirestoreInternal
+import FirebaseFirestore
 
 public class AppAssembly: Assembly {
 
@@ -26,7 +26,7 @@ public class AppAssembly: Assembly {
         container.register(Firestore.self) { _ in
             let db = Firestore.firestore()
             let settings = FirestoreSettings()
-            settings.cacheSettings = MemoryCacheSettings(garbageCollectorSettings: MemoryLRUGCSettings())
+            settings.isPersistenceEnabled = false
             db.settings = settings
             return db
         }.inObjectScope(.container)

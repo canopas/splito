@@ -39,7 +39,7 @@ struct GroupListView: View {
                             }
                         }
                         .onTapGestureForced {
-                            isFocused = false
+                            UIApplication.shared.endEditing()
                         }
 
                         if viewModel.showSearchBar {
@@ -58,7 +58,7 @@ struct GroupListView: View {
                                 .padding(.bottom, 8)
                         }
 
-                        GroupListWithDetailView(viewModel: viewModel, onExpandBtnTap: {
+                        GroupListWithDetailView(viewModel: viewModel, onLongPressGesture: {
                             isFocused = false
                         })
                     }

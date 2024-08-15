@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import FirebaseFirestoreInternal
+import FirebaseFirestore
 
 extension Timestamp: Comparable {
     public static func < (lhs: Timestamp, rhs: Timestamp) -> Bool {
