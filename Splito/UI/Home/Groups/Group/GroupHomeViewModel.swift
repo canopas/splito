@@ -89,40 +89,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         super.init()
 
         self.fetchLatestTransactions()
+        self.fetchLatestExpenses()
     }
 
     // MARK: - Data Loading
-    private func fetchLatestTransactions() {
-        transactionRepository.fetchLatestTransactionsBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] transactions in
-                guard let self else { return }
-                self.transactions = transactions
-                self.fetchLatestExpenses()
-            }.store(in: &cancelable)
-    }
-
-    private func fetchLatestExpenses() {
-        expenseRepository.fetchLatestExpensesBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.groupState = .noMember
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] expenses in
-                guard let self, let group else { return }
-                self.expenses = expenses
-                if group.isDebtSimplified {
-                    self.calculateExpensesSimplified()
-                } else {
-                    self.calculateExpensesSimplified()
-                }
-            }.store(in: &cancelable)
-    }
-
     func fetchGroupAndExpenses() {
         groupState = .loading
         groupRepository.fetchGroupBy(id: groupId)
@@ -214,6 +184,30 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }
             self.setGroupViewState()
         }
+    }
+
+    private func fetchLatestTransactions() {
+        transactionRepository.fetchLatestTransactionsBy(groupId: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] transactions in
+                guard let self else { return }
+                self.transactions = transactions
+            }.store(in: &cancelable)
+    }
+
+    private func fetchLatestExpenses() {
+        expenseRepository.fetchLatestExpensesBy(groupId: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.groupState = .noMember
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] expenses in
+                self?.expenses = expenses
+            }.store(in: &cancelable)
     }
 
     private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {

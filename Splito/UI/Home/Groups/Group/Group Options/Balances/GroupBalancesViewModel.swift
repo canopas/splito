@@ -19,7 +19,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
     @Published var groupId: String
     @Published var showSettleUpSheet: Bool = false
-    @Published var memberBalances: [GroupMemberBalance] = []
+    @Published var memberBalances: [MembersCombinedBalance] = []
     @Published var memberOwingAmount: [String: Double] = [:]
 
     @Published var payerId: String?
@@ -96,7 +96,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     // MARK: - Helper Methods
     private func calculateExpensesSimplified(expenses: [Expense]) {
         let groupMembers = Array(Set(groupMemberData.map { $0.id }))
-        var memberBalances = groupMembers.map { GroupMemberBalance(id: $0) }
+        var memberBalances = groupMembers.map { MembersCombinedBalance(id: $0) }
 
         for expense in expenses {
             // Update total owed amount for each payer
@@ -118,8 +118,8 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func processTransactions(transactions: [Transactions], memberBalances: [GroupMemberBalance], isSimplify: Bool) -> [GroupMemberBalance] {
-        var memberBalances: [GroupMemberBalance] = memberBalances
+    private func processTransactions(transactions: [Transactions], memberBalances: [MembersCombinedBalance], isSimplify: Bool) -> [MembersCombinedBalance] {
+        var memberBalances: [MembersCombinedBalance] = memberBalances
 
         for transaction in transactions {
             if let payerIndex = memberBalances.firstIndex(where: { $0.id == transaction.payerId }),
@@ -137,9 +137,9 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         return memberBalances
     }
 
-    private func settleDebts(balances: [GroupMemberBalance]) -> [GroupMemberBalance] {
-        var creditors: [(GroupMemberBalance, Double)] = []
-        var debtors: [(GroupMemberBalance, Double)] = []
+    private func settleDebts(balances: [MembersCombinedBalance]) -> [MembersCombinedBalance] {
+        var creditors: [(MembersCombinedBalance, Double)] = []
+        var debtors: [(MembersCombinedBalance, Double)] = []
 
         // Separate users into creditors and debtors
         for balance in balances {
@@ -180,7 +180,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         return updatedBalances
     }
 
-    private func sortMemberBalances(memberBalances: [GroupMemberBalance]) {
+    private func sortMemberBalances(memberBalances: [MembersCombinedBalance]) {
         guard let userId = preference.user?.id, let userIndex = memberBalances.firstIndex(where: { $0.id == userId }) else { return }
 
         var sortedMembers = memberBalances
@@ -234,7 +234,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 }
 
 // MARK: - Struct to hold combined expense and user owe amount
-struct GroupMemberBalance {
+struct MembersCombinedBalance {
     let id: String
     var isExpanded: Bool = false
     var totalOwedAmount: Double = 0

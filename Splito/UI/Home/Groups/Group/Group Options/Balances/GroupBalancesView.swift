@@ -71,7 +71,7 @@ struct GroupBalancesView: View {
 
 private struct GroupBalanceItemView: View {
 
-    let memberBalance: GroupMemberBalance
+    let memberBalance: MembersCombinedBalance
     let viewModel: GroupBalancesViewModel
 
     let toggleExpandBtn: (String) -> Void

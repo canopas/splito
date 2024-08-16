@@ -11,9 +11,9 @@ public struct SharedCode: Codable {
 
     @DocumentID public var id: String? // Automatically generated ID by Firestore
 
-    public var code: String
-    public var groupId: String
-    public var expireDate: Timestamp
+    public let code: String
+    public let groupId: String
+    public let expireDate: Timestamp
 
     public init(code: String, groupId: String, expireDate: Timestamp) {
         self.code = code
