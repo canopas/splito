@@ -42,9 +42,9 @@ public struct Groups: Codable, Identifiable {
     }
 }
 
-public struct GroupMemberBalance: Codable {
+public struct GroupMemberBalance: Codable, Hashable {
     public let id: String
-    public let balance: Double
+    public var balance: Double
 
     public init(id: String, balance: Double) {
         self.id = id

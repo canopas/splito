@@ -14,8 +14,6 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
-    @Inject private var expenseRepository: ExpenseRepository
-    @Inject private var transactionRepository: TransactionRepository
 
     @Published private(set) var isAdmin = false
     @Published var showLeaveGroupDialog = false
@@ -25,19 +23,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var group: Groups?
     @Published private(set) var members: [AppUser] = []
-    @Published private(set) var amountOweByMember: [String: Double] = [:]
-
     @Published private(set) var currentViewState: ViewState = .loading
-
-    @Published var isDebtSimplified = false {
-        didSet {
-            updateGroupForSimplifyDebt()
-        }
-    }
 
     private let groupId: String
     let router: Router<AppRoute>
-    private var transactions: [Transactions] = []
     private var memberRemoveType: MemberRemoveType = .leave
 
     init(router: Router<AppRoute>, groupId: String) {
@@ -56,7 +45,6 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                 guard let self, let group else { return }
                 self.group = group
                 self.checkForGroupAdmin()
-                self.isDebtSimplified = group.isDebtSimplified
                 self.fetchGroupMembers()
             }.store(in: &cancelable)
     }
@@ -70,9 +58,23 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] members in
                 guard let self else { return }
                 self.sortGroupMembers(members: members)
-                self.fetchTransactions()
-                self.fetchExpenses()
+                self.currentViewState = .initial
             }.store(in: &cancelable)
+    }
+
+    // MARK: - Helper Methods
+
+    func getMembersBalance(memberId: String) -> Double {
+        guard let group else {
+            LogE("GroupSettingViewModel: \(#function) group not found.")
+            return 0
+        }
+
+        if let index = group.balance.firstIndex(where: { $0.id == memberId }) {
+            return group.balance[index].balance
+        }
+
+        return 0
     }
 
     func sortGroupMembers(members: [AppUser]) {
@@ -96,53 +98,9 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         return needFullName ? member.fullName : member.nameWithLastInitial
     }
 
-    private func fetchTransactions() {
-        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
-            if case .failure(let error) = completion {
-                self?.handleServiceError(error)
-            }
-        } receiveValue: { [weak self] transactions in
-            guard let self else { return }
-            self.transactions = transactions
-        }.store(in: &cancelable)
-    }
-
-    private func fetchExpenses() {
-        expenseRepository.fetchExpensesBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] expenses in
-                guard let self else { return }
-                self.amountOweByMember = calculateMemberBalanceWithTransactions(members: members.map({ $0.id }), expenses: expenses, transactions: transactions)
-                DispatchQueue.main.async {
-                    self.currentViewState = .initial
-                }
-            }.store(in: &cancelable)
-    }
-
     private func checkForGroupAdmin() {
         guard let userId = preference.user?.id, let group else { return }
         isAdmin = userId == group.createdBy
-    }
-
-    private func updateGroupForSimplifyDebt() {
-        guard var group, group.isDebtSimplified != isDebtSimplified else { return }
-
-        currentViewState = .loading
-        group.isDebtSimplified = isDebtSimplified
-
-        groupRepository.updateGroup(group: group)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { _ in
-                self.currentViewState = .initial
-                self.showToastFor(toast: ToastPrompt(type: .success, title: "Success",
-                                                     message: "Simplify debts turned \(self.isDebtSimplified ? "on" : "off")"))
-            }.store(in: &cancelable)
     }
 
     // MARK: - User Actions
@@ -174,19 +132,20 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         showAlert = true
     }
 
-    func handleMemberTap(member: AppUser) {
+    func handleMemberTap(memberId: String) {
         guard let userId = preference.user?.id else { return }
-        if userId == member.id {
+        if userId == memberId {
             showLeaveGroupDialog = true
-            showLeaveGroupAlert(memberId: member.id)
+            showLeaveGroupAlert(memberId: memberId)
         } else {
             showRemoveMemberDialog = isAdmin
-            showRemoveMemberAlert(memberId: member.id)
+            showRemoveMemberAlert(memberId: memberId)
         }
     }
 
     private func showRemoveMemberAlert(memberId: String) {
-        guard amountOweByMember[memberId] == 0 || amountOweByMember[memberId] == nil else {
+        let memberBalance = getMembersBalance(memberId: memberId)
+        guard memberBalance == 0 else {
             memberRemoveType = .remove
             showDebtOutstandingAlert(memberId: memberId)
             return
@@ -201,7 +160,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     private func showLeaveGroupAlert(memberId: String) {
-        guard amountOweByMember[memberId] == 0 || amountOweByMember[memberId] == nil else {
+        let memberBalance = getMembersBalance(memberId: memberId)
+        guard memberBalance == 0 else {
             memberRemoveType = .leave
             showDebtOutstandingAlert(memberId: memberId)
             return

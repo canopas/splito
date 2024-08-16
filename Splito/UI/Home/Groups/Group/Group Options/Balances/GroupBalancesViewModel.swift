@@ -13,7 +13,6 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
-    @Inject private var transactionRepository: TransactionRepository
 
     @Published var viewState: ViewState = .initial
 
@@ -27,8 +26,8 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     @Published var amount: Double?
 
     private var groupMemberData: [AppUser] = []
-    private var transactions: [Transactions] = []
     let router: Router<AppRoute>
+    var group: Groups?
 
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
@@ -61,80 +60,19 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
-                self.fetchTransactions()
-                self.fetchExpenses(group: group)
-            }.store(in: &cancelable)
-    }
-
-    private func fetchTransactions() {
-        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
-            if case .failure(let error) = completion {
-                self?.showToastFor(error)
-            }
-        } receiveValue: { [weak self] transactions in
-            self?.transactions = transactions
-        }.store(in: &cancelable)
-    }
-
-    private func fetchExpenses(group: Groups) {
-        expenseRepository.fetchExpensesBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] expenses in
-                guard let self else { return }
-                if group.isDebtSimplified {
-                    calculateExpensesSimplified(expenses: expenses)
-                } else {
-                    calculateExpensesSimplified(expenses: expenses)
-                }
+                self.group = group
+                self.calculateExpensesSimplified(group: group)
             }.store(in: &cancelable)
     }
 
     // MARK: - Helper Methods
-    private func calculateExpensesSimplified(expenses: [Expense]) {
-        let groupMembers = Array(Set(groupMemberData.map { $0.id }))
-        var memberBalances = groupMembers.map { MembersCombinedBalance(id: $0) }
-
-        for expense in expenses {
-            // Update total owed amount for each payer
-
-            for member in groupMemberData {
-                if let owedMemberIndex = memberBalances.firstIndex(where: { $0.id == member.id }) {
-                    let splitAmount = getCalculatedSplitAmount(member: member.id, expense: expense)
-                    memberBalances[owedMemberIndex].totalOwedAmount += splitAmount
-                }
-            }
-        }
-
-        // Process transactions and settle debts
-        memberBalances = processTransactions(transactions: transactions, memberBalances: memberBalances, isSimplify: true)
+    private func calculateExpensesSimplified(group: Groups) {
+        let memberBalances = group.balance.map { MembersCombinedBalance(id: $0.id, totalOwedAmount: $0.balance) }
 
         DispatchQueue.main.async {
             let debts = self.settleDebts(balances: memberBalances)
             self.sortMemberBalances(memberBalances: debts)
         }
-    }
-
-    private func processTransactions(transactions: [Transactions], memberBalances: [MembersCombinedBalance], isSimplify: Bool) -> [MembersCombinedBalance] {
-        var memberBalances: [MembersCombinedBalance] = memberBalances
-
-        for transaction in transactions {
-            if let payerIndex = memberBalances.firstIndex(where: { $0.id == transaction.payerId }),
-               let receiverIndex = memberBalances.firstIndex(where: { $0.id == transaction.receiverId }) {
-                memberBalances[payerIndex].totalOwedAmount += transaction.amount
-                memberBalances[receiverIndex].totalOwedAmount -= transaction.amount
-
-                if !(isSimplify) {
-                    memberBalances[payerIndex].balances[transaction.receiverId, default: 0.0] += transaction.amount
-                    memberBalances[receiverIndex].balances[transaction.payerId, default: 0.0] -= transaction.amount
-                }
-            }
-        }
-
-        return memberBalances
     }
 
     private func settleDebts(balances: [MembersCombinedBalance]) -> [MembersCombinedBalance] {

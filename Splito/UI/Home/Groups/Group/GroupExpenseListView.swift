@@ -21,7 +21,7 @@ struct GroupExpenseListView: View {
             ScrollViewReader { scrollProxy in
                 VStack(alignment: .leading, spacing: 0) {
                     GroupOptionsListView(isSettleUpEnable: (!viewModel.memberOwingAmount.isEmpty && viewModel.group?.members.count ?? 1 > 1),
-                                         showTransactionsOption: !viewModel.transactions.isEmpty,
+                                         showTransactionsOption: true,
                                          onSettleUpTap: viewModel.handleSettleUpBtnTap,
                                          onTransactionsTap: viewModel.handleTransactionsBtnTap,
                                          onBalanceTap: viewModel.handleBalancesBtnTap,
@@ -46,10 +46,7 @@ struct GroupExpenseListView: View {
                             GroupExpenseHeaderView(viewModel: viewModel)
                                 .id("expenseList")
 
-                            if viewModel.expenses.isEmpty && !viewModel.transactions.isEmpty {
-                                EmptyStateView(geometry: geometry, minHeight: geometry.size.height - 250,
-                                               onClick: viewModel.openAddExpenseSheet)
-                            } else if !viewModel.groupExpenses.isEmpty {
+                            if !viewModel.groupExpenses.isEmpty {
                                 let firstMonth = viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings).first
 
                                 ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in

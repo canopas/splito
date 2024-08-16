@@ -12,7 +12,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
-    @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
 
     @Published var amount: Double = 0

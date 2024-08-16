@@ -59,41 +59,31 @@ public func getCalculatedSplitAmount(member: String, expense: Expense) -> Double
 
 // MARK: - Simplified expense calculation
 
-public func calculateExpensesSimplified(userId: String, members: [String], expenses: [Expense], transactions: [Transactions]) -> ([String: Double]) {
+public func calculateExpensesSimplified(userId: String, memberBalances: [GroupMemberBalance]) -> ([String: Double]) {
 
-    var memberBalance: [String: Double] = [:]
     var memberOwingAmount: [String: Double] = [:]
 
-    for expense in expenses {
-        for member in members {
-            let amount = getCalculatedSplitAmount(member: member, expense: expense)
-            memberBalance[member, default: 0] += amount
-        }
-    }
-
-    let settlements = calculateSettlements(balances: memberBalance)
+    let settlements = calculateSettlements(balances: memberBalances)
     for settlement in settlements where settlement.sender == userId || settlement.receiver == userId {
         let memberId = settlement.receiver == userId ? settlement.sender : settlement.receiver
         let amount = settlement.sender == userId ? -settlement.amount : settlement.amount
         memberOwingAmount[memberId, default: 0] = amount
     }
 
-    memberOwingAmount = processTransactions(userId: userId, transactions: transactions, memberOwingAmount: memberOwingAmount)
-
     return memberOwingAmount.filter { $0.value != 0 }
 }
 
 // To decide who owes -> how much amount -> to whom
-func calculateSettlements(balances: [String: Double]) -> [Settlement] {
+func calculateSettlements(balances: [GroupMemberBalance]) -> [Settlement] {
     var creditors: [(String, Double)] = []
     var debtors: [(String, Double)] = []
 
     // Separate creditors and debtors
-    for (user, balance) in balances {
-        if balance > 0 {
-            creditors.append((user, balance))
-        } else if balance < 0 {
-            debtors.append((user, -balance)) // Store positive value for easier calculation
+    for balance in balances {
+        if balance.balance > 0 {
+            creditors.append((balance.id, balance.balance))
+        } else if balance.balance < 0 {
+            debtors.append((balance.id, -balance.balance)) // Store positive value for easier calculation
         }
     }
 
@@ -127,23 +117,6 @@ func calculateSettlements(balances: [String: Double]) -> [Settlement] {
     }
 
     return settlements
-}
-
-public func processTransactions(userId: String, transactions: [Transactions], memberOwingAmount: [String: Double]) -> ([String: Double]) {
-
-    var memberOwingAmount: [String: Double] = memberOwingAmount
-
-    for transaction in transactions {
-        if transaction.payerId == userId {
-            // If the user is the payer, the receiver owes the user the specified amount
-            memberOwingAmount[transaction.receiverId, default: 0.0] += transaction.amount
-        } else if transaction.receiverId == userId {
-            // If the user is the receiver, the payer owes the user the specified amount
-            memberOwingAmount[transaction.payerId, default: 0.0] -= transaction.amount
-        }
-    }
-
-    return memberOwingAmount.filter { $0.value != 0 }
 }
 
 // Used in settings and totals screen's total change in balance calculation

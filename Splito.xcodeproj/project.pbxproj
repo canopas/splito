@@ -305,14 +305,6 @@
 			path = "Transaction Detail";
 			sourceTree = "<group>";
 		};
-		21B1C0972C1C59630098B4FD /* More Options */ = {
-			isa = PBXGroup;
-			children = (
-				D8A7CA732BA486290014EC67 /* Group Setting */,
-			);
-			path = "More Options";
-			sourceTree = "<group>";
-		};
 		21BA6D4B2C3BB64B0020ED04 /* Payer */ = {
 			isa = PBXGroup;
 			children = (
@@ -624,7 +616,7 @@
 				D8A7CA6D2BA483F60014EC67 /* GroupHomeView.swift */,
 				D8E244BE2B98592C00C6C82A /* GroupHomeViewModel.swift */,
 				21B1C09D2C1C5AA30098B4FD /* GroupExpenseListView.swift */,
-				21B1C0972C1C59630098B4FD /* More Options */,
+				D8A7CA732BA486290014EC67 /* Group Setting */,
 				D826C0E02BDBD63A00AAA449 /* Group Options */,
 			);
 			path = Group;
