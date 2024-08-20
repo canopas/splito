@@ -26,7 +26,7 @@ struct GroupHomeView: View {
                         EmptyStateView(title: "You’re the only one here!",
                                        subtitle: "Invite some friends and make this group come alive!",
                                        buttonTitle: "Invite Member", image: .inviteFriends,
-                                       geometry: geometry, onClick: viewModel.handleAddMemberClick)
+                                       geometry: geometry, onClick: viewModel.handleInviteMemberClick)
                     } else if case .noExpense = viewModel.groupState {
                         EmptyStateView(geometry: geometry, onClick: viewModel.openAddExpenseSheet)
                     } else if case .hasExpense = viewModel.groupState {
@@ -64,13 +64,9 @@ struct GroupHomeView: View {
         }
         .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
             if !(viewModel.memberOwingAmount.isEmpty) {
-                GroupSettleUpRouteView(appRoute: .init(root: .GroupSettleUpView(groupId: viewModel.group?.id ?? ""))) {
-                    viewModel.showSettleUpSheet = false
-                }
+                GroupSettleUpRouteView(appRoute: .init(root: .GroupSettleUpView(groupId: viewModel.group?.id ?? "")), dismissPaymentFlow: viewModel.dismissShowSettleUpSheet)
             } else {
-                GroupSettleUpRouteView(appRoute: .init(root: .GroupWhoIsPayingView(groupId: viewModel.group?.id ?? "", isPaymentSettled: true))) {
-                    viewModel.showSettleUpSheet = false
-                }
+                GroupSettleUpRouteView(appRoute: .init(root: .GroupWhoIsPayingView(groupId: viewModel.group?.id ?? "", isPaymentSettled: true)), dismissPaymentFlow: viewModel.dismissShowSettleUpSheet)
             }
         }
         .sheet(isPresented: $viewModel.showSimplifyInfoSheet) {
@@ -94,6 +90,11 @@ struct GroupHomeView: View {
         .fullScreenCover(isPresented: $viewModel.showGroupTotalSheet) {
             NavigationStack {
                 GroupTotalsView(viewModel: GroupTotalsViewModel(groupId: viewModel.group?.id ?? ""))
+            }
+        }
+        .fullScreenCover(isPresented: $viewModel.showInviteMemberSheet) {
+            NavigationStack {
+                InviteMemberView(viewModel: InviteMemberViewModel(router: viewModel.router, groupId: viewModel.groupId))
             }
         }
         .toolbar {
@@ -136,7 +137,7 @@ struct GroupOptionsListView: View {
                 GroupOptionsButtonView(text: "Totals", onTap: onTotalsTap)
             }
             .padding([.horizontal, .bottom], 16)
-            .padding(.top, 27)
+            .padding(.top, 24)
         }
     }
 }

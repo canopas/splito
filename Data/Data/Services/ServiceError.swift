@@ -31,11 +31,7 @@ public enum ServiceError: LocalizedError, Equatable {
             return "Server error encountered."
         case .networkError:
             return "No internet connection!"
-        case .databaseError:
-            return "Failed to perform database operation."
-        case .decodingError:
-            return "Couldn't decode the response."
-        case .unexpectedError:
+        case .databaseError, .decodingError, .unexpectedError:
             return "Something went wrong."
         case .dataNotFound:
             return "Your requested data not found."

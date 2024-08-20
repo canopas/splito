@@ -224,9 +224,6 @@
     "Contact Us" : {
       "extractionState" : "manual"
     },
-    "Couldn't decode the response." : {
-      "extractionState" : "manual"
-    },
     "Countries" : {
 
     },
@@ -238,9 +235,6 @@
     },
     "Date" : {
       "extractionState" : "manual"
-    },
-    "Delete" : {
-
     },
     "Delete Account" : {
       "extractionState" : "manual"
@@ -330,9 +324,6 @@
       "extractionState" : "manual"
     },
     "Expense description" : {
-      "extractionState" : "manual"
-    },
-    "Failed to perform database operation." : {
       "extractionState" : "manual"
     },
     "First Name" : {
@@ -514,6 +505,9 @@
     },
     "owes you" : {
 
+    },
+    "Payment made successfully" : {
+      "extractionState" : "manual"
     },
     "Payments made" : {
       "extractionState" : "manual"

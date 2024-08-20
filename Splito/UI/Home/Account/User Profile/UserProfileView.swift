@@ -63,9 +63,7 @@ struct UserProfileView: View {
             }
             ToolbarItem(placement: .topBarTrailing, content: {
                 if viewModel.isSaveInProgress {
-                    LoaderView(tintColor: primaryColor, scaleSize: 1)
-                        .frame(height: 50)
-                        .padding(.trailing, 5)
+                    ImageLoaderView(tintColor: primaryColor)
                 } else {
                     CheckmarkButton(iconSize: (24, 32), padding: (.leading, 16), onClick: viewModel.updateUserProfile)
                         .disabled(!viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count < 3)

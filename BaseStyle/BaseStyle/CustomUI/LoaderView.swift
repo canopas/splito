@@ -11,73 +11,60 @@ public struct LoaderView: View {
     @StateObject private var viewModel: LoaderViewModel = .init()
 
     private let tintColor: Color
-    private let scaleSize: CGFloat
-    private let withDarkBG: Bool
-    private let showLoader: Bool
+    private let height: CGFloat
 
-    public init(tintColor: Color = primaryColor, scaleSize: CGFloat = 2.0, withDarkBg: Bool = false, showLoader: Bool = false) {
+    private let totalDots = 7
+    private let timer = Timer.publish(every: 0.20, on: .main, in: .common).autoconnect()
+
+    @State var current = 0
+
+    public init(tintColor: Color = primaryColor, height: CGFloat = 30) {
         self.tintColor = tintColor
-        self.scaleSize = scaleSize
-        self.withDarkBG = withDarkBg
-        self.showLoader = showLoader
+        self.height = height
     }
 
     public var body: some View {
         ZStack {
             if viewModel.isStillLoading {
-                if withDarkBG {
-                    primaryLightText.opacity(0.08)
-                        .ignoresSafeArea()
-                } else {
-                    Color.clear.ignoresSafeArea()
-                }
+                Color.clear.ignoresSafeArea()
 
-                ProgressView()
-                    .scaleEffect(scaleSize, anchor: .center)
-                    .progressViewStyle(CircularProgressViewStyle(tint: tintColor))
+                ForEach(0..<totalDots, id: \.self) { index in
+                    Circle()
+                        .fill(tintColor)
+                        .frame(height: height / 4)
+                        .frame(height: height, alignment: .top)
+                        .rotationEffect(Angle(degrees: 360 / Double(totalDots) * Double(index)))
+                        .opacity(current == index ? 1.0 : current == index + 1 ? 0.5 :
+                                    current == (totalDots - 1) && index == (totalDots - 1) ? 0.5 : 0)
+                }
             }
         }
-        .onAppear {
-            viewModel.onViewAppear()
-        }
+        .onAppear(perform: viewModel.onViewAppear)
+        .onReceive(timer, perform: { _ in
+            withAnimation(Animation.easeInOut(duration: 0.5).repeatCount(1, autoreverses: true)) {
+                current = current == (totalDots - 1) ? 0 : current + 1
+            }
+        })
     }
 }
 
 public struct ImageLoaderView: View {
     @StateObject var viewModel: LoaderViewModel = .init()
 
-    public init() { }
+    private let tintColor: Color
+
+    public init(tintColor: Color = secondaryText) {
+        self.tintColor = tintColor
+    }
 
     public var body: some View {
         ZStack {
             if viewModel.isStillLoading {
                 ProgressView()
                     .scaleEffect(1, anchor: .center)
-                    .progressViewStyle(CircularProgressViewStyle(tint: secondaryText))
-            }
-        }
-        .onAppear(perform: viewModel.onViewAppear)
-    }
-}
-
-public struct LoaderCellView: View {
-    private var tintColor: Color
-    private var isLoading: Bool
-
-    public init(tintColor: Color = secondaryText, isLoading: Bool = false) {
-        self.tintColor = tintColor
-        self.isLoading = isLoading
-    }
-
-    public var body: some View {
-        VStack(spacing: 0) {
-            Color.clear.ignoresSafeArea()
-            if isLoading {
-                ProgressView()
-                    .scaleEffect(anchor: .center)
                     .progressViewStyle(CircularProgressViewStyle(tint: tintColor))
             }
         }
-        .frame(height: 40)
+        .onAppear(perform: viewModel.onViewAppear)
     }
 }
