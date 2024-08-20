@@ -102,8 +102,7 @@ private struct LoginOptionsButtonView: View {
         } label: {
             HStack(alignment: .center, spacing: 12) {
                 if showLoader {
-                    LoaderView(tintColor: primaryColor, scaleSize: 1)
-                        .frame(width: 20, height: 20)
+                    ImageLoaderView(tintColor: primaryColor)
                 }
 
                 if let image {

@@ -30,6 +30,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var showGroupTotalSheet = false
     @Published private(set) var showSearchBar = false
     @Published var showSimplifyInfoSheet: Bool = false
+    @Published var showInviteMemberSheet: Bool = false
     @Published private(set) var showScrollToTopBtn = false
     @Published private(set) var showAddExpenseBtn = false
 
@@ -44,9 +45,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     var currentMonthSpendingAmount: Double {
         guard let userId = preference.user?.id else { return 0 }
 
-        let calendar = Calendar.current
         let isInCurrentMonth: (Date) -> Bool = {
-            calendar.isDate($0, equalTo: Date(), toGranularity: .month)
+            return Calendar.current.isDate($0, equalTo: Date(), toGranularity: .month)
         }
 
         let expenseAmount = expenses
@@ -188,8 +188,8 @@ extension GroupHomeViewModel {
         router.push(.CreateGroupView(group: nil))
     }
 
-    func handleAddMemberClick() {
-        router.push(.InviteMemberView(groupId: groupId))
+    func handleInviteMemberClick() {
+        showInviteMemberSheet = true
     }
 
     func handleSettingsOptionTap() {
@@ -282,6 +282,11 @@ extension GroupHomeViewModel {
 
     func openAddExpenseSheet() {
         showAddExpenseSheet = true
+    }
+
+    func dismissShowSettleUpSheet() {
+        showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
+        showSettleUpSheet = false
     }
 }
 

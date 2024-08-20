@@ -65,7 +65,11 @@ struct AccountHomeView: View {
             MailComposeView(logFilePath: viewModel.logFilePath, showToast: viewModel.showMailSendToast)
         }
         .sheet(isPresented: $viewModel.showShareAppSheet) {
-            ShareSheetView(activityItems: [Constants.shareAppURL])
+            ShareSheetView(activityItems: [Constants.shareAppURL]) { isCompleted in
+                if isCompleted {
+                    viewModel.dismissShareAppSheet()
+                }
+            }
         }
     }
 }

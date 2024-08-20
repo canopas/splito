@@ -58,10 +58,13 @@ struct GroupExpenseListView: View {
                                                 viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
                                             }
                                             .swipeActions {
-                                                Button("Delete") {
+                                                Button {
                                                     viewModel.showExpenseDeleteAlert(expenseId: expense.expense.id ?? "")
+                                                } label: {
+                                                    Image(.deleteIcon)
+                                                        .resizable()
+                                                        .tint(.clear)
                                                 }
-                                                .tint(.red)
                                             }
                                             .onAppear {
                                                 if month == firstMonth && viewModel.groupExpenses[month]?.first?.expense.id == expense.expense.id {
@@ -109,7 +112,6 @@ struct GroupExpenseListView: View {
                 .font(.Header4())
                 .foregroundStyle(primaryText)
                 .padding(.horizontal, 16)
-                .padding(.bottom, 8)
 
             Spacer()
         }
@@ -217,7 +219,7 @@ private struct GroupExpenseItemView: View {
                                 .font(.body1())
                         } else {
                             Text("not involved")
-                                .font(.body1())
+                                .font(.caption1())
                                 .foregroundStyle(disableText)
                         }
                     }
@@ -226,7 +228,8 @@ private struct GroupExpenseItemView: View {
                 .foregroundStyle(isBorrowed ? alertColor : successColor)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 24)
+            .padding(.top, 20)
+            .padding(.bottom, isLastItem ? -1 : 20)
 
             if !isLastItem {
                 Divider()
