@@ -230,6 +230,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     func dismissSettleUpSheet() {
         fetchGroupMembers()
         showSettleUpSheet = false
+        showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
     }
 }
 

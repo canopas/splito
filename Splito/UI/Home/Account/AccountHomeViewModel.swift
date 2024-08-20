@@ -59,6 +59,10 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
         showShareAppSheet = true
     }
 
+    func dismissShareAppSheet() {
+        showShareAppSheet = false
+    }
+
     func handlePrivacyOptionTap() {
         if let url = URL(string: Constants.privacyPolicyURL) {
             if UIApplication.shared.canOpenURL(url) {

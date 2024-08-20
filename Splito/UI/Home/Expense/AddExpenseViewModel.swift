@@ -286,7 +286,7 @@ extension AddExpenseViewModel {
             newExpense.amount = expenseAmount
             newExpense.date = Timestamp(date: expenseDate)
 
-            if expense.paidBy.count == 1 {
+            if selectedPayers.count == 1 {
                 newExpense.paidBy = [selectedPayers.first?.key ?? "": expenseAmount]
             } else {
                 newExpense.paidBy = selectedPayers
