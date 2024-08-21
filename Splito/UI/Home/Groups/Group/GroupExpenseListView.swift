@@ -59,7 +59,7 @@ struct GroupExpenseListView: View {
                                             }
                                             .swipeActions {
                                                 Button {
-                                                    viewModel.showExpenseDeleteAlert(expenseId: expense.expense.id ?? "")
+                                                    viewModel.showExpenseDeleteAlert(expense: expense.expense)
                                                 } label: {
                                                     Image(.deleteIcon)
                                                         .resizable()

@@ -15,7 +15,7 @@ public struct Groups: Codable, Identifiable {
     public let createdBy: String
     public var imageUrl: String?
     public var members: [String]
-    public let balance: [GroupMemberBalance]
+    public var balance: [GroupMemberBalance]
     public let createdAt: Timestamp
     public var isDebtSimplified: Bool
 

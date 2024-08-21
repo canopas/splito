@@ -296,7 +296,7 @@ extension AddExpenseViewModel {
             newExpense.splitTo = (splitType == .equally) ? selectedMembers : splitData.map({ $0.key })
             newExpense.splitData = splitData
 
-            updateExpense(groupId: groupId, expense: newExpense)
+			updateExpense(groupId: groupId, expense: newExpense, oldExpense: expense)
         } else {
             let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
                                   date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: user.id,
@@ -316,13 +316,33 @@ extension AddExpenseViewModel {
                 }
             } receiveValue: { [weak self] _ in
                 self?.viewState = .initial
+                self?.updateGroupMemberBalance(expense: expense, updateType: .Add)
                 completion()
             }.store(in: &cancelable)
     }
 
-    private func updateExpense(groupId: String, expense: Expense) {
+	private func updateExpense(groupId: String, expense: Expense, oldExpense: Expense) {
         viewState = .loading
         expenseRepository.updateExpense(groupId: groupId, expense: expense)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServerError(error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.viewState = .initial
+                self?.updateGroupMemberBalance(expense: expense, updateType: .Update(oldExpense: oldExpense))
+            }.store(in: &cancelable)
+    }
+
+    private func updateGroupMemberBalance(expense: Expense, updateType: DataUpdateType) {
+        guard var group = selectedGroup else {
+            return
+        }
+
+        let memberBalance = getUpdatedMemberBalance(expense: expense, group: group, updateType: updateType)
+        group.balance = memberBalance
+
+        groupRepository.updateGroup(group: group)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.handleServerError(error)

@@ -16,6 +16,13 @@ public struct Settlement {
     let amount: Double
 }
 
+public enum DataUpdateType {
+    case Add
+	case Update(oldExpense: Expense)
+    case Delete
+}
+
+/// It will return member's total split amount from the total expense
 public func getTotalSplitAmount(member: String, expense: Expense) -> Double {
     switch expense.splitType {
     case .equally:
@@ -31,6 +38,7 @@ public func getTotalSplitAmount(member: String, expense: Expense) -> Double {
     }
 }
 
+/// It will return the owing amount to the member for that expense that he have to get or pay back
 public func getCalculatedSplitAmount(member: String, expense: Expense) -> Double {
     let splitAmount: Double
     let paidAmount = expense.paidBy[member] ?? 0
@@ -55,6 +63,30 @@ public func getCalculatedSplitAmount(member: String, expense: Expense) -> Double
     } else {
         return paidAmount
     }
+}
+
+public func getUpdatedMemberBalance(expense: Expense, group: Groups, updateType: DataUpdateType) -> [GroupMemberBalance] {
+    var memberBalance = group.balance
+    for member in group.members {
+        let newSplitAmount = getCalculatedSplitAmount(member: member, expense: expense)
+        if group.balance.contains(where: { $0.id == member }) {
+            if let index = group.balance.firstIndex(where: { $0.id == member }) {
+                switch updateType {
+                case .Add:
+                    memberBalance[index].balance += newSplitAmount
+                case .Update(let oldExpense):
+					let oldSplitAmount = getCalculatedSplitAmount(member: member, expense: oldExpense)
+					memberBalance[index].balance -= oldSplitAmount
+                    memberBalance[index].balance += newSplitAmount
+                case .Delete:
+                    memberBalance[index].balance -= newSplitAmount
+                }
+            }
+        } else {
+            memberBalance.append(GroupMemberBalance(id: member, balance: newSplitAmount))
+        }
+    }
+    return memberBalance
 }
 
 // MARK: - Simplified expense calculation

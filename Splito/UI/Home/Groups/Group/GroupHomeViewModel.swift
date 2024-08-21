@@ -253,27 +253,45 @@ extension GroupHomeViewModel {
         }
     }
 
-    func showExpenseDeleteAlert(expenseId: String) {
+    func showExpenseDeleteAlert(expense: Expense) {
         showAlert = true
         alert = .init(title: "Delete Expense",
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: { self.deleteExpense(expenseId: expenseId) },
+                      positiveBtnAction: { self.deleteExpense(expense: expense) },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func deleteExpense(expenseId: String) {
-        expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
+    private func deleteExpense(expense: Expense) {
+		expenseRepository.deleteExpense(groupId: groupId, expenseId: expense.id ?? "")
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] _ in
-                withAnimation { self?.expensesWithUser.removeAll { $0.expense.id == expenseId } }
-                self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully"))
+				withAnimation { self?.expensesWithUser.removeAll { $0.expense.id == (expense.id ?? "") } }
+				self?.updateGroupMemberBalance(expense: expense, updateType: .Delete)
             }.store(in: &cancelable)
     }
+
+	private func updateGroupMemberBalance(expense: Expense, updateType: DataUpdateType) {
+		guard var group else {
+			return
+		}
+
+		let memberBalance = getUpdatedMemberBalance(expense: expense, group: group, updateType: updateType)
+		group.balance = memberBalance
+
+		groupRepository.updateGroup(group: group)
+			.sink { [weak self] completion in
+				if case .failure(let error) = completion {
+					self?.showToastFor(error)
+				}
+			} receiveValue: { [weak self] _ in
+				self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully."))
+			}.store(in: &cancelable)
+	}
 
     func handleBackBtnTap() {
         onSearchBarCancelBtnTap()
