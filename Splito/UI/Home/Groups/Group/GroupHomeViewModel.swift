@@ -174,7 +174,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private func setGroupViewState() {
         guard let group else { return }
         groupState = group.members.count > 1 ?
-            (expenses.isEmpty ? .noExpense : .hasExpense) : (expenses.isEmpty ? .noMember : .hasExpense)
+        (expenses.isEmpty ? .noExpense : .hasExpense) : (expenses.isEmpty ? .noMember : .hasExpense)
     }
 }
 
@@ -264,34 +264,32 @@ extension GroupHomeViewModel {
     }
 
     private func deleteExpense(expense: Expense) {
-		expenseRepository.deleteExpense(groupId: groupId, expenseId: expense.id ?? "")
+        expenseRepository.deleteExpense(groupId: groupId, expenseId: expense.id ?? "")
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] _ in
-				withAnimation { self?.expensesWithUser.removeAll { $0.expense.id == (expense.id ?? "") } }
-				self?.updateGroupMemberBalance(expense: expense, updateType: .Delete)
+                withAnimation { self?.expensesWithUser.removeAll { $0.expense.id == (expense.id ?? "") } }
+                self?.updateGroupMemberBalance(expense: expense, updateType: .Delete)
             }.store(in: &cancelable)
     }
 
-	private func updateGroupMemberBalance(expense: Expense, updateType: DataUpdateType) {
-		guard var group else {
-			return
-		}
+    private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) {
+        guard var group else { return }
 
-		let memberBalance = getUpdatedMemberBalance(expense: expense, group: group, updateType: updateType)
-		group.balance = memberBalance
+        let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
+        group.balance = memberBalance
 
-		groupRepository.updateGroup(group: group)
-			.sink { [weak self] completion in
-				if case .failure(let error) = completion {
-					self?.showToastFor(error)
-				}
-			} receiveValue: { [weak self] _ in
-				self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully."))
-			}.store(in: &cancelable)
-	}
+        groupRepository.updateGroup(group: group)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully."))
+            }.store(in: &cancelable)
+    }
 
     func handleBackBtnTap() {
         onSearchBarCancelBtnTap()

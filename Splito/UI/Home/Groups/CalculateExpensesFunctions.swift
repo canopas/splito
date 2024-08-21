@@ -16,9 +16,15 @@ public struct Settlement {
     let amount: Double
 }
 
-public enum DataUpdateType {
+public enum ExpenseUpdateType {
     case Add
-	case Update(oldExpense: Expense)
+    case Update(oldExpense: Expense)
+    case Delete
+}
+
+public enum TransactionUpdateType {
+    case Add
+    case Update(oldTransaction: Transactions)
     case Delete
 }
 
@@ -65,7 +71,7 @@ public func getCalculatedSplitAmount(member: String, expense: Expense) -> Double
     }
 }
 
-public func getUpdatedMemberBalance(expense: Expense, group: Groups, updateType: DataUpdateType) -> [GroupMemberBalance] {
+public func getUpdatedMemberBalanceFor(expense: Expense, group: Groups, updateType: ExpenseUpdateType) -> [GroupMemberBalance] {
     var memberBalance = group.balance
     for member in group.members {
         let newSplitAmount = getCalculatedSplitAmount(member: member, expense: expense)
@@ -75,8 +81,8 @@ public func getUpdatedMemberBalance(expense: Expense, group: Groups, updateType:
                 case .Add:
                     memberBalance[index].balance += newSplitAmount
                 case .Update(let oldExpense):
-					let oldSplitAmount = getCalculatedSplitAmount(member: member, expense: oldExpense)
-					memberBalance[index].balance -= oldSplitAmount
+                    let oldSplitAmount = getCalculatedSplitAmount(member: member, expense: oldExpense)
+                    memberBalance[index].balance -= oldSplitAmount
                     memberBalance[index].balance += newSplitAmount
                 case .Delete:
                     memberBalance[index].balance -= newSplitAmount
@@ -86,6 +92,56 @@ public func getUpdatedMemberBalance(expense: Expense, group: Groups, updateType:
             memberBalance.append(GroupMemberBalance(id: member, balance: newSplitAmount))
         }
     }
+    return memberBalance
+}
+
+public func getUpdatedMemberBalanceFor(transaction: Transactions, group: Groups, updateType: TransactionUpdateType) -> [GroupMemberBalance] {
+    var memberBalance = group.balance
+
+    let amount = transaction.amount
+    let payerId = transaction.payerId
+    let receiverId = transaction.receiverId
+
+    // For payer
+    if group.balance.contains(where: { $0.id == payerId }) {
+        if let payerIndex = group.balance.firstIndex(where: { $0.id == payerId }) {
+            switch updateType {
+            case .Add:
+                memberBalance[payerIndex].balance += amount
+            case .Update(let oldTransaction):
+                if let oldPayerIndex = group.balance.firstIndex(where: { $0.id == oldTransaction.payerId }) {
+                    let oldAmount = oldTransaction.amount
+                    memberBalance[oldPayerIndex].balance -= oldAmount
+                }
+                memberBalance[payerIndex].balance += amount
+            case .Delete:
+                memberBalance[payerIndex].balance -= amount
+            }
+        }
+    } else {
+        memberBalance.append(GroupMemberBalance(id: payerId, balance: -amount))
+    }
+
+    // For receiver
+    if group.balance.contains(where: { $0.id == receiverId }) {
+        if let receiverIndex = group.balance.firstIndex(where: { $0.id == receiverId }) {
+            switch updateType {
+            case .Add:
+                memberBalance[receiverIndex].balance -= amount
+            case .Update(let oldTransaction):
+                if let oldReceiverIndex = group.balance.firstIndex(where: { $0.id == oldTransaction.receiverId }) {
+                    let oldAmount = oldTransaction.amount
+                    memberBalance[oldReceiverIndex].balance += oldAmount
+                }
+                memberBalance[receiverIndex].balance -= amount
+            case .Delete:
+                memberBalance[receiverIndex].balance += amount
+            }
+        }
+    } else {
+        memberBalance.append(GroupMemberBalance(id: receiverId, balance: amount))
+    }
+
     return memberBalance
 }
 

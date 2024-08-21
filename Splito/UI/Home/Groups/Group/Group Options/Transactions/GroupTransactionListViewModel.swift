@@ -26,6 +26,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         return formatter
     }()
 
+    private var group: Groups?
     private let groupId: String
     private let router: Router<AppRoute>
 
@@ -33,10 +34,25 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         super.init()
+        fetchGroup()
         fetchLatestTransactions()
     }
 
     // MARK: - Data Loading
+    private func fetchGroup() {
+        currentViewState = .loading
+        groupRepository.fetchGroupBy(id: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServiceError(error)
+                }
+            } receiveValue: { [weak self] group in
+                guard let self, let group else { return }
+                self.group = group
+                self.currentViewState = .initial
+            }.store(in: &cancelable)
+    }
+
     func fetchTransactions() {
         currentViewState = .loading
 
@@ -100,19 +116,18 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
-    func showTransactionDeleteAlert(_ transactionId: String?) {
-        guard let transactionId else { return }
-
+    func showTransactionDeleteAlert(_ transaction: Transactions) {
         showAlert = true
         alert = .init(title: "Delete Transaction",
                       message: "Are you sure you want to delete this transaction?",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: { self.deleteTransaction(transactionId: transactionId) },
+                      positiveBtnAction: { self.deleteTransaction(transaction: transaction) },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func deleteTransaction(transactionId: String) {
+    private func deleteTransaction(transaction: Transactions) {
+        guard let transactionId = transaction.id else { return }
         transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -125,7 +140,23 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                         self.transactions.remove(at: index)
                     }
                 }
-                self.showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully"))
+                self.updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
+            }.store(in: &cancelable)
+    }
+
+    private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) {
+        guard var group else { return }
+
+        let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
+        group.balance = memberBalance
+
+        groupRepository.updateGroup(group: group)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServiceError(error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
             }.store(in: &cancelable)
     }
 
