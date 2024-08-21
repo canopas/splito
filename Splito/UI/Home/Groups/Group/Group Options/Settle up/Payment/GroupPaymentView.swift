@@ -15,60 +15,56 @@ struct GroupPaymentView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 0) {
-                ScrollView {
-                    VStack(alignment: .center, spacing: 0) {
-                        if case .loading = viewModel.viewState {
-                            LoaderView()
-                        } else {
-                            VStack(alignment: .center, spacing: 0) {
-                                VSpacer(27)
+            VStack(alignment: .center, spacing: 0) {
+                if case .loading = viewModel.viewState {
+                    LoaderView()
+                } else {
+                    ScrollView {
+                        VStack(alignment: .center, spacing: 0) {
+                            VSpacer(27)
 
-                                VStack(alignment: .center, spacing: 24) {
-                                    HStack(alignment: .center, spacing: 24) {
-                                        ProfileCardView(name: viewModel.payerName, imageUrl: viewModel.payer?.imageUrl, geometry: geometry)
+                            VStack(alignment: .center, spacing: 24) {
+                                HStack(alignment: .center, spacing: 24) {
+                                    ProfileCardView(name: viewModel.payerName, imageUrl: viewModel.payer?.imageUrl, geometry: geometry)
 
-                                        Image(.transactionIcon)
-                                            .resizable()
-                                            .frame(width: 35, height: 36)
-                                            .padding(7)
+                                    Image(.transactionIcon)
+                                        .resizable()
+                                        .frame(width: 35, height: 36)
+                                        .padding(7)
 
-                                        ProfileCardView(name: viewModel.payableName, imageUrl: viewModel.receiver?.imageUrl, geometry: geometry)
-                                    }
-
-                                    Text("\(viewModel.payerName.localized) paid \(viewModel.payableName.localized)")
-                                        .font(.body3())
-                                        .foregroundStyle(disableText)
-                                        .tracking(0.5)
-                                        .multilineTextAlignment(.center)
+                                    ProfileCardView(name: viewModel.payableName, imageUrl: viewModel.receiver?.imageUrl, geometry: geometry)
                                 }
-                                .padding(16)
 
-                                VSpacer(40)
-
-                                PaymentDetailRow(amount: $viewModel.amount, date: $viewModel.paymentDate, subtitle: "Date", placeholder: "Enter payment date", forDatePicker: true)
-
-                                VSpacer(16)
-
-                                PaymentDetailRow(amount: $viewModel.amount, date: $viewModel.paymentDate, subtitle: "Enter amount", placeholder: "0.00")
-
-                                Spacer(minLength: 40)
+                                Text("\(viewModel.payerName.localized) paid \(viewModel.payableName.localized)")
+                                    .font(.body3())
+                                    .foregroundStyle(disableText)
+                                    .tracking(0.5)
+                                    .multilineTextAlignment(.center)
                             }
-                            .padding(.horizontal, 16)
-                        }
-                    }
-                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                }
-                .scrollIndicators(.hidden)
-                .scrollBounceBehavior(.basedOnSize)
+                            .padding(16)
 
-                PrimaryButton(text: "Done", showLoader: viewModel.showLoader, onClick: viewModel.handleSaveAction)
-                    .padding([.horizontal, .bottom], 16)
-                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-                    .frame(maxWidth: .infinity, alignment: .center)
+                            VSpacer(40)
+
+                            PaymentDetailRow(amount: $viewModel.amount, date: $viewModel.paymentDate, subtitle: "Date", placeholder: "Enter payment date", forDatePicker: true)
+
+                            VSpacer(16)
+
+                            PaymentDetailRow(amount: $viewModel.amount, date: $viewModel.paymentDate, subtitle: "Enter amount", placeholder: "0.00")
+
+                            Spacer(minLength: 40)
+                        }
+                        .padding(.horizontal, 16)
+                    }
+                    .scrollIndicators(.hidden)
+                    .scrollBounceBehavior(.basedOnSize)
+
+                    PrimaryButton(text: "Done", showLoader: viewModel.showLoader, onClick: viewModel.handleSaveAction)
+                        .padding([.horizontal, .bottom], 16)
+                }
             }
         }
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
@@ -111,6 +107,7 @@ private struct PaymentDetailRow: View {
                     TextField("0.00", value: $amount, formatter: numberFormatter)
                         .keyboardType(.decimalPad)
                         .font(.subTitle2())
+                        .tint(primaryColor)
                         .foregroundStyle(primaryText)
                         .focused($isAmountFocused)
                         .frame(maxWidth: .infinity, alignment: .leading)

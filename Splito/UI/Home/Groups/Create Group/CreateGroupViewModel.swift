@@ -99,7 +99,8 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         showLoader = true
 
         let userId = preference.user?.id ?? ""
-        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId, members: [userId], imageUrl: nil, createdAt: Timestamp())
+        let memberBalance = GroupMemberBalance(id: userId, balance: 0)
+        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId, imageUrl: nil, members: [userId], balance: [memberBalance], createdAt: Timestamp())
 
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)

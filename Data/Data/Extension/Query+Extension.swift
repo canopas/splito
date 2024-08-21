@@ -12,7 +12,8 @@ extension Query {
     func snapshotPublisher<T: Decodable>(as type: T.Type) -> AnyPublisher<[T], ServiceError> {
         let subject = PassthroughSubject<[T], ServiceError>()
 
-        let listener = addSnapshotListener { querySnapshot, error in
+        /// includeMetadataChanges: false: This option ensures that your listener will only be triggered by actual data changes, not by metadata changes (like network acknowledgment or pending writes).
+        let listener = addSnapshotListener(includeMetadataChanges: false) { querySnapshot, error in
             if let error = error {
                 LogE("SnapshotPublisher :: error: \(error.localizedDescription)")
                 subject.send(completion: .failure(.databaseError(error: error.localizedDescription)))

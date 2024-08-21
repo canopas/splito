@@ -13,8 +13,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
-    @Inject private var expenseRepository: ExpenseRepository
-    @Inject private var transactionRepository: TransactionRepository
 
     @Published private(set) var currentViewState: ViewState = .loading
     @Published private(set) var groupListState: GroupListState = .noGroup
@@ -30,7 +28,8 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var showCreateGroupSheet = false
     @Published var showJoinGroupSheet = false
 
-    private var groups: [Groups] = []
+    @Published private var groups: [Groups] = []
+
     let router: Router<AppRoute>
 
     var filteredGroups: [GroupInformation] {
@@ -40,10 +39,10 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         case .all:
             return searchedGroup.isEmpty ? groups : groups.filter { $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         case .settled:
-            return searchedGroup.isEmpty ? groups.filter { $0.oweAmount == 0 } : groups.filter { $0.oweAmount == 0 &&
+            return searchedGroup.isEmpty ? groups.filter { $0.userBalance == 0 } : groups.filter { $0.userBalance == 0 &&
                 $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         case .unsettled:
-            return searchedGroup.isEmpty ? groups.filter { $0.oweAmount != 0 } : groups.filter { $0.oweAmount != 0 &&
+            return searchedGroup.isEmpty ? groups.filter { $0.userBalance != 0 } : groups.filter { $0.userBalance != 0 &&
                 $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         }
     }
@@ -52,39 +51,13 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         self.router = router
         super.init()
         self.fetchLatestGroups()
-        self.observeLatestExpenses()
     }
 
     // MARK: - Data Loading
     func fetchGroups() {
         guard let userId = preference.user?.id else { return }
-
         let groupsPublisher = groupRepository.fetchGroups(userId: userId)
         processGroupsDetails(groupsPublisher)
-    }
-
-    private func observeLatestExpenses() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.fetchLatestExpenses()
-        }
-    }
-
-    private func fetchLatestExpenses() {
-        guard !groups.isEmpty else { return }
-
-        groups.forEach { group in
-            guard let groupId = group.id else { return }
-            expenseRepository.fetchLatestExpensesBy(groupId: groupId)
-                .sink(receiveCompletion: { [weak self] completion in
-                    if case .failure(let error) = completion {
-                        self?.currentViewState = .initial
-                        self?.showToastFor(error)
-                    }
-                }, receiveValue: { [weak self] _ in
-                    self?.fetchLatestGroups()
-                })
-                .store(in: &cancelable)
-        }
     }
 
     private func fetchLatestGroups() {
@@ -123,57 +96,28 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
                 self.currentViewState = .initial
                 let sortedGroups = groups.sorted { $0.group.name < $1.group.name }
                 self.groupListState = sortedGroups.isEmpty ? .noGroup : .hasGroup(groups: sortedGroups)
-                self.usersTotalExpense = groups.reduce(0.0) { $0 + $1.oweAmount }
+                self.usersTotalExpense = groups.reduce(0.0) { $0 + $1.userBalance }
             }
             .store(in: &cancelable)
     }
 
     private func fetchGroupInformation(group: Groups) -> AnyPublisher<GroupInformation, ServiceError> {
-        fetchExpenses(group: group)
-            .combineLatest(groupRepository.fetchMemberDataOf(members: group.members))
-            .map { (expenseTuple, members) -> GroupInformation in
-                let (expense, owingAmounts, hasExpenses) = expenseTuple
-                return GroupInformation(group: group, oweAmount: expense,
-                                        memberOweAmount: owingAmounts, members: members, hasExpenses: hasExpenses)
+        groupRepository.fetchMemberDataOf(members: group.members)
+            .map { members in
+                let userId = self.preference.user?.id ?? ""
+                let memberBalance = self.getMembersBalance(group: group, memberId: userId)
+                let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balance)
+                return GroupInformation(group: group, userBalance: memberBalance,
+                                        memberOweAmount: memberOwingAmount, members: members, hasExpenses: true)
             }
             .eraseToAnyPublisher()
     }
 
-    private func fetchExpenses(group: Groups) -> AnyPublisher<(Double, [String: Double], Bool), ServiceError> {
-        guard let groupId = group.id else {
-            return Fail(error: ServiceError.dataNotFound).eraseToAnyPublisher()
+    private func getMembersBalance(group: Groups, memberId: String) -> Double {
+        if let index = group.balance.firstIndex(where: { $0.id == memberId }) {
+            return group.balance[index].balance
         }
-
-        let expensesPublisher = expenseRepository.fetchExpensesBy(groupId: groupId)
-        let transactionsPublisher = transactionRepository.fetchTransactionsBy(groupId: groupId)
-
-        return expensesPublisher
-            .combineLatest(transactionsPublisher)
-            .flatMap { [weak self] (expenses, transactions) -> AnyPublisher<(Double, [String: Double], Bool), ServiceError> in
-                guard let self else { return Fail(error: ServiceError.dataNotFound).eraseToAnyPublisher() }
-
-                let expensesPublisher: AnyPublisher<(Double, [String: Double]), ServiceError>
-
-                if group.isDebtSimplified {
-                    expensesPublisher = self.calculateExpenses(members: group.members, expenses: expenses, transactions: transactions)
-                } else {
-                    expensesPublisher = self.calculateExpenses(members: group.members, expenses: expenses, transactions: transactions)
-                }
-
-                return expensesPublisher
-                    .map { (total, owingAmounts) in
-                        return (total, owingAmounts, !expenses.isEmpty)
-                    }
-                    .eraseToAnyPublisher()
-            }
-            .eraseToAnyPublisher()
-    }
-
-    private func calculateExpenses(members: [String], expenses: [Expense], transactions: [Transactions]) -> AnyPublisher<(Double, [String: Double]), ServiceError> {
-        guard let userId = self.preference.user?.id else { return Fail(error: .dataNotFound).eraseToAnyPublisher() }
-
-        let memberOwingAmount = calculateExpensesSimplified(userId: userId, members: members, expenses: expenses, transactions: transactions)
-        return Just((memberOwingAmount.values.reduce(0, +), memberOwingAmount)).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
+        return 0
     }
 }
 
@@ -225,8 +169,8 @@ extension GroupListViewModel {
 
     func handleTabItemSelection(_ selection: GroupListTabType) {
         guard case .hasGroup(let groups) = groupListState else { return }
-        let settledGroups = groups.filter { $0.oweAmount == 0 }
-        let unsettledGroups = groups.filter { $0.oweAmount != 0 }
+        let settledGroups = groups.filter { $0.userBalance == 0 }
+        let unsettledGroups = groups.filter { $0.userBalance != 0 }
 
         withAnimation(.easeInOut(duration: 0.3)) {
             selectedTab = selection
@@ -285,7 +229,7 @@ extension GroupListViewModel {
 // MARK: - To show group and expense together
 struct GroupInformation {
     let group: Groups
-    let oweAmount: Double
+    let userBalance: Double
     let memberOweAmount: [String: Double]
     let members: [AppUser]
     let hasExpenses: Bool

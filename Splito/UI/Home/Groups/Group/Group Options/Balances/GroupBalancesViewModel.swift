@@ -13,13 +13,12 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
-    @Inject private var transactionRepository: TransactionRepository
 
     @Published var viewState: ViewState = .initial
 
     @Published var groupId: String
     @Published var showSettleUpSheet: Bool = false
-    @Published var memberBalances: [GroupMemberBalance] = []
+    @Published var memberBalances: [MembersCombinedBalance] = []
     @Published var memberOwingAmount: [String: Double] = [:]
 
     @Published var payerId: String?
@@ -27,8 +26,8 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     @Published var amount: Double?
 
     private var groupMemberData: [AppUser] = []
-    private var transactions: [Transactions] = []
     let router: Router<AppRoute>
+    var group: Groups?
 
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
@@ -61,56 +60,14 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
-                self.fetchTransactions()
-                self.fetchExpenses(group: group)
-            }.store(in: &cancelable)
-    }
-
-    private func fetchTransactions() {
-        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
-            if case .failure(let error) = completion {
-                self?.showToastFor(error)
-            }
-        } receiveValue: { [weak self] transactions in
-            self?.transactions = transactions
-        }.store(in: &cancelable)
-    }
-
-    private func fetchExpenses(group: Groups) {
-        expenseRepository.fetchExpensesBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] expenses in
-                guard let self else { return }
-                if group.isDebtSimplified {
-                    calculateExpensesSimplified(expenses: expenses)
-                } else {
-                    calculateExpensesSimplified(expenses: expenses)
-                }
+                self.group = group
+                self.calculateExpensesSimplified(group: group)
             }.store(in: &cancelable)
     }
 
     // MARK: - Helper Methods
-    private func calculateExpensesSimplified(expenses: [Expense]) {
-        let groupMembers = Array(Set(groupMemberData.map { $0.id }))
-        var memberBalances = groupMembers.map { GroupMemberBalance(id: $0) }
-
-        for expense in expenses {
-            // Update total owed amount for each payer
-
-            for member in groupMemberData {
-                if let owedMemberIndex = memberBalances.firstIndex(where: { $0.id == member.id }) {
-                    let splitAmount = getCalculatedSplitAmount(member: member.id, expense: expense)
-                    memberBalances[owedMemberIndex].totalOwedAmount += splitAmount
-                }
-            }
-        }
-
-        // Process transactions and settle debts
-        memberBalances = processTransactions(transactions: transactions, memberBalances: memberBalances, isSimplify: true)
+    private func calculateExpensesSimplified(group: Groups) {
+        let memberBalances = group.balance.map { MembersCombinedBalance(id: $0.id, totalOwedAmount: $0.balance) }
 
         DispatchQueue.main.async {
             let debts = self.settleDebts(balances: memberBalances)
@@ -118,28 +75,9 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func processTransactions(transactions: [Transactions], memberBalances: [GroupMemberBalance], isSimplify: Bool) -> [GroupMemberBalance] {
-        var memberBalances: [GroupMemberBalance] = memberBalances
-
-        for transaction in transactions {
-            if let payerIndex = memberBalances.firstIndex(where: { $0.id == transaction.payerId }),
-               let receiverIndex = memberBalances.firstIndex(where: { $0.id == transaction.receiverId }) {
-                memberBalances[payerIndex].totalOwedAmount += transaction.amount
-                memberBalances[receiverIndex].totalOwedAmount -= transaction.amount
-
-                if !(isSimplify) {
-                    memberBalances[payerIndex].balances[transaction.receiverId, default: 0.0] += transaction.amount
-                    memberBalances[receiverIndex].balances[transaction.payerId, default: 0.0] -= transaction.amount
-                }
-            }
-        }
-
-        return memberBalances
-    }
-
-    private func settleDebts(balances: [GroupMemberBalance]) -> [GroupMemberBalance] {
-        var creditors: [(GroupMemberBalance, Double)] = []
-        var debtors: [(GroupMemberBalance, Double)] = []
+    private func settleDebts(balances: [MembersCombinedBalance]) -> [MembersCombinedBalance] {
+        var creditors: [(MembersCombinedBalance, Double)] = []
+        var debtors: [(MembersCombinedBalance, Double)] = []
 
         // Separate users into creditors and debtors
         for balance in balances {
@@ -180,7 +118,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         return updatedBalances
     }
 
-    private func sortMemberBalances(memberBalances: [GroupMemberBalance]) {
+    private func sortMemberBalances(memberBalances: [MembersCombinedBalance]) {
         guard let userId = preference.user?.id, let userIndex = memberBalances.firstIndex(where: { $0.id == userId }) else { return }
 
         var sortedMembers = memberBalances
@@ -235,7 +173,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 }
 
 // MARK: - Struct to hold combined expense and user owe amount
-struct GroupMemberBalance {
+struct MembersCombinedBalance {
     let id: String
     var isExpanded: Bool = false
     var totalOwedAmount: Double = 0

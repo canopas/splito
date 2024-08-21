@@ -11,9 +11,9 @@ public struct Transactions: Codable {
 
     public var id: String? // Automatically generated ID by Firestore
 
-    public var payerId: String
-    public var receiverId: String
-    public var addedBy: String
+    public let payerId: String
+    public let receiverId: String
+    public let addedBy: String
     public var amount: Double
     public var date: Timestamp
 

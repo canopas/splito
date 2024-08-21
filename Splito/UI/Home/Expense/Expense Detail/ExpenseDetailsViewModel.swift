@@ -13,6 +13,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     @Inject var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
+    @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
 
     @Published var expense: Expense?
@@ -25,15 +26,31 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     var groupId: String
     var expenseId: String
     let router: Router<AppRoute>
+    private var group: Groups?
 
     init(router: Router<AppRoute>, groupId: String, expenseId: String, groupImageUrl: String) {
         self.router = router
         self.groupId = groupId
         self.expenseId = expenseId
         self.groupImageUrl = groupImageUrl
+        super.init()
+        fetchGroup()
     }
 
     // MARK: - Data Loading
+    private func fetchGroup() {
+        groupRepository.fetchGroupBy(id: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.viewState = .initial
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] group in
+                guard let self, let group else { return }
+                self.group = group
+            }.store(in: &cancelable)
+    }
+
     func fetchExpense() {
         viewState = .loading
         expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
@@ -117,13 +134,30 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] _ in
                 self?.viewState = .initial
+                self?.updateGroupMemberBalance(updateType: .Delete)
                 self?.router.pop()
+            }.store(in: &cancelable)
+    }
+
+    private func updateGroupMemberBalance(updateType: ExpenseUpdateType) {
+        guard var group, let expense else { return }
+
+        let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
+        group.balance = memberBalance
+
+        groupRepository.updateGroup(group: group)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.viewState = .initial
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.viewState = .initial
             }.store(in: &cancelable)
     }
 
     func getSplitAmount(for member: String) -> String {
         guard let expense = expense else { return "" }
-
         let finalAmount = getTotalSplitAmount(member: member, expense: expense)
         return finalAmount.formattedCurrency
     }

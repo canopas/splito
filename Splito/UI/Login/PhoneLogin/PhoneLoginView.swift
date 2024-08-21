@@ -147,7 +147,7 @@ private struct PhoneLoginContentView: View {
                     if phoneNumber.isEmpty {
                         Text(" Enter mobile number")
                             .font(.subTitle3())
-                            .foregroundColor(disableText)
+                            .foregroundStyle(disableText)
                     }
                     TextField("", text: $phoneNumber)
                         .font(.Header2())
@@ -155,7 +155,7 @@ private struct PhoneLoginContentView: View {
                         .keyboardType(.phonePad)
                         .foregroundStyle(primaryText)
                         .disabled(showLoader)
-                        .accentColor(primaryColor)
+                        .tint(primaryColor)
                         .focused($isFocused)
                         .onAppear {
                             isFocused = true
@@ -239,7 +239,7 @@ private struct CountryNotFoundView: View {
 
             Text("No results found for \"\(searchCountry)\"!")
                 .font(.subTitle1())
-                .foregroundColor(disableText)
+                .foregroundStyle(disableText)
                 .padding(.bottom, 60)
 
             Spacer()

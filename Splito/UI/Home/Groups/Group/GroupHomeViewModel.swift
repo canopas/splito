@@ -14,13 +14,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
-    @Inject private var transactionRepository: TransactionRepository
 
     @Published private(set) var groupId: String
     @Published var searchedExpense: String = ""
     @Published private(set) var overallOwingAmount = 0.0
 
-    @Published private(set) var transactions: [Transactions] = []
     @Published private(set) var expensesWithUser: [ExpenseWithUser] = []
     @Published private(set) var memberOwingAmount: [String: Double] = [:]
     @Published private(set) var groupState: GroupState = .loading
@@ -37,6 +35,14 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var showAddExpenseBtn = false
 
     @Published private(set) var group: Groups?
+
+    @Published var expenses: [Expense] = [] {
+        didSet {
+            fetchGroupBalance()
+            setGroupViewState()
+            combineMemberWithExpense()
+        }
+    }
 
     static private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -58,14 +64,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             .map { getTotalSplitAmount(member: userId, expense: $0) }
             .reduce(0.0, +)
 
-        let transactionAmount = transactions
-            .filter { transaction in
-                isInCurrentMonth(transaction.date.dateValue()) && transaction.payerId == userId
-            }
-            .map(\.amount)
-            .reduce(0.0, +)
-
-        return expenseAmount + transactionAmount
+        return expenseAmount
     }
 
     var groupExpenses: [String: [ExpenseWithUser]] {
@@ -80,7 +79,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     let router: Router<AppRoute>
-    var expenses: [Expense] = []
     private var groupUserData: [AppUser] = []
 
     init(router: Router<AppRoute>, groupId: String) {
@@ -88,42 +86,12 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
         super.init()
 
-        self.fetchLatestTransactions()
+        fetchGroupAndExpenses()
+        fetchLatestExpenses()
     }
 
     // MARK: - Data Loading
-    private func fetchLatestTransactions() {
-        transactionRepository.fetchLatestTransactionsBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] transactions in
-                guard let self else { return }
-                self.transactions = transactions
-                self.fetchLatestExpenses()
-            }.store(in: &cancelable)
-    }
-
-    private func fetchLatestExpenses() {
-        expenseRepository.fetchLatestExpensesBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.groupState = .noMember
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] expenses in
-                guard let self, let group else { return }
-                self.expenses = expenses
-                if group.isDebtSimplified {
-                    self.calculateExpensesSimplified()
-                } else {
-                    self.calculateExpensesSimplified()
-                }
-            }.store(in: &cancelable)
-    }
-
-    func fetchGroupAndExpenses() {
+    private func fetchGroupAndExpenses() {
         groupState = .loading
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
@@ -139,20 +107,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                         self.groupUserData.append(memberData)
                     }
                 }
-                self.fetchTransactions()
                 self.fetchExpenses()
             }.store(in: &cancelable)
-    }
-
-    private func fetchTransactions() {
-        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
-            if case .failure(let error) = completion {
-                self?.showToastFor(error)
-            }
-        } receiveValue: { [weak self] transactions in
-            guard let self else { return }
-            self.transactions = transactions
-        }.store(in: &cancelable)
     }
 
     private func fetchExpenses() {
@@ -163,35 +119,32 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] expenses in
-                guard let self, let group else { return }
+                guard let self else { return }
                 self.expenses = expenses
-                if group.isDebtSimplified {
-                    self.calculateExpensesSimplified()
-                } else {
-                    self.calculateExpensesSimplified()
-                }
+                self.combineMemberWithExpense()
+                self.setGroupViewState()
             }.store(in: &cancelable)
     }
 
-    private func calculateExpensesSimplified() {
-        guard let userId = preference.user?.id, let group else { return }
+    private func fetchLatestExpenses() {
+        expenseRepository.fetchLatestExpensesBy(groupId: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.groupState = .noMember
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] expenses in
+                guard let self else { return }
+                self.expenses = expenses.uniqued()
+            }.store(in: &cancelable)
+    }
 
+    private func combineMemberWithExpense() {
         let queue = DispatchGroup()
-        var memberBalance: [String: Double] = [:]
         var combinedData: [ExpenseWithUser] = []
-
-        overallOwingAmount = 0.0
-        memberOwingAmount = [:]
 
         for expense in expenses {
             queue.enter()
-
-            for member in group.members {
-                let amount = getCalculatedSplitAmount(member: member, expense: expense)
-                memberBalance[member, default: 0] += amount
-            }
-
-            // Fetch user data for each payer once per expense
             fetchUserData(for: expense.paidBy.keys.first ?? "") { user in
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
                 queue.leave()
@@ -200,19 +153,20 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         queue.notify(queue: .main) { [weak self] in
             guard let self else { return }
-            let settlements = calculateSettlements(balances: memberBalance)
-            for settlement in settlements where settlement.sender == userId || settlement.receiver == userId {
-                let memberId = settlement.receiver == userId ? settlement.sender : settlement.receiver
-                let amount = settlement.sender == userId ? -settlement.amount : settlement.amount
-                memberOwingAmount[memberId, default: 0] = amount
-            }
-
             withAnimation(.easeOut) {
-                self.memberOwingAmount = processTransactions(userId: userId, transactions: self.transactions, memberOwingAmount: self.memberOwingAmount)
-                self.overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
                 self.expensesWithUser = combinedData
             }
-            self.setGroupViewState()
+        }
+    }
+
+    private func fetchGroupBalance() {
+        guard let userId = preference.user?.id, let group else { return }
+        memberOwingAmount = [:]
+        overallOwingAmount = 0.0
+
+        memberOwingAmount = Splito.calculateExpensesSimplified(userId: userId, memberBalances: group.balance)
+        withAnimation(.easeOut) {
+            overallOwingAmount = memberOwingAmount.values.reduce(0, +)
         }
     }
 
@@ -231,8 +185,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private func setGroupViewState() {
         guard let group else { return }
         groupState = group.members.count > 1 ?
-        ((expenses.isEmpty && transactions.isEmpty) ? .noExpense : .hasExpense) :
-        (expenses.isEmpty ? .noMember : .hasExpense)
+        (expenses.isEmpty ? .noExpense : .hasExpense) : (expenses.isEmpty ? .noMember : .hasExpense)
     }
 }
 
@@ -311,25 +264,41 @@ extension GroupHomeViewModel {
         }
     }
 
-    func showExpenseDeleteAlert(expenseId: String) {
+    func showExpenseDeleteAlert(expense: Expense) {
         showAlert = true
         alert = .init(title: "Delete Expense",
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: { self.deleteExpense(expenseId: expenseId) },
+                      positiveBtnAction: { self.deleteExpense(expense: expense) },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func deleteExpense(expenseId: String) {
-        expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
+    private func deleteExpense(expense: Expense) {
+        expenseRepository.deleteExpense(groupId: groupId, expenseId: expense.id ?? "")
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] _ in
-                withAnimation { self?.expensesWithUser.removeAll { $0.expense.id == expenseId } }
-                self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully"))
+                withAnimation { self?.expensesWithUser.removeAll { $0.expense.id == (expense.id ?? "") } }
+                self?.updateGroupMemberBalance(expense: expense, updateType: .Delete)
+            }.store(in: &cancelable)
+    }
+
+    private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) {
+        guard var group else { return }
+
+        let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
+        group.balance = memberBalance
+
+        groupRepository.updateGroup(group: group)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully."))
             }.store(in: &cancelable)
     }
 

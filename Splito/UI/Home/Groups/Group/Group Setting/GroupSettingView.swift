@@ -26,13 +26,9 @@ struct GroupSettingView: View {
                         GroupTitleView(group: viewModel.group)
                             .onTouchGesture(viewModel.handleEditGroupTap)
 
-                        GroupMembersView(group: viewModel.group, members: viewModel.members,
-                                         oweAmount: viewModel.amountOweByMember,
-                                         onAddMemberTap: viewModel.handleAddMemberTap,
-                                         onMemberTap: viewModel.handleMemberTap(member:))
+                        GroupMembersView(viewModel: viewModel)
 
-                        GroupAdvanceSettingsView(isDebtSimplified: $viewModel.isDebtSimplified,
-                                                 onLeaveGroupTap: viewModel.handleLeaveGroupTap,
+                        GroupAdvanceSettingsView(onLeaveGroupTap: viewModel.handleLeaveGroupTap,
                                                  onDeleteGroupTap: viewModel.handleDeleteGroupTap)
 
                         Spacer(minLength: 50)
@@ -121,20 +117,7 @@ private struct GroupTitleView: View {
 
 private struct GroupMembersView: View {
 
-    let group: Groups?
-    var members: [AppUser]
-    var oweAmount: [String: Double]
-
-    var onAddMemberTap: () -> Void
-    var onMemberTap: (AppUser) -> Void
-
-    init(group: Groups?, members: [AppUser], oweAmount: [String: Double], onAddMemberTap: @escaping () -> Void, onMemberTap: @escaping (AppUser) -> Void) {
-        self.group = group
-        self.members = members
-        self.oweAmount = oweAmount
-        self.onAddMemberTap = onAddMemberTap
-        self.onMemberTap = onMemberTap
-    }
+    @ObservedObject var viewModel: GroupSettingViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -144,14 +127,17 @@ private struct GroupMembersView: View {
                 .padding(.horizontal, 16)
 
             VStack(spacing: 20) {
-                GroupListEditCellView(icon: .addMemberIcon, text: "Add a new member", onTap: onAddMemberTap)
+                GroupListEditCellView(icon: .addMemberIcon, text: "Add a new member",
+                                      onTap: viewModel.handleAddMemberTap)
 
                 LazyVStack(spacing: 20) {
-                    ForEach(members) { member in
-                        GroupMemberCellView(member: member, amount: oweAmount[member.id] ?? 0, isAdmin: member.id == group?.createdBy)
-                            .onTouchGesture {
-                                onMemberTap(member)
-                            }
+                    ForEach(viewModel.members) { member in
+                        let balance = viewModel.getMembersBalance(memberId: member.id)
+                        GroupMemberCellView(member: member, amount: balance,
+                                            isAdmin: member.id == viewModel.group?.createdBy)
+                        .onTouchGesture {
+                            viewModel.handleMemberTap(memberId: member.id)
+                        }
                     }
                 }
             }
@@ -244,7 +230,7 @@ private struct GroupMemberCellView: View {
                     if isAdmin {
                         Text(" (Admin)")
                             .font(.caption1())
-                            .foregroundColor(secondaryText)
+                            .foregroundStyle(secondaryText)
                     }
                 }
 
@@ -277,7 +263,7 @@ private struct GroupMemberCellView: View {
 
 private struct GroupAdvanceSettingsView: View {
 
-    @Binding var isDebtSimplified: Bool
+    @State var isDebtSimplified = true
 
     var showSimplifyDebtsToggle: Bool = false
 

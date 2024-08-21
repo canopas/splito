@@ -21,7 +21,7 @@ struct GroupExpenseListView: View {
             ScrollViewReader { scrollProxy in
                 VStack(alignment: .leading, spacing: 0) {
                     GroupOptionsListView(isSettleUpEnable: (!viewModel.memberOwingAmount.isEmpty && viewModel.group?.members.count ?? 1 > 1),
-                                         showTransactionsOption: !viewModel.transactions.isEmpty,
+                                         showTransactionsOption: true,
                                          onSettleUpTap: viewModel.handleSettleUpBtnTap,
                                          onTransactionsTap: viewModel.handleTransactionsBtnTap,
                                          onBalanceTap: viewModel.handleBalancesBtnTap,
@@ -46,10 +46,7 @@ struct GroupExpenseListView: View {
                             GroupExpenseHeaderView(viewModel: viewModel)
                                 .id("expenseList")
 
-                            if viewModel.expenses.isEmpty && !viewModel.transactions.isEmpty {
-                                EmptyStateView(geometry: geometry, minHeight: geometry.size.height - 250,
-                                               onClick: viewModel.openAddExpenseSheet)
-                            } else if !viewModel.groupExpenses.isEmpty {
+                            if !viewModel.groupExpenses.isEmpty {
                                 let firstMonth = viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings).first
 
                                 ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
@@ -62,7 +59,7 @@ struct GroupExpenseListView: View {
                                             }
                                             .swipeActions {
                                                 Button {
-                                                    viewModel.showExpenseDeleteAlert(expenseId: expense.expense.id ?? "")
+                                                    viewModel.showExpenseDeleteAlert(expense: expense.expense)
                                                 } label: {
                                                     Image(.deleteIcon)
                                                         .resizable()
@@ -170,10 +167,10 @@ private struct GroupExpenseItemView: View {
                 VStack(spacing: 0) {
                     Text(dateComponents.month)
                         .font(.caption1())
-                        .foregroundColor(disableText)
+                        .foregroundStyle(disableText)
                     Text(dateComponents.day)
                         .font(.Header4())
-                        .foregroundColor(primaryText)
+                        .foregroundStyle(primaryText)
                 }
                 .multilineTextAlignment(.center)
                 .padding(.trailing, 8)
@@ -304,11 +301,11 @@ private struct GroupExpenseHeaderOverallView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("You \(isDue ? "owe overall" : "are overall owed")")
                     .font(.body3())
-                    .foregroundColor(disableText)
+                    .foregroundStyle(disableText)
 
                 Text("\(abs(viewModel.overallOwingAmount).formattedCurrency)")
                     .font(.body1())
-                    .foregroundColor(isDue ? alertColor : successColor)
+                    .foregroundStyle(isDue ? alertColor : successColor)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(16)
@@ -320,11 +317,11 @@ private struct GroupExpenseHeaderOverallView: View {
             VStack(alignment: .trailing, spacing: 4) {
                 Text("Your \(Date().dayOfMonth) spending")
                     .font(.body3())
-                    .foregroundColor(disableText)
+                    .foregroundStyle(disableText)
 
                 Text("\(abs(viewModel.currentMonthSpendingAmount).formattedCurrency)")
                     .font(.body1())
-                    .foregroundColor(primaryText)
+                    .foregroundStyle(primaryText)
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(16)
@@ -365,7 +362,7 @@ private struct GroupExpenseMemberOweView: View {
                     .resizable()
                     .frame(width: 14, height: 14)
                     .scaledToFit()
-                    .foregroundColor(secondaryText)
+                    .foregroundStyle(secondaryText)
             }
         }
         .onTouchGesture(handleSimplifyInfoSheet)
@@ -381,11 +378,11 @@ private struct ExpenseNotFoundView: View {
         VStack(alignment: .center, spacing: 16) {
             Text("No results found for \"\(searchedExpense)\"!")
                 .font(.Header1())
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
 
             Text("No results were found that match your search criteria.")
                 .font(.subTitle2())
-                .foregroundColor(disableText)
+                .foregroundStyle(disableText)
                 .tracking(-0.2)
                 .lineSpacing(4)
         }

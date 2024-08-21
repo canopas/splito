@@ -18,7 +18,7 @@ public struct LoaderView: View {
 
     @State var current = 0
 
-    public init(tintColor: Color = primaryColor, height: CGFloat = 30) {
+    public init(tintColor: Color = primaryColor, height: CGFloat = 38) {
         self.tintColor = tintColor
         self.height = height
     }

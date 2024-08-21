@@ -11,6 +11,7 @@ import Foundation
 class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     @Inject private var userRepository: UserRepository
+    @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
 
     @Published private(set) var transaction: Transactions?
@@ -23,13 +24,31 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     let groupId: String
     let transactionId: String
 
+    private var group: Groups?
+
     init(router: Router<AppRoute>, groupId: String, transactionId: String) {
         self.router = router
         self.groupId = groupId
         self.transactionId = transactionId
+        super.init()
+        fetchGroup()
     }
 
     // MARK: - Data Loading
+    private func fetchGroup() {
+        viewState = .loading
+        groupRepository.fetchGroupBy(id: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServiceError(error)
+                }
+            } receiveValue: { [weak self] group in
+                guard let self, let group else { return }
+                self.group = group
+                viewState = .loading
+            }.store(in: &cancelable)
+    }
+
     func fetchTransaction() {
         viewState = .loading
         transactionRepository.fetchTransactionBy(groupId: groupId, transactionId: transactionId)
@@ -107,7 +126,6 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     private func deleteTransaction() {
         viewState = .loading
-
         transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -115,7 +133,24 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] _ in
                 self?.viewState = .initial
+                self?.updateGroupMemberBalance(updateType: .Delete)
                 self?.router.pop()
+            }.store(in: &cancelable)
+    }
+
+    private func updateGroupMemberBalance(updateType: TransactionUpdateType) {
+        guard var group, let transaction else { return }
+
+        let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
+        group.balance = memberBalance
+
+        groupRepository.updateGroup(group: group)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServiceError(error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
             }.store(in: &cancelable)
     }
 

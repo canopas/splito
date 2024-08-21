@@ -42,15 +42,24 @@ class GroupStore: ObservableObject {
 
             let groupRef = self.database.collection(self.COLLECTION_NAME).document(groupId)
 
-            groupRef.updateData([
-                "members": FieldValue.arrayUnion([memberId])
-            ]) { error in
-                if let error {
-                    LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
-                } else {
-                    promise(.success(()))
+            do {
+                let memberBalance = GroupMemberBalance(id: memberId, balance: 0)
+                let memberBalanceData = try Firestore.Encoder().encode(memberBalance)
+
+                groupRef.updateData([
+                    "members": FieldValue.arrayUnion([memberId]),
+                    "balance": FieldValue.arrayUnion([memberBalanceData])
+                ]) { error in
+                    if let error {
+                        LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
+                        promise(.failure(.databaseError(error: error.localizedDescription)))
+                    } else {
+                        promise(.success(()))
+                    }
                 }
+            } catch {
+                LogE("GroupStore :: \(#function) error encoding balance: \(error.localizedDescription)")
+                promise(.failure(.unexpectedError))
             }
         }.eraseToAnyPublisher()
     }

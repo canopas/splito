@@ -24,9 +24,9 @@ public class AppAssembly: Assembly {
         }.inObjectScope(.container)
 
         container.register(Firestore.self) { _ in
-            let db = Firestore.firestore()
             let settings = FirestoreSettings()
-            settings.isPersistenceEnabled = false
+            settings.cacheSettings = MemoryCacheSettings()
+            let db = Firestore.firestore()
             db.settings = settings
             return db
         }.inObjectScope(.container)

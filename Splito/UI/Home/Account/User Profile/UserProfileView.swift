@@ -185,7 +185,7 @@ private struct UserDetailCell: View {
     let fieldType: UserProfileList
     let keyboardType: UIKeyboardType
     let validationType: TextFieldValidationType
-    var autoCapitalizationType: UITextAutocapitalizationType
+    var autoCapitalizationType: TextInputAutocapitalization
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -241,17 +241,18 @@ private struct UserProfileDataEditableTextField: View {
     let fieldType: UserProfileList
     let keyboardType: UIKeyboardType
     var focused: FocusState<UserProfileList?>.Binding
-    var autoCapitalizationType: UITextAutocapitalizationType
+    var autoCapitalizationType: TextInputAutocapitalization
 
     var body: some View {
         TextField(placeholder.localized, text: $titleText)
             .font(.subTitle2())
             .focused(focused, equals: fieldType)
             .foregroundStyle(primaryText)
-            .disableAutocorrection(true)
+            .tint(primaryColor)
+            .autocorrectionDisabled()
             .disabled(isDisabled)
             .keyboardType(keyboardType)
-            .autocapitalization(autoCapitalizationType)
+            .textInputAutocapitalization(autoCapitalizationType)
             .submitLabel(.next)
             .onSubmit {
                 if focused.wrappedValue == .firstName {

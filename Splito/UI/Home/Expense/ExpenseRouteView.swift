@@ -18,7 +18,7 @@ struct ExpenseRouteView: View {
     var body: some View {
         RouterView(router: appRoute) { route in
             switch route {
-            case .AddExpenseView(let groupId, let expenseId):
+            case .AddExpenseView(_, let expenseId):
                 AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, groupId: homeRouteViewModel.selectedGroupId, expenseId: expenseId))
             default:
                 EmptyRouteView(routeName: self)

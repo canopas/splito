@@ -35,8 +35,10 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         return user.id == receiverId ? "You" : receiver?.nameWithLastInitial ?? "Unknown"
     }
 
-    let transactionId: String?
+    private var group: Groups?
     private let groupId: String
+
+    let transactionId: String?
     private let payerId: String
     private let receiverId: String
     private var transaction: Transactions?
@@ -52,12 +54,27 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         self.dismissPaymentFlow = dismissPaymentFlow
         super.init()
 
+        fetchGroup()
         fetchTransaction()
         getPayerUserDetail()
         getPayableUserDetail()
     }
 
     // MARK: - Data Loading
+    private func fetchGroup() {
+        viewState = .loading
+        groupRepository.fetchGroupBy(id: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServiceError(error)
+                }
+            } receiveValue: { [weak self] group in
+                guard let self, let group else { return }
+                self.group = group
+                self.viewState = .initial
+            }.store(in: &cancelable)
+    }
+
     func fetchTransaction() {
         guard let transactionId else { return }
 
@@ -110,7 +127,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             var newTransaction = transaction
             newTransaction.amount = amount
             newTransaction.date = .init(date: paymentDate)
-            updateTransaction(transaction: newTransaction)
+            updateTransaction(transaction: newTransaction, oldTransaction: transaction)
         } else {
             addTransaction(transaction: Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
                                                      amount: amount, date: .init(date: paymentDate)))
@@ -126,12 +143,13 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                     self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] _ in
-                self?.dismissPaymentFlow()
                 self?.showLoader = false
+                self?.updateGroupMemberBalance(transaction: transaction, updateType: .Add)
+                self?.dismissPaymentFlow()
             }.store(in: &cancelable)
     }
 
-    private func updateTransaction(transaction: Transactions) {
+    private func updateTransaction(transaction: Transactions, oldTransaction: Transactions) {
         showLoader = true
         transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
             .sink { [weak self] completion in
@@ -140,8 +158,25 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                     self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] _ in
-                self?.dismissPaymentFlow()
                 self?.showLoader = false
+                self?.updateGroupMemberBalance(transaction: transaction, updateType: .Update(oldTransaction: oldTransaction))
+                self?.dismissPaymentFlow()
+            }.store(in: &cancelable)
+    }
+
+    private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) {
+        guard var group else { return }
+
+        let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
+        group.balance = memberBalance
+
+        groupRepository.updateGroup(group: group)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServiceError(error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.viewState = .initial
             }.store(in: &cancelable)
     }
 

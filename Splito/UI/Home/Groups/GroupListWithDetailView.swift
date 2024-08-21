@@ -79,7 +79,7 @@ private struct GroupListCellView: View {
         self.isLastGroup = isLastGroup
         self.group = group
         self.viewModel = viewModel
-        self._showInfo = State(initialValue: isFirstGroup && group.oweAmount != 0)
+        self._showInfo = State(initialValue: isFirstGroup && group.userBalance != 0)
     }
 
     var body: some View {
@@ -100,22 +100,23 @@ private struct GroupListCellView: View {
                 Spacer(minLength: 8)
 
                 VStack(alignment: .trailing, spacing: 0) {
-                    let isBorrowed = group.oweAmount < 0
-                    if group.oweAmount == 0 {
+                    let isBorrowed = group.userBalance < 0
+                    if group.userBalance == 0 {
                         Text(group.hasExpenses ? "settled up" : "no expense")
                             .font(.caption1())
                             .foregroundStyle(disableText)
+                            .padding(.trailing, 4)
                     } else {
                         Text(isBorrowed ? "you owe" : "you are owed")
                             .font(.caption1())
-                        Text(group.oweAmount.formattedCurrency)
+                        Text(group.userBalance.formattedCurrency)
                             .font(.body1())
                     }
                 }
                 .lineLimit(1)
-                .foregroundStyle(group.oweAmount < 0 ? alertColor : successColor)
+                .foregroundStyle(group.userBalance < 0 ? alertColor : successColor)
 
-                if group.oweAmount != 0 {
+                if group.userBalance != 0 {
                     GroupExpandBtnView(showInfo: $showInfo, isFirstGroup: isFirstGroup)
                 }
             }
@@ -212,11 +213,11 @@ private struct GroupNotFoundView: View {
 
             Text(viewModel.showSearchBar ? "No results found for \"\(viewModel.searchedGroup)\"!" : viewModel.selectedTab == .settled ? "No groups settled yet!" : "No unsettled bills yet!")
                 .font(.Header1())
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
 
             Text(viewModel.showSearchBar ? "No results were found that match your search criteria." : viewModel.selectedTab == .settled ? "Looks like there are no outstanding settlements in any of your groups yet." : "It seems that everything has settled down in all groups.")
                 .font(.subTitle2())
-                .foregroundColor(disableText)
+                .foregroundStyle(disableText)
                 .tracking(-0.2)
                 .lineSpacing(4)
         }

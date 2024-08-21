@@ -1,0 +1,91 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+  	function isAuthorized() {
+    	return request.auth != null ;
+  	}
+    
+    function isCurrentUser(userId) {
+    	return request.auth != null && request.auth.uid == userId;
+    }
+    
+    // For Users Collection
+    match /users/{userId} {
+    	allow read: if isAuthorized();
+      
+      allow create: if isCurrentUser(userId);
+      
+      allow update: if isCurrentUser(userId);
+                    
+      allow delete: if isCurrentUser(userId);
+    }
+    
+    // For Share Codes Collection
+    match /shared_codes/{sharedCodeId} {
+    	allow read: if isAuthorized();
+    	
+      allow create: if isUserPartOfGroup(request.resource.data.group_id);
+      
+      allow delete: if isUserPartOfGroup(resource.data.group_id);
+    }
+    
+    // For Groups Collection
+    match /groups/{groupId} {
+    	allow read: if isAuthorized() &&
+      				    resource.data.members.hasAny([request.auth.uid]);
+      
+      allow create: if isAuthorized() &&
+      								 isCurrentUser(request.resource.data.created_by);
+      
+      allow update: if isAuthorized() &&
+      					    (resource.data.members.hasAny([request.auth.uid]) ||
+                       (!resource.data.members.hasAny([request.auth.uid]) &&
+                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(["members"])
+                       )
+                    );
+      
+      allow delete: if isAuthorized() &&
+      							resource.data.members.hasAny([request.auth.uid]);
+    }
+    
+    // For Expenses Collection
+    match /groups/{groupId}/expenses/{expenseId} {
+      	allow read: if isUserPartOfGroup(groupId);
+        
+      	allow create: if isCurrentUser(request.resource.data.added_by) &&
+        							isUserPartOfGroup(groupId);
+                              
+        allow update: if isUserPartOfGroup(groupId);
+                      
+      	allow delete: if isUserPartOfGroup(groupId);
+    }
+    
+    // For Transactions Collection
+    match /groups/{groupId}/transactions/{transactionId} {
+      	allow read: if isUserPartOfGroup(groupId);
+        
+      	allow create: if isUserPartOfGroup(groupId) &&
+                      isMemberPartOfGroup(groupId, request.resource.data.payer_id) &&
+                      isMemberPartOfGroup(groupId, request.resource.data.receiver_id);
+                              
+        allow update: if isUserPartOfGroup(groupId) &&
+                      isMemberPartOfGroup(groupId, request.resource.data.payer_id) &&
+                      isMemberPartOfGroup(groupId, request.resource.data.receiver_id);
+                      
+      	allow delete: if isUserPartOfGroup(groupId);
+    }
+    
+    // Use for sub-collection as it'll not have parent's data
+    function isUserPartOfGroup(groupId) {
+    		let memberIds = get(/databases/$(database)/documents/groups/$(groupId)).data.members;
+        return isAuthorized() && memberIds.hasAny([request.auth.uid]);
+		}
+    
+    function isMemberPartOfGroup(groupId, memberId) {
+    		let memberIds = get(/databases/$(database)/documents/groups/$(groupId)).data.members;
+    		return isAuthorized() && memberIds.hasAny([memberId]);
+		}
+  }
+}
