@@ -106,7 +106,7 @@ private struct GroupBalanceItemView: View {
                             + Text(" \(owesOrGetsBack.localized) ")
 
                             + Text(memberBalance.totalOwedAmount.formattedCurrency)
-                                .foregroundColor(hasDue ? alertColor : successColor)
+                                .foregroundStyle(hasDue ? alertColor : successColor)
 
                             + Text(" in total")
                         }
@@ -163,7 +163,7 @@ private struct GroupBalanceItemMemberView: View {
                                 Text("\(owedMemberName) owes ")
 
                                 + Text(amount.formattedCurrency)
-                                    .foregroundColor(hasDue ? alertColor : successColor)
+                                    .foregroundStyle(hasDue ? alertColor : successColor)
 
                                 + Text(" to \(owesMemberName)")
                             }

@@ -152,7 +152,7 @@ private struct GroupOptionsButtonView: View {
     var body: some View {
         Text(text.localized)
             .font(.buttonText())
-            .foregroundColor(primaryText)
+            .foregroundStyle(primaryText)
             .padding(.vertical, 8)
             .padding(.horizontal, 24)
             .background(isForSettleUp ? settleUpColor : container2Color)

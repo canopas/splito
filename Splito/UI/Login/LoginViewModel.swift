@@ -66,7 +66,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         request.nonce = NonceGenerator.sha256(currentNonce)
 
         appleSignInDelegates = SignInWithAppleDelegates { (token, fName, lName, email)  in
-            let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: token, rawNonce: self.currentNonce)
+            let credential = OAuthProvider.credential(providerID: AuthProviderID(rawValue: "apple.com")!, idToken: token, rawNonce: self.currentNonce)
             self.showAppleLoading = true
             self.performFirebaseLogin(showAppleLoading: self.showAppleLoading, credential: credential, loginType: .Apple, userData: (fName, lName, email))
         }

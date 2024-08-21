@@ -38,7 +38,7 @@ public struct OtpTextInputView: View {
             .tint(primaryColor)
             .font(.Header2())
             .keyboardType(keyboardType)
-            .foregroundColor(primaryText)
+            .foregroundStyle(primaryText)
             .multilineTextAlignment(alignment)
             .textContentType(.oneTimeCode)
             .disableAutocorrection(true)

@@ -80,18 +80,18 @@ private struct GetOtpBtnView: View {
         VStack(spacing: 0) {
             Group {
                 Text("By entering your number, you’re agreeing to our ")
-                    .foregroundColor(disableText)
+                    .foregroundStyle(disableText)
                 +
                 Text("terms of service")
-                    .foregroundColor(primaryText)
+                    .foregroundStyle(primaryText)
                     .underline()
                 +
                 Text(" and ")
-                    .foregroundColor(disableText)
+                    .foregroundStyle(disableText)
                 +
                 Text("privacy policy.")
                     .underline()
-                    .foregroundColor(primaryText)
+                    .foregroundStyle(primaryText)
             }
             .font(.caption1())
             .padding(.bottom, 24)
@@ -147,7 +147,7 @@ private struct PhoneLoginContentView: View {
                     if phoneNumber.isEmpty {
                         Text(" Enter mobile number")
                             .font(.subTitle3())
-                            .foregroundColor(disableText)
+                            .foregroundStyle(disableText)
                     }
                     TextField("", text: $phoneNumber)
                         .font(.Header2())
@@ -239,7 +239,7 @@ private struct CountryNotFoundView: View {
 
             Text("No results found for \"\(searchCountry)\"!")
                 .font(.subTitle1())
-                .foregroundColor(disableText)
+                .foregroundStyle(disableText)
                 .padding(.bottom, 60)
 
             Spacer()

@@ -23,7 +23,7 @@ struct ExpenseSplitOptionsTabView: View {
                         Image(tab == viewModel.selectedTab ? tab.selectedTabItem : tab.tabItem)
                             .lineLimit(1)
                             .frame(width: 18, height: 18)
-                            .foregroundColor(viewModel.selectedTab == tab ? inversePrimaryText : disableText)
+                            .foregroundStyle(viewModel.selectedTab == tab ? inversePrimaryText : disableText)
                             .padding(.vertical, 8)
                             .frame(maxWidth: .infinity, alignment: .center)
                             .background(viewModel.selectedTab == tab ? primaryDarkColor : container2Color)

@@ -254,7 +254,7 @@ extension UserProfileViewModel {
 
         appleSignInDelegates = SignInWithAppleDelegates { (token, _, _, _) in
             self.isDeleteInProgress = true
-            let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: token, rawNonce: self.currentNonce)
+            let credential = OAuthProvider.credential(providerID: AuthProviderID(rawValue: "apple.com")!, idToken: token, rawNonce: self.currentNonce)
             completion(credential)
         }
 
