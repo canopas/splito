@@ -91,9 +91,9 @@ private struct PhoneLoginOtpBtnView: View {
             if resendOtpCount > 0 {
                 Group {
                     Text("Resend code ")
-                        .foregroundStyle(secondaryText)
+                        .foregroundColor(secondaryText)
                     + Text("00:\(String(format: "%02d", resendOtpCount))")
-                        .foregroundStyle(primaryText)
+                        .foregroundColor(primaryText)
                 }
                 .font(.caption1())
             } else {

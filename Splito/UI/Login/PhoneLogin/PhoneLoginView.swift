@@ -80,18 +80,18 @@ private struct GetOtpBtnView: View {
         VStack(spacing: 0) {
             Group {
                 Text("By entering your number, you’re agreeing to our ")
-                    .foregroundStyle(disableText)
+                    .foregroundColor(disableText)
                 +
                 Text("terms of service")
-                    .foregroundStyle(primaryText)
+                    .foregroundColor(primaryText)
                     .underline()
                 +
                 Text(" and ")
-                    .foregroundStyle(disableText)
+                    .foregroundColor(disableText)
                 +
                 Text("privacy policy.")
                     .underline()
-                    .foregroundStyle(primaryText)
+                    .foregroundColor(primaryText)
             }
             .font(.caption1())
             .padding(.bottom, 24)
@@ -155,7 +155,7 @@ private struct PhoneLoginContentView: View {
                         .keyboardType(.phonePad)
                         .foregroundStyle(primaryText)
                         .disabled(showLoader)
-                        .accentColor(primaryColor)
+                        .tint(primaryColor)
                         .focused($isFocused)
                         .onAppear {
                             isFocused = true

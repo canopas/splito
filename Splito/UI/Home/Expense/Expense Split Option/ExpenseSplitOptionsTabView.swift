@@ -272,6 +272,7 @@ struct MemberCellView: View {
                         .font(.body3())
                         .foregroundStyle(secondaryText)
                         .keyboardType(.decimalPad)
+                        .tint(primaryColor)
                         .frame(width: inputFieldWidth)
 
                         Divider()

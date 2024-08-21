@@ -41,14 +41,14 @@ public struct OtpTextInputView: View {
             .foregroundStyle(primaryText)
             .multilineTextAlignment(alignment)
             .textContentType(.oneTimeCode)
-            .disableAutocorrection(true)
+            .autocorrectionDisabled()
             .onChange(of: text) { newValue in
                 if newValue.count == OTP_TOTAL_CHARACTERS {
                     onOtpVerify?()
                     UIApplication.shared.endEditing()
                 }
             }
-            .autocapitalization(.none)
+            .textInputAutocapitalization(.never)
             .onAppear {
                 if text.isEmpty {
                     isFocused.wrappedValue = true

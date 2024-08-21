@@ -179,17 +179,17 @@ private struct GroupExpenseMemberOweView: View {
         if amount > 0 {
             Group {
                 Text("\(name.localized) owes you ")
-                    .foregroundStyle(disableText)
+                    .foregroundColor(disableText)
                 + Text("\(amount.formattedCurrency)")
-                    .foregroundStyle(successColor)
+                    .foregroundColor(successColor)
             }
             .font(.body3())
         } else if amount < 0 {
             Group {
                 Text("You owe \(name.localized) ")
-                    .foregroundStyle(disableText)
+                    .foregroundColor(disableText)
                 + Text("\(amount.formattedCurrency)")
-                    .foregroundStyle(alertColor)
+                    .foregroundColor(alertColor)
             }
             .font(.body3())
         }

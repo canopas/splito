@@ -111,6 +111,7 @@ private struct PaymentDetailRow: View {
                     TextField("0.00", value: $amount, formatter: numberFormatter)
                         .keyboardType(.decimalPad)
                         .font(.subTitle2())
+                        .tint(primaryColor)
                         .foregroundStyle(primaryText)
                         .focused($isAmountFocused)
                         .frame(maxWidth: .infinity, alignment: .leading)
