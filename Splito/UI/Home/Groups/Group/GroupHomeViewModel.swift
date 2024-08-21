@@ -36,6 +36,14 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var group: Groups?
 
+    @Published var expenses: [Expense] = [] {
+        didSet {
+            fetchGroupBalance()
+            setGroupViewState()
+            combineMemberWithExpense()
+        }
+    }
+
     static private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
@@ -71,7 +79,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     let router: Router<AppRoute>
-    var expenses: [Expense] = []
     private var groupUserData: [AppUser] = []
 
     init(router: Router<AppRoute>, groupId: String) {
@@ -79,11 +86,12 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
         super.init()
 
-        self.fetchLatestExpenses()
+        fetchGroupAndExpenses()
+        fetchLatestExpenses()
     }
 
     // MARK: - Data Loading
-    func fetchGroupAndExpenses() {
+    private func fetchGroupAndExpenses() {
         groupState = .loading
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
@@ -111,39 +119,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] expenses in
-                self?.expenses = expenses
-                self?.calculateExpensesSimplified()
+                guard let self else { return }
+                self.expenses = expenses
+                self.combineMemberWithExpense()
+                self.setGroupViewState()
             }.store(in: &cancelable)
-    }
-
-    private func calculateExpensesSimplified() {
-        guard let userId = preference.user?.id, let group else { return }
-
-        let queue = DispatchGroup()
-        var combinedData: [ExpenseWithUser] = []
-
-        overallOwingAmount = 0.0
-        memberOwingAmount = [:]
-
-        for expense in expenses {
-            queue.enter()
-            // Fetch user data for each payer once per expense
-            fetchUserData(for: expense.paidBy.keys.first ?? "") { user in
-                combinedData.append(ExpenseWithUser(expense: expense, user: user))
-                queue.leave()
-            }
-        }
-
-        queue.notify(queue: .main) { [weak self] in
-            guard let self else { return }
-            memberOwingAmount = Splito.calculateExpensesSimplified(userId: userId, memberBalances: group.balance)
-
-            withAnimation(.easeOut) {
-                self.overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
-                self.expensesWithUser = combinedData
-            }
-            self.setGroupViewState()
-        }
     }
 
     private func fetchLatestExpenses() {
@@ -154,9 +134,40 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] expenses in
-                self?.expenses = expenses
-                self?.setGroupViewState()
+                guard let self else { return }
+                self.expenses = (self.expenses + expenses).uniqued()
             }.store(in: &cancelable)
+    }
+
+    private func combineMemberWithExpense() {
+        let queue = DispatchGroup()
+        var combinedData: [ExpenseWithUser] = []
+
+        for expense in expenses {
+            queue.enter()
+            fetchUserData(for: expense.paidBy.keys.first ?? "") { user in
+                combinedData.append(ExpenseWithUser(expense: expense, user: user))
+                queue.leave()
+            }
+        }
+
+        queue.notify(queue: .main) { [weak self] in
+            guard let self else { return }
+            withAnimation(.easeOut) {
+                self.expensesWithUser = combinedData
+            }
+        }
+    }
+
+    private func fetchGroupBalance() {
+        guard let userId = preference.user?.id, let group else { return }
+        memberOwingAmount = [:]
+        overallOwingAmount = 0.0
+
+        memberOwingAmount = Splito.calculateExpensesSimplified(userId: userId, memberBalances: group.balance)
+        withAnimation(.easeOut) {
+            overallOwingAmount = memberOwingAmount.values.reduce(0, +)
+        }
     }
 
     private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {

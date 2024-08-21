@@ -56,7 +56,6 @@ struct GroupHomeView: View {
             }
         }
         .onAppear {
-            viewModel.fetchGroupAndExpenses()
             homeRouteViewModel.updateSelectedGroup(id: viewModel.groupId)
         }
         .fullScreenCover(isPresented: $viewModel.showAddExpenseSheet) {
