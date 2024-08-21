@@ -21,7 +21,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var payer: AppUser?
     @Published private(set) var receiver: AppUser?
-    @Published private(set) var viewState: ViewState = .initial
+    @Published private(set) var viewState: ViewState = .loading
 
     @Published private(set) var dismissPaymentFlow: () -> Void
 
@@ -52,6 +52,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         self.receiverId = receiverId
         self.transactionId = transactionId
         self.dismissPaymentFlow = dismissPaymentFlow
+
         super.init()
 
         fetchGroup()
@@ -62,7 +63,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Data Loading
     private func fetchGroup() {
-        viewState = .loading
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
