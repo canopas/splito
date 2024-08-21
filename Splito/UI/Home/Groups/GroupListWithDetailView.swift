@@ -213,11 +213,11 @@ private struct GroupNotFoundView: View {
 
             Text(viewModel.showSearchBar ? "No results found for \"\(viewModel.searchedGroup)\"!" : viewModel.selectedTab == .settled ? "No groups settled yet!" : "No unsettled bills yet!")
                 .font(.Header1())
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
 
             Text(viewModel.showSearchBar ? "No results were found that match your search criteria." : viewModel.selectedTab == .settled ? "Looks like there are no outstanding settlements in any of your groups yet." : "It seems that everything has settled down in all groups.")
                 .font(.subTitle2())
-                .foregroundColor(disableText)
+                .foregroundStyle(disableText)
                 .tracking(-0.2)
                 .lineSpacing(4)
         }

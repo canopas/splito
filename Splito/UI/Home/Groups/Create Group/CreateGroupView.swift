@@ -145,6 +145,7 @@ private struct AddGroupNameView: View {
                 .foregroundStyle(primaryText)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
+                .tint(primaryColor)
                 .overlay {
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(outlineColor, lineWidth: 1)

@@ -230,7 +230,7 @@ private struct GroupMemberCellView: View {
                     if isAdmin {
                         Text(" (Admin)")
                             .font(.caption1())
-                            .foregroundColor(secondaryText)
+                            .foregroundStyle(secondaryText)
                     }
                 }
 

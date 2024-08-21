@@ -60,7 +60,7 @@ private struct GroupTotalTabView: View {
                 } label: {
                     Text(tab.tabItem.localized)
                         .font(.buttonText())
-                        .foregroundColor(selectedTab == tab ? inversePrimaryText : disableText)
+                        .foregroundStyle(selectedTab == tab ? inversePrimaryText : disableText)
                         .padding(.vertical, 8)
                         .padding(.horizontal, 24)
                         .lineLimit(1)
@@ -140,13 +140,13 @@ private struct GroupSummaryAmountView: View {
         HStack(spacing: 0) {
             Text(text.localized)
                 .font(.subTitle2())
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
 
             Spacer()
 
             Text((amount < 0 ? "-" : "") + amount.formattedCurrency)
                 .font(.body1())
-                .foregroundColor(amount == 0 ? lowestText : fontColor)
+                .foregroundStyle(amount == 0 ? lowestText : fontColor)
         }
         .padding(.vertical, 20)
         .padding(.horizontal, 16)

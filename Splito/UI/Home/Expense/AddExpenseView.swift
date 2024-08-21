@@ -151,6 +151,7 @@ private struct ExpenseDetailRow: View {
                             .onTapGesture {
                                 focusedField.wrappedValue = .expenseName
                             }
+                            .tint(primaryColor)
                             .focused(focusedField, equals: field)
                             .submitLabel(.next)
                             .onSubmit {
@@ -161,6 +162,7 @@ private struct ExpenseDetailRow: View {
                             .font(.subTitle2())
                             .foregroundStyle(primaryText)
                             .keyboardType(keyboardType)
+                            .tint(primaryColor)
                             .onTapGesture {
                                 focusedField.wrappedValue = .amount
                             }

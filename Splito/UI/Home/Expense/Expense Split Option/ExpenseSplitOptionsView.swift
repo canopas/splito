@@ -104,12 +104,12 @@ struct BottomInfoCardView: View {
                 } else {
                     Text(title.localized)
                         .font(.Header4())
-                        .foregroundColor(inversePrimaryText)
+                        .foregroundStyle(inversePrimaryText)
 
                     if value != nil {
                         Text(value!.localized)
                             .font(.body1())
-                            .foregroundColor(inverseDisableText)
+                            .foregroundStyle(inverseDisableText)
                     }
                 }
             }

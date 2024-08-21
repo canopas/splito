@@ -167,10 +167,10 @@ private struct GroupExpenseItemView: View {
                 VStack(spacing: 0) {
                     Text(dateComponents.month)
                         .font(.caption1())
-                        .foregroundColor(disableText)
+                        .foregroundStyle(disableText)
                     Text(dateComponents.day)
                         .font(.Header4())
-                        .foregroundColor(primaryText)
+                        .foregroundStyle(primaryText)
                 }
                 .multilineTextAlignment(.center)
                 .padding(.trailing, 8)
@@ -301,11 +301,11 @@ private struct GroupExpenseHeaderOverallView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("You \(isDue ? "owe overall" : "are overall owed")")
                     .font(.body3())
-                    .foregroundColor(disableText)
+                    .foregroundStyle(disableText)
 
                 Text("\(abs(viewModel.overallOwingAmount).formattedCurrency)")
                     .font(.body1())
-                    .foregroundColor(isDue ? alertColor : successColor)
+                    .foregroundStyle(isDue ? alertColor : successColor)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(16)
@@ -317,11 +317,11 @@ private struct GroupExpenseHeaderOverallView: View {
             VStack(alignment: .trailing, spacing: 4) {
                 Text("Your \(Date().dayOfMonth) spending")
                     .font(.body3())
-                    .foregroundColor(disableText)
+                    .foregroundStyle(disableText)
 
                 Text("\(abs(viewModel.currentMonthSpendingAmount).formattedCurrency)")
                     .font(.body1())
-                    .foregroundColor(primaryText)
+                    .foregroundStyle(primaryText)
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(16)
@@ -362,7 +362,7 @@ private struct GroupExpenseMemberOweView: View {
                     .resizable()
                     .frame(width: 14, height: 14)
                     .scaledToFit()
-                    .foregroundColor(secondaryText)
+                    .foregroundStyle(secondaryText)
             }
         }
         .onTouchGesture(handleSimplifyInfoSheet)
@@ -378,11 +378,11 @@ private struct ExpenseNotFoundView: View {
         VStack(alignment: .center, spacing: 16) {
             Text("No results found for \"\(searchedExpense)\"!")
                 .font(.Header1())
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
 
             Text("No results were found that match your search criteria.")
                 .font(.subTitle2())
-                .foregroundColor(disableText)
+                .foregroundStyle(disableText)
                 .tracking(-0.2)
                 .lineSpacing(4)
         }

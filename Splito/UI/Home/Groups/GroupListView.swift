@@ -140,7 +140,7 @@ private struct GroupListTabBarView: View {
                         .lineLimit(1)
                         .padding(.vertical, 10)
                         .padding(.horizontal, 24)
-                        .foregroundColor(tab == selectedTab ? containerColor : disableText)
+                        .foregroundStyle(tab == selectedTab ? containerColor : disableText)
                         .background(tab == selectedTab ? primaryDarkColor : container2Color)
                         .cornerRadius(30)
                         .minimumScaleFactor(0.5)
@@ -168,12 +168,12 @@ private struct GroupListHeaderView: View {
                 let isOwed = expense < 0
                 HStack(spacing: 0) {
                     Text("Overall, \(isOwed ? "you owe" : "you are owed")  ")
-                        .foregroundColor(primaryText)
+                        .foregroundStyle(primaryText)
 
                     Spacer()
 
                     Text("\(expense.formattedCurrency)")
-                        .foregroundColor(isOwed ? alertColor : successColor)
+                        .foregroundStyle(isOwed ? alertColor : successColor)
                 }
                 .font(.Header3())
             }

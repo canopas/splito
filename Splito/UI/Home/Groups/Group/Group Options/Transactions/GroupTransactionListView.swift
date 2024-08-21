@@ -126,10 +126,10 @@ private struct TransactionItemView: View {
                 VStack(spacing: 0) {
                     Text(dateComponents.month)
                         .font(.caption1())
-                        .foregroundColor(disableText)
+                        .foregroundStyle(disableText)
                     Text(dateComponents.day)
                         .font(.Header4())
-                        .foregroundColor(primaryText)
+                        .foregroundStyle(primaryText)
                 }
                 .multilineTextAlignment(.center)
                 .padding(.trailing, 8)
@@ -179,7 +179,7 @@ private struct TransactionTabView: View {
                 } label: {
                     Text(tab.tabItem.localized)
                         .font(.buttonText())
-                        .foregroundColor(selectedTab == tab ? inversePrimaryText : disableText)
+                        .foregroundStyle(selectedTab == tab ? inversePrimaryText : disableText)
                         .padding(.vertical, 8)
                         .padding(.horizontal, 24)
                         .lineLimit(1)
@@ -217,13 +217,13 @@ private struct EmptyTransactionView: View {
 
             Text("No transactions yet!")
                 .font(.Header1())
-                .foregroundColor(primaryText)
+                .foregroundStyle(primaryText)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 16)
 
             Text("Start spending or receiving money to see your transactions here.")
                 .font(.subTitle1())
-                .foregroundColor(disableText)
+                .foregroundStyle(disableText)
                 .tracking(-0.2)
                 .lineSpacing(4)
                 .multilineTextAlignment(.center)

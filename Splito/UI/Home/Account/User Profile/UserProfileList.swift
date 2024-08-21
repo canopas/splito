@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 enum UserProfileList: Int, CaseIterable {
 
@@ -90,16 +91,16 @@ enum UserProfileList: Int, CaseIterable {
         }
     }
 
-    var autoCapitalizationType: UITextAutocapitalizationType {
+    var autoCapitalizationType: TextInputAutocapitalization {
         switch self {
         case .firstName:
             return .words
         case .lastName:
             return .words
         case .phone:
-            return .none
+            return .never
         case .email:
-            return .none
+            return .never
         }
     }
 }
