@@ -135,7 +135,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] expenses in
                 guard let self else { return }
-                self.expenses = (self.expenses + expenses).uniqued()
+                self.expenses = expenses.uniqued()
             }.store(in: &cancelable)
     }
 

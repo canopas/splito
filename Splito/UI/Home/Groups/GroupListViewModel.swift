@@ -28,7 +28,8 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var showCreateGroupSheet = false
     @Published var showJoinGroupSheet = false
 
-    private var groups: [Groups] = []
+    @Published private var groups: [Groups] = []
+
     let router: Router<AppRoute>
 
     var filteredGroups: [GroupInformation] {
@@ -55,7 +56,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     func fetchGroups() {
         guard let userId = preference.user?.id else { return }
-
         let groupsPublisher = groupRepository.fetchGroups(userId: userId)
         processGroupsDetails(groupsPublisher)
     }

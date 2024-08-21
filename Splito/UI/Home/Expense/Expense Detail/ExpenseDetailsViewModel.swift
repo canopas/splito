@@ -39,7 +39,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Data Loading
     private func fetchGroup() {
-        viewState = .loading
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -49,7 +48,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
                 self.group = group
-                self.viewState = .initial
             }.store(in: &cancelable)
     }
 
@@ -160,7 +158,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     func getSplitAmount(for member: String) -> String {
         guard let expense = expense else { return "" }
-
         let finalAmount = getTotalSplitAmount(member: member, expense: expense)
         return finalAmount.formattedCurrency
     }
