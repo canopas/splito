@@ -66,6 +66,7 @@ struct GroupBalancesView: View {
                     .foregroundStyle(primaryText)
             }
         }
+        .onDisappear(perform: viewModel.onDismissCallback)
     }
 }
 
@@ -191,8 +192,4 @@ private struct GroupBalanceItemMemberView: View {
             }
         }
     }
-}
-
-#Preview {
-    GroupBalancesView(viewModel: GroupBalancesViewModel(router: .init(root: .GroupListView), groupId: ""))
 }

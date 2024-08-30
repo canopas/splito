@@ -93,6 +93,7 @@ private struct PaymentDetailRow: View {
 
     @FocusState var isAmountFocused: Bool
     @State private var showDatePicker: Bool = false
+    @State private var amountString: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -104,13 +105,23 @@ private struct PaymentDetailRow: View {
                 if forDatePicker {
                     DatePickerRow(date: $date)
                 } else {
-                    TextField("0.00", value: $amount, formatter: numberFormatter)
+                    TextField("0.00", text: $amountString)
                         .keyboardType(.decimalPad)
                         .font(.subTitle2())
                         .tint(primaryColor)
                         .foregroundStyle(primaryText)
                         .focused($isAmountFocused)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .onChange(of: amountString) { newValue in
+                            if let value = Double(newValue) {
+                                amount = value
+                            } else {
+                                amount = 0
+                            }
+                        }
+                        .onAppear {
+                            amountString = amount == 0 ? "" : String(format: "%.2f", amount)
+                        }
                 }
             }
             .padding(.vertical, 14)

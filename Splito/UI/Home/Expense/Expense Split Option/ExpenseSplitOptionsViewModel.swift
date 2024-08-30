@@ -42,7 +42,9 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     private var members: [String] = []
     private var handleSplitTypeSelection: ((_ members: [String], _ splitData: [String: Double], _ splitType: SplitType) -> Void)
 
-    init(amount: Double, splitType: SplitType = .equally, splitData: [String: Double], members: [String], selectedMembers: [String], handleSplitTypeSelection: @escaping ((_ members: [String], _ splitData: [String: Double], _ splitType: SplitType) -> Void)) {
+    init(amount: Double, splitType: SplitType = .equally,
+         splitData: [String: Double], members: [String], selectedMembers: [String],
+         handleSplitTypeSelection: @escaping ((_ members: [String], _ splitData: [String: Double], _ splitType: SplitType) -> Void)) {
         self.expenseAmount = amount
         self.selectedTab = splitType
         self.members = members

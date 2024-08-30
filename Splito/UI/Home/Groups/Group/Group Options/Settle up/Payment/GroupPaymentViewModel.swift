@@ -21,7 +21,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var payer: AppUser?
     @Published private(set) var receiver: AppUser?
-    @Published private(set) var viewState: ViewState = .initial
+    @Published private(set) var viewState: ViewState = .loading
 
     @Published private(set) var dismissPaymentFlow: () -> Void
 
@@ -44,7 +44,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     private var transaction: Transactions?
     private let router: Router<AppRoute>?
 
-    init(router: Router<AppRoute>, transactionId: String?, groupId: String, payerId: String, receiverId: String, amount: Double, dismissPaymentFlow: @escaping () -> Void) {
+    init(router: Router<AppRoute>, transactionId: String?, groupId: String, payerId: String,
+         receiverId: String, amount: Double, dismissPaymentFlow: @escaping () -> Void) {
         self.router = router
         self.amount = abs(amount)
         self.groupId = groupId
@@ -52,6 +53,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         self.receiverId = receiverId
         self.transactionId = transactionId
         self.dismissPaymentFlow = dismissPaymentFlow
+
         super.init()
 
         fetchGroup()
@@ -62,7 +64,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Data Loading
     private func fetchGroup() {
-        viewState = .loading
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -168,7 +169,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         guard var group else { return }
 
         let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
-        group.balance = memberBalance
+        group.balances = memberBalance
 
         groupRepository.updateGroup(group: group)
             .sink { [weak self] completion in

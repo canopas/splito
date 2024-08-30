@@ -85,39 +85,17 @@ private struct GroupTotalSummaryView: View {
 
     @ObservedObject var viewModel: GroupTotalsViewModel
 
-    private var totalGroupSpending: Double {
-        return viewModel.filteredExpenses.reduce(0) { $0 + $1.amount }
-    }
-
-    private var totalPaid: Double {
-        return viewModel.getTotalPaid()
-    }
-
-    private var totalShare: Double {
-        return viewModel.getTotalShareAmount()
-    }
-
-    private var paymentsMade: Double {
-        return viewModel.getPaymentsMade()
-    }
-
-    private var paymentsReceived: Double {
-        return viewModel.getPaymentsReceived()
-    }
-
-    private var totalChangeInBalance: Double {
-        return viewModel.getTotalChangeInBalance()
-    }
-
     var body: some View {
         VStack(spacing: 0) {
-            GroupSummaryAmountView(text: "Total group spending", amount: totalGroupSpending)
-            GroupSummaryAmountView(text: "Total you paid for", amount: totalPaid)
-            GroupSummaryAmountView(text: "Your total share", amount: totalShare, fontColor: alertColor)
-            GroupSummaryAmountView(text: "Payments made", amount: paymentsMade, fontColor: alertColor)
-            GroupSummaryAmountView(text: "Payments received", amount: paymentsReceived)
-            GroupSummaryAmountView(text: "Total change in balance", amount: totalChangeInBalance,
-                                   fontColor: (totalChangeInBalance < 0 ? alertColor : successColor), isLast: true)
+            if let summaryData = viewModel.summaryData {
+                GroupSummaryAmountView(text: "Total group spending", amount: summaryData.groupTotalSpending)
+                GroupSummaryAmountView(text: "Total you paid for", amount: summaryData.totalPaidAmount)
+                GroupSummaryAmountView(text: "Your total share", amount: summaryData.totalShare, fontColor: alertColor)
+                GroupSummaryAmountView(text: "Payments made", amount: summaryData.paidAmount)
+                GroupSummaryAmountView(text: "Payments received", amount: summaryData.receivedAmount, fontColor: alertColor)
+                GroupSummaryAmountView(text: "Total change in balance", amount: summaryData.changeInBalance,
+                                       fontColor: (summaryData.changeInBalance < 0 ? alertColor : successColor), isLast: true)
+            }
         }
     }
 }
@@ -157,8 +135,4 @@ private struct GroupSummaryAmountView: View {
                 .background(dividerColor)
         }
     }
-}
-
-#Preview {
-    GroupTotalsView(viewModel: GroupTotalsViewModel(groupId: ""))
 }

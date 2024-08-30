@@ -150,6 +150,7 @@ private struct AddGroupNameView: View {
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(outlineColor, lineWidth: 1)
                 }
+                .autocorrectionDisabled()
         }
     }
 }

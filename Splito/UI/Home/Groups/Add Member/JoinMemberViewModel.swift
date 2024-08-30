@@ -36,7 +36,8 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
                 guard let self else { return }
                 guard let code else {
                     self.showLoader = false
-                    self.showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Entered code not exists."))
+                    self.showToastFor(toast: ToastPrompt(type: .error, title: "Error",
+                                                         message: "The code you've entered is not exists."))
                     return
                 }
                 self.addMemberIfCodeExists(code: code, completion: completion)
@@ -50,7 +51,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         // Code will be valid until 2 days, so check for the day difference
         guard let daysDifference, daysDifference <= codeRepository.CODE_EXPIRATION_LIMIT else {
             showLoader = false
-            showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Entered code is expired."))
+            showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "The code you've entered is expired."))
             return
         }
 

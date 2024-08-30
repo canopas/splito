@@ -44,6 +44,7 @@ struct GroupTransactionListView: View {
                     .foregroundStyle(primaryText)
             }
         }
+        .onDisappear(perform: viewModel.onDismissCallback)
     }
 }
 

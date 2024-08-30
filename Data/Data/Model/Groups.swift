@@ -12,22 +12,25 @@ public struct Groups: Codable, Identifiable {
     @DocumentID public var id: String? // Automatically generated ID by Firestore
 
     public var name: String
-    public let createdBy: String
+    public var createdBy: String
     public var imageUrl: String?
     public var members: [String]
-    public var balance: [GroupMemberBalance]
+    public var balances: [GroupMemberBalance]
     public let createdAt: Timestamp
-    public var isDebtSimplified: Bool
+    public var hasExpenses: Bool
+    public var isActive: Bool
 
     public init(name: String, createdBy: String, imageUrl: String? = nil, members: [String],
-                balance: [GroupMemberBalance], createdAt: Timestamp, isDebtSimplified: Bool = true) {
+                balances: [GroupMemberBalance], createdAt: Timestamp, hasExpenses: Bool = false, isActive: Bool = true) {
         self.name = name
         self.createdBy = createdBy
         self.members = members
-        self.balance = balance
+        self.balances = balances
+
         self.imageUrl = imageUrl
         self.createdAt = createdAt
-        self.isDebtSimplified = isDebtSimplified
+        self.hasExpenses = hasExpenses
+        self.isActive = isActive
     }
 
     enum CodingKeys: String, CodingKey {
@@ -35,19 +38,74 @@ public struct Groups: Codable, Identifiable {
         case name
         case createdBy = "created_by"
         case members
-        case balance
+        case balances
         case imageUrl = "image_url"
         case createdAt = "created_at"
-        case isDebtSimplified = "is_debt_simplified"
+        case hasExpenses = "has_expenses"
+        case isActive = "is_active"
     }
 }
 
-public struct GroupMemberBalance: Codable, Hashable {
+public struct GroupMemberBalance: Codable {
     public let id: String
     public var balance: Double
+    public var totalSummary: [GroupTotalSummary]
 
-    public init(id: String, balance: Double) {
+    public init(id: String, balance: Double, totalSummary: [GroupTotalSummary]) {
         self.id = id
         self.balance = balance
+        self.totalSummary = totalSummary
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case balance
+        case totalSummary = "total_summary"
+    }
+}
+
+public struct GroupTotalSummary: Codable {
+    public var year: Int
+    public var month: Int
+    public var summary: GroupMemberSummary
+
+    public init(year: Int, month: Int, summary: GroupMemberSummary) {
+        self.year = year
+        self.month = month
+        self.summary = summary
+    }
+}
+
+public struct GroupMemberSummary: Codable {
+    /// Total group's expense
+    public var groupTotalSpending: Double
+    /// Paid amount with expense
+    public var totalPaidAmount: Double
+    /// Total split amount
+    public var totalShare: Double
+    /// Paid amount with transaction
+    public var paidAmount: Double
+    /// Received amount with transaction
+    public var receivedAmount: Double
+    /// Final owing amount
+    public var changeInBalance: Double
+
+    public init(groupTotalSpending: Double, totalPaidAmount: Double, totalShare: Double,
+                paidAmount: Double, receivedAmount: Double, changeInBalance: Double) {
+        self.groupTotalSpending = groupTotalSpending
+        self.totalPaidAmount = totalPaidAmount
+        self.totalShare = totalShare
+        self.paidAmount = paidAmount
+        self.receivedAmount = receivedAmount
+        self.changeInBalance = changeInBalance
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case groupTotalSpending = "group_total_spending"
+        case totalPaidAmount = "total_paid_amount"
+        case totalShare = "total_share"
+        case paidAmount = "paid_amount"
+        case receivedAmount = "received_amount"
+        case changeInBalance = "change_in_balance"
     }
 }

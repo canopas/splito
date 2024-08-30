@@ -102,7 +102,7 @@ private struct GroupListCellView: View {
                 VStack(alignment: .trailing, spacing: 0) {
                     let isBorrowed = group.userBalance < 0
                     if group.userBalance == 0 {
-                        Text(group.hasExpenses ? "settled up" : "no expense")
+                        Text(group.group.hasExpenses ? "settled up" : "no expense")
                             .font(.caption1())
                             .foregroundStyle(disableText)
                             .padding(.trailing, 4)

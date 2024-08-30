@@ -20,17 +20,17 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     @Published var searchedGroup: String = ""
     @Published var selectedGroup: Groups?
+
+    @Published private var groups: [Groups] = []
     @Published private(set) var usersTotalExpense = 0.0
 
     @Published var showActionSheet = false
+    @Published var showJoinGroupSheet = false
+    @Published var showCreateGroupSheet = false
     @Published private(set) var showSearchBar = false
     @Published private(set) var showScrollToTopBtn = false
-    @Published var showCreateGroupSheet = false
-    @Published var showJoinGroupSheet = false
 
-    @Published private var groups: [Groups] = []
-
-    let router: Router<AppRoute>
+    let router: Router<AppRoute >
 
     var filteredGroups: [GroupInformation] {
         guard case .hasGroup(let groups) = groupListState else { return [] }
@@ -56,7 +56,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     func fetchGroups() {
         guard let userId = preference.user?.id else { return }
-        let groupsPublisher = groupRepository.fetchGroups(userId: userId)
+        let groupsPublisher = groupRepository.fetchGroupsBy(userId: userId)
         processGroupsDetails(groupsPublisher)
     }
 
@@ -102,11 +102,11 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func fetchGroupInformation(group: Groups) -> AnyPublisher<GroupInformation, ServiceError> {
-        groupRepository.fetchMemberDataOf(members: group.members)
+        groupRepository.fetchMembersBy(groupId: group.id ?? "")
             .map { members in
                 let userId = self.preference.user?.id ?? ""
                 let memberBalance = self.getMembersBalance(group: group, memberId: userId)
-                let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balance)
+                let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
                 return GroupInformation(group: group, userBalance: memberBalance,
                                         memberOweAmount: memberOwingAmount, members: members, hasExpenses: true)
             }
@@ -114,8 +114,8 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func getMembersBalance(group: Groups, memberId: String) -> Double {
-        if let index = group.balance.firstIndex(where: { $0.id == memberId }) {
-            return group.balance[index].balance
+        if let index = group.balances.firstIndex(where: { $0.id == memberId }) {
+            return group.balances[index].balance
         }
         return 0
     }
@@ -197,30 +197,29 @@ extension GroupListViewModel {
         case .editGroup:
             router.push(.CreateGroupView(group: group))
         case .deleteGroup:
-            handleDeleteGroupTap(groupId: group.id)
+            handleDeleteGroupTap(group: group)
         }
     }
 
-    func handleDeleteGroupTap(groupId: String?) {
+    func handleDeleteGroupTap(group: Groups?) {
         alert = .init(title: "Delete Group",
                       message: "Are you ABSOLUTELY sure you want to delete this group? This will remove this group for ALL users involved, not just yourself.",
                       positiveBtnTitle: "Delete",
-                      positiveBtnAction: { self.deleteGroup(groupId: groupId) },
+                      positiveBtnAction: { self.deleteGroup(group: group) },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
         showAlert = true
     }
 
-    private func deleteGroup(groupId: String?) {
-        guard let groupId else { return }
-
-        groupRepository.deleteGroup(groupID: groupId)
+    private func deleteGroup(group: Groups?) {
+        guard let group else { return }
+        groupRepository.deleteGroup(group: group)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.showToastFor(error)
                 }
             } receiveValue: { _ in
-                withAnimation { self.groups.removeAll { $0.id == groupId } }
+                withAnimation { self.groups.removeAll { $0.id == group.id } }
                 self.showToastFor(toast: .init(type: .success, title: "Success", message: "Group deleted successfully"))
             }.store(in: &cancelable)
     }

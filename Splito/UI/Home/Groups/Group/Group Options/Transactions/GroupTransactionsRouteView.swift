@@ -24,8 +24,7 @@ struct GroupTransactionsRouteView: View {
         RouterView(router: appRoute) { route in
             switch route {
             case .TransactionListView(let groupId):
-                GroupTransactionListView(viewModel: GroupTransactionListViewModel(router: appRoute, groupId: groupId))
-
+                GroupTransactionListView(viewModel: GroupTransactionListViewModel(router: appRoute, groupId: groupId, onDismissCallback: dismissPaymentFlow))
             case .TransactionDetailView(let transactionId, let groupId):
                 GroupTransactionDetailView(
                     viewModel: GroupTransactionDetailViewModel(

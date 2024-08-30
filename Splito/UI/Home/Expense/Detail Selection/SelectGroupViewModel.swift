@@ -28,7 +28,7 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     func fetchGroups() {
         currentViewState = .loading
-        groupRepository.fetchGroups(userId: preference.user?.id ?? "")
+        groupRepository.fetchGroupsBy(userId: preference.user?.id ?? "")
             .sink { [weak self] completion in
                 switch completion {
                 case .finished:
