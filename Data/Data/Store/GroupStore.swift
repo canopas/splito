@@ -43,7 +43,7 @@ class GroupStore: ObservableObject {
             let groupRef = self.database.collection(self.COLLECTION_NAME).document(groupId)
 
             do {
-                let memberBalance = GroupMemberBalance(id: memberId, balance: 0)
+                let memberBalance = GroupMemberBalance(id: memberId, balance: 0, totalSummary: [])
                 let memberBalanceData = try Firestore.Encoder().encode(memberBalance)
 
                 groupRef.updateData([
@@ -82,12 +82,13 @@ class GroupStore: ObservableObject {
 
     func fetchLatestGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
         database.collection(COLLECTION_NAME)
+            .whereField("is_active", isEqualTo: true)
             .whereField("members", arrayContains: userId)
             .limit(to: 10)
             .snapshotPublisher(as: Groups.self)
     }
 
-    func fetchGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
+    func fetchGroupsBy(userId: String) -> AnyPublisher<[Groups], ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
@@ -95,6 +96,7 @@ class GroupStore: ObservableObject {
             }
 
             self.database.collection(COLLECTION_NAME)
+                .whereField("is_active", isEqualTo: true)
                 .whereField("members", arrayContains: userId)
                 .getDocuments { snapshot, error in
                     if let error {
@@ -151,24 +153,5 @@ class GroupStore: ObservableObject {
                 }
             }
         }.eraseToAnyPublisher()
-    }
-
-    func deleteGroup(groupID: String) -> AnyPublisher<Void, ServiceError> {
-        Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
-            }
-
-            self.database.collection(COLLECTION_NAME).document(groupID).delete { error in
-                if let error {
-                    LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
-                } else {
-                    promise(.success(()))
-                }
-            }
-        }
-        .eraseToAnyPublisher()
     }
 }

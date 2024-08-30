@@ -44,7 +44,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     private var transaction: Transactions?
     private let router: Router<AppRoute>?
 
-    init(router: Router<AppRoute>, transactionId: String?, groupId: String, payerId: String, receiverId: String, amount: Double, dismissPaymentFlow: @escaping () -> Void) {
+    init(router: Router<AppRoute>, transactionId: String?, groupId: String, payerId: String,
+         receiverId: String, amount: Double, dismissPaymentFlow: @escaping () -> Void) {
         self.router = router
         self.amount = abs(amount)
         self.groupId = groupId
@@ -168,7 +169,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         guard var group else { return }
 
         let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
-        group.balance = memberBalance
+        group.balances = memberBalance
 
         groupRepository.updateGroup(group: group)
             .sink { [weak self] completion in

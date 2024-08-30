@@ -28,7 +28,7 @@ struct GroupHomeView: View {
                                        buttonTitle: "Invite Member", image: .inviteFriends,
                                        geometry: geometry, onClick: viewModel.handleInviteMemberClick)
                     } else if case .noExpense = viewModel.groupState {
-                        EmptyStateView(geometry: geometry, onClick: viewModel.openAddExpenseSheet)
+                        EmptyStateView(buttonTitle: "Add expense", geometry: geometry, onClick: viewModel.openAddExpenseSheet)
                     } else if case .hasExpense = viewModel.groupState {
                         GroupExpenseListView(viewModel: viewModel, isFocused: $isFocused) {
                             isFocused = true
@@ -76,14 +76,12 @@ struct GroupHomeView: View {
                 .presentationCornerRadius(24)
         }
         .fullScreenCover(isPresented: $viewModel.showTransactionsSheet) {
-            GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.group?.id ?? ""))) {
-                viewModel.showTransactionsSheet = false
-            }
-            .animation(nil)
+            GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.group?.id ?? "")), dismissPaymentFlow: viewModel.dismissSheetCallback)
+                .animation(nil)
         }
         .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
             NavigationStack {
-                GroupBalancesView(viewModel: GroupBalancesViewModel(router: viewModel.router, groupId: viewModel.group?.id ?? ""))
+                GroupBalancesView(viewModel: GroupBalancesViewModel(router: viewModel.router, groupId: viewModel.group?.id ?? "", onDismissCallback: viewModel.dismissSheetCallback))
             }
         }
         .fullScreenCover(isPresented: $viewModel.showGroupTotalSheet) {
@@ -174,17 +172,19 @@ struct EmptyStateView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .center, spacing: 20) {
+            VStack(alignment: .center, spacing: 0) {
                 Spacer()
 
                 Image(image)
                     .resizable()
                     .scaledToFit()
                     .frame(width: geometry.size.width * 0.5, height: geometry.size.width * 0.4)
+                    .padding(.bottom, 20)
 
                 Text(title.localized)
                     .font(.Header1())
                     .foregroundStyle(primaryText)
+                    .padding(.bottom, 8)
 
                 Text(subtitle.localized)
                     .font(.subTitle1())
@@ -194,6 +194,7 @@ struct EmptyStateView: View {
 
                 if let buttonTitle {
                     PrimaryButton(text: buttonTitle, onClick: onClick)
+                        .padding(.top, 20)
                 }
 
                 VSpacer(10)

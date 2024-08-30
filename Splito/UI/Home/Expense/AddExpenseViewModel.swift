@@ -315,8 +315,12 @@ extension AddExpenseViewModel {
                     self?.handleServerError(error)
                 }
             } receiveValue: { [weak self] _ in
-                self?.viewState = .initial
-                self?.updateGroupMemberBalance(expense: expense, updateType: .Add)
+                guard let self else { return }
+                self.viewState = .initial
+                if !(self.selectedGroup?.hasExpenses ?? false) {
+                    self.selectedGroup?.hasExpenses = true
+                }
+                self.updateGroupMemberBalance(expense: expense, updateType: .Add)
                 completion()
             }.store(in: &cancelable)
     }
@@ -339,7 +343,7 @@ extension AddExpenseViewModel {
         guard var group = selectedGroup else { return }
 
         let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
-        group.balance = memberBalance
+        group.balances = memberBalance
 
         groupRepository.updateGroup(group: group)
             .sink { [weak self] completion in

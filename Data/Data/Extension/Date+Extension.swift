@@ -40,4 +40,16 @@ public extension Date {
         dateFormatter.dateFormat = "MMMM"
         return dateFormatter.string(from: self).capitalized
     }
+
+    func startOfMonth() -> Date { // give start date of month
+        let calendar = Calendar.current
+        return calendar.date(from: calendar.dateComponents([.year, .month], from: self)) ?? Date()
+    }
+
+    func endOfMonth() -> Date {  // give end date of month
+        if let endOfMonth = Calendar.current.date(byAdding: DateComponents(month: 1, day: -1), to: startOfMonth()) {
+            return endOfMonth
+        }
+        return Date()
+    }
 }

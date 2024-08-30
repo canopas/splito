@@ -143,7 +143,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         guard var group, let expense else { return }
 
         let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
-        group.balance = memberBalance
+        group.balances = memberBalance
 
         groupRepository.updateGroup(group: group)
             .sink { [weak self] completion in

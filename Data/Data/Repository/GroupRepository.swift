@@ -15,8 +15,6 @@ public class GroupRepository: ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
     @Inject private var storageManager: StorageManager
-    @Inject private var expenseRepository: ExpenseRepository
-    @Inject private var transactionRepository: TransactionRepository
 
     private var cancelable = Set<AnyCancellable>()
 
@@ -52,14 +50,6 @@ public class GroupRepository: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    public func addMemberToGroup(groupId: String, memberId: String) -> AnyPublisher<Void, ServiceError> {
-        store.addMemberToGroup(groupId: groupId, memberId: memberId)
-    }
-
-    public func updateGroup(group: Groups) -> AnyPublisher<Void, ServiceError> {
-        store.updateGroup(group: group)
-    }
-
     public func updateGroupWithImage(imageData: Data?, newImageUrl: String?, group: Groups) -> AnyPublisher<Void, ServiceError> {
         var newGroup = group
 
@@ -84,6 +74,14 @@ public class GroupRepository: ObservableObject {
         }
     }
 
+    public func addMemberToGroup(groupId: String, memberId: String) -> AnyPublisher<Void, ServiceError> {
+        store.addMemberToGroup(groupId: groupId, memberId: memberId)
+    }
+
+    public func updateGroup(group: Groups) -> AnyPublisher<Void, ServiceError> {
+        store.updateGroup(group: group)
+    }
+
     public func fetchGroupBy(id: String) -> AnyPublisher<Groups?, ServiceError> {
         store.fetchGroupBy(id: id)
     }
@@ -92,19 +90,12 @@ public class GroupRepository: ObservableObject {
         store.fetchLatestGroups(userId: userId)
     }
 
-    public func fetchGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
-        store.fetchGroups(userId: userId)
+    public func fetchGroupsBy(userId: String) -> AnyPublisher<[Groups], ServiceError> {
+        store.fetchGroupsBy(userId: userId)
     }
 
-    public func fetchMemberDataOf(members: [String]) -> AnyPublisher<[AppUser], ServiceError> {
-        let memberPublishers = members.map { (userId: String) -> AnyPublisher<AppUser?, ServiceError> in
-            return self.fetchMemberBy(userId: userId)
-        }
-
-        return Publishers.MergeMany(memberPublishers)
-            .compactMap { $0 }
-            .collect()
-            .eraseToAnyPublisher()
+    public func fetchMemberBy(userId: String) -> AnyPublisher<AppUser?, ServiceError> {
+        userRepository.fetchUserBy(userID: userId)
     }
 
     public func fetchMembersBy(groupId: String) -> AnyPublisher<[AppUser], ServiceError> {
@@ -127,27 +118,34 @@ public class GroupRepository: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    public func fetchMemberBy(userId: String) -> AnyPublisher<AppUser?, ServiceError> {
-        userRepository.fetchUserBy(userID: userId)
-    }
-
     public func removeMemberFrom(group: Groups, memberId: String) -> AnyPublisher<Void, ServiceError> {
-        var newGroup = group
-        newGroup.members.removeAll(where: { $0 == memberId })
-        if newGroup.members.isEmpty {
-            return deleteGroup(groupID: newGroup.id ?? "")
-        } else {
-            return updateGroup(group: newGroup)
+        var group = group
+
+        // Remove member from group
+        group.members.removeAll(where: { $0 == memberId })
+
+        // make group inactive if there are no members
+        if group.members.isEmpty {
+            group.isActive = false
         }
+
+        // Change new admin if the old admin leaves the group
+        if memberId == group.createdBy {
+            // Create another top member as a new admin
+            if let newAdmin = group.members.first {
+                group.createdBy = newAdmin
+            }
+        }
+
+        return updateGroup(group: group)
     }
 
-    public func deleteGroup(groupID: String) -> AnyPublisher<Void, ServiceError> {
-        return expenseRepository.deleteExpensesOf(groupId: groupID)
-            .flatMap { _ in
-                self.transactionRepository.deleteTransactionsOf(groupId: groupID)
-            }
-            .flatMap { _ in
-                self.store.deleteGroup(groupID: groupID)
-            }.eraseToAnyPublisher()
+    public func deleteGroup(group: Groups) -> AnyPublisher<Void, ServiceError> {
+        var group = group
+
+        // Make group inactive
+        group.isActive = false
+
+        return updateGroup(group: group)
     }
 }

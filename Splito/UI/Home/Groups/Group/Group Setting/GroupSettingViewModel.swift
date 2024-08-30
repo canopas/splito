@@ -70,8 +70,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             return 0
         }
 
-        if let index = group.balance.firstIndex(where: { $0.id == memberId }) {
-            return group.balance[index].balance
+        if let index = group.balances.firstIndex(where: { $0.id == memberId }) {
+            return group.balances[index].balance
         }
 
         return 0
@@ -161,6 +161,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     private func showLeaveGroupAlert(memberId: String) {
         let memberBalance = getMembersBalance(memberId: memberId)
+
         guard memberBalance == 0 else {
             memberRemoveType = .leave
             showDebtOutstandingAlert(memberId: memberId)
@@ -188,14 +189,17 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     private func removeMemberFromGroup(memberId: String) {
-        guard let group else { return }
-        guard let userId = preference.user?.id else { return }
+        guard let group, let userId = preference.user?.id else {
+            LogE("GroupSettingViewModel: \(#function) group not found.")
+            return
+        }
 
         currentViewState = .loading
         groupRepository.removeMemberFrom(group: group, memberId: memberId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.handleServiceError(error)
+                    self?.currentViewState = .initial
                 }
             } receiveValue: { _ in
                 self.currentViewState = .initial
@@ -217,15 +221,17 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Delete Group",
                       message: "Are you ABSOLUTELY sure you want to delete this group? This will remove this group for ALL users involved, not just yourself.",
                       positiveBtnTitle: "Delete",
-                      positiveBtnAction: { self.deleteGroupWithMembers() },
+                      positiveBtnAction: { self.deleteGroup() },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
         showAlert = true
     }
 
-    private func deleteGroupWithMembers() {
+    private func deleteGroup() {
+        guard let group else { return }
+
         currentViewState = .loading
-        groupRepository.deleteGroup(groupID: groupId)
+        groupRepository.deleteGroup(group: group)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.handleServiceError(error)

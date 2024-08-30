@@ -42,7 +42,7 @@ struct AddExpenseView: View {
 
                             ExpenseDetailRow(name: .constant(""), amount: .constant(0),
                                              date: $viewModel.expenseDate, focusedField: $focusedField,
-                                             subtitle: "Date", placeholder: "Expense date", forDatePicker: true)
+                                             subtitle: "Date", placeholder: "Expense date")
 
                             ExpenseDetailRowWithBtn(name: viewModel.payerName, subtitle: "Paid by",
                                                     onTap: viewModel.handlePayerBtnAction)
@@ -127,12 +127,12 @@ private struct ExpenseDetailRow: View {
 
     let subtitle: String
     let placeholder: String
-    var forDatePicker: Bool = false
 
     var field: AddExpenseViewModel.AddExpenseField?
     var keyboardType: UIKeyboardType = .default
 
     @State private var showDatePicker = false
+    @State private var amountString: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -141,7 +141,7 @@ private struct ExpenseDetailRow: View {
                 .foregroundStyle(disableText)
 
             VStack(alignment: .leading, spacing: 0) {
-                if forDatePicker {
+                if field != .amount && field != .expenseName {
                     DatePickerRow(date: $date)
                 } else {
                     if keyboardType == .default {
@@ -153,20 +153,32 @@ private struct ExpenseDetailRow: View {
                             }
                             .tint(primaryColor)
                             .focused(focusedField, equals: field)
+                            .autocorrectionDisabled()
                             .submitLabel(.next)
                             .onSubmit {
                                 focusedField.wrappedValue = .amount
                             }
                     } else {
-                        TextField(placeholder.localized, value: $amount, formatter: numberFormatter)
+                        TextField(placeholder.localized, text: $amountString)
                             .font(.subTitle2())
                             .foregroundStyle(primaryText)
-                            .keyboardType(keyboardType)
-                            .tint(primaryColor)
                             .onTapGesture {
                                 focusedField.wrappedValue = .amount
                             }
+                            .tint(primaryColor)
                             .focused(focusedField, equals: field)
+                            .autocorrectionDisabled()
+                            .keyboardType(keyboardType)
+                            .onChange(of: amountString) { newValue in
+                                if let value = Double(newValue) {
+                                    amount = value
+                                } else {
+                                    amount = 0
+                                }
+                            }
+                            .onAppear {
+                                amountString = amount == 0 ? "" : String(format: "%.2f", amount)
+                            }
                     }
                 }
             }
@@ -211,6 +223,7 @@ struct DatePickerRow: View {
         .onTapGesture {
             tempDate = date
             showDatePicker = true
+            UIApplication.shared.endEditing()
         }
         .sheet(isPresented: $showDatePicker) {
             VStack(spacing: 0) {

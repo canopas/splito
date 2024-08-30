@@ -46,7 +46,10 @@ struct GroupExpenseListView: View {
                             GroupExpenseHeaderView(viewModel: viewModel)
                                 .id("expenseList")
 
-                            if !viewModel.groupExpenses.isEmpty {
+                            if viewModel.expenses.isEmpty {
+                                EmptyStateView(geometry: geometry, minHeight: geometry.size.height - 250,
+                                               onClick: viewModel.openAddExpenseSheet)
+                            } else if !viewModel.groupExpenses.isEmpty {
                                 let firstMonth = viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings).first
 
                                 ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
@@ -79,7 +82,7 @@ struct GroupExpenseListView: View {
                                         }
                                     }
                                 }
-                            } else {
+                            } else if viewModel.groupExpenses.isEmpty && viewModel.showSearchBar {
                                 ExpenseNotFoundView(geometry: geometry, searchedExpense: viewModel.searchedExpense)
                             }
                         }
@@ -98,8 +101,6 @@ struct GroupExpenseListView: View {
                             .padding([.trailing, .bottom], 16)
                         }
                     }
-
-                    VSpacer(10)
                 }
             }
             .scrollBounceBehavior(.basedOnSize)
@@ -228,8 +229,7 @@ private struct GroupExpenseItemView: View {
                 .foregroundStyle(isBorrowed ? alertColor : successColor)
             }
             .padding(.horizontal, 16)
-            .padding(.top, 20)
-            .padding(.bottom, isLastItem ? -1 : 20)
+            .padding(.vertical, 20)
 
             if !isLastItem {
                 Divider()
@@ -272,7 +272,6 @@ private struct GroupExpenseHeaderView: View {
                     ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
                         let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
                         GroupExpenseMemberOweView(name: name, amount: amount,
-                                                  isDebtSimplified: viewModel.group?.isDebtSimplified ?? false,
                                                   handleSimplifyInfoSheet: viewModel.handleSimplifyInfoSheet)
                     }
                 }
@@ -333,7 +332,6 @@ private struct GroupExpenseMemberOweView: View {
 
     let name: String
     let amount: Double
-    let isDebtSimplified: Bool
 
     let handleSimplifyInfoSheet: () -> Void
 
@@ -357,13 +355,11 @@ private struct GroupExpenseMemberOweView: View {
                 .font(.body3())
             }
 
-            if isDebtSimplified {
-                Image(systemName: "questionmark.circle")
-                    .resizable()
-                    .frame(width: 14, height: 14)
-                    .scaledToFit()
-                    .foregroundStyle(secondaryText)
-            }
+            Image(systemName: "questionmark.circle")
+                .resizable()
+                .frame(width: 14, height: 14)
+                .scaledToFit()
+                .foregroundStyle(secondaryText)
         }
         .onTouchGesture(handleSimplifyInfoSheet)
     }

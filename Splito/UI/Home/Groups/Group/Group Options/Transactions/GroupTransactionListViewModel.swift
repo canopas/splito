@@ -29,11 +29,15 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     private var group: Groups?
     private let groupId: String
     private let router: Router<AppRoute>
+    let onDismissCallback: () -> Void
 
-    init(router: Router<AppRoute>, groupId: String) {
+    init(router: Router<AppRoute>, groupId: String, onDismissCallback: @escaping () -> Void) {
         self.router = router
         self.groupId = groupId
+        self.onDismissCallback = onDismissCallback
+
         super.init()
+
         fetchGroup()
         fetchLatestTransactions()
     }
@@ -55,7 +59,6 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
     func fetchTransactions() {
         currentViewState = .loading
-
         transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
             if case .failure(let error) = completion {
                 self?.handleServiceError(error)
@@ -135,20 +138,14 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] _ in
                 guard let self else { return }
-                withAnimation {
-                    if let index = self.transactions.firstIndex(where: { $0.id == transactionId }) {
-                        self.transactions.remove(at: index)
-                    }
-                }
                 self.updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
             }.store(in: &cancelable)
     }
 
     private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) {
         guard var group else { return }
-
         let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
-        group.balance = memberBalance
+        group.balances = memberBalance
 
         groupRepository.updateGroup(group: group)
             .sink { [weak self] completion in

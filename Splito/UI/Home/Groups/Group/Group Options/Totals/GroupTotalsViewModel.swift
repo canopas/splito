@@ -12,28 +12,22 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
 
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
-    @Inject private var expenseRepository: ExpenseRepository
-    @Inject private var transactionRepository: TransactionRepository
 
     @Published private(set) var viewState: ViewState = .initial
     @Published private(set) var selectedTab: GroupTotalsTabType = .thisMonth
+    @Published private(set) var summaryData: GroupMemberSummary?
 
-    @Published private(set) var group: Groups?
-    @Published private(set) var filteredExpenses: [Expense] = []
-
+    private var group: Groups?
     private let groupId: String
-    private var expenses: [Expense] = []
-    private var transactions: [Transactions] = []
-    private var filteredTransactions: [Transactions] = []
 
     init(groupId: String) {
         self.groupId = groupId
         super.init()
-        self.fetchGroupAndExpenses()
+        fetchGroup()
     }
 
     // MARK: - Data Loading
-    private func fetchGroupAndExpenses() {
+    private func fetchGroup() {
         viewState = .loading
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
@@ -41,128 +35,72 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
                     self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
+                guard let self else { return }
                 self.group = group
-                self.fetchTransactions()
-                self.fetchExpenses(group: group)
+                self.filterDataForSelectedTab()
                 self.viewState = .initial
             }.store(in: &cancelable)
     }
 
-    private func fetchExpenses(group: Groups) {
-        expenseRepository.fetchExpensesBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] expenses in
-                guard let self else { return }
-                self.expenses = expenses
-                self.filteredExpensesForSelectedTab()
-            }.store(in: &cancelable)
-    }
-
-    private func fetchTransactions() {
-        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
-            if case .failure(let error) = completion {
-                self?.handleServiceError(error)
-            }
-        } receiveValue: { [weak self] transactions in
-            guard let self else { return }
-            self.transactions = transactions
-            self.filteredTransactionsForSelectedTab()
-        }.store(in: &cancelable)
-    }
-
     // MARK: - User Actions
     func handleTabItemSelection(_ selection: GroupTotalsTabType) {
-        withAnimation(.easeInOut(duration: 0.3), {
+        withAnimation(.easeInOut(duration: 0.3)) {
             selectedTab = selection
-            filteredExpensesForSelectedTab()
-            filteredTransactionsForSelectedTab()
-        })
+            filterDataForSelectedTab()
+        }
     }
 
-    private func filteredExpensesForSelectedTab() {
-        filteredExpenses = filterItemsForSelectedTab(
-            items: expenses,
-            dateExtractor: { $0.date.dateValue() },
-            for: selectedTab
-        )
-    }
+    private func filterDataForSelectedTab() {
+        guard let group, let userId = preference.user?.id else { return }
 
-    private func filteredTransactionsForSelectedTab() {
-        filteredTransactions = filterItemsForSelectedTab(
-            items: transactions,
-            dateExtractor: { $0.date.dateValue() },
-            for: selectedTab
-        )
-    }
-
-    private func filterItemsForSelectedTab<T>(items: [T], dateExtractor: (T) -> Date, for tab: GroupTotalsTabType) -> [T] {
-        let calendar = Calendar.current
-        let currentDate = Date()
-
-        switch tab {
+        let summaries: [GroupTotalSummary]
+        switch selectedTab {
         case .thisMonth:
-            let currentMonth = calendar.component(.month, from: currentDate)
-            let currentYear = calendar.component(.year, from: currentDate)
-
-            return items.filter {
-                let itemDate = dateExtractor($0)
-                let itemMonth = calendar.component(.month, from: itemDate)
-                let itemYear = calendar.component(.year, from: itemDate)
-                return itemMonth == currentMonth && itemYear == currentYear
-            }
+            summaries = getTotalSummaryForCurrentMonth()
         case .thisYear:
-            let currentYear = calendar.component(.year, from: currentDate)
-
-            return items.filter {
-                let itemDate = dateExtractor($0)
-                let itemYear = calendar.component(.year, from: itemDate)
-                return itemYear == currentYear
-            }
+            summaries = getTotalSummaryForCurrentYear()
         case .all:
-            return items
+            summaries = group.balances.first(where: { $0.id == userId })?.totalSummary ?? []
         }
+
+        summaryData = GroupMemberSummary(
+            groupTotalSpending: summaries.reduce(0) { $0 + $1.summary.groupTotalSpending },
+            totalPaidAmount: summaries.reduce(0) { $0 + $1.summary.totalPaidAmount },
+            totalShare: summaries.reduce(0) { $0 + $1.summary.totalShare },
+            paidAmount: getPaymentsMade(),
+            receivedAmount: getPaymentsReceived(),
+            changeInBalance: summaries.reduce(0) { $0 + $1.summary.changeInBalance }
+        )
     }
 
-    func getTotalPaid() -> Double {
-        guard let user = preference.user else { return 0 }
-        return filteredExpenses.reduce(0.0) { (totalPaid, expense) in
-            guard let paidAmount = expense.paidBy[user.id] else {
-                return totalPaid
-            }
-            return totalPaid + paidAmount
-        }
+    private func getTotalSummaryForCurrentMonth() -> [GroupTotalSummary] {
+        guard let user = preference.user, let group else { return [] }
+
+        let currentMonth = Calendar.current.component(.month, from: Date())
+        let currentYear = Calendar.current.component(.year, from: Date())
+
+        return group.balances.first(where: { $0.id == user.id })?.totalSummary.filter {
+            $0.month == currentMonth && $0.year == currentYear
+        } ?? []
     }
 
-    func getTotalShareAmount() -> Double {
-        guard let user = preference.user else { return 0 }
+    private func getTotalSummaryForCurrentYear() -> [GroupTotalSummary] {
+        guard let user = preference.user, let group else { return [] }
+        let currentYear = Calendar.current.component(.year, from: Date())
 
-        // Store total amount that user owes with expenses
-        let userSharedExpenses = filteredExpenses.filter { $0.splitTo.contains(user.id) }
-
-        let totalSharedAmount = userSharedExpenses.reduce(0.0) { total, expense in
-            return total - getTotalSplitAmount(member: user.id, expense: expense)
-        }
-        return abs(totalSharedAmount)
+        return group.balances.first(where: { $0.id == user.id })?.totalSummary.filter {
+            $0.year == currentYear
+        } ?? []
     }
 
-    func getPaymentsMade() -> Double {
-        guard let user = preference.user else { return 0 }
-        return filteredTransactions.filter { $0.payerId == user.id }.reduce(0) { $0 + $1.amount }
-    }
-
-    func getPaymentsReceived() -> Double {
-        guard let user = preference.user else { return 0 }
-        return filteredTransactions.filter { $0.receiverId == user.id }.reduce(0) { $0 + $1.amount }
-    }
-
-    func getTotalChangeInBalance() -> Double {
+    private func getPaymentsMade() -> Double {
         guard let user = preference.user, let group else { return 0 }
-        let amountOweByMember = calculateMemberBalanceWithTransactions(members: group.members, expenses: filteredExpenses, transactions: filteredTransactions)
-        return amountOweByMember[user.id] ?? 0
+        return group.balances.first(where: { $0.id == user.id })?.totalSummary.reduce(0) { $0 + $1.summary.paidAmount } ?? 0
+    }
+
+    private func getPaymentsReceived() -> Double {
+        guard let user = preference.user, let group else { return 0 }
+        return group.balances.first(where: { $0.id == user.id })?.totalSummary.reduce(0) { $0 + $1.summary.receivedAmount } ?? 0
     }
 
     // MARK: - Error Handling

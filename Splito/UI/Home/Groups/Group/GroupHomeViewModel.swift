@@ -15,22 +15,23 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
 
-    @Published private(set) var groupId: String
     @Published var searchedExpense: String = ""
+    @Published private(set) var groupId: String
     @Published private(set) var overallOwingAmount = 0.0
 
     @Published private(set) var expensesWithUser: [ExpenseWithUser] = []
     @Published private(set) var memberOwingAmount: [String: Double] = [:]
     @Published private(set) var groupState: GroupState = .loading
 
-    @Published var showAddExpenseSheet = false
     @Published var showSettleUpSheet = false
-    @Published var showTransactionsSheet = false
     @Published var showBalancesSheet = false
     @Published var showGroupTotalSheet = false
+    @Published var showAddExpenseSheet = false
+    @Published var showTransactionsSheet = false
+    @Published var showSimplifyInfoSheet = false
+    @Published var showInviteMemberSheet = false
+
     @Published private(set) var showSearchBar = false
-    @Published var showSimplifyInfoSheet: Bool = false
-    @Published var showInviteMemberSheet: Bool = false
     @Published private(set) var showScrollToTopBtn = false
     @Published private(set) var showAddExpenseBtn = false
 
@@ -38,9 +39,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     @Published var expenses: [Expense] = [] {
         didSet {
-            fetchGroupBalance()
-            setGroupViewState()
-            combineMemberWithExpense()
+            fetchGroup { [weak self] in
+                self?.combineMemberWithExpense {
+                    self?.fetchGroupBalance()
+                }
+            }
         }
     }
 
@@ -53,18 +56,12 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     var currentMonthSpendingAmount: Double {
         guard let userId = preference.user?.id else { return 0 }
 
-        let isInCurrentMonth: (Date) -> Bool = {
-            return Calendar.current.isDate($0, equalTo: Date(), toGranularity: .month)
-        }
-
-        let expenseAmount = expenses
+        return currentMonthExpenses
             .filter { expense in
-                isInCurrentMonth(expense.date.dateValue()) && expense.splitTo.contains(userId) // Check if the user is involved in the expense
+                expense.splitTo.contains(userId) // Check if the user is involved in the expense
             }
             .map { getTotalSplitAmount(member: userId, expense: $0) }
             .reduce(0.0, +)
-
-        return expenseAmount
     }
 
     var groupExpenses: [String: [ExpenseWithUser]] {
@@ -79,7 +76,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     let router: Router<AppRoute>
+    private var isLoadingFirstTime: Bool = true
     private var groupUserData: [AppUser] = []
+    private var currentMonthExpenses: [Expense] = []
 
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
@@ -87,7 +86,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         super.init()
 
         fetchGroupAndExpenses()
+        fetchCurrentMonthExpenses()
         fetchLatestExpenses()
+        fetchLatestCurrentMonthExpenses()
     }
 
     // MARK: - Data Loading
@@ -119,10 +120,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] expenses in
-                guard let self else { return }
-                self.expenses = expenses
-                self.combineMemberWithExpense()
-                self.setGroupViewState()
+                self?.expenses = expenses
             }.store(in: &cancelable)
     }
 
@@ -134,12 +132,39 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] expenses in
-                guard let self else { return }
-                self.expenses = expenses.uniqued()
+                self?.expenses = expenses.uniqued()
             }.store(in: &cancelable)
     }
 
-    private func combineMemberWithExpense() {
+    private func fetchCurrentMonthExpenses() {
+        expenseRepository.fetchCurrentMonthExpensesBy(groupId: groupId)
+            .sink { [weak self] completionResult in
+                if case .failure(let error) = completionResult {
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] expenses in
+                self?.currentMonthExpenses = expenses
+            }
+            .store(in: &cancelable)
+    }
+
+    private func fetchLatestCurrentMonthExpenses() {
+        expenseRepository.fetchLatestCurrentMonthExpensesBy(groupId: groupId)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] expenses in
+                self?.currentMonthExpenses = expenses.uniqued()
+            }.store(in: &cancelable)
+    }
+
+    private func combineMemberWithExpense(completion: @escaping () -> Void) {
+        if isLoadingFirstTime {
+            groupState = .loading
+            isLoadingFirstTime = false
+        }
+
         let queue = DispatchGroup()
         var combinedData: [ExpenseWithUser] = []
 
@@ -152,22 +177,25 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         queue.notify(queue: .main) { [weak self] in
-            guard let self else { return }
             withAnimation(.easeOut) {
-                self.expensesWithUser = combinedData
+                self?.expensesWithUser = combinedData
             }
+            completion()
         }
     }
 
-    private func fetchGroupBalance() {
-        guard let userId = preference.user?.id, let group else { return }
-        memberOwingAmount = [:]
-        overallOwingAmount = 0.0
-
-        memberOwingAmount = Splito.calculateExpensesSimplified(userId: userId, memberBalances: group.balance)
-        withAnimation(.easeOut) {
-            overallOwingAmount = memberOwingAmount.values.reduce(0, +)
-        }
+    private func fetchGroup(completion: @escaping () -> Void) {
+        groupRepository.fetchGroupBy(id: groupId)
+            .sink { [weak self] completionResult in
+                if case .failure(let error) = completionResult {
+                    self?.groupState = .noMember
+                    self?.showToastFor(error)
+                    completion()
+                }
+            } receiveValue: { [weak self] group in
+                self?.group = group
+                completion()
+            }.store(in: &cancelable)
     }
 
     private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
@@ -182,10 +210,20 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
+    private func fetchGroupBalance() {
+        guard let userId = preference.user?.id, let group else { return }
+
+        memberOwingAmount = Splito.calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
+        withAnimation(.easeOut) {
+            overallOwingAmount = memberOwingAmount.values.reduce(0, +)
+            setGroupViewState()
+        }
+    }
+
     private func setGroupViewState() {
         guard let group else { return }
         groupState = group.members.count > 1 ?
-        (expenses.isEmpty ? .noExpense : .hasExpense) : (expenses.isEmpty ? .noMember : .hasExpense)
+        ((expenses.isEmpty && group.balances.allSatisfy({ $0.balance == 0 })) ? .noExpense : .hasExpense) : (expenses.isEmpty ? .noMember : .hasExpense)
     }
 }
 
@@ -193,10 +231,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 extension GroupHomeViewModel {
     func getMemberDataBy(id: String) -> AppUser? {
         return groupUserData.first(where: { $0.id == id })
-    }
-
-    func handleCreateGroupClick() {
-        router.push(.CreateGroupView(group: nil))
     }
 
     func handleInviteMemberClick() {
@@ -281,7 +315,6 @@ extension GroupHomeViewModel {
                     self?.showToastFor(error)
                 }
             } receiveValue: { [weak self] _ in
-                withAnimation { self?.expensesWithUser.removeAll { $0.expense.id == (expense.id ?? "") } }
                 self?.updateGroupMemberBalance(expense: expense, updateType: .Delete)
             }.store(in: &cancelable)
     }
@@ -290,7 +323,7 @@ extension GroupHomeViewModel {
         guard var group else { return }
 
         let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
-        group.balance = memberBalance
+        group.balances = memberBalance
 
         groupRepository.updateGroup(group: group)
             .sink { [weak self] completion in
@@ -302,18 +335,22 @@ extension GroupHomeViewModel {
             }.store(in: &cancelable)
     }
 
-    func handleBackBtnTap() {
-        onSearchBarCancelBtnTap()
-        router.pop()
-    }
-
     func openAddExpenseSheet() {
         showAddExpenseSheet = true
     }
 
     func dismissShowSettleUpSheet() {
+        dismissSheetCallback()
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
         showSettleUpSheet = false
+    }
+
+    func dismissSheetCallback() {
+        fetchGroup { [weak self] in
+            self?.combineMemberWithExpense {
+                self?.fetchGroupBalance()
+            }
+        }
     }
 }
 

@@ -28,10 +28,12 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     private var groupMemberData: [AppUser] = []
     let router: Router<AppRoute>
     var group: Groups?
+    let onDismissCallback: () -> Void
 
-    init(router: Router<AppRoute>, groupId: String) {
+    init(router: Router<AppRoute>, groupId: String, onDismissCallback: @escaping () -> Void) {
         self.router = router
         self.groupId = groupId
+        self.onDismissCallback = onDismissCallback
         super.init()
         fetchGroupMembers()
     }
@@ -67,8 +69,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Helper Methods
     private func calculateExpensesSimplified(group: Groups) {
-        let memberBalances = group.balance.map { MembersCombinedBalance(id: $0.id, totalOwedAmount: $0.balance) }
-
+        let memberBalances = group.balances.map { MembersCombinedBalance(id: $0.id, totalOwedAmount: $0.balance) }
         DispatchQueue.main.async {
             let debts = self.settleDebts(balances: memberBalances)
             self.sortMemberBalances(memberBalances: debts)

@@ -28,9 +28,6 @@
     "\"Simplify debts\" is ENABLED in this group. This feature shuffles \"who owes who\" to minimize repayments. For example:" : {
 
     },
-    "(Admin)" : {
-      "extractionState" : "manual"
-    },
     "%@" : {
 
     },
@@ -302,12 +299,6 @@
     "Enter your phone number" : {
       "extractionState" : "manual"
     },
-    "Entered code is expired." : {
-      "extractionState" : "manual"
-    },
-    "Entered code not exists." : {
-      "extractionState" : "manual"
-    },
     "Entered number is too long, Please check the phone number." : {
       "extractionState" : "manual"
     },
@@ -391,24 +382,6 @@
     },
     "Join Group" : {
 
-    },
-    "Key" : {
-      "extractionState" : "manual"
-    },
-    "Key 1" : {
-      "extractionState" : "manual"
-    },
-    "Key 2" : {
-      "extractionState" : "manual"
-    },
-    "Key 3" : {
-      "extractionState" : "manual"
-    },
-    "Key 4" : {
-      "extractionState" : "manual"
-    },
-    "Key 5" : {
-      "extractionState" : "manual"
     },
     "Last Name" : {
       "extractionState" : "manual"
@@ -579,7 +552,14 @@
 
     },
     "Resend code " : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resend code "
+          }
+        }
+      }
     },
     "Search" : {
       "extractionState" : "manual"
@@ -699,6 +679,12 @@
 
     },
     "The amounts do not add up to the total cost of %@. You are %@ by %@." : {
+      "extractionState" : "manual"
+    },
+    "The code you've entered is expired." : {
+      "extractionState" : "manual"
+    },
+    "The code you've entered is not exists." : {
       "extractionState" : "manual"
     },
     "The payment values do not add up to the total cost of ₹ %@. You are short by ₹ %@." : {

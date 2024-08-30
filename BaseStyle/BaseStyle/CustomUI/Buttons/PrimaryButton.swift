@@ -49,12 +49,12 @@ public struct PrimaryButton: View {
 
                 Text(text.localized)
                     .font(.buttonText())
-                    .foregroundStyle(textColor)
+                    .foregroundStyle(isEnabled ? textColor : textColor.opacity(0.6))
             }
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, 15)
             .minimumScaleFactor(0.5)
-            .background(bgColor)
+            .background(isEnabled ? bgColor : bgColor.opacity(0.6))
             .cornerRadius(12)
         }
         .frame(minHeight: 50)

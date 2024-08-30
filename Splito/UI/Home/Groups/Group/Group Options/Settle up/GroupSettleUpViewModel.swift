@@ -48,7 +48,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
 
     func calculateMemberPayableAmount(group: Groups) {
         guard let userId = self.preference.user?.id else { return }
-        memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balance)
+        memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
     }
 
     private func fetchGroupMembers() {
@@ -66,15 +66,14 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Helper Methods
-
     func getMembersBalance(memberId: String) -> Double {
         guard let group else {
             LogE("GroupSettingViewModel: \(#function) group not found.")
             return 0
         }
 
-        if let index = group.balance.firstIndex(where: { $0.id == memberId }) {
-            return group.balance[index].balance
+        if let index = group.balances.firstIndex(where: { $0.id == memberId }) {
+            return group.balances[index].balance
         }
 
         return 0
