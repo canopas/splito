@@ -6,7 +6,7 @@
 //
 
 import Combine
-import FirebaseFirestoreInternal
+import FirebaseFirestore
 
 public class TransactionStore: ObservableObject {
 
@@ -61,53 +61,22 @@ public class TransactionStore: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    func fetchLatestTransactionsBy(groupId: String) -> AnyPublisher<[Transactions], ServiceError> {
-        transactionReference(groupId: groupId)
-            .limit(to: 20)
-            .snapshotPublisher(as: Transactions.self)
-    }
-
-    func fetchTransactionsBy(userId: String) -> AnyPublisher<[Transactions], ServiceError> {
+    func fetchTransactionsBy(groupId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) -> AnyPublisher<(transactions: [Transactions], lastDocument: DocumentSnapshot?), ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return
             }
 
-            self.database.collection(SUB_COLLECTION_NAME).whereField("payer_id", isEqualTo: userId).getDocuments { snapshot, error in
-                if let error {
-                    LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
-                    return
-                }
+            var query = self.transactionReference(groupId: groupId)
+                .order(by: "date", descending: true)
+                .limit(to: limit)
 
-                guard let snapshot else {
-                    LogE("TransactionStore :: \(#function) The document is not available.")
-                    promise(.failure(.dataNotFound))
-                    return
-                }
-
-                do {
-                    let transactions = try snapshot.documents.compactMap { document in
-                        try document.data(as: Transactions.self)
-                    }
-                    promise(.success(transactions))
-                } catch {
-                    LogE("TransactionStore :: \(#function) Decode error: \(error.localizedDescription)")
-                    promise(.failure(.decodingError))
-                }
-            }
-        }.eraseToAnyPublisher()
-    }
-
-    func fetchTransactionsBy(groupId: String) -> AnyPublisher<[Transactions], ServiceError> {
-        Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
+            if let lastDocument {
+                query = query.start(afterDocument: lastDocument)
             }
 
-            self.transactionReference(groupId: groupId).addSnapshotListener { snapshot, error in
+            query.getDocuments { snapshot, error in
                 if let error {
                     LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error.localizedDescription)))
@@ -116,7 +85,7 @@ public class TransactionStore: ObservableObject {
 
                 guard let snapshot, !snapshot.documents.isEmpty else {
                     LogD("TransactionStore :: \(#function) The document is not available.")
-                    promise(.success([]))
+                    promise(.success(([], nil)))
                     return
                 }
 
@@ -124,7 +93,7 @@ public class TransactionStore: ObservableObject {
                     let transactions = try snapshot.documents.compactMap { document in
                         try document.data(as: Transactions.self)
                     }
-                    promise(.success(transactions))
+                    promise(.success((transactions, snapshot.documents.last)))
                 } catch {
                     LogE("TransactionStore :: \(#function) Decode error: \(error.localizedDescription)")
                     promise(.failure(.decodingError))

@@ -6,7 +6,7 @@
 //
 
 import Combine
-import FirebaseFirestoreInternal
+import FirebaseFirestore
 
 public class ExpenseStore: ObservableObject {
 
@@ -92,20 +92,22 @@ public class ExpenseStore: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    func fetchLatestExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
-        expenseReference(groupId: groupId)
-            .limit(to: 20)
-            .snapshotPublisher(as: Expense.self)
-    }
-
-    func fetchExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
+    func fetchExpensesBy(groupId: String, limit: Int, lastDocument: DocumentSnapshot?) -> AnyPublisher<(expenses: [Expense], lastDocument: DocumentSnapshot?), ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return
             }
 
-            self.expenseReference(groupId: groupId).addSnapshotListener { snapshot, error in
+            var query = self.expenseReference(groupId: groupId)
+                .order(by: "date", descending: true)
+                .limit(to: limit)
+
+            if let lastDocument {
+                query = query.start(afterDocument: lastDocument)
+            }
+
+            query.getDocuments { snapshot, error in
                 if let error {
                     LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error.localizedDescription)))
@@ -114,7 +116,7 @@ public class ExpenseStore: ObservableObject {
 
                 guard let snapshot, !snapshot.documents.isEmpty else {
                     LogD("ExpenseStore :: \(#function) The document is not available.")
-                    promise(.success([]))
+                    promise(.success(([], nil)))
                     return
                 }
 
@@ -122,7 +124,7 @@ public class ExpenseStore: ObservableObject {
                     let expenses = try snapshot.documents.compactMap { document in
                         try document.data(as: Expense.self)
                     }
-                    promise(.success(expenses))
+                    promise(.success((expenses, snapshot.documents.last)))
                 } catch {
                     LogE("ExpenseStore :: \(#function) Decode error: \(error.localizedDescription)")
                     promise(.failure(.decodingError))
@@ -226,16 +228,5 @@ public class ExpenseStore: ObservableObject {
                 }
         }
         .eraseToAnyPublisher()
-    }
-
-    func fetchLatestCurrentMonthExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
-        let startOfMonth = Date().startOfMonth()
-        let endOfMonth = Date().endOfMonth()
-
-        return expenseReference(groupId: groupId)
-            .limit(to: 20)
-            .whereField("date", isGreaterThanOrEqualTo: startOfMonth)
-            .whereField("date", isLessThanOrEqualTo: endOfMonth)
-            .snapshotPublisher(as: Expense.self)
     }
 }

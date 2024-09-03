@@ -146,7 +146,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] _ in
                 self?.showLoader = false
                 self?.updateGroupMemberBalance(transaction: transaction, updateType: .Add)
-                self?.dismissPaymentFlow()
             }.store(in: &cancelable)
     }
 
@@ -161,7 +160,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] _ in
                 self?.showLoader = false
                 self?.updateGroupMemberBalance(transaction: transaction, updateType: .Update(oldTransaction: oldTransaction))
-                self?.dismissPaymentFlow()
             }.store(in: &cancelable)
     }
 
@@ -178,6 +176,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] _ in
                 self?.viewState = .initial
+                self?.dismissPaymentFlow()
             }.store(in: &cancelable)
     }
 

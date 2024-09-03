@@ -6,7 +6,7 @@
 //
 
 import Combine
-import FirebaseFirestoreInternal
+import FirebaseFirestore
 
 public class TransactionRepository: ObservableObject {
 
@@ -20,16 +20,8 @@ public class TransactionRepository: ObservableObject {
         store.updateTransaction(groupId: groupId, transaction: transaction)
     }
 
-    public func fetchLatestTransactionsBy(groupId: String) -> AnyPublisher<[Transactions], ServiceError> {
-        store.fetchLatestTransactionsBy(groupId: groupId)
-    }
-
-    public func fetchTransactionsBy(userId: String) -> AnyPublisher<[Transactions], ServiceError> {
-        store.fetchTransactionsBy(userId: userId)
-    }
-
-    public func fetchTransactionsBy(groupId: String) -> AnyPublisher<[Transactions], ServiceError> {
-        store.fetchTransactionsBy(groupId: groupId)
+    public func fetchTransactionsBy(groupId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) -> AnyPublisher<(transactions: [Transactions], lastDocument: DocumentSnapshot?), ServiceError> {
+        store.fetchTransactionsBy(groupId: groupId, limit: limit, lastDocument: lastDocument)
     }
 
     public func fetchTransactionBy(groupId: String, transactionId: String) -> AnyPublisher<Transactions, ServiceError> {

@@ -8,8 +8,11 @@
 import Data
 import Combine
 import SwiftUI
+import FirebaseFirestore
 
 class GroupListViewModel: BaseViewModel, ObservableObject {
+
+    private let GROUPS_LIMIT = 10
 
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
@@ -22,6 +25,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var selectedGroup: Groups?
 
     @Published private var groups: [Groups] = []
+    @Published var combinedGroups: [GroupInformation] = []
     @Published private(set) var usersTotalExpense = 0.0
 
     @Published var showActionSheet = false
@@ -30,60 +34,54 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var showSearchBar = false
     @Published private(set) var showScrollToTopBtn = false
 
-    let router: Router<AppRoute >
+    let router: Router<AppRoute>
+    var hasMoreGroups: Bool = true
+    private var lastDocument: DocumentSnapshot?
 
     var filteredGroups: [GroupInformation] {
-        guard case .hasGroup(let groups) = groupListState else { return [] }
+        guard case .hasGroup = groupListState else { return [] }
 
         switch selectedTab {
         case .all:
-            return searchedGroup.isEmpty ? groups : groups.filter { $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
+            return searchedGroup.isEmpty ? combinedGroups : combinedGroups.filter { $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         case .settled:
-            return searchedGroup.isEmpty ? groups.filter { $0.userBalance == 0 } : groups.filter { $0.userBalance == 0 &&
+            return searchedGroup.isEmpty ? combinedGroups.filter { $0.userBalance == 0 } : combinedGroups.filter { $0.userBalance == 0 &&
                 $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         case .unsettled:
-            return searchedGroup.isEmpty ? groups.filter { $0.userBalance != 0 } : groups.filter { $0.userBalance != 0 &&
+            return searchedGroup.isEmpty ? combinedGroups.filter { $0.userBalance != 0 } : combinedGroups.filter { $0.userBalance != 0 &&
                 $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         }
     }
 
     init(router: Router<AppRoute>) {
         self.router = router
-        super.init()
-        self.fetchLatestGroups()
     }
 
     // MARK: - Data Loading
     func fetchGroups() {
         guard let userId = preference.user?.id else { return }
-        let groupsPublisher = groupRepository.fetchGroupsBy(userId: userId)
-        processGroupsDetails(groupsPublisher)
-    }
-
-    private func fetchLatestGroups() {
-        guard let userId = preference.user?.id else { return }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            let latestGroupsPublisher = self.groupRepository.fetchLatestGroups(userId: userId)
-            self.processGroupsDetails(latestGroupsPublisher)
-        }
-    }
-
-    private func processGroupsDetails(_ groupsPublisher: AnyPublisher<[Groups], ServiceError>) {
-        groupsPublisher
-            .flatMap { [weak self] groups -> AnyPublisher<[GroupInformation], ServiceError> in
+        groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT)
+            .flatMap { [weak self] result -> AnyPublisher<[GroupInformation], ServiceError> in
                 guard let self else {
                     self?.currentViewState = .initial
                     return Fail(error: .dataNotFound).eraseToAnyPublisher()
                 }
 
-                self.groups = groups
+                self.groups = result.groups
+                self.lastDocument = result.lastDocument
+                self.hasMoreGroups = !(result.groups.count < GROUPS_LIMIT)
 
-                let groupInfoPublishers = groups.map { group in
+                // Tag each group with its original index
+                let indexedGroupInfoPublishers = result.groups.enumerated().map { index, group in
                     self.fetchGroupInformation(group: group)
+                        .map { groupInfo in (index: index, groupInfo: groupInfo) }
+                        .eraseToAnyPublisher()
                 }
 
-                return Publishers.MergeMany(groupInfoPublishers).collect().eraseToAnyPublisher()
+                return Publishers.MergeMany(indexedGroupInfoPublishers)
+                    .collect()
+                    .map { $0.sorted(by: { $0.index < $1.index }).map { $0.groupInfo } }
+                    .eraseToAnyPublisher()
             }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
@@ -94,9 +92,52 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] groups in
                 guard let self else { return }
                 self.currentViewState = .initial
-                let sortedGroups = groups.sorted { $0.group.name < $1.group.name }
-                self.groupListState = sortedGroups.isEmpty ? .noGroup : .hasGroup(groups: sortedGroups)
+                self.combinedGroups = groups
+                self.groupListState = groups.isEmpty ? .noGroup : .hasGroup
                 self.usersTotalExpense = groups.reduce(0.0) { $0 + $1.userBalance }
+            }
+            .store(in: &cancelable)
+    }
+
+    func fetchMoreGroups() {
+        guard hasMoreGroups, let userId = preference.user?.id else { return }
+
+        groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT, lastDocument: lastDocument)
+            .flatMap { [weak self] result -> AnyPublisher<[GroupInformation], ServiceError> in
+                guard let self else {
+                    self?.currentViewState = .initial
+                    return Fail(error: .dataNotFound).eraseToAnyPublisher()
+                }
+
+                self.groups.append(contentsOf: result.groups)
+
+                self.lastDocument = result.lastDocument
+                self.hasMoreGroups = !(result.groups.count < GROUPS_LIMIT)
+
+                // Tag each group with its original index
+                let indexedGroupInfoPublishers = result.groups.enumerated().map { index, group in
+                    self.fetchGroupInformation(group: group)
+                        .map { groupInfo in (index: index, groupInfo: groupInfo) }
+                        .eraseToAnyPublisher()
+                }
+
+                return Publishers.MergeMany(indexedGroupInfoPublishers)
+                    .collect()
+                    .map { $0.sorted(by: { $0.index < $1.index }).map { $0.groupInfo } }
+                    .eraseToAnyPublisher()
+            }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.currentViewState = .initial
+                    self?.showToastFor(error)
+                }
+            } receiveValue: { [weak self] groups in
+                guard let self else { return }
+                self.currentViewState = .initial
+                self.combinedGroups.append(contentsOf: groups)
+                self.groupListState = self.combinedGroups.isEmpty ? .noGroup : .hasGroup
+                self.usersTotalExpense = self.combinedGroups.reduce(0.0) { $0 + $1.userBalance }
             }
             .store(in: &cancelable)
     }
@@ -168,9 +209,9 @@ extension GroupListViewModel {
     }
 
     func handleTabItemSelection(_ selection: GroupListTabType) {
-        guard case .hasGroup(let groups) = groupListState else { return }
-        let settledGroups = groups.filter { $0.userBalance == 0 }
-        let unsettledGroups = groups.filter { $0.userBalance != 0 }
+        guard case .hasGroup = groupListState else { return }
+        let settledGroups = combinedGroups.filter { $0.userBalance == 0 }
+        let unsettledGroups = combinedGroups.filter { $0.userBalance != 0 }
 
         withAnimation(.easeInOut(duration: 0.3)) {
             selectedTab = selection
@@ -248,7 +289,7 @@ extension GroupListViewModel {
         }
 
         case noGroup
-        case hasGroup(groups: [GroupInformation])
+        case hasGroup
 
         var key: String {
             switch self {

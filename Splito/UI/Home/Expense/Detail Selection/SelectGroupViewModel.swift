@@ -37,7 +37,7 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
                     self?.currentViewState = .initial
                     self?.showToastFor(error)
                 }
-            } receiveValue: { [weak self] groups in
+            } receiveValue: { [weak self] (groups, _) in
                 self?.currentViewState = groups.isEmpty ? .noGroups : .hasGroups(groups: groups)
             }
             .store(in: &cancelable)

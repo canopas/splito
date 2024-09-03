@@ -6,7 +6,7 @@
 //
 
 import Combine
-import FirebaseFirestoreInternal
+import FirebaseFirestore
 
 public class ExpenseRepository: ObservableObject {
 
@@ -22,16 +22,12 @@ public class ExpenseRepository: ObservableObject {
         store.updateExpense(groupId: groupId, expense: expense)
     }
 
-    public func fetchLatestExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
-        store.fetchLatestExpensesBy(groupId: groupId)
+    public func fetchExpensesBy(groupId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) -> AnyPublisher<(expenses: [Expense], lastDocument: DocumentSnapshot?), ServiceError> {
+        store.fetchExpensesBy(groupId: groupId, limit: limit, lastDocument: lastDocument)
     }
 
     public func fetchExpenseBy(groupId: String, expenseId: String) -> AnyPublisher<Expense, ServiceError> {
         store.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
-    }
-
-    public func fetchExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
-        store.fetchExpensesBy(groupId: groupId)
     }
 
     public func deleteExpense(groupId: String, expenseId: String) -> AnyPublisher<Void, ServiceError> {
@@ -44,9 +40,5 @@ public class ExpenseRepository: ObservableObject {
 
     public func fetchCurrentMonthExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
         store.fetchCurrentMonthExpensesBy(groupId: groupId)
-    }
-
-    public func fetchLatestCurrentMonthExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
-        store.fetchLatestCurrentMonthExpensesBy(groupId: groupId)
     }
 }

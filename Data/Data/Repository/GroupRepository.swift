@@ -7,6 +7,7 @@
 
 import Combine
 import SwiftUI
+import FirebaseFirestore
 
 public class GroupRepository: ObservableObject {
 
@@ -86,12 +87,12 @@ public class GroupRepository: ObservableObject {
         store.fetchGroupBy(id: id)
     }
 
-    public func fetchLatestGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
-        store.fetchLatestGroups(userId: userId)
+    public func fetchLatestGroupBy(id: String) -> AnyPublisher<Groups?, ServiceError> {
+        store.fetchLatestGroupBy(id: id)
     }
 
-    public func fetchGroupsBy(userId: String) -> AnyPublisher<[Groups], ServiceError> {
-        store.fetchGroupsBy(userId: userId)
+    public func fetchGroupsBy(userId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) -> AnyPublisher<(groups: [Groups], lastDocument: DocumentSnapshot?), ServiceError> {
+        store.fetchGroupsBy(userId: userId, limit: limit, lastDocument: lastDocument)
     }
 
     public func fetchMemberBy(userId: String) -> AnyPublisher<AppUser?, ServiceError> {

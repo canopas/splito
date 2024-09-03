@@ -18,14 +18,17 @@ struct GroupListWithDetailView: View {
         GeometryReader { geometry in
             ScrollViewReader { scrollProxy in
                 ScrollView {
-                    VStack(spacing: 0) {
+                    LazyVStack(alignment: .center, spacing: 0) {
                         if viewModel.filteredGroups.isEmpty {
                             GroupNotFoundView(geometry: geometry, viewModel: viewModel)
                         } else {
-                            ForEach(viewModel.filteredGroups, id: \.group.id) { group in
-                                GroupListCellView(isFirstGroup: viewModel.filteredGroups.first?.group.id == group.group.id,
-                                                  isLastGroup: viewModel.filteredGroups.last?.group.id == group.group.id,
-                                                  group: group, viewModel: viewModel)
+                            ForEach(viewModel.filteredGroups.indices, id: \.self) { index in
+                                let group = viewModel.filteredGroups[index]
+                                GroupListCellView(
+                                    isFirstGroup: index == 0,
+                                    isLastGroup: index == viewModel.filteredGroups.count - 1,
+                                    group: group, viewModel: viewModel
+                                )
                                 .onTapGestureForced {
                                     viewModel.handleGroupItemTap(group.group)
                                 }
@@ -34,30 +37,38 @@ struct GroupListWithDetailView: View {
                                     onLongPressGesture()
                                     viewModel.handleGroupItemTap(group.group, isTapped: false)
                                 }
+                                .id(group.group.id)
+
+                                if group.group.id == viewModel.filteredGroups.last?.group.id && viewModel.hasMoreGroups {
+                                    ProgressView()
+                                        .onAppear {
+                                            viewModel.fetchMoreGroups()
+                                        }
+                                }
                             }
 
                             VSpacer(10)
                         }
                     }
-                    .padding(.bottom, 24)
                     .id("groupList")
+                    .padding(.bottom, 24)
                     .background(GeometryReader { geo in
                         Color.clear
                             .onChange(of: geo.frame(in: .global).minY,
-                                      perform: viewModel.manageScrollToTopBtnVisibility(offset:)
-                            )
+                                      perform: viewModel.manageScrollToTopBtnVisibility(offset:))
                     })
                 }
                 .scrollBounceBehavior(.basedOnSize)
                 .overlay(alignment: .bottomTrailing) {
                     if viewModel.showScrollToTopBtn {
-                        ScrollToTopButton(onClick: {
-                            withAnimation {
-                                scrollProxy.scrollTo("groupList", anchor: .top)
-                            }
-                        })
+                        ScrollToTopButton {
+                            withAnimation { scrollProxy.scrollTo(0) }
+                        }
                         .padding([.trailing, .bottom], 16)
                     }
+                }
+                .refreshable {
+                    viewModel.fetchGroups()
                 }
             }
         }
@@ -155,11 +166,11 @@ private struct GroupExpandBtnView: View {
     let isFirstGroup: Bool
 
     var body: some View {
-        ScrollToTopButton(icon: "chevron.down", iconColor: primaryText, bgColor: container2Color, showWithAnimation: true, size: (10, 7), isFirstGroupCell: isFirstGroup, onClick: {
+        ScrollToTopButton(icon: "chevron.down", iconColor: primaryText, bgColor: container2Color, showWithAnimation: true, size: (10, 7), isFirstGroupCell: isFirstGroup) {
             withAnimation(.interactiveSpring(response: 0.6, dampingFraction: 0.7, blendDuration: 0.7)) {
                 showInfo.toggle()
             }
-        })
+        }
         .onAppear {
             if isFirstGroup {
                 withAnimation(.interactiveSpring(response: 0.6, dampingFraction: 0.7, blendDuration: 0.7)) {
