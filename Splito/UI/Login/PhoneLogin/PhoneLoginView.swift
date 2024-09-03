@@ -130,9 +130,10 @@ private struct PhoneLoginContentView: View {
                         .foregroundStyle(primaryText)
                         .tracking(-0.2)
 
-                    ScrollToTopButton(icon: "chevron.down", iconColor: primaryText, bgColor: surfaceColor, size: (12, 7.5), padding: 3, onClick: {
+                    ScrollToTopButton(icon: "chevron.down", iconColor: primaryText,
+                                      bgColor: surfaceColor, size: (12, 7.5), padding: 3) {
                         showCountryPicker = true
-                    })
+                    }
                 }
                 .onTapGestureForced {
                     showCountryPicker = true

@@ -80,25 +80,24 @@ class GroupStore: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    func fetchLatestGroups(userId: String) -> AnyPublisher<[Groups], ServiceError> {
-        database.collection(COLLECTION_NAME)
-            .whereField("is_active", isEqualTo: true)
-            .whereField("members", arrayContains: userId)
-            .limit(to: 10)
-            .snapshotPublisher(as: Groups.self)
-    }
-
-    func fetchGroupsBy(userId: String) -> AnyPublisher<[Groups], ServiceError> {
+    func fetchGroupsBy(userId: String, limit: Int, lastDocument: DocumentSnapshot?) -> AnyPublisher<(groups: [Groups], lastDocument: DocumentSnapshot?), ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return
             }
 
-            self.database.collection(COLLECTION_NAME)
+            var query = self.database.collection(COLLECTION_NAME)
                 .whereField("is_active", isEqualTo: true)
                 .whereField("members", arrayContains: userId)
-                .getDocuments { snapshot, error in
+                .order(by: "created_at", descending: true)
+                .limit(to: limit)
+
+            if let lastDocument {
+                query = query.start(afterDocument: lastDocument)
+            }
+
+            query.getDocuments { snapshot, error in
                     if let error {
                         LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
                         promise(.failure(.databaseError(error: error.localizedDescription)))
@@ -107,15 +106,15 @@ class GroupStore: ObservableObject {
 
                     guard let snapshot, !snapshot.documents.isEmpty else {
                         LogD("GroupStore :: \(#function) The document is not available.")
-                        promise(.success([]))
+                        promise(.success(([], nil)))
                         return
                     }
 
                     do {
                         let groups = try snapshot.documents.compactMap { document in
-                            try document.data(as: Groups.self)
+                            return try document.data(as: Groups.self)
                         }
-                        promise(.success(groups))
+                        promise(.success((groups, snapshot.documents.last)))
                     } catch {
                         LogE("GroupStore :: \(#function) Decode error: \(error.localizedDescription)")
                         promise(.failure(.decodingError))
@@ -153,5 +152,11 @@ class GroupStore: ObservableObject {
                 }
             }
         }.eraseToAnyPublisher()
+    }
+
+    func fetchLatestGroupBy(id: String) -> AnyPublisher<Groups?, ServiceError> {
+        database.collection(COLLECTION_NAME)
+            .document(id)
+            .toAnyPublisher()
     }
 }

@@ -14,7 +14,7 @@ extension Query {
 
         /// includeMetadataChanges: false: This option ensures that your listener will only be triggered by actual data changes, not by metadata changes (like network acknowledgment or pending writes).
         let listener = addSnapshotListener(includeMetadataChanges: false) { querySnapshot, error in
-            if let error = error {
+            if let error {
                 LogE("SnapshotPublisher :: error: \(error.localizedDescription)")
                 subject.send(completion: .failure(.databaseError(error: error.localizedDescription)))
                 return
@@ -44,20 +44,26 @@ extension Query {
 }
 
 extension DocumentReference {
-    func toAnyPublisher<T: Decodable>() -> AnyPublisher<T?, Error> {
-        let subject = CurrentValueSubject<T?, Error>(nil)
+    func toAnyPublisher<T: Decodable>() -> AnyPublisher<T?, ServiceError> {
+        let subject = CurrentValueSubject<T?, ServiceError>(nil)
 
-        let listener = addSnapshotListener { documentSnapshot, error in
+        let listener = addSnapshotListener(includeMetadataChanges: false) { documentSnapshot, error in
+            if let error {
+                subject.send(completion: .failure(.databaseError(error: error.localizedDescription)))
+                return
+            }
+
             guard let document = documentSnapshot else {
-                subject.send(completion: .failure(error!))
+                subject.send(nil)  // No document found, send nil.
                 return
             }
 
-            guard let data = try? document.data(as: T.self) else {
-                subject.send(nil)
-                return
+            do {
+                let data = try document.data(as: T.self)
+                subject.send(data)
+            } catch {
+                subject.send(completion: .failure(.decodingError))
             }
-            subject.send(data)
         }
 
         return subject

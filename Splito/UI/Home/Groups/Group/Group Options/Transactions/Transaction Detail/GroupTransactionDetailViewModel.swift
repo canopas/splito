@@ -107,11 +107,6 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         showEditTransactionSheet = true
     }
 
-    func dismissEditTransactionSheet() {
-        showEditTransactionSheet = false
-        fetchTransaction()
-    }
-
     func handleDeleteBtnAction() {
         showAlert = true
         alert = .init(title: "Delete Transaction",
@@ -151,6 +146,10 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                 self?.showToastFor(toast: .init(type: .success, title: "Success",
                                                 message: "Transaction deleted successfully."))
             }.store(in: &cancelable)
+    }
+
+    func dismissEditTransactionSheet() {
+        showEditTransactionSheet = false
     }
 
     // MARK: - Error Handling

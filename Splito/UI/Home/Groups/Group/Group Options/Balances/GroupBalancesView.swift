@@ -66,7 +66,6 @@ struct GroupBalancesView: View {
                     .foregroundStyle(primaryText)
             }
         }
-        .onDisappear(perform: viewModel.onDismissCallback)
     }
 }
 
@@ -119,9 +118,11 @@ private struct GroupBalanceItemView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 if memberBalance.totalOwedAmount != 0 {
-                    ScrollToTopButton(icon: "chevron.down", iconColor: primaryText, bgColor: container2Color, showWithAnimation: true, size: (10, 7), isFirstGroupCell: memberBalance.isExpanded, onClick: {
+                    ScrollToTopButton(icon: "chevron.down", iconColor: primaryText,
+                                      bgColor: container2Color, showWithAnimation: true, size: (10, 7),
+                                      isFirstGroupCell: memberBalance.isExpanded) {
                         toggleExpandBtn(memberBalance.id)
-                    })
+                    }
                     .onAppear {
                         if memberBalance.isExpanded {
                             toggleExpandBtn(memberBalance.id)

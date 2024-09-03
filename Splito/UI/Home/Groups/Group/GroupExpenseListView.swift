@@ -44,7 +44,7 @@ struct GroupExpenseListView: View {
                     List {
                         Group {
                             GroupExpenseHeaderView(viewModel: viewModel)
-                                .id("expenseList")
+                                .id("expense_list")
 
                             if viewModel.expenses.isEmpty {
                                 EmptyStateView(geometry: geometry, minHeight: geometry.size.height - 250,
@@ -60,6 +60,7 @@ struct GroupExpenseListView: View {
                                             .onTouchGesture {
                                                 viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
                                             }
+                                            .id(expense.expense.id)
                                             .swipeActions {
                                                 Button {
                                                     viewModel.showExpenseDeleteAlert(expense: expense.expense)
@@ -79,6 +80,15 @@ struct GroupExpenseListView: View {
                                                     viewModel.manageScrollToTopBtnVisibility(true)
                                                 }
                                             }
+
+                                            if expense.expense.id == viewModel.groupExpenses[month]?.last?.expense.id && viewModel.hasMoreExpenses {
+                                                ProgressView()
+                                                    .frame(maxWidth: .infinity, alignment: .center)
+                                                    .onAppear {
+                                                        viewModel.fetchMoreExpenses()
+                                                    }
+                                                    .padding(.vertical, 8)
+                                            }
                                         }
                                     }
                                 }
@@ -94,16 +104,15 @@ struct GroupExpenseListView: View {
                     .overlay(alignment: .bottomTrailing) {
                         if viewModel.showScrollToTopBtn {
                             ScrollToTopButton {
-                                withAnimation {
-                                    scrollProxy.scrollTo("expenseList", anchor: .top)
-                                }
-                            }
-                            .padding([.trailing, .bottom], 16)
+                                withAnimation { scrollProxy.scrollTo("expense_list", anchor: .top) }
+                            }.padding([.trailing, .bottom], 16)
                         }
                     }
+                    .refreshable {
+                        viewModel.fetchExpenses()
+                    }
                 }
-            }
-            .scrollBounceBehavior(.basedOnSize)
+            }.scrollBounceBehavior(.basedOnSize)
         }
     }
 
@@ -129,7 +138,6 @@ private struct GroupExpenseItemView: View {
 
     let expense: Expense
     let isLastItem: Bool
-
     private var amount = 0.0
     private var isInvolved = true
     private var isSettled = false
@@ -333,7 +341,6 @@ private struct GroupExpenseMemberOweView: View {
 
     let name: String
     let amount: Double
-
     let handleSimplifyInfoSheet: () -> Void
 
     var body: some View {

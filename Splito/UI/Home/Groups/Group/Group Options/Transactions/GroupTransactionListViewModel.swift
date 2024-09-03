@@ -7,8 +7,11 @@
 
 import Data
 import SwiftUI
+import FirebaseFirestore
 
 class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
+
+    private let TRANSACTIONS_LIMIT = 10
 
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
@@ -19,6 +22,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     @Published private var transactions: [Transactions] = []
     @Published var selectedTab: TransactionTabType = .thisMonth
     @Published private(set) var currentViewState: ViewState = .loading
+    @Published private(set) var showScrollToTopBtn = false
 
     static private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -29,22 +33,19 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     private var group: Groups?
     private let groupId: String
     private let router: Router<AppRoute>
-    let onDismissCallback: () -> Void
 
-    init(router: Router<AppRoute>, groupId: String, onDismissCallback: @escaping () -> Void) {
+    var hasMoreTransactions: Bool = true
+    private var lastDocument: DocumentSnapshot?
+
+    init(router: Router<AppRoute>, groupId: String) {
         self.router = router
         self.groupId = groupId
-        self.onDismissCallback = onDismissCallback
-
         super.init()
-
         fetchGroup()
-        fetchLatestTransactions()
     }
 
     // MARK: - Data Loading
     private func fetchGroup() {
-        currentViewState = .loading
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -53,36 +54,43 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
                 self.group = group
-                self.currentViewState = .initial
             }.store(in: &cancelable)
     }
 
     func fetchTransactions() {
-        currentViewState = .loading
-        transactionRepository.fetchTransactionsBy(groupId: groupId).sink { [weak self] completion in
-            if case .failure(let error) = completion {
-                self?.handleServiceError(error)
-            }
-        } receiveValue: { [weak self] transactions in
-            guard let self else { return }
-            self.transactions = transactions
-            self.combinedTransactionsWithUser()
-        }.store(in: &cancelable)
+        transactionsWithUser = []
+        transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServiceError(error)
+                }
+            } receiveValue: { [weak self] result in
+                guard let self else { return }
+                self.lastDocument = result.lastDocument
+                self.transactions = result.transactions.uniqued()
+
+                self.combinedTransactionsWithUser(transactions: result.transactions)
+                self.hasMoreTransactions = !(result.transactions.count < self.TRANSACTIONS_LIMIT)
+            }.store(in: &cancelable)
     }
 
-    private func fetchLatestTransactions() {
-        transactionRepository.fetchLatestTransactionsBy(groupId: groupId).sink { [weak self] completion in
-            if case .failure(let error) = completion {
-                self?.handleServiceError(error)
-            }
-        } receiveValue: { [weak self] transactions in
-            guard let self else { return }
-            self.transactions = transactions
-            self.combinedTransactionsWithUser()
-        }.store(in: &cancelable)
+    func fetchMoreTransactions() {
+        transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT, lastDocument: lastDocument)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.handleServiceError(error)
+                }
+            } receiveValue: { [weak self] result in
+                guard let self else { return }
+                self.lastDocument = result.lastDocument
+                self.transactions.append(contentsOf: result.transactions.uniqued())
+
+                self.combinedTransactionsWithUser(transactions: result.transactions)
+                self.hasMoreTransactions = !(result.transactions.count < self.TRANSACTIONS_LIMIT)
+            }.store(in: &cancelable)
     }
 
-    private func combinedTransactionsWithUser() {
+    private func combinedTransactionsWithUser(transactions: [Transactions]) {
         let queue = DispatchGroup()
         var combinedData: [TransactionWithUser] = []
 
@@ -90,7 +98,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             queue.enter()
             self.fetchUserData(for: transaction.payerId) { payer in
                 self.fetchUserData(for: transaction.receiverId) { receiver in
-                    combinedData.append(TransactionWithUser(transaction: transaction, payer: payer, receiver: receiver))
+                    combinedData.append(TransactionWithUser(transaction: transaction,
+                                                            payer: payer, receiver: receiver))
                     queue.leave()
                 }
             }
@@ -99,7 +108,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         queue.notify(queue: .main) { [weak self] in
             guard let self else { return }
             withAnimation {
-                self.transactionsWithUser = combinedData
+                self.transactionsWithUser.append(contentsOf: combinedData)
                 self.filteredTransactionsForSelectedTab()
                 self.currentViewState = .initial
             }
@@ -171,20 +180,15 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
     private func filteredTransactionsForSelectedTab() {
         var currentMonth: String {
-            let currentMonth = Date()
-            return GroupTransactionListViewModel.dateFormatter.string(from: currentMonth)
+            return GroupTransactionListViewModel.dateFormatter.string(from: Date())
         }
 
-        var currentYear: Int {
-            let currentDate = Date()
-            return Calendar.current.component(.year, from: currentDate)
-        }
+        let currentYear = Calendar.current.component(.year, from: Date())
 
         var groupedTransactions: [String: [TransactionWithUser]] {
-            return Dictionary(grouping: transactionsWithUser
-                .sorted { $0.transaction.date.dateValue() > $1.transaction.date.dateValue() }) { transaction in
-                    return GroupTransactionListViewModel.dateFormatter.string(from: transaction.transaction.date.dateValue())
-                }
+            Dictionary(grouping: transactionsWithUser) { transaction in
+                GroupTransactionListViewModel.dateFormatter.string(from: transaction.transaction.date.dateValue())
+            }
         }
 
         switch selectedTab {
@@ -201,6 +205,10 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         case .all:
             filteredTransactions = groupedTransactions
         }
+    }
+
+    func manageScrollToTopBtnVisibility(offset: CGFloat) {
+        showScrollToTopBtn = offset < 0
     }
 
     // MARK: - Helper Methods

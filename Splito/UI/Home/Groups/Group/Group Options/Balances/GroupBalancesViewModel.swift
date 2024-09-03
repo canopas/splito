@@ -27,12 +27,10 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     private var groupMemberData: [AppUser] = []
     let router: Router<AppRoute>
     var group: Groups?
-    let onDismissCallback: () -> Void
 
-    init(router: Router<AppRoute>, groupId: String, onDismissCallback: @escaping () -> Void) {
+    init(router: Router<AppRoute>, groupId: String) {
         self.router = router
         self.groupId = groupId
-        self.onDismissCallback = onDismissCallback
         super.init()
         fetchGroupMembers()
     }
@@ -147,7 +145,6 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     }
 
     func dismissSettleUpSheet() {
-        fetchGroupMembers()
         showSettleUpSheet = false
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
     }

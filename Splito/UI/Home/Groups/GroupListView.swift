@@ -58,9 +58,9 @@ struct GroupListView: View {
                                 .padding(.bottom, 8)
                         }
 
-                        GroupListWithDetailView(viewModel: viewModel, onLongPressGesture: {
+                        GroupListWithDetailView(viewModel: viewModel) {
                             isFocused = false
-                        })
+                        }
                     }
                 }
                 .frame(maxHeight: .infinity)

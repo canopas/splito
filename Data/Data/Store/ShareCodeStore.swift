@@ -6,7 +6,7 @@
 //
 
 import Combine
-import FirebaseFirestoreInternal
+import FirebaseFirestore
 
 public class ShareCodeStore: ObservableObject {
 

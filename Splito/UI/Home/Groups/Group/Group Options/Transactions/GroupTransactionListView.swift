@@ -44,7 +44,6 @@ struct GroupTransactionListView: View {
                     .foregroundStyle(primaryText)
             }
         }
-        .onDisappear(perform: viewModel.onDismissCallback)
     }
 }
 
@@ -54,41 +53,68 @@ private struct TransactionListWithDetailView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            List {
-                Group {
-                    if viewModel.filteredTransactions.isEmpty {
-                        EmptyTransactionView(geometry: geometry)
-                    } else {
-                        ForEach(viewModel.filteredTransactions.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
-                            Section(header: sectionHeader(month: month)) {
-                                ForEach(viewModel.filteredTransactions[month] ?? [], id: \.transaction.id) { transaction in
-                                    TransactionItemView(transactionWithUser: transaction,
-                                                        isLastCell: transaction.transaction.id == (viewModel.filteredTransactions[month] ?? []).last?.transaction.id)
-                                    .onTouchGesture {
-                                        viewModel.handleTransactionItemTap(transaction.transaction.id)
-                                    }
-                                    .swipeActions {
-                                        Button {
-                                            viewModel.showTransactionDeleteAlert(transaction.transaction)
-                                        } label: {
-                                            Image(.deleteIcon)
-                                                .resizable()
-                                                .tint(.clear)
+            ScrollViewReader { scrollProxy in
+                List {
+                    Group {
+                        if viewModel.filteredTransactions.isEmpty {
+                            EmptyTransactionView(geometry: geometry)
+                        } else {
+                            ForEach(viewModel.filteredTransactions.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
+                                Section(header: sectionHeader(month: month)) {
+                                    ForEach(viewModel.filteredTransactions[month] ?? [], id: \.transaction.id) { transaction in
+                                        TransactionItemView(transactionWithUser: transaction,
+                                                            isLastCell: transaction.transaction.id == (viewModel.filteredTransactions[month] ?? []).last?.transaction.id)
+                                        .onTouchGesture {
+                                            viewModel.handleTransactionItemTap(transaction.transaction.id)
+                                        }
+                                        .id(transaction.transaction.id)
+                                        .swipeActions {
+                                            Button {
+                                                viewModel.showTransactionDeleteAlert(transaction.transaction)
+                                            } label: {
+                                                Image(.deleteIcon)
+                                                    .resizable()
+                                                    .tint(.clear)
+                                            }
+                                        }
+
+                                        if transaction.transaction.id == viewModel.filteredTransactions[month]?.last?.transaction.id && viewModel.hasMoreTransactions {
+                                            ProgressView()
+                                                .frame(maxWidth: .infinity, alignment: .center)
+                                                .onAppear {
+                                                    viewModel.fetchMoreTransactions()
+                                                }
+                                                .padding(.vertical, 8)
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowBackground(surfaceColor)
                 }
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowBackground(surfaceColor)
+                .listStyle(.plain)
+                .scrollBounceBehavior(.basedOnSize)
+                .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
+                .refreshable {
+                    viewModel.fetchTransactions()
+                }
+                .background(GeometryReader { geo in
+                    Color.clear
+                        .onChange(of: geo.frame(in: .global).minY,
+                                  perform: viewModel.manageScrollToTopBtnVisibility(offset:))
+                })
+                .overlay(alignment: .bottomTrailing) {
+                    if viewModel.showScrollToTopBtn {
+                        ScrollToTopButton {
+                            withAnimation { scrollProxy.scrollTo(0) }
+                        }
+                        .padding([.trailing, .bottom], 16)
+                    }
+                }
             }
-            .listStyle(.plain)
-            .scrollIndicators(.hidden)
-            .scrollBounceBehavior(.basedOnSize)
-            .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
         }
     }
 

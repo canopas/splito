@@ -63,9 +63,11 @@ struct GroupHomeView: View {
         }
         .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
             if !(viewModel.memberOwingAmount.isEmpty) {
-                GroupSettleUpRouteView(appRoute: .init(root: .GroupSettleUpView(groupId: viewModel.group?.id ?? "")), dismissPaymentFlow: viewModel.dismissShowSettleUpSheet)
+                GroupSettleUpRouteView(appRoute: .init(root: .GroupSettleUpView(groupId: viewModel.group?.id ?? "")),
+                                       dismissPaymentFlow: viewModel.dismissShowSettleUpSheet)
             } else {
-                GroupSettleUpRouteView(appRoute: .init(root: .GroupWhoIsPayingView(groupId: viewModel.group?.id ?? "", isPaymentSettled: true)), dismissPaymentFlow: viewModel.dismissShowSettleUpSheet)
+                GroupSettleUpRouteView(appRoute: .init(root: .GroupWhoIsPayingView(groupId: viewModel.group?.id ?? "", isPaymentSettled: true)),
+                                       dismissPaymentFlow: viewModel.dismissShowSettleUpSheet)
             }
         }
         .sheet(isPresented: $viewModel.showSimplifyInfoSheet) {
@@ -76,12 +78,14 @@ struct GroupHomeView: View {
                 .presentationCornerRadius(24)
         }
         .fullScreenCover(isPresented: $viewModel.showTransactionsSheet) {
-            GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.group?.id ?? "")), dismissPaymentFlow: viewModel.dismissSheetCallback)
-                .animation(nil)
+            GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.group?.id ?? ""))) {
+                viewModel.showTransactionsSheet = false
+            }
+            .animation(nil)
         }
         .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
             NavigationStack {
-                GroupBalancesView(viewModel: GroupBalancesViewModel(router: viewModel.router, groupId: viewModel.group?.id ?? "", onDismissCallback: viewModel.dismissSheetCallback))
+                GroupBalancesView(viewModel: GroupBalancesViewModel(router: viewModel.router, groupId: viewModel.group?.id ?? ""))
             }
         }
         .fullScreenCover(isPresented: $viewModel.showGroupTotalSheet) {
