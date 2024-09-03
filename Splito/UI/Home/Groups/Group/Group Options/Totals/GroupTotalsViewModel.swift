@@ -67,8 +67,8 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
             groupTotalSpending: summaries.reduce(0) { $0 + $1.summary.groupTotalSpending },
             totalPaidAmount: summaries.reduce(0) { $0 + $1.summary.totalPaidAmount },
             totalShare: summaries.reduce(0) { $0 + $1.summary.totalShare },
-            paidAmount: getPaymentsMade(),
-            receivedAmount: getPaymentsReceived(),
+            paidAmount: summaries.reduce(0) { $0 + $1.summary.paidAmount },
+            receivedAmount: summaries.reduce(0) { $0 + $1.summary.receivedAmount },
             changeInBalance: summaries.reduce(0) { $0 + $1.summary.changeInBalance }
         )
     }
@@ -87,20 +87,9 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     private func getTotalSummaryForCurrentYear() -> [GroupTotalSummary] {
         guard let user = preference.user, let group else { return [] }
         let currentYear = Calendar.current.component(.year, from: Date())
-
         return group.balances.first(where: { $0.id == user.id })?.totalSummary.filter {
             $0.year == currentYear
         } ?? []
-    }
-
-    private func getPaymentsMade() -> Double {
-        guard let user = preference.user, let group else { return 0 }
-        return group.balances.first(where: { $0.id == user.id })?.totalSummary.reduce(0) { $0 + $1.summary.paidAmount } ?? 0
-    }
-
-    private func getPaymentsReceived() -> Double {
-        guard let user = preference.user, let group else { return 0 }
-        return group.balances.first(where: { $0.id == user.id })?.totalSummary.reduce(0) { $0 + $1.summary.receivedAmount } ?? 0
     }
 
     // MARK: - Error Handling

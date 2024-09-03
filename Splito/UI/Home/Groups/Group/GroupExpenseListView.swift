@@ -113,6 +113,7 @@ struct GroupExpenseListView: View {
                 .font(.Header4())
                 .foregroundStyle(primaryText)
                 .padding(.horizontal, 16)
+                .padding(.vertical, 8)
 
             Spacer()
         }
@@ -141,13 +142,13 @@ private struct GroupExpenseItemView: View {
 
         if let user = preference.user, expense.paidBy.count == 1 && expense.paidBy.keys.contains(user.id) {
             userName = "You"
-            amount = getCalculatedSplitAmount(member: user.id, expense: expense)
+            amount = expense.getCalculatedSplitAmountOf(member: user.id)
             isBorrowed = amount < 0
             isSettled = expense.paidBy.count == 1 && expense.paidBy.keys.contains(user.id) && expense.splitTo.contains(user.id) && expense.splitTo.count == 1
         } else if let userId = preference.user?.id, expense.paidBy.count > 1 && (expense.paidBy.keys.contains(userId) || expense.splitTo.contains(userId)) {
             userName = "\(expense.paidBy.count) people"
             if let userId = preference.user?.id {
-                amount = getCalculatedSplitAmount(member: userId, expense: expense)
+                amount = expense.getCalculatedSplitAmountOf(member: userId)
                 isBorrowed = amount < 0
                 isSettled = amount == 0
             }
@@ -155,14 +156,14 @@ private struct GroupExpenseItemView: View {
             isBorrowed = true
             userName = expenseWithUser.user.nameWithLastInitial
             if let userId = preference.user?.id {
-                amount = getCalculatedSplitAmount(member: userId, expense: expense)
+                amount = expense.getCalculatedSplitAmountOf(member: userId)
             }
             isInvolved = expense.splitTo.contains(where: { $0 == preference.user?.id })
         }
     }
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 20) {
             HStack(alignment: .center, spacing: 0) {
                 let dateComponents = expense.date.dateValue().dayAndMonthText
                 VStack(spacing: 0) {
@@ -229,7 +230,7 @@ private struct GroupExpenseItemView: View {
                 .foregroundStyle(isBorrowed ? alertColor : successColor)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 20)
+            .padding(.top, 20)
 
             if !isLastItem {
                 Divider()
@@ -314,7 +315,7 @@ private struct GroupExpenseHeaderOverallView: View {
                 .background(dividerColor)
 
             VStack(alignment: .trailing, spacing: 4) {
-                Text("Your \(Date().dayOfMonth) spending")
+                Text("Your \(Date().nameOfMonth.lowercased()) spending")
                     .font(.body3())
                     .foregroundStyle(disableText)
 

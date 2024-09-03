@@ -50,6 +50,40 @@ public struct Expense: Codable, Hashable {
     }
 }
 
+extension Expense {
+    /// It will return member's total split amount from the total expense
+    public func getTotalSplitAmountOf(member: String) -> Double {
+        if !self.splitTo.contains(member) { return 0 }
+
+        switch self.splitType {
+        case .equally:
+            return self.amount / Double(self.splitTo.count)
+        case .fixedAmount:
+            return self.splitData?[member] ?? 0
+        case .percentage:
+            let totalPercentage = self.splitData?.values.reduce(0, +) ?? 0
+            return self.amount * (self.splitData?[member] ?? 0) / totalPercentage
+        case .shares:
+            let totalShares = self.splitData?.values.reduce(0, +) ?? 0
+            return self.amount * ((self.splitData?[member] ?? 0) / totalShares)
+        }
+    }
+
+    /// It will return the owing amount to the member for that expense that he have to get or pay back
+    public func getCalculatedSplitAmountOf(member: String) -> Double {
+        let paidAmount = self.paidBy[member] ?? 0
+        let splitAmount = getTotalSplitAmountOf(member: member)
+
+        if self.paidBy.keys.contains(member) {
+            return paidAmount - (self.splitTo.contains(member) ? splitAmount : 0)
+        } else if self.splitTo.contains(member) {
+            return -splitAmount
+        } else {
+            return paidAmount
+        }
+    }
+}
+
 public enum SplitType: String, Codable, CaseIterable {
     case equally
     case fixedAmount

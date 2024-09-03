@@ -39,5 +39,6 @@ public struct NavigationBarTopView<LeadingButton: View, TrailingButton: View>: V
             }
             .padding(.top, 10)
         }
+        .frame(alignment: .top)
     }
 }

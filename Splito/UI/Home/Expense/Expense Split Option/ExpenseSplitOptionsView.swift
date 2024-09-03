@@ -28,6 +28,8 @@ struct ExpenseSplitOptionsView: View {
                 })
             )
 
+            Spacer(minLength: 0)
+
             if case .loading = viewModel.viewState {
                 LoaderView()
             } else {

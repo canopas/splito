@@ -19,7 +19,6 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     @Published var groupId: String
     @Published var showSettleUpSheet: Bool = false
     @Published var memberBalances: [MembersCombinedBalance] = []
-    @Published var memberOwingAmount: [String: Double] = [:]
 
     @Published var payerId: String?
     @Published var receiverId: String?
@@ -69,54 +68,35 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Helper Methods
     private func calculateExpensesSimplified(group: Groups) {
-        let memberBalances = group.balances.map { MembersCombinedBalance(id: $0.id, totalOwedAmount: $0.balance) }
+        let memberBalances = group.balances.map {
+            MembersCombinedBalance(id: $0.id, totalOwedAmount: $0.balance)
+        }
+
+        // Create group member balances for settlements
+        let groupMemberBalances = group.balances.map {
+            GroupMemberBalance(id: $0.id, balance: $0.balance, totalSummary: $0.totalSummary)
+        }
+
+        // Calculate settlements between group members
+        let settlements = calculateSettlements(balances: groupMemberBalances)
+
+        // Merge settlements with member balances
+        let combinedBalances = settlements.reduce(into: memberBalances) { balances, settlement in
+            let senderIndex = balances.firstIndex { $0.id == settlement.sender }
+            let receiverIndex = balances.firstIndex { $0.id == settlement.receiver }
+
+            if let senderIndex = senderIndex {
+                balances[senderIndex].balances[settlement.receiver, default: 0.0] -= settlement.amount
+            }
+
+            if let receiverIndex = receiverIndex {
+                balances[receiverIndex].balances[settlement.sender, default: 0.0] += settlement.amount
+            }
+        }
+
         DispatchQueue.main.async {
-            let debts = self.settleDebts(balances: memberBalances)
-            self.sortMemberBalances(memberBalances: debts)
+            self.sortMemberBalances(memberBalances: combinedBalances)
         }
-    }
-
-    private func settleDebts(balances: [MembersCombinedBalance]) -> [MembersCombinedBalance] {
-        var creditors: [(MembersCombinedBalance, Double)] = []
-        var debtors: [(MembersCombinedBalance, Double)] = []
-
-        // Separate users into creditors and debtors
-        for balance in balances {
-            if balance.totalOwedAmount > 0 {
-                creditors.append((balance, balance.totalOwedAmount))
-            } else if balance.totalOwedAmount < 0 {
-                debtors.append((balance, -balance.totalOwedAmount)) // Store as positive for ease of calculation
-            }
-        }
-
-        // Sort creditors and debtors by the amount they owe or are owed
-        creditors.sort { $0.1 < $1.1 }
-        debtors.sort { $0.1 < $1.1 }
-
-        var updatedBalances = balances
-
-        while !creditors.isEmpty && !debtors.isEmpty { // Process all debts
-            let (creditor, credAmt) = creditors.removeFirst()
-            let (debtor, debtAmt) = debtors.removeFirst()
-            let minAmt = min(credAmt, debtAmt)
-
-            // Update the balances
-            if let creditorIndex = updatedBalances.firstIndex(where: { $0.id == creditor.id }) {
-                updatedBalances[creditorIndex].balances[debtor.id, default: 0.0] += minAmt
-            }
-
-            if let debtorIndex = updatedBalances.firstIndex(where: { $0.id == debtor.id }) {
-                updatedBalances[debtorIndex].balances[creditor.id, default: 0.0] -= minAmt
-            }
-
-            // Reinsert any remaining balances
-            if credAmt > debtAmt {
-                creditors.insert((creditor, credAmt - debtAmt), at: 0)
-            } else if debtAmt > credAmt {
-                debtors.insert((debtor, debtAmt - credAmt), at: 0)
-            }
-        }
-        return updatedBalances
     }
 
     private func sortMemberBalances(memberBalances: [MembersCombinedBalance]) {
@@ -133,7 +113,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         }
 
         self.memberBalances = sortedMembers
-        self.viewState = .initial
+        viewState = .initial
     }
 
     private func getMemberDataBy(id: String) -> AppUser? {
