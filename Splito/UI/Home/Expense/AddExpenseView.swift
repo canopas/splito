@@ -235,6 +235,8 @@ struct DatePickerRow: View {
                 )
                 .padding(.leading, 16)
 
+                Spacer(minLength: 0)
+
                 ScrollView {
                     DatePicker("", selection: $tempDate, in: ...maximumDate, displayedComponents: .date)
                         .datePickerStyle(GraphicalDatePickerStyle())

@@ -26,6 +26,8 @@ struct ChooseMultiplePayerView: View {
                 trailingButton: CheckmarkButton(padding: (.horizontal, 16), onClick: viewModel.handleDoneBtnTap)
             )
 
+            Spacer(minLength: 0)
+
             if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else {

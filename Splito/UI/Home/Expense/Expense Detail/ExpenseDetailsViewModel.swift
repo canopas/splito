@@ -157,8 +157,8 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     func getSplitAmount(for member: String) -> String {
-        guard let expense = expense else { return "" }
-        let finalAmount = getTotalSplitAmount(member: member, expense: expense)
+        guard let expense else { return "" }
+        let finalAmount = expense.getTotalSplitAmountOf(member: member)
         return finalAmount.formattedCurrency
     }
 

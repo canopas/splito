@@ -152,7 +152,7 @@ private struct GroupBalanceItemMemberView: View {
             VStack(alignment: .leading, spacing: 12) {
                 ForEach(balances.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
                     let hasDue = amount < 0
-                    let imageUrl = viewModel.getMemberImage(id: hasDue ? id : memberId)
+                    let imageUrl = viewModel.getMemberImage(id: memberId)
                     let owesMemberName = viewModel.getMemberName(id: hasDue ? memberId : id)
                     let owedMemberName = viewModel.getMemberName(id: hasDue ? id : memberId)
 

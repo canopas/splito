@@ -60,7 +60,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             .filter { expense in
                 expense.splitTo.contains(userId) // Check if the user is involved in the expense
             }
-            .map { getTotalSplitAmount(member: userId, expense: $0) }
+            .map { $0.getTotalSplitAmountOf(member: userId) }
             .reduce(0.0, +)
     }
 
@@ -76,7 +76,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     let router: Router<AppRoute>
-    private var isLoadingFirstTime: Bool = true
     private var groupUserData: [AppUser] = []
     private var currentMonthExpenses: [Expense] = []
 
@@ -160,11 +159,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     private func combineMemberWithExpense(completion: @escaping () -> Void) {
-        if isLoadingFirstTime {
-            groupState = .loading
-            isLoadingFirstTime = false
-        }
-
         let queue = DispatchGroup()
         var combinedData: [ExpenseWithUser] = []
 

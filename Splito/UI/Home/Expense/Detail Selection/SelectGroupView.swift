@@ -26,6 +26,8 @@ struct SelectGroupView: View {
             )
             .padding(.leading, 16)
 
+            Spacer(minLength: 0)
+
             if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else if case .noGroups = viewModel.currentViewState {

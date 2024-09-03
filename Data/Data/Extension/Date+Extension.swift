@@ -35,7 +35,7 @@ public extension Date {
         return (day, month)
     }
 
-    var dayOfMonth: String {
+    var nameOfMonth: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMMM"
         return dateFormatter.string(from: self).capitalized

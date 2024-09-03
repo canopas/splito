@@ -96,7 +96,7 @@ private struct TransactionListWithDetailView: View {
         return Text(month)
             .font(.Header4())
             .foregroundStyle(primaryText)
-            .padding(.bottom, 8)
+            .padding(.vertical, 8)
             .padding(.horizontal, 16)
     }
 }
@@ -121,7 +121,7 @@ private struct TransactionItemView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 20) {
             HStack(alignment: .center, spacing: 0) {
                 let dateComponents = transactionWithUser.transaction.date.dateValue().dayAndMonthText
                 VStack(spacing: 0) {
@@ -155,7 +155,7 @@ private struct TransactionItemView: View {
                         .foregroundStyle(transactionWithUser.payer?.id == preference.user?.id ? alertColor : successColor)
                 }
             }
-            .padding(.vertical, 24)
+            .padding(.top, 20)
             .padding(.horizontal, 16)
 
             if !isLastCell {
