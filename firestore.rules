@@ -34,20 +34,20 @@ service cloud.firestore {
     // For Groups Collection
     match /groups/{groupId} {
     	allow read: if isAuthorized() &&
-      				    resource.data.members.hasAny([request.auth.uid]);
+      				   resource.data.members.hasAny([request.auth.uid]);
       
       allow create: if isAuthorized() &&
-      								 isCurrentUser(request.resource.data.created_by);
+      				   isCurrentUser(request.resource.data.created_by);
       
       allow update: if isAuthorized() &&
-      					    (resource.data.members.hasAny([request.auth.uid]) ||
+      				   (resource.data.members.hasAny([request.auth.uid]) ||
                        (!resource.data.members.hasAny([request.auth.uid]) &&
-                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(["members"])
+                            request.resource.data.diff(resource.data).affectedKeys().hasOnly(["members"])
                        )
                     );
       
       allow delete: if isAuthorized() &&
-      							resource.data.members.hasAny([request.auth.uid]);
+      				   resource.data.members.hasAny([request.auth.uid]);
     }
     
     // For Expenses Collection
@@ -55,7 +55,7 @@ service cloud.firestore {
       	allow read: if isUserPartOfGroup(groupId);
         
       	allow create: if isCurrentUser(request.resource.data.added_by) &&
-        							isUserPartOfGroup(groupId);
+        				 isUserPartOfGroup(groupId);
                               
         allow update: if isUserPartOfGroup(groupId);
                       
@@ -79,13 +79,13 @@ service cloud.firestore {
     
     // Use for sub-collection as it'll not have parent's data
     function isUserPartOfGroup(groupId) {
-    		let memberIds = get(/databases/$(database)/documents/groups/$(groupId)).data.members;
+    	let memberIds = get(/databases/$(database)/documents/groups/$(groupId)).data.members;
         return isAuthorized() && memberIds.hasAny([request.auth.uid]);
-		}
+	}
     
     function isMemberPartOfGroup(groupId, memberId) {
-    		let memberIds = get(/databases/$(database)/documents/groups/$(groupId)).data.members;
-    		return isAuthorized() && memberIds.hasAny([memberId]);
-		}
+    	let memberIds = get(/databases/$(database)/documents/groups/$(groupId)).data.members;
+    	return isAuthorized() && memberIds.hasAny([memberId]);
+	}
   }
 }

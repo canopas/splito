@@ -16,6 +16,7 @@ public struct AppUser: Identifiable, Codable, Hashable {
     public var phoneNumber: String?
     public var imageUrl: String?
     public let loginType: LoginType
+    public var totalOweAmount: Double
     public let isActive: Bool
 
     public var fullName: String {
@@ -32,8 +33,8 @@ public struct AppUser: Identifiable, Codable, Hashable {
         return firstName + (lastNameInitial.isEmpty ? "" : " \(lastNameInitial).")
     }
 
-    public init(id: String, firstName: String?, lastName: String?, emailId: String?,
-                phoneNumber: String?, profileImageUrl: String? = nil, loginType: LoginType, isActive: Bool = true) {
+    public init(id: String, firstName: String?, lastName: String?, emailId: String?, phoneNumber: String?,
+                profileImageUrl: String? = nil, loginType: LoginType, totalOweAmount: Double = 0, isActive: Bool = true) {
         self.id = id
         self.firstName = firstName
         self.lastName = lastName
@@ -41,6 +42,7 @@ public struct AppUser: Identifiable, Codable, Hashable {
         self.phoneNumber = phoneNumber
         self.imageUrl = profileImageUrl
         self.loginType = loginType
+        self.totalOweAmount = totalOweAmount
         self.isActive = isActive
     }
 
@@ -52,6 +54,7 @@ public struct AppUser: Identifiable, Codable, Hashable {
         case phoneNumber = "phone_number"
         case imageUrl = "image_url"
         case loginType = "login_type"
+        case totalOweAmount = "total_owe_amount"
         case isActive = "is_active"
     }
 }

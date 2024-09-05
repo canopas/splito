@@ -1,4 +1,26 @@
 {
-  "indexes": [],
-  "fieldOverrides": []
+  "indexes": [
+    {
+      "collectionGroup": "groups",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "members",
+          "mode": "ARRAY_CONTAINS"
+        },
+        {
+          "fieldPath": "is_active",
+          "mode": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_at",
+          "mode": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "mode": "DESCENDING"
+        }
+      ]
+    }
+  ]
 }
