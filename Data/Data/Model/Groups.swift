@@ -47,7 +47,7 @@ public struct Groups: Codable, Identifiable {
 }
 
 public struct GroupMemberBalance: Codable {
-    public let id: String
+    public let id: String /// Member Id
     public var balance: Double
     public var totalSummary: [GroupTotalSummary]
 

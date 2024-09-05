@@ -19,14 +19,14 @@ public class UserRepository: ObservableObject {
     private var cancelable = Set<AnyCancellable>()
 
     public func storeUser(user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
-        store.fetchUsers()
-            .flatMap { [weak self] users -> AnyPublisher<AppUser, ServiceError> in
+        store.fetchUserBy(id: user.id)
+            .flatMap { [weak self] storedUser -> AnyPublisher<AppUser, ServiceError> in
                 guard let self else {
                     return Fail(error: .unexpectedError).eraseToAnyPublisher()
                 }
 
-                if let searchedUser = users.first(where: { $0.id == user.id }) {
-                    return Just(searchedUser).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
+                if let storedUser {
+                    return Just(storedUser).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
                 } else {
                     return self.store.addUser(user: user)
                         .mapError { error in
@@ -41,15 +41,7 @@ public class UserRepository: ObservableObject {
     }
 
     public func fetchUserBy(userID: String) -> AnyPublisher<AppUser?, ServiceError> {
-        store.fetchUsers()
-            .map { users -> AppUser? in
-                return users.first(where: { $0.id == userID })
-            }
-            .mapError { error -> ServiceError in
-                LogE("UserRepository :: \(#function) fetchUserByID failed, error: \(error.localizedDescription).")
-                return .databaseError(error: error.localizedDescription)
-            }
-            .eraseToAnyPublisher()
+        store.fetchUserBy(id: userID)
     }
 
     private func uploadImage(imageData: Data, user: AppUser) -> AnyPublisher<AppUser, ServiceError> {

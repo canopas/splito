@@ -123,7 +123,6 @@ struct GroupExpenseListView: View {
                 .foregroundStyle(primaryText)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-
             Spacer()
         }
         .onTapGestureForced {
@@ -283,8 +282,7 @@ private struct GroupExpenseHeaderView: View {
                         GroupExpenseMemberOweView(name: name, amount: amount,
                                                   handleSimplifyInfoSheet: viewModel.handleSimplifyInfoSheet)
                     }
-                }
-                .padding(16)
+                }.padding(16)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -48,14 +48,14 @@ class UserStore: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    func fetchUsers() -> AnyPublisher<[AppUser], ServiceError> {
+    func fetchUserBy(id: String) -> AnyPublisher<AppUser?, ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
                 return
             }
 
-            self.database.collection(self.COLLECTION_NAME).getDocuments { snapshot, error in
+            self.database.collection(self.COLLECTION_NAME).document(id).getDocument { snapshot, error in
                 if let error {
                     LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error.localizedDescription)))
@@ -69,11 +69,10 @@ class UserStore: ObservableObject {
                 }
 
                 do {
-                    let users = try snapshot.documents.compactMap { document in
-                        try document.data(as: AppUser.self)
-                    }
-                    promise(.success(users))
+                    let user = try snapshot.data(as: AppUser.self)
+                    promise(.success(user))
                 } catch {
+                    print("USERID: \(id)")
                     LogE("UserStore :: \(#function) Decode error: \(error.localizedDescription)")
                     promise(.failure(.decodingError))
                 }
