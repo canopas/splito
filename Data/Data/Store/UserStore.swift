@@ -62,9 +62,9 @@ class UserStore: ObservableObject {
                     return
                 }
 
-                guard let snapshot else {
+                guard let snapshot, snapshot.exists else {
                     LogE("UserStore :: \(#function) The document is not available.")
-                    promise(.failure(.dataNotFound))
+                    promise(.success(nil))
                     return
                 }
 
@@ -72,12 +72,17 @@ class UserStore: ObservableObject {
                     let user = try snapshot.data(as: AppUser.self)
                     promise(.success(user))
                 } catch {
-                    print("USERID: \(id)")
                     LogE("UserStore :: \(#function) Decode error: \(error.localizedDescription)")
                     promise(.failure(.decodingError))
                 }
             }
         }.eraseToAnyPublisher()
+    }
+
+    func fetchLatestUserBy(id: String) -> AnyPublisher<AppUser?, ServiceError> {
+        database.collection(COLLECTION_NAME)
+            .document(id)
+            .toAnyPublisher()
     }
 
     func deactivateUserAfterDelete(userId: String) -> AnyPublisher<Void, ServiceError> {

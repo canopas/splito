@@ -9,10 +9,9 @@ import SwiftUI
 import BaseStyle
 
 struct ChooseMultiplePayerView: View {
+    @Environment(\.dismiss) var dismiss
 
     @StateObject var viewModel: ChooseMultiplePayerViewModel
-
-    @Environment(\.dismiss) var dismiss
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
@@ -83,8 +82,4 @@ private struct EnterPaidAmountsView: View {
             }
         }
     }
-}
-
-#Preview {
-    ChooseMultiplePayerView(viewModel: ChooseMultiplePayerViewModel(groupId: "", expenseAmount: 0, onPayerSelection: {_ in }, dismissChoosePayerFlow: {}))
 }

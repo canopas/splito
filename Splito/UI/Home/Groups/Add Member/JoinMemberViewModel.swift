@@ -72,6 +72,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
                     completion()
                 }
             } receiveValue: { _ in
+                NotificationCenter.default.post(name: .joinGroup, object: groupId)
                 completion()
             }.store(in: &cancelable)
     }

@@ -102,7 +102,3 @@ struct GroupPayingMemberView: View {
         }
     }
 }
-
-#Preview {
-    GroupWhoIsPayingView(viewModel: GroupWhoIsPayingViewModel(groupId: "", isPaymentSettled: true))
-}

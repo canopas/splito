@@ -44,6 +44,10 @@ public class UserRepository: ObservableObject {
         store.fetchUserBy(id: userID)
     }
 
+    public func fetchLatestUserBy(userId: String) -> AnyPublisher<AppUser?, ServiceError> {
+        store.fetchLatestUserBy(id: userId)
+    }
+
     private func uploadImage(imageData: Data, user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
         storageManager.uploadImage(for: .user, id: user.id, imageData: imageData)
             .flatMap { imageUrl -> AnyPublisher<AppUser, ServiceError> in

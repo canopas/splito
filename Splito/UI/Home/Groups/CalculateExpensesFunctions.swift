@@ -362,3 +362,15 @@ public func getUpdatedMemberBalanceFor(transaction: Transactions, group: Groups,
 
     return memberBalance
 }
+
+// Filtered group total summary data for current month
+public func getTotalSummaryForCurrentMonth(group: Groups?, userId: String?) -> [GroupTotalSummary] {
+    guard let userId, let group else { return [] }
+
+    let currentMonth = Calendar.current.component(.month, from: Date())
+    let currentYear = Calendar.current.component(.year, from: Date())
+
+    return group.balances.first(where: { $0.id == userId })?.totalSummary.filter {
+        $0.month == currentMonth && $0.year == currentYear
+    } ?? []
+}

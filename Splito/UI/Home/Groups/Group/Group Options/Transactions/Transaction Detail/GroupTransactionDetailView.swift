@@ -51,8 +51,7 @@ struct GroupTransactionDetailView: View {
                         router: viewModel.router, transactionId: viewModel.transactionId,
                         groupId: viewModel.groupId, payerId: viewModel.transaction?.payerId ?? "",
                         receiverId: viewModel.transaction?.receiverId ?? "",
-                        amount: viewModel.transaction?.amount ?? 0,
-                        dismissPaymentFlow: viewModel.dismissEditTransactionSheet
+                        amount: viewModel.transaction?.amount ?? 0
                     )
                 )
             }
@@ -71,7 +70,6 @@ struct GroupTransactionDetailView: View {
                 ToolbarButtonView(imageIcon: .editPencilIcon, onClick: viewModel.handleEditBtnAction)
             }
         }
-        .onAppear(perform: viewModel.fetchTransaction)
     }
 }
 
@@ -187,8 +185,4 @@ private struct TransactionSummaryView: View {
         .background(containerColor)
         .cornerRadius(12)
     }
-}
-
-#Preview {
-    GroupTransactionDetailView(viewModel: GroupTransactionDetailViewModel(router: .init(root: .TransactionDetailView(transactionId: "", groupId: "")), groupId: "", transactionId: ""))
 }

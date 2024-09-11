@@ -11,10 +11,9 @@ import BaseStyle
 import Kingfisher
 
 struct ChoosePayerView: View {
+    @Environment(\.dismiss) var dismiss
 
     @StateObject var viewModel: ChoosePayerViewModel
-
-    @Environment(\.dismiss) var dismiss
 
     var body: some View {
         VStack(spacing: 0) {
@@ -151,8 +150,4 @@ private struct MultiplePeopleCellView: View {
         .padding(.vertical, 24)
         .padding(.horizontal, 16)
     }
-}
-
-#Preview {
-    ChoosePayerView(viewModel: ChoosePayerViewModel(router: nil, groupId: "", amount: 0.0, selectedPayers: [:], onPayerSelection: { _ in }))
 }

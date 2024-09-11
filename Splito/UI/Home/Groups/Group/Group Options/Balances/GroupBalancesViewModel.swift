@@ -32,7 +32,14 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         super.init()
+
+        NotificationCenter.default.addObserver(self, selector: #selector(handleAddTransaction(notification:)), name: .addTransaction, object: nil)
+
         fetchGroupMembers()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     // MARK: - Data Loading
@@ -46,11 +53,11 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { users in
                 self.groupMemberData = users
-                self.fetchGroupAndExpenses()
+                self.fetchGroupDetails()
             }.store(in: &cancelable)
     }
 
-    private func fetchGroupAndExpenses() {
+    private func fetchGroupDetails() {
         groupRepository.fetchGroupBy(id: groupId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -60,12 +67,17 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { [weak self] group in
                 guard let self, let group else { return }
                 self.group = group
-                self.calculateExpensesSimplified(group: group)
+                self.calculateExpensesSimplified()
             }.store(in: &cancelable)
     }
 
     // MARK: - Helper Methods
-    private func calculateExpensesSimplified(group: Groups) {
+    private func calculateExpensesSimplified() {
+        guard let group else {
+            LogE("GroupBalancesViewModel :: \(#function) group not found.")
+            return
+        }
+
         let memberBalances = group.balances.map {
             MembersCombinedBalance(id: $0.id, totalOwedAmount: $0.balance)
         }
@@ -144,9 +156,9 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         showSettleUpSheet = true
     }
 
-    func dismissSettleUpSheet() {
-        showSettleUpSheet = false
+    @objc private func handleAddTransaction(notification: Notification) {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
+        fetchGroupDetails()
     }
 }
 

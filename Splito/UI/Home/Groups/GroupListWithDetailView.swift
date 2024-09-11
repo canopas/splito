@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Data
 import BaseStyle
 
 struct GroupListWithDetailView: View {
@@ -58,7 +59,6 @@ struct GroupListWithDetailView: View {
                                       perform: viewModel.manageScrollToTopBtnVisibility(offset:))
                     })
                 }
-                .scrollBounceBehavior(.basedOnSize)
                 .overlay(alignment: .bottomTrailing) {
                     if viewModel.showScrollToTopBtn {
                         ScrollToTopButton {

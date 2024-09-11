@@ -30,14 +30,11 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     @Published var group: Groups?
     @Published var currentState: ViewState = .initial
 
-    let router: Router<AppRoute>
-    var isOpenForEdit: Bool = false
-    var onDismissCallback: (() -> Void)?
+    private let router: Router<AppRoute>
 
-    init(router: Router<AppRoute>, group: Groups? = nil, onDismissCallback: (() -> Void)? = nil) {
+    init(router: Router<AppRoute>, group: Groups? = nil) {
         self.router = router
         self.group = group
-        self.onDismissCallback = onDismissCallback
         self.groupName = group?.name ?? ""
         self.profileImageUrl = group?.imageUrl
         super.init()
@@ -87,9 +84,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
 
     func handleDoneAction(completion: @escaping () -> Void) {
         if let group {
-            updateGroup(group: group) {
-                self.onDismissCallback != nil ? self.onDismissCallback?() : completion()
-            }
+            updateGroup(group: group, completion: completion)
         } else {
             createGroup(completion: completion)
         }
@@ -113,8 +108,9 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
                     self?.showLoader = false
                     self?.showAlertFor(error)
                 }
-            } receiveValue: { _ in
+            } receiveValue: { newGroup in
                 self.showLoader = false
+                NotificationCenter.default.post(name: .addGroup, object: newGroup)
                 completion()
             }.store(in: &cancelable)
     }
@@ -135,8 +131,9 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
                     self?.showLoader = false
                     self?.showAlertFor(error)
                 }
-            } receiveValue: { _ in
+            } receiveValue: { updatedGroup in
                 self.showLoader = false
+                NotificationCenter.default.post(name: .updateGroup, object: updatedGroup)
                 completion()
             }.store(in: &cancelable)
     }

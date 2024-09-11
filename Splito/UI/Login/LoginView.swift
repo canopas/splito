@@ -19,19 +19,22 @@ struct LoginView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         AppLogoView(geometry: .constant(proxy))
 
-                        Text("Getting started with us")
-                            .font(.Header1())
-                            .foregroundStyle(primaryText)
-                            .padding(.horizontal, 16)
+                        Group {
+                            Text("Getting started with us")
+                                .font(.Header1())
+                                .foregroundStyle(primaryText)
 
-                        VSpacer(16)
+                            VSpacer(16)
 
-                        Text("Sign up in the app to use amazing splitting features.")
-                            .font(.subTitle1())
-                            .foregroundStyle(disableText)
-                            .tracking(-0.2)
-                            .lineSpacing(4)
-                            .padding(.horizontal, 16)
+                            Text("Sign up in the app to use amazing splitting features.")
+                                .font(.subTitle1())
+                                .foregroundStyle(disableText)
+                                .tracking(-0.2)
+                                .lineSpacing(4)
+                        }
+                        .padding(.horizontal, 16)
+                        .frame(maxWidth: isIpad ? 600 : nil, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .center)
 
                         Spacer()
                     }
@@ -48,8 +51,6 @@ struct LoginView: View {
                 VSpacer(24)
             }
         }
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .ignoresSafeArea(edges: .top)
@@ -73,6 +74,8 @@ private struct LoginOptionsView: View {
             LoginOptionsButtonView(systemImage: ("phone.fill", primaryLightText, (12, 12)), buttonName: "Sign in with Phone Number", bgColor: primaryColor, buttonTextColor: primaryLightText, showLoader: false, onClick: onPhoneLoginClick)
         }
         .padding(.horizontal, 16)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
@@ -157,11 +160,9 @@ struct AppLogoView: View {
 
             Spacer()
         }
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .frame(maxWidth: .infinity, alignment: .center)
         .background(colorScheme == .dark ? containerColor : primaryDarkColor)
         .padding(.bottom, 24)
     }
-}
-
-#Preview {
-    LoginView(viewModel: LoginViewModel(router: .init(root: .LoginView)))
 }

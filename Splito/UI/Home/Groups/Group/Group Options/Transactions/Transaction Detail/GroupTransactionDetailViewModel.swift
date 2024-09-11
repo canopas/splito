@@ -31,7 +31,15 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
         self.transactionId = transactionId
         super.init()
+
+        NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedTransaction(notification:)), name: .updateTransaction, object: nil)
+
         fetchGroup()
+        fetchTransaction()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     // MARK: - Data Loading
@@ -92,8 +100,11 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                 if case .failure(let error) = completion {
                     self?.handleServiceError(error)
                 }
-            } receiveValue: { user in
-                guard let user else { return }
+            } receiveValue: { [weak self] user in
+                guard let user else {
+                    self?.viewState = .initial
+                    return
+                }
                 completion(user)
             }.store(in: &cancelable)
     }
@@ -126,6 +137,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] _ in
                 self?.viewState = .initial
+                NotificationCenter.default.post(name: .deleteTransaction, object: self?.transaction)
                 self?.updateGroupMemberBalance(updateType: .Delete)
                 self?.router.pop()
             }.store(in: &cancelable)
@@ -148,8 +160,9 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func dismissEditTransactionSheet() {
-        showEditTransactionSheet = false
+    @objc private func getUpdatedTransaction(notification: Notification) {
+        guard let updatedTransaction = notification.object as? Transactions else { return }
+        transaction = updatedTransaction
     }
 
     // MARK: - Error Handling

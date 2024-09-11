@@ -109,3 +109,20 @@ public struct GroupMemberSummary: Codable {
         case changeInBalance = "change_in_balance"
     }
 }
+
+// MARK: - To show group and expense together
+public struct GroupInformation {
+    public let group: Groups
+    public let userBalance: Double
+    public let memberOweAmount: [String: Double]
+    public let members: [AppUser]
+    public let hasExpenses: Bool
+
+    public init(group: Groups, userBalance: Double, memberOweAmount: [String: Double], members: [AppUser], hasExpenses: Bool) {
+        self.group = group
+        self.userBalance = userBalance
+        self.memberOweAmount = memberOweAmount
+        self.members = members
+        self.hasExpenses = hasExpenses
+    }
+}

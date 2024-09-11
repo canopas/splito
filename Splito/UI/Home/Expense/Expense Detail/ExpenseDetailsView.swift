@@ -39,8 +39,7 @@ struct ExpenseDetailsView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .fullScreenCover(isPresented: $viewModel.showEditExpenseSheet) {
             NavigationStack {
-                AddExpenseView(viewModel: AddExpenseViewModel(router: viewModel.router, groupId: viewModel.groupId,
-                                                              expenseId: viewModel.expenseId, onDismissSheet: viewModel.dismissEditExpenseSheet))
+                AddExpenseView(viewModel: AddExpenseViewModel(router: viewModel.router, groupId: viewModel.groupId, expenseId: viewModel.expenseId))
             }
         }
         .toolbarRole(.editor)
@@ -57,7 +56,6 @@ struct ExpenseDetailsView: View {
                 ToolbarButtonView(imageIcon: .editPencilIcon, onClick: viewModel.handleEditBtnAction)
             }
         }
-        .onAppear(perform: viewModel.fetchExpense)
     }
 }
 
@@ -133,7 +131,7 @@ private struct ExpenseInfoView: View {
                     .foregroundStyle(primaryText)
             }
 
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 0) {
                 ForEach(viewModel.expenseUsersData, id: \.self) { userData in
                     let subImageHeight: CGFloat = 24
                     let owes = viewModel.preference.user?.id == userData.id ? "owe" : "owes"
@@ -158,6 +156,10 @@ private struct ExpenseInfoView: View {
                         }
                     }
                     .padding(.leading, 56)
+
+                    if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
+                        VSpacer(16)
+                    }
                 }
             }
             .font(.body3())

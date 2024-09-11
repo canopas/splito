@@ -36,8 +36,7 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
                     self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] members in
-                guard let self else { return }
-                self.members = members
+                self?.members = members
             }.store(in: &cancelable)
     }
 

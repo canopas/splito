@@ -32,6 +32,13 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
         self.groupId = groupId
+        super.init()
+
+        NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateGroup(notification:)), name: .updateGroup, object: nil)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     // MARK: - Data Loading
@@ -117,11 +124,6 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         showEditGroupSheet = true
     }
 
-    func dismissEditGroupSheet() {
-        showEditGroupSheet = false
-        fetchGroupDetails()
-    }
-
     func handleAddMemberTap() {
         showAddMemberSheet = true
     }
@@ -204,6 +206,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             } receiveValue: { _ in
                 self.currentViewState = .initial
                 if userId == memberId {
+                    NotificationCenter.default.post(name: .deleteGroup, object: group)
                     self.goBackToGroupList()
                 } else {
                     self.showAlert = false
@@ -238,8 +241,14 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { _ in
                 self.currentViewState = .initial
+                NotificationCenter.default.post(name: .deleteGroup, object: group)
                 self.goBackToGroupList()
             }.store(in: &cancelable)
+    }
+
+    @objc private func handleUpdateGroup(notification: Notification) {
+        guard let updatedGroup = notification.object as? Groups else { return }
+        group = updatedGroup
     }
 
     // MARK: - Navigation

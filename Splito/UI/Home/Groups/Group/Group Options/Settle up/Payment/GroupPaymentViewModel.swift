@@ -23,8 +23,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var receiver: AppUser?
     @Published private(set) var viewState: ViewState = .loading
 
-    @Published private(set) var dismissPaymentFlow: () -> Void
-
     var payerName: String {
         guard let user = preference.user else { return "" }
         return user.id == payerId ? "You" : payer?.nameWithLastInitial ?? "Unknown"
@@ -44,15 +42,13 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     private var transaction: Transactions?
     private let router: Router<AppRoute>?
 
-    init(router: Router<AppRoute>, transactionId: String?, groupId: String, payerId: String,
-         receiverId: String, amount: Double, dismissPaymentFlow: @escaping () -> Void) {
+    init(router: Router<AppRoute>, transactionId: String?, groupId: String, payerId: String, receiverId: String, amount: Double) {
         self.router = router
         self.amount = abs(amount)
         self.groupId = groupId
         self.payerId = payerId
         self.receiverId = receiverId
         self.transactionId = transactionId
-        self.dismissPaymentFlow = dismissPaymentFlow
 
         super.init()
 
@@ -100,8 +96,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                     self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] user in
-                guard let self else { return }
-                self.payer = user
+                self?.payer = user
             }.store(in: &cancelable)
     }
 
@@ -112,12 +107,11 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                     self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] user in
-                guard let self else { return }
-                self.receiver = user
+                self?.receiver = user
             }.store(in: &cancelable)
     }
 
-    func handleSaveAction() {
+    func handleSaveAction(completion: @escaping () -> Void) {
         guard amount > 0 else {
             showAlertFor(title: "Whoops!", message: "You must enter an amount.")
             return
@@ -128,14 +122,14 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             var newTransaction = transaction
             newTransaction.amount = amount
             newTransaction.date = .init(date: paymentDate)
-            updateTransaction(transaction: newTransaction, oldTransaction: transaction)
+            updateTransaction(transaction: newTransaction, oldTransaction: transaction, completion: completion)
         } else {
             addTransaction(transaction: Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
-                                                     amount: amount, date: .init(date: paymentDate)))
+                                                     amount: amount, date: .init(date: paymentDate)), completion: completion)
         }
     }
 
-    private func addTransaction(transaction: Transactions) {
+    private func addTransaction(transaction: Transactions, completion: @escaping () -> Void) {
         showLoader = true
         transactionRepository.addTransaction(groupId: groupId, transaction: transaction)
             .sink { [weak self] completion in
@@ -145,11 +139,12 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] _ in
                 self?.showLoader = false
-                self?.updateGroupMemberBalance(transaction: transaction, updateType: .Add)
+                NotificationCenter.default.post(name: .addTransaction, object: transaction)
+                self?.updateGroupMemberBalance(transaction: transaction, updateType: .Add, completion: completion)
             }.store(in: &cancelable)
     }
 
-    private func updateTransaction(transaction: Transactions, oldTransaction: Transactions) {
+    private func updateTransaction(transaction: Transactions, oldTransaction: Transactions, completion: @escaping () -> Void) {
         showLoader = true
         transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
             .sink { [weak self] completion in
@@ -159,11 +154,12 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] _ in
                 self?.showLoader = false
-                self?.updateGroupMemberBalance(transaction: transaction, updateType: .Update(oldTransaction: oldTransaction))
+                NotificationCenter.default.post(name: .updateTransaction, object: transaction)
+                self?.updateGroupMemberBalance(transaction: transaction, updateType: .Update(oldTransaction: oldTransaction), completion: completion)
             }.store(in: &cancelable)
     }
 
-    private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) {
+    private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType, completion: @escaping () -> Void) {
         guard var group else { return }
 
         let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
@@ -176,7 +172,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] _ in
                 self?.viewState = .initial
-                self?.dismissPaymentFlow()
+                completion()
             }.store(in: &cancelable)
     }
 

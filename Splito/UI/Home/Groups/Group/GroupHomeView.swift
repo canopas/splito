@@ -63,11 +63,9 @@ struct GroupHomeView: View {
         }
         .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
             if !(viewModel.memberOwingAmount.isEmpty) {
-                GroupSettleUpRouteView(appRoute: .init(root: .GroupSettleUpView(groupId: viewModel.group?.id ?? "")),
-                                       dismissPaymentFlow: viewModel.dismissShowSettleUpSheet)
+                GroupSettleUpRouteView(appRoute: .init(root: .GroupSettleUpView(groupId: viewModel.group?.id ?? "")))
             } else {
-                GroupSettleUpRouteView(appRoute: .init(root: .GroupWhoIsPayingView(groupId: viewModel.group?.id ?? "", isPaymentSettled: true)),
-                                       dismissPaymentFlow: viewModel.dismissShowSettleUpSheet)
+                GroupSettleUpRouteView(appRoute: .init(root: .GroupWhoIsPayingView(groupId: viewModel.group?.id ?? "", isPaymentSettled: true)))
             }
         }
         .sheet(isPresented: $viewModel.showSimplifyInfoSheet) {
@@ -78,10 +76,7 @@ struct GroupHomeView: View {
                 .presentationCornerRadius(24)
         }
         .fullScreenCover(isPresented: $viewModel.showTransactionsSheet) {
-            GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.group?.id ?? ""))) {
-                viewModel.showTransactionsSheet = false
-            }
-            .animation(nil)
+            GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.group?.id ?? "")))
         }
         .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
             NavigationStack {
@@ -117,7 +112,6 @@ struct GroupHomeView: View {
 struct GroupOptionsListView: View {
 
     var isSettleUpEnable: Bool
-    let showTransactionsOption: Bool
 
     let onSettleUpTap: () -> Void
     let onTransactionsTap: () -> Void
@@ -129,9 +123,7 @@ struct GroupOptionsListView: View {
             HStack(spacing: 8) {
                 GroupOptionsButtonView(text: "Settle up", isForSettleUp: isSettleUpEnable, onTap: onSettleUpTap)
 
-                if showTransactionsOption {
-                    GroupOptionsButtonView(text: "Transactions", onTap: onTransactionsTap)
-                }
+                GroupOptionsButtonView(text: "Transactions", onTap: onTransactionsTap)
 
                 GroupOptionsButtonView(text: "Balances", onTap: onBalanceTap)
 
@@ -284,8 +276,4 @@ struct ToolbarButtonView: View {
         }
         .foregroundStyle(primaryText)
     }
-}
-
-#Preview {
-    GroupHomeView(viewModel: GroupHomeViewModel(router: .init(root: .GroupHomeView(groupId: "")), groupId: ""))
 }

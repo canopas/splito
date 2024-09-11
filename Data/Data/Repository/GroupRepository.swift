@@ -19,39 +19,41 @@ public class GroupRepository: ObservableObject {
 
     private var cancelable = Set<AnyCancellable>()
 
-    public func createGroup(group: Groups, imageData: Data?) -> AnyPublisher<String, ServiceError> {
+    public func createGroup(group: Groups, imageData: Data?) -> AnyPublisher<Groups, ServiceError> {
         return store.createGroup(group: group)
-            .flatMap { [weak self] groupId -> AnyPublisher<String, ServiceError> in
+            .flatMap { [weak self] groupId -> AnyPublisher<Groups, ServiceError> in
                 guard let self else { return Fail(error: .unexpectedError).eraseToAnyPublisher() }
-                guard let imageData else {
-                    return Just(groupId).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
-                }
-
                 var newGroup = group
                 newGroup.id = groupId
 
+                guard let imageData else {
+                    return Just(newGroup).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
+                }
+
                 return self.uploadImage(imageData: imageData, group: newGroup)
-                    .map { _ in groupId }
+                    .map { group in
+                        return group
+                    }
                     .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
     }
 
-    private func uploadImage(imageData: Data, group: Groups) -> AnyPublisher<Void, ServiceError> {
+    private func uploadImage(imageData: Data, group: Groups) -> AnyPublisher<Groups, ServiceError> {
         guard let groupId = group.id else {
             return Fail(error: .unexpectedError).eraseToAnyPublisher()
         }
 
         return storageManager.uploadImage(for: .group, id: groupId, imageData: imageData)
-            .flatMap { imageUrl -> AnyPublisher<Void, ServiceError> in
-                var newGroup = group
-                newGroup.imageUrl = imageUrl
-                return self.updateGroup(group: newGroup)
+            .flatMap { imageUrl -> AnyPublisher<Groups, ServiceError> in
+                var updatedGroup = group
+                updatedGroup.imageUrl = imageUrl
+                return self.updateGroup(group: updatedGroup)
             }
             .eraseToAnyPublisher()
     }
 
-    public func updateGroupWithImage(imageData: Data?, newImageUrl: String?, group: Groups) -> AnyPublisher<Void, ServiceError> {
+    public func updateGroupWithImage(imageData: Data?, newImageUrl: String?, group: Groups) -> AnyPublisher<Groups, ServiceError> {
         var newGroup = group
 
         if let currentUrl = group.imageUrl, newImageUrl == nil {
@@ -67,11 +69,11 @@ public class GroupRepository: ObservableObject {
         }
     }
 
-    private func performImageAction(imageData: Data?, group: Groups) -> AnyPublisher<Void, ServiceError> {
+    private func performImageAction(imageData: Data?, group: Groups) -> AnyPublisher<Groups, ServiceError> {
         if let imageData {
-            self.uploadImage(imageData: imageData, group: group)
+            return self.uploadImage(imageData: imageData, group: group)
         } else {
-            self.updateGroup(group: group)
+            return self.updateGroup(group: group)
         }
     }
 
@@ -79,16 +81,14 @@ public class GroupRepository: ObservableObject {
         store.addMemberToGroup(groupId: groupId, memberId: memberId)
     }
 
-    public func updateGroup(group: Groups) -> AnyPublisher<Void, ServiceError> {
-        store.updateGroup(group: group)
+    public func updateGroup(group: Groups) -> AnyPublisher<Groups, ServiceError> {
+        return store.updateGroup(group: group)
+            .map { _ in group }
+            .eraseToAnyPublisher()
     }
 
     public func fetchGroupBy(id: String) -> AnyPublisher<Groups?, ServiceError> {
         store.fetchGroupBy(id: id)
-    }
-
-    public func fetchLatestGroupBy(id: String) -> AnyPublisher<Groups?, ServiceError> {
-        store.fetchLatestGroupBy(id: id)
     }
 
     public func fetchGroupsBy(userId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) -> AnyPublisher<(groups: [Groups], lastDocument: DocumentSnapshot?), ServiceError> {
@@ -119,7 +119,7 @@ public class GroupRepository: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    public func removeMemberFrom(group: Groups, memberId: String) -> AnyPublisher<Void, ServiceError> {
+    public func removeMemberFrom(group: Groups, memberId: String) -> AnyPublisher<Groups, ServiceError> {
         var group = group
 
         // Remove member from group
@@ -148,5 +148,7 @@ public class GroupRepository: ObservableObject {
         group.isActive = false
 
         return updateGroup(group: group)
+            .map { _ in () }
+            .eraseToAnyPublisher()
     }
 }

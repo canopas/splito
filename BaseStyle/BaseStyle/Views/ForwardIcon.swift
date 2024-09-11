@@ -21,7 +21,3 @@ public struct ForwardIcon: View {
         .frame(width: 26, height: 26, alignment: .center)
     }
 }
-
-#Preview {
-    ForwardIcon()
-}

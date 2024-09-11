@@ -35,7 +35,6 @@ struct GroupTransactionListView: View {
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .onAppear(perform: viewModel.fetchTransactions)
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -59,6 +58,8 @@ private struct TransactionListWithDetailView: View {
                         if viewModel.filteredTransactions.isEmpty {
                             EmptyTransactionView(geometry: geometry)
                         } else {
+                            let firstMonth = viewModel.filteredTransactions.keys.sorted(by: viewModel.sortMonthYearStrings).first
+
                             ForEach(viewModel.filteredTransactions.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
                                 Section(header: sectionHeader(month: month)) {
                                     ForEach(viewModel.filteredTransactions[month] ?? [], id: \.transaction.id) { transaction in
@@ -77,6 +78,16 @@ private struct TransactionListWithDetailView: View {
                                                     .tint(.clear)
                                             }
                                         }
+                                        .onAppear {
+                                            if month == firstMonth && viewModel.filteredTransactions[month]?.first?.transaction.id == transaction.transaction.id {
+                                                viewModel.manageScrollToTopBtnVisibility(false)
+                                            }
+                                        }
+                                        .onDisappear {
+                                            if !viewModel.transactions.isEmpty && month == firstMonth && viewModel.filteredTransactions[month]?.first?.transaction.id == transaction.transaction.id {
+                                                viewModel.manageScrollToTopBtnVisibility(true)
+                                            }
+                                        }
 
                                         if transaction.transaction.id == viewModel.filteredTransactions[month]?.last?.transaction.id && viewModel.hasMoreTransactions {
                                             ProgressView()
@@ -91,25 +102,19 @@ private struct TransactionListWithDetailView: View {
                             }
                         }
                     }
+                    .id("transaction_list")
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowBackground(surfaceColor)
                 }
                 .listStyle(.plain)
-                .scrollBounceBehavior(.basedOnSize)
-                .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
                 .refreshable {
                     viewModel.fetchTransactions()
                 }
-                .background(GeometryReader { geo in
-                    Color.clear
-                        .onChange(of: geo.frame(in: .global).minY,
-                                  perform: viewModel.manageScrollToTopBtnVisibility(offset:))
-                })
                 .overlay(alignment: .bottomTrailing) {
                     if viewModel.showScrollToTopBtn {
                         ScrollToTopButton {
-                            withAnimation { scrollProxy.scrollTo(0) }
+                            withAnimation { scrollProxy.scrollTo("transaction_list", anchor: .top) }
                         }
                         .padding([.trailing, .bottom], 16)
                     }
@@ -195,12 +200,12 @@ private struct TransactionItemView: View {
 
 private struct TransactionTabView: View {
 
-    let selectedTab: TransactionTabType
-    let onSelect: ((TransactionTabType) -> Void)
+    let selectedTab: DateRangeTabType
+    let onSelect: ((DateRangeTabType) -> Void)
 
     var body: some View {
         HStack(spacing: 8) {
-            ForEach(TransactionTabType.allCases, id: \.self) { tab in
+            ForEach(DateRangeTabType.allCases, id: \.self) { tab in
                 Button {
                     onSelect(tab)
                 } label: {
@@ -224,7 +229,6 @@ private struct TransactionTabView: View {
             transaction.animation = nil
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 8)
     }
 }
 

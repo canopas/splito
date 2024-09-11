@@ -20,28 +20,31 @@ public struct PhoneLoginView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         AppLogoView(geometry: .constant(proxy))
 
-                        Text("What’s your phone number?")
-                            .font(.Header1())
-                            .foregroundStyle(primaryText)
-                            .padding(.horizontal, 16)
+                        Group {
+                            Text("What’s your phone number?")
+                                .font(.Header1())
+                                .foregroundStyle(primaryText)
 
-                        VSpacer(16)
+                            VSpacer(16)
 
-                        Text("We’ll verify your phone number with a verification code.")
-                            .font(.subTitle1())
-                            .foregroundStyle(disableText)
-                            .tracking(-0.2)
-                            .lineSpacing(4)
-                            .padding(.horizontal, 16)
+                            Text("We’ll verify your phone number with a verification code.")
+                                .font(.subTitle1())
+                                .foregroundStyle(disableText)
+                                .tracking(-0.2)
+                                .lineSpacing(4)
 
-                        VSpacer(40)
+                            VSpacer(40)
 
-                        HStack(spacing: 0) {
-                            Spacer()
+                            HStack(spacing: 0) {
+                                Spacer()
 
-                            PhoneLoginContentView(phoneNumber: $viewModel.phoneNumber, countries: $viewModel.countries,
-                                                  selectedCountry: $viewModel.currentCountry, showLoader: viewModel.showLoader)
+                                PhoneLoginContentView(phoneNumber: $viewModel.phoneNumber, countries: $viewModel.countries,
+                                                      selectedCountry: $viewModel.currentCountry, showLoader: viewModel.showLoader)
+                            }
                         }
+                        .padding(.horizontal, 16)
+                        .frame(maxWidth: isIpad ? 600 : nil, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .center)
                     }
                 }
                 .scrollIndicators(.hidden)
@@ -50,8 +53,6 @@ public struct PhoneLoginView: View {
                 GetOtpBtnView(phoneNumber: $viewModel.phoneNumber, showLoader: viewModel.showLoader, onNext: viewModel.verifyAndSendOtp, handlePrivacyPolicyTap: viewModel.handlePrivacyPolicyTap)
             }
         }
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .ignoresSafeArea(edges: .top)
@@ -103,6 +104,8 @@ private struct GetOtpBtnView: View {
             VSpacer(24)
         }
         .padding(.horizontal, 16)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 
     func abc() -> some View {
@@ -167,7 +170,6 @@ private struct PhoneLoginContentView: View {
 
             Spacer()
         }
-        .padding(.horizontal, 16)
         .sheet(isPresented: $showCountryPicker) {
             PhoneLoginCountryPicker(countries: $countries, selectedCountry: $selectedCountry, isPresented: $showCountryPicker)
         }

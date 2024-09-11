@@ -81,7 +81,3 @@ struct InviteMemberView: View {
         }
     }
 }
-
-#Preview {
-    InviteMemberView(viewModel: InviteMemberViewModel(router: .init(root: .AccountHomeView), groupId: ""))
-}

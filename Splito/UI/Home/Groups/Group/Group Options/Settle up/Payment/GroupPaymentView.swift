@@ -10,6 +10,7 @@ import BaseStyle
 import Data
 
 struct GroupPaymentView: View {
+    @Environment(\.dismiss) var dismiss
 
     @StateObject var viewModel: GroupPaymentViewModel
 
@@ -58,8 +59,12 @@ struct GroupPaymentView: View {
                     .scrollIndicators(.hidden)
                     .scrollBounceBehavior(.basedOnSize)
 
-                    PrimaryButton(text: "Done", showLoader: viewModel.showLoader, onClick: viewModel.handleSaveAction)
-                        .padding([.horizontal, .bottom], 16)
+                    PrimaryButton(text: "Done", showLoader: viewModel.showLoader, onClick: {
+                        viewModel.handleSaveAction {
+                            dismiss()
+                        }
+                    })
+                    .padding([.horizontal, .bottom], 16)
                 }
             }
         }
