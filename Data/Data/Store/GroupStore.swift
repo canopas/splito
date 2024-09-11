@@ -10,138 +10,51 @@ import FirebaseFirestore
 
 class GroupStore: ObservableObject {
 
-    private let COLLECTION_NAME: String = "groups"
+    private static let COLLECTION_NAME: String = "groups"
 
     @Inject private var database: Firestore
     @Inject private var preference: SplitoPreference
 
-    func createGroup(group: Groups) -> AnyPublisher<String, ServiceError> {
-        Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
-            }
+    private var groupsCollection: CollectionReference {
+        database.collection(GroupStore.COLLECTION_NAME)
+    }
 
-            do {
-                let documentRef = try self.database.collection(self.COLLECTION_NAME).addDocument(from: group)
-                promise(.success(documentRef.documentID))
-            } catch {
-                LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError(error: error.localizedDescription)))
-            }
+    func createGroup(group: Groups) async throws -> String {
+        let documentRef = try groupsCollection.addDocument(from: group)
+        return documentRef.documentID
+    }
+
+    func addMemberToGroup(groupId: String, memberId: String) async throws {
+        // Wrap the updateData in a Task for async handling
+        try await groupsCollection.document(groupId).updateData([
+            "members": FieldValue.arrayUnion([memberId])
+        ])
+    }
+
+    func updateGroup(group: Groups) async throws {
+        if let groupId = group.id {
+            try groupsCollection.document(groupId).setData(from: group, merge: false)
+        } else {
+            LogE("GroupStore :: \(#function) Group not found.")
+            throw ServiceError.dataNotFound
         }
-        .eraseToAnyPublisher()
     }
 
-    func addMemberToGroup(groupId: String, memberId: String) -> AnyPublisher<Void, ServiceError> {
-        Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
-            }
+    func fetchGroupsBy(userId: String, limit: Int, lastDocument: DocumentSnapshot?) async throws -> (data: [Groups], lastDocument: DocumentSnapshot?) {
+        var query = groupsCollection
+            .whereField("is_active", isEqualTo: true)
+            .whereField("members", arrayContains: userId)
+            .order(by: "created_at", descending: true)
+            .limit(to: limit)
 
-            let groupRef = self.database.collection(self.COLLECTION_NAME).document(groupId)
+        if let lastDocument {
+            query = query.start(afterDocument: lastDocument)
+        }
 
-            groupRef.updateData([
-                "members": FieldValue.arrayUnion([memberId])
-            ]) { error in
-                if let error {
-                    LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
-                } else {
-                    promise(.success(()))
-                }
-            }
-        }.eraseToAnyPublisher()
+        return try await query.getDocuments(as: Groups.self)
     }
 
-    func updateGroup(group: Groups) -> AnyPublisher<Void, ServiceError> {
-        Future { [weak self] promise in
-            guard let self, let groupId = group.id else {
-                promise(.failure(.unexpectedError))
-                return
-            }
-            do {
-                try self.database.collection(self.COLLECTION_NAME).document(groupId).setData(from: group, merge: false)
-                promise(.success(()))
-            } catch {
-                LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError(error: error.localizedDescription)))
-            }
-        }.eraseToAnyPublisher()
-    }
-
-    func fetchGroupsBy(userId: String, limit: Int, lastDocument: DocumentSnapshot?) -> AnyPublisher<(groups: [Groups], lastDocument: DocumentSnapshot?), ServiceError> {
-        Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
-            }
-
-            var query = self.database.collection(COLLECTION_NAME)
-                .whereField("is_active", isEqualTo: true)
-                .whereField("members", arrayContains: userId)
-                .order(by: "created_at", descending: true)
-                .limit(to: limit)
-
-            if let lastDocument {
-                query = query.start(afterDocument: lastDocument)
-            }
-
-            query.getDocuments { snapshot, error in
-                    if let error {
-                        LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                        promise(.failure(.databaseError(error: error.localizedDescription)))
-                        return
-                    }
-
-                    guard let snapshot, !snapshot.documents.isEmpty else {
-                        LogD("GroupStore :: \(#function) The document is not available.")
-                        promise(.success(([], nil)))
-                        return
-                    }
-
-                    do {
-                        let groups = try snapshot.documents.compactMap { document in
-                            return try document.data(as: Groups.self)
-                        }
-                        promise(.success((groups, snapshot.documents.last)))
-                    } catch {
-                        LogE("GroupStore :: \(#function) Decode error: \(error.localizedDescription)")
-                        promise(.failure(.decodingError))
-                    }
-                }
-        }.eraseToAnyPublisher()
-    }
-
-    func fetchGroupBy(id: String) -> AnyPublisher<Groups?, ServiceError> {
-        Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
-            }
-
-            self.database.collection(COLLECTION_NAME).document(id).getDocument { snapshot, error in
-                if let error {
-                    LogE("GroupStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
-                    return
-                }
-
-                guard let snapshot else {
-                    LogE("GroupStore :: \(#function) The document is not available.")
-                    promise(.failure(.dataNotFound))
-                    return
-                }
-
-                do {
-                    let group = try snapshot.data(as: Groups.self)
-                    promise(.success(group))
-                } catch {
-                    LogE("GroupStore :: \(#function) Decode error: \(error.localizedDescription)")
-                    promise(.failure(.decodingError))
-                }
-            }
-        }.eraseToAnyPublisher()
+    func fetchGroupBy(id: String) async throws -> Groups? {
+        try await groupsCollection.document(id).getDocument(as: Groups.self)
     }
 }

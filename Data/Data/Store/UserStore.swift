@@ -14,94 +14,30 @@ class UserStore: ObservableObject {
 
     @Inject private var database: Firestore
 
-    func addUser(user: AppUser) -> AnyPublisher<Void, ServiceError> {
-        Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
-            }
-
-            do {
-                try self.database.collection(self.COLLECTION_NAME).document(user.id).setData(from: user)
-                promise(.success(()))
-            } catch {
-                LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError(error: error.localizedDescription)))
-            }
-        }.eraseToAnyPublisher()
-    }
-
-    func updateUser(user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
-        Future<AppUser, ServiceError> { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
-            }
-
-            do {
-                try self.database.collection(self.COLLECTION_NAME).document(user.id).setData(from: user, merge: true)
-                promise(.success(user))
-            } catch {
-                LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError(error: error.localizedDescription)))
-            }
-        }.eraseToAnyPublisher()
-    }
-
-    func fetchUserBy(id: String) -> AnyPublisher<AppUser?, ServiceError> {
-        Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
-            }
-
-            self.database.collection(self.COLLECTION_NAME).document(id).getDocument { snapshot, error in
-                if let error {
-                    LogE("UserStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
-                    return
-                }
-
-                guard let snapshot, snapshot.exists else {
-                    LogE("UserStore :: \(#function) The document is not available.")
-                    promise(.success(nil))
-                    return
-                }
-
-                do {
-                    let user = try snapshot.data(as: AppUser.self)
-                    promise(.success(user))
-                } catch {
-                    LogE("UserStore :: \(#function) Decode error: \(error.localizedDescription)")
-                    promise(.failure(.decodingError))
-                }
-            }
-        }.eraseToAnyPublisher()
-    }
-
-    func fetchLatestUserBy(id: String) -> AnyPublisher<AppUser?, ServiceError> {
+    private var usersCollection: CollectionReference {
         database.collection(COLLECTION_NAME)
-            .document(id)
-            .toAnyPublisher()
     }
 
-    func deactivateUserAfterDelete(userId: String) -> AnyPublisher<Void, ServiceError> {
-        Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
-            }
+    func addUser(user: AppUser) async throws {
+        try usersCollection.document(user.id).setData(from: user)
+    }
 
-            self.database.collection(self.COLLECTION_NAME)
-                .document(userId)
-                .updateData(["is_active": false]) { error in
-                    if let error {
-                        LogE("UserStore :: \(#function): Deleting user from Auth failed with error: \(error.localizedDescription).")
-                        promise(.failure(.deleteFailed(error: error.localizedDescription)))
-                    } else {
-                        promise(.success(()))
-                    }
-                }
-        }.eraseToAnyPublisher()
+    func updateUser(user: AppUser) async throws -> AppUser? {
+        try usersCollection.document(user.id).setData(from: user, merge: true)
+        return user
+    }
+
+    func fetchUserBy(id: String) async throws -> AppUser? {
+        let snapshot = try await usersCollection.document(id).getDocument()
+        return try snapshot.data(as: AppUser.self)
+    }
+
+    func fetchLatestUserBy(id: String) async throws -> AppUser? {
+        let snapshot = try await usersCollection.document(id).getDocument()
+        return try snapshot.data(as: AppUser.self)
+    }
+
+    func deactivateUserAfterDelete(userId: String) async throws {
+        try await usersCollection.document(userId).updateData(["is_active": false])
     }
 }

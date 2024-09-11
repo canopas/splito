@@ -22,26 +22,22 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
         self.selectedGroup = selectedGroup
         self.onGroupSelection = onGroupSelection
         super.init()
-
-        self.fetchGroups()
+        
+        Task {
+            await self.fetchGroups()
+        }
     }
 
     // MARK: - Data Loading
-    func fetchGroups() {
+    func fetchGroups() async {
         currentViewState = .loading
-        groupRepository.fetchGroupsBy(userId: preference.user?.id ?? "")
-            .sink { [weak self] completion in
-                switch completion {
-                case .finished:
-                    return
-                case .failure(let error):
-                    self?.currentViewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] (groups, _) in
-                self?.currentViewState = groups.isEmpty ? .noGroups : .hasGroups(groups: groups)
-            }
-            .store(in: &cancelable)
+        do {
+            let (groups, _) = try await groupRepository.fetchGroupsBy(userId: preference.user?.id ?? "")
+            currentViewState = groups.isEmpty ? .noGroups : .hasGroups(groups: groups)
+        } catch {
+            currentViewState = .initial
+            showToastFor(error as! ServiceError)
+        }
     }
 
     // MARK: - User Actions

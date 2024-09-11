@@ -40,11 +40,11 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
                                                          message: "The code you've entered is not exists."))
                     return
                 }
-                self.addMemberIfCodeExists(code: code, completion: completion)
+                await self.addMemberIfCodeExists(code: code)
             }.store(in: &cancelable)
     }
 
-    private func addMemberIfCodeExists(code: SharedCode, completion: @escaping () -> Void) {
+    private func addMemberIfCodeExists(code: SharedCode) async {
         let expireDate = code.expireDate.dateValue()
         let daysDifference = Calendar.current.dateComponents([.day], from: expireDate, to: Date()).day
 
@@ -55,25 +55,19 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        addMember(groupId: code.groupId) {
-            self.showLoader = false
-            _ = self.codeRepository.deleteSharedCode(documentId: code.id ?? "")
-            completion()
-        }
+        await addMember(groupId: code.groupId)
+        self.showLoader = false
+        _ = self.codeRepository.deleteSharedCode(documentId: code.id ?? "")
     }
 
-    private func addMember(groupId: String, completion: @escaping () -> Void) {
+    private func addMember(groupId: String) async {
         guard let userId = preference.user?.id else { return }
 
-        groupRepository.addMemberToGroup(groupId: groupId, memberId: userId)
-            .sink { [weak self] result in
-                if case .failure(let error) = result {
-                    self?.showToastFor(error)
-                    completion()
-                }
-            } receiveValue: { _ in
-                NotificationCenter.default.post(name: .joinGroup, object: groupId)
-                completion()
-            }.store(in: &cancelable)
+        do {
+            try await groupRepository.addMemberToGroup(groupId: groupId, memberId: userId)
+            NotificationCenter.default.post(name: .joinGroup, object: groupId)
+        } catch {
+            showToastFor(error as! ServiceError)
+        }
     }
 }

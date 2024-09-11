@@ -41,24 +41,22 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
             membersAmount[membersAmount.keys.first ?? ""] = expenseAmount
             totalAmount = expenseAmount
         }
-        self.fetchMembers()
+        
+        Task {
+            await self.fetchMembers()
+        }
     }
 
-    func fetchMembers() {
+    func fetchMembers() async {
         currentViewState = .loading
-        groupRepository.fetchMembersBy(groupId: groupId)
-            .sink { [weak self] completion in
-                switch completion {
-                case .finished:
-                    return
-                case .failure(let error):
-                    self?.currentViewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { users in
-                self.groupMembers = users
-                self.currentViewState = .initial
-            }.store(in: &cancelable)
+        do {
+            let users = try await groupRepository.fetchMembersBy(groupId: groupId)
+            groupMembers = users
+            currentViewState = .initial
+        } catch {
+            currentViewState = .initial
+            showToastFor(error as! ServiceError)
+        }
     }
 
     func updateAmount(for memberId: String, amount: Double) {

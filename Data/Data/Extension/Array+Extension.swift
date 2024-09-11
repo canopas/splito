@@ -19,4 +19,19 @@ public extension Array where Element: Hashable {
 
         return buffer
     }
+
+    /// Perform asynchronous operations: converting the mapping process to run asynchronously with the help of Task and await inside the map.
+    func concurrentMap<T>(_ transform: @escaping (Element) async -> T) async -> [T] {
+        await withTaskGroup(of: T.self) { group in
+            for element in self {
+                group.addTask { await transform(element) }
+            }
+
+            var results = [T]()
+            for await result in group {
+                results.append(result)
+            }
+            return results
+        }
+    }
 }

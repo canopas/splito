@@ -51,25 +51,24 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         self.transactionId = transactionId
 
         super.init()
-
-        fetchGroup()
-        fetchTransaction()
-        getPayerUserDetail()
-        getPayableUserDetail()
+        
+        Task {
+            await fetchGroup()
+            fetchTransaction()
+            await getPayerUserDetail()
+            await getPayableUserDetail()
+        }
     }
 
     // MARK: - Data Loading
-    private func fetchGroup() {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.group = group
-                self.viewState = .initial
-            }.store(in: &cancelable)
+    private func fetchGroup() async {
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            self.group = group
+            self.viewState = .initial
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
     func fetchTransaction() {
@@ -111,7 +110,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    func handleSaveAction(completion: @escaping () -> Void) {
+    func handleSaveAction(completion: @escaping () -> Void) async {
         guard amount > 0 else {
             showAlertFor(title: "Whoops!", message: "You must enter an amount.")
             return
@@ -122,10 +121,15 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             var newTransaction = transaction
             newTransaction.amount = amount
             newTransaction.date = .init(date: paymentDate)
-            updateTransaction(transaction: newTransaction, oldTransaction: transaction, completion: completion)
+            updateTransaction(transaction: newTransaction, oldTransaction: transaction)
+            await updateGroupMemberBalance(transaction: newTransaction, updateType: .Update(oldTransaction: transaction))
+            NotificationCenter.default.post(name: .updateTransaction, object: newTransaction)
         } else {
-            addTransaction(transaction: Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
-                                                     amount: amount, date: .init(date: paymentDate)), completion: completion)
+            let transaction = Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
+                                           amount: amount, date: .init(date: paymentDate))
+            addTransaction(transaction: transaction)
+            await updateGroupMemberBalance(transaction: transaction, updateType: .Add)
+            NotificationCenter.default.post(name: .addTransaction, object: transaction)
         }
     }
 
@@ -139,8 +143,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                 }
             } receiveValue: { [weak self] _ in
                 self?.showLoader = false
-                NotificationCenter.default.post(name: .addTransaction, object: transaction)
-                self?.updateGroupMemberBalance(transaction: transaction, updateType: .Add, completion: completion)
             }.store(in: &cancelable)
     }
 
@@ -159,27 +161,19 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             }.store(in: &cancelable)
     }
 
-    private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType, completion: @escaping () -> Void) {
+    private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) async {
         guard var group else { return }
 
         let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
         group.balances = memberBalance
 
-        groupRepository.updateGroup(group: group)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.viewState = .initial
-                completion()
-            }.store(in: &cancelable)
-    }
-
-    // MARK: - Error Handling
-    private func handleServiceError(_ error: ServiceError) {
-        viewState = .initial
-        showToastFor(error)
+        do {
+            try await groupRepository.updateGroup(group: group)
+            viewState = .initial
+            dismissPaymentFlow()
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 }
 

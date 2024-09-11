@@ -39,7 +39,7 @@ public class TransactionStore: ObservableObject {
                 promise(.success(()))
             } catch {
                 LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError(error: error.localizedDescription)))
+                promise(.failure(.databaseError(error: error)))
             }
         }
         .eraseToAnyPublisher()
@@ -56,7 +56,7 @@ public class TransactionStore: ObservableObject {
                 promise(.success(()))
             } catch {
                 LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError(error: error.localizedDescription)))
+                promise(.failure(.databaseError(error: error)))
             }
         }.eraseToAnyPublisher()
     }
@@ -79,7 +79,7 @@ public class TransactionStore: ObservableObject {
             query.getDocuments { snapshot, error in
                 if let error {
                     LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
+                    promise(.failure(.databaseError(error: error)))
                     return
                 }
 
@@ -113,7 +113,7 @@ public class TransactionStore: ObservableObject {
             self.transactionReference(groupId: groupId).document(transactionId).getDocument { snapshot, error in
                 if let error {
                     LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
+                    promise(.failure(.databaseError(error: error)))
                     return
                 }
 
@@ -144,7 +144,7 @@ public class TransactionStore: ObservableObject {
             self.transactionReference(groupId: groupId).document(transactionId).delete { error in
                 if let error {
                     LogE("TransactionStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
+                    promise(.failure(.databaseError(error: error)))
                 } else {
                     LogD("TransactionStore :: \(#function): transaction deleted successfully.")
                     promise(.success(()))
@@ -163,7 +163,7 @@ public class TransactionStore: ObservableObject {
             self.transactionReference(groupId: groupId).getDocuments { snapshot, error in
                 if let error {
                     LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
+                    promise(.failure(.databaseError(error: error)))
                     return
                 }
 
@@ -178,7 +178,7 @@ public class TransactionStore: ObservableObject {
 
                 batch.commit { error in
                     if let error {
-                        promise(.failure(.databaseError(error: error.localizedDescription)))
+                        promise(.failure(.databaseError(error: error)))
                         LogE("TransactionStore :: \(#function) Database error: \(error.localizedDescription)")
                     } else {
                         promise(.success(()))

@@ -12,102 +12,74 @@ import FirebaseAuth
 public class UserRepository: ObservableObject {
 
     @Inject private var store: UserStore
-
     @Inject private var preference: SplitoPreference
     @Inject private var storageManager: StorageManager
 
     private var cancelable = Set<AnyCancellable>()
 
-    public func storeUser(user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
-        store.fetchUserBy(id: user.id)
-            .flatMap { [weak self] storedUser -> AnyPublisher<AppUser, ServiceError> in
-                guard let self else {
-                    return Fail(error: .unexpectedError).eraseToAnyPublisher()
-                }
-
-                if let storedUser {
-                    return Just(storedUser).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
-                } else {
-                    return self.store.addUser(user: user)
-                        .mapError { error in
-                            LogE("UserRepository :: \(#function) addUser failed, error: \(error.localizedDescription).")
-                            return .databaseError(error: error.localizedDescription)
-                        }
-                        .map { _ in user }
-                        .eraseToAnyPublisher()
-                }
-            }
-            .eraseToAnyPublisher()
+    public func storeUser(user: AppUser) async throws -> AppUser {
+        if let storedUser = try await store.fetchUserBy(id: user.id) {
+            return storedUser
+        } else {
+            _ = try await store.addUser(user: user)
+            return user
+        }
     }
 
-    public func fetchUserBy(userID: String) -> AnyPublisher<AppUser?, ServiceError> {
-        store.fetchUserBy(id: userID)
+    public func fetchUserBy(userID: String) async throws -> AppUser? {
+        try await store.fetchUserBy(id: userID)
     }
 
-    public func fetchLatestUserBy(userId: String) -> AnyPublisher<AppUser?, ServiceError> {
-        store.fetchLatestUserBy(id: userId)
+    public func fetchLatestUserBy(userID: String) async throws -> AppUser? {
+        try await store.fetchLatestUserBy(id: userID)
     }
 
-    private func uploadImage(imageData: Data, user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
-        storageManager.uploadImage(for: .user, id: user.id, imageData: imageData)
-            .flatMap { imageUrl -> AnyPublisher<AppUser, ServiceError> in
-                var newUser = user
-                newUser.imageUrl = imageUrl
-                return self.updateUser(user: newUser)
-            }
-            .eraseToAnyPublisher()
+    private func uploadImage(imageData: Data, user: AppUser) async throws -> AppUser {
+        let imageURL = try await storageManager.uploadImage(for: .user, id: user.id, imageData: imageData)
+        var newUser = user
+        newUser.imageUrl = imageURL
+        return try await updateUser(user: newUser)
     }
 
-    public func updateUser(user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
-        store.updateUser(user: user)
+    public func updateUser(user: AppUser) async throws -> AppUser {
+        let updatedUser = try await store.updateUser(user: user)
+        return updatedUser ?? user
     }
 
-    public func updateUserWithImage(imageData: Data?, newImageUrl: String?, user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
+    public func updateUserWithImage(imageData: Data?, newImageUrl: String?, user: AppUser) async throws -> AppUser {
         var newUser = user
 
         if let currentUrl = user.imageUrl, newImageUrl == nil {
             newUser.imageUrl = newImageUrl
 
-            return storageManager.deleteImage(imageUrl: currentUrl)
-                .flatMap { _ in
-                    self.performImageAction(imageData: imageData, user: newUser)
-                }
-                .eraseToAnyPublisher()
+            _ = try await storageManager.deleteImage(imageUrl: currentUrl)
+            return try await performImageAction(imageData: imageData, user: newUser)
         } else {
-            return self.performImageAction(imageData: imageData, user: newUser)
+            return try await performImageAction(imageData: imageData, user: newUser)
         }
     }
 
-    private func performImageAction(imageData: Data?, user: AppUser) -> AnyPublisher<AppUser, ServiceError> {
+    private func performImageAction(imageData: Data?, user: AppUser) async throws -> AppUser {
         if let imageData {
-            return self.uploadImage(imageData: imageData, user: user)
+            return try await uploadImage(imageData: imageData, user: user)
         } else {
-            return updateUser(user: user)
+            return try await updateUser(user: user)
         }
     }
 
-    public func deleteUser(id: String) -> AnyPublisher<Void, ServiceError> {
-        self.store.deactivateUserAfterDelete(userId: id)
-            .flatMap { [weak self] _ -> AnyPublisher<Void, ServiceError> in
-                guard let self else {
-                    return Fail(error: .unexpectedError).eraseToAnyPublisher()
-                }
-                return deleteUserFromAuth()
-            }
-            .eraseToAnyPublisher()
+    public func deleteUser(id: String) async throws {
+        try await store.deactivateUserAfterDelete(userId: id)
     }
 
-    private func deleteUserFromAuth() -> AnyPublisher<Void, ServiceError> {
-        Future { promise in
+    private func deleteUserFromAuth() async throws {
+        Task {
             FirebaseProvider.auth.currentUser?.delete { error in
                 if let error {
                     LogE("UserRepository :: \(#function): Deleting user from Auth failed with error: \(error.localizedDescription).")
-                    promise(.failure(.deleteFailed(error: error.localizedDescription)))
                 } else {
-                    promise(.success(()))
+                    LogE("UserRepository :: \(#function): User deactivated.")
                 }
             }
         }
-        .eraseToAnyPublisher()
     }
 }

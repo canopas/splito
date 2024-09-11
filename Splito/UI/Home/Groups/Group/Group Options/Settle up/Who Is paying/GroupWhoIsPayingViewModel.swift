@@ -29,15 +29,13 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Data Loading
-    func fetchGroupMembers() {
-        groupRepository.fetchMembersBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] members in
-                self?.members = members
-            }.store(in: &cancelable)
+    func fetchGroupMembers() async {
+        do {
+            let members = try await groupRepository.fetchMembersBy(groupId: groupId)
+            self.members = members
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
     func onMemberTap(_ memberId: String) {

@@ -8,13 +8,13 @@
 import Foundation
 
 // MARK: - Errors
-public enum ServiceError: LocalizedError, Equatable {
+public enum ServiceError: LocalizedError {
     case none
     case unauthorized
     case serverError(statusCode: Int? = nil)
     case networkError
     case decodingError
-    case databaseError(error: String)
+    case databaseError(error: Error)
     case unexpectedError
     case validationFailed
     case dataNotFound
@@ -31,7 +31,9 @@ public enum ServiceError: LocalizedError, Equatable {
             return "Server error encountered."
         case .networkError:
             return "No internet connection!"
-        case .databaseError, .decodingError, .unexpectedError:
+        case .databaseError(let error):
+            return "\(error.localizedDescription)"
+        case .decodingError, .unexpectedError:
             return "Something went wrong."
         case .dataNotFound:
             return "Your requested data not found."

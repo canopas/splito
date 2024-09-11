@@ -34,10 +34,10 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         self.expenseId = expenseId
         super.init()
 
-        NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedExpense(notification:)), name: .updateExpense, object: nil)
-
-        fetchGroup()
-        fetchExpense()
+        Task {
+            await fetchGroup()
+            fetchExpense()
+        }
     }
 
     deinit {
@@ -45,20 +45,16 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Data Loading
-    private func fetchGroup() {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.group = group
-                if let imageUrl = group.imageUrl {
-                    self.groupImageUrl = imageUrl
-                }
-            }.store(in: &cancelable)
+    private func fetchGroup() async {
+        do {
+            group = try await groupRepository.fetchGroupBy(id: groupId)
+            if let imageUrl = group.imageUrl {
+                self.groupImageUrl = imageUrl
+            }
+        } catch {
+            viewState = .initial
+            showToastFor(error as! ServiceError)
+        }
     }
 
     func fetchExpense() {
@@ -73,46 +69,40 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 self?.processExpense(expense: expense)
             }.store(in: &cancelable)
     }
+    
+    func processExpense(expense: Expense) async {
+            let queue = DispatchGroup()
+            var userData: [AppUser] = []
 
-    func processExpense(expense: Expense) {
-        let queue = DispatchGroup()
-        var userData: [AppUser] = []
+            var members = expense.splitTo
+            for (payer, _) in expense.paidBy {
+                members.append(payer)
+            }
+            members.append(expense.addedBy)
 
-        var members = expense.splitTo
-        for (payer, _) in expense.paidBy {
-            members.append(payer)
-        }
-        members.append(expense.addedBy)
-
-        for member in members.uniqued() {
-            queue.enter()
-            fetchUserData(for: member) { user in
-                userData.append(user)
+            for member in members.uniqued() {
+                queue.enter()
+                if let user = await fetchUserData(for: member) {
+                    userData.append(user)
+                }
                 queue.leave()
+            }
+
+            queue.notify(queue: .main) {
+                self.expense = expense
+                self.expenseUsersData = userData
+                self.viewState = .initial
             }
         }
 
-        queue.notify(queue: .main) {
-            self.expense = expense
-            self.expenseUsersData = userData
-            self.viewState = .initial
+    func fetchUserData(for userId: String) async -> AppUser? {
+        do {
+            viewState = .initial
+            return try await userRepository.fetchUserBy(userID: userId)
+        } catch {
+            viewState = .initial
+            showToastFor(error as! ServiceError)
         }
-    }
-
-    func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
-        userRepository.fetchUserBy(userID: userId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] user in
-                guard let user else {
-                    self?.viewState = .initial
-                    return
-                }
-                completion(user)
-            }.store(in: &cancelable)
     }
 
     // MARK: - User Actions
@@ -124,17 +114,17 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         showEditExpenseSheet = true
     }
 
-    func handleDeleteBtnAction() {
+    func handleDeleteBtnAction() async {
         showAlert = true
         alert = .init(title: "Delete Expense",
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: { self.deleteExpense() },
+                      positiveBtnAction: { await self.deleteExpense() },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func deleteExpense() {
+    private func deleteExpense() async {
         viewState = .loading
         expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
             .sink { [weak self] completion in
@@ -148,23 +138,25 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 self?.updateGroupMemberBalance(updateType: .Delete)
                 self?.router.pop()
             }.store(in: &cancelable)
+        
+        await updateGroupMemberBalance(updateType: .Delete)
+        NotificationCenter.default.post(name: .deleteExpense, object: expense)
+        self.router.pop()
     }
 
-    private func updateGroupMemberBalance(updateType: ExpenseUpdateType) {
+    private func updateGroupMemberBalance(updateType: ExpenseUpdateType) async {
         guard var group, let expense else { return }
 
         let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
         group.balances = memberBalance
 
-        groupRepository.updateGroup(group: group)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.viewState = .initial
-            }.store(in: &cancelable)
+        do {
+            try await groupRepository.updateGroup(group: group)
+            viewState = .initial
+        } catch {
+            viewState = .initial
+            showToastFor(error as! ServiceError)
+        }
     }
 
     func getSplitAmount(for member: String) -> String {

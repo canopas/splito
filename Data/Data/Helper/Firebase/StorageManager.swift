@@ -26,63 +26,41 @@ public class StorageManager: ObservableObject {
 
     private let storage = Storage.storage()
 
-    public func uploadImage(for storeType: ImageStoreType, id: String, imageData: Data) -> AnyPublisher<String, ServiceError> {
+    public func uploadImage(for storeType: ImageStoreType, id: String, imageData: Data) async throws -> String? {
         let storageRef = storage.reference(withPath: "/\(storeType.pathName)/\(id)")
 
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpg"
-        var cancellable: StorageUploadTask?
 
-        return Future { promise in
-            cancellable = storageRef.putData(imageData, metadata: metadata) { _, error in
-                if let error {
-                    LogE("StorageManager: Error while uploading file: \(error.localizedDescription)")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
-                } else {
-                    storageRef.downloadURL { url, error in
-                        if let error {
-                            LogE("StorageManager: Download url failed with error: \(error.localizedDescription)")
-                            promise(.failure(.databaseError(error: error.localizedDescription)))
-                        } else if let imageUrl = url?.absoluteString {
-                            LogD("StorageManager: Image successfully uploaded to Firebase!")
-                            promise(.success(imageUrl))
-                        } else {
-                            promise(.failure(.unexpectedError))
-                        }
-                    }
-                }
-            }
+        do {
+            // Upload the image data asynchronously
+            _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
+
+            // Retrieve the download URL asynchronously
+            let imageUrl = try await storageRef.downloadURL().absoluteString
+            LogD("StorageManager: Image successfully uploaded to Firebase!")
+            return imageUrl
+        } catch {
+            LogE("StorageManager: \(#function) Failed: \(error.localizedDescription)")
+            throw ServiceError.databaseError(error: error)
         }
-        .handleEvents(receiveCancel: {
-            cancellable?.cancel()
-        })
-        .eraseToAnyPublisher()
     }
 
-    public func updateImage(for type: ImageStoreType, id: String, url: String, imageData: Data) -> AnyPublisher<String, ServiceError> {
-        deleteImage(imageUrl: url).catch { error -> AnyPublisher<Void, ServiceError> in
-            return Fail(error: error).eraseToAnyPublisher()
-        }
-        .flatMap { _ in
-            self.uploadImage(for: type, id: id, imageData: imageData)
-        }
-        .eraseToAnyPublisher()
+    public func updateImage(for type: ImageStoreType, id: String, url: String, imageData: Data) async throws -> String? {
+        try await deleteImage(imageUrl: url)
+
+        // Upload the new image asynchronously
+        return try await uploadImage(for: type, id: id, imageData: imageData)
     }
 
-    public func deleteImage(imageUrl: String) -> AnyPublisher<Void, ServiceError> {
-        let storageRef = storage.reference(forURL: imageUrl)
-
-        return Future { promise in
-            storageRef.delete { error in
-                if let error {
-                    LogE("StorageManager: Error while deleting image: \(error)")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
-                } else {
-                    promise(.success(()))
-                }
-            }
+    public func deleteImage(imageUrl: String) async throws {
+        do {
+            let storageRef = storage.reference(forURL: imageUrl)
+            try await storageRef.delete()
+        } catch {
+            LogE("StorageManager: \(#function) Failed: \(error)")
+            throw ServiceError.databaseError(error: error)
         }
-        .eraseToAnyPublisher()
     }
 }
 

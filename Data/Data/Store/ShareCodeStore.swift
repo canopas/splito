@@ -26,7 +26,7 @@ public class ShareCodeStore: ObservableObject {
                 promise(.success(()))
             } catch {
                 LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError(error: error.localizedDescription)))
+                promise(.failure(.databaseError(error: error)))
             }
         }
         .eraseToAnyPublisher()
@@ -42,7 +42,7 @@ public class ShareCodeStore: ObservableObject {
             self.database.collection(COLLECTION_NAME).whereField("code", isEqualTo: code).getDocuments { snapshot, error in
                 if let error {
                     LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
+                    promise(.failure(.databaseError(error: error)))
                     return
                 }
 
@@ -73,7 +73,7 @@ public class ShareCodeStore: ObservableObject {
             self.database.collection(self.COLLECTION_NAME).document(documentId).delete { error in
                 if let error {
                     LogE("ShareCodeStore :: \(#function): Deleting data failed with error: \(error.localizedDescription).")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
+                    promise(.failure(.databaseError(error: error)))
                 } else {
                     LogD("ShareCodeStore :: \(#function): code deleted successfully.")
                     promise(.success(()))

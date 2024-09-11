@@ -43,32 +43,26 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Data Loading
-    func fetchGroupMembers() {
+    func fetchGroupMembers() async {
         viewState = .loading
-        groupRepository.fetchMembersBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { users in
-                self.groupMemberData = users
-                self.fetchGroupDetails()
-            }.store(in: &cancelable)
+        do {
+            groupMemberData = try await groupRepository.fetchMembersBy(groupId: groupId)
+            await fetchGroupDetails()
+            calculateExpensesSimplified()
+        } catch {
+            viewState = .initial
+            showToastFor(error as! ServiceError)
+        }
     }
 
-    private func fetchGroupDetails() {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.group = group
-                self.calculateExpensesSimplified()
-            }.store(in: &cancelable)
+    private func fetchGroupDetails() async {
+        do {
+            group = try await groupRepository.fetchGroupBy(id: groupId)
+            calculateExpensesSimplified()
+        } catch {
+            viewState = .initial
+            showToastFor(error as! ServiceError)
+        }
     }
 
     // MARK: - Helper Methods
