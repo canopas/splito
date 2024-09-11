@@ -39,7 +39,7 @@ public class ShareCodeStore: ObservableObject {
                 return
             }
 
-            self.database.collection(COLLECTION_NAME).whereField("code", isEqualTo: code).getDocuments { snapshot, error in
+            self.database.collection(COLLECTION_NAME).whereField("code", isEqualTo: code).getDocuments(source: .server) { snapshot, error in
                 if let error {
                     LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error)))

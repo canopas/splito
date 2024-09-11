@@ -68,7 +68,7 @@ public class ExpenseStore: ObservableObject {
                 return
             }
 
-            self.expenseReference(groupId: groupId).document(expenseId).getDocument { snapshot, error in
+            self.expenseReference(groupId: groupId).document(expenseId).getDocument(source: .server) { snapshot, error in
                 if let error {
                     LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error)))
@@ -107,7 +107,7 @@ public class ExpenseStore: ObservableObject {
                 query = query.start(afterDocument: lastDocument)
             }
 
-            query.getDocuments { snapshot, error in
+            query.getDocuments(source: .server) { snapshot, error in
                 if let error {
                     LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error)))
@@ -161,7 +161,7 @@ public class ExpenseStore: ObservableObject {
                 return
             }
 
-            self.expenseReference(groupId: groupId).getDocuments { snapshot, error in
+            self.expenseReference(groupId: groupId).getDocuments(source: .server) { snapshot, error in
                 if let error {
                     LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error)))

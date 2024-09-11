@@ -55,6 +55,6 @@ class GroupStore: ObservableObject {
     }
 
     func fetchGroupBy(id: String) async throws -> Groups? {
-        try await groupsCollection.document(id).getDocument(as: Groups.self)
+        try await groupsCollection.document(id).getDocument(as: Groups.self, source: .server)
     }
 }

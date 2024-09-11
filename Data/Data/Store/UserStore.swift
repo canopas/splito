@@ -28,12 +28,12 @@ class UserStore: ObservableObject {
     }
 
     func fetchUserBy(id: String) async throws -> AppUser? {
-        let snapshot = try await usersCollection.document(id).getDocument()
+        let snapshot = try await usersCollection.document(id).getDocument(source: .server)
         return try snapshot.data(as: AppUser.self)
     }
 
     func fetchLatestUserBy(id: String) async throws -> AppUser? {
-        let snapshot = try await usersCollection.document(id).getDocument()
+        let snapshot = try await usersCollection.document(id).getDocument(source: .server)
         return try snapshot.data(as: AppUser.self)
     }
 

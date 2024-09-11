@@ -10,7 +10,7 @@ import FirebaseFirestore
 
 extension Query {
     func getDocuments<T>(as type: T.Type) async throws -> (data: [T], lastDocument: DocumentSnapshot?) where T: Decodable {
-        let snapshot = try await self.getDocuments()
+        let snapshot = try await self.getDocuments(source: .server)
 
         let data = try snapshot.documents.map({ document in
             try document.data(as: T.self)

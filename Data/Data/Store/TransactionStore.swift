@@ -76,7 +76,7 @@ public class TransactionStore: ObservableObject {
                 query = query.start(afterDocument: lastDocument)
             }
 
-            query.getDocuments { snapshot, error in
+            query.getDocuments(source: .server) { snapshot, error in
                 if let error {
                     LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error)))
@@ -110,7 +110,7 @@ public class TransactionStore: ObservableObject {
                 return
             }
 
-            self.transactionReference(groupId: groupId).document(transactionId).getDocument { snapshot, error in
+            self.transactionReference(groupId: groupId).document(transactionId).getDocument(source: .server) { snapshot, error in
                 if let error {
                     LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error)))
@@ -160,7 +160,7 @@ public class TransactionStore: ObservableObject {
                 return
             }
 
-            self.transactionReference(groupId: groupId).getDocuments { snapshot, error in
+            self.transactionReference(groupId: groupId).getDocuments(source: .server) { snapshot, error in
                 if let error {
                     LogE("TransactionStore :: \(#function) error: \(error.localizedDescription)")
                     promise(.failure(.databaseError(error: error)))
