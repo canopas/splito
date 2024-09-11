@@ -59,7 +59,7 @@ struct GroupSettingView: View {
         }
         .fullScreenCover(isPresented: $viewModel.showEditGroupSheet) {
             NavigationStack {
-                CreateGroupView(viewModel: CreateGroupViewModel(router: viewModel.router, group: viewModel.group, onDismissCallback: viewModel.dismissEditGroupSheet))
+                CreateGroupView(viewModel: CreateGroupViewModel(router: viewModel.router, group: viewModel.group))
             }
         }
         .fullScreenCover(isPresented: $viewModel.showAddMemberSheet) {
@@ -303,8 +303,4 @@ private struct GroupAdvanceSettingsView: View {
         }
         .padding(.horizontal, 16)
     }
-}
-
-#Preview {
-    GroupSettingView(viewModel: GroupSettingViewModel(router: .init(root: .GroupSettingView(groupId: "")), groupId: ""))
 }

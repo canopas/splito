@@ -34,7 +34,7 @@ struct GroupListView: View {
                                                 onSelect: viewModel.handleTabItemSelection(_:))
 
                             if viewModel.selectedTab == .all {
-                                GroupListHeaderView(expense: viewModel.usersTotalExpense)
+                                GroupListHeaderView(totalOweAmount: viewModel.totalOweAmount)
                                     .padding(.bottom, viewModel.showSearchBar ? 0 : 2)
                             }
                         }
@@ -102,7 +102,6 @@ struct GroupListView: View {
         }
         .onAppear {
             homeRouteViewModel.updateSelectedGroup(id: nil)
-            viewModel.fetchGroups()
         }
         .sheet(isPresented: $viewModel.showActionSheet) {
             GroupActionSheetView(onSelectionWith: viewModel.handleOptionSelection(with:))
@@ -113,7 +112,7 @@ struct GroupListView: View {
         }
         .fullScreenCover(isPresented: $viewModel.showCreateGroupSheet) {
             NavigationStack {
-                CreateGroupView(viewModel: CreateGroupViewModel(router: viewModel.router, group: nil))
+                CreateGroupView(viewModel: CreateGroupViewModel(router: viewModel.router, group: viewModel.selectedGroup))
             }
         }
         .fullScreenCover(isPresented: $viewModel.showJoinGroupSheet) {
@@ -156,23 +155,23 @@ private struct GroupListTabBarView: View {
 
 private struct GroupListHeaderView: View {
 
-    let expense: Double
+    let totalOweAmount: Double
 
     var body: some View {
         HStack(spacing: 0) {
-            if expense == 0 {
+            if totalOweAmount == 0 {
                 Text("You are all settle up!")
                     .font(.Header3())
                     .foregroundStyle(primaryText)
             } else {
-                let isOwed = expense < 0
+                let isOwed = totalOweAmount < 0
                 HStack(spacing: 0) {
                     Text("Overall, \(isOwed ? "you owe" : "you are owed")  ")
                         .foregroundStyle(primaryText)
 
                     Spacer()
 
-                    Text("\(expense.formattedCurrency)")
+                    Text("\(totalOweAmount.formattedCurrency)")
                         .foregroundStyle(isOwed ? alertColor : successColor)
                 }
                 .font(.Header3())
@@ -263,8 +262,4 @@ private struct GroupActionSheetView: View {
         .padding(.top, 8)
         .padding(.bottom, 4)
     }
-}
-
-#Preview {
-    GroupListView(viewModel: GroupListViewModel(router: .init(root: .GroupListView)))
 }

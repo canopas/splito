@@ -135,7 +135,3 @@ private struct GroupMemberCellView: View {
         .padding(.horizontal, 16)
     }
 }
-
-#Preview {
-    GroupSettleUpView(viewModel: GroupSettleUpViewModel(router: nil, groupId: ""))
-}

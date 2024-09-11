@@ -10,10 +10,9 @@ import SwiftUI
 import BaseStyle
 
 struct ExpenseSplitOptionsView: View {
+    @Environment(\.dismiss) var dismiss
 
     @StateObject var viewModel: ExpenseSplitOptionsViewModel
-
-    @Environment(\.dismiss) var dismiss
 
     var body: some View {
         VStack(spacing: 0) {
@@ -147,8 +146,4 @@ struct BottomInfoCardView: View {
         .background(primaryDarkColor)
         .shadow(color: primaryText.opacity(0.1), radius: 5, x: 0, y: -5)
     }
-}
-
-#Preview {
-    ExpenseSplitOptionsView(viewModel: ExpenseSplitOptionsViewModel(amount: 0, splitData: [:], members: [], selectedMembers: [], handleSplitTypeSelection: {_, _, _ in }))
 }

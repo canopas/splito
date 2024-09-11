@@ -10,11 +10,11 @@ import BaseStyle
 import Kingfisher
 
 struct CreateGroupView: View {
+    @Environment(\.dismiss) var dismiss
 
     @StateObject var viewModel: CreateGroupViewModel
 
     @FocusState private var isFocused: Bool
-    @Environment(\.dismiss) var dismiss
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
@@ -78,12 +78,18 @@ struct CreateGroupView: View {
         .onTapGesture {
             isFocused = false
         }
-        .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text(viewModel.group == nil ? "Create a group" : "Edit group")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                HStack(spacing: 12) {
+                    BackButton(size: (10, 18), iconColor: primaryText, padding: (0, 0), onClick: {
+                        dismiss()
+                    })
+                    .fontWeight(.semibold)
+
+                    Text(viewModel.group == nil ? "Create a group" : "Edit group")
+                        .font(.Header2())
+                        .foregroundStyle(primaryText)
+                }
             }
         }
     }
@@ -153,8 +159,4 @@ private struct AddGroupNameView: View {
                 .autocorrectionDisabled()
         }
     }
-}
-
-#Preview {
-    CreateGroupView(viewModel: CreateGroupViewModel(router: .init(root: .CreateGroupView(group: nil))))
 }

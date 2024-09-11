@@ -25,6 +25,7 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         super.init()
+
         fetchGroup()
         generateInviteCode()
     }

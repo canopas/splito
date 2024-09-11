@@ -14,7 +14,7 @@ public class ExpenseRepository: ObservableObject {
 
     private var cancelable = Set<AnyCancellable>()
 
-    public func addExpense(groupId: String, expense: Expense) -> AnyPublisher<Void, ServiceError> {
+    public func addExpense(groupId: String, expense: Expense) -> AnyPublisher<Expense, ServiceError> {
         store.addExpense(groupId: groupId, expense: expense)
     }
 
@@ -36,9 +36,5 @@ public class ExpenseRepository: ObservableObject {
 
     public func deleteExpensesOf(groupId: String) -> AnyPublisher<Void, ServiceError> {
         store.deleteExpensesOf(groupId: groupId)
-    }
-
-    public func fetchCurrentMonthExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
-        store.fetchCurrentMonthExpensesBy(groupId: groupId)
     }
 }

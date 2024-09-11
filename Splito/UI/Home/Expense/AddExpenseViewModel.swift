@@ -46,15 +46,13 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     var expenseId: String?
     private var groupId: String?
-    private let onDismissSheet: (() -> Void)?
     private let router: Router<AppRoute>
 
-    init(router: Router<AppRoute>, groupId: String? = nil, expenseId: String? = nil, onDismissSheet: (() -> Void)? = nil) {
+    init(router: Router<AppRoute>, groupId: String? = nil, expenseId: String? = nil) {
         self.router = router
         self.groupId = groupId
         self.expenseId = expenseId
         self.groupId = groupId
-        self.onDismissSheet = onDismissSheet
 
         super.init()
 
@@ -94,7 +92,10 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                     self?.handleServerError(error)
                 }
             } receiveValue: { [weak self] user in
-                guard let self, let user else { return }
+                guard let self, let user else {
+                    self?.viewState = .initial
+                    return
+                }
                 self.selectedPayers = [user.id: expenseAmount]
                 self.viewState = .initial
             }.store(in: &cancelable)
@@ -296,7 +297,7 @@ extension AddExpenseViewModel {
             newExpense.splitTo = (splitType == .equally) ? selectedMembers : splitData.map({ $0.key })
             newExpense.splitData = splitData
 
-            updateExpense(groupId: groupId, expense: newExpense, oldExpense: expense)
+            updateExpense(groupId: groupId, expense: newExpense, oldExpense: expense, completion: completion)
         } else {
             let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
                                   date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: user.id,
@@ -314,9 +315,10 @@ extension AddExpenseViewModel {
                 if case .failure(let error) = completion {
                     self?.handleServerError(error)
                 }
-            } receiveValue: { [weak self] _ in
+            } receiveValue: { [weak self] newExpense in
                 guard let self else { return }
                 self.viewState = .initial
+                NotificationCenter.default.post(name: .addExpense, object: newExpense)
                 if !(self.selectedGroup?.hasExpenses ?? false) {
                     self.selectedGroup?.hasExpenses = true
                 }
@@ -325,7 +327,7 @@ extension AddExpenseViewModel {
             }.store(in: &cancelable)
     }
 
-    private func updateExpense(groupId: String, expense: Expense, oldExpense: Expense) {
+    private func updateExpense(groupId: String, expense: Expense, oldExpense: Expense, completion: @escaping () -> Void) {
         viewState = .loading
         expenseRepository.updateExpense(groupId: groupId, expense: expense)
             .sink { [weak self] completion in
@@ -334,8 +336,9 @@ extension AddExpenseViewModel {
                 }
             } receiveValue: { [weak self] _ in
                 self?.viewState = .initial
+                NotificationCenter.default.post(name: .updateExpense, object: expense)
                 self?.updateGroupMemberBalance(expense: expense, updateType: .Update(oldExpense: oldExpense))
-                self?.onDismissSheet?()
+                completion()
             }.store(in: &cancelable)
     }
 

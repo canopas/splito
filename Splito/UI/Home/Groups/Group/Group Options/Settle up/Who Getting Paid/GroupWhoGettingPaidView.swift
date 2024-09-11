@@ -50,7 +50,3 @@ struct GroupWhoGettingPaidView: View {
         }
     }
 }
-
-#Preview {
-    GroupWhoGettingPaidView(viewModel: GroupWhoGettingPaidViewModel(router: nil, groupId: "", payerId: ""))
-}

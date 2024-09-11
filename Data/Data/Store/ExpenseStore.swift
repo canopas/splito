@@ -22,7 +22,7 @@ public class ExpenseStore: ObservableObject {
             .collection(SUB_COLLECTION_NAME)
     }
 
-    func addExpense(groupId: String, expense: Expense) -> AnyPublisher<Void, ServiceError> {
+    func addExpense(groupId: String, expense: Expense) -> AnyPublisher<Expense, ServiceError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(.unexpectedError))
@@ -36,7 +36,7 @@ public class ExpenseStore: ObservableObject {
                 newExpense.id = documentRef.documentID
 
                 try documentRef.setData(from: newExpense)
-                promise(.success(()))
+                promise(.success((newExpense)))
             } catch {
                 LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
                 promise(.failure(.databaseError(error: error.localizedDescription)))
@@ -186,46 +186,6 @@ public class ExpenseStore: ObservableObject {
                     }
                 }
             }
-        }
-        .eraseToAnyPublisher()
-    }
-
-    func fetchCurrentMonthExpensesBy(groupId: String) -> AnyPublisher<[Expense], ServiceError> {
-        Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
-            }
-
-            let startOfMonth = Date().startOfMonth()
-            let endOfMonth = Date().endOfMonth()
-
-            self.expenseReference(groupId: groupId)
-                .whereField("date", isGreaterThanOrEqualTo: startOfMonth)
-                .whereField("date", isLessThanOrEqualTo: endOfMonth)
-                .addSnapshotListener { snapshot, error in
-                    if let error {
-                        LogE("ExpenseStore :: \(#function) error: \(error.localizedDescription)")
-                        promise(.failure(.databaseError(error: error.localizedDescription)))
-                        return
-                    }
-
-                    guard let snapshot, !snapshot.documents.isEmpty else {
-                        LogD("ExpenseStore :: \(#function) No expenses found for the current month.")
-                        promise(.success([]))
-                        return
-                    }
-
-                    do {
-                        let expenses = try snapshot.documents.compactMap { document in
-                            try document.data(as: Expense.self)
-                        }
-                        promise(.success(expenses))
-                    } catch {
-                        LogE("ExpenseStore :: \(#function) Decode error: \(error.localizedDescription)")
-                        promise(.failure(.decodingError))
-                    }
-                }
         }
         .eraseToAnyPublisher()
     }

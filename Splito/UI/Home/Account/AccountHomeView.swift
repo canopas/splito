@@ -179,7 +179,3 @@ private struct AccountItemCellView: View {
         .onTouchGesture(onClick)
     }
 }
-
-#Preview {
-    AccountHomeView(viewModel: AccountHomeViewModel(router: .init(root: .AccountHomeView)))
-}

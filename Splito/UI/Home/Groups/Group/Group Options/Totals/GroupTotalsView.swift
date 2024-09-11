@@ -49,12 +49,12 @@ struct GroupTotalsView: View {
 
 private struct GroupTotalTabView: View {
 
-    let selectedTab: GroupTotalsTabType
-    let onSelect: ((GroupTotalsTabType) -> Void)
+    let selectedTab: DateRangeTabType
+    let onSelect: ((DateRangeTabType) -> Void)
 
     var body: some View {
         HStack(spacing: 8) {
-            ForEach(GroupTotalsTabType.allCases, id: \.self) { tab in
+            ForEach(DateRangeTabType.allCases, id: \.self) { tab in
                 Button {
                     onSelect(tab)
                 } label: {

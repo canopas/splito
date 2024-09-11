@@ -14,7 +14,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
 
     @Published private(set) var viewState: ViewState = .initial
-    @Published private(set) var selectedTab: GroupTotalsTabType = .thisMonth
+    @Published private(set) var selectedTab: DateRangeTabType = .thisMonth
     @Published private(set) var summaryData: GroupMemberSummary?
 
     private var group: Groups?
@@ -43,7 +43,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
-    func handleTabItemSelection(_ selection: GroupTotalsTabType) {
+    func handleTabItemSelection(_ selection: DateRangeTabType) {
         withAnimation(.easeInOut(duration: 0.3)) {
             selectedTab = selection
             filterDataForSelectedTab()
@@ -56,7 +56,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
         let summaries: [GroupTotalSummary]
         switch selectedTab {
         case .thisMonth:
-            summaries = getTotalSummaryForCurrentMonth()
+            summaries = getTotalSummaryForCurrentMonth(group: group, userId: userId)
         case .thisYear:
             summaries = getTotalSummaryForCurrentYear()
         case .all:
@@ -71,17 +71,6 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
             receivedAmount: summaries.reduce(0) { $0 + $1.summary.receivedAmount },
             changeInBalance: summaries.reduce(0) { $0 + $1.summary.changeInBalance }
         )
-    }
-
-    private func getTotalSummaryForCurrentMonth() -> [GroupTotalSummary] {
-        guard let user = preference.user, let group else { return [] }
-
-        let currentMonth = Calendar.current.component(.month, from: Date())
-        let currentYear = Calendar.current.component(.year, from: Date())
-
-        return group.balances.first(where: { $0.id == user.id })?.totalSummary.filter {
-            $0.month == currentMonth && $0.year == currentYear
-        } ?? []
     }
 
     private func getTotalSummaryForCurrentYear() -> [GroupTotalSummary] {
@@ -108,7 +97,7 @@ extension GroupTotalsViewModel {
 }
 
 // MARK: - Tab Types
-enum GroupTotalsTabType: Int, CaseIterable {
+enum DateRangeTabType: Int, CaseIterable {
 
     case thisMonth, thisYear, all
 

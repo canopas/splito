@@ -19,48 +19,51 @@ public struct VerifyOtpView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         AppLogoView(geometry: .constant(proxy))
 
-                        Text("Verification code")
-                            .font(.Header1())
-                            .foregroundStyle(primaryText)
-                            .padding(.horizontal, 16)
+                        Group {
+                            Text("Verification code")
+                                .font(.Header1())
+                                .foregroundStyle(primaryText)
 
-                        VSpacer(16)
+                            VSpacer(16)
 
-                        Text("We’ve sent a verification code to your phone \(viewModel.hiddenPhoneNumber).")
-                            .font(.subTitle1())
-                            .foregroundStyle(disableText)
-                            .tracking(-0.2)
-                            .lineSpacing(4)
-                            .padding(.horizontal, 16)
+                            Text("We’ve sent a verification code to your phone \(viewModel.hiddenPhoneNumber).")
+                                .font(.subTitle1())
+                                .foregroundStyle(disableText)
+                                .tracking(-0.2)
+                                .lineSpacing(4)
 
-                        VSpacer(40)
+                            VSpacer(40)
 
-                        HStack {
-                            OtpTextFieldView(otp: $viewModel.otp, onVerify: {
-                                viewModel.verifyOTP()
-                                UIApplication.shared.endEditing()
-                            })
+                            HStack {
+                                OtpTextFieldView(otp: $viewModel.otp, onVerify: {
+                                    viewModel.verifyOTP()
+                                    UIApplication.shared.endEditing()
+                                })
 
-                            Spacer()
+                                Spacer()
+                            }
                         }
+                        .padding(.horizontal, 16)
+                        .frame(maxWidth: isIpad ? 600 : nil, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .center)
                     }
                 }
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
 
-                PhoneLoginOtpBtnView(otp: $viewModel.otp,
-                                     resendOtpCount: $viewModel.resendOtpCount,
-                                     showLoader: viewModel.showLoader,
-                                     onVerify: {
-                    viewModel.verifyOTP()
-                    UIApplication.shared.endEditing()
-                },
-                                     onResendOtp: viewModel.resendOtp)
+                PhoneLoginOtpBtnView(
+                    otp: $viewModel.otp,
+                    resendOtpCount: $viewModel.resendOtpCount,
+                    showLoader: viewModel.showLoader,
+                    onVerify: {
+                        viewModel.verifyOTP()
+                        UIApplication.shared.endEditing()
+                    },
+                    onResendOtp: viewModel.resendOtp
+                )
             }
         }
         .background(surfaceColor)
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .frame(maxWidth: .infinity, alignment: .center)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toastView(toast: $viewModel.toast)
         .onTapGesture {
@@ -118,6 +121,8 @@ private struct PhoneLoginOtpBtnView: View {
             VSpacer(24)
         }
         .padding(.horizontal, 16)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
@@ -143,11 +148,6 @@ private struct OtpTextFieldView: View {
 
             OtpTextInputView(text: $otp, placeholder: "000000", isFocused: $isFocused, alignment: .leading, onOtpVerify: onVerify)
         }
-        .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-}
-
-#Preview {
-    VerifyOtpView(viewModel: VerifyOtpViewModel(router: .init(root: .VerifyOTPView(phoneNumber: "", dialCode: "", verificationId: "")), phoneNumber: "", dialCode: "", verificationId: ""))
 }

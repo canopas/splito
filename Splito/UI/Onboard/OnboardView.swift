@@ -139,7 +139,3 @@ public struct OnboardItem: Hashable {
     var subtitle: String?
     var description: String?
 }
-
-#Preview {
-    OnboardView(viewModel: OnboardViewModel(router: .init(root: .OnboardView)))
-}

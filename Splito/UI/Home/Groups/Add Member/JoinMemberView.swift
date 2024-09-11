@@ -9,11 +9,11 @@ import SwiftUI
 import BaseStyle
 
 struct JoinMemberView: View {
+    @Environment(\.dismiss) var dismiss
 
     @StateObject var viewModel: JoinMemberViewModel
 
     @FocusState private var isFocused: Bool
-    @Environment(\.dismiss) var dismiss
 
     var body: some View {
         GeometryReader { geometry in
@@ -74,8 +74,4 @@ struct JoinMemberView: View {
             }
         }
     }
-}
-
-#Preview {
-    JoinMemberView(viewModel: JoinMemberViewModel(router: .init(root: .JoinMemberView)))
 }

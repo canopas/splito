@@ -19,8 +19,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var transactionsWithUser: [TransactionWithUser] = []
     @Published private(set) var filteredTransactions: [String: [TransactionWithUser]] = [:]
 
-    @Published private var transactions: [Transactions] = []
-    @Published var selectedTab: TransactionTabType = .thisMonth
+    @Published var transactions: [Transactions] = []
+    @Published var selectedTab: DateRangeTabType = .thisMonth
     @Published private(set) var currentViewState: ViewState = .loading
     @Published private(set) var showScrollToTopBtn = false
 
@@ -36,12 +36,22 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
     var hasMoreTransactions: Bool = true
     private var lastDocument: DocumentSnapshot?
+    private var groupMembers: [AppUser] = []
 
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
         self.groupId = groupId
         super.init()
+
+        NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateTransaction(notification:)), name: .updateTransaction, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleDeleteTransaction(notification:)), name: .deleteTransaction, object: nil)
+
         fetchGroup()
+        fetchTransactions()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     // MARK: - Data Loading
@@ -85,7 +95,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                 self.lastDocument = result.lastDocument
                 self.transactions.append(contentsOf: result.transactions.uniqued())
 
-                self.combinedTransactionsWithUser(transactions: result.transactions)
+                self.combinedTransactionsWithUser(transactions: result.transactions.uniqued())
                 self.hasMoreTransactions = !(result.transactions.count < self.TRANSACTIONS_LIMIT)
             }.store(in: &cancelable)
     }
@@ -107,24 +117,27 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
         queue.notify(queue: .main) { [weak self] in
             guard let self else { return }
-            withAnimation {
-                self.transactionsWithUser.append(contentsOf: combinedData)
-                self.filteredTransactionsForSelectedTab()
-                self.currentViewState = .initial
-            }
+            self.transactionsWithUser.append(contentsOf: combinedData)
+            self.filteredTransactionsForSelectedTab()
+            self.currentViewState = .initial
         }
     }
 
     private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
-        groupRepository.fetchMemberBy(userId: userId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { user in
-                guard let user else { return }
-                completion(user)
-            }.store(in: &cancelable)
+        if let existingUser = groupMembers.first(where: { $0.id == userId }) {
+            completion(existingUser) // Return the available user from groupMembers
+        } else {
+            groupRepository.fetchMemberBy(userId: userId)
+                .sink { [weak self] completion in
+                    if case .failure(let error) = completion {
+                        self?.handleServiceError(error)
+                    }
+                } receiveValue: { user in
+                    guard let user else { return }
+                    self.groupMembers.append(user)
+                    completion(user)
+                }.store(in: &cancelable)
+        }
     }
 
     // MARK: - User Actions
@@ -146,8 +159,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                     self?.handleServiceError(error)
                 }
             } receiveValue: { [weak self] _ in
-                guard let self else { return }
-                self.updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
+                self?.updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
             }.store(in: &cancelable)
     }
 
@@ -161,8 +173,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                 if case .failure(let error) = completion {
                     self?.handleServiceError(error)
                 }
-            } receiveValue: { [weak self] _ in
-                self?.showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
+            } receiveValue: { _ in
+                NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
             }.store(in: &cancelable)
     }
 
@@ -171,7 +183,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         router.push(.TransactionDetailView(transactionId: transactionId, groupId: groupId))
     }
 
-    func handleTabItemSelection(_ selection: TransactionTabType) {
+    func handleTabItemSelection(_ selection: DateRangeTabType) {
         withAnimation(.easeInOut(duration: 0.3), {
             selectedTab = selection
             filteredTransactionsForSelectedTab()
@@ -186,7 +198,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         let currentYear = Calendar.current.component(.year, from: Date())
 
         var groupedTransactions: [String: [TransactionWithUser]] {
-            Dictionary(grouping: transactionsWithUser) { transaction in
+            Dictionary(grouping: transactionsWithUser.uniqued()) { transaction in
                 GroupTransactionListViewModel.dateFormatter.string(from: transaction.transaction.date.dateValue())
             }
         }
@@ -207,17 +219,50 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func manageScrollToTopBtnVisibility(offset: CGFloat) {
-        showScrollToTopBtn = offset < 0
+    func manageScrollToTopBtnVisibility(_ value: Bool) {
+        showScrollToTopBtn = value
+    }
+
+    @objc private func handleUpdateTransaction(notification: Notification) {
+        guard let updatedTransaction = notification.object as? Transactions else { return }
+
+        // Update transactionsWithUser
+        if let index = transactionsWithUser.firstIndex(where: { $0.transaction.id == updatedTransaction.id }) {
+            self.transactionsWithUser[index].transaction = updatedTransaction
+            withAnimation {
+                self.filteredTransactionsForSelectedTab()
+            }
+        }
+
+        if let index = transactions.firstIndex(where: { $0.id == updatedTransaction.id }) {
+            transactions[index] = updatedTransaction
+        }
+    }
+
+    @objc private func handleDeleteTransaction(notification: Notification) {
+        guard let deletedTransaction = notification.object as? Transactions else { return }
+
+        transactionsWithUser.removeAll { $0.transaction.id == deletedTransaction.id }
+        transactions.removeAll { $0.id == deletedTransaction.id }
+
+        if let key = filteredTransactions.keys.first(where: { key in
+            filteredTransactions[key]?.contains(where: { $0.transaction.id == deletedTransaction.id }) == true
+        }) {
+            withAnimation {
+                filteredTransactions[key]?.removeAll(where: { $0.transaction.id == deletedTransaction.id })
+                // If the array is now empty, remove the key (month) from the dictionary
+                if filteredTransactions[key]?.isEmpty == true {
+                    filteredTransactions.removeValue(forKey: key)
+                }
+            }
+        }
+        showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
     }
 
     // MARK: - Helper Methods
     func sortMonthYearStrings(_ s1: String, _ s2: String) -> Bool {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMMM yyyy"
-
-        guard let date1 = dateFormatter.date(from: s1),
-              let date2 = dateFormatter.date(from: s2) else {
+        guard let date1 = GroupTransactionListViewModel.dateFormatter.date(from: s1),
+              let date2 = GroupTransactionListViewModel.dateFormatter.date(from: s2) else {
             return false
         }
 
@@ -260,25 +305,9 @@ extension GroupTransactionListViewModel {
     }
 }
 
-enum TransactionTabType: Int, CaseIterable {
-
-    case thisMonth, thisYear, all
-
-    var tabItem: String {
-        switch self {
-        case .thisMonth:
-            return "This month"
-        case .thisYear:
-            return "This year"
-        case .all:
-            return "All"
-        }
-    }
-}
-
 // Struct to hold combined transaction and user information
-struct TransactionWithUser {
-    let transaction: Transactions
+struct TransactionWithUser: Hashable {
+    var transaction: Transactions
     let payer: AppUser?
     let receiver: AppUser?
 }

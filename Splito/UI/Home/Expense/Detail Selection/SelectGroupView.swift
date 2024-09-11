@@ -11,10 +11,9 @@ import BaseStyle
 import Kingfisher
 
 struct SelectGroupView: View {
+    @Environment(\.dismiss) var dismiss
 
     @StateObject var viewModel: SelectGroupViewModel
-
-    @Environment(\.dismiss) var dismiss
 
     var body: some View {
         VStack(spacing: 0) {
@@ -119,8 +118,4 @@ private struct GroupCellView: View {
             .background(dividerColor)
             .padding(.vertical, 20)
     }
-}
-
-#Preview {
-    SelectGroupView(viewModel: SelectGroupViewModel(selectedGroup: nil, onGroupSelection: { _ in }))
 }

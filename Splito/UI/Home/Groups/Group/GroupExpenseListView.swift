@@ -21,7 +21,6 @@ struct GroupExpenseListView: View {
             ScrollViewReader { scrollProxy in
                 VStack(alignment: .leading, spacing: 0) {
                     GroupOptionsListView(isSettleUpEnable: (!viewModel.memberOwingAmount.isEmpty && viewModel.group?.members.count ?? 1 > 1),
-                                         showTransactionsOption: true,
                                          onSettleUpTap: viewModel.handleSettleUpBtnTap,
                                          onTransactionsTap: viewModel.handleTransactionsBtnTap,
                                          onBalanceTap: viewModel.handleBalancesBtnTap,
@@ -105,14 +104,15 @@ struct GroupExpenseListView: View {
                         if viewModel.showScrollToTopBtn {
                             ScrollToTopButton {
                                 withAnimation { scrollProxy.scrollTo("expense_list", anchor: .top) }
-                            }.padding([.trailing, .bottom], 16)
+                            }
+                            .padding([.trailing, .bottom], 16)
                         }
                     }
                     .refreshable {
                         viewModel.fetchExpenses()
                     }
                 }
-            }.scrollBounceBehavior(.basedOnSize)
+            }
         }
     }
 
@@ -282,10 +282,10 @@ private struct GroupExpenseHeaderView: View {
                         GroupExpenseMemberOweView(name: name, amount: amount,
                                                   handleSimplifyInfoSheet: viewModel.handleSimplifyInfoSheet)
                     }
-                }.padding(16)
+                }
+                .padding(16)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .background(containerColor)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .padding(.horizontal, 16)
@@ -325,7 +325,7 @@ private struct GroupExpenseHeaderOverallView: View {
                     .font(.body3())
                     .foregroundStyle(disableText)
 
-                Text("\(abs(viewModel.currentMonthSpendingAmount).formattedCurrency)")
+                Text("\(abs(viewModel.currentMonthSpending).formattedCurrency)")
                     .font(.body1())
                     .foregroundStyle(primaryText)
             }

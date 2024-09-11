@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		213D0CCA2C89DBC800D65C73 /* Notification+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213D0CC92C89DBC800D65C73 /* Notification+Extension.swift */; };
 		21D8D0832C0857F10061B365 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8D0822C0857F10061B365 /* Constants.swift */; };
 		64E499C5CFAEA368EC21313F /* Pods_DataTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */; };
 		7EF3A291581F7EA20CB1042D /* Pods_Data.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E91B3E23688435064A60C0C4 /* Pods_Data.framework */; };
@@ -60,6 +61,7 @@
 
 /* Begin PBXFileReference section */
 		1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DataTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		213D0CC92C89DBC800D65C73 /* Notification+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification+Extension.swift"; sourceTree = "<group>"; };
 		21D8D0822C0857F10061B365 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		5B14CF1A2EEF27479BF50566 /* Pods-DataTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DataTests.debug.xcconfig"; path = "Target Support Files/Pods-DataTests/Pods-DataTests.debug.xcconfig"; sourceTree = "<group>"; };
 		803094012FE4C155F2A347B6 /* Pods-DataTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DataTests.release.xcconfig"; path = "Target Support Files/Pods-DataTests/Pods-DataTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -209,6 +211,7 @@
 				D89C934D2BC694C200FACD16 /* Double+Extension.swift */,
 				D826C0DE2BDA95C900AAA449 /* Timestamp+Extension.swift */,
 				D8613F672BFDECC4008BD53D /* Query+Extension.swift */,
+				213D0CC92C89DBC800D65C73 /* Notification+Extension.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -504,6 +507,7 @@
 				D865F8AE2BD7CB0B0084BD36 /* Array+Extension.swift in Sources */,
 				D89DBE2B2B88817E00E5F1BD /* JSONUtils.swift in Sources */,
 				D8A7CA802BA867F80014EC67 /* String+Extension.swift in Sources */,
+				213D0CCA2C89DBC800D65C73 /* Notification+Extension.swift in Sources */,
 				D89DBE282B88802800E5F1BD /* Country.swift in Sources */,
 				D8910E382BB6D1D300877CE0 /* ExpenseStore.swift in Sources */,
 				D8CF5A212C1986250014E3AD /* Transaction.swift in Sources */,

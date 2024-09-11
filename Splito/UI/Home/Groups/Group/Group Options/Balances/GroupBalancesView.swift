@@ -52,8 +52,7 @@ struct GroupBalancesView: View {
                         router: viewModel.router, transactionId: nil,
                         groupId: viewModel.groupId, payerId: viewModel.payerId ?? "",
                         receiverId: viewModel.receiverId ?? "",
-                        amount: viewModel.amount ?? 0,
-                        dismissPaymentFlow: viewModel.dismissSettleUpSheet
+                        amount: viewModel.amount ?? 0
                     )
                 )
             }

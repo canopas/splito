@@ -82,7 +82,10 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
                         self?.showToastFor(error)
                     }
                 } receiveValue: { [weak self] user in
-                    guard let user else { return }
+                    guard let user else {
+                        self?.viewState = .initial
+                        return
+                    }
                     users.append(user)
                     self?.calculateFixedAmountForMember(memberId: memberId)
                     queue.leave()

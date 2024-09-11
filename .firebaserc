@@ -1,5 +1,12 @@
 {
   "projects": {
     "default": "splito-canoaps"
-  }
+  },
+  "targets": {},
+  "etags": {
+    "splito-canoaps": {
+      "extensionInstances": {}
+    }
+  },
+  "dataconnectEmulatorConfig": {}
 }

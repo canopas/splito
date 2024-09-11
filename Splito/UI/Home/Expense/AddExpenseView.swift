@@ -10,10 +10,9 @@ import BaseStyle
 import Data
 
 struct AddExpenseView: View {
+    @Environment(\.dismiss) var dismiss
 
     @StateObject var viewModel: AddExpenseViewModel
-
-    @Environment(\.dismiss) var dismiss
 
     @FocusState private var focusedField: AddExpenseViewModel.AddExpenseField?
 
