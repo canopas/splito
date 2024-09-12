@@ -16,6 +16,7 @@ public class GroupRepository: ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
     @Inject private var storageManager: StorageManager
+    @Inject private var codeRepository: ShareCodeRepository
 
     public func createGroup(group: Groups, imageData: Data?) async throws -> String? {
         let groupId = try await store.createGroup(group: group)
@@ -60,8 +61,9 @@ public class GroupRepository: ObservableObject {
         }
     }
 
-    public func addMemberToGroup(groupId: String, memberId: String) async throws {
+    public func addMemberToGroup(groupId: String, memberId: String, code: String) async throws {
         try await store.addMemberToGroup(groupId: groupId, memberId: memberId)
+        try await codeRepository.deleteSharedCode(documentId: code)
     }
 
     public func updateGroup(group: Groups) async throws {

@@ -151,10 +151,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                       message: "Are you sure you want to remove this member from the group?",
                       positiveBtnTitle: "Remove",
                       positiveBtnAction: {
-            Task {
-                await self.removeMemberFromGroup(memberId: memberId)
-            }
-        },
+                        Task {
+                            await self.removeMemberFromGroup(memberId: memberId)
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
@@ -172,10 +172,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                       message: "Are you absolutely sure you want to leave this group?",
                       positiveBtnTitle: "Leave",
                       positiveBtnAction: {
-            Task {
-                await self.removeMemberFromGroup(memberId: memberId)
-            }
-        },
+                        Task {
+                            await self.removeMemberFromGroup(memberId: memberId)
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
@@ -199,21 +199,22 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         }
 
         currentViewState = .loading
+
         do {
             try await groupRepository.removeMemberFrom(group: group, memberId: memberId)
+            currentViewState = .initial
 
-            self.currentViewState = .initial
             if userId == memberId {
                 NotificationCenter.default.post(name: .deleteGroup, object: group)
-                self.goBackToGroupList()
+                goBackToGroupList()
             } else {
-                self.showAlert = false
+                showAlert = false
                 withAnimation {
                     if let index = self.members.firstIndex(where: { $0.id == memberId }) {
                         self.members.remove(at: index)
                     }
                 }
-                self.showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed"))
+                showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed"))
             }
         } catch {
             currentViewState = .initial
@@ -226,10 +227,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                       message: "Are you ABSOLUTELY sure you want to delete this group? This will remove this group for ALL users involved, not just yourself.",
                       positiveBtnTitle: "Delete",
                       positiveBtnAction: {
-            Task {
-                await self.deleteGroup()
-            }
-        },
+                        Task {
+                            await self.deleteGroup()
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
         showAlert = true
@@ -239,11 +240,12 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         guard let group else { return }
 
         currentViewState = .loading
+
         do {
             try await groupRepository.deleteGroup(group: group)
             self.currentViewState = .initial
             NotificationCenter.default.post(name: .deleteGroup, object: group)
-            self.goBackToGroupList()
+            goBackToGroupList()
         } catch {
             handleServiceError(error as! ServiceError)
         }
@@ -260,7 +262,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Error Handling
-    private func handleServiceError(_ error: ServiceError) {
+    override func handleServiceError(_ error: ServiceError) {
         currentViewState = .initial
         showToastFor(error)
     }

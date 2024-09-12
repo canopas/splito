@@ -62,10 +62,11 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             shares = splitData
             totalShares = splitData.values.reduce(0, +)
         }
+        splitAmount = expenseAmount / Double(selectedMembers.count)
+
         Task {
             await fetchUsersData()
         }
-        splitAmount = expenseAmount / Double(selectedMembers.count)
     }
 
     // MARK: - Data Loading
@@ -73,18 +74,17 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         var users: [AppUser] = []
         let queue = DispatchGroup()
 
-        self.viewState = .loading
+        viewState = .loading
 
         for memberId in members {
             queue.enter()
-
             let user = await fetchUserData(for: memberId)
             guard let user else {
-                self.viewState = .initial
+                viewState = .initial
                 return
             }
             users.append(user)
-            self.calculateFixedAmountForMember(memberId: memberId)
+            calculateFixedAmountForMember(memberId: memberId)
             queue.leave()
         }
 
@@ -100,8 +100,8 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         do {
             return try await userRepository.fetchUserBy(userID: memberId)
         } catch {
-            self.viewState = .initial
-            self.showToastFor(error as! ServiceError)
+            viewState = .initial
+            showToastFor(error as! ServiceError)
             return nil
         }
     }

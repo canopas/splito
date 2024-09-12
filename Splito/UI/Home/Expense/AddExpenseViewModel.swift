@@ -57,7 +57,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
 
         super.init()
-        
+
         Task {
             if let expenseId {
                 await fetchExpenseDetails(expenseId: expenseId)
@@ -70,9 +70,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Data Loading
     private func fetchGroup(groupId: String) async {
-        viewState = .loading
-
         do {
+            self.viewState = .loading
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             if let group {
                 selectedGroup = group
@@ -193,16 +192,13 @@ extension AddExpenseViewModel {
             }
         } else {
             let payerIds = Array(selectedPayers.keys.prefix(2))
-
-            Task {
-                if let user1 = await fetchUserData(for: payerIds[0]) {
-                    if let user2 = await fetchUserData(for: payerIds[1]) {
-                        if payerCount == 2 {
-                            payerName = "\(user1.nameWithLastInitial) and \(user2.nameWithLastInitial)"
-                        } else {
-                            let remainingCount = payerCount - 2
-                            payerName = "\(user1.nameWithLastInitial), \(user2.nameWithLastInitial) and +\(remainingCount)"
-                        }
+            if let user1 = await fetchUserData(for: payerIds[0]) {
+                if let user2 = await fetchUserData(for: payerIds[1]) {
+                    if payerCount == 2 {
+                        payerName = "\(user1.nameWithLastInitial) and \(user2.nameWithLastInitial)"
+                    } else {
+                        let remainingCount = payerCount - 2
+                        payerName = "\(user1.nameWithLastInitial), \(user2.nameWithLastInitial) and +\(remainingCount)"
                     }
                 }
             }
@@ -312,6 +308,7 @@ extension AddExpenseViewModel {
         viewState = .loading
 
         do {
+            viewState = .loading
             let newExpense = try await expenseRepository.addExpense(groupId: groupId, expense: expense)
             viewState = .initial
             NotificationCenter.default.post(name: .addExpense, object: newExpense)
@@ -328,6 +325,7 @@ extension AddExpenseViewModel {
         viewState = .loading
 
         do {
+            viewState = .loading
             try await expenseRepository.updateExpense(groupId: groupId, expense: expense)
             viewState = .initial
             NotificationCenter.default.post(name: .updateExpense, object: expense)

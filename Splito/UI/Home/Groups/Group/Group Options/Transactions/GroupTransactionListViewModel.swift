@@ -275,7 +275,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Error Handling
-    private func handleServiceError(_ error: ServiceError) {
+    override func handleServiceError(_ error: ServiceError) {
         currentViewState = .initial
         showToastFor(error)
     }

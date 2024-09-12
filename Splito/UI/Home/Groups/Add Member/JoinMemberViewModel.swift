@@ -23,21 +23,18 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         self.router = router
     }
 
-    func joinMemberWithCode(completion: @escaping () -> Void) async {
-        showLoader = true
-
+    func joinMemberWithCode() async {
         do {
+            showLoader = true
             let code = try await codeRepository.fetchSharedCode(code: code)
             guard let code else {
-                self.showLoader = false
-                self.showToastFor(toast: ToastPrompt(type: .error, title: "Error",
-                                                     message: "The code you've entered is not exists."))
+                showLoader = false
+                showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "The code you've entered is not exists."))
                 return
             }
-            await self.addMemberIfCodeExists(code: code)
+            await addMemberIfCodeExists(code: code)
         } catch {
-            self.showLoader = false
-            self.showToastFor(error as! ServiceError)
+            showLoader = false
             handleServiceError(error as! ServiceError)
         }
     }
@@ -53,24 +50,18 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        await addMember(groupId: code.groupId)
-        self.showLoader = false
-
-        do {
-            _ = try await codeRepository.deleteSharedCode(documentId: code.id ?? "")
-        } catch {
-            showToastFor(error as! ServiceError)
-        }
+        await addMemberFor(code: code)
+        showLoader = false
     }
 
-    private func addMember(groupId: String) async {
+    private func addMemberFor(code: SharedCode) async {
         guard let userId = preference.user?.id else { return }
 
         do {
-            try await groupRepository.addMemberToGroup(groupId: groupId, memberId: userId)
-            NotificationCenter.default.post(name: .joinGroup, object: groupId)
+            try await groupRepository.addMemberToGroup(groupId: code.groupId, memberId: userId, code: code.code)
+            NotificationCenter.default.post(name: .joinGroup, object: code.groupId)
         } catch {
-            showToastFor(error as! ServiceError)
+            handleServiceError(error as! ServiceError)
         }
     }
 }

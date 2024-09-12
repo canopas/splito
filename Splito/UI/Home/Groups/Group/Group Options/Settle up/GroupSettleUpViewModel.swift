@@ -53,8 +53,8 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
 
     private func fetchGroupMembers() async {
         do {
-            let members = try await groupRepository.fetchMembersBy(groupId: groupId)
             guard let userId = preference.user?.id else { return }
+            let members = try await groupRepository.fetchMembersBy(groupId: groupId)
             self.members = members
             self.members.removeAll(where: { $0.id == userId })
             self.viewState = .initial
@@ -95,7 +95,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Error Handling
-    private func handleServiceError(_ error: ServiceError) {
+    override func handleServiceError(_ error: ServiceError) {
         viewState = .initial
         showToastFor(error)
     }

@@ -52,19 +52,15 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 self.groupImageUrl = imageUrl
             }
         } catch {
-            viewState = .initial
             showToastFor(error as! ServiceError)
         }
     }
 
     func fetchExpense() async {
-        viewState = .loading
-
         do {
+            viewState = .loading
             let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
-            Task {
-                await self.processExpense(expense: expense)
-            }
+            await self.processExpense(expense: expense)
         } catch {
             viewState = .initial
             showToastFor(error as! ServiceError)
@@ -98,7 +94,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     func fetchUserData(for userId: String) async -> AppUser? {
         do {
-            viewState = .initial
             return try await userRepository.fetchUserBy(userID: userId)
         } catch {
             viewState = .initial
@@ -122,25 +117,22 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
                       positiveBtnTitle: "Ok",
                       positiveBtnAction: {
-            Task {
-                await self.deleteExpense()
-            }
-        },
+                        Task {
+                            await self.deleteExpense()
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
 
     private func deleteExpense() async {
-        viewState = .loading
-
         do {
+            viewState = .loading
             try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
-            self.viewState = .initial
-            NotificationCenter.default.post(name: .deleteExpense, object: self.expense)
-            Task {
-                await self.updateGroupMemberBalance(updateType: .Delete)
-            }
-            self.router.pop()
+            viewState = .initial
+            NotificationCenter.default.post(name: .deleteExpense, object: expense)
+            await self.updateGroupMemberBalance(updateType: .Delete)
+            router.pop()
         } catch {
             viewState = .initial
             showToastFor(error as! ServiceError)
@@ -170,14 +162,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     func handleBackBtnTap() {
         router.pop()
-    }
-
-    @objc private func getUpdatedExpense(notification: Notification) {
-        guard let updatedExpense = notification.object as? Expense else { return }
-        viewState = .loading
-        Task {
-            await processExpense(expense: updatedExpense)
-        }
     }
 }
 

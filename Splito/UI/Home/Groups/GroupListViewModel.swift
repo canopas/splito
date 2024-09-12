@@ -191,6 +191,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
                 let user = try await userRepository.fetchUserBy(userID: userId)
                 if let user {
                     self.groupMembers.append(user)
+                    return user
                 }
                 return user
             } catch {
@@ -200,12 +201,12 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func fetchGroup(groupId: String, completion: @escaping (Groups?) -> Void) async {
+    private func fetchGroup(groupId: String) async -> Groups? {
         do {
-            let group = try await groupRepository.fetchGroupBy(id: groupId)
-            completion(group)
+            return try await groupRepository.fetchGroupBy(id: groupId)
         } catch {
             self.showToastFor(error as! ServiceError)
+            return nil
         }
     }
 }
@@ -296,10 +297,10 @@ extension GroupListViewModel {
                       message: "Are you ABSOLUTELY sure you want to delete this group? This will remove this group for ALL users involved, not just yourself.",
                       positiveBtnTitle: "Delete",
                       positiveBtnAction: {
-            Task {
-                await self.deleteGroup(group: group)
-            }
-        },
+                        Task {
+                            await self.deleteGroup(group: group)
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
         showAlert = true
@@ -318,15 +319,9 @@ extension GroupListViewModel {
     @objc private func handleJoinGroup(notification: Notification) async {
         guard let joinedGroupId = notification.object as? String else { return }
 
-        Task {
-            await fetchGroup(groupId: joinedGroupId, completion: { group in
-                if let group {
-                    if self.combinedGroups.contains(where: { $0.group.id == group.id }) { return }
-                    Task {
-                        await self.processGroup(group: group, isNewGroup: true)
-                    }
-                }
-            })
+        if let group = await fetchGroup(groupId: joinedGroupId) {
+            if self.combinedGroups.contains(where: { $0.group.id == group.id }) { return }
+            await self.processGroup(group: group, isNewGroup: true)
         }
     }
 
@@ -360,17 +355,12 @@ extension GroupListViewModel {
 
         let dispatchGroup = DispatchGroup()
 
-        for memberId in group.members {
-            if !groupMembers.contains(where: { $0.id == memberId }) {
-                dispatchGroup.enter()
-
-                Task {
-                    if let user = await fetchUserData(for: memberId) {
-                        self.groupMembers.append(user)
-                        dispatchGroup.leave()
-                    }
-                }
+        for memberId in group.members where groupMembers.contains(where: { $0.id == memberId }) {
+            dispatchGroup.enter()
+            if let user = await fetchUserData(for: memberId) {
+                self.groupMembers.append(user)
             }
+            dispatchGroup.leave()
         }
 
         dispatchGroup.notify(queue: .main) {
@@ -403,60 +393,8 @@ extension GroupListViewModel {
         case loading
     }
 
-    enum GroupListState: Equatable {
-        static func == (lhs: GroupListViewModel.GroupListState, rhs: GroupListViewModel.GroupListState) -> Bool {
-            lhs.key == rhs.key
-        }
-
+    enum GroupListState {
         case noGroup
         case hasGroup
-
-        var key: String {
-            switch self {
-            case .noGroup:
-                "noGroup"
-            case .hasGroup:
-                "hasGroup"
-            }
-        }
-    }
-}
-
-// MARK: - Tab Types
-enum GroupListTabType: Int, CaseIterable {
-    case all, settled, unsettled
-
-    var tabItem: String {
-        switch self {
-        case .all:
-            return "All"
-        case .settled:
-            return "Settled"
-        case .unsettled:
-            return "Unsettled"
-        }
-    }
-}
-
-enum OptionList: CaseIterable {
-    case editGroup
-    case deleteGroup
-
-    var title: String {
-        switch self {
-        case .editGroup:
-            return "Edit group"
-        case .deleteGroup:
-            return "Delete group"
-        }
-    }
-
-    var image: ImageResource {
-        switch self {
-        case .editGroup:
-            return .editPencilIcon
-        case .deleteGroup:
-            return .binIcon
-        }
     }
 }

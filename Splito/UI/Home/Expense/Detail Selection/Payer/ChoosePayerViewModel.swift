@@ -37,11 +37,10 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Data Loading
     func fetchMembers() async {
-        currentViewState = .loading
-
         do {
+            currentViewState = .loading
             let users = try await groupRepository.fetchMembersBy(groupId: groupId)
-            self.currentViewState = users.isEmpty ? .noMember : .hasMembers(users)
+            currentViewState = users.isEmpty ? .noMember : .hasMembers(users)
         } catch {
             currentViewState = .initial
             showToastFor(error as! ServiceError)
@@ -59,9 +58,7 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
                                             message: "Please enter a cost for your expense first!"))
             return
         }
-        router?.push(.ChooseMultiplePayerView(groupId: groupId, selectedPayers: selectedPayers, amount: amount, onPayerSelection: { payers in
-            self.onPayerSelection(payers)
-        }))
+        router?.push(.ChooseMultiplePayerView(groupId: groupId, selectedPayers: selectedPayers, amount: amount, onPayerSelection: onPayerSelection))
     }
 
     func handleSaveBtnTap() {

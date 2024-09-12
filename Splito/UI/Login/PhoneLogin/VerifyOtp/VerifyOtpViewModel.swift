@@ -50,14 +50,16 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
     func verifyOTP() {
         guard !otp.isEmpty else { return }
 
-        let credential = FirebaseProvider.phoneAuthProvider.credential(withVerificationID: verificationId, verificationCode: otp)
+        let credential = FirebaseProvider.phoneAuthProvider.credential(withVerificationID: verificationId,
+                                                                       verificationCode: otp)
         showLoader = true
         FirebaseProvider.auth.signIn(with: credential) {[weak self] (result, _) in
             self?.showLoader = false
             if let result {
                 guard let self else { return }
                 self.resendTimer?.invalidate()
-                let user = AppUser(id: result.user.uid, firstName: nil, lastName: nil, emailId: nil, phoneNumber: result.user.phoneNumber, loginType: .Phone)
+                let user = AppUser(id: result.user.uid, firstName: nil, lastName: nil, emailId: nil,
+                                   phoneNumber: result.user.phoneNumber, loginType: .Phone)
                 Task {
                     await self.storeUser(user: user)
                 }
@@ -118,7 +120,7 @@ extension VerifyOtpViewModel {
     private func onLoginError() {
         showAlertFor(title: "Invalid OTP", message: "Please, enter a valid OTP code.")
     }
-    
+
     private func storeUser(user: AppUser) async {
         do {
             let user = try await userRepository.storeUser(user: user)

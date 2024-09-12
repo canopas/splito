@@ -83,7 +83,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Error Handling
-    private func handleServiceError(_ error: ServiceError) {
+    override func handleServiceError(_ error: ServiceError) {
         viewState = .initial
         showToastFor(error)
     }

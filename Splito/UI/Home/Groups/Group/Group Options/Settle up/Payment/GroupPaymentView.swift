@@ -61,9 +61,8 @@ struct GroupPaymentView: View {
 
                     PrimaryButton(text: "Done", showLoader: viewModel.showLoader, onClick: {
                         Task {
-                            await viewModel.handleSaveAction {
-                                dismiss()
-                            }
+                            await viewModel.handleSaveAction()
+                            dismiss()
                         }
                     })
                     .padding([.horizontal, .bottom], 16)

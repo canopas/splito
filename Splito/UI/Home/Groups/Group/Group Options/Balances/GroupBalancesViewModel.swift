@@ -46,8 +46,8 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Data Loading
     func fetchGroupMembers() async {
-        viewState = .loading
         do {
+            viewState = .loading
             groupMemberData = try await groupRepository.fetchMembersBy(groupId: groupId)
             await fetchGroupDetails()
             calculateExpensesSimplified()
@@ -152,11 +152,9 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         showSettleUpSheet = true
     }
 
-    @objc private func handleAddTransaction(notification: Notification) {
+    @objc private func handleAddTransaction(notification: Notification) async {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
-        Task {
-            await fetchGroupDetails()
-        }
+        await fetchGroupDetails()
     }
 }
 

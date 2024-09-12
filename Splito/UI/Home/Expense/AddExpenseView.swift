@@ -109,12 +109,12 @@ struct AddExpenseView: View {
                 .foregroundStyle(.blue)
             }
             ToolbarItem(placement: .topBarTrailing) {
-                CheckmarkButton(onClick: {
+                CheckmarkButton {
                     Task {
                         await viewModel.handleSaveAction()
                         dismiss()
                     }
-                })
+                }
             }
         }
         .onAppear {

@@ -263,3 +263,42 @@ private struct GroupActionSheetView: View {
         .padding(.bottom, 4)
     }
 }
+
+// MARK: - Tab Types
+enum GroupListTabType: Int, CaseIterable {
+    case all, settled, unsettled
+
+    var tabItem: String {
+        switch self {
+        case .all:
+            return "All"
+        case .settled:
+            return "Settled"
+        case .unsettled:
+            return "Unsettled"
+        }
+    }
+}
+
+enum OptionList: CaseIterable {
+    case editGroup
+    case deleteGroup
+
+    var title: String {
+        switch self {
+        case .editGroup:
+            return "Edit group"
+        case .deleteGroup:
+            return "Delete group"
+        }
+    }
+
+    var image: ImageResource {
+        switch self {
+        case .editGroup:
+            return .editPencilIcon
+        case .deleteGroup:
+            return .binIcon
+        }
+    }
+}
