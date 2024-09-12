@@ -62,12 +62,14 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             shares = splitData
             totalShares = splitData.values.reduce(0, +)
         }
-        fetchUsersData()
+        Task {
+            await fetchUsersData()
+        }
         splitAmount = expenseAmount / Double(selectedMembers.count)
     }
 
     // MARK: - Data Loading
-    private func fetchUsersData() {
+    private func fetchUsersData() async {
         var users: [AppUser] = []
         let queue = DispatchGroup()
 
@@ -75,21 +77,15 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
 
         for memberId in members {
             queue.enter()
-            userRepository.fetchUserBy(userID: memberId)
-                .sink { [weak self] completion in
-                    if case .failure(let error) = completion {
-                        self?.viewState = .initial
-                        self?.showToastFor(error)
-                    }
-                } receiveValue: { [weak self] user in
-                    guard let user else {
-                        self?.viewState = .initial
-                        return
-                    }
-                    users.append(user)
-                    self?.calculateFixedAmountForMember(memberId: memberId)
-                    queue.leave()
-                }.store(in: &cancelable)
+            
+            let user = await fetchUserData(for: memberId)
+            guard let user else {
+                self.viewState = .initial
+                return
+            }
+            users.append(user)
+            self.calculateFixedAmountForMember(memberId: memberId)
+            queue.leave()
         }
 
         queue.notify(queue: .main) { [weak self] in
@@ -99,7 +95,17 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             self.viewState = .initial
         }
     }
-
+    
+    func fetchUserData(for memberId: String) async -> AppUser? {
+        do {
+            return try await userRepository.fetchUserBy(userID: memberId)
+        } catch {
+            self.viewState = .initial
+            self.showToastFor(error as! ServiceError)
+            return nil
+        }
+    }
+    
     func calculateFixedAmountForMember(memberId: String) {
         switch selectedTab {
         case .equally:

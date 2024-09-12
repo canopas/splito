@@ -36,7 +36,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
         Task {
             await fetchGroup()
-            fetchExpense()
+            await fetchExpense()
         }
     }
 
@@ -48,7 +48,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     private func fetchGroup() async {
         do {
             group = try await groupRepository.fetchGroupBy(id: groupId)
-            if let imageUrl = group.imageUrl {
+            if let imageUrl = group?.imageUrl {
                 self.groupImageUrl = imageUrl
             }
         } catch {
@@ -57,17 +57,18 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func fetchExpense() {
+    func fetchExpense() async {
         viewState = .loading
-        expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] expense in
-                self?.processExpense(expense: expense)
-            }.store(in: &cancelable)
+        
+        do {
+            let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
+            Task {
+                await self.processExpense(expense: expense)
+            }
+        } catch {
+            viewState = .initial
+            showToastFor(error as! ServiceError)
+        }
     }
     
     func processExpense(expense: Expense) async {
@@ -102,6 +103,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         } catch {
             viewState = .initial
             showToastFor(error as! ServiceError)
+            return nil
         }
     }
 
@@ -119,29 +121,30 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Delete Expense",
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: { await self.deleteExpense() },
+                      positiveBtnAction: {
+            Task {
+                await self.deleteExpense()
+            }
+        },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
 
     private func deleteExpense() async {
         viewState = .loading
-        expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.viewState = .initial
-                NotificationCenter.default.post(name: .deleteExpense, object: self?.expense)
-                self?.updateGroupMemberBalance(updateType: .Delete)
-                self?.router.pop()
-            }.store(in: &cancelable)
         
-        await updateGroupMemberBalance(updateType: .Delete)
-        NotificationCenter.default.post(name: .deleteExpense, object: expense)
-        self.router.pop()
+        do {
+            try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
+            self.viewState = .initial
+            NotificationCenter.default.post(name: .deleteExpense, object: self.expense)
+            Task {
+                await self.updateGroupMemberBalance(updateType: .Delete)
+            }
+            self.router.pop()
+        } catch {
+            viewState = .initial
+            showToastFor(error as! ServiceError)
+        }
     }
 
     private func updateGroupMemberBalance(updateType: ExpenseUpdateType) async {
@@ -172,7 +175,9 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     @objc private func getUpdatedExpense(notification: Notification) {
         guard let updatedExpense = notification.object as? Expense else { return }
         viewState = .loading
-        processExpense(expense: updatedExpense)
+        Task {
+            await processExpense(expense: updatedExpense)
+        }
     }
 }
 

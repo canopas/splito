@@ -55,9 +55,12 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
         FirebaseProvider.auth.signIn(with: credential) {[weak self] (result, _) in
             self?.showLoader = false
             if let result {
-                self?.resendTimer?.invalidate()
+                guard let self else { return }
+                self.resendTimer?.invalidate()
                 let user = AppUser(id: result.user.uid, firstName: nil, lastName: nil, emailId: nil, phoneNumber: result.user.phoneNumber, loginType: .Phone)
-                self?.storeUser(user: user)
+                Task {
+                    await self.storeUser(user: user)
+                }
             } else {
                 self?.onLoginError()
             }
@@ -115,23 +118,17 @@ extension VerifyOtpViewModel {
     private func onLoginError() {
         showAlertFor(title: "Invalid OTP", message: "Please, enter a valid OTP code.")
     }
-
-    private func storeUser(user: AppUser) {
-        userRepository.storeUser(user: user)
-            .sink { [weak self] completion in
-                guard let self else { return }
-                switch completion {
-                case .failure(let error):
-                    self.alert = .init(message: error.localizedDescription)
-                    self.showAlert = true
-                case .finished:
-                    self.preference.isVerifiedUser = true
-                }
-            } receiveValue: { [weak self] user in
-                guard let self else { return }
-                self.preference.user = user
-                self.onVerificationSuccess()
-            }.store(in: &cancelable)
+    
+    private func storeUser(user: AppUser) async {
+        do {
+            let user = try await userRepository.storeUser(user: user)
+            self.preference.isVerifiedUser = true
+            self.preference.user = user
+            self.onVerificationSuccess()
+        } catch {
+            self.alert = .init(message: error.localizedDescription)
+            self.showAlert = true
+        }
     }
 
     private func onVerificationSuccess() {

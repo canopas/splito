@@ -27,23 +27,23 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         super.init()
-
-        fetchGroupDetails()
+        
+        Task {
+            await fetchGroupDetails()
+        }
     }
 
     // MARK: - Data Loading
-    private func fetchGroupDetails() {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.group = group
-                self.calculateMemberPayableAmount(group: group)
-                self.fetchGroupMembers()
-            }.store(in: &cancelable)
+    private func fetchGroupDetails() async {
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            guard let group else { return }
+            self.group = group
+            self.calculateMemberPayableAmount(group: group)
+            await fetchGroupMembers()
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
     func calculateMemberPayableAmount(group: Groups) {
@@ -51,18 +51,16 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
         memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
     }
 
-    private func fetchGroupMembers() {
-        groupRepository.fetchMembersBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] members in
-                guard let self, let userId = preference.user?.id else { return }
-                self.members = members
-                self.members.removeAll(where: { $0.id == userId })
-                self.viewState = .initial
-            }.store(in: &cancelable)
+    private func fetchGroupMembers() async {
+        do {
+            let members = try await groupRepository.fetchMembersBy(groupId: groupId)
+            guard let userId = preference.user?.id else { return }
+            self.members = members
+            self.members.removeAll(where: { $0.id == userId })
+            self.viewState = .initial
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
     // MARK: - Helper Methods

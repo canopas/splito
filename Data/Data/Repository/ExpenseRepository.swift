@@ -14,11 +14,11 @@ public class ExpenseRepository: ObservableObject {
 
     private var cancelable = Set<AnyCancellable>()
 
-    public func addExpense(groupId: String, expense: Expense) -> AnyPublisher<Expense, ServiceError> {
+    public func addExpense(groupId: String, expense: Expense) async throws -> Expense {
         store.addExpense(groupId: groupId, expense: expense)
     }
 
-    public func updateExpense(groupId: String, expense: Expense) -> AnyPublisher<Void, ServiceError> {
+    public func updateExpense(groupId: String, expense: Expense) async throws {
         store.updateExpense(groupId: groupId, expense: expense)
     }
 
@@ -26,11 +26,11 @@ public class ExpenseRepository: ObservableObject {
         store.fetchExpensesBy(groupId: groupId, limit: limit, lastDocument: lastDocument)
     }
 
-    public func fetchExpenseBy(groupId: String, expenseId: String) -> AnyPublisher<Expense, ServiceError> {
+    public func fetchExpenseBy(groupId: String, expenseId: String) async throws -> Expense {
         store.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
     }
 
-    public func deleteExpense(groupId: String, expenseId: String) -> AnyPublisher<Void, ServiceError> {
+    public func deleteExpense(groupId: String, expenseId: String) async throws {
         store.deleteExpense(groupId: groupId, expenseId: expenseId)
     }
 

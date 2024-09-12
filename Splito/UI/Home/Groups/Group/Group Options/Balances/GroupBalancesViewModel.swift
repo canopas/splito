@@ -35,7 +35,9 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
         NotificationCenter.default.addObserver(self, selector: #selector(handleAddTransaction(notification:)), name: .addTransaction, object: nil)
 
-        fetchGroupMembers()
+        Task {
+            await fetchGroupMembers()
+        }
     }
 
     deinit {
@@ -152,7 +154,9 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
     @objc private func handleAddTransaction(notification: Notification) {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
-        fetchGroupDetails()
+        Task {
+            await fetchGroupDetails()
+        }
     }
 }
 

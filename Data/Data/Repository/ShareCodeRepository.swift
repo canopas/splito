@@ -19,7 +19,7 @@ public class ShareCodeRepository: ObservableObject {
         store.addSharedCode(sharedCode: sharedCode)
     }
 
-    public func fetchSharedCode(code: String) -> Future<SharedCode?, ServiceError> {
+    public func fetchSharedCode(code: String) async throws -> SharedCode? {
         return store.fetchSharedCode(code: code.encryptHexCode())
     }
 

@@ -30,24 +30,22 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
         self.onPayerSelection = onPayerSelection
         super.init()
 
-        self.fetchMembers()
+        Task {
+            await self.fetchMembers()
+        }
     }
 
     // MARK: - Data Loading
-    func fetchMembers() {
+    func fetchMembers() async {
         currentViewState = .loading
-        groupRepository.fetchMembersBy(groupId: groupId)
-            .sink { [weak self] completion in
-                switch completion {
-                case .finished:
-                    return
-                case .failure(let error):
-                    self?.currentViewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { users in
-                self.currentViewState = users.isEmpty ? .noMember : .hasMembers(users)
-            }.store(in: &cancelable)
+        
+        do {
+            let users = try await groupRepository.fetchMembersBy(groupId: groupId)
+            self.currentViewState = users.isEmpty ? .noMember : .hasMembers(users)
+        } catch {
+            currentViewState = .initial
+            showToastFor(error as! ServiceError)
+        }
     }
 
     // MARK: - User Actions

@@ -12,11 +12,11 @@ public class TransactionRepository: ObservableObject {
 
     @Inject private var store: TransactionStore
 
-    public func addTransaction(groupId: String, transaction: Transactions) -> AnyPublisher<Void, ServiceError> {
+    public func addTransaction(groupId: String, transaction: Transactions) async throws -> Transactions {
         store.addTransaction(groupId: groupId, transaction: transaction)
     }
 
-    public func updateTransaction(groupId: String, transaction: Transactions) -> AnyPublisher<Void, ServiceError> {
+    public func updateTransaction(groupId: String, transaction: Transactions) async throws {
         store.updateTransaction(groupId: groupId, transaction: transaction)
     }
 
@@ -24,7 +24,7 @@ public class TransactionRepository: ObservableObject {
         store.fetchTransactionsBy(groupId: groupId, limit: limit, lastDocument: lastDocument)
     }
 
-    public func fetchTransactionBy(groupId: String, transactionId: String) -> AnyPublisher<Transactions, ServiceError> {
+    public func fetchTransactionBy(groupId: String, transactionId: String) async throws -> Transactions {
         store.fetchTransactionsBy(groupId: groupId, transactionId: transactionId)
     }
 

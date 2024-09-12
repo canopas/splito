@@ -40,7 +40,9 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var selectedPayers: [String: Double] = [:] {
         didSet {
-            updatePayerName()
+            Task {
+                await updatePayerName()
+            }
         }
     }
 
@@ -57,112 +59,108 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         super.init()
 
         if let expenseId {
-            fetchExpenseDetails(expenseId: expenseId)
+            Task {
+                await fetchExpenseDetails(expenseId: expenseId)
+            }
         } else if let groupId {
-            fetchGroup(groupId: groupId)
-            fetchDefaultUser()
+            Task {
+                await fetchGroup(groupId: groupId)
+                await fetchDefaultUser()
+            }
         }
     }
 
     // MARK: - Data Loading
-    private func fetchGroup(groupId: String) {
+    private func fetchGroup(groupId: String) async {
         viewState = .loading
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServerError(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
+        
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            if let group {
                 self.selectedGroup = group
                 self.groupMembers = group.members
                 self.selectedMembers = group.members
-                self.fetchMemberProfileUrls()
-                self.viewState = .initial
-            }.store(in: &cancelable)
+            }
+            await self.fetchMemberProfileUrls()
+            self.viewState = .initial
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
-    private func fetchDefaultUser() {
+    private func fetchDefaultUser() async {
         guard let id = preference.user?.id else { return }
         viewState = .loading
 
-        userRepository.fetchUserBy(userID: id)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServerError(error)
-                }
-            } receiveValue: { [weak self] user in
-                guard let self, let user else {
-                    self?.viewState = .initial
-                    return
-                }
-                self.selectedPayers = [user.id: expenseAmount]
+        do {
+            let user = try await userRepository.fetchUserBy(userID: id)
+            guard let user else {
                 self.viewState = .initial
-            }.store(in: &cancelable)
+                return
+            }
+            self.selectedPayers = [user.id: expenseAmount]
+            self.viewState = .initial
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
-    private func fetchExpenseDetails(expenseId: String) {
+    private func fetchExpenseDetails(expenseId: String) async {
         guard let groupId else { return }
 
         viewState = .loading
-        expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServerError(error)
-                }
-            } receiveValue: { [weak self] expense in
-                guard let self else { return }
-                self.expense = expense
-                self.expenseName = expense.name
-                self.expenseAmount = expense.amount
-                self.expenseDate = expense.date.dateValue()
-                self.splitType = expense.splitType
+        
+        do {
+            let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
+            self.expense = expense
+            self.expenseName = expense.name
+            self.expenseAmount = expense.amount
+            self.expenseDate = expense.date.dateValue()
+            self.splitType = expense.splitType
 
-                if let splitData = expense.splitData {
-                    self.splitData = splitData
-                }
-                self.selectedMembers = expense.splitTo
-                self.fetchMemberProfileUrls()
+            if let splitData = expense.splitData {
+                self.splitData = splitData
+            }
+            self.selectedMembers = expense.splitTo
+            await self.fetchMemberProfileUrls()
 
-                self.fetchGroupData(for: groupId) { group in
-                    self.selectedGroup = group
-                    self.groupMembers = group?.members ?? []
-                    self.selectedPayers = expense.paidBy
-                    self.viewState = .initial
-                }
-            }.store(in: &cancelable)
+            await self.fetchGroupData(for: groupId) { group in
+                self.selectedGroup = group
+                self.groupMembers = group?.members ?? []
+                self.selectedPayers = expense.paidBy
+                self.viewState = .initial
+            }
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
-    private func fetchGroupData(for groupId: String, completion: @escaping (Groups?) -> Void) {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServerError(error)
-                }
-            } receiveValue: { group in
-                completion(group)
-            }.store(in: &cancelable)
+    private func fetchGroupData(for groupId: String, completion: @escaping (Groups?) -> Void) async {
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            completion(group)
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
-    private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
-        groupRepository.fetchMemberBy(userId: userId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServerError(error)
-                }
-            } receiveValue: { user in
-                guard let user else { return }
-                completion(user)
-            }.store(in: &cancelable)
+    func fetchUserData(for userId: String) async -> AppUser? {
+        do {
+            return try await groupRepository.fetchMemberBy(userId: userId)
+        } catch {
+            handleServiceError(error as! ServiceError)
+            return nil
+        }
     }
 
-    func fetchMemberProfileUrls() {
+    func fetchMemberProfileUrls() async {
         var profileUrls: [String] = []
         let dispatchGroup = DispatchGroup()
 
         for member in selectedMembers {
             dispatchGroup.enter()
-            fetchUserData(for: member) { user in
+            
+            if let user = await fetchUserData(for: member) {
                 profileUrls.append(user.imageUrl != nil ? user.imageUrl! : "")
                 dispatchGroup.leave()
             }
@@ -183,26 +181,29 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 // MARK: - User Actions
 extension AddExpenseViewModel {
 
-    private func updatePayerName() {
+    private func updatePayerName() async {
         let payerCount = selectedPayers.count
 
         if payerCount == 1 {
             if let user = preference.user, selectedPayers.keys.first == user.id {
                 payerName = "You"
             } else {
-                fetchUserData(for: selectedPayers.keys.first ?? "") { user in
+                if let user = await fetchUserData(for: selectedPayers.keys.first ?? "") {
                     self.payerName = user.nameWithLastInitial
                 }
             }
         } else {
             let payerIds = Array(selectedPayers.keys.prefix(2))
-            fetchUserData(for: payerIds[0]) { user1 in
-                self.fetchUserData(for: payerIds[1]) { user2 in
-                    if payerCount == 2 {
-                        self.payerName = "\(user1.nameWithLastInitial) and \(user2.nameWithLastInitial)"
-                    } else {
-                        let remainingCount = payerCount - 2
-                        self.payerName = "\(user1.nameWithLastInitial), \(user2.nameWithLastInitial) and +\(remainingCount)"
+            
+            Task {
+                if let user1 = await fetchUserData(for: payerIds[0]) {
+                    if let user2 = await fetchUserData(for: payerIds[1]) {
+                        if payerCount == 2 {
+                            self.payerName = "\(user1.nameWithLastInitial) and \(user2.nameWithLastInitial)"
+                        } else {
+                            let remainingCount = payerCount - 2
+                            self.payerName = "\(user1.nameWithLastInitial), \(user2.nameWithLastInitial) and +\(remainingCount)"
+                        }
                     }
                 }
             }
@@ -213,11 +214,11 @@ extension AddExpenseViewModel {
         showGroupSelection = expenseId == nil
     }
 
-    func handleGroupSelection(group: Groups) {
+    func handleGroupSelection(group: Groups) async {
         selectedGroup = group
         groupMembers = group.members
         selectedMembers = group.members
-        fetchMemberProfileUrls()
+        await fetchMemberProfileUrls()
     }
 
     func handlePayerBtnAction() {
@@ -250,14 +251,14 @@ extension AddExpenseViewModel {
         showSplitTypeSelection = true
     }
 
-    func handleSplitTypeSelection(members: [String], splitData: [String: Double], splitType: SplitType) {
+    func handleSplitTypeSelection(members: [String], splitData: [String: Double], splitType: SplitType) async {
         selectedMembers = splitType == .equally ? members : splitData.map({ $0.key })
         self.splitData = splitData
         self.splitType = splitType
-        fetchMemberProfileUrls()
+        await fetchMemberProfileUrls()
     }
 
-    func handleSaveAction(completion: @escaping () -> Void) {
+    func handleSaveAction(completion: @escaping () -> Void) async {
         if let user = preference.user, selectedPayers == [:] || selectedPayers[user.id] == 0 {
             selectedPayers = [user.id: expenseAmount]
         }
@@ -297,65 +298,60 @@ extension AddExpenseViewModel {
             newExpense.splitTo = (splitType == .equally) ? selectedMembers : splitData.map({ $0.key })
             newExpense.splitData = splitData
 
-            updateExpense(groupId: groupId, expense: newExpense, oldExpense: expense, completion: completion)
+            await updateExpense(groupId: groupId, expense: newExpense, oldExpense: expense, completion: completion)
         } else {
             let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
                                   date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: user.id,
                                   splitTo: (splitType == .equally) ? selectedMembers : splitData.map({ $0.key }),
                                   splitType: splitType, splitData: splitData)
 
-            addExpense(groupId: groupId, expense: expense, completion: completion)
+            await addExpense(groupId: groupId, expense: expense, completion: completion)
         }
     }
 
-    private func addExpense(groupId: String, expense: Expense, completion: @escaping () -> Void) {
+    private func addExpense(groupId: String, expense: Expense, completion: @escaping () -> Void) async {
         viewState = .loading
-        expenseRepository.addExpense(groupId: groupId, expense: expense)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServerError(error)
-                }
-            } receiveValue: { [weak self] newExpense in
-                guard let self else { return }
-                self.viewState = .initial
-                NotificationCenter.default.post(name: .addExpense, object: newExpense)
-                if !(self.selectedGroup?.hasExpenses ?? false) {
-                    self.selectedGroup?.hasExpenses = true
-                }
-                self.updateGroupMemberBalance(expense: expense, updateType: .Add)
-                completion()
-            }.store(in: &cancelable)
+        
+        do {
+            let newExpense = try await expenseRepository.addExpense(groupId: groupId, expense: expense)
+            self.viewState = .initial
+            NotificationCenter.default.post(name: .addExpense, object: newExpense)
+            if !(self.selectedGroup?.hasExpenses ?? false) {
+                self.selectedGroup?.hasExpenses = true
+            }
+            await updateGroupMemberBalance(expense: expense, updateType: .Add)
+            completion()
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
-    private func updateExpense(groupId: String, expense: Expense, oldExpense: Expense, completion: @escaping () -> Void) {
+    private func updateExpense(groupId: String, expense: Expense, oldExpense: Expense, completion: @escaping () -> Void) async {
         viewState = .loading
-        expenseRepository.updateExpense(groupId: groupId, expense: expense)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServerError(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.viewState = .initial
-                NotificationCenter.default.post(name: .updateExpense, object: expense)
-                self?.updateGroupMemberBalance(expense: expense, updateType: .Update(oldExpense: oldExpense))
-                completion()
-            }.store(in: &cancelable)
+        
+        do {
+            try await expenseRepository.updateExpense(groupId: groupId, expense: expense)
+            self.viewState = .initial
+            NotificationCenter.default.post(name: .updateExpense, object: expense)
+            await updateGroupMemberBalance(expense: expense, updateType: .Update(oldExpense: oldExpense))
+            completion()
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
-    private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) {
+    private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {
         guard var group = selectedGroup else { return }
-
+        
         let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
         group.balances = memberBalance
-
-        groupRepository.updateGroup(group: group)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServerError(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.viewState = .initial
-            }.store(in: &cancelable)
+        
+        do {
+            try await groupRepository.updateGroup(group: group)
+            self.viewState = .initial
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 }
 

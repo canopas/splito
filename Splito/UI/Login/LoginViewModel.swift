@@ -93,7 +93,9 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
                     self.showGoogleLoading = false
                     self.showAppleLoading = false
                     let user = AppUser(id: result.user.uid, firstName: userData.0, lastName: userData.1, emailId: userData.2, phoneNumber: nil, loginType: loginType)
-                    await self.storeUser(user: user)
+                    Task {
+                        await self.storeUser(user: user)
+                    }
                     LogD("LoginViewModel :: Logged in User: \(result.user)")
                 } else {
                     self.alert = .init(message: "Contact Support")
