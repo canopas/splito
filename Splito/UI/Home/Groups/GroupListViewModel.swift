@@ -26,7 +26,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var selectedGroup: Groups?
 
     @Published private var groups: [Groups] = []
-    @Published var combinedGroups: [GroupInformation] = []
+    @Published private(set) var combinedGroups: [GroupInformation] = []
     @Published private(set) var totalOweAmount: Double = 0.0
 
     @Published var showActionSheet = false
@@ -79,13 +79,13 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         guard let userId = preference.user?.id else { return }
 
         do {
-            // Fetch the initial group data
             let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT)
 
-            // Update the state based on the fetched data
-            self.groups = result.data
-            self.lastDocument = result.lastDocument
-            self.hasMoreGroups = !(result.data.count < GROUPS_LIMIT)
+            DispatchQueue.main.async {
+                self.groups = result.data
+                self.lastDocument = result.lastDocument
+                self.hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
+            }
 
             // Fetch group information for each group and maintain original index
             var indexedGroups: [(index: Int, groupInfo: GroupInformation)] = []
@@ -98,15 +98,16 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             // Sort by index to preserve the original order
             let sortedGroups = indexedGroups.sorted(by: { $0.index < $1.index }).map { $0.groupInfo }
 
-            // Update the UI with the new state
-            self.currentViewState = .initial
-            self.combinedGroups = sortedGroups
-            self.groupListState = sortedGroups.isEmpty ? .noGroup : .hasGroup
-
+            DispatchQueue.main.async {
+                self.currentViewState = .initial
+                self.combinedGroups = sortedGroups
+                self.groupListState = sortedGroups.isEmpty ? .noGroup : .hasGroup
+            }
         } catch {
-            // Handle errors and update the view state
-            self.currentViewState = .initial
-            self.showToastFor(error as! ServiceError)
+            DispatchQueue.main.async {
+                self.currentViewState = .initial
+                self.showToastFor(error as! ServiceError)
+            }
         }
     }
 
@@ -114,13 +115,13 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         guard hasMoreGroups, let userId = preference.user?.id else { return }
 
         do {
-            // Fetch more groups from the repository
             let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT, lastDocument: lastDocument)
 
-            // Append the newly fetched groups to the existing groups
-            self.groups.append(contentsOf: result.data)
-            self.lastDocument = result.lastDocument
-            self.hasMoreGroups = !(result.data.count < GROUPS_LIMIT)
+            DispatchQueue.main.async {
+                self.groups.append(contentsOf: result.data)
+                self.lastDocument = result.lastDocument
+                self.hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
+            }
 
             // Fetch detailed group information for each group and maintain the original index
             var indexedGroups: [(index: Int, groupInfo: GroupInformation)] = []
@@ -133,15 +134,16 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             // Sort the group information by the original index
             let sortedGroups = indexedGroups.sorted(by: { $0.index < $1.index }).map { $0.groupInfo }
 
-            // Update the UI state
-            self.currentViewState = .initial
-            self.combinedGroups.append(contentsOf: sortedGroups)
-            self.groupListState = self.combinedGroups.isEmpty ? .noGroup : .hasGroup
-
+            DispatchQueue.main.async {
+                self.currentViewState = .initial
+                self.combinedGroups.append(contentsOf: sortedGroups)
+                self.groupListState = self.combinedGroups.isEmpty ? .noGroup : .hasGroup
+            }
         } catch {
-            // Handle any errors
-            self.currentViewState = .initial
-            self.showToastFor(error as! ServiceError)
+            DispatchQueue.main.async {
+                self.currentViewState = .initial
+                self.showToastFor(error as! ServiceError)
+            }
         }
     }
 
@@ -179,20 +181,21 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func fetchUserData(for userId: String?, completion: ((AppUser) -> Void)? = nil) async {
-        guard let userId else { return }
+    private func fetchUserData(for userId: String?) async -> AppUser? {
+        guard let userId else { return nil }
 
         if let existingUser = groupMembers.first(where: { $0.id == userId }) {
-            completion?(existingUser) // Return the available user from groupMembers
+            return existingUser // Return the available user from groupMembers
         } else {
             do {
                 let user = try await userRepository.fetchUserBy(userID: userId)
                 if let user {
                     self.groupMembers.append(user)
-                    completion?(user)
                 }
+                return user
             } catch {
                 self.showToastFor(error as! ServiceError)
+                return nil
             }
         }
     }
@@ -362,7 +365,7 @@ extension GroupListViewModel {
                 dispatchGroup.enter()
 
                 Task {
-                    await fetchUserData(for: memberId) { user in
+                    if let user = await fetchUserData(for: memberId) {
                         self.groupMembers.append(user)
                         dispatchGroup.leave()
                     }
