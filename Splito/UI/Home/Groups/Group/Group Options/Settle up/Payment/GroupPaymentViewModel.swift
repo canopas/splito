@@ -115,6 +115,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             var newTransaction = transaction
             newTransaction.amount = amount
             newTransaction.date = .init(date: paymentDate)
+
             await updateTransaction(transaction: newTransaction, oldTransaction: transaction)
         } else {
             let transaction = Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
@@ -161,6 +162,11 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         } catch {
             handleServiceError(error as! ServiceError)
         }
+    }
+
+    // MARK: - Error Handling
+    override func handleServiceError(_ error: ServiceError) {
+        viewState = .initial
     }
 }
 

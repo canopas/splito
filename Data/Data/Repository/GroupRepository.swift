@@ -41,15 +41,23 @@ public class GroupRepository: ObservableObject {
         try await updateGroup(group: newGroup)
     }
 
-    public func updateGroupWithImage(imageData: Data?, newImageUrl: String?, group: Groups) async throws {
+    public func updateGroupWithImage(imageData: Data?, newImageUrl: String?, group: Groups) async throws -> Groups {
         var newGroup = group
 
+        // Check if the group has an existing image URL and the new image URL is nil (deletion case)
         if let currentUrl = group.imageUrl, newImageUrl == nil {
             newGroup.imageUrl = newImageUrl
             try await storageManager.deleteImage(imageUrl: currentUrl)
             try await self.performImageAction(imageData: imageData, group: newGroup)
+            return newGroup
+        } else if let newImageUrl = newImageUrl {
+            // If there's a new image URL, update the group with the new image URL
+            newGroup.imageUrl = newImageUrl
+            try await self.performImageAction(imageData: imageData, group: newGroup)
+            return newGroup
         } else {
-            return try await self.performImageAction(imageData: imageData, group: newGroup)
+            // If no changes are made to the image URL, return the group as it is
+            return newGroup
         }
     }
 

@@ -125,7 +125,6 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             let updatedGroup = try await groupRepository.updateGroupWithImage(imageData: imageData, newImageUrl: profileImageUrl, group: newGroup)
             showLoader = false
             NotificationCenter.default.post(name: .updateGroup, object: updatedGroup)
-            showLoader = false
         } catch {
             currentState = .initial
             showLoader = false

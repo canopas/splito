@@ -54,7 +54,7 @@ open class BaseViewModel {
 
     /// Handle error thrown by firestore query
     public func handleServiceError(_ error: ServiceError) {
-
+        showToastFor(error)
     }
 
     /// Use this method to show error toast, pass an error as argument and it will show toast with title **Error** and message will be error's descriptionText.

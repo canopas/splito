@@ -170,9 +170,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Error Handling
-    private func handleServerError(_ error: ServiceError) {
+    override func handleServiceError(_ error: ServiceError) {
         viewState = .initial
-        showToastFor(error)
     }
 }
 
