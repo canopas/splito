@@ -52,9 +52,8 @@ struct SelectGroupView: View {
                 .scrollBounceBehavior(.basedOnSize)
 
                 PrimaryButton(text: "Done", isEnabled: viewModel.selectedGroup != nil, onClick: {
-                    viewModel.handleDoneAction {
-                        dismiss()
-                    }
+                    viewModel.handleDoneAction()
+                    dismiss()
                 })
                 .padding([.bottom, .horizontal], 16)
                 .padding(.top, 8)

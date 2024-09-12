@@ -163,7 +163,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func handleDoneAction(completion: @escaping () -> Void) {
+    func handleDoneAction() {
         if selectedTab == .equally && selectedMembers.count == 0 {
             showAlertFor(title: "Whoops!", message: "You must select at least one person to split with.")
             return
@@ -191,7 +191,6 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
 
         handleSplitTypeSelection(selectedMembers, (selectedTab == .fixedAmount) ? fixedAmounts.filter({ $0.value != 0 }) : (selectedTab == .percentage) ? percentages.filter({ $0.value != 0 }) : shares.filter({ $0.value != 0 }), selectedTab)
-        completion()
     }
 }
 

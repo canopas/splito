@@ -45,8 +45,7 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
         selectedGroup = group
     }
 
-    func handleDoneAction(completion: @escaping () -> Void) {
-        completion()
+    func handleDoneAction() {
         if let selectedGroup {
             onGroupSelection(selectedGroup)
         }

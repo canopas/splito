@@ -41,9 +41,8 @@ struct CreateGroupView: View {
 
                 PrimaryButton(text: viewModel.group != nil ? "Save" : "Create", isEnabled: viewModel.groupName.count >= 3, showLoader: viewModel.showLoader, onClick: {
                     Task {
-                        await viewModel.handleDoneAction {
-                            dismiss()
-                        }
+                        await viewModel.handleDoneAction()
+                        dismiss()
                     }
                 })
                 .padding(.bottom, 20)
