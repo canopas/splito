@@ -22,7 +22,7 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
         self.selectedGroup = selectedGroup
         self.onGroupSelection = onGroupSelection
         super.init()
-        
+
         Task {
             await self.fetchGroups()
         }

@@ -67,8 +67,13 @@ struct AddExpenseView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showGroupSelection) {
             NavigationStack {
-                SelectGroupView(viewModel: SelectGroupViewModel(selectedGroup: viewModel.selectedGroup,
-                                                                onGroupSelection: viewModel.handleGroupSelection(group:)))
+                SelectGroupView(viewModel:
+                                    SelectGroupViewModel(selectedGroup: viewModel.selectedGroup,
+                                                         onGroupSelection: { group in
+                    Task {
+                        await viewModel.handleGroupSelection(group: group)
+                    }
+                }))
             }
         }
         .sheet(isPresented: $viewModel.showPayerSelection) {
@@ -88,7 +93,11 @@ struct AddExpenseView: View {
                             splitData: viewModel.splitData,
                             members: viewModel.groupMembers,
                             selectedMembers: viewModel.selectedMembers,
-                            handleSplitTypeSelection: viewModel.handleSplitTypeSelection(members:splitData:splitType:)
+                            handleSplitTypeSelection: { members, splitData, splitType in
+                                Task {
+                                    await viewModel.handleSplitTypeSelection(members: members, splitData: splitData, splitType: splitType)
+                                }
+                            }
                         )
                 )
             }
@@ -102,8 +111,10 @@ struct AddExpenseView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 CheckmarkButton(onClick: {
-                    viewModel.handleSaveAction {
-                        dismiss()
+                    Task {
+                        await viewModel.handleSaveAction {
+                            dismiss()
+                        }
                     }
                 })
             }

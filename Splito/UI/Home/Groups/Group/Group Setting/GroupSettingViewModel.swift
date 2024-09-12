@@ -201,7 +201,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         currentViewState = .loading
         do {
             try await groupRepository.removeMemberFrom(group: group, memberId: memberId)
-            
+
             self.currentViewState = .initial
             if userId == memberId {
                 NotificationCenter.default.post(name: .deleteGroup, object: group)

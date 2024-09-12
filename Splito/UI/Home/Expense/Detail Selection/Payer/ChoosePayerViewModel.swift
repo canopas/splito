@@ -38,7 +38,7 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     func fetchMembers() async {
         currentViewState = .loading
-        
+
         do {
             let users = try await groupRepository.fetchMembersBy(groupId: groupId)
             self.currentViewState = users.isEmpty ? .noMember : .hasMembers(users)

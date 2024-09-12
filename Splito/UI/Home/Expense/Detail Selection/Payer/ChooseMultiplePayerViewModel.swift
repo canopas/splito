@@ -41,7 +41,7 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
             membersAmount[membersAmount.keys.first ?? ""] = expenseAmount
             totalAmount = expenseAmount
         }
-        
+
         Task {
             await self.fetchMembers()
         }

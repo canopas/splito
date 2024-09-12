@@ -23,23 +23,24 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     init(groupId: String) {
         self.groupId = groupId
         super.init()
-        fetchGroup()
+
+        Task {
+            await fetchGroup()
+        }
     }
 
     // MARK: - Data Loading
-    private func fetchGroup() {
+    private func fetchGroup() async {
         viewState = .loading
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self else { return }
-                self.group = group
-                self.filterDataForSelectedTab()
-                self.viewState = .initial
-            }.store(in: &cancelable)
+
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            self.group = group
+            self.filterDataForSelectedTab()
+            self.viewState = .initial
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
     // MARK: - User Actions

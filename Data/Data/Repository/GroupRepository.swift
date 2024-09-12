@@ -51,6 +51,7 @@ public class GroupRepository: ObservableObject {
             return try await self.performImageAction(imageData: imageData, group: newGroup)
         }
     }
+
     private func performImageAction(imageData: Data?, group: Groups) async throws {
         if let imageData {
             try await uploadImage(imageData: imageData, group: group)

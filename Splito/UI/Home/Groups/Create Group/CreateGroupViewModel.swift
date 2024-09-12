@@ -82,15 +82,15 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         showImagePickerOptions = true
     }
 
-    func handleDoneAction(completion: @escaping () -> Void) {
+    func handleDoneAction(completion: @escaping () -> Void) async {
         if let group {
-            updateGroup(group: group, completion: completion)
+            await updateGroup(group: group, completion: completion)
         } else {
-            createGroup(completion: completion)
+            await createGroup(completion: completion)
         }
     }
 
-    private func createGroup(completion: @escaping () -> Void) {
+    private func createGroup(completion: @escaping () -> Void) async {
         showLoader = true
 
         let userId = preference.user?.id ?? ""
@@ -101,21 +101,19 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
 
-        groupRepository.createGroup(group: group, imageData: imageData)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.currentState = .initial
-                    self?.showLoader = false
-                    self?.showAlertFor(error)
-                }
-            } receiveValue: { newGroup in
-                self.showLoader = false
-                NotificationCenter.default.post(name: .addGroup, object: newGroup)
-                completion()
-            }.store(in: &cancelable)
+        do {
+            let newGroup = try await groupRepository.createGroup(group: group, imageData: imageData)
+            showLoader = false
+            NotificationCenter.default.post(name: .addGroup, object: newGroup)
+            completion()
+        } catch {
+            currentState = .initial
+            showLoader = false
+            showAlertFor(error as! ServiceError)
+        }
     }
 
-    private func updateGroup(group: Groups, completion: @escaping () -> Void) {
+    private func updateGroup(group: Groups, completion: @escaping () -> Void) async {
         self.showLoader = true
 
         var newGroup = group
@@ -124,18 +122,16 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
 
-        groupRepository.updateGroupWithImage(imageData: imageData, newImageUrl: profileImageUrl, group: newGroup)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.currentState = .initial
-                    self?.showLoader = false
-                    self?.showAlertFor(error)
-                }
-            } receiveValue: { updatedGroup in
-                self.showLoader = false
-                NotificationCenter.default.post(name: .updateGroup, object: updatedGroup)
-                completion()
-            }.store(in: &cancelable)
+        do {
+            let updatedGroup = try await groupRepository.updateGroupWithImage(imageData: imageData, newImageUrl: profileImageUrl, group: newGroup)
+            showLoader = false
+            NotificationCenter.default.post(name: .updateGroup, object: updatedGroup)
+            completion()
+        } catch {
+            currentState = .initial
+            showLoader = false
+            showAlertFor(error as! ServiceError)
+        }
     }
 }
 

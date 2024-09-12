@@ -43,7 +43,9 @@ struct GroupListWithDetailView: View {
                                 if group.group.id == viewModel.filteredGroups.last?.group.id && viewModel.hasMoreGroups {
                                     ProgressView()
                                         .onAppear {
-                                            viewModel.fetchMoreGroups()
+                                            Task {
+                                                await viewModel.fetchMoreGroups()
+                                            }
                                         }
                                 }
                             }
@@ -68,7 +70,9 @@ struct GroupListWithDetailView: View {
                     }
                 }
                 .refreshable {
-                    viewModel.fetchGroups()
+                    Task {
+                        await viewModel.fetchGroups()
+                    }
                 }
             }
         }

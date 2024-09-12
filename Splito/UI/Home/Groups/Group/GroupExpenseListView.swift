@@ -84,7 +84,9 @@ struct GroupExpenseListView: View {
                                                 ProgressView()
                                                     .frame(maxWidth: .infinity, alignment: .center)
                                                     .onAppear {
-                                                        viewModel.fetchMoreExpenses()
+                                                        Task {
+                                                            await viewModel.fetchMoreExpenses()
+                                                        }
                                                     }
                                                     .padding(.vertical, 8)
                                             }
@@ -109,7 +111,9 @@ struct GroupExpenseListView: View {
                         }
                     }
                     .refreshable {
-                        viewModel.fetchExpenses()
+                        Task {
+                            await viewModel.fetchExpenses()
+                        }
                     }
                 }
             }

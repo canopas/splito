@@ -27,7 +27,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         super.init()
-        
+
         Task {
             await fetchGroupDetails()
         }

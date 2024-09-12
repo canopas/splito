@@ -46,8 +46,10 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateTransaction(notification:)), name: .updateTransaction, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleDeleteTransaction(notification:)), name: .deleteTransaction, object: nil)
 
-        fetchGroup()
-        fetchTransactions()
+        Task {
+            await fetchGroup()
+            await fetchTransactions()
+        }
     }
 
     deinit {
@@ -55,59 +57,53 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Data Loading
-    private func fetchGroup() {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.group = group
-            }.store(in: &cancelable)
+    private func fetchGroup() async {
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            guard let group else { return }
+            self.group = group
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
-    func fetchTransactions() {
+    func fetchTransactions() async {
         transactionsWithUser = []
-        transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] result in
-                guard let self else { return }
-                self.lastDocument = result.lastDocument
-                self.transactions = result.transactions.uniqued()
 
-                self.combinedTransactionsWithUser(transactions: result.transactions)
-                self.hasMoreTransactions = !(result.transactions.count < self.TRANSACTIONS_LIMIT)
-            }.store(in: &cancelable)
+        do {
+            let result = try await transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT)
+            lastDocument = result.lastDocument
+            transactions = result.transactions.uniqued()
+
+            await combinedTransactionsWithUser(transactions: result.transactions)
+            hasMoreTransactions = !(result.transactions.count < self.TRANSACTIONS_LIMIT)
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
-    func fetchMoreTransactions() {
-        transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT, lastDocument: lastDocument)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] result in
-                guard let self else { return }
-                self.lastDocument = result.lastDocument
-                self.transactions.append(contentsOf: result.transactions.uniqued())
+    func fetchMoreTransactions() async {
+        do {
+            let result = try await transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT, lastDocument: lastDocument)
+            lastDocument = result.lastDocument
+            transactions.append(contentsOf: result.transactions.uniqued())
 
-                self.combinedTransactionsWithUser(transactions: result.transactions.uniqued())
-                self.hasMoreTransactions = !(result.transactions.count < self.TRANSACTIONS_LIMIT)
-            }.store(in: &cancelable)
+            await combinedTransactionsWithUser(transactions: result.transactions.uniqued())
+            hasMoreTransactions = !(result.transactions.count < TRANSACTIONS_LIMIT)
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
-    private func combinedTransactionsWithUser(transactions: [Transactions]) {
+    private func combinedTransactionsWithUser(transactions: [Transactions]) async {
         let queue = DispatchGroup()
         var combinedData: [TransactionWithUser] = []
 
         for transaction in transactions {
             queue.enter()
-            self.fetchUserData(for: transaction.payerId) { payer in
-                self.fetchUserData(for: transaction.receiverId) { receiver in
+
+            if let payer = await fetchUserData(for: transaction.payerId) {
+                if let receiver = await fetchUserData(for: transaction.receiverId) {
                     combinedData.append(TransactionWithUser(transaction: transaction,
                                                             payer: payer, receiver: receiver))
                     queue.leave()
@@ -123,20 +119,20 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
+    private func fetchUserData(for userId: String) async -> AppUser? {
         if let existingUser = groupMembers.first(where: { $0.id == userId }) {
-            completion(existingUser) // Return the available user from groupMembers
+            return existingUser // Return the available user from groupMembers
         } else {
-            groupRepository.fetchMemberBy(userId: userId)
-                .sink { [weak self] completion in
-                    if case .failure(let error) = completion {
-                        self?.handleServiceError(error)
-                    }
-                } receiveValue: { user in
-                    guard let user else { return }
-                    self.groupMembers.append(user)
-                    completion(user)
-                }.store(in: &cancelable)
+            do {
+                let user = try await groupRepository.fetchMemberBy(userId: userId)
+                if let user {
+                    groupMembers.append(user)
+                }
+                return user
+            } catch {
+                handleServiceError(error as! ServiceError)
+                return nil
+            }
         }
     }
 
@@ -146,36 +142,37 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Delete Transaction",
                       message: "Are you sure you want to delete this transaction?",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: { self.deleteTransaction(transaction: transaction) },
+                      positiveBtnAction: {
+            Task {
+                await self.deleteTransaction(transaction: transaction)
+            }
+        },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func deleteTransaction(transaction: Transactions) {
+    private func deleteTransaction(transaction: Transactions) async {
         guard let transactionId = transaction.id else { return }
-        transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
-            }.store(in: &cancelable)
+
+        do {
+            try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
+            await updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
-    private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) {
+    private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) async {
         guard var group else { return }
         let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
         group.balances = memberBalance
 
-        groupRepository.updateGroup(group: group)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { _ in
-                NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
-            }.store(in: &cancelable)
+        do {
+            try await groupRepository.updateGroup(group: group)
+            NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
+        } catch {
+            handleServiceError(error as! ServiceError)
+        }
     }
 
     func handleTransactionItemTap(_ transactionId: String?) {

@@ -77,8 +77,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleTransaction(notification:)), name: .updateTransaction, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleTransaction(notification:)), name: .deleteTransaction, object: nil)
 
-        fetchGroup()
-        fetchExpenses()
+        Task {
+            await fetchGroup()
+            await fetchExpenses()
+        }
     }
 
     deinit {
@@ -86,76 +88,69 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Data Loading
-    private func fetchGroup() {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.groupState = .noMember
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                let groupTotalSummary = getTotalSummaryForCurrentMonth(group: group, userId: preference.user?.id)
-                self.currentMonthSpending = groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }
+    private func fetchGroup() async {
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            guard let group else { return }
+            let groupTotalSummary = getTotalSummaryForCurrentMonth(group: group, userId: preference.user?.id)
+            self.currentMonthSpending = groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }
 
-                if self.group?.members != group.members {
-                    for member in group.members where member != self.preference.user?.id {
-                        self.fetchUserData(for: member) { memberData in
-                            self.groupUserData.append(memberData)
-                        }
+            if self.group?.members != group.members {
+                for member in group.members where member != self.preference.user?.id {
+                    if let memberData = await self.fetchUserData(for: member) {
+                        self.groupUserData.append(memberData)
                     }
                 }
+            }
 
-                NotificationCenter.default.post(name: .updateGroup, object: group)
-                self.group = group
-                self.combineMemberWithExpense(expenses: self.expenses)
-            }.store(in: &cancelable)
+            NotificationCenter.default.post(name: .updateGroup, object: group)
+            self.group = group
+            await combineMemberWithExpense(expenses: self.expenses)
+        } catch {
+            groupState = .noMember
+            showToastFor(error as! ServiceError)
+        }
     }
 
-    func fetchExpenses() {
+    func fetchExpenses() async {
         expensesWithUser = []
-        expenseRepository.fetchExpensesBy(groupId: groupId, limit: EXPENSES_LIMIT)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.groupState = .noMember
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] result in
-                guard let self else { return }
-                self.lastDocument = result.lastDocument
-                self.expenses = result.expenses.uniqued()
 
-                self.combineMemberWithExpense(expenses: result.expenses.uniqued())
-                self.hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
-            }.store(in: &cancelable)
+        do {
+            let result = try await expenseRepository.fetchExpensesBy(groupId: groupId, limit: EXPENSES_LIMIT)
+            lastDocument = result.lastDocument
+            expenses = result.expenses.uniqued()
+
+            await combineMemberWithExpense(expenses: result.expenses.uniqued())
+            hasMoreExpenses = !(result.expenses.count < EXPENSES_LIMIT)
+        } catch {
+            groupState = .noMember
+            showToastFor(error as! ServiceError)
+        }
     }
 
-    func fetchMoreExpenses() {
+    func fetchMoreExpenses() async {
         guard hasMoreExpenses else { return }
 
-        expenseRepository.fetchExpensesBy(groupId: groupId, limit: EXPENSES_LIMIT, lastDocument: lastDocument)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.groupState = .noMember
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] result in
-                guard let self else { return }
-                self.lastDocument = result.lastDocument
-                self.expenses.append(contentsOf: result.expenses.uniqued())
+        do {
+            let result = try await expenseRepository.fetchExpensesBy(groupId: groupId, limit: EXPENSES_LIMIT, lastDocument: lastDocument)
+            lastDocument = result.lastDocument
+            expenses.append(contentsOf: result.expenses.uniqued())
 
-                self.combineMemberWithExpense(expenses: result.expenses.uniqued())
-                self.hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
-            }.store(in: &cancelable)
+            await combineMemberWithExpense(expenses: result.expenses.uniqued())
+            hasMoreExpenses = !(result.expenses.count < EXPENSES_LIMIT)
+        } catch {
+            groupState = .noMember
+            showToastFor(error as! ServiceError)
+        }
     }
 
-    private func combineMemberWithExpense(expenses: [Expense]) {
+    private func combineMemberWithExpense(expenses: [Expense]) async {
         let queue = DispatchGroup()
         var combinedData: [ExpenseWithUser] = []
 
         for expense in expenses.uniqued() {
             queue.enter()
-            fetchUserData(for: expense.paidBy.keys.first ?? "") { user in
+            if let user = await fetchUserData(for: expense.paidBy.keys.first ?? "") {
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
                 queue.leave()
             }
@@ -169,20 +164,20 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
+    private func fetchUserData(for userId: String) async -> AppUser? {
         if let existingUser = groupUserData.first(where: { $0.id == userId }) {
-            return completion(existingUser) // Return the available user from groupUserData
+            return existingUser // Return the available user from groupUserData
         } else {
-            groupRepository.fetchMemberBy(userId: userId)
-                .sink { [weak self] completion in
-                    if case .failure(let error) = completion {
-                        self?.showToastFor(error)
-                    }
-                } receiveValue: { user in
-                    guard let user else { return }
+            do {
+                let user = try await groupRepository.fetchMemberBy(userId: userId)
+                if let user {
                     self.groupUserData.append(user)
-                    completion(user)
-                }.store(in: &cancelable)
+                }
+                return user
+            } catch {
+                showToastFor(error as! ServiceError)
+                return nil
+            }
         }
     }
 
@@ -290,63 +285,61 @@ extension GroupHomeViewModel {
         alert = .init(title: "Delete Expense",
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: { self.deleteExpense(expense: expense) },
+                      positiveBtnAction: {
+            Task {
+                await self.deleteExpense(expense: expense)
+            }
+        },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func deleteExpense(expense: Expense) {
-        expenseRepository.deleteExpense(groupId: groupId, expenseId: expense.id ?? "")
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.updateGroupMemberBalance(expense: expense, updateType: .Delete)
-            }.store(in: &cancelable)
+    private func deleteExpense(expense: Expense) async {
+        do {
+            try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expense.id ?? "")
+            await updateGroupMemberBalance(expense: expense, updateType: .Delete)
+        } catch {
+            showToastFor(error as! ServiceError)
+        }
     }
 
-    private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) {
+    private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {
         guard var group else { return }
         let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
         group.balances = memberBalance
 
-        groupRepository.updateGroup(group: group)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { _ in
-                NotificationCenter.default.post(name: .deleteExpense, object: expense)
-            }.store(in: &cancelable)
+        do {
+            try await groupRepository.updateGroup(group: group)
+            NotificationCenter.default.post(name: .deleteExpense, object: expense)
+        } catch {
+            showToastFor(error as! ServiceError)
+        }
     }
 
     func openAddExpenseSheet() {
         showAddExpenseSheet = true
     }
 
-    @objc private func handleAddExpense(notification: Notification) {
+    @objc private func handleAddExpense(notification: Notification) async {
         guard let newExpense = notification.object as? Expense else { return }
 
         expenses.append(newExpense)
-        fetchUserData(for: newExpense.paidBy.keys.first ?? "") { [weak self] user in
+        if let user = await fetchUserData(for: newExpense.paidBy.keys.first ?? "") {
             let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
             withAnimation {
-                self?.expensesWithUser.append(newExpenseWithUser)
+                self.expensesWithUser.append(newExpenseWithUser)
             }
         }
-        fetchGroup()
+        await fetchGroup()
     }
 
-    @objc private func handleUpdateExpense(notification: Notification) {
+    @objc private func handleUpdateExpense(notification: Notification) async {
         guard let updatedExpense = notification.object as? Expense else { return }
 
         if let index = expenses.firstIndex(where: { $0.id == updatedExpense.id }) {
             self.expenses[index] = updatedExpense
         }
-        fetchUserData(for: updatedExpense.paidBy.keys.first ?? "") { [weak self] user in
-            guard let self = self else { return }
-
+        if let user = await fetchUserData(for: updatedExpense.paidBy.keys.first ?? "") {
             if let index = self.expensesWithUser.firstIndex(where: { $0.expense.id == updatedExpense.id }) {
                 let updatedExpenseWithUser = ExpenseWithUser(expense: updatedExpense, user: user)
                 withAnimation {
@@ -354,10 +347,10 @@ extension GroupHomeViewModel {
                 }
             }
         }
-        fetchGroup()
+        await fetchGroup()
     }
 
-    @objc private func handleDeleteExpense(notification: Notification) {
+    @objc private func handleDeleteExpense(notification: Notification) async {
         guard let deletedExpense = notification.object as? Expense else { return }
 
         expenses.removeAll { $0.id == deletedExpense.id }
@@ -367,17 +360,17 @@ extension GroupHomeViewModel {
                 showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully."))
             }
         }
-        fetchGroup()
+        await fetchGroup()
     }
 
-    @objc private func handleTransaction(notification: Notification) {
-        fetchGroup()
+    @objc private func handleTransaction(notification: Notification) async {
+        await fetchGroup()
     }
 
-    @objc private func handleAddTransaction(notification: Notification) {
+    @objc private func handleAddTransaction(notification: Notification) async {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
         showSettleUpSheet = false
-        fetchGroup()
+        await fetchGroup()
     }
 }
 

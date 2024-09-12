@@ -60,8 +60,10 @@ struct GroupPaymentView: View {
                     .scrollBounceBehavior(.basedOnSize)
 
                     PrimaryButton(text: "Done", showLoader: viewModel.showLoader, onClick: {
-                        viewModel.handleSaveAction {
-                            dismiss()
+                        Task {
+                            await viewModel.handleSaveAction {
+                                dismiss()
+                            }
                         }
                     })
                     .padding([.horizontal, .bottom], 16)

@@ -33,7 +33,11 @@ struct UserProfileView: View {
                         !(viewModel.userLoginType == .Google)
 
                         PrimaryButton(text: "Save", isEnabled: isEnable,
-                                      showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUserProfile)
+                                      showLoader: viewModel.isSaveInProgress, onClick: {
+                            Task {
+                                await viewModel.updateUserProfile()
+                            }
+                        })
                     }
 
                     PrimaryButton(text: "Delete Account", textColor: alertColor,
@@ -65,9 +69,13 @@ struct UserProfileView: View {
                 if viewModel.isSaveInProgress {
                     ImageLoaderView(tintColor: primaryColor)
                 } else {
-                    CheckmarkButton(iconSize: (24, 32), padding: (.leading, 16), onClick: viewModel.updateUserProfile)
-                        .disabled(!viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count < 3)
-                        .opacity((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3) ? 1 : 0.6)
+                    CheckmarkButton(iconSize: (24, 32), padding: (.leading, 16), onClick: {
+                        Task {
+                            await viewModel.updateUserProfile()
+                        }
+                    })
+                    .disabled(!viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count < 3)
+                    .opacity((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3) ? 1 : 0.6)
                 }
             })
         }

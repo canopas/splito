@@ -77,7 +77,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
 
         for memberId in members {
             queue.enter()
-            
+
             let user = await fetchUserData(for: memberId)
             guard let user else {
                 self.viewState = .initial
@@ -95,7 +95,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             self.viewState = .initial
         }
     }
-    
+
     func fetchUserData(for memberId: String) async -> AppUser? {
         do {
             return try await userRepository.fetchUserBy(userID: memberId)
@@ -105,7 +105,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             return nil
         }
     }
-    
+
     func calculateFixedAmountForMember(memberId: String) {
         switch selectedTab {
         case .equally:

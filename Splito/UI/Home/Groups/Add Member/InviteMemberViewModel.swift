@@ -26,47 +26,43 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
         super.init()
 
-        fetchGroup()
-        generateInviteCode()
+        Task {
+            await fetchGroup()
+            await generateInviteCode()
+        }
     }
 
     // MARK: - Data Loading
-    private func generateInviteCode() {
+    private func generateInviteCode() async {
         inviteCode = inviteCode.randomString(length: 6).uppercased()
-        codeRepository.checkForCodeAvailability(code: inviteCode)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] isAvailable in
-                if let self, !isAvailable {
-                    self.generateInviteCode()
-                }
-            }.store(in: &cancelable)
+
+        do {
+            let isAvailable = try await codeRepository.checkForCodeAvailability(code: inviteCode)
+            if !isAvailable {
+                await generateInviteCode()
+            }
+        } catch {
+            showToastFor(error as! ServiceError)
+        }
     }
 
-    private func fetchGroup() {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.group = group
-            }.store(in: &cancelable)
+    private func fetchGroup() async {
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            self.group = group
+        } catch {
+            showToastFor(error as! ServiceError)
+        }
     }
 
-    func storeSharedCode(completion: @escaping () -> Void) {
+    func storeSharedCode() async {
         let shareCode = SharedCode(code: inviteCode.encryptHexCode(), groupId: groupId, expireDate: Timestamp())
-        codeRepository.addSharedCode(sharedCode: shareCode)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { _ in
-                completion()
-            }.store(in: &cancelable)
+
+        do {
+            try await codeRepository.addSharedCode(sharedCode: shareCode)
+        } catch {
+            showToastFor(error as! ServiceError)
+        }
     }
 
     // MARK: - User Actions

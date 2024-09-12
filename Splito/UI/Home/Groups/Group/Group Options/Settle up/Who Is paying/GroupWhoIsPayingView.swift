@@ -39,7 +39,11 @@ struct GroupWhoIsPayingView: View {
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .onAppear(perform: viewModel.fetchGroupMembers)
+        .onAppear {
+            Task {
+                await viewModel.fetchGroupMembers()
+            }
+        }
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {

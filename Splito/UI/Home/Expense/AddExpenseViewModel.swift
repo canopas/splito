@@ -73,7 +73,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroup(groupId: String) async {
         viewState = .loading
-        
+
         do {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             if let group {
@@ -109,7 +109,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         guard let groupId else { return }
 
         viewState = .loading
-        
+
         do {
             let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
             self.expense = expense
@@ -159,7 +159,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
         for member in selectedMembers {
             dispatchGroup.enter()
-            
+
             if let user = await fetchUserData(for: member) {
                 profileUrls.append(user.imageUrl != nil ? user.imageUrl! : "")
                 dispatchGroup.leave()
@@ -194,7 +194,7 @@ extension AddExpenseViewModel {
             }
         } else {
             let payerIds = Array(selectedPayers.keys.prefix(2))
-            
+
             Task {
                 if let user1 = await fetchUserData(for: payerIds[0]) {
                     if let user2 = await fetchUserData(for: payerIds[1]) {
@@ -311,7 +311,7 @@ extension AddExpenseViewModel {
 
     private func addExpense(groupId: String, expense: Expense, completion: @escaping () -> Void) async {
         viewState = .loading
-        
+
         do {
             let newExpense = try await expenseRepository.addExpense(groupId: groupId, expense: expense)
             self.viewState = .initial
@@ -328,7 +328,7 @@ extension AddExpenseViewModel {
 
     private func updateExpense(groupId: String, expense: Expense, oldExpense: Expense, completion: @escaping () -> Void) async {
         viewState = .loading
-        
+
         do {
             try await expenseRepository.updateExpense(groupId: groupId, expense: expense)
             self.viewState = .initial
@@ -342,10 +342,10 @@ extension AddExpenseViewModel {
 
     private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {
         guard var group = selectedGroup else { return }
-        
+
         let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
         group.balances = memberBalance
-        
+
         do {
             try await groupRepository.updateGroup(group: group)
             self.viewState = .initial

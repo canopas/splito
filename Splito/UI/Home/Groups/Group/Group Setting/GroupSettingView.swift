@@ -67,7 +67,11 @@ struct GroupSettingView: View {
                 InviteMemberView(viewModel: InviteMemberViewModel(router: viewModel.router, groupId: viewModel.group?.id ?? ""))
             }
         }
-        .onAppear(perform: viewModel.fetchGroupDetails)
+        .onAppear {
+            Task {
+                await viewModel.fetchGroupDetails()
+            }
+        }
     }
 }
 

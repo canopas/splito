@@ -59,7 +59,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     func fetchExpense() async {
         viewState = .loading
-        
+
         do {
             let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
             Task {
@@ -70,7 +70,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             showToastFor(error as! ServiceError)
         }
     }
-    
+
     func processExpense(expense: Expense) async {
             let queue = DispatchGroup()
             var userData: [AppUser] = []
@@ -132,7 +132,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     private func deleteExpense() async {
         viewState = .loading
-        
+
         do {
             try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
             self.viewState = .initial

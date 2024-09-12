@@ -50,10 +50,18 @@ struct ExpenseDetailsView: View {
                     .foregroundStyle(primaryText)
             }
             ToolbarItem(placement: .topBarTrailing) {
-                ToolbarButtonView(imageIcon: .binIcon, onClick: viewModel.handleDeleteBtnAction)
+                ToolbarButtonView(imageIcon: .binIcon, onClick: {
+                    Task {
+                        await viewModel.handleDeleteBtnAction()
+                    }
+                })
             }
             ToolbarItem(placement: .topBarTrailing) {
-                ToolbarButtonView(imageIcon: .editPencilIcon, onClick: viewModel.handleEditBtnAction)
+                ToolbarButtonView(imageIcon: .editPencilIcon, onClick: {
+                    Task {
+                        await viewModel.handleEditBtnAction()
+                    }
+                })
             }
         }
     }
