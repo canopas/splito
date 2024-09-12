@@ -67,13 +67,12 @@ struct AddExpenseView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showGroupSelection) {
             NavigationStack {
-                SelectGroupView(viewModel:
-                                    SelectGroupViewModel(selectedGroup: viewModel.selectedGroup,
-                                                         onGroupSelection: { group in
-                    Task {
-                        await viewModel.handleGroupSelection(group: group)
+                SelectGroupView(viewModel: SelectGroupViewModel(
+                    selectedGroup: viewModel.selectedGroup,
+                    onGroupSelection: { group in
+                        Task { await viewModel.handleGroupSelection(group: group) }
                     }
-                }))
+                ))
             }
         }
         .sheet(isPresented: $viewModel.showPayerSelection) {
@@ -112,9 +111,8 @@ struct AddExpenseView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 CheckmarkButton(onClick: {
                     Task {
-                        await viewModel.handleSaveAction {
-                            dismiss()
-                        }
+                        await viewModel.handleSaveAction()
+                        dismiss()
                     }
                 })
             }

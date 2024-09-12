@@ -99,7 +99,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
     func handleActionSelection(_ action: ActionsOfSheet) {
         switch action {
         case .camera:
-            self.checkCameraPermission {
+            checkCameraPermission {
                 self.sourceTypeIsCamera = true
                 self.showImagePicker = true
             }
@@ -128,13 +128,13 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
         do {
             let user = try await userRepository.updateUserWithImage(imageData: imageData, newImageUrl: profileImageUrl, user: newUser)
-            self.isSaveInProgress = false
-            self.preference.user = user
+            isSaveInProgress = false
+            preference.user = user
 
-            if self.isOpenFromOnboard {
-                self.onDismiss?()
+            if isOpenFromOnboard {
+                onDismiss?()
             } else {
-                self.router?.pop()
+                router?.pop()
             }
         } catch {
             isSaveInProgress = false
@@ -147,10 +147,10 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                       message: "Are you ABSOLUTELY sure you want to close your splito account? You will no longer be able to log into your account or access your account history from your splito app.",
                       positiveBtnTitle: "Delete",
                       positiveBtnAction: {
-            Task {
-                await self.deleteUser()
-            }
-        },
+                        Task {
+                            await self.deleteUser()
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
         showAlert = true
@@ -164,10 +164,10 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
         do {
             try await userRepository.deleteUser(id: user.id)
-            self.isDeleteInProgress = false
-            self.preference.isOnboardShown = false
-            self.preference.clearPreferenceSession()
-            self.goToOnboardScreen()
+            isDeleteInProgress = false
+            preference.isOnboardShown = false
+            preference.clearPreferenceSession()
+            goToOnboardScreen()
             LogD("UserProfileViewModel :: user deleted.")
         } catch {
             handleServiceError(error as! ServiceError)

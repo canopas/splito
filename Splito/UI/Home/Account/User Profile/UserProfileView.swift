@@ -32,8 +32,7 @@ struct UserProfileView: View {
                                         viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3) ||
                         !(viewModel.userLoginType == .Google)
 
-                        PrimaryButton(text: "Save", isEnabled: isEnable,
-                                      showLoader: viewModel.isSaveInProgress, onClick: {
+                        PrimaryButton(text: "Save", isEnabled: isEnable, showLoader: viewModel.isSaveInProgress, onClick: {
                             Task {
                                 await viewModel.updateUserProfile()
                             }
