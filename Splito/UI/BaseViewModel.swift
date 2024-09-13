@@ -9,6 +9,7 @@ import Data
 import Combine
 import BaseStyle
 
+@MainActor
 open class BaseViewModel {
 
     @Published public var currentErrorState: BaseErrorState = .noError
@@ -21,6 +22,10 @@ open class BaseViewModel {
     public var cancelable = Set<AnyCancellable>()
 
     public init() { }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
 
     /// This will take error as argument and show error's description text as message with ok button.
     open func showAlertFor(_ error: ServiceError) {

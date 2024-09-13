@@ -63,6 +63,7 @@ struct ExpenseDetailsView: View {
     }
 }
 
+@MainActor
 private struct ExpenseHeaderView: View {
 
     let viewModel: ExpenseDetailsViewModel
@@ -101,6 +102,7 @@ private struct ExpenseHeaderView: View {
     }
 }
 
+@MainActor
 private struct ExpenseInfoView: View {
 
     let viewModel: ExpenseDetailsViewModel

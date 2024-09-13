@@ -40,10 +40,6 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
     // MARK: - Data Loading
     func fetchGroupMembers() async {
         do {
@@ -100,9 +96,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             }
         }
 
-        DispatchQueue.main.async {
-            self.sortMemberBalances(memberBalances: combinedBalances)
-        }
+        self.sortMemberBalances(memberBalances: combinedBalances)
     }
 
     private func sortMemberBalances(memberBalances: [MembersCombinedBalance]) {

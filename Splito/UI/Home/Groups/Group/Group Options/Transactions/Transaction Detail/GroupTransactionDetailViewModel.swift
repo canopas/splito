@@ -40,10 +40,6 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
     // MARK: - Data Loading
     private func fetchGroup() async {
         do {

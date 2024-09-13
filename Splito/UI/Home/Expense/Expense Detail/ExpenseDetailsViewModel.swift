@@ -42,10 +42,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedExpense(notification:)), name: .updateExpense, object: nil)
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
     // MARK: - Data Loading
     private func fetchGroup() async {
         do {
@@ -70,7 +66,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     func processExpense(expense: Expense) async {
-        let queue = DispatchGroup()
         var userData: [AppUser] = []
 
         var members = expense.splitTo
@@ -80,18 +75,14 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         members.append(expense.addedBy)
 
         for member in members.uniqued() {
-            queue.enter()
             if let user = await fetchUserData(for: member) {
                 userData.append(user)
             }
-            queue.leave()
         }
 
-        queue.notify(queue: .main) {
             self.expense = expense
             self.expenseUsersData = userData
             self.viewState = .initial
-        }
     }
 
     func fetchUserData(for userId: String) async -> AppUser? {
@@ -105,7 +96,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
-    func getMemberDataBy(id: String) -> AppUser? {
+   func getMemberDataBy(id: String) -> AppUser? {
         return expenseUsersData.first(where: { $0.id == id })
     }
 

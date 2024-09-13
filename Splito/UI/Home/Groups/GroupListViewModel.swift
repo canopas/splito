@@ -70,10 +70,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
     // MARK: - Data Loading
     func fetchGroups() async {
         guard let userId = preference.user?.id else { return }
@@ -81,11 +77,9 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         do {
             let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT)
 
-            DispatchQueue.main.async {
-                self.groups = result.data
-                self.lastDocument = result.lastDocument
-                self.hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
-            }
+            self.groups = result.data
+            self.lastDocument = result.lastDocument
+            self.hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
 
             // Fetch group information for each group and maintain original index
             var indexedGroups: [(index: Int, groupInfo: GroupInformation)] = []
@@ -97,16 +91,13 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             // Sort by index to preserve the original order
             let sortedGroups = indexedGroups.sorted(by: { $0.index < $1.index }).map { $0.groupInfo }
 
-            DispatchQueue.main.async {
-                self.currentViewState = .initial
-                self.combinedGroups = sortedGroups
-                self.groupListState = sortedGroups.isEmpty ? .noGroup : .hasGroup
-            }
+            self.currentViewState = .initial
+            self.combinedGroups = sortedGroups
+            self.groupListState = sortedGroups.isEmpty ? .noGroup : .hasGroup
         } catch {
-            DispatchQueue.main.async {
-                self.currentViewState = .initial
-                self.showToastFor(error as! ServiceError)
-            }
+            self.currentViewState = .initial
+            self.showToastFor(error as! ServiceError)
+
         }
     }
 
@@ -116,11 +107,9 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         do {
             let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT, lastDocument: lastDocument)
 
-            DispatchQueue.main.async {
-                self.groups.append(contentsOf: result.data)
-                self.lastDocument = result.lastDocument
-                self.hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
-            }
+            self.groups.append(contentsOf: result.data)
+            self.lastDocument = result.lastDocument
+            self.hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
 
             // Fetch detailed group information for each group and maintain the original index
             var indexedGroups: [(index: Int, groupInfo: GroupInformation)] = []
@@ -132,16 +121,12 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             // Sort the group information by the original index
             let sortedGroups = indexedGroups.sorted(by: { $0.index < $1.index }).map { $0.groupInfo }
 
-            DispatchQueue.main.async {
-                self.currentViewState = .initial
-                self.combinedGroups.append(contentsOf: sortedGroups)
-                self.groupListState = self.combinedGroups.isEmpty ? .noGroup : .hasGroup
-            }
+            self.currentViewState = .initial
+            self.combinedGroups.append(contentsOf: sortedGroups)
+            self.groupListState = self.combinedGroups.isEmpty ? .noGroup : .hasGroup
         } catch {
-            DispatchQueue.main.async {
-                self.currentViewState = .initial
-                self.showToastFor(error as! ServiceError)
-            }
+            self.currentViewState = .initial
+            self.showToastFor(error as! ServiceError)
         }
     }
 
@@ -172,9 +157,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         do {
             let user = try await userRepository.fetchLatestUserBy(userID: userId)
             if let user {
-                DispatchQueue.main.async {
-                    self.totalOweAmount = user.totalOweAmount
-                }
+                self.totalOweAmount = user.totalOweAmount
             }
         } catch {
             self.showToastFor(error as! ServiceError)
@@ -297,10 +280,10 @@ extension GroupListViewModel {
                       message: "Are you ABSOLUTELY sure you want to delete this group? This will remove this group for ALL users involved, not just yourself.",
                       positiveBtnTitle: "Delete",
                       positiveBtnAction: {
-                        Task {
-                            await self.deleteGroup(group: group)
-                        }
-                      },
+            Task {
+                await self.deleteGroup(group: group)
+            }
+        },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
         showAlert = true

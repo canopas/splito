@@ -97,7 +97,6 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     // MARK: - Error Handling
     override func handleServiceError(_ error: ServiceError) {
         viewState = .initial
-        showToastFor(error)
     }
 }
 
