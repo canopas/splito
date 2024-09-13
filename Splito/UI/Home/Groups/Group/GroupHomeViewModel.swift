@@ -101,7 +101,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
             NotificationCenter.default.post(name: .updateGroup, object: group)
             self.group = group
-            await combineMemberWithExpense(expenses: self.expenses)
+            fetchGroupBalance()
         } catch {
             self.groupState = .noMember
             showToastFor(error as! ServiceError)
