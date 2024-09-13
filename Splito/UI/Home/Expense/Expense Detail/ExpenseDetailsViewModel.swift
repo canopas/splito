@@ -10,42 +10,42 @@ import Combine
 import SwiftUI
 
 class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
-    
+
     @Inject var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
-    
+
     @Published private(set) var expense: Expense?
     @Published private(set) var expenseUsersData: [AppUser] = []
     @Published private(set) var viewState: ViewState = .initial
-    
+
     @Published private(set) var groupImageUrl: String = ""
     @Published var showEditExpenseSheet = false
-    
+
     var groupId: String
     var expenseId: String
     let router: Router<AppRoute>
     private var group: Groups?
-    
+
     init(router: Router<AppRoute>, groupId: String, expenseId: String) {
         self.router = router
         self.groupId = groupId
         self.expenseId = expenseId
         super.init()
-        
+
         Task {
             await fetchGroup()
             await fetchExpense()
         }
-        
+
         NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedExpense(notification:)), name: .updateExpense, object: nil)
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-    
+
     // MARK: - Data Loading
     private func fetchGroup() async {
         do {
@@ -57,7 +57,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             showToastFor(error as! ServiceError)
         }
     }
-    
+
     func fetchExpense() async {
         do {
             viewState = .loading
@@ -68,17 +68,17 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             showToastFor(error as! ServiceError)
         }
     }
-    
+
     func processExpense(expense: Expense) async {
         let queue = DispatchGroup()
         var userData: [AppUser] = []
-        
+
         var members = expense.splitTo
         for (payer, _) in expense.paidBy {
             members.append(payer)
         }
         members.append(expense.addedBy)
-        
+
         for member in members.uniqued() {
             queue.enter()
             if let user = await fetchUserData(for: member) {
@@ -86,14 +86,14 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             }
             queue.leave()
         }
-        
+
         queue.notify(queue: .main) {
             self.expense = expense
             self.expenseUsersData = userData
             self.viewState = .initial
         }
     }
-    
+
     func fetchUserData(for userId: String) async -> AppUser? {
         do {
             return try await userRepository.fetchUserBy(userID: userId)
@@ -103,16 +103,16 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             return nil
         }
     }
-    
+
     // MARK: - User Actions
     func getMemberDataBy(id: String) -> AppUser? {
         return expenseUsersData.first(where: { $0.id == id })
     }
-    
+
     func handleEditBtnAction() {
         showEditExpenseSheet = true
     }
-    
+
     func handleDeleteBtnAction() async {
         showAlert = true
         alert = .init(title: "Delete Expense",
@@ -126,7 +126,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
-    
+
     private func deleteExpense() async {
         do {
             viewState = .loading
@@ -140,13 +140,13 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             showToastFor(error as! ServiceError)
         }
     }
-    
+
     private func updateGroupMemberBalance(updateType: ExpenseUpdateType) async {
         guard var group, let expense else { return }
-        
+
         let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
         group.balances = memberBalance
-        
+
         do {
             try await groupRepository.updateGroup(group: group)
             viewState = .initial
@@ -155,17 +155,17 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             showToastFor(error as! ServiceError)
         }
     }
-    
+
     func getSplitAmount(for member: String) -> String {
         guard let expense else { return "" }
         let finalAmount = expense.getTotalSplitAmountOf(member: member)
         return finalAmount.formattedCurrency
     }
-    
+
     func handleBackBtnTap() {
         router.pop()
     }
-    
+
     @objc private func getUpdatedExpense(notification: Notification) async {
         guard let updatedExpense = notification.object as? Expense else { return }
         viewState = .loading

@@ -57,11 +57,7 @@ struct ExpenseDetailsView: View {
                 })
             }
             ToolbarItem(placement: .topBarTrailing) {
-                ToolbarButtonView(imageIcon: .editPencilIcon, onClick: {
-                    Task {
-                        await viewModel.handleEditBtnAction()
-                    }
-                })
+                ToolbarButtonView(imageIcon: .editPencilIcon, onClick: viewModel.handleEditBtnAction)
             }
         }
     }

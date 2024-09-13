@@ -92,39 +92,55 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         do {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             guard let group else { return }
-            let groupTotalSummary = getTotalSummaryForCurrentMonth(group: group, userId: preference.user?.id)
-            self.currentMonthSpending = groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }
+            DispatchQueue.main.async {
+                let groupTotalSummary = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
+                self.currentMonthSpending = groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }
+            }
 
             if self.group?.members != group.members {
                 for member in group.members where member != self.preference.user?.id {
                     if let memberData = await self.fetchUserData(for: member) {
-                        self.groupUserData.append(memberData)
+                        DispatchQueue.main.async {
+                            self.groupUserData.append(memberData)
+                        }
                     }
                 }
             }
 
-            NotificationCenter.default.post(name: .updateGroup, object: group)
-            self.group = group
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .updateGroup, object: group)
+                self.group = group
+            }
             await combineMemberWithExpense(expenses: self.expenses)
         } catch {
-            groupState = .noMember
+            DispatchQueue.main.async {
+                self.groupState = .noMember
+            }
             showToastFor(error as! ServiceError)
         }
     }
 
     func fetchExpenses() async {
-        expensesWithUser = []
+        DispatchQueue.main.async {
+            self.expensesWithUser = []
+        }
 
         do {
             let result = try await expenseRepository.fetchExpensesBy(groupId: groupId, limit: EXPENSES_LIMIT)
-            lastDocument = result.lastDocument
-            expenses = result.expenses.uniqued()
+            DispatchQueue.main.async {
+                self.lastDocument = result.lastDocument
+                self.expenses = result.expenses.uniqued()
+            }
 
             await combineMemberWithExpense(expenses: result.expenses.uniqued())
-            hasMoreExpenses = !(result.expenses.count < EXPENSES_LIMIT)
+            DispatchQueue.main.async {
+                self.hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
+            }
         } catch {
-            groupState = .noMember
-            showToastFor(error as! ServiceError)
+            DispatchQueue.main.async {
+                self.groupState = .noMember
+                self.showToastFor(error as! ServiceError)
+            }
         }
     }
 
@@ -133,14 +149,20 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         do {
             let result = try await expenseRepository.fetchExpensesBy(groupId: groupId, limit: EXPENSES_LIMIT, lastDocument: lastDocument)
-            lastDocument = result.lastDocument
-            expenses.append(contentsOf: result.expenses.uniqued())
+            DispatchQueue.main.async {
+                self.lastDocument = result.lastDocument
+                self.expenses.append(contentsOf: result.expenses.uniqued())
+            }
 
             await combineMemberWithExpense(expenses: result.expenses.uniqued())
-            hasMoreExpenses = !(result.expenses.count < EXPENSES_LIMIT)
+            DispatchQueue.main.async {
+                self.hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
+            }
         } catch {
-            groupState = .noMember
-            showToastFor(error as! ServiceError)
+            DispatchQueue.main.async {
+                self.groupState = .noMember
+                self.showToastFor(error as! ServiceError)
+            }
         }
     }
 
@@ -171,7 +193,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             do {
                 let user = try await groupRepository.fetchMemberBy(userId: userId)
                 if let user {
-                    self.groupUserData.append(user)
+                    DispatchQueue.main.async {
+                        self.groupUserData.append(user)
+                    }
                 }
                 return user
             } catch {
@@ -184,17 +208,21 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private func fetchGroupBalance() {
         guard let userId = preference.user?.id, let group else { return }
 
-        memberOwingAmount = Splito.calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
-        withAnimation(.easeOut) {
-            overallOwingAmount = memberOwingAmount.values.reduce(0, +)
-            setGroupViewState()
+        DispatchQueue.main.async {
+            self.memberOwingAmount = Splito.calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
+            withAnimation(.easeOut) {
+                self.overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
+                self.setGroupViewState()
+            }
         }
     }
 
     private func setGroupViewState() {
         guard let group else { return }
-        groupState = group.members.count > 1 ?
-        ((expenses.isEmpty && group.balances.allSatisfy({ $0.balance == 0 })) ? .noExpense : .hasExpense) : (expenses.isEmpty ? .noMember : .hasExpense)
+        DispatchQueue.main.async {
+            self.groupState = group.members.count > 1 ?
+            ((self.expenses.isEmpty && group.balances.allSatisfy({ $0.balance == 0 })) ? .noExpense : .hasExpense) : (self.expenses.isEmpty ? .noMember : .hasExpense)
+        }
     }
 
     private func updateGroupExpenses() {
@@ -203,8 +231,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             expense.expense.name.lowercased().contains(searchedExpense.lowercased()) ||
             expense.expense.amount == Double(searchedExpense)
         }
-        groupExpenses = Dictionary(grouping: filteredExpenses.uniqued().sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
-            return GroupHomeViewModel.dateFormatter.string(from: expense.expense.date.dateValue())
+        DispatchQueue.main.async {
+            self.groupExpenses = Dictionary(grouping: filteredExpenses.uniqued().sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
+                return GroupHomeViewModel.dateFormatter.string(from: expense.expense.date.dateValue())
+            }
         }
     }
 }
@@ -286,10 +316,10 @@ extension GroupHomeViewModel {
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
                       positiveBtnTitle: "Ok",
                       positiveBtnAction: {
-            Task {
-                await self.deleteExpense(expense: expense)
-            }
-        },
+                        Task {
+                            await self.deleteExpense(expense: expense)
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
@@ -310,7 +340,9 @@ extension GroupHomeViewModel {
 
         do {
             try await groupRepository.updateGroup(group: group)
-            NotificationCenter.default.post(name: .deleteExpense, object: expense)
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .deleteExpense, object: expense)
+            }
         } catch {
             showToastFor(error as! ServiceError)
         }
@@ -323,11 +355,15 @@ extension GroupHomeViewModel {
     @objc private func handleAddExpense(notification: Notification) async {
         guard let newExpense = notification.object as? Expense else { return }
 
-        expenses.append(newExpense)
+        DispatchQueue.main.async {
+            self.expenses.append(newExpense)
+        }
         if let user = await fetchUserData(for: newExpense.paidBy.keys.first ?? "") {
-            let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
-            withAnimation {
-                self.expensesWithUser.append(newExpenseWithUser)
+            DispatchQueue.main.async {
+                let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
+                withAnimation {
+                    self.expensesWithUser.append(newExpenseWithUser)
+                }
             }
         }
         await fetchGroup()
@@ -336,14 +372,18 @@ extension GroupHomeViewModel {
     @objc private func handleUpdateExpense(notification: Notification) async {
         guard let updatedExpense = notification.object as? Expense else { return }
 
-        if let index = expenses.firstIndex(where: { $0.id == updatedExpense.id }) {
-            self.expenses[index] = updatedExpense
+        DispatchQueue.main.async {
+            if let index = self.expenses.firstIndex(where: { $0.id == updatedExpense.id }) {
+                self.expenses[index] = updatedExpense
+            }
         }
         if let user = await fetchUserData(for: updatedExpense.paidBy.keys.first ?? "") {
-            if let index = self.expensesWithUser.firstIndex(where: { $0.expense.id == updatedExpense.id }) {
-                let updatedExpenseWithUser = ExpenseWithUser(expense: updatedExpense, user: user)
-                withAnimation {
-                    self.expensesWithUser[index] = updatedExpenseWithUser
+            DispatchQueue.main.async {
+                if let index = self.expensesWithUser.firstIndex(where: { $0.expense.id == updatedExpense.id }) {
+                    let updatedExpenseWithUser = ExpenseWithUser(expense: updatedExpense, user: user)
+                    withAnimation {
+                        self.expensesWithUser[index] = updatedExpenseWithUser
+                    }
                 }
             }
         }
@@ -353,11 +393,13 @@ extension GroupHomeViewModel {
     @objc private func handleDeleteExpense(notification: Notification) async {
         guard let deletedExpense = notification.object as? Expense else { return }
 
-        expenses.removeAll { $0.id == deletedExpense.id }
-        if let index = expensesWithUser.firstIndex(where: { $0.expense.id == deletedExpense.id }) {
-            withAnimation {
-                expensesWithUser.remove(at: index)
-                showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully."))
+        DispatchQueue.main.async {
+            self.expenses.removeAll { $0.id == deletedExpense.id }
+            if let index = self.expensesWithUser.firstIndex(where: { $0.expense.id == deletedExpense.id }) {
+                withAnimation {
+                    self.expensesWithUser.remove(at: index)
+                    self.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully."))
+                }
             }
         }
         await fetchGroup()
@@ -374,26 +416,6 @@ extension GroupHomeViewModel {
     }
 }
 
-// MARK: - Helper Methods
-extension GroupHomeViewModel {
-    func sortMonthYearStrings(_ s1: String, _ s2: String) -> Bool {
-        guard let date1 = GroupHomeViewModel.dateFormatter.date(from: s1),
-              let date2 = GroupHomeViewModel.dateFormatter.date(from: s2) else {
-            return false
-        }
-
-        let components1 = Calendar.current.dateComponents([.year, .month], from: date1)
-        let components2 = Calendar.current.dateComponents([.year, .month], from: date2)
-
-        // Compare years first
-        if components1.year != components2.year {
-            return (components1.year ?? 0) > (components2.year ?? 0)
-        } else {    // If years are the same, compare months
-            return (components1.month ?? 0) > (components2.month ?? 0)
-        }
-    }
-}
-
 // MARK: - Group State
 extension GroupHomeViewModel {
     enum GroupState {
@@ -402,10 +424,4 @@ extension GroupHomeViewModel {
         case noExpense
         case hasExpense
     }
-}
-
-// Struct to hold combined expense and user information
-struct ExpenseWithUser: Hashable {
-    let expense: Expense
-    let user: AppUser
 }

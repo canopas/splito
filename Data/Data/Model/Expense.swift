@@ -90,3 +90,14 @@ public enum SplitType: String, Codable, CaseIterable {
     case percentage
     case shares
 }
+
+// Struct to hold combined expense and user information
+public struct ExpenseWithUser: Hashable {
+    public let expense: Expense
+    public let user: AppUser
+
+    public init(expense: Expense, user: AppUser) {
+        self.expense = expense
+        self.user = user
+    }
+}

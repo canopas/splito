@@ -49,9 +49,9 @@ struct GroupExpenseListView: View {
                                 EmptyStateView(geometry: geometry, minHeight: geometry.size.height - 250,
                                                onClick: viewModel.openAddExpenseSheet)
                             } else if !viewModel.groupExpenses.isEmpty {
-                                let firstMonth = viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings).first
+                                let firstMonth = viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings).first
 
-                                ForEach(viewModel.groupExpenses.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
+                                ForEach(viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings), id: \.self) { month in
                                     Section(header: sectionHeader(month: month)) {
                                         ForEach(viewModel.groupExpenses[month] ?? [], id: \.expense.id) { expense in
                                             GroupExpenseItemView(expenseWithUser: expense,

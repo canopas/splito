@@ -89,7 +89,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
             // Fetch group information for each group and maintain original index
             var indexedGroups: [(index: Int, groupInfo: GroupInformation)] = []
-
             for (index, group) in result.data.enumerated() {
                 let groupInfo = try await fetchGroupInformation(group: group)
                 indexedGroups.append((index: index, groupInfo: groupInfo))
@@ -125,7 +124,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
             // Fetch detailed group information for each group and maintain the original index
             var indexedGroups: [(index: Int, groupInfo: GroupInformation)] = []
-
             for (index, group) in result.data.enumerated() {
                 let groupInfo = try await fetchGroupInformation(group: group)
                 indexedGroups.append((index: index, groupInfo: groupInfo))
@@ -174,7 +172,9 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         do {
             let user = try await userRepository.fetchLatestUserBy(userID: userId)
             if let user {
-                self.totalOweAmount = user.totalOweAmount
+                DispatchQueue.main.async {
+                    self.totalOweAmount = user.totalOweAmount
+                }
             }
         } catch {
             self.showToastFor(error as! ServiceError)

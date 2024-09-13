@@ -58,9 +58,9 @@ private struct TransactionListWithDetailView: View {
                         if viewModel.filteredTransactions.isEmpty {
                             EmptyTransactionView(geometry: geometry)
                         } else {
-                            let firstMonth = viewModel.filteredTransactions.keys.sorted(by: viewModel.sortMonthYearStrings).first
+                            let firstMonth = viewModel.filteredTransactions.keys.sorted(by: sortMonthYearStrings).first
 
-                            ForEach(viewModel.filteredTransactions.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
+                            ForEach(viewModel.filteredTransactions.keys.sorted(by: sortMonthYearStrings), id: \.self) { month in
                                 Section(header: sectionHeader(month: month)) {
                                     ForEach(viewModel.filteredTransactions[month] ?? [], id: \.transaction.id) { transaction in
                                         TransactionItemView(transactionWithUser: transaction,
