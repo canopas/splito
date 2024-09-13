@@ -71,7 +71,6 @@ public class GroupRepository: ObservableObject {
 
     public func addMemberToGroup(groupId: String, memberId: String, code: String) async throws {
         try await store.addMemberToGroup(groupId: groupId, memberId: memberId)
-        try await codeRepository.deleteSharedCode(documentId: code)
     }
 
     public func updateGroup(group: Groups) async throws {

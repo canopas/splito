@@ -60,6 +60,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         do {
             try await groupRepository.addMemberToGroup(groupId: code.groupId, memberId: userId, code: code.code)
             NotificationCenter.default.post(name: .joinGroup, object: code.groupId)
+            try await codeRepository.deleteSharedCode(documentId: code.code)
         } catch {
             handleServiceError(error as! ServiceError)
         }

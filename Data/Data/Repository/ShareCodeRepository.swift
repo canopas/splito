@@ -20,7 +20,7 @@ public class ShareCodeRepository: ObservableObject {
     }
 
     public func fetchSharedCode(code: String) async throws -> SharedCode? {
-        try await store.fetchSharedCode(code: code.encryptHexCode())
+        return try await store.fetchSharedCode(code: code.encryptHexCode())
     }
 
     public func deleteSharedCode(documentId: String) async throws {

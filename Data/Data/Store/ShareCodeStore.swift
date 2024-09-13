@@ -24,9 +24,9 @@ public class ShareCodeStore: ObservableObject {
     }
 
     func fetchSharedCode(code: String) async throws -> SharedCode? {
-        let snapshot = try await self.database.collection(COLLECTION_NAME)
+        let snapshot = try await database.collection(COLLECTION_NAME)
             .whereField("code", isEqualTo: code)
-            .getDocuments(source: .server)
+            .getDocuments()
 
         // Check for documents and decode the first one
         guard let document = snapshot.documents.first else {
@@ -40,7 +40,7 @@ public class ShareCodeStore: ObservableObject {
 
     func deleteSharedCode(documentId: String) async throws {
         do {
-            try await database.collection(self.COLLECTION_NAME).document(documentId).delete()
+            try await database.collection(COLLECTION_NAME).document(documentId).delete()
         } catch {
             LogE("ShareCodeStore :: \(#function): Deleting data failed with error: \(error.localizedDescription).")
             throw ServiceError.databaseError(error: error)
