@@ -95,16 +95,17 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
 
         let userId = preference.user?.id ?? ""
         let memberBalance = GroupMemberBalance(id: userId, balance: 0, totalSummary: [])
-        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId,
+        var group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId,
                            imageUrl: nil, members: [userId], balances: [memberBalance], createdAt: Timestamp())
 
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
 
         do {
-            let newGroup = try await groupRepository.createGroup(group: group, imageData: imageData)
+            let groupId = try await groupRepository.createGroup(group: group, imageData: imageData)
             showLoader = false
-            NotificationCenter.default.post(name: .addGroup, object: newGroup)
+            group.id = groupId
+            NotificationCenter.default.post(name: .addGroup, object: group)
         } catch {
             currentState = .initial
             showLoader = false

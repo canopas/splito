@@ -299,16 +299,18 @@ extension GroupListViewModel {
         }
     }
 
-    @objc private func handleJoinGroup(notification: Notification) async {
+    @objc private func handleJoinGroup(notification: Notification) {
         guard let joinedGroupId = notification.object as? String else { return }
-
-        if let group = await fetchGroup(groupId: joinedGroupId) {
-            if self.combinedGroups.contains(where: { $0.group.id == group.id }) { return }
-            await self.processGroup(group: group, isNewGroup: true)
+        
+        if self.combinedGroups.contains(where: { $0.group.id == joinedGroupId }) { return }
+        Task {
+            if let group = await fetchGroup(groupId: joinedGroupId) {
+                await self.processGroup(group: group, isNewGroup: true)
+            }
         }
     }
 
-    @objc private func handleAddGroup(notification: Notification) async {
+    @objc private func handleAddGroup(notification: Notification) {
         guard let addedGroup = notification.object as? Groups else { return }
 
         // Check if the group already exists in combinedGroups
@@ -318,7 +320,7 @@ extension GroupListViewModel {
         }
     }
 
-    @objc private func handleUpdateGroup(notification: Notification) async {
+    @objc private func handleUpdateGroup(notification: Notification) {
         guard let updatedGroup = notification.object as? Groups else { return }
         Task {
             await processGroup(group: updatedGroup, isNewGroup: false)
@@ -336,34 +338,28 @@ extension GroupListViewModel {
         let memberBalance = getMembersBalance(group: group, memberId: userId)
         let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
 
-        let dispatchGroup = DispatchGroup()
-
         for memberId in group.members where groupMembers.contains(where: { $0.id == memberId }) {
-            dispatchGroup.enter()
             if let user = await fetchUserData(for: memberId) {
                 self.groupMembers.append(user)
             }
-            dispatchGroup.leave()
         }
 
-        dispatchGroup.notify(queue: .main) {
-            let groupInfo = GroupInformation(
-                group: group,
-                userBalance: memberBalance,
-                memberOweAmount: memberOwingAmount,
-                members: self.groupMembers,
-                hasExpenses: group.hasExpenses
-            )
+        let groupInfo = GroupInformation(
+            group: group,
+            userBalance: memberBalance,
+            memberOweAmount: memberOwingAmount,
+            members: self.groupMembers,
+            hasExpenses: group.hasExpenses
+        )
 
-            if isNewGroup {
-                self.combinedGroups.insert(groupInfo, at: 0)
-                if self.combinedGroups.count == 1 {
-                    self.groupListState = .hasGroup
-                }
-            } else {
-                if let index = self.combinedGroups.firstIndex(where: { $0.group.id == group.id }) {
-                    self.combinedGroups[index] = groupInfo
-                }
+        if isNewGroup {
+            self.combinedGroups.insert(groupInfo, at: 0)
+            if self.combinedGroups.count == 1 {
+                self.groupListState = .hasGroup
+            }
+        } else {
+            if let index = self.combinedGroups.firstIndex(where: { $0.group.id == group.id }) {
+                self.combinedGroups[index] = groupInfo
             }
         }
     }

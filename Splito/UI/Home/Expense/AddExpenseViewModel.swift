@@ -153,20 +153,13 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     func fetchMemberProfileUrls() async {
         var profileUrls: [String] = []
-        let dispatchGroup = DispatchGroup()
 
         for member in selectedMembers {
-            dispatchGroup.enter()
-
             if let user = await fetchUserData(for: member) {
                 profileUrls.append(user.imageUrl != nil ? user.imageUrl! : "")
-                dispatchGroup.leave()
             }
         }
-
-        dispatchGroup.notify(queue: .main) {
-            self.memberProfileUrls = profileUrls
-        }
+        self.memberProfileUrls = profileUrls
     }
 
     // MARK: - Error Handling

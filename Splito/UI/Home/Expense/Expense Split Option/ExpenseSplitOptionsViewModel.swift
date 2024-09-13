@@ -72,12 +72,10 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchUsersData() async {
         var users: [AppUser] = []
-        let queue = DispatchGroup()
 
         viewState = .loading
 
         for memberId in members {
-            queue.enter()
             let user = await fetchUserData(for: memberId)
             guard let user else {
                 viewState = .initial
@@ -85,15 +83,11 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             }
             users.append(user)
             calculateFixedAmountForMember(memberId: memberId)
-            queue.leave()
         }
 
-        queue.notify(queue: .main) { [weak self] in
-            guard let self else { return }
-            self.groupMembers = users
-            self.totalFixedAmount = fixedAmounts.values.reduce(0, +)
-            self.viewState = .initial
-        }
+        self.groupMembers = users
+        self.totalFixedAmount = fixedAmounts.values.reduce(0, +)
+        self.viewState = .initial
     }
 
     func fetchUserData(for memberId: String) async -> AppUser? {

@@ -146,9 +146,11 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         showSettleUpSheet = true
     }
 
-    @objc private func handleAddTransaction(notification: Notification) async {
+    @objc private func handleAddTransaction(notification: Notification) {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
-        await fetchGroupDetails()
+        Task {
+            await fetchGroupDetails()
+        }
     }
 }
 

@@ -92,27 +92,20 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func combinedTransactionsWithUser(transactions: [Transactions]) async {
-        let queue = DispatchGroup()
         var combinedData: [TransactionWithUser] = []
 
         for transaction in transactions {
-            queue.enter()
-
             if let payer = await fetchUserData(for: transaction.payerId) {
                 if let receiver = await fetchUserData(for: transaction.receiverId) {
                     combinedData.append(TransactionWithUser(transaction: transaction,
                                                             payer: payer, receiver: receiver))
-                    queue.leave()
                 }
             }
         }
 
-        queue.notify(queue: .main) { [weak self] in
-            guard let self else { return }
-            self.transactionsWithUser.append(contentsOf: combinedData)
-            self.filteredTransactionsForSelectedTab()
-            self.currentViewState = .initial
-        }
+        self.transactionsWithUser.append(contentsOf: combinedData)
+        self.filteredTransactionsForSelectedTab()
+        self.currentViewState = .initial
     }
 
     private func fetchUserData(for userId: String) async -> AppUser? {

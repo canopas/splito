@@ -65,26 +65,21 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     private func setTransactionUsersData() async {
         guard let transaction else { return }
 
-        let queue = DispatchGroup()
         var userData: [AppUser] = []
-
         var members: [String] = []
+
         members.append(transaction.payerId)
         members.append(transaction.receiverId)
         members.append(transaction.addedBy)
 
         for member in members.uniqued() {
-            queue.enter()
             if let user = await self.fetchUserData(for: member) {
                 userData.append(user)
-                queue.leave()
             }
         }
 
-        queue.notify(queue: .main) {
-            self.transactionUsersData = userData
-            self.viewState = .initial
-        }
+        self.transactionUsersData = userData
+        self.viewState = .initial
     }
 
     private func fetchUserData(for userId: String) async -> AppUser? {

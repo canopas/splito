@@ -141,22 +141,17 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     private func combineMemberWithExpense(expenses: [Expense]) async {
-        let queue = DispatchGroup()
         var combinedData: [ExpenseWithUser] = []
 
         for expense in expenses.uniqued() {
-            queue.enter()
             if let user = await fetchUserData(for: expense.paidBy.keys.first ?? "") {
                 combinedData.append(ExpenseWithUser(expense: expense, user: user))
-                queue.leave()
             }
         }
 
-        queue.notify(queue: .main) { [weak self] in
-            withAnimation(.easeOut) {
-                self?.expensesWithUser.append(contentsOf: combinedData.uniqued())
-                self?.fetchGroupBalance()
-            }
+        withAnimation(.easeOut) {
+            self.expensesWithUser.append(contentsOf: combinedData.uniqued())
+            self.fetchGroupBalance()
         }
     }
 
@@ -316,37 +311,42 @@ extension GroupHomeViewModel {
         showAddExpenseSheet = true
     }
 
-    @objc private func handleAddExpense(notification: Notification) async {
+    @objc private func handleAddExpense(notification: Notification) {
         guard let newExpense = notification.object as? Expense else { return }
 
         self.expenses.append(newExpense)
-        if let user = await fetchUserData(for: newExpense.paidBy.keys.first ?? "") {
-            let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
-            withAnimation {
-                self.expensesWithUser.append(newExpenseWithUser)
+        Task {
+            if let user = await fetchUserData(for: newExpense.paidBy.keys.first ?? "") {
+                let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
+                withAnimation {
+                    self.expensesWithUser.append(newExpenseWithUser)
+                }
             }
+            await fetchGroup()
         }
-        await fetchGroup()
     }
 
-    @objc private func handleUpdateExpense(notification: Notification) async {
+    @objc private func handleUpdateExpense(notification: Notification) {
         guard let updatedExpense = notification.object as? Expense else { return }
 
         if let index = self.expenses.firstIndex(where: { $0.id == updatedExpense.id }) {
             self.expenses[index] = updatedExpense
         }
-        if let user = await fetchUserData(for: updatedExpense.paidBy.keys.first ?? "") {
-            if let index = self.expensesWithUser.firstIndex(where: { $0.expense.id == updatedExpense.id }) {
-                let updatedExpenseWithUser = ExpenseWithUser(expense: updatedExpense, user: user)
-                withAnimation {
-                    self.expensesWithUser[index] = updatedExpenseWithUser
+
+        Task {
+            if let user = await fetchUserData(for: updatedExpense.paidBy.keys.first ?? "") {
+                if let index = self.expensesWithUser.firstIndex(where: { $0.expense.id == updatedExpense.id }) {
+                    let updatedExpenseWithUser = ExpenseWithUser(expense: updatedExpense, user: user)
+                    withAnimation {
+                        self.expensesWithUser[index] = updatedExpenseWithUser
+                    }
                 }
             }
+            await fetchGroup()
         }
-        await fetchGroup()
     }
 
-    @objc private func handleDeleteExpense(notification: Notification) async {
+    @objc private func handleDeleteExpense(notification: Notification) {
         guard let deletedExpense = notification.object as? Expense else { return }
 
         self.expenses.removeAll { $0.id == deletedExpense.id }
@@ -356,17 +356,23 @@ extension GroupHomeViewModel {
                 self.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully."))
             }
         }
-        await fetchGroup()
+        Task {
+            await fetchGroup()
+        }
     }
 
-    @objc private func handleTransaction(notification: Notification) async {
-        await fetchGroup()
+    @objc private func handleTransaction(notification: Notification) {
+        Task {
+            await fetchGroup()
+        }
     }
 
-    @objc private func handleAddTransaction(notification: Notification) async {
+    @objc private func handleAddTransaction(notification: Notification) {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
         showSettleUpSheet = false
-        await fetchGroup()
+        Task {
+            await fetchGroup()
+        }
     }
 }
 

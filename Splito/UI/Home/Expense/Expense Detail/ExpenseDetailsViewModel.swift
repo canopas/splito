@@ -45,10 +45,12 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroup() async {
         do {
+            viewState = .loading
             group = try await groupRepository.fetchGroupBy(id: groupId)
             if let imageUrl = group?.imageUrl {
                 self.groupImageUrl = imageUrl
             }
+            viewState = .initial
         } catch {
             showToastFor(error as! ServiceError)
         }
@@ -157,10 +159,12 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         router.pop()
     }
 
-    @objc private func getUpdatedExpense(notification: Notification) async {
+    @objc private func getUpdatedExpense(notification: Notification) {
         guard let updatedExpense = notification.object as? Expense else { return }
         viewState = .loading
-        await processExpense(expense: updatedExpense)
+        Task {
+            await processExpense(expense: updatedExpense)
+        }
     }
 }
 
