@@ -28,8 +28,14 @@ open class BaseViewModel {
     }
 
     /// This will take error as argument and show error's description text as message with ok button.
-    open func showAlertFor(_ error: ServiceError) {
-        alert = .init(message: error.descriptionText)
+    open func showAlertFor(_ error: Error) {
+        // Check if the error is a ServiceError, otherwise handle as a generic error
+        if let serviceError = error as? ServiceError {
+            alert = .init(message: error.localizedDescription)
+        } else {
+            // Handle non-ServiceError cases with a default message or the localized description
+            alert = .init(message: error.localizedDescription)
+        }
         showAlert = true
     }
 

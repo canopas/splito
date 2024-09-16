@@ -109,7 +109,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         } catch {
             currentState = .initial
             showLoader = false
-            handleServiceError(error)
+            showAlertFor(error)
         }
     }
 
@@ -129,7 +129,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         } catch {
             currentState = .initial
             showLoader = false
-            handleServiceError(error)
+            showAlertFor(error)
         }
     }
 }
