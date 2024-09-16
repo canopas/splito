@@ -112,10 +112,10 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
                       positiveBtnTitle: "Ok",
                       positiveBtnAction: {
-            Task {
-                await self.deleteExpense()
-            }
-        },
+                        Task {
+                            await self.deleteExpense()
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
