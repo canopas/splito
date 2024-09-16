@@ -762,9 +762,6 @@
     "We’ll verify your phone number with a verification code." : {
       "extractionState" : "manual"
     },
-    "We’ve sent a verification code to your phone %@." : {
-
-    },
     "What’s your phone number?" : {
       "extractionState" : "manual"
     },
