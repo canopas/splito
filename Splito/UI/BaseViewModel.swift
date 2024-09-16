@@ -58,8 +58,19 @@ open class BaseViewModel {
     }
 
     /// Handle error thrown by firestore query
-    public func handleServiceError(_ error: ServiceError) {
-        showToastFor(error)
+    public func handleServiceError(_ error: Error) {
+        handleError(error)
+    }
+
+    private func handleError(_ error: Error) {
+        // Check if the error is a ServiceError, otherwise handle as a generic error
+        if let serviceError = error as? ServiceError {
+            showToastFor(serviceError)
+        } else {
+            // Handle non-ServiceError cases with a default message or the localized description
+            let genericErrorMessage = error.localizedDescription
+            showToastFor(toast: .init(type: .error, title: "Error", message: genericErrorMessage))
+        }
     }
 
     /// Use this method to show error toast, pass an error as argument and it will show toast with title **Error** and message will be error's descriptionText.

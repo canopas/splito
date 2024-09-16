@@ -55,7 +55,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             self.sortGroupMembers(members: members)
             self.currentViewState = .initial
         } catch {
-            handleServiceError(error as! ServiceError)
+            currentViewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -214,7 +215,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             }
         } catch {
             currentViewState = .initial
-            handleServiceError(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
@@ -243,7 +244,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             NotificationCenter.default.post(name: .deleteGroup, object: group)
             goBackToGroupList()
         } catch {
-            handleServiceError(error as! ServiceError)
+            currentViewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -255,12 +257,6 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     // MARK: - Navigation
     func goBackToGroupList() {
         router.popToRoot()
-    }
-
-    // MARK: - Error Handling
-    override func handleServiceError(_ error: ServiceError) {
-        currentViewState = .initial
-        showToastFor(error)
     }
 }
 

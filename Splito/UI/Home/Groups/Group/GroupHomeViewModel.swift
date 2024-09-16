@@ -104,7 +104,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             fetchGroupBalance()
         } catch {
             self.groupState = .noMember
-            showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
@@ -120,7 +120,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             self.hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
         } catch {
             self.groupState = .noMember
-            self.showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
@@ -136,7 +136,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             self.hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
         } catch {
             self.groupState = .noMember
-            self.showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
@@ -166,7 +166,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 }
                 return user
             } catch {
-                showToastFor(error as! ServiceError)
+                handleServiceError(error)
                 return nil
             }
         }
@@ -290,7 +290,7 @@ extension GroupHomeViewModel {
             try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expense.id ?? "")
             await updateGroupMemberBalance(expense: expense, updateType: .Delete)
         } catch {
-            showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
@@ -303,7 +303,7 @@ extension GroupHomeViewModel {
             try await groupRepository.updateGroup(group: group)
             NotificationCenter.default.post(name: .deleteExpense, object: expense)
         } catch {
-            showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 

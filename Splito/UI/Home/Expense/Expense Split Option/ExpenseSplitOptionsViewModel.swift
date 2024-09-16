@@ -95,7 +95,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             return try await userRepository.fetchUserBy(userID: memberId)
         } catch {
             viewState = .initial
-            showToastFor(error as! ServiceError)
+            handleServiceError(error)
             return nil
         }
     }

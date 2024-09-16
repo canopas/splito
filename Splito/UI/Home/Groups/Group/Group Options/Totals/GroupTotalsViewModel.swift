@@ -39,7 +39,8 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
             self.filterDataForSelectedTab()
             self.viewState = .initial
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -80,12 +81,6 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
         return group.balances.first(where: { $0.id == user.id })?.totalSummary.filter {
             $0.year == currentYear
         } ?? []
-    }
-
-    // MARK: - Error Handling
-    override func handleServiceError(_ error: ServiceError) {
-        viewState = .initial
-        showToastFor(error)
     }
 }
 

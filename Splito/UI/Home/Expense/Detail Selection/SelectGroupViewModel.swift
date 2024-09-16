@@ -36,7 +36,7 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
             currentViewState = groups.isEmpty ? .noGroups : .hasGroups(groups: groups)
         } catch {
             currentViewState = .initial
-            showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 

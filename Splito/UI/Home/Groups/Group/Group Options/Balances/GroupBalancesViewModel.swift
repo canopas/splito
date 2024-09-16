@@ -49,7 +49,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             calculateExpensesSimplified()
         } catch {
             viewState = .initial
-            showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
@@ -59,7 +59,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             calculateExpensesSimplified()
         } catch {
             viewState = .initial
-            showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 

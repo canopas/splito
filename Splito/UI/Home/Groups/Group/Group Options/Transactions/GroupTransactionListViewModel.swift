@@ -59,7 +59,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             guard let group else { return }
             self.group = group
         } catch {
-            handleServiceError(error as! ServiceError)
+            currentViewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -74,7 +75,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             await combinedTransactionsWithUser(transactions: result.transactions)
             hasMoreTransactions = !(result.transactions.count < self.TRANSACTIONS_LIMIT)
         } catch {
-            handleServiceError(error as! ServiceError)
+            currentViewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -87,7 +89,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             await combinedTransactionsWithUser(transactions: result.transactions.uniqued())
             hasMoreTransactions = !(result.transactions.count < TRANSACTIONS_LIMIT)
         } catch {
-            handleServiceError(error as! ServiceError)
+            currentViewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -119,7 +122,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                 }
                 return user
             } catch {
-                handleServiceError(error as! ServiceError)
+                currentViewState = .initial
+                handleServiceError(error)
                 return nil
             }
         }
@@ -147,7 +151,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
             await updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
         } catch {
-            handleServiceError(error as! ServiceError)
+            currentViewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -160,7 +165,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             try await groupRepository.updateGroup(group: group)
             NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
         } catch {
-            handleServiceError(error as! ServiceError)
+            currentViewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -243,11 +249,6 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             }
         }
         showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
-    }
-
-    // MARK: - Error Handling
-    override func handleServiceError(_ error: ServiceError) {
-        currentViewState = .initial
     }
 }
 

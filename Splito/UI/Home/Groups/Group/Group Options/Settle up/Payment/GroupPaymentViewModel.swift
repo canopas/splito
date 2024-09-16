@@ -68,7 +68,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             self.group = group
             self.viewState = .initial
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -81,7 +82,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             self.paymentDate = transaction.date.dateValue()
             self.viewState = .initial
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -90,7 +92,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             let user = try await userRepository.fetchUserBy(userID: payerId)
             if let user { payer = user }
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -99,7 +102,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             let user = try await userRepository.fetchUserBy(userID: receiverId)
             if let user { receiver = user }
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -132,8 +136,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             await updateGroupMemberBalance(transaction: transaction, updateType: .Add)
             NotificationCenter.default.post(name: .addTransaction, object: transaction)
         } catch {
+            viewState = .initial
             showLoader = false
-            handleServiceError(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
@@ -145,8 +150,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             await self.updateGroupMemberBalance(transaction: transaction, updateType: .Update(oldTransaction: oldTransaction))
             NotificationCenter.default.post(name: .updateTransaction, object: transaction)
         } catch {
+            viewState = .initial
             showLoader = false
-            handleServiceError(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
@@ -160,13 +166,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             try await groupRepository.updateGroup(group: group)
             viewState = .initial
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
-    }
-
-    // MARK: - Error Handling
-    override func handleServiceError(_ error: ServiceError) {
-        viewState = .initial
     }
 }
 

@@ -34,19 +34,14 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
             let members = try await groupRepository.fetchMembersBy(groupId: groupId)
             self.members = members
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
     func onMemberTap(_ memberId: String) {
         selectedMemberId = memberId
         router?.push(.GroupWhoGettingPaidView(groupId: groupId, selectedMemberId: memberId))
-    }
-
-    // MARK: - Error Handling
-    override func handleServiceError(_ error: ServiceError) {
-        viewState = .initial
-        showToastFor(error)
     }
 }
 

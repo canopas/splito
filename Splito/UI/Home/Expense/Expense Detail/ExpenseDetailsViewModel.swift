@@ -52,7 +52,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             }
             viewState = .initial
         } catch {
-            showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
@@ -63,7 +63,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             await processExpense(expense: expense)
         } catch {
             viewState = .initial
-            showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
@@ -92,7 +92,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             return try await userRepository.fetchUserBy(userID: userId)
         } catch {
             viewState = .initial
-            showToastFor(error as! ServiceError)
+            handleServiceError(error)
             return nil
         }
     }
@@ -130,7 +130,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             router.pop()
         } catch {
             viewState = .initial
-            showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
@@ -145,7 +145,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             viewState = .initial
         } catch {
             viewState = .initial
-            showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 

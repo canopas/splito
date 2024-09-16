@@ -138,7 +138,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             }
         } catch {
             isSaveInProgress = false
-            showAlertFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 

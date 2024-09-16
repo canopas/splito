@@ -96,8 +96,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             self.groupListState = sortedGroups.isEmpty ? .noGroup : .hasGroup
         } catch {
             self.currentViewState = .initial
-            self.showToastFor(error as! ServiceError)
-
+            handleServiceError(error)
         }
     }
 
@@ -126,7 +125,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             self.groupListState = self.combinedGroups.isEmpty ? .noGroup : .hasGroup
         } catch {
             self.currentViewState = .initial
-            self.showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
@@ -160,7 +159,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
                 self.totalOweAmount = user.totalOweAmount
             }
         } catch {
-            self.showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
@@ -178,7 +177,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
                 }
                 return user
             } catch {
-                self.showToastFor(error as! ServiceError)
+                handleServiceError(error)
                 return nil
             }
         }
@@ -188,7 +187,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         do {
             return try await groupRepository.fetchGroupBy(id: groupId)
         } catch {
-            self.showToastFor(error as! ServiceError)
+            handleServiceError(error)
             return nil
         }
     }
@@ -295,13 +294,13 @@ extension GroupListViewModel {
             try await groupRepository.deleteGroup(group: group)
             NotificationCenter.default.post(name: .deleteGroup, object: group)
         } catch {
-            self.showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
     @objc private func handleJoinGroup(notification: Notification) {
         guard let joinedGroupId = notification.object as? String else { return }
-        
+
         if self.combinedGroups.contains(where: { $0.group.id == joinedGroupId }) { return }
         Task {
             if let group = await fetchGroup(groupId: joinedGroupId) {

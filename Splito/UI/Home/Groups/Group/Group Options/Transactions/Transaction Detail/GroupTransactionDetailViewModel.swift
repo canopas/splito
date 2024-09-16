@@ -46,7 +46,8 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             self.group = group
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -58,7 +59,8 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             self.transaction = transaction
             await setTransactionUsersData()
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -91,7 +93,8 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             }
             return user
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
             return nil
         }
     }
@@ -129,7 +132,8 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             await updateGroupMemberBalance(updateType: .Delete)
             router.pop()
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -143,19 +147,14 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             try await groupRepository.updateGroup(group: group)
             showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
     @objc private func getUpdatedTransaction(notification: Notification) {
         guard let updatedTransaction = notification.object as? Transactions else { return }
         transaction = updatedTransaction
-    }
-
-    // MARK: - Error Handling
-    override func handleServiceError(_ error: ServiceError) {
-        viewState = .initial
-        showToastFor(error)
     }
 }
 

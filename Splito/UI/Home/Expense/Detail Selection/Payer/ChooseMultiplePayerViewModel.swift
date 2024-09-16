@@ -55,7 +55,7 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
             currentViewState = .initial
         } catch {
             currentViewState = .initial
-            showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 

@@ -81,7 +81,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             await fetchMemberProfileUrls()
             viewState = .initial
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -98,7 +99,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             selectedPayers = [user.id: expenseAmount]
             viewState = .initial
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -128,7 +130,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 self.viewState = .initial
             }
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -137,7 +140,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             return group
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
             return nil
         }
     }
@@ -146,7 +150,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         do {
             return try await groupRepository.fetchMemberBy(userId: userId)
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
             return nil
         }
     }
@@ -160,11 +165,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             }
         }
         self.memberProfileUrls = profileUrls
-    }
-
-    // MARK: - Error Handling
-    override func handleServiceError(_ error: ServiceError) {
-        viewState = .initial
     }
 }
 
@@ -309,7 +309,8 @@ extension AddExpenseViewModel {
             }
             await updateGroupMemberBalance(expense: expense, updateType: .Add)
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -323,7 +324,8 @@ extension AddExpenseViewModel {
             NotificationCenter.default.post(name: .updateExpense, object: expense)
             await updateGroupMemberBalance(expense: expense, updateType: .Update(oldExpense: oldExpense))
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -337,7 +339,8 @@ extension AddExpenseViewModel {
             try await groupRepository.updateGroup(group: group)
             viewState = .initial
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 }

@@ -43,7 +43,7 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
             currentViewState = users.isEmpty ? .noMember : .hasMembers(users)
         } catch {
             currentViewState = .initial
-            showToastFor(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 

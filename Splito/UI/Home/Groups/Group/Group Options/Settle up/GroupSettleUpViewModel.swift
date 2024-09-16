@@ -42,7 +42,8 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             self.calculateMemberPayableAmount(group: group)
             await fetchGroupMembers()
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -59,7 +60,8 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             self.members.removeAll(where: { $0.id == userId })
             self.viewState = .initial
         } catch {
-            handleServiceError(error as! ServiceError)
+            viewState = .initial
+            handleServiceError(error)
         }
     }
 
@@ -92,11 +94,6 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
 
         router?.push(.GroupPaymentView(transactionId: nil, groupId: groupId,
                                        payerId: payerId, receiverId: receiverId, amount: amount))
-    }
-
-    // MARK: - Error Handling
-    override func handleServiceError(_ error: ServiceError) {
-        viewState = .initial
     }
 }
 
