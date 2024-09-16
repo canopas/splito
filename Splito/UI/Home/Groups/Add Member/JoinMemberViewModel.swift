@@ -35,7 +35,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
             await addMemberIfCodeExists(code: code)
         } catch {
             showLoader = false
-            handleServiceError(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 
@@ -62,7 +62,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
             NotificationCenter.default.post(name: .joinGroup, object: code.groupId)
             try await codeRepository.deleteSharedCode(documentId: code.code)
         } catch {
-            handleServiceError(error as! ServiceError)
+            handleServiceError(error)
         }
     }
 }

@@ -294,9 +294,7 @@ private struct GroupExpenseHeaderView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .padding(.horizontal, 16)
         .padding(.top, 8)
-        .onTapGestureForced {
-            UIApplication.shared.endEditing()
-        }
+        .onTapGestureForced { UIApplication.shared.endEditing() }
     }
 }
 
@@ -396,8 +394,6 @@ private struct ExpenseNotFoundView: View {
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, alignment: .center)
         .frame(minHeight: geometry.size.height - 280, maxHeight: .infinity, alignment: .center)
-        .onTapGestureForced {
-            UIApplication.shared.endEditing()
-        }
+        .onTapGestureForced { UIApplication.shared.endEditing() }
     }
 }

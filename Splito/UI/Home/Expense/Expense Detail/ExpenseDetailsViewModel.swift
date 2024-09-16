@@ -82,9 +82,9 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             }
         }
 
-            self.expense = expense
-            self.expenseUsersData = userData
-            self.viewState = .initial
+        self.expense = expense
+        self.expenseUsersData = userData
+        self.viewState = .initial
     }
 
     func fetchUserData(for userId: String) async -> AppUser? {

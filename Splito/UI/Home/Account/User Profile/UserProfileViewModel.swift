@@ -170,17 +170,17 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             goToOnboardScreen()
             LogD("UserProfileViewModel :: user deleted.")
         } catch {
-            handleServiceError(error as! ServiceError)
-//            if error.descriptionText.contains(self.REQUIRE_AGAIN_LOGIN_TEXT) {
-//                self.alert = .init(title: "", message: error.descriptionText,
-//                                   positiveBtnTitle: "Reauthenticate", positiveBtnAction: {
-//                    self.reAuthenticateUser()
-//                }, negativeBtnTitle: "Cancel", negativeBtnAction: {
-//                    self.showAlert = false
-//                    self.isDeleteInProgress = false
-//                })
-//                self.showAlert = true
-//            }
+            handleServiceError(error)
+            if error.localizedDescription.contains(self.REQUIRE_AGAIN_LOGIN_TEXT) {
+                self.alert = .init(title: "", message: error.localizedDescription,
+                                   positiveBtnTitle: "Reauthenticate", positiveBtnAction: {
+                    self.reAuthenticateUser()
+                }, negativeBtnTitle: "Cancel", negativeBtnAction: {
+                    self.showAlert = false
+                    self.isDeleteInProgress = false
+                })
+                self.showAlert = true
+            }
         }
     }
 

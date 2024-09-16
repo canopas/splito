@@ -45,7 +45,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             self.checkForGroupAdmin()
             await fetchGroupMembers()
         } catch {
-            handleServiceError(error as! ServiceError)
+            currentViewState = .initial
+            handleServiceError(error)
         }
     }
 

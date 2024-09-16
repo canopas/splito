@@ -136,10 +136,10 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                       message: "Are you sure you want to delete this transaction?",
                       positiveBtnTitle: "Ok",
                       positiveBtnAction: {
-            Task {
-                await self.deleteTransaction(transaction: transaction)
-            }
-        },
+                        Task {
+                            await self.deleteTransaction(transaction: transaction)
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
