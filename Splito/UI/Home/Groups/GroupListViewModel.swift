@@ -221,7 +221,7 @@ extension GroupListViewModel {
     }
 
     func handleSearchBarTap() {
-        if filteredGroups.isEmpty {
+        if groups.isEmpty {
             showToastFor(toast: .init(type: .info, title: "No groups yet", message: "There are no groups available to search."))
         } else {
             withAnimation {
