@@ -53,11 +53,13 @@ Whether it's a group trip, shared household bills, or any other collective expen
 </table>
 
 ## Features
+
+Splito is currently in active development 🚧, with plans to incorporate additional features shortly.
+
 - **Group Management:** Create and manage multiple expense groups for different purposes (e.g., games, trips, shared bills).
 - **Expense Tracking:** Add expenses with details such as description, amount, payer, and date.
 - **Expense Splitting:** Split expenses equally or based on customizable ratios among group members.
 - **Payment Settlement:** Easily settle up the payments with other members of the group to clear outstanding balances.
-- **Real-time Sync:** All changes are synchronized across devices in real-time via Firebase.
 
 <details>
   <summary> How to Use Splito </summary>
@@ -103,7 +105,10 @@ Splito utilizes the latest iOS technologies and adheres to industry best practic
 - MVVM Architecture
 - SwiftUI
 - Combine + Swift
-- Firebase Datastore
+- Concurrency
+- Cloud Functions
+- Firebase Firestore
+- Firebase Authentication
 - Swinject for DI
 - SwiftLint for Lint
 - CocoaLumberjack for Logging
