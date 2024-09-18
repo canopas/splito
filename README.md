@@ -104,10 +104,13 @@ Splito uses the following Firebase services, Make sure you enable them in your F
 Splito utilizes the latest iOS technologies and adheres to industry best practices. Below is the current tech stack used in the development process:
 - MVVM Architecture
 - SwiftUI
+- Concurrency
 - Combine + Swift
-- Firebase Datastore
 - Swinject for DI
 - SwiftLint for Lint
+- Cloud Functions
+- Firebase Firestore
+- Firebase Authentication
 - CocoaLumberjack for Logging
 
 ## Contribution🤝
