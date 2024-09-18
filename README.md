@@ -14,6 +14,31 @@ Whether it's a group trip🌍, shared household bills🏠, or any other collecti
 ## Download App 
 <a href="https://apps.apple.com/in/app/splito-split-enjoy-together/id6477442217"> <img src="./Screenshots/AppStore.png" width="200"></img> </a>
 
+## Features🌟
+- **Group Management:** Create and manage multiple expense groups👥 for different purposes (e.g., games, trips, shared bills).
+- **Expense Tracking:** Add expenses💰 with details such as description, amount, payer, and date.
+- **Expense Splitting:** Split expenses equally⚖️ or based on customizable ratios among group members.
+- **Payment Settlement:** Easily settle up💳 the payments with other members of the group to clear outstanding balances.
+- **Real-time Sync:** All changes are synchronized🔄 across devices in real-time via Firebase.
+
+<details>
+  <summary> How to Use Splito </summary>
+
+  ## How to Use Splito
+  
+- Create a Group➕:
+  - Start by creating a new expense group for your specific need (e.g., a trip to Goa, monthly utilities).
+- Add Members👥:
+  - Invite friends, family, or colleagues to join the group.
+- Track Expenses📈:
+  - Add expenses as they occur, detailing the amount, who paid, and any relevant notes.
+- Split Costs⚖️:
+  - It uses flexible splitting options to divide expenses fairly among group members.
+- Payment Settlements💳:
+  - Settle up the payment with any other group member as any payment occurs.
+
+</details>
+
 ## Screenshots
 <table>
   <tr>
@@ -51,31 +76,6 @@ Whether it's a group trip🌍, shared household bills🏠, or any other collecti
     <td> <img src="./Screenshots/Transactions.png"/> </td>
   </tr>  
 </table>
-
-## Features🌟
-- **Group Management:** Create and manage multiple expense groups👥 for different purposes (e.g., games, trips, shared bills).
-- **Expense Tracking:** Add expenses💰 with details such as description, amount, payer, and date.
-- **Expense Splitting:** Split expenses equally⚖️ or based on customizable ratios among group members.
-- **Payment Settlement:** Easily settle up💳 the payments with other members of the group to clear outstanding balances.
-- **Real-time Sync:** All changes are synchronized🔄 across devices in real-time via Firebase.
-
-<details>
-  <summary> How to Use Splito </summary>
-
-  ## How to Use Splito
-  
-- Create a Group➕:
-  - Start by creating a new expense group for your specific need (e.g., a trip to Goa, monthly utilities).
-- Add Members👥:
-  - Invite friends, family, or colleagues to join the group.
-- Track Expenses📈:
-  - Add expenses as they occur, detailing the amount, who paid, and any relevant notes.
-- Split Costs⚖️:
-  - It uses flexible splitting options to divide expenses fairly among group members.
-- Payment Settlements💳:
-  - Settle up the payment with any other group member as any payment occurs.
-
-</details>
 
 ## Requirements✅
 Make sure you have the latest stable version of Xcode installed. You can then go ahead with cloning this repository to Xcode.
