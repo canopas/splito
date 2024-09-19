@@ -99,7 +99,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 }
             }
 
-            NotificationCenter.default.post(name: .updateGroup, object: group)
             self.group = group
             fetchGroupBalance()
         } catch {
@@ -322,8 +321,8 @@ extension GroupHomeViewModel {
                     self.expensesWithUser.append(newExpenseWithUser)
                 }
             }
-            await fetchGroup()
         }
+        refreshGroupData()
     }
 
     @objc private func handleUpdateExpense(notification: Notification) {
@@ -342,8 +341,8 @@ extension GroupHomeViewModel {
                     }
                 }
             }
-            await fetchGroup()
         }
+        refreshGroupData()
     }
 
     @objc private func handleDeleteExpense(notification: Notification) {
@@ -356,22 +355,23 @@ extension GroupHomeViewModel {
                 self.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully."))
             }
         }
-        Task {
-            await fetchGroup()
-        }
+        refreshGroupData()
     }
 
     @objc private func handleTransaction(notification: Notification) {
-        Task {
-            await fetchGroup()
-        }
+        refreshGroupData()
     }
 
     @objc private func handleAddTransaction(notification: Notification) {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
         showSettleUpSheet = false
+        refreshGroupData()
+    }
+
+    private func refreshGroupData() {
         Task {
             await fetchGroup()
+            NotificationCenter.default.post(name: .updateGroup, object: group)
         }
     }
 }

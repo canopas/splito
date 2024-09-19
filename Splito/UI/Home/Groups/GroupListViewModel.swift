@@ -163,22 +163,15 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func fetchUserData(for userId: String?) async -> AppUser? {
-        guard let userId else { return nil }
-
-        if let existingUser = groupMembers.first(where: { $0.id == userId }) {
-            return existingUser // Return the available user from groupMembers
-        } else {
+    private func fetchUserData(for userId: String) async {
+        if !groupMembers.contains(where: { $0.id == userId }) {
             do {
                 let user = try await userRepository.fetchUserBy(userID: userId)
                 if let user {
                     self.groupMembers.append(user)
-                    return user
                 }
-                return user
             } catch {
                 handleServiceError(error)
-                return nil
             }
         }
     }
@@ -337,10 +330,8 @@ extension GroupListViewModel {
         let memberBalance = getMembersBalance(group: group, memberId: userId)
         let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
 
-        for memberId in group.members where groupMembers.contains(where: { $0.id == memberId }) {
-            if let user = await fetchUserData(for: memberId) {
-                self.groupMembers.append(user)
-            }
+        for memberId in group.members {
+            await fetchUserData(for: memberId)
         }
 
         let groupInfo = GroupInformation(
