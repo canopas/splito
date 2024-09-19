@@ -245,7 +245,7 @@ extension AddExpenseViewModel {
         await fetchMemberProfileUrls()
     }
 
-    func handleSaveAction() async {
+    func handleSaveAction() async -> Bool {
         if let user = preference.user, selectedPayers == [:] || selectedPayers[user.id] == 0 {
             selectedPayers = [user.id: expenseAmount]
         }
@@ -253,7 +253,7 @@ extension AddExpenseViewModel {
         if expenseName == "" || expenseAmount == 0 || selectedGroup == nil || selectedPayers == [:] {
             showToastFor(toast: ToastPrompt(type: .warning, title: "Warning",
                                             message: "Please fill all data to add expense."))
-            return
+            return false
         }
 
         let totalPaidAmount = selectedPayers.map { $0.value }.reduce(0, +)
@@ -264,13 +264,14 @@ extension AddExpenseViewModel {
 
             showAlertFor(title: "Error",
                          message: "The total of everyone's paid shares (\(differenceAmount.formattedCurrency)) is different than the total cost (\(expenseAmount.formattedCurrency))")
-            return
+            return false
         }
 
-        guard let selectedGroup, let groupId = selectedGroup.id, let user = preference.user else { return }
+        guard let selectedGroup, let groupId = selectedGroup.id, let user = preference.user else { return false }
 
         if let expense {
             var newExpense = expense
+            newExpense.groupId = groupId
             newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing)
             newExpense.amount = expenseAmount
             newExpense.date = Timestamp(date: expenseDate)
@@ -294,6 +295,7 @@ extension AddExpenseViewModel {
 
             await addExpense(groupId: groupId, expense: expense)
         }
+        return true
     }
 
     private func addExpense(groupId: String, expense: Expense) async {

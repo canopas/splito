@@ -311,7 +311,7 @@ extension GroupHomeViewModel {
     }
 
     @objc private func handleAddExpense(notification: Notification) {
-        guard let newExpense = notification.object as? Expense else { return }
+        guard let newExpense = notification.object as? Expense, newExpense.groupId == groupId else { return }
 
         self.expenses.append(newExpense)
         Task {

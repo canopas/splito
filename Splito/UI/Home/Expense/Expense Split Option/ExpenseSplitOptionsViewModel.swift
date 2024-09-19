@@ -157,10 +157,10 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func handleDoneAction() {
+    func handleDoneAction() -> Bool {
         if selectedTab == .equally && selectedMembers.count == 0 {
             showAlertFor(title: "Whoops!", message: "You must select at least one person to split with.")
-            return
+            return false
         }
 
         if selectedTab == .percentage && totalPercentage != 100 {
@@ -168,12 +168,12 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             let differenceAmount = totalPercentage < 100 ? (String(format: "%.0f", 100 - totalPercentage)) : (String(format: "%.0f", totalPercentage - 100))
 
             showAlertFor(title: "Whoops!", message: "The shares do not add up to 100%. You are \(amountDescription) by \(differenceAmount)%")
-            return
+            return false
         }
 
         if selectedTab == .shares && totalShares <= 0 {
             showAlertFor(title: "Whoops!", message: "You must assign a non-zero share to at least one person.")
-            return
+            return false
         }
 
         if selectedTab == .fixedAmount && totalFixedAmount != expenseAmount {
@@ -181,10 +181,12 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             let differenceAmount = totalFixedAmount < expenseAmount ? (expenseAmount - totalFixedAmount) : (totalFixedAmount - expenseAmount)
 
             showAlertFor(title: "Whoops!", message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
-            return
+            return false
         }
 
         handleSplitTypeSelection(selectedMembers, (selectedTab == .fixedAmount) ? fixedAmounts.filter({ $0.value != 0 }) : (selectedTab == .percentage) ? percentages.filter({ $0.value != 0 }) : shares.filter({ $0.value != 0 }), selectedTab)
+
+        return true
     }
 }
 

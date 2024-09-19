@@ -124,7 +124,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         do {
             viewState = .loading
             try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
-            viewState = .initial
             NotificationCenter.default.post(name: .deleteExpense, object: expense)
             await self.updateGroupMemberBalance(updateType: .Delete)
             router.pop()

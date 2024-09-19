@@ -69,7 +69,7 @@ public class GroupRepository: ObservableObject {
         }
     }
 
-    public func addMemberToGroup(groupId: String, memberId: String, code: String) async throws {
+    public func addMemberToGroup(groupId: String, memberId: String) async throws {
         try await store.addMemberToGroup(groupId: groupId, memberId: memberId)
     }
 

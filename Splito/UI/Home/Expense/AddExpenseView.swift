@@ -111,8 +111,10 @@ struct AddExpenseView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 CheckmarkButton {
                     Task {
-                        await viewModel.handleSaveAction()
-                        dismiss()
+                        let saveSuccessful = await viewModel.handleSaveAction()
+                        if saveSuccessful {
+                            dismiss()
+                        }
                     }
                 }
             }

@@ -58,7 +58,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         guard let userId = preference.user?.id else { return }
 
         do {
-            try await groupRepository.addMemberToGroup(groupId: code.groupId, memberId: userId, code: code.code)
+            try await groupRepository.addMemberToGroup(groupId: code.groupId, memberId: userId)
             NotificationCenter.default.post(name: .joinGroup, object: code.groupId)
             try await codeRepository.deleteSharedCode(documentId: code.code)
         } catch {
