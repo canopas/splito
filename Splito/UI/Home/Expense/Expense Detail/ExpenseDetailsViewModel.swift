@@ -52,6 +52,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             }
             viewState = .initial
         } catch {
+            viewState = .initial
             handleServiceError(error)
         }
     }
@@ -91,7 +92,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         do {
             return try await userRepository.fetchUserBy(userID: userId)
         } catch {
-            viewState = .initial
             handleServiceError(error)
             return nil
         }

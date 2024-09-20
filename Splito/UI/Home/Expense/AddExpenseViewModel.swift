@@ -271,7 +271,6 @@ extension AddExpenseViewModel {
 
         if let expense {
             var newExpense = expense
-            newExpense.groupId = groupId
             newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing)
             newExpense.amount = expenseAmount
             newExpense.date = Timestamp(date: expenseDate)
@@ -303,8 +302,9 @@ extension AddExpenseViewModel {
 
         do {
             viewState = .loading
-            let newExpense = try await expenseRepository.addExpense(groupId: groupId, expense: expense)
+            var newExpense = try await expenseRepository.addExpense(groupId: groupId, expense: expense)
             viewState = .initial
+            newExpense.groupId = groupId
             NotificationCenter.default.post(name: .addExpense, object: newExpense)
             if !(selectedGroup?.hasExpenses ?? false) {
                 selectedGroup?.hasExpenses = true
