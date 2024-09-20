@@ -443,6 +443,9 @@
     "No members in your selected group." : {
 
     },
+    "No Network Connection" : {
+
+    },
     "No results found for \"%@\"!" : {
 
     },
@@ -490,6 +493,9 @@
     },
     "Phone Number" : {
       "extractionState" : "manual"
+    },
+    "Please check your connection and try again." : {
+
     },
     "Please enter a cost for your expense first!" : {
       "extractionState" : "manual"

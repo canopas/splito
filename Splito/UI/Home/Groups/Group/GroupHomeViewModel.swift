@@ -84,7 +84,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Data Loading
-    private func fetchGroup() async {
+    func fetchGroup() async {
         do {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             guard let group else { return }
@@ -102,7 +102,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             self.group = group
             fetchGroupBalance()
         } catch {
-            self.groupState = .noMember
             handleServiceError(error)
         }
     }
@@ -118,7 +117,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             await combineMemberWithExpense(expenses: result.expenses.uniqued())
             self.hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
         } catch {
-            self.groupState = .noMember
             handleServiceError(error)
         }
     }
@@ -134,7 +132,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             await combineMemberWithExpense(expenses: result.expenses.uniqued())
             self.hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
         } catch {
-            self.groupState = .noMember
             handleServiceError(error)
         }
     }

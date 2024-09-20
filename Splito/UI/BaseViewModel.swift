@@ -8,6 +8,7 @@
 import Data
 import Combine
 import BaseStyle
+import Network
 
 @MainActor
 open class BaseViewModel {
@@ -19,9 +20,15 @@ open class BaseViewModel {
     @Published public var alert: AlertPrompt = .init(message: "")
     @Published public var showAlert: Bool = false
 
+    @Published var networkMonitor = NetworkMonitor()
+
     public var cancelable = Set<AnyCancellable>()
 
-    public init() { }
+    public init() {
+        if !networkMonitor.isConnected {
+            currentErrorState = .noInternet
+        }
+    }
 
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -31,7 +38,7 @@ open class BaseViewModel {
     open func showAlertFor(_ error: Error) {
         // Check if the error is a ServiceError, otherwise handle as a generic error
         if let serviceError = error as? ServiceError {
-            alert = .init(message: error.localizedDescription)
+            alert = .init(message: serviceError.descriptionText)
         } else {
             // Handle non-ServiceError cases with a default message or the localized description
             alert = .init(message: error.localizedDescription)
@@ -65,12 +72,16 @@ open class BaseViewModel {
 
     /// Handle error thrown by firestore query
     public func handleServiceError(_ error: Error) {
-        // Check if the error is a ServiceError, otherwise handle as a generic error
-        if let serviceError = error as? ServiceError {
-            showToastFor(serviceError)
+        if !networkMonitor.isConnected {
+            currentErrorState = .noInternet
         } else {
-            // Handle non-ServiceError cases with a default message or the localized description
-            showToastFor(toast: .init(type: .error, title: "Error", message: error.localizedDescription))
+            // Check if the error is a ServiceError, otherwise handle as a generic error
+            if let serviceError = error as? ServiceError {
+                showToastFor(serviceError)
+            } else {
+                // Handle non-ServiceError cases with a default message or the localized description
+                showToastFor(toast: .init(type: .error, title: "Error", message: error.localizedDescription))
+            }
         }
     }
 
@@ -105,5 +116,27 @@ public extension BaseViewModel {
                 return "noError"
             }
         }
+    }
+}
+
+class NetworkMonitor: ObservableObject {
+
+    private var monitor: NWPathMonitor
+    private let queue = DispatchQueue.global(qos: .background)
+
+    @Published var isConnected: Bool = true
+
+    init() {
+        monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { [weak self] path in
+            DispatchQueue.main.async {
+                self?.isConnected = path.status == .satisfied
+            }
+        }
+        monitor.start(queue: queue)
+    }
+
+    deinit {
+        monitor.cancel()
     }
 }

@@ -150,7 +150,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         return 0
     }
 
-    private func fetchLatestUser() async {
+    func fetchLatestUser() async {
         guard let userId = preference.user?.id else { return }
 
         do {
