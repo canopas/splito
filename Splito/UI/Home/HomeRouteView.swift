@@ -13,7 +13,7 @@ struct HomeRouteView: View {
     @StateObject private var viewModel = HomeRouteViewModel()
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
             TabView(selection: $viewModel.selectedTab) {
                 GroupRouteView()
                     .onAppear {
@@ -24,9 +24,9 @@ struct HomeRouteView: View {
                     }
                     .tag(0)
 
-                Text("")
+                Spacer()
                     .tabItem {
-                        Label("", image: "AddExpense")
+                        EmptyView()
                     }
                     .tag(1)
 
@@ -40,11 +40,6 @@ struct HomeRouteView: View {
                     .tag(2)
             }
             .tint(primaryText)
-            .onChange(of: viewModel.selectedTab) { newValue in
-                if newValue == 1 {
-                    viewModel.openAddExpenseSheet()
-                }
-            }
             .fullScreenCover(isPresented: $viewModel.openExpenseSheet) {
                 ExpenseRouteView()
             }
@@ -52,7 +47,30 @@ struct HomeRouteView: View {
                 UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenFromOnboard: true, onDismiss: viewModel.dismissProfileView))
                     .interactiveDismissDisabled()
             }
+
+            AddExpenseButtonView(onClick: viewModel.openAddExpenseSheet)
         }
+        .ignoresSafeArea(.keyboard) // Useful so the button doesn't move around on keyboard show
         .onAppear(perform: viewModel.openUserProfileIfNeeded)
+    }
+}
+
+private struct AddExpenseButtonView: View {
+
+    let onClick: () -> Void
+
+    var body: some View {
+        Button(action: onClick) {
+            Image(systemName: "plus")
+                .resizable()
+                .scaledToFit()
+                .fontWeight(.medium)
+                .frame(width: 16, height: 16)
+                .foregroundStyle(primaryLightText)
+                .padding(.vertical, 12)
+                .padding(.horizontal, 20)
+        }
+        .background(primaryColor)
+        .cornerRadius(30)
     }
 }
