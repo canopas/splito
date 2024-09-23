@@ -108,7 +108,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
                 NotificationCenter.default.post(name: .updateGroup, object: group)
                 self.group = group
-                self.combineMemberWithExpense(expenses: self.expenses)
+                self.fetchGroupBalance()
             }.store(in: &cancelable)
     }
 
@@ -326,7 +326,7 @@ extension GroupHomeViewModel {
     }
 
     @objc private func handleAddExpense(notification: Notification) {
-        guard let newExpense = notification.object as? Expense else { return }
+        guard let newExpense = notification.object as? Expense, newExpense.groupId == groupId else { return }
 
         expenses.append(newExpense)
         fetchUserData(for: newExpense.paidBy.keys.first ?? "") { [weak self] user in

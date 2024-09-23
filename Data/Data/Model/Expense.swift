@@ -11,6 +11,7 @@ public struct Expense: Codable, Hashable {
 
     public var id: String? // Automatically generated ID by Firestore
 
+    public var groupId: String?
     public var name: String
     public var amount: Double
     public var date: Timestamp
@@ -20,8 +21,9 @@ public struct Expense: Codable, Hashable {
     public var splitType: SplitType
     public var splitData: [String: Double]? // Use this to store percentage or share data
 
-    public init(name: String, amount: Double, date: Timestamp, paidBy: [String: Double], addedBy: String,
+    public init(groupId: String? = nil, name: String, amount: Double, date: Timestamp, paidBy: [String: Double], addedBy: String,
                 splitTo: [String], splitType: SplitType = .equally, splitData: [String: Double]? = [:]) {
+        self.groupId = groupId
         self.name = name
         self.amount = amount
         self.date = date

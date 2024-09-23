@@ -318,7 +318,11 @@ extension AddExpenseViewModel {
             } receiveValue: { [weak self] newExpense in
                 guard let self else { return }
                 self.viewState = .initial
-                NotificationCenter.default.post(name: .addExpense, object: newExpense)
+
+                var expense = newExpense
+                expense.groupId = groupId
+                NotificationCenter.default.post(name: .addExpense, object: expense)
+
                 if !(self.selectedGroup?.hasExpenses ?? false) {
                     self.selectedGroup?.hasExpenses = true
                 }
