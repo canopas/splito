@@ -19,7 +19,7 @@ public class ShareCodeStore: ObservableObject {
             try database.collection(self.COLLECTION_NAME).addDocument(from: sharedCode)
         } catch {
             LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
-            throw ServiceError.databaseError(error: error)
+            throw error
         }
     }
 
@@ -43,7 +43,7 @@ public class ShareCodeStore: ObservableObject {
             try await database.collection(COLLECTION_NAME).document(documentId).delete()
         } catch {
             LogE("ShareCodeStore :: \(#function): Deleting data failed with error: \(error.localizedDescription).")
-            throw ServiceError.databaseError(error: error)
+            throw error
         }
     }
 }

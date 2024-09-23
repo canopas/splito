@@ -13,7 +13,7 @@ public class TransactionRepository: ObservableObject {
     @Inject private var store: TransactionStore
 
     public func addTransaction(groupId: String, transaction: Transactions) async throws -> Transactions {
-        try await store.addTransaction(groupId: groupId, transaction: transaction)
+        return try await store.addTransaction(groupId: groupId, transaction: transaction)
     }
 
     public func updateTransaction(groupId: String, transaction: Transactions) async throws {
@@ -21,11 +21,11 @@ public class TransactionRepository: ObservableObject {
     }
 
     public func fetchTransactionsBy(groupId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) async throws -> (transactions: [Transactions], lastDocument: DocumentSnapshot?) {
-        try await store.fetchTransactionsBy(groupId: groupId, limit: limit, lastDocument: lastDocument)
+        return try await store.fetchTransactionsBy(groupId: groupId, limit: limit, lastDocument: lastDocument)
     }
 
     public func fetchTransactionBy(groupId: String, transactionId: String) async throws -> Transactions {
-        try await store.fetchTransactionsBy(groupId: groupId, transactionId: transactionId)
+        return try await store.fetchTransactionsBy(groupId: groupId, transactionId: transactionId)
     }
 
     public func deleteTransaction(groupId: String, transactionId: String) async throws {

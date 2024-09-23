@@ -16,21 +16,22 @@ struct ExpenseSplitOptionsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            NavigationBarTopView(title: "Spilt options",
-                                 leadingButton: {
-                                    DismissButton(iconSize: (22, .regular), padding: (16, 0),
-                                                  foregroundColor: primaryText, onDismissAction: {
-                                        dismiss()
-                                    })
-                                 }(),
-                                 trailingButton:
-                                    CheckmarkButton(padding: (.horizontal, 16)) {
-                                        let isValidInput = viewModel.handleDoneAction()
-                                        if isValidInput {
-                                            dismiss()
-                                        }
-                                    }
-                                )
+            NavigationBarTopView(
+                title: "Spilt options",
+                leadingButton: {
+                    DismissButton(iconSize: (22, .regular), padding: (16, 0),
+                                  foregroundColor: primaryText, onDismissAction: {
+                        dismiss()
+                    })
+                }(),
+                trailingButton:
+                    CheckmarkButton(padding: (.horizontal, 16)) {
+                        let isValidInput = viewModel.handleDoneAction()
+                        if isValidInput {
+                            dismiss()
+                        }
+                    }
+            )
 
             Spacer(minLength: 0)
 

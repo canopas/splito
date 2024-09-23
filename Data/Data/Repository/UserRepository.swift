@@ -27,11 +27,11 @@ public class UserRepository: ObservableObject {
     }
 
     public func fetchUserBy(userID: String) async throws -> AppUser? {
-        try await store.fetchUserBy(id: userID)
+        return try await store.fetchUserBy(id: userID)
     }
 
     public func fetchLatestUserBy(userID: String) async throws -> AppUser? {
-        try await store.fetchLatestUserBy(id: userID)
+        return try await store.fetchLatestUserBy(id: userID)
     }
 
     private func uploadImage(imageData: Data, user: AppUser) async throws -> AppUser {

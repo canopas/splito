@@ -567,6 +567,9 @@
         }
       }
     },
+    "Retry" : {
+      "extractionState" : "manual"
+    },
     "Search" : {
       "extractionState" : "manual"
     },

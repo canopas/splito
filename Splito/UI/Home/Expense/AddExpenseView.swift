@@ -70,7 +70,9 @@ struct AddExpenseView: View {
                 SelectGroupView(viewModel: SelectGroupViewModel(
                     selectedGroup: viewModel.selectedGroup,
                     onGroupSelection: { group in
-                        Task { await viewModel.handleGroupSelection(group: group) }
+                        Task {
+                            await viewModel.handleGroupSelection(group: group)
+                        }
                     }
                 ))
             }

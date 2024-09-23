@@ -13,6 +13,7 @@
 		2176204A2C521EDF00FED0D4 /* RadioButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 217620492C521EDF00FED0D4 /* RadioButton.swift */; };
 		21BEF8A52C637E4900FBC9CF /* NavigationBarTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BEF8A42C637E4900FBC9CF /* NavigationBarTopView.swift */; };
 		21BEF8A72C6399BA00FBC9CF /* BottomSheetHeightModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BEF8A62C6399BA00FBC9CF /* BottomSheetHeightModifier.swift */; };
+		21D26E232CA199630090488B /* CapsuleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D26E222CA199610090488B /* CapsuleButton.swift */; };
 		5DAEE93D2D2208132D031984 /* Pods_BaseStyleTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4AFAF996FB5C233D40D81D5 /* Pods_BaseStyleTests.framework */; };
 		A40018A9B957803B8105BEA5 /* Pods_BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 174198EE4AF2FC82DADEB060 /* Pods_BaseStyle.framework */; };
 		D82174BE2BBAD86D00DB42C3 /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82174BD2BBAD86D00DB42C3 /* ProfileImageView.swift */; };
@@ -71,6 +72,7 @@
 		217620492C521EDF00FED0D4 /* RadioButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioButton.swift; sourceTree = "<group>"; };
 		21BEF8A42C637E4900FBC9CF /* NavigationBarTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarTopView.swift; sourceTree = "<group>"; };
 		21BEF8A62C6399BA00FBC9CF /* BottomSheetHeightModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetHeightModifier.swift; sourceTree = "<group>"; };
+		21D26E222CA199610090488B /* CapsuleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapsuleButton.swift; sourceTree = "<group>"; };
 		2CE85328C46B183FC3F074A3 /* Pods-BaseStyle.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyle.release.xcconfig"; path = "Target Support Files/Pods-BaseStyle/Pods-BaseStyle.release.xcconfig"; sourceTree = "<group>"; };
 		5BDB5B9B63CFD771230CD759 /* Pods-BaseStyleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyleTests.release.xcconfig"; path = "Target Support Files/Pods-BaseStyleTests/Pods-BaseStyleTests.release.xcconfig"; sourceTree = "<group>"; };
 		CC9EC1F1C0A5A0821118E6CA /* Pods-BaseStyleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyleTests.debug.xcconfig"; path = "Target Support Files/Pods-BaseStyleTests/Pods-BaseStyleTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -161,6 +163,7 @@
 		D8302D9A2B9EE1BF005ACA13 /* Buttons */ = {
 			isa = PBXGroup;
 			children = (
+				21D26E222CA199610090488B /* CapsuleButton.swift */,
 				D8D42AAD2B872B27009B345D /* DismissButton.swift */,
 				D8D42A7E2B85D07C009B345D /* PrimaryButton.swift */,
 				D8302D9B2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift */,
@@ -502,6 +505,7 @@
 				D8D42AAC2B872A7C009B345D /* ToastView.swift in Sources */,
 				217620462C4F7CE700FED0D4 /* BackButton.swift in Sources */,
 				D8D42A952B85F8A2009B345D /* Bundle+Extension.swift in Sources */,
+				21D26E232CA199630090488B /* CapsuleButton.swift in Sources */,
 				D89C93462BC42DE500FACD16 /* MailComposeView.swift in Sources */,
 				213A1F2A2C52335D00BF9800 /* CheckmarkButton.swift in Sources */,
 				D86632962C2410BB009D3EF5 /* OtpTextInputView.swift in Sources */,

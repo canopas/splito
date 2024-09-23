@@ -594,6 +594,7 @@
 				D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */,
 				217620472C50DD6300FED0D4 /* GroupListWithDetailView.swift */,
 				214CF8482C2977E10044C188 /* CalculateExpensesFunctions.swift */,
+				21D26E202CA13A9F0090488B /* ErrorView.swift */,
 				D8A7CA6C2BA483BC0014EC67 /* Group */,
 				D8302D9D2B9F2770005ACA13 /* Create Group */,
 				D8302D9E2B9F2810005ACA13 /* Add Member */,
@@ -661,7 +662,6 @@
 			children = (
 				D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */,
 				213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */,
-				21D26E202CA13A9F0090488B /* ErrorView.swift */,
 				D89DBE552B8DE8C600E5F1BD /* Groups */,
 				D85E86E12BAB06BC002EDF76 /* Expense */,
 				D89DBE572B8DE8D400E5F1BD /* Account */,

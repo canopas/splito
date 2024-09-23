@@ -36,7 +36,6 @@ class GroupStore: ObservableObject {
             try groupsCollection.document(groupId).setData(from: group, merge: false)
         } else {
             LogE("GroupStore :: \(#function) Group not found.")
-            throw ServiceError.dataNotFound
         }
     }
 
@@ -55,6 +54,6 @@ class GroupStore: ObservableObject {
     }
 
     func fetchGroupBy(id: String) async throws -> Groups? {
-        try await groupsCollection.document(id).getDocument(as: Groups.self, source: .server)
+        return try await groupsCollection.document(id).getDocument(as: Groups.self, source: .server)
     }
 }

@@ -37,12 +37,11 @@ public class ExpenseStore: ObservableObject {
             try expenseReference(groupId: groupId).document(expenseId).setData(from: expense, merge: false)
         } else {
             LogE("ExpenseStore :: \(#function) Expense not found.")
-            throw ServiceError.dataNotFound
         }
     }
 
     func fetchExpenseBy(groupId: String, expenseId: String) async throws -> Expense {
-        try await expenseReference(groupId: groupId).document(expenseId).getDocument(as: Expense.self, source: .server)
+        return try await expenseReference(groupId: groupId).document(expenseId).getDocument(as: Expense.self, source: .server)
     }
 
     func fetchExpensesBy(groupId: String, limit: Int, lastDocument: DocumentSnapshot?) async throws -> (expenses: [Expense], lastDocument: DocumentSnapshot?) {
@@ -67,7 +66,7 @@ public class ExpenseStore: ObservableObject {
             try await expenseReference(groupId: groupId).document(expenseId).delete()
         } catch {
             LogE("ExpenseStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
-            throw ServiceError.databaseError(error: error)
+            throw error
         }
     }
 
@@ -81,7 +80,7 @@ public class ExpenseStore: ObservableObject {
             try await batch.commit()
         } catch {
             LogE("ExpenseStore :: \(#function) Database error: \(error.localizedDescription)")
-            throw ServiceError.databaseError(error: error)
+            throw error
         }
     }
 }

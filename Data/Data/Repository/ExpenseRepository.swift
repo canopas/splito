@@ -15,7 +15,7 @@ public class ExpenseRepository: ObservableObject {
     private var cancelable = Set<AnyCancellable>()
 
     public func addExpense(groupId: String, expense: Expense) async throws -> Expense {
-        try await store.addExpense(groupId: groupId, expense: expense)
+        return try await store.addExpense(groupId: groupId, expense: expense)
     }
 
     public func updateExpense(groupId: String, expense: Expense) async throws {
@@ -23,11 +23,11 @@ public class ExpenseRepository: ObservableObject {
     }
 
     public func fetchExpensesBy(groupId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) async throws -> (expenses: [Expense], lastDocument: DocumentSnapshot?) {
-        try await store.fetchExpensesBy(groupId: groupId, limit: limit, lastDocument: lastDocument)
+        return try await store.fetchExpensesBy(groupId: groupId, limit: limit, lastDocument: lastDocument)
     }
 
     public func fetchExpenseBy(groupId: String, expenseId: String) async throws -> Expense {
-        try await store.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
+        return try await store.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
     }
 
     public func deleteExpense(groupId: String, expenseId: String) async throws {

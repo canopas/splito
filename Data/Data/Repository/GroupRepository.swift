@@ -78,15 +78,15 @@ public class GroupRepository: ObservableObject {
     }
 
     public func fetchGroupBy(id: String) async throws -> Groups? {
-        try await store.fetchGroupBy(id: id)
+        return try await store.fetchGroupBy(id: id)
     }
 
     public func fetchGroupsBy(userId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) async throws -> (data: [Groups], lastDocument: DocumentSnapshot?) {
-        try await store.fetchGroupsBy(userId: userId, limit: limit, lastDocument: lastDocument)
+        return try await store.fetchGroupsBy(userId: userId, limit: limit, lastDocument: lastDocument)
     }
 
     public func fetchMemberBy(userId: String) async throws -> AppUser? {
-        try await userRepository.fetchUserBy(userID: userId)
+        return try await userRepository.fetchUserBy(userID: userId)
     }
 
     public func fetchMembersBy(groupId: String) async throws -> [AppUser] {

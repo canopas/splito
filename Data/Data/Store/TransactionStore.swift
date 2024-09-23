@@ -37,7 +37,6 @@ public class TransactionStore: ObservableObject {
             try transactionReference(groupId: groupId).document(transactionId).setData(from: transaction, merge: false)
         } else {
             LogE("TransactionStore :: \(#function) Transaction not found.")
-            throw ServiceError.dataNotFound
         }
     }
 
@@ -59,7 +58,7 @@ public class TransactionStore: ObservableObject {
     }
 
     func fetchTransactionsBy(groupId: String, transactionId: String) async throws -> Transactions {
-        try await transactionReference(groupId: groupId).document(transactionId).getDocument(as: Transactions.self, source: .server)
+        return try await transactionReference(groupId: groupId).document(transactionId).getDocument(as: Transactions.self, source: .server)
     }
 
     func deleteTransaction(groupId: String, transactionId: String) async throws {
@@ -67,7 +66,7 @@ public class TransactionStore: ObservableObject {
             try await transactionReference(groupId: groupId).document(transactionId).delete()
         } catch {
             LogE("TransactionStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
-            throw ServiceError.databaseError(error: error)
+            throw error
         }
     }
 
@@ -81,7 +80,7 @@ public class TransactionStore: ObservableObject {
             try await batch.commit()
         } catch {
             LogE("TransactionStore :: \(#function) Database error: \(error.localizedDescription)")
-            throw ServiceError.databaseError(error: error)
+            throw error
         }
     }
 }
