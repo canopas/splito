@@ -20,60 +20,52 @@ struct GroupListView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
-            if case .noInternet = viewModel.currentErrorState {
-                NoInternetView {
-                    Task {
-                        await viewModel.fetchGroups()
-                        await viewModel.fetchLatestUser()
-                        viewModel.currentErrorState = .noError
-                    }
-                }
+            if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.onViewAppear)
+            } else if case .loading = viewModel.currentViewState {
+                LoaderView()
             } else {
-                if case .loading = viewModel.currentViewState {
-                    LoaderView()
-                } else {
-                    VStack(spacing: 0) {
-                        if case .noGroup = viewModel.groupListState {
-                            NoGroupsState(onCreateBtnTap: viewModel.handleCreateGroupBtnTap)
-                        } else if case .hasGroup = viewModel.groupListState {
-                            VSpacer(16)
+                VStack(spacing: 0) {
+                    if case .noGroup = viewModel.groupListState {
+                        NoGroupsState(onCreateBtnTap: viewModel.handleCreateGroupBtnTap)
+                    } else if case .hasGroup = viewModel.groupListState {
+                        VSpacer(16)
 
-                            VStack(spacing: 16) {
-                                GroupListTabBarView(selectedTab: viewModel.selectedTab,
-                                                    onSelect: viewModel.handleTabItemSelection(_:))
+                        VStack(spacing: 16) {
+                            GroupListTabBarView(selectedTab: viewModel.selectedTab,
+                                                onSelect: viewModel.handleTabItemSelection(_:))
 
-                                if viewModel.selectedTab == .all {
-                                    GroupListHeaderView(totalOweAmount: viewModel.totalOweAmount)
-                                        .padding(.bottom, viewModel.showSearchBar ? 0 : 2)
-                                }
-                            }
-                            .onTapGestureForced {
-                                UIApplication.shared.endEditing()
-                            }
-
-                            if viewModel.showSearchBar {
-                                SearchBar(text: $viewModel.searchedGroup, isFocused: $isFocused, placeholder: "Search groups")
-                                    .padding(.vertical, -7)
-                                    .padding(.horizontal, 3)
-                                    .overlay(content: {
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(outlineColor, lineWidth: 1)
-                                    })
-                                    .focused($isFocused)
-                                    .onAppear {
-                                        isFocused = true
-                                    }
-                                    .padding([.horizontal, .top], 16)
-                                    .padding(.bottom, 8)
-                            }
-
-                            GroupListWithDetailView(viewModel: viewModel) {
-                                isFocused = false
+                            if viewModel.selectedTab == .all {
+                                GroupListHeaderView(totalOweAmount: viewModel.totalOweAmount)
+                                    .padding(.bottom, viewModel.showSearchBar ? 0 : 2)
                             }
                         }
+                        .onTapGestureForced {
+                            UIApplication.shared.endEditing()
+                        }
+
+                        if viewModel.showSearchBar {
+                            SearchBar(text: $viewModel.searchedGroup, isFocused: $isFocused, placeholder: "Search groups")
+                                .padding(.vertical, -7)
+                                .padding(.horizontal, 3)
+                                .overlay(content: {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(outlineColor, lineWidth: 1)
+                                })
+                                .focused($isFocused)
+                                .onAppear {
+                                    isFocused = true
+                                }
+                                .padding([.horizontal, .top], 16)
+                                .padding(.bottom, 8)
+                        }
+
+                        GroupListWithDetailView(viewModel: viewModel) {
+                            isFocused = false
+                        }
                     }
-                    .frame(maxHeight: .infinity)
                 }
+                .frame(maxHeight: .infinity)
             }
         }
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
@@ -310,37 +302,5 @@ enum OptionList: CaseIterable {
         case .deleteGroup:
             return .binIcon
         }
-    }
-}
-
-struct NoInternetView: View {
-
-    let onRetryBtnClick: () -> Void
-
-    var body: some View {
-        VStack(spacing: 16) {
-            Spacer()
-
-            Image(systemName: "wifi.exclamationmark")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 80, height: 80)
-                .foregroundColor(.red)
-            Text("No Network Connection")
-                .font(.title2)
-                .bold()
-            Text("Please check your connection and try again.")
-                .font(.body)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
-
-            PrimaryButton(text: "Retry", onClick: {
-                onRetryBtnClick()
-            })
-
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, alignment: .center)
-        .background(Color(.systemGray6).ignoresSafeArea())
     }
 }

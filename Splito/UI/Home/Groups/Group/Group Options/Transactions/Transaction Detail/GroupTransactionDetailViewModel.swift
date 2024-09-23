@@ -34,6 +34,10 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
         NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedTransaction(notification:)), name: .updateTransaction, object: nil)
 
+        onViewAppear()
+    }
+
+    func onViewAppear() {
         Task {
             await fetchGroup()
             await fetchTransaction()
@@ -45,9 +49,9 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         do {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             self.group = group
-        } catch {
             viewState = .initial
-            handleServiceError(error)
+        } catch {
+            handleServiceError()
         }
     }
 
@@ -59,8 +63,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             self.transaction = transaction
             await setTransactionUsersData()
         } catch {
-            viewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -94,7 +97,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             return user
         } catch {
             viewState = .initial
-            handleServiceError(error)
+            showToastForError()
             return nil
         }
     }
@@ -133,7 +136,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             router.pop()
         } catch {
             viewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -148,13 +151,22 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
         } catch {
             viewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
     @objc private func getUpdatedTransaction(notification: Notification) {
         guard let updatedTransaction = notification.object as? Transactions else { return }
         transaction = updatedTransaction
+    }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
     }
 }
 
@@ -163,5 +175,7 @@ extension GroupTransactionDetailViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

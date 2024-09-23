@@ -53,6 +53,10 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
         super.init()
 
+        onViewAppear()
+    }
+
+    func onViewAppear() {
         Task {
             await fetchGroup()
             await fetchTransaction()
@@ -68,8 +72,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             self.group = group
             self.viewState = .initial
         } catch {
-            viewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -82,8 +85,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             self.paymentDate = transaction.date.dateValue()
             self.viewState = .initial
         } catch {
-            viewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -92,8 +94,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             let user = try await userRepository.fetchUserBy(userID: payerId)
             if let user { payer = user }
         } catch {
-            viewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -102,8 +103,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             let user = try await userRepository.fetchUserBy(userID: receiverId)
             if let user { receiver = user }
         } catch {
-            viewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -138,7 +138,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         } catch {
             viewState = .initial
             showLoader = false
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -152,7 +152,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         } catch {
             viewState = .initial
             showLoader = false
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -167,7 +167,16 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             viewState = .initial
         } catch {
             viewState = .initial
-            handleServiceError(error)
+            showToastForError()
+        }
+    }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
         }
     }
 }
@@ -177,5 +186,7 @@ extension GroupPaymentViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

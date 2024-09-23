@@ -138,7 +138,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             }
         } catch {
             isSaveInProgress = false
-            showAlertFor(error)
+            showAlertFor(title: "Error", message: "Something went wrong.")
         }
     }
 
@@ -170,16 +170,15 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             goToOnboardScreen()
             LogD("UserProfileViewModel :: user deleted.")
         } catch {
-            handleServiceError(error)
-            if error.localizedDescription.contains(self.REQUIRE_AGAIN_LOGIN_TEXT) {
-                self.alert = .init(title: "", message: error.localizedDescription,
-                                   positiveBtnTitle: "Reauthenticate", positiveBtnAction: {
+            if error.localizedDescription.contains(REQUIRE_AGAIN_LOGIN_TEXT) {
+                alert = .init(title: "", message: error.localizedDescription,
+                              positiveBtnTitle: "Reauthenticate", positiveBtnAction: {
                     self.reAuthenticateUser()
                 }, negativeBtnTitle: "Cancel", negativeBtnAction: {
                     self.showAlert = false
                     self.isDeleteInProgress = false
                 })
-                self.showAlert = true
+                showAlert = true
             }
         }
     }

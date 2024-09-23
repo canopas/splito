@@ -77,6 +77,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleTransaction(notification:)), name: .updateTransaction, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleTransaction(notification:)), name: .deleteTransaction, object: nil)
 
+        onViewAppear()
+    }
+
+    func onViewAppear() {
         Task {
             await fetchGroup()
             await fetchExpenses()
@@ -89,7 +93,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             guard let group else { return }
             let groupTotalSummary = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
-            self.currentMonthSpending = groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }
+            currentMonthSpending = groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }
 
             if self.group?.members != group.members {
                 for member in group.members where member != self.preference.user?.id {
@@ -102,7 +106,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             self.group = group
             fetchGroupBalance()
         } catch {
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -111,13 +115,13 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         do {
             let result = try await expenseRepository.fetchExpensesBy(groupId: groupId, limit: EXPENSES_LIMIT)
-            self.lastDocument = result.lastDocument
-            self.expenses = result.expenses.uniqued()
+            lastDocument = result.lastDocument
+            expenses = result.expenses.uniqued()
 
             await combineMemberWithExpense(expenses: result.expenses.uniqued())
-            self.hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
+            hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
         } catch {
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -126,13 +130,13 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         do {
             let result = try await expenseRepository.fetchExpensesBy(groupId: groupId, limit: EXPENSES_LIMIT, lastDocument: lastDocument)
-            self.lastDocument = result.lastDocument
-            self.expenses.append(contentsOf: result.expenses.uniqued())
+            lastDocument = result.lastDocument
+            expenses.append(contentsOf: result.expenses.uniqued())
 
             await combineMemberWithExpense(expenses: result.expenses.uniqued())
-            self.hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
+            hasMoreExpenses = !(result.expenses.count < EXPENSES_LIMIT)
         } catch {
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -146,8 +150,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         withAnimation(.easeOut) {
-            self.expensesWithUser.append(contentsOf: combinedData.uniqued())
-            self.fetchGroupBalance()
+            expensesWithUser.append(contentsOf: combinedData.uniqued())
+            fetchGroupBalance()
         }
     }
 
@@ -162,7 +166,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 }
                 return user
             } catch {
-                handleServiceError(error)
+                showToastForError()
                 return nil
             }
         }
@@ -173,15 +177,15 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         self.memberOwingAmount = Splito.calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
         withAnimation(.easeOut) {
-            self.overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
-            self.setGroupViewState()
+            overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
+            setGroupViewState()
         }
     }
 
     private func setGroupViewState() {
         guard let group else { return }
-        self.groupState = group.members.count > 1 ?
-        ((self.expenses.isEmpty && group.balances.allSatisfy({ $0.balance == 0 })) ? .noExpense : .hasExpense) : (self.expenses.isEmpty ? .noMember : .hasExpense)
+        groupState = group.members.count > 1 ?
+        ((expenses.isEmpty && group.balances.allSatisfy({ $0.balance == 0 })) ? .noExpense : .hasExpense) : (expenses.isEmpty ? .noMember : .hasExpense)
     }
 
     private func updateGroupExpenses() {
@@ -286,7 +290,7 @@ extension GroupHomeViewModel {
             try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expense.id ?? "")
             await updateGroupMemberBalance(expense: expense, updateType: .Delete)
         } catch {
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -299,7 +303,7 @@ extension GroupHomeViewModel {
             try await groupRepository.updateGroup(group: group)
             NotificationCenter.default.post(name: .deleteExpense, object: expense)
         } catch {
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -310,12 +314,12 @@ extension GroupHomeViewModel {
     @objc private func handleAddExpense(notification: Notification) {
         guard let newExpense = notification.object as? Expense, newExpense.groupId == groupId else { return }
 
-        self.expenses.append(newExpense)
+        expenses.append(newExpense)
         Task {
             if let user = await fetchUserData(for: newExpense.paidBy.keys.first ?? "") {
                 let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
                 withAnimation {
-                    self.expensesWithUser.append(newExpenseWithUser)
+                    expensesWithUser.append(newExpenseWithUser)
                 }
             }
         }
@@ -325,16 +329,16 @@ extension GroupHomeViewModel {
     @objc private func handleUpdateExpense(notification: Notification) {
         guard let updatedExpense = notification.object as? Expense else { return }
 
-        if let index = self.expenses.firstIndex(where: { $0.id == updatedExpense.id }) {
-            self.expenses[index] = updatedExpense
+        if let index = expenses.firstIndex(where: { $0.id == updatedExpense.id }) {
+            expenses[index] = updatedExpense
         }
 
         Task {
             if let user = await fetchUserData(for: updatedExpense.paidBy.keys.first ?? "") {
-                if let index = self.expensesWithUser.firstIndex(where: { $0.expense.id == updatedExpense.id }) {
+                if let index = expensesWithUser.firstIndex(where: { $0.expense.id == updatedExpense.id }) {
                     let updatedExpenseWithUser = ExpenseWithUser(expense: updatedExpense, user: user)
                     withAnimation {
-                        self.expensesWithUser[index] = updatedExpenseWithUser
+                        expensesWithUser[index] = updatedExpenseWithUser
                     }
                 }
             }
@@ -345,8 +349,8 @@ extension GroupHomeViewModel {
     @objc private func handleDeleteExpense(notification: Notification) {
         guard let deletedExpense = notification.object as? Expense else { return }
 
-        self.expenses.removeAll { $0.id == deletedExpense.id }
-        if let index = self.expensesWithUser.firstIndex(where: { $0.expense.id == deletedExpense.id }) {
+        expenses.removeAll { $0.id == deletedExpense.id }
+        if let index = expensesWithUser.firstIndex(where: { $0.expense.id == deletedExpense.id }) {
             withAnimation {
                 self.expensesWithUser.remove(at: index)
                 self.showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully."))
@@ -371,6 +375,15 @@ extension GroupHomeViewModel {
             NotificationCenter.default.post(name: .updateGroup, object: group)
         }
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            groupState = .noInternet
+        } else {
+            groupState = .somethingWentWrong
+        }
+    }
 }
 
 // MARK: - Group State
@@ -380,5 +393,7 @@ extension GroupHomeViewModel {
         case noMember
         case noExpense
         case hasExpense
+        case noInternet
+        case somethingWentWrong
     }
 }

@@ -23,23 +23,24 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         self.router = router
     }
 
-    func joinMemberWithCode() async {
+    func joinMemberWithCode() async -> Bool {
         do {
             showLoader = true
             let code = try await codeRepository.fetchSharedCode(code: code)
             guard let code else {
                 showLoader = false
                 showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "The code you've entered is not exists."))
-                return
+                return false
             }
-            await addMemberIfCodeExists(code: code)
+            return await addMemberIfCodeExists(code: code)
         } catch {
             showLoader = false
-            handleServiceError(error)
+            showToastForError()
+            return false
         }
     }
 
-    private func addMemberIfCodeExists(code: SharedCode) async {
+    private func addMemberIfCodeExists(code: SharedCode) async -> Bool {
         let expireDate = code.expireDate.dateValue()
         let daysDifference = Calendar.current.dateComponents([.day], from: expireDate, to: Date()).day
 
@@ -47,22 +48,24 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         guard let daysDifference, daysDifference <= codeRepository.CODE_EXPIRATION_LIMIT else {
             showLoader = false
             showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "The code you've entered is expired."))
-            return
+            return false
         }
 
-        await addMemberFor(code: code)
-        showLoader = false
+        return await addMemberFor(code: code)
     }
 
-    private func addMemberFor(code: SharedCode) async {
-        guard let userId = preference.user?.id else { return }
+    private func addMemberFor(code: SharedCode) async -> Bool {
+        guard let userId = preference.user?.id else { return false }
 
         do {
             try await groupRepository.addMemberToGroup(groupId: code.groupId, memberId: userId)
             NotificationCenter.default.post(name: .joinGroup, object: code.groupId)
             try await codeRepository.deleteSharedCode(documentId: code.code)
+            showLoader = false
+            return true
         } catch {
-            handleServiceError(error)
+            showToastForError()
+            return false
         }
     }
 }

@@ -64,6 +64,10 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
         splitAmount = expenseAmount / Double(selectedMembers.count)
 
+        onViewAppear()
+    }
+
+    func onViewAppear() {
         Task {
             await fetchUsersData()
         }
@@ -94,7 +98,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         do {
             return try await userRepository.fetchUserBy(userID: memberId)
         } catch {
-            handleServiceError(error)
+            handleServiceError()
             return nil
         }
     }
@@ -187,6 +191,15 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
 
         return true
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
+    }
 }
 
 // MARK: - View States
@@ -194,6 +207,8 @@ extension ExpenseSplitOptionsViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }
 

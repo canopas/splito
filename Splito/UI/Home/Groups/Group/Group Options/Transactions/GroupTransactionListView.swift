@@ -15,7 +15,9 @@ struct GroupTransactionListView: View {
 
     var body: some View {
         VStack(alignment: .center) {
-            if case .loading = viewModel.currentViewState {
+            if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.onViewAppear)
+            } else if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else {
                 VStack(alignment: .center, spacing: 0) {

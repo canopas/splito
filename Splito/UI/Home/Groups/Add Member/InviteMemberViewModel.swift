@@ -42,7 +42,7 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
                 await generateInviteCode()
             }
         } catch {
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -51,7 +51,7 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             self.group = group
         } catch {
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -61,7 +61,7 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
         do {
             try await codeRepository.addSharedCode(sharedCode: shareCode)
         } catch {
-            handleServiceError(error)
+            showToastForError()
         }
     }
 

@@ -82,7 +82,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             viewState = .initial
         } catch {
             viewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -100,7 +100,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             viewState = .initial
         } catch {
             viewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -131,7 +131,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             }
         } catch {
             viewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -141,7 +141,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             return group
         } catch {
             viewState = .initial
-            handleServiceError(error)
+            showToastForError()
             return nil
         }
     }
@@ -151,7 +151,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             return try await groupRepository.fetchMemberBy(userId: userId)
         } catch {
             viewState = .initial
-            handleServiceError(error)
+            showToastForError()
             return nil
         }
     }
@@ -312,7 +312,7 @@ extension AddExpenseViewModel {
             await updateGroupMemberBalance(expense: expense, updateType: .Add)
         } catch {
             viewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -327,7 +327,7 @@ extension AddExpenseViewModel {
             await updateGroupMemberBalance(expense: expense, updateType: .Update(oldExpense: oldExpense))
         } catch {
             viewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -342,7 +342,7 @@ extension AddExpenseViewModel {
             viewState = .initial
         } catch {
             viewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 }

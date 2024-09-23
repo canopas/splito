@@ -82,15 +82,15 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         showImagePickerOptions = true
     }
 
-    func handleDoneAction() async {
+    func handleDoneAction() async -> Bool {
         if let group {
-            await updateGroup(group: group)
+            return await updateGroup(group: group)
         } else {
-            await createGroup()
+            return await createGroup()
         }
     }
 
-    private func createGroup() async {
+    private func createGroup() async -> Bool {
         showLoader = true
 
         let userId = preference.user?.id ?? ""
@@ -106,14 +106,16 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             showLoader = false
             group.id = groupId
             NotificationCenter.default.post(name: .addGroup, object: group)
+            return true
         } catch {
             currentState = .initial
             showLoader = false
-            showAlertFor(error)
+            showAlertFor(title: "Error", message: "Something went wrong.")
+            return false
         }
     }
 
-    private func updateGroup(group: Groups) async {
+    private func updateGroup(group: Groups) async -> Bool {
         self.showLoader = true
 
         var newGroup = group
@@ -126,10 +128,12 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             let updatedGroup = try await groupRepository.updateGroupWithImage(imageData: imageData, newImageUrl: profileImageUrl, group: newGroup)
             showLoader = false
             NotificationCenter.default.post(name: .updateGroup, object: updatedGroup)
+            return true
         } catch {
             currentState = .initial
             showLoader = false
-            showAlertFor(error)
+            showAlertFor(title: "Error", message: "Something went wrong.")
+            return false
         }
     }
 }

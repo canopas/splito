@@ -28,20 +28,34 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
         super.init()
     }
 
+    func onViewAppear() {
+        Task {
+            await fetchGroupMembers()
+        }
+    }
+
     // MARK: - Data Loading
     func fetchGroupMembers() async {
         do {
             let members = try await groupRepository.fetchMembersBy(groupId: groupId)
             self.members = members
         } catch {
-            viewState = .initial
-            handleServiceError(error)
+           handleServiceError()
         }
     }
 
     func onMemberTap(_ memberId: String) {
         selectedMemberId = memberId
         router?.push(.GroupWhoGettingPaidView(groupId: groupId, selectedMemberId: memberId))
+    }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
     }
 }
 
@@ -50,5 +64,7 @@ extension GroupWhoIsPayingViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

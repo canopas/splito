@@ -19,37 +19,29 @@ struct GroupHomeView: View {
     var body: some View {
         GeometryReader { geometry in
             VStack(alignment: .leading, spacing: 0) {
-                if case .noInternet = viewModel.currentErrorState {
-                    NoInternetView {
-                        Task {
-                            await viewModel.fetchGroup()
-                            await viewModel.fetchExpenses()
-                            viewModel.currentErrorState = .noError
-                        }
-                    }
+                if .noInternet == viewModel.groupState || .somethingWentWrong == viewModel.groupState {
+                    ErrorView(isForNoInternet: viewModel.groupState == .noInternet, onClick: viewModel.onViewAppear)
+                } else if case .loading = viewModel.groupState {
+                    LoaderView()
                 } else {
-                    if case .loading = viewModel.groupState {
-                        LoaderView()
-                    } else {
-                        if case .noMember = viewModel.groupState {
-                            EmptyStateView(title: "You’re the only one here!",
-                                           subtitle: "Invite some friends and make this group come alive!",
-                                           buttonTitle: "Invite Member", image: .inviteFriends,
-                                           geometry: geometry, onClick: viewModel.handleInviteMemberClick)
-                        } else if case .noExpense = viewModel.groupState {
-                            EmptyStateView(buttonTitle: "Add expense", geometry: geometry, onClick: viewModel.openAddExpenseSheet)
-                        } else if case .hasExpense = viewModel.groupState {
-                            GroupExpenseListView(viewModel: viewModel, isFocused: $isFocused) {
-                                isFocused = true
-                            }
-                            .focused($isFocused)
+                    if case .noMember = viewModel.groupState {
+                        EmptyStateView(title: "You’re the only one here!",
+                                       subtitle: "Invite some friends and make this group come alive!",
+                                       buttonTitle: "Invite Member", image: .inviteFriends,
+                                       geometry: geometry, onClick: viewModel.handleInviteMemberClick)
+                    } else if case .noExpense = viewModel.groupState {
+                        EmptyStateView(buttonTitle: "Add expense", geometry: geometry, onClick: viewModel.openAddExpenseSheet)
+                    } else if case .hasExpense = viewModel.groupState {
+                        GroupExpenseListView(viewModel: viewModel, isFocused: $isFocused) {
+                            isFocused = true
                         }
+                        .focused($isFocused)
+                    }
 
-                        if viewModel.groupState != .noMember && viewModel.showAddExpenseBtn {
-                            PrimaryButton(text: "Add expense", onClick: viewModel.openAddExpenseSheet)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-                        }
+                    if viewModel.groupState != .noMember && viewModel.showAddExpenseBtn {
+                        PrimaryButton(text: "Add expense", onClick: viewModel.openAddExpenseSheet)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
                     }
                 }
             }

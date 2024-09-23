@@ -14,7 +14,7 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
     @Inject var groupRepository: GroupRepository
 
     @Published var selectedGroup: Groups?
-    @Published var currentViewState: ViewState = .initial
+    @Published private(set) var currentViewState: ViewState = .initial
 
     var onGroupSelection: ((Groups) -> Void)
 
@@ -23,6 +23,10 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
         self.onGroupSelection = onGroupSelection
         super.init()
 
+        onViewAppear()
+    }
+
+    func onViewAppear() {
         Task {
             await self.fetchGroups()
         }
@@ -31,12 +35,12 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     func fetchGroups() async {
         currentViewState = .loading
+
         do {
             let (groups, _) = try await groupRepository.fetchGroupsBy(userId: preference.user?.id ?? "")
             currentViewState = groups.isEmpty ? .noGroups : .hasGroups(groups: groups)
         } catch {
-            currentViewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -50,13 +54,46 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
             onGroupSelection(selectedGroup)
         }
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            currentViewState = .noInternet
+        } else {
+            currentViewState = .somethingWentWrong
+        }
+    }
 }
 
+// MARK: - View States
 extension SelectGroupViewModel {
-    enum ViewState {
+    enum ViewState: Equatable {
+        public static func == (lhs: SelectGroupViewModel.ViewState, rhs: SelectGroupViewModel.ViewState) -> Bool {
+            return lhs.key == rhs.key
+        }
+
         case initial
         case loading
         case hasGroups(groups: [Groups])
         case noGroups
+        case noInternet
+        case somethingWentWrong
+
+        public var key: String {
+            switch self {
+            case .initial:
+                return "initial"
+            case .loading:
+                return "loading"
+            case .hasGroups:
+                return "hasGroups"
+            case .noGroups:
+                return "noGroups"
+            case .noInternet:
+                return "noInternet"
+            case .somethingWentWrong:
+                return "somethingWentWrong"
+            }
+        }
     }
 }

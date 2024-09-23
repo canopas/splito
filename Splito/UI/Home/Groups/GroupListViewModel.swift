@@ -64,6 +64,10 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleDeleteGroup(notification:)), name: .deleteGroup, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleJoinGroup(notification:)), name: .joinGroup, object: nil)
 
+        onViewAppear()
+    }
+
+    func onViewAppear() {
         Task {
             await fetchGroups()
             await fetchLatestUser()
@@ -95,8 +99,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             self.combinedGroups = sortedGroups
             self.groupListState = sortedGroups.isEmpty ? .noGroup : .hasGroup
         } catch {
-            self.currentViewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -125,7 +128,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             self.groupListState = self.combinedGroups.isEmpty ? .noGroup : .hasGroup
         } catch {
             self.currentViewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -159,7 +162,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
                 self.totalOweAmount = user.totalOweAmount
             }
         } catch {
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -171,7 +174,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
                     self.groupMembers.append(user)
                 }
             } catch {
-                handleServiceError(error)
+                showToastForError()
             }
         }
     }
@@ -180,7 +183,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         do {
             return try await groupRepository.fetchGroupBy(id: groupId)
         } catch {
-            handleServiceError(error)
+            showToastForError()
             return nil
         }
     }
@@ -287,7 +290,7 @@ extension GroupListViewModel {
             try await groupRepository.deleteGroup(group: group)
             NotificationCenter.default.post(name: .deleteGroup, object: group)
         } catch {
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -353,6 +356,15 @@ extension GroupListViewModel {
             }
         }
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            currentViewState = .noInternet
+        } else {
+            currentViewState = .somethingWentWrong
+        }
+    }
 }
 
 // MARK: - Group States
@@ -360,6 +372,8 @@ extension GroupListViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 
     enum GroupListState {

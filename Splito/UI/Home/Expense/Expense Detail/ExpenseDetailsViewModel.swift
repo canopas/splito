@@ -34,12 +34,16 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         self.expenseId = expenseId
         super.init()
 
+        onViewAppear()
+
+        NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedExpense(notification:)), name: .updateExpense, object: nil)
+    }
+
+    func onViewAppear() {
         Task {
             await fetchGroup()
             await fetchExpense()
         }
-
-        NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedExpense(notification:)), name: .updateExpense, object: nil)
     }
 
     // MARK: - Data Loading
@@ -52,8 +56,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             }
             viewState = .initial
         } catch {
-            viewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -63,8 +66,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
             await processExpense(expense: expense)
         } catch {
-            viewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -92,7 +94,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         do {
             return try await userRepository.fetchUserBy(userID: userId)
         } catch {
-            handleServiceError(error)
+            showToastForError()
             return nil
         }
     }
@@ -129,7 +131,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             router.pop()
         } catch {
             viewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -144,7 +146,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             viewState = .initial
         } catch {
             viewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -165,6 +167,15 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             await processExpense(expense: updatedExpense)
         }
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
+    }
 }
 
 // MARK: - View States
@@ -172,5 +183,7 @@ extension ExpenseDetailsViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

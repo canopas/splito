@@ -28,13 +28,17 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
         super.init()
 
+        onViewAppear()
+    }
+
+    func onViewAppear() {
         Task {
             await fetchGroupDetails()
         }
     }
 
     // MARK: - Data Loading
-    private func fetchGroupDetails() async {
+    func fetchGroupDetails() async {
         do {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             guard let group else { return }
@@ -42,8 +46,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             self.calculateMemberPayableAmount(group: group)
             await fetchGroupMembers()
         } catch {
-            viewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -60,8 +63,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             self.members.removeAll(where: { $0.id == userId })
             self.viewState = .initial
         } catch {
-            viewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -95,6 +97,15 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
         router?.push(.GroupPaymentView(transactionId: nil, groupId: groupId,
                                        payerId: payerId, receiverId: receiverId, amount: amount))
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
+    }
 }
 
 // MARK: - View States
@@ -102,5 +113,7 @@ extension GroupSettleUpViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

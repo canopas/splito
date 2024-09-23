@@ -35,6 +35,10 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
         NotificationCenter.default.addObserver(self, selector: #selector(handleAddTransaction(notification:)), name: .addTransaction, object: nil)
 
+        onViewAppear()
+    }
+
+    func onViewAppear() {
         Task {
             await fetchGroupMembers()
         }
@@ -48,8 +52,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             await fetchGroupDetails()
             calculateExpensesSimplified()
         } catch {
-            viewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -58,8 +61,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             group = try await groupRepository.fetchGroupBy(id: groupId)
             calculateExpensesSimplified()
         } catch {
-            viewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -152,6 +154,15 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             await fetchGroupDetails()
         }
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
+    }
 }
 
 // MARK: - Struct to hold combined expense and user owe amount
@@ -167,5 +178,7 @@ extension GroupBalancesViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

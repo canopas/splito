@@ -42,6 +42,10 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
             totalAmount = expenseAmount
         }
 
+        onViewAppear()
+    }
+
+    func onViewAppear() {
         Task {
             await self.fetchMembers()
         }
@@ -49,13 +53,13 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
 
     func fetchMembers() async {
         currentViewState = .loading
+
         do {
             let users = try await groupRepository.fetchMembersBy(groupId: groupId)
             groupMembers = users
             currentViewState = .initial
         } catch {
-            currentViewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -77,11 +81,22 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
         onPayerSelection(membersAmount.filter({ $0.value != 0 }))
         dismissChoosePayerFlow()
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            currentViewState = .noInternet
+        } else {
+            currentViewState = .somethingWentWrong
+        }
+    }
 }
 
 extension ChooseMultiplePayerViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

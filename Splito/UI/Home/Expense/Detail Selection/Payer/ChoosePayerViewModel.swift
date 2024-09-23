@@ -30,6 +30,10 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
         self.onPayerSelection = onPayerSelection
         super.init()
 
+        onViewAppear()
+    }
+
+    func onViewAppear() {
         Task {
             await self.fetchMembers()
         }
@@ -42,8 +46,7 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
             let users = try await groupRepository.fetchMembersBy(groupId: groupId)
             currentViewState = users.isEmpty ? .noMember : .hasMembers(users)
         } catch {
-            currentViewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -64,13 +67,24 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
     func handleSaveBtnTap() {
         onPayerSelection(selectedPayers)
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            currentViewState = .noInternet
+        } else {
+            currentViewState = .somethingWentWrong
+        }
+    }
 }
 
 extension ChoosePayerViewModel {
-    enum ViewState {
+    enum ViewState: Equatable {
         case initial
         case loading
         case noMember
         case hasMembers([AppUser])
+        case noInternet
+        case somethingWentWrong
     }
 }

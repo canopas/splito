@@ -30,8 +30,10 @@ struct JoinMemberView: View {
                         OtpTextInputView(text: $viewModel.code, placeholder: "AF0R00", isFocused: $isFocused,
                                          keyboardType: .alphabet) {
                             Task {
-                                await viewModel.joinMemberWithCode()
-                                dismiss()
+                                let joinSuccessful = await viewModel.joinMemberWithCode()
+                                if joinSuccessful {
+                                    dismiss()
+                                }
                             }
                         }
 
@@ -52,8 +54,10 @@ struct JoinMemberView: View {
 
                 PrimaryFloatingButton(text: "Join", isEnabled: !viewModel.code.isEmpty, showLoader: viewModel.showLoader) {
                     Task {
-                        await viewModel.joinMemberWithCode()
-                        dismiss()
+                        let joinSuccessful = await viewModel.joinMemberWithCode()
+                        if joinSuccessful {
+                            dismiss()
+                        }
                     }
                 }
             }

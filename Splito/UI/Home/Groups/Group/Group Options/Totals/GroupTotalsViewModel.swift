@@ -24,6 +24,10 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
         super.init()
 
+        onViewAppear()
+    }
+
+    func onViewAppear() {
         Task {
             await fetchGroup()
         }
@@ -39,8 +43,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
             self.filterDataForSelectedTab()
             self.viewState = .initial
         } catch {
-            viewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -82,6 +85,15 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
             $0.year == currentYear
         } ?? []
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
+    }
 }
 
 // MARK: - View States
@@ -89,6 +101,8 @@ extension GroupTotalsViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }
 

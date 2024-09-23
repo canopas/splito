@@ -27,7 +27,9 @@ struct ChoosePayerView: View {
 
             Spacer(minLength: 0)
 
-            if case .loading = viewModel.currentViewState {
+            if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.onViewAppear)
+            } else if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else if case .noMember = viewModel.currentViewState {
                 NoMemberFoundView()

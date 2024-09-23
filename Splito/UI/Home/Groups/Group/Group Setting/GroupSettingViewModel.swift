@@ -37,6 +37,12 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateGroup(notification:)), name: .updateGroup, object: nil)
     }
 
+    func onViewAppear() {
+        Task {
+            await fetchGroupDetails()
+        }
+    }
+
     // MARK: - Data Loading
     func fetchGroupDetails() async {
         do {
@@ -45,8 +51,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             self.checkForGroupAdmin()
             await fetchGroupMembers()
         } catch {
-            currentViewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -57,7 +62,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             self.currentViewState = .initial
         } catch {
             currentViewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -216,7 +221,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             }
         } catch {
             currentViewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -246,7 +251,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             goBackToGroupList()
         } catch {
             currentViewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -259,6 +264,15 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     func goBackToGroupList() {
         router.popToRoot()
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            currentViewState = .noInternet
+        } else {
+            currentViewState = .somethingWentWrong
+        }
+    }
 }
 
 // MARK: - Group State
@@ -267,6 +281,8 @@ extension GroupSettingViewModel {
         case initial
         case loading
         case hasMembers
+        case noInternet
+        case somethingWentWrong
     }
 
     enum MemberRemoveType: Equatable {

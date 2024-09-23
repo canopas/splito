@@ -46,6 +46,10 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateTransaction(notification:)), name: .updateTransaction, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleDeleteTransaction(notification:)), name: .deleteTransaction, object: nil)
 
+        onViewAppear()
+    }
+
+    func onViewAppear() {
         Task {
             await fetchGroup()
             await fetchTransactions()
@@ -58,13 +62,14 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             guard let group else { return }
             self.group = group
-        } catch {
             currentViewState = .initial
-            handleServiceError(error)
+        } catch {
+            handleServiceError()
         }
     }
 
     func fetchTransactions() async {
+        currentViewState = .loading
         transactionsWithUser = []
 
         do {
@@ -75,8 +80,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             await combinedTransactionsWithUser(transactions: result.transactions)
             hasMoreTransactions = !(result.transactions.count < self.TRANSACTIONS_LIMIT)
         } catch {
-            currentViewState = .initial
-            handleServiceError(error)
+            handleServiceError()
         }
     }
 
@@ -90,7 +94,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             hasMoreTransactions = !(result.transactions.count < TRANSACTIONS_LIMIT)
         } catch {
             currentViewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -123,7 +127,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                 return user
             } catch {
                 currentViewState = .initial
-                handleServiceError(error)
+                showToastForError()
                 return nil
             }
         }
@@ -152,7 +156,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             await updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
         } catch {
             currentViewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -166,7 +170,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
         } catch {
             currentViewState = .initial
-            handleServiceError(error)
+            showToastForError()
         }
     }
 
@@ -250,26 +254,24 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         }
         showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            currentViewState = .noInternet
+        } else {
+            currentViewState = .somethingWentWrong
+        }
+    }
 }
 
 // MARK: - View States
 extension GroupTransactionListViewModel {
-    enum ViewState: Equatable {
-        static func == (lhs: GroupTransactionListViewModel.ViewState, rhs: GroupTransactionListViewModel.ViewState) -> Bool {
-            lhs.key == rhs.key
-        }
-
+    enum ViewState {
         case loading
         case initial
-
-        var key: String {
-            switch self {
-            case .loading:
-                return "loading"
-            case .initial:
-                return "initial"
-            }
-        }
+        case noInternet
+        case somethingWentWrong
     }
 }
 
