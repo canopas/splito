@@ -34,6 +34,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     func onViewAppear() {
         Task {
             await fetchGroupDetails()
+            await fetchGroupMembers()
         }
     }
 
@@ -43,25 +44,26 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             guard let group else { return }
             self.group = group
-            self.calculateMemberPayableAmount(group: group)
-            await fetchGroupMembers()
+            calculateMemberPayableAmount(group: group)
+            viewState = .initial
         } catch {
             handleServiceError()
         }
     }
 
     func calculateMemberPayableAmount(group: Groups) {
-        guard let userId = self.preference.user?.id else { return }
+        guard let userId = preference.user?.id else { return }
         memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
     }
 
     private func fetchGroupMembers() async {
         do {
+            viewState = .loading
             guard let userId = preference.user?.id else { return }
             let members = try await groupRepository.fetchMembersBy(groupId: groupId)
             self.members = members
             self.members.removeAll(where: { $0.id == userId })
-            self.viewState = .initial
+            viewState = .initial
         } catch {
             handleServiceError()
         }

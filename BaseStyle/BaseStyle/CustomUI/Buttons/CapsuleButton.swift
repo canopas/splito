@@ -9,8 +9,6 @@ import SwiftUI
 
 public struct CapsuleButton: View {
 
-    @StateObject private var loaderModel: LoaderViewModel = .init()
-
     private let buttonName: String
     private let paddingHr: CGFloat
     private let paddingVr: CGFloat
@@ -39,7 +37,6 @@ public struct CapsuleButton: View {
             .padding(.horizontal, paddingHr)
             .padding(.vertical, paddingVr)
             .background(primaryColor)
-            .background(surfaceColor)
             .cornerRadius(12)
         }
         .buttonStyle(.scale)

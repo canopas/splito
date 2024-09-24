@@ -13,7 +13,7 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
 
     @Published private(set) var members: [AppUser] = []
-    @Published private(set) var viewState: ViewState = .initial
+    @Published private(set) var currentViewState: ViewState = .loading
 
     @Published private(set) var selectedMemberId: String?
     @Published private(set) var isPaymentSettled: Bool
@@ -39,6 +39,7 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
         do {
             let members = try await groupRepository.fetchMembersBy(groupId: groupId)
             self.members = members
+            currentViewState = .initial
         } catch {
            handleServiceError()
         }
@@ -52,9 +53,9 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
     // MARK: - Error Handling
     private func handleServiceError() {
         if !networkMonitor.isConnected {
-            viewState = .noInternet
+            currentViewState = .noInternet
         } else {
-            viewState = .somethingWentWrong
+            currentViewState = .somethingWentWrong
         }
     }
 }

@@ -77,7 +77,7 @@ public class UserRepository: ObservableObject {
                 if let error {
                     LogE("UserRepository :: \(#function): Deleting user from Auth failed with error: \(error.localizedDescription).")
                 } else {
-                    LogE("UserRepository :: \(#function): User deactivated.")
+                    LogD("UserRepository :: \(#function): User deactivated.")
                 }
             }
         }
