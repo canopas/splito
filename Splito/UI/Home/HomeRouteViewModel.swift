@@ -33,6 +33,12 @@ class HomeRouteViewModel: ObservableObject {
         lastSelectedTab = index
     }
 
+    func setSelectedTab(_ index: Int) {
+        withAnimation {
+            selectedTab = index
+        }
+    }
+
     func openAddExpenseSheet() {
         openExpenseSheet = true
         selectedTab = lastSelectedTab
