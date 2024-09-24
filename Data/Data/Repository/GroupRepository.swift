@@ -18,55 +18,47 @@ public class GroupRepository: ObservableObject {
     @Inject private var storageManager: StorageManager
     @Inject private var codeRepository: ShareCodeRepository
 
-    public func createGroup(group: Groups, imageData: Data?) async throws -> String? {
+    public func createGroup(group: Groups, imageData: Data?) async throws -> Groups {
         let groupId = try await store.createGroup(group: group)
 
-        if let imageData {
-            var newGroup = group
-            newGroup.id = groupId
-            try await uploadImage(imageData: imageData, group: newGroup)
+        var newGroup = group
+        newGroup.id = groupId
+
+        // If image data is provided, upload the image and update the group's imageUrl
+        if let imageData = imageData {
+            let imageUrl = try await uploadImage(imageData: imageData, group: newGroup)
+            newGroup.imageUrl = imageUrl
         }
 
-        return groupId
+        return newGroup
     }
 
-    private func uploadImage(imageData: Data, group: Groups) async throws {
-        guard let groupId = group.id else { return }
+    private func uploadImage(imageData: Data, group: Groups) async throws -> String {
+        guard let groupId = group.id else { return "" }
 
-        let imageUrl = try await storageManager.uploadImage(for: .group, id: groupId, imageData: imageData)
-
-        var newGroup = group
-        newGroup.imageUrl = imageUrl
-
-        try await updateGroup(group: newGroup)
+        // Upload the image and get the image URL
+        return try await storageManager.uploadImage(for: .group, id: groupId, imageData: imageData) ?? ""
     }
 
     public func updateGroupWithImage(imageData: Data?, newImageUrl: String?, group: Groups) async throws -> Groups {
         var newGroup = group
 
-        // Check if the group has an existing image URL and the new image URL is nil (deletion case)
-        if let currentUrl = group.imageUrl, newImageUrl == nil {
-            newGroup.imageUrl = newImageUrl
+        // If image data is provided, upload the new image and update the imageUrl
+        if let imageData = imageData {
+            // Upload the image and get the new image URL
+            let uploadedImageUrl = try await uploadImage(imageData: imageData, group: newGroup)
+            newGroup.imageUrl = uploadedImageUrl
+        } else if let currentUrl = group.imageUrl, newImageUrl == nil {
+            // If there's a current image URL and we want to remove it, delete the image and set imageUrl to nil
             try await storageManager.deleteImage(imageUrl: currentUrl)
-            try await self.performImageAction(imageData: imageData, group: newGroup)
-            return newGroup
+            newGroup.imageUrl = nil
         } else if let newImageUrl = newImageUrl {
-            // If there's a new image URL, update the group with the new image URL
+            // If a new image URL is explicitly passed, update it
             newGroup.imageUrl = newImageUrl
-            try await self.performImageAction(imageData: imageData, group: newGroup)
-            return newGroup
-        } else {
-            // If no changes are made to the image URL, return the group as it is
-            return newGroup
         }
-    }
 
-    private func performImageAction(imageData: Data?, group: Groups) async throws {
-        if let imageData {
-            try await uploadImage(imageData: imageData, group: group)
-        } else {
-            try await updateGroup(group: group)
-        }
+        try await updateGroup(group: newGroup)
+        return newGroup
     }
 
     public func addMemberToGroup(groupId: String, memberId: String) async throws {

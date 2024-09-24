@@ -32,7 +32,8 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
                 showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "The code you've entered is not exists."))
                 return false
             }
-            return await addMemberIfCodeExists(code: code)
+            await addMemberIfCodeExists(code: code)
+            return true
         } catch {
             showLoader = false
             showToastForError()
@@ -40,7 +41,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func addMemberIfCodeExists(code: SharedCode) async -> Bool {
+    private func addMemberIfCodeExists(code: SharedCode) async {
         let expireDate = code.expireDate.dateValue()
         let daysDifference = Calendar.current.dateComponents([.day], from: expireDate, to: Date()).day
 
@@ -48,24 +49,22 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         guard let daysDifference, daysDifference <= codeRepository.CODE_EXPIRATION_LIMIT else {
             showLoader = false
             showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "The code you've entered is expired."))
-            return false
+            return
         }
 
-        return await addMemberFor(code: code)
+        await addMemberFor(code: code)
     }
 
-    private func addMemberFor(code: SharedCode) async -> Bool {
-        guard let userId = preference.user?.id else { return false }
+    private func addMemberFor(code: SharedCode) async {
+        guard let userId = preference.user?.id else { return }
 
         do {
             try await groupRepository.addMemberToGroup(groupId: code.groupId, memberId: userId)
             NotificationCenter.default.post(name: .joinGroup, object: code.groupId)
             try await codeRepository.deleteSharedCode(documentId: code.code)
             showLoader = false
-            return true
         } catch {
             showToastForError()
-            return false
         }
     }
 }
