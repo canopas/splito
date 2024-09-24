@@ -42,19 +42,18 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
             totalAmount = expenseAmount
         }
 
-        onViewAppear()
+        fetchMembers()
     }
 
-    func onViewAppear() {
+    func fetchMembers() {
         Task {
             await self.fetchMembers()
         }
     }
 
-    func fetchMembers() async {
-        currentViewState = .loading
-
+    private func fetchMembers() async {
         do {
+            currentViewState = .loading
             let users = try await groupRepository.fetchMembersBy(groupId: groupId)
             groupMembers = users
             currentViewState = .initial
@@ -75,7 +74,6 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
 
             showAlertFor(title: "Oops!",
                          message: "The payment values do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
-            return
         }
 
         onPayerSelection(membersAmount.filter({ $0.value != 0 }))

@@ -112,7 +112,13 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func updateUserProfile() async {
+    func updateUsersProfileData() {
+        Task {
+            await updateUserProfile()
+        }
+    }
+
+    private func updateUserProfile() async {
         guard let user = preference.user else { return }
 
         var newUser = user

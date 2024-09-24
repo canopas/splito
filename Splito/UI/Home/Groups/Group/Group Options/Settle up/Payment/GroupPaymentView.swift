@@ -18,7 +18,7 @@ struct GroupPaymentView: View {
         GeometryReader { geometry in
             VStack(alignment: .center, spacing: 0) {
                 if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
-                    ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.onViewAppear)
+                    ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchInitialViewData)
                 } else if case .loading = viewModel.viewState {
                     LoaderView()
                 } else {
@@ -62,10 +62,8 @@ struct GroupPaymentView: View {
                     .scrollBounceBehavior(.basedOnSize)
 
                     PrimaryButton(text: "Done", showLoader: viewModel.showLoader, onClick: {
-                        Task {
-                            await viewModel.handleSaveAction()
-                            dismiss()
-                        }
+                        viewModel.handleSaveAction()
+                        dismiss()
                     })
                     .padding([.horizontal, .bottom], 16)
                 }

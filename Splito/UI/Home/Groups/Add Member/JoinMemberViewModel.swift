@@ -23,7 +23,15 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         self.router = router
     }
 
-    func joinMemberWithCode() async -> Bool {
+	func handleJoinMemberAction() -> Bool {
+		var isSucceed = false
+		Task {
+			isSucceed = await joinMemberWithCode()
+		}
+		return isSucceed
+	}
+
+    private func joinMemberWithCode() async -> Bool {
         do {
             showLoader = true
             let code = try await codeRepository.fetchSharedCode(code: code)

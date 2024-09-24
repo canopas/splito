@@ -34,12 +34,15 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         self.expenseId = expenseId
         super.init()
 
-        onViewAppear()
-
+        fetchGroupAndExpenseData()
         NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedExpense(notification:)), name: .updateExpense, object: nil)
     }
 
-    func onViewAppear() {
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    func fetchGroupAndExpenseData() {
         Task {
             await fetchGroup()
             await fetchExpense()
@@ -65,6 +68,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             viewState = .loading
             let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
             await processExpense(expense: expense)
+            viewState = .initial
         } catch {
             handleServiceError()
         }
@@ -87,7 +91,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
         self.expense = expense
         self.expenseUsersData = userData
-        self.viewState = .initial
     }
 
     func fetchUserData(for userId: String) async -> AppUser? {
@@ -108,42 +111,38 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         showEditExpenseSheet = true
     }
 
-    func handleDeleteBtnAction() async {
+    func handleDeleteButtonAction() {
         showAlert = true
         alert = .init(title: "Delete Expense",
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: {
-                        Task {
-                            await self.deleteExpense()
-                        }
-                      },
+                      positiveBtnAction: self.deleteExpense,
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func deleteExpense() async {
-        do {
-            viewState = .loading
-            try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
-            NotificationCenter.default.post(name: .deleteExpense, object: expense)
-            await self.updateGroupMemberBalance(updateType: .Delete)
-            router.pop()
-        } catch {
-            viewState = .initial
-            showToastForError()
+    private func deleteExpense() {
+        Task {
+            do {
+                viewState = .loading
+                try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
+                NotificationCenter.default.post(name: .deleteExpense, object: expense)
+                await self.updateGroupMemberBalance(updateType: .Delete)
+                viewState = .initial
+                router.pop()
+            } catch {
+                viewState = .initial
+                showToastForError()
+            }
         }
     }
 
     private func updateGroupMemberBalance(updateType: ExpenseUpdateType) async {
         guard var group, let expense else { return }
-
-        let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
-        group.balances = memberBalance
-
         do {
+            let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
+            group.balances = memberBalance
             try await groupRepository.updateGroup(group: group)
-            viewState = .initial
         } catch {
             viewState = .initial
             showToastForError()
@@ -156,16 +155,13 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         return finalAmount.formattedCurrency
     }
 
-    func handleBackBtnTap() {
-        router.pop()
-    }
-
     @objc private func getUpdatedExpense(notification: Notification) {
         guard let updatedExpense = notification.object as? Expense else { return }
         viewState = .loading
         Task {
             await processExpense(expense: updatedExpense)
         }
+        viewState = .initial
     }
 
     // MARK: - Error Handling

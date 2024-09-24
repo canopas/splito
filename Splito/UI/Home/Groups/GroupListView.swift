@@ -21,7 +21,7 @@ struct GroupListView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
-                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.onViewAppear)
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchGroupsInitialData)
             } else if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else {

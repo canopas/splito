@@ -35,7 +35,8 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
 
     private var onLoginSuccess: ((String) -> Void)?
 
-    init(router: Router<AppRoute>? = nil, phoneNumber: String, dialCode: String = "", verificationId: String, onLoginSuccess: ((String) -> Void)? = nil) {
+    init(router: Router<AppRoute>? = nil, phoneNumber: String, dialCode: String = "",
+         verificationId: String, onLoginSuccess: ((String) -> Void)? = nil) {
         self.router = router
         self.phoneNumber = phoneNumber
         self.dialCode = dialCode
@@ -83,7 +84,8 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
                     self.showAlertFor(message: "Enter a valid phone number")
                 } else {
                     LogE("Firebase: Phone login fail with error: \(error.debugDescription)")
-                    self.showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
+                    self.showAlertFor(title: "Authentication failed",
+                                      message: "Apologies, we were not able to complete the authentication process. Please try again later.")
                 }
             } else {
                 self.verificationId = verificationID ?? ""

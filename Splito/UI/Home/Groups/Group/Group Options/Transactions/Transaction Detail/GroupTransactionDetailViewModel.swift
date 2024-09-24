@@ -34,10 +34,14 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
         NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedTransaction(notification:)), name: .updateTransaction, object: nil)
 
-        onViewAppear()
+        fetchInitialTransactionData()
     }
 
-    func onViewAppear() {
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    func fetchInitialTransactionData() {
         Task {
             await fetchGroup()
             await fetchTransaction()
@@ -56,12 +60,12 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     func fetchTransaction() async {
-        viewState = .loading
-
         do {
+            viewState = .loading
             let transaction = try await transactionRepository.fetchTransactionBy(groupId: groupId, transactionId: transactionId)
             self.transaction = transaction
             await setTransactionUsersData()
+            self.viewState = .initial
         } catch {
             handleServiceError()
         }
@@ -84,7 +88,6 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         }
 
         self.transactionUsersData = userData
-        self.viewState = .initial
     }
 
     private func fetchUserData(for userId: String) async -> AppUser? {
@@ -126,9 +129,8 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteTransaction() async {
-        viewState = .loading
-
         do {
+            viewState = .loading
             try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
             viewState = .initial
             NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
@@ -143,10 +145,10 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     private func updateGroupMemberBalance(updateType: TransactionUpdateType) async {
         guard var group, let transaction else { return }
 
-        let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
-        group.balances = memberBalance
-
         do {
+            let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
+            group.balances = memberBalance
+
             try await groupRepository.updateGroup(group: group)
             showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
         } catch {

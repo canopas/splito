@@ -23,20 +23,19 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
         self.onGroupSelection = onGroupSelection
         super.init()
 
-        onViewAppear()
+        fetchGroups()
     }
 
-    func onViewAppear() {
+    func fetchGroups() {
         Task {
             await self.fetchGroups()
         }
     }
 
     // MARK: - Data Loading
-    func fetchGroups() async {
-        currentViewState = .loading
-
+    private func fetchGroups() async {
         do {
+            currentViewState = .loading
             let (groups, _) = try await groupRepository.fetchGroupsBy(userId: preference.user?.id ?? "")
             currentViewState = groups.isEmpty ? .noGroups : .hasGroups(groups: groups)
         } catch {

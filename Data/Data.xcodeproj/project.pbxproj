@@ -21,6 +21,7 @@
 		D865F8AE2BD7CB0B0084BD36 /* Array+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D865F8AD2BD7CB0B0084BD36 /* Array+Extension.swift */; };
 		D88721432B99F133009DC5BE /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721422B99F133009DC5BE /* StorageManager.swift */; };
 		D8910E382BB6D1D300877CE0 /* ExpenseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8910E372BB6D1D300877CE0 /* ExpenseStore.swift */; };
+		D895F2282CA297B900C2E4EB /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D895F2272CA297B900C2E4EB /* NetworkManager.swift */; };
 		D89C934C2BC68D9000FACD16 /* Date+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89C934B2BC68D9000FACD16 /* Date+Extension.swift */; };
 		D89C934E2BC694C200FACD16 /* Double+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89C934D2BC694C200FACD16 /* Double+Extension.swift */; };
 		D89DBE1D2B872F0B00E5F1BD /* NonceGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE1C2B872F0B00E5F1BD /* NonceGenerator.swift */; };
@@ -77,6 +78,7 @@
 		D865F8AD2BD7CB0B0084BD36 /* Array+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extension.swift"; sourceTree = "<group>"; };
 		D88721422B99F133009DC5BE /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 		D8910E372BB6D1D300877CE0 /* ExpenseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseStore.swift; sourceTree = "<group>"; };
+		D895F2272CA297B900C2E4EB /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		D89C934B2BC68D9000FACD16 /* Date+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extension.swift"; sourceTree = "<group>"; };
 		D89C934D2BC694C200FACD16 /* Double+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Double+Extension.swift"; sourceTree = "<group>"; };
 		D89DBE1C2B872F0B00E5F1BD /* NonceGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonceGenerator.swift; sourceTree = "<group>"; };
@@ -238,6 +240,7 @@
 				D8D42AA72B87271A009B345D /* Logger */,
 				D8D42AA62B872710009B345D /* Firebase */,
 				D89DBE1C2B872F0B00E5F1BD /* NonceGenerator.swift */,
+				D895F2272CA297B900C2E4EB /* NetworkManager.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -511,6 +514,7 @@
 				D89DBE2B2B88817E00E5F1BD /* JSONUtils.swift in Sources */,
 				D8A7CA802BA867F80014EC67 /* String+Extension.swift in Sources */,
 				213D0CCA2C89DBC800D65C73 /* Notification+Extension.swift in Sources */,
+				D895F2282CA297B900C2E4EB /* NetworkManager.swift in Sources */,
 				D89DBE282B88802800E5F1BD /* Country.swift in Sources */,
 				D8910E382BB6D1D300877CE0 /* ExpenseStore.swift in Sources */,
 				D8CF5A212C1986250014E3AD /* Transaction.swift in Sources */,

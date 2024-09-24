@@ -8,7 +8,6 @@
 import Data
 import Combine
 import BaseStyle
-import Network
 
 @MainActor
 open class BaseViewModel {
@@ -52,27 +51,5 @@ open class BaseViewModel {
     /// Use this method to show toast with custom specificatons like title message and duration for toast.
     public func showToastFor(toast item: ToastPrompt) {
         toast = item
-    }
-}
-
-class NetworkMonitor: ObservableObject {
-
-    private var monitor: NWPathMonitor
-    private let queue = DispatchQueue.global(qos: .background)
-
-    @Published var isConnected: Bool = true
-
-    init() {
-        monitor = NWPathMonitor()
-        monitor.pathUpdateHandler = { [weak self] path in
-            DispatchQueue.main.async {
-                self?.isConnected = path.status == .satisfied
-            }
-        }
-        monitor.start(queue: queue)
-    }
-
-    deinit {
-        monitor.cancel()
     }
 }

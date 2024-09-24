@@ -16,7 +16,7 @@ struct GroupTransactionListView: View {
     var body: some View {
         VStack(alignment: .center) {
             if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
-                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.onViewAppear)
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchInitialViewData)
             } else if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else {
@@ -95,9 +95,7 @@ private struct TransactionListWithDetailView: View {
                                             ProgressView()
                                                 .frame(maxWidth: .infinity, alignment: .center)
                                                 .onAppear {
-                                                    Task {
-                                                        await viewModel.fetchMoreTransactions()
-                                                    }
+                                                    viewModel.loadMoreTransactions()
                                                 }
                                                 .padding(.vertical, 8)
                                         }

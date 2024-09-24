@@ -17,7 +17,7 @@ struct GroupTransactionDetailView: View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
                 if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
-                    ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.onViewAppear)
+                    ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchInitialTransactionData)
                 } else if case .loading = viewModel.viewState {
                     LoaderView()
                 } else {

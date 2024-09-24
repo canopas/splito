@@ -77,10 +77,14 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleTransaction(notification:)), name: .updateTransaction, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleTransaction(notification:)), name: .deleteTransaction, object: nil)
 
-        onViewAppear()
+        fetchGroupAndExpenses()
     }
 
-    func onViewAppear() {
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    func fetchGroupAndExpenses() {
         Task {
             await fetchGroup()
             await fetchExpenses()
@@ -88,7 +92,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Data Loading
-    func fetchGroup() async {
+    private func fetchGroup() async {
         do {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             guard let group else { return }
@@ -125,7 +129,13 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func fetchMoreExpenses() async {
+    func loadMoreExpenses() {
+        Task {
+            await fetchMoreExpenses()
+        }
+    }
+
+    private func fetchMoreExpenses() async {
         guard hasMoreExpenses else { return }
 
         do {
@@ -313,9 +323,8 @@ extension GroupHomeViewModel {
 
     @objc private func handleAddExpense(notification: Notification) {
         guard let newExpense = notification.object as? Expense, newExpense.groupId == groupId else { return }
-
-        expenses.append(newExpense)
         Task {
+            expenses.append(newExpense)
             if let user = await fetchUserData(for: newExpense.paidBy.keys.first ?? "") {
                 let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
                 withAnimation {
@@ -348,7 +357,6 @@ extension GroupHomeViewModel {
 
     @objc private func handleDeleteExpense(notification: Notification) {
         guard let deletedExpense = notification.object as? Expense else { return }
-
         expenses.removeAll { $0.id == deletedExpense.id }
         if let index = expensesWithUser.firstIndex(where: { $0.expense.id == deletedExpense.id }) {
             withAnimation {

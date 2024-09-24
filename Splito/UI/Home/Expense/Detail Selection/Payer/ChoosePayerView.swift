@@ -28,7 +28,7 @@ struct ChoosePayerView: View {
             Spacer(minLength: 0)
 
             if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
-                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.onViewAppear)
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchMembers)
             } else if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else if case .noMember = viewModel.currentViewState {
@@ -39,10 +39,11 @@ struct ChoosePayerView: View {
 
                     VStack(alignment: .leading, spacing: 0) {
                         ForEach(users) { user in
-                            ChooseMemberCellView(member: user, isSelected: (viewModel.selectedPayers.count > 1) ? false : viewModel.selectedPayers.keys.contains(user.id))
-                                .onTapGestureForced {
-                                    viewModel.handlePayerSelection(user: user)
-                                }
+                            ChooseMemberCellView(member: user,
+                                                 isSelected: (viewModel.selectedPayers.count > 1) ? false : viewModel.selectedPayers.keys.contains(user.id))
+                            .onTapGestureForced {
+                                viewModel.handlePayerSelection(user: user)
+                            }
                         }
 
                         if users.count > 1 {

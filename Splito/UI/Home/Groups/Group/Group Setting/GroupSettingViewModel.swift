@@ -37,14 +37,18 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateGroup(notification:)), name: .updateGroup, object: nil)
     }
 
-    func onViewAppear() {
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    func fetchInitialGroupData() {
         Task {
             await fetchGroupDetails()
         }
     }
 
     // MARK: - Data Loading
-    func fetchGroupDetails() async {
+    private func fetchGroupDetails() async {
         do {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             self.group = group
@@ -201,9 +205,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        currentViewState = .loading
-
         do {
+            currentViewState = .loading
             try await groupRepository.removeMemberFrom(group: group, memberId: memberId)
             currentViewState = .initial
 
@@ -241,10 +244,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     private func deleteGroup() async {
         guard let group else { return }
-
-        currentViewState = .loading
-
         do {
+            currentViewState = .loading
             try await groupRepository.deleteGroup(group: group)
             self.currentViewState = .initial
             NotificationCenter.default.post(name: .deleteGroup, object: group)

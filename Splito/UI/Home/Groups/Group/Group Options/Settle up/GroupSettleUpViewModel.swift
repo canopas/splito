@@ -27,11 +27,10 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         super.init()
-
-        onViewAppear()
+        fetchInitialViewData()
     }
 
-    func onViewAppear() {
+    func fetchInitialViewData() {
         Task {
             await fetchGroupDetails()
             await fetchGroupMembers()

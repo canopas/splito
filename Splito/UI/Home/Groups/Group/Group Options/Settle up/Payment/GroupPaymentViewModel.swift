@@ -53,10 +53,10 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
         super.init()
 
-        onViewAppear()
+        fetchInitialViewData()
     }
 
-    func onViewAppear() {
+    func fetchInitialViewData() {
         Task {
             await fetchGroup()
             await fetchTransaction()
@@ -107,7 +107,13 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func handleSaveAction() async {
+    func handleSaveAction() {
+        Task {
+            await performSaveAction()
+        }
+    }
+
+    private func performSaveAction() async {
         guard amount > 0 else {
             showAlertFor(title: "Whoops!", message: "You must enter an amount.")
             return
@@ -132,9 +138,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         do {
             showLoader = true
             let transaction = try await transactionRepository.addTransaction(groupId: groupId, transaction: transaction)
-            showLoader = false
             await updateGroupMemberBalance(transaction: transaction, updateType: .Add)
             NotificationCenter.default.post(name: .addTransaction, object: transaction)
+            showLoader = false
         } catch {
             viewState = .initial
             showLoader = false
@@ -146,9 +152,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         do {
             showLoader = true
             try await transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
-            showLoader = false
             await self.updateGroupMemberBalance(transaction: transaction, updateType: .Update(oldTransaction: oldTransaction))
             NotificationCenter.default.post(name: .updateTransaction, object: transaction)
+            showLoader = false
         } catch {
             viewState = .initial
             showLoader = false
@@ -158,11 +164,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) async {
         guard var group else { return }
-
-        let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
-        group.balances = memberBalance
-
         do {
+            let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
+            group.balances = memberBalance
             try await groupRepository.updateGroup(group: group)
             viewState = .initial
         } catch {

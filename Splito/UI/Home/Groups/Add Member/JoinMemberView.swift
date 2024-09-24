@@ -29,11 +29,8 @@ struct JoinMemberView: View {
 
                         OtpTextInputView(text: $viewModel.code, placeholder: "AF0R00", isFocused: $isFocused,
                                          keyboardType: .alphabet) {
-                            Task {
-                                let joinSuccessful = await viewModel.joinMemberWithCode()
-                                if joinSuccessful {
-                                    dismiss()
-                                }
+                            if viewModel.handleJoinMemberAction() {
+                                dismiss()
                             }
                         }
 
@@ -53,11 +50,8 @@ struct JoinMemberView: View {
                 .scrollBounceBehavior(.basedOnSize)
 
                 PrimaryFloatingButton(text: "Join", isEnabled: !viewModel.code.isEmpty, showLoader: viewModel.showLoader) {
-                    Task {
-                        let joinSuccessful = await viewModel.joinMemberWithCode()
-                        if joinSuccessful {
-                            dismiss()
-                        }
+                    if viewModel.handleJoinMemberAction() {
+                        dismiss()
                     }
                 }
             }

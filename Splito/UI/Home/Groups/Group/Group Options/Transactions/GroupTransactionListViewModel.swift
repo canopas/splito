@@ -46,10 +46,14 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateTransaction(notification:)), name: .updateTransaction, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleDeleteTransaction(notification:)), name: .deleteTransaction, object: nil)
 
-        onViewAppear()
+        fetchInitialViewData()
     }
 
-    func onViewAppear() {
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    func fetchInitialViewData() {
         Task {
             await fetchGroup()
             await fetchTransactions()
@@ -69,10 +73,10 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     func fetchTransactions() async {
-        currentViewState = .loading
-        transactionsWithUser = []
-
         do {
+            currentViewState = .loading
+            transactionsWithUser = []
+
             let result = try await transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT)
             lastDocument = result.lastDocument
             transactions = result.transactions.uniqued()
@@ -84,9 +88,16 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func fetchMoreTransactions() async {
+    func loadMoreTransactions() {
+        Task {
+            await fetchMoreTransactions()
+        }
+    }
+
+    private func fetchMoreTransactions() async {
         do {
-            let result = try await transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT, lastDocument: lastDocument)
+            let result = try await transactionRepository.fetchTransactionsBy(groupId: groupId,
+                                                                             limit: TRANSACTIONS_LIMIT, lastDocument: lastDocument)
             lastDocument = result.lastDocument
             transactions.append(contentsOf: result.transactions.uniqued())
 
@@ -150,7 +161,6 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
     private func deleteTransaction(transaction: Transactions) async {
         guard let transactionId = transaction.id else { return }
-
         do {
             try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
             await updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
@@ -162,10 +172,9 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
     private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) async {
         guard var group else { return }
-        let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
-        group.balances = memberBalance
-
         do {
+            let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
+            group.balances = memberBalance
             try await groupRepository.updateGroup(group: group)
             NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
         } catch {

@@ -64,23 +64,22 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
         splitAmount = expenseAmount / Double(selectedMembers.count)
 
-        onViewAppear()
+        fetchInitialMembersData()
     }
 
-    func onViewAppear() {
+    func fetchInitialMembersData() {
         Task {
-            await fetchUsersData()
+            await fetchGroupMembersDetail()
         }
     }
 
     // MARK: - Data Loading
-    private func fetchUsersData() async {
+    private func fetchGroupMembersDetail() async {
         var users: [AppUser] = []
-
         viewState = .loading
 
         for memberId in members {
-            let user = await fetchUserData(for: memberId)
+            let user = await fetchMemberData(for: memberId)
             guard let user else {
                 viewState = .initial
                 return
@@ -94,7 +93,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         self.viewState = .initial
     }
 
-    func fetchUserData(for memberId: String) async -> AppUser? {
+    func fetchMemberData(for memberId: String) async -> AppUser? {
         do {
             return try await userRepository.fetchUserBy(userID: memberId)
         } catch {
@@ -161,35 +160,54 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleDoneAction() -> Bool {
-        if selectedTab == .equally && selectedMembers.count == 0 {
-            showAlertFor(title: "Whoops!", message: "You must select at least one person to split with.")
-            return false
-        }
-
-        if selectedTab == .percentage && totalPercentage != 100 {
-            let amountDescription = totalPercentage < 100 ? "short" : "over"
-            let differenceAmount = totalPercentage < 100 ? (String(format: "%.0f", 100 - totalPercentage)) : (String(format: "%.0f", totalPercentage - 100))
-
-            showAlertFor(title: "Whoops!", message: "The shares do not add up to 100%. You are \(amountDescription) by \(differenceAmount)%")
-            return false
-        }
-
-        if selectedTab == .shares && totalShares <= 0 {
-            showAlertFor(title: "Whoops!", message: "You must assign a non-zero share to at least one person.")
-            return false
-        }
-
-        if selectedTab == .fixedAmount && totalFixedAmount != expenseAmount {
-            let amountDescription = totalFixedAmount < expenseAmount ? "short" : "over"
-            let differenceAmount = totalFixedAmount < expenseAmount ? (expenseAmount - totalFixedAmount) : (totalFixedAmount - expenseAmount)
-
-            showAlertFor(title: "Whoops!", message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
-            return false
-        }
-
-        handleSplitTypeSelection(selectedMembers, (selectedTab == .fixedAmount) ? fixedAmounts.filter({ $0.value != 0 }) : (selectedTab == .percentage) ? percentages.filter({ $0.value != 0 }) : shares.filter({ $0.value != 0 }), selectedTab)
-
+        guard isValidateSplitOption() else { return false }
+        handleSplitTypeSelection(selectedMembers, getSplitData(), selectedTab)
         return true
+    }
+
+    private func isValidateSplitOption() -> Bool {
+        switch selectedTab {
+        case .equally:
+            if selectedMembers.isEmpty {
+                showAlertFor(title: "Whoops!", message: "You must select at least one person to split with.")
+                return false
+            }
+        case .fixedAmount:
+            if totalFixedAmount != expenseAmount {
+                let amountDescription = totalFixedAmount < expenseAmount ? "short" : "over"
+                let differenceAmount = totalFixedAmount < expenseAmount ? (expenseAmount - totalFixedAmount) : (totalFixedAmount - expenseAmount)
+
+                showAlertFor(title: "Whoops!", message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
+                return false
+            }
+        case .percentage:
+            if totalPercentage != 100 {
+                let amountDescription = totalPercentage < 100 ? "short" : "over"
+                let differenceAmount = totalPercentage < 100 ? (String(format: "%.0f", 100 - totalPercentage)) : (String(format: "%.0f", totalPercentage - 100))
+
+                showAlertFor(title: "Whoops!", message: "The shares do not add up to 100%. You are \(amountDescription) by \(differenceAmount)%")
+                return false
+            }
+        case .shares:
+            if totalShares <= 0 {
+                showAlertFor(title: "Whoops!", message: "You must assign a non-zero share to at least one person.")
+                return false
+            }
+        }
+        return true
+    }
+
+    private func getSplitData() -> [String: Double] {
+        switch selectedTab {
+        case .fixedAmount:
+            return fixedAmounts.filter { $0.value != 0 }
+        case .percentage:
+            return percentages.filter { $0.value != 0 }
+        case .shares:
+            return shares.filter { $0.value != 0 }
+        case .equally:
+            return [:]
+        }
     }
 
     // MARK: - Error Handling

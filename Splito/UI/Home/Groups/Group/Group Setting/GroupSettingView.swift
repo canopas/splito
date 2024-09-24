@@ -17,7 +17,7 @@ struct GroupSettingView: View {
     var body: some View {
         VStack(spacing: 0) {
             if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
-                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.onViewAppear)
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchInitialGroupData)
             } else if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else if case .initial = viewModel.currentViewState {
@@ -69,7 +69,7 @@ struct GroupSettingView: View {
                 InviteMemberView(viewModel: InviteMemberViewModel(router: viewModel.router, groupId: viewModel.group?.id ?? ""))
             }
         }
-        .onAppear(perform: viewModel.onViewAppear)
+        .onAppear(perform: viewModel.fetchInitialGroupData)
     }
 }
 

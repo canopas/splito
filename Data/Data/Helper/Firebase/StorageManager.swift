@@ -42,7 +42,7 @@ public class StorageManager: ObservableObject {
             return imageUrl
         } catch {
             LogE("StorageManager: \(#function) Failed: \(error.localizedDescription)")
-            throw ServiceError.databaseError(error: error)
+            throw error
         }
     }
 
@@ -59,7 +59,7 @@ public class StorageManager: ObservableObject {
             try await storageRef.delete()
         } catch {
             LogE("StorageManager: \(#function) Failed: \(error)")
-            throw ServiceError.databaseError(error: error)
+            throw error
         }
     }
 }

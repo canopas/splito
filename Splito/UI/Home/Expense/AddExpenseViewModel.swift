@@ -40,9 +40,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var selectedPayers: [String: Double] = [:] {
         didSet {
-            Task {
-                await updatePayerName()
-            }
+            updatePayerName()
         }
     }
 
@@ -60,7 +58,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
         Task {
             if let expenseId {
-                await fetchExpenseDetails(expenseId: expenseId)
+                await fetchExpenseDetailsWithMembers(expenseId: expenseId)
             } else if let groupId {
                 await fetchGroup(groupId: groupId)
                 await fetchDefaultUser()
@@ -71,7 +69,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroup(groupId: String) async {
         do {
-            self.viewState = .loading
+            viewState = .loading
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             if let group {
                 selectedGroup = group
@@ -88,9 +86,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     private func fetchDefaultUser() async {
         guard let id = preference.user?.id else { return }
-        viewState = .loading
-
         do {
+            viewState = .loading
             let user = try await userRepository.fetchUserBy(userID: id)
             guard let user else {
                 viewState = .initial
@@ -104,40 +101,48 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func fetchExpenseDetails(expenseId: String) async {
+    private func fetchExpenseDetailsWithMembers(expenseId: String) async {
         guard let groupId else { return }
-
-        viewState = .loading
-
         do {
+            viewState = .loading
             let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
-            self.expense = expense
-            expenseName = expense.name
-            expenseAmount = expense.amount
-            expenseDate = expense.date.dateValue()
-            splitType = expense.splitType
-
-            if let splitData = expense.splitData {
-                self.splitData = splitData
-            }
-            selectedMembers = expense.splitTo
+            await updateViewModelFieldsWithExpense(expense: expense)
             await fetchMemberProfileUrls()
-
-            if let group = await fetchGroupData(for: groupId) {
-                self.selectedGroup = group
-                self.groupMembers = group.members
-                self.selectedPayers = expense.paidBy
-                self.viewState = .initial
-            }
+            await fetchAndUpdateGroupData(groupId: groupId)
+            viewState = .initial
         } catch {
             viewState = .initial
             showToastForError()
         }
     }
 
+    private func updateViewModelFieldsWithExpense(expense: Expense) async {
+        self.expense = expense
+        expenseName = expense.name
+        expenseAmount = expense.amount
+        expenseDate = expense.date.dateValue()
+        splitType = expense.splitType
+        selectedPayers = expense.paidBy
+
+        if let splitData = expense.splitData {
+            self.splitData = splitData
+        }
+        selectedMembers = expense.splitTo
+    }
+
+    private func fetchAndUpdateGroupData(groupId: String) async {
+        if let group = await fetchGroupData(for: groupId) {
+            self.selectedGroup = group
+            self.groupMembers = group.members
+        }
+    }
+
     private func fetchGroupData(for groupId: String) async -> Groups? {
         do {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
+//            guard let group else {
+//                throw NSError(domain: "GroupError", code: 404, userInfo: [NSLocalizedDescriptionKey: "Group not found"])
+//            }
             return group
         } catch {
             viewState = .initial
@@ -146,9 +151,13 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func fetchUserData(for userId: String) async -> AppUser? {
+    private func fetchUserData(for userId: String) async -> AppUser? {
         do {
-            return try await groupRepository.fetchMemberBy(userId: userId)
+            let user = try await groupRepository.fetchMemberBy(userId: userId)
+//            guard let user else {
+//                throw NSError(domain: "UserError", code: 404, userInfo: [NSLocalizedDescriptionKey: "User not found"])
+//            }
+            return user
         } catch {
             viewState = .initial
             showToastForError()
@@ -156,7 +165,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func fetchMemberProfileUrls() async {
+    private func fetchMemberProfileUrls() async {
         var profileUrls: [String] = []
 
         for member in selectedMembers {
@@ -171,25 +180,25 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 // MARK: - User Actions
 extension AddExpenseViewModel {
 
-    private func updatePayerName() async {
-        let payerCount = selectedPayers.count
-
-        if payerCount == 1 {
-            if let user = preference.user, selectedPayers.keys.first == user.id {
-                payerName = "You"
-            } else {
-                if let user = await fetchUserData(for: selectedPayers.keys.first ?? "") {
+    private func updatePayerName() {
+        Task {
+            if selectedPayers.count == 1 {
+                if let user = preference.user, selectedPayers.keys.first == user.id {
+                    payerName = "You"
+                } else if let payerId = selectedPayers.keys.first,
+                          let user = await fetchUserData(for: payerId) {
                     payerName = user.nameWithLastInitial
                 }
-            }
-        } else {
-            let payerIds = Array(selectedPayers.keys.prefix(2))
-            if let user1 = await fetchUserData(for: payerIds[0]) {
-                if let user2 = await fetchUserData(for: payerIds[1]) {
-                    if payerCount == 2 {
+            } else {
+                let payerIds = Array(selectedPayers.keys.prefix(2))
+                let user1 = await fetchUserData(for: payerIds[0])
+                let user2 = await fetchUserData(for: payerIds[1])
+
+                if let user1, let user2 {
+                    if selectedPayers.count == 2 {
                         payerName = "\(user1.nameWithLastInitial) and \(user2.nameWithLastInitial)"
                     } else {
-                        let remainingCount = payerCount - 2
+                        let remainingCount = selectedPayers.count - 2
                         payerName = "\(user1.nameWithLastInitial), \(user2.nameWithLastInitial) and +\(remainingCount)"
                     }
                 }
@@ -201,7 +210,13 @@ extension AddExpenseViewModel {
         showGroupSelection = expenseId == nil
     }
 
-    func handleGroupSelection(group: Groups) async {
+    func handleGroupSelectionAction(group: Groups) {
+        Task {
+            await handleGroupSelection(group: group)
+        }
+    }
+
+    private func handleGroupSelection(group: Groups) async {
         selectedGroup = group
         groupMembers = group.members
         selectedMembers = group.members
@@ -238,7 +253,13 @@ extension AddExpenseViewModel {
         showSplitTypeSelection = true
     }
 
-    func handleSplitTypeSelection(members: [String], splitData: [String: Double], splitType: SplitType) async {
+    func handleSplitTypeSelectionAction(members: [String], splitData: [String: Double], splitType: SplitType) {
+        Task {
+            await handleSplitTypeSelection(members: members, splitData: splitData, splitType: splitType)
+        }
+    }
+
+    private func handleSplitTypeSelection(members: [String], splitData: [String: Double], splitType: SplitType) async {
         selectedMembers = splitType == .equally ? members : splitData.map({ $0.key })
         self.splitData = splitData
         self.splitType = splitType
@@ -270,46 +291,52 @@ extension AddExpenseViewModel {
         guard let selectedGroup, let groupId = selectedGroup.id, let user = preference.user else { return false }
 
         if let expense {
-            var newExpense = expense
-            newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing)
-            newExpense.amount = expenseAmount
-            newExpense.date = Timestamp(date: expenseDate)
-
-            if selectedPayers.count == 1 {
-                newExpense.paidBy = [selectedPayers.first?.key ?? "": expenseAmount]
-            } else {
-                newExpense.paidBy = selectedPayers
-            }
-
-            newExpense.splitType = splitType
-            newExpense.splitTo = (splitType == .equally) ? selectedMembers : splitData.map({ $0.key })
-            newExpense.splitData = splitData
-
-            await updateExpense(groupId: groupId, expense: newExpense, oldExpense: expense)
+            await handleUpdateExpenseAction(groupId: groupId, expense: expense)
         } else {
-            let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
-                                  date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: user.id,
-                                  splitTo: (splitType == .equally) ? selectedMembers : splitData.map({ $0.key }),
-                                  splitType: splitType, splitData: splitData)
-
-            await addExpense(groupId: groupId, expense: expense)
+            await handleAddExpenseAction(groupId: groupId, userId: user.id)
         }
         return true
     }
 
-    private func addExpense(groupId: String, expense: Expense) async {
-        viewState = .loading
+    private func handleAddExpenseAction(groupId: String, userId: String) async {
+        let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
+                              date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: userId,
+                              splitTo: (splitType == .equally) ? selectedMembers : splitData.map({ $0.key }),
+                              splitType: splitType, splitData: splitData)
 
+        await addExpense(groupId: groupId, expense: expense)
+    }
+
+    private func handleUpdateExpenseAction(groupId: String, expense: Expense) async {
+        var newExpense = expense
+        newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing)
+        newExpense.amount = expenseAmount
+        newExpense.date = Timestamp(date: expenseDate)
+
+        if selectedPayers.count == 1 {
+            newExpense.paidBy = [selectedPayers.first?.key ?? "": expenseAmount]
+        } else {
+            newExpense.paidBy = selectedPayers
+        }
+
+        newExpense.splitType = splitType
+        newExpense.splitTo = (splitType == .equally) ? selectedMembers : splitData.map({ $0.key })
+        newExpense.splitData = splitData
+
+        await updateExpense(groupId: groupId, expense: newExpense, oldExpense: expense)
+    }
+
+    private func addExpense(groupId: String, expense: Expense) async {
         do {
             viewState = .loading
             var newExpense = try await expenseRepository.addExpense(groupId: groupId, expense: expense)
-            viewState = .initial
             newExpense.groupId = groupId
             NotificationCenter.default.post(name: .addExpense, object: newExpense)
-            if !(selectedGroup?.hasExpenses ?? false) {
-                selectedGroup?.hasExpenses = true
-            }
+
+            if !(selectedGroup?.hasExpenses ?? false) { selectedGroup?.hasExpenses = true }
+
             await updateGroupMemberBalance(expense: expense, updateType: .Add)
+            viewState = .initial
         } catch {
             viewState = .initial
             showToastForError()
@@ -317,14 +344,12 @@ extension AddExpenseViewModel {
     }
 
     private func updateExpense(groupId: String, expense: Expense, oldExpense: Expense) async {
-        viewState = .loading
-
         do {
             viewState = .loading
             try await expenseRepository.updateExpense(groupId: groupId, expense: expense)
-            viewState = .initial
             NotificationCenter.default.post(name: .updateExpense, object: expense)
             await updateGroupMemberBalance(expense: expense, updateType: .Update(oldExpense: oldExpense))
+            viewState = .initial
         } catch {
             viewState = .initial
             showToastForError()
@@ -333,13 +358,10 @@ extension AddExpenseViewModel {
 
     private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {
         guard var group = selectedGroup else { return }
-
-        let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
-        group.balances = memberBalance
-
         do {
+            let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
+            group.balances = memberBalance
             try await groupRepository.updateGroup(group: group)
-            viewState = .initial
         } catch {
             viewState = .initial
             showToastForError()

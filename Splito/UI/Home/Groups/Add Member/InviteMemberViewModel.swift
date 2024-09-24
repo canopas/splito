@@ -25,7 +25,10 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         super.init()
+        self.fetchInitialData()
+    }
 
+    private func fetchInitialData() {
         Task {
             await fetchGroup()
             await generateInviteCode()
@@ -34,9 +37,8 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Data Loading
     private func generateInviteCode() async {
-        inviteCode = inviteCode.randomString(length: 6).uppercased()
-
         do {
+            inviteCode = inviteCode.randomString(length: 6).uppercased()
             let isAvailable = try await codeRepository.checkForCodeAvailability(code: inviteCode)
             if !isAvailable {
                 await generateInviteCode()
@@ -55,7 +57,13 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func storeSharedCode() async {
+    func handleStoreShareCodeAction() {
+        Task {
+            await storeSharedCode()
+        }
+    }
+
+    private func storeSharedCode() async {
         let shareCode = SharedCode(code: inviteCode.encryptHexCode(), groupId: groupId, expireDate: Timestamp())
 
         do {

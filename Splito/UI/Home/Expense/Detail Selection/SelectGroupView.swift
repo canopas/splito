@@ -18,17 +18,15 @@ struct SelectGroupView: View {
     var body: some View {
         VStack(spacing: 0) {
             NavigationBarTopView(title: "Select a group", leadingButton: EmptyView(),
-                trailingButton: DismissButton(padding: (16, 0), foregroundColor: primaryText, onDismissAction: {
-                    dismiss()
-                })
-                .fontWeight(.regular)
-            )
-            .padding(.leading, 16)
+                                 trailingButton: DismissButton(padding: (16, 0), foregroundColor: primaryText,
+                                                               onDismissAction: { dismiss() })
+                                    .fontWeight(.regular)
+            ).padding(.leading, 16)
 
             Spacer(minLength: 0)
 
             if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
-                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.onViewAppear)
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchGroups)
             } else if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else if case .noGroups = viewModel.currentViewState {

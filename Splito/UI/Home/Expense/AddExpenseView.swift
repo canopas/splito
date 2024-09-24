@@ -67,19 +67,16 @@ struct AddExpenseView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showGroupSelection) {
             NavigationStack {
-                SelectGroupView(viewModel: SelectGroupViewModel(
-                    selectedGroup: viewModel.selectedGroup,
-                    onGroupSelection: { group in
-                        Task {
-                            await viewModel.handleGroupSelection(group: group)
-                        }
-                    }
-                ))
+                SelectGroupView(viewModel: SelectGroupViewModel(selectedGroup: viewModel.selectedGroup,
+                                                                onGroupSelection: viewModel.handleGroupSelectionAction(group:)))
             }
         }
         .sheet(isPresented: $viewModel.showPayerSelection) {
             NavigationStack {
-                ChoosePayerRouteView(appRoute: .init(root: .ChoosePayerView(groupId: viewModel.selectedGroup?.id ?? "", amount: viewModel.expenseAmount, selectedPayer: viewModel.selectedPayers, onPayerSelection: viewModel.handlePayerSelection(payers:)))) {
+                ChoosePayerRouteView(appRoute: .init(root: .ChoosePayerView(groupId: viewModel.selectedGroup?.id ?? "",
+                                                                            amount: viewModel.expenseAmount,
+                                                                            selectedPayer: viewModel.selectedPayers,
+                                                                            onPayerSelection: viewModel.handlePayerSelection(payers:)))) {
                     viewModel.showPayerSelection = false
                 }
             }
@@ -89,16 +86,9 @@ struct AddExpenseView: View {
                 ExpenseSplitOptionsView(
                     viewModel:
                         ExpenseSplitOptionsViewModel(
-                            amount: viewModel.expenseAmount,
-                            splitType: viewModel.splitType,
-                            splitData: viewModel.splitData,
-                            members: viewModel.groupMembers,
-                            selectedMembers: viewModel.selectedMembers,
-                            handleSplitTypeSelection: { members, splitData, splitType in
-                                Task {
-                                    await viewModel.handleSplitTypeSelection(members: members, splitData: splitData, splitType: splitType)
-                                }
-                            }
+                            amount: viewModel.expenseAmount, splitType: viewModel.splitType, splitData: viewModel.splitData,
+                            members: viewModel.groupMembers, selectedMembers: viewModel.selectedMembers,
+                            handleSplitTypeSelection: viewModel.handleSplitTypeSelectionAction(members:splitData:splitType:)
                         )
                 )
             }
@@ -113,8 +103,8 @@ struct AddExpenseView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 CheckmarkButton {
                     Task {
-                        let saveSuccessful = await viewModel.handleSaveAction()
-                        if saveSuccessful {
+                        if await viewModel.handleSaveAction() {
+                            // need to dismiss view only after successfully complete save action
                             dismiss()
                         }
                     }

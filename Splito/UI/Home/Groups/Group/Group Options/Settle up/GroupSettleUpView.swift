@@ -16,7 +16,7 @@ struct GroupSettleUpView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
-                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.onViewAppear)
+                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchInitialViewData)
             } else if case .loading = viewModel.viewState {
                 LoaderView()
             } else {

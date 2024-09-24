@@ -28,14 +28,14 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
         super.init()
     }
 
-    func onViewAppear() {
+    func fetchInitialMembersData() {
         Task {
             await fetchGroupMembers()
         }
     }
 
     // MARK: - Data Loading
-    func fetchGroupMembers() async {
+    private func fetchGroupMembers() async {
         do {
             let members = try await groupRepository.fetchMembersBy(groupId: groupId)
             self.members = members

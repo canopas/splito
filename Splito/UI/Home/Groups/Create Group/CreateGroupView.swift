@@ -41,8 +41,7 @@ struct CreateGroupView: View {
 
                 PrimaryButton(text: viewModel.group != nil ? "Save" : "Create", isEnabled: viewModel.groupName.count >= 3, showLoader: viewModel.showLoader, onClick: {
                     Task {
-                        let saveSuccessful = await viewModel.handleDoneAction()
-                        if saveSuccessful {
+                        if await viewModel.handleDoneAction() {
                             dismiss()
                         }
                     }

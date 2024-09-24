@@ -38,6 +38,10 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         onViewAppear()
     }
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     func onViewAppear() {
         Task {
             await fetchGroupMembers()

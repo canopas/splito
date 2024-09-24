@@ -16,7 +16,7 @@ struct ExpenseDetailsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
-                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.onViewAppear)
+                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchGroupAndExpenseData)
             } else if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
@@ -52,11 +52,7 @@ struct ExpenseDetailsView: View {
                     .foregroundStyle(primaryText)
             }
             ToolbarItem(placement: .topBarTrailing) {
-                ToolbarButtonView(imageIcon: .binIcon, onClick: {
-                    Task {
-                        await viewModel.handleDeleteBtnAction()
-                    }
-                })
+                ToolbarButtonView(imageIcon: .binIcon, onClick: viewModel.handleDeleteButtonAction)
             }
             ToolbarItem(placement: .topBarTrailing) {
                 ToolbarButtonView(imageIcon: .editPencilIcon, onClick: viewModel.handleEditBtnAction)

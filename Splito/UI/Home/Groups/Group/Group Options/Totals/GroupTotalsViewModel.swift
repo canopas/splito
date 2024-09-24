@@ -23,11 +23,10 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     init(groupId: String) {
         self.groupId = groupId
         super.init()
-
-        onViewAppear()
+        fetchInitialGroupData()
     }
 
-    func onViewAppear() {
+    func fetchInitialGroupData() {
         Task {
             await fetchGroup()
         }
@@ -35,13 +34,12 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Data Loading
     private func fetchGroup() async {
-        viewState = .loading
-
         do {
-            let group = try await groupRepository.fetchGroupBy(id: groupId)
-            self.group = group
-            self.filterDataForSelectedTab()
-            self.viewState = .initial
+            viewState = .loading
+            let latestGroup = try await groupRepository.fetchGroupBy(id: groupId)
+            group = latestGroup
+            filterDataForSelectedTab()
+            viewState = .initial
         } catch {
             handleServiceError()
         }
