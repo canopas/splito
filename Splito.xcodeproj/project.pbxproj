@@ -23,7 +23,6 @@
 		21BA6D4F2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D4E2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift */; };
 		21F27BDE2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F27BDD2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift */; };
 		741540F86E36400CE27B1FAD /* Pods_SplitoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 701193A10871F36C3EDB356C /* Pods_SplitoTests.framework */; };
-		D815DFD72BEA26C200C0F862 /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D815DFD62BEA26C200C0F862 /* Secrets.xcconfig */; };
 		D826C0E22BDBD65600AAA449 /* GroupBalancesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826C0E12BDBD65600AAA449 /* GroupBalancesView.swift */; };
 		D826C0E42BDBD66300AAA449 /* GroupBalancesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826C0E32BDBD66300AAA449 /* GroupBalancesViewModel.swift */; };
 		D8302DA02B9F282F005ACA13 /* InviteMemberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8302D9F2B9F282F005ACA13 /* InviteMemberView.swift */; };
@@ -47,6 +46,7 @@
 		D85E86EB2BB3FD59002EDF76 /* ChoosePayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86EA2BB3FD59002EDF76 /* ChoosePayerViewModel.swift */; };
 		D85E86ED2BB41B87002EDF76 /* SelectGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86EC2BB41B87002EDF76 /* SelectGroupView.swift */; };
 		D85E86EF2BB41B9F002EDF76 /* SelectGroupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E86EE2BB41B9F002EDF76 /* SelectGroupViewModel.swift */; };
+		D8619A832CA28417006618D6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D8619A822CA28417006618D6 /* GoogleService-Info.plist */; };
 		D863857B2B908AB600A8C6EB /* VERSION in Resources */ = {isa = PBXBuildFile; fileRef = D863857A2B908AB600A8C6EB /* VERSION */; };
 		D8682DF92BED0C1C00BB7273 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D8682DF82BED0C1C00BB7273 /* Localizable.xcstrings */; };
 		D86BB33F2C05ED9D00463E6C /* MainRouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BB33E2C05ED9D00463E6C /* MainRouteViewModel.swift */; };
@@ -194,6 +194,7 @@
 		D85E86EC2BB41B87002EDF76 /* SelectGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectGroupView.swift; sourceTree = "<group>"; };
 		D85E86EE2BB41B9F002EDF76 /* SelectGroupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectGroupViewModel.swift; sourceTree = "<group>"; };
 		D8619A7D2CA1B03D006618D6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		D8619A822CA28417006618D6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D863857A2B908AB600A8C6EB /* VERSION */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VERSION; sourceTree = "<group>"; };
 		D863857E2B909A5A00A8C6EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D8682DF82BED0C1C00BB7273 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -648,6 +649,7 @@
 			isa = PBXGroup;
 			children = (
 				D863857E2B909A5A00A8C6EB /* Info.plist */,
+				D8619A822CA28417006618D6 /* GoogleService-Info.plist */,
 				D8619A7D2CA1B03D006618D6 /* GoogleService-Info.plist */,
 			);
 			path = Plist;
@@ -792,7 +794,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1520;
-				LastUpgradeCheck = 1520;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					D89684402B722D3400D5F721 = {
 						CreatedOnToolsVersion = 15.2;
@@ -834,7 +836,6 @@
 			files = (
 				D896844C2B722D3700D5F721 /* Preview Assets.xcassets in Resources */,
 				D89684492B722D3700D5F721 /* Assets.xcassets in Resources */,
-				D815DFD72BEA26C200C0F862 /* Secrets.xcconfig in Resources */,
 				D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */,
 				D8682DF92BED0C1C00BB7273 /* Localizable.xcstrings in Resources */,
 				D8B4A8A22C9AF3A500E734AE /* GroupSummary.png in Resources */,
@@ -849,6 +850,7 @@
 				D8B4A8AB2C9AF3A500E734AE /* GroupBalance.png in Resources */,
 				D8B4A8AC2C9AF3A500E734AE /* SplitOptions.png in Resources */,
 				D8B4A8AD2C9AF3A500E734AE /* Transactions.png in Resources */,
+				D8619A832CA28417006618D6 /* GoogleService-Info.plist in Resources */,
 				D8B4A8AE2C9AF3A500E734AE /* SplitoCover.png in Resources */,
 				D863857B2B908AB600A8C6EB /* VERSION in Resources */,
 			);
@@ -1430,7 +1432,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C90B8B47C865162E6A9D4D79 /* Pods-SplitoTests.debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1452,7 +1453,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = DFDBE222145831CBD9B686FF /* Pods-SplitoTests.release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1474,7 +1474,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F76BDF4C42A2EF9A9F45B069 /* Pods-Splito-SplitoUITests.debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = S985H2T7J8;
@@ -1494,7 +1493,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 038CCD15E82A4E16A4AD213C /* Pods-Splito-SplitoUITests.release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = S985H2T7J8;

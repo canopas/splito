@@ -326,7 +326,10 @@ extension GroupHomeViewModel {
     }
 
     @objc private func handleAddExpense(notification: Notification) {
-        guard let newExpense = notification.object as? Expense, newExpense.groupId == groupId else { return }
+        guard let expenseInfo = notification.userInfo,
+              let newExpense = expenseInfo["expense"] as? Expense,
+              let notificationGroupId = expenseInfo["groupId"] as? String,
+              notificationGroupId == groupId else { return }
 
         expenses.append(newExpense)
         fetchUserData(for: newExpense.paidBy.keys.first ?? "") { [weak self] user in
