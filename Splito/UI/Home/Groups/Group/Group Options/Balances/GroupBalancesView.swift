@@ -15,7 +15,7 @@ struct GroupBalancesView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
-                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.onViewAppear)
+                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchInitialBalancesData)
             } else if case .loading = viewModel.viewState {
                 LoaderView()
             } else {

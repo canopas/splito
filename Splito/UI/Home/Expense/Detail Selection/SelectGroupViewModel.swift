@@ -23,10 +23,10 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
         self.onGroupSelection = onGroupSelection
         super.init()
 
-        fetchGroups()
+        fetchInitialGroupsData()
     }
 
-    func fetchGroups() {
+    func fetchInitialGroupsData() {
         Task {
             await self.fetchGroups()
         }

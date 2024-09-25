@@ -42,10 +42,10 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
             totalAmount = expenseAmount
         }
 
-        fetchMembers()
+        fetchInitialMembersData()
     }
 
-    func fetchMembers() {
+    func fetchInitialMembersData() {
         Task {
             await self.fetchMembers()
         }

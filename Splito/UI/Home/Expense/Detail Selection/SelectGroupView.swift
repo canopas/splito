@@ -26,7 +26,7 @@ struct SelectGroupView: View {
             Spacer(minLength: 0)
 
             if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
-                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchGroups)
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchInitialGroupsData)
             } else if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else if case .noGroups = viewModel.currentViewState {

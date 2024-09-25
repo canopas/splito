@@ -70,13 +70,6 @@ struct GroupHomeView: View {
                 GroupSettleUpRouteView(appRoute: .init(root: .GroupWhoIsPayingView(groupId: viewModel.groupId, isPaymentSettled: true)))
             }
         }
-        .sheet(isPresented: $viewModel.showSimplifyInfoSheet) {
-            SimplifyInfoSheetView()
-                .fixedSize(horizontal: false, vertical: true)
-                .modifier(BottomSheetHeightModifier(height: $sheetHeight))
-                .presentationDetents([.height(sheetHeight)])
-                .presentationCornerRadius(24)
-        }
         .fullScreenCover(isPresented: $viewModel.showTransactionsSheet) {
             GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.groupId)))
         }
@@ -94,6 +87,13 @@ struct GroupHomeView: View {
             NavigationStack {
                 InviteMemberView(viewModel: InviteMemberViewModel(router: viewModel.router, groupId: viewModel.groupId))
             }
+        }
+        .sheet(isPresented: $viewModel.showSimplifyInfoSheet) {
+            SimplifyInfoSheetView()
+                .fixedSize(horizontal: false, vertical: true)
+                .modifier(BottomSheetHeightModifier(height: $sheetHeight))
+                .presentationDetents([.height(sheetHeight)])
+                .presentationCornerRadius(24)
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {

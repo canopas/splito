@@ -6,7 +6,7 @@
 //
 
 import Data
-import SwiftUI
+import Foundation
 
 class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
@@ -35,10 +35,10 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
         NotificationCenter.default.addObserver(self, selector: #selector(handleAddTransaction(notification:)), name: .addTransaction, object: nil)
 
-        onViewAppear()
+        fetchInitialBalancesData()
     }
 
-    func onViewAppear() {
+    func fetchInitialBalancesData() {
         Task {
             await fetchGroupMembers()
         }
