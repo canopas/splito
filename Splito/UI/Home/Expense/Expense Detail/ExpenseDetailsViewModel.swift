@@ -38,10 +38,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedExpense(notification:)), name: .updateExpense, object: nil)
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
     func fetchGroupAndExpenseData() {
         Task {
             await fetchGroup()

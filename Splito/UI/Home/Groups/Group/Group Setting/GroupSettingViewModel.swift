@@ -37,10 +37,6 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateGroup(notification:)), name: .updateGroup, object: nil)
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
     func fetchInitialGroupData() {
         Task {
             await fetchGroupDetails()

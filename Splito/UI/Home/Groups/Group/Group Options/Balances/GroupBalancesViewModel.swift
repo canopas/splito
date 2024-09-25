@@ -38,10 +38,6 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         onViewAppear()
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
     func onViewAppear() {
         Task {
             await fetchGroupMembers()
@@ -54,7 +50,6 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             viewState = .loading
             groupMemberData = try await groupRepository.fetchMembersBy(groupId: groupId)
             await fetchGroupDetails()
-            calculateExpensesSimplified()
         } catch {
             handleServiceError()
         }

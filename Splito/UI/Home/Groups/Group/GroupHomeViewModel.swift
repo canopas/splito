@@ -62,6 +62,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     let router: Router<AppRoute>
     var hasMoreExpenses: Bool = true
 
+    private var isLoadingFirstTime: Bool = true
     private var groupUserData: [AppUser] = []
     private var lastDocument: DocumentSnapshot?
 
@@ -76,12 +77,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleAddTransaction(notification:)), name: .addTransaction, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleTransaction(notification:)), name: .updateTransaction, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleTransaction(notification:)), name: .deleteTransaction, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateGroup(notification:)), name: .updateGroup, object: nil)
 
         fetchGroupAndExpenses()
-    }
-
-    deinit {
-        NotificationCenter.default.removeObserver(self)
     }
 
     func fetchGroupAndExpenses() {
@@ -108,7 +106,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }
 
             self.group = group
-            fetchGroupBalance()
+            if !isLoadingFirstTime {
+                fetchGroupBalance()
+            }
+            isLoadingFirstTime = false
         } catch {
             handleServiceError()
         }
@@ -375,6 +376,11 @@ extension GroupHomeViewModel {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
         showSettleUpSheet = false
         refreshGroupData()
+    }
+
+    @objc private func handleUpdateGroup(notification: Notification) {
+        guard let updatedGroup = notification.object as? Groups else { return }
+        group?.name = updatedGroup.name
     }
 
     private func refreshGroupData() {

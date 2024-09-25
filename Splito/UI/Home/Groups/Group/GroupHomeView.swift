@@ -65,9 +65,9 @@ struct GroupHomeView: View {
         }
         .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
             if !(viewModel.memberOwingAmount.isEmpty) {
-                GroupSettleUpRouteView(appRoute: .init(root: .GroupSettleUpView(groupId: viewModel.group?.id ?? "")))
+                GroupSettleUpRouteView(appRoute: .init(root: .GroupSettleUpView(groupId: viewModel.groupId)))
             } else {
-                GroupSettleUpRouteView(appRoute: .init(root: .GroupWhoIsPayingView(groupId: viewModel.group?.id ?? "", isPaymentSettled: true)))
+                GroupSettleUpRouteView(appRoute: .init(root: .GroupWhoIsPayingView(groupId: viewModel.groupId, isPaymentSettled: true)))
             }
         }
         .sheet(isPresented: $viewModel.showSimplifyInfoSheet) {
@@ -78,16 +78,16 @@ struct GroupHomeView: View {
                 .presentationCornerRadius(24)
         }
         .fullScreenCover(isPresented: $viewModel.showTransactionsSheet) {
-            GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.group?.id ?? "")))
+            GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.groupId)))
         }
         .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
             NavigationStack {
-                GroupBalancesView(viewModel: GroupBalancesViewModel(router: viewModel.router, groupId: viewModel.group?.id ?? ""))
+                GroupBalancesView(viewModel: GroupBalancesViewModel(router: viewModel.router, groupId: viewModel.groupId))
             }
         }
         .fullScreenCover(isPresented: $viewModel.showGroupTotalSheet) {
             NavigationStack {
-                GroupTotalsView(viewModel: GroupTotalsViewModel(groupId: viewModel.group?.id ?? ""))
+                GroupTotalsView(viewModel: GroupTotalsViewModel(groupId: viewModel.groupId))
             }
         }
         .fullScreenCover(isPresented: $viewModel.showInviteMemberSheet) {

@@ -23,13 +23,13 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         self.router = router
     }
 
-	func handleJoinMemberAction() -> Bool {
-		var isSucceed = false
-		Task {
-			isSucceed = await joinMemberWithCode()
-		}
-		return isSucceed
-	}
+    func handleJoinMemberAction() -> Bool {
+        var isSucceed = false
+        Task {
+            isSucceed = await joinMemberWithCode()
+        }
+        return isSucceed
+    }
 
     private func joinMemberWithCode() async -> Bool {
         do {

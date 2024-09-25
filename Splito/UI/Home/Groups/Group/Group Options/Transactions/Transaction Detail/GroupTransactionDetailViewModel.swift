@@ -37,10 +37,6 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         fetchInitialTransactionData()
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
     func fetchInitialTransactionData() {
         Task {
             await fetchGroup()

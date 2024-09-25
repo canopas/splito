@@ -74,6 +74,7 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
 
             showAlertFor(title: "Oops!",
                          message: "The payment values do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
+            return
         }
 
         onPayerSelection(membersAmount.filter({ $0.value != 0 }))

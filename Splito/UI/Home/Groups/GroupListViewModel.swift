@@ -67,10 +67,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         fetchGroupsInitialData()
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
     func fetchGroupsInitialData() {
         Task {
             await fetchGroups()
@@ -89,15 +85,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             self.lastDocument = result.lastDocument
             self.hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
 
-            // Fetch group information for each group and maintain original index
-            var indexedGroups: [(index: Int, groupInfo: GroupInformation)] = []
-            for (index, group) in result.data.enumerated() {
-                let groupInfo = try await fetchGroupInformation(group: group)
-                indexedGroups.append((index: index, groupInfo: groupInfo))
-            }
-
-            // Sort by index to preserve the original order
-            let sortedGroups = indexedGroups.sorted(by: { $0.index < $1.index }).map { $0.groupInfo }
+            let sortedGroups = try await self.processNewGroups(newGroups: result.data)
 
             self.currentViewState = .initial
             self.combinedGroups = sortedGroups
