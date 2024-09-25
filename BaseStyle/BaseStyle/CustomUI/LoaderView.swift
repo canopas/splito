@@ -8,17 +8,13 @@
 import SwiftUI
 
 public struct LoaderView: View {
+
     @StateObject private var viewModel: LoaderViewModel = .init()
 
     private let tintColor: Color
     private let height: CGFloat
 
-    private let totalDots = 7
-    private let timer = Timer.publish(every: 0.20, on: .main, in: .common).autoconnect()
-
-    @State var current = 0
-
-    public init(tintColor: Color = primaryColor, height: CGFloat = 38) {
+    public init(tintColor: Color = primaryColor, height: CGFloat = 20) {
         self.tintColor = tintColor
         self.height = height
     }
@@ -28,27 +24,54 @@ public struct LoaderView: View {
             if viewModel.isStillLoading {
                 Color.clear.ignoresSafeArea()
 
-                ForEach(0..<totalDots, id: \.self) { index in
-                    Circle()
-                        .fill(tintColor)
-                        .frame(height: height / 4)
-                        .frame(height: height, alignment: .top)
-                        .rotationEffect(Angle(degrees: 360 / Double(totalDots) * Double(index)))
-                        .opacity(current == index ? 1.0 : current == index + 1 ? 0.5 :
-                                    current == (totalDots - 1) && index == (totalDots - 1) ? 0.5 : 0)
-                }
+                JumpingDotsLoader(tintColor: tintColor)
+                    .frame(height: height)
+                    .padding()
             }
         }
         .onAppear(perform: viewModel.onViewAppear)
-        .onReceive(timer, perform: { _ in
-            withAnimation(Animation.easeInOut(duration: 0.5).repeatCount(1, autoreverses: true)) {
-                current = current == (totalDots - 1) ? 0 : current + 1
+        .frame(alignment: .center)
+    }
+}
+
+private struct JumpingDotsLoader: View {
+
+    let tintColor: Color
+
+    @State private var animate = [false, false, false]  // Array to manage multiple states
+
+    private let jumpHeight: CGFloat = 10
+    private let animationDuration: Double = 0.6
+    private let dotCount = 3
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(0..<dotCount, id: \.self) { index in
+                Circle()
+                    .frame(width: 8, height: 8)
+                    .foregroundColor(tintColor)
+                    .offset(y: animate[index] ? -jumpHeight : 0)
+                    .animation(
+                        Animation.easeInOut(duration: animationDuration)
+                            .delay(Double(index) * 0.2)
+                            .repeatForever(autoreverses: true),
+                        value: animate[index]
+                    )
             }
-        })
+        }
+        .onAppear {
+            // Start animations for each dot with a delay
+            for index in 0..<dotCount {
+                DispatchQueue.main.asyncAfter(deadline: .now() + (Double(index) * 0.2)) {
+                    animate[index] = true
+                }
+            }
+        }
     }
 }
 
 public struct ImageLoaderView: View {
+
     @StateObject var viewModel: LoaderViewModel = .init()
 
     private let tintColor: Color

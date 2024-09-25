@@ -6,7 +6,7 @@
 //
 
 import Data
-import Foundation
+import SwiftUI
 
 class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
