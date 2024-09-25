@@ -82,15 +82,15 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         showImagePickerOptions = true
     }
 
-    func handleDoneAction() async -> Bool {
+    func handleDoneAction(completion: @escaping (Bool) -> Void) async {
         if let group {
-            return await updateGroup(group: group)
+            return await updateGroup(group: group, completion: completion)
         } else {
-            return await createGroup()
+            return await createGroup(completion: completion)
         }
     }
 
-    private func createGroup() async -> Bool {
+    private func createGroup(completion: (Bool) -> Void) async {
         showLoader = true
 
         let userId = preference.user?.id ?? ""
@@ -105,16 +105,16 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             let group = try await groupRepository.createGroup(group: group, imageData: imageData)
             showLoader = false
             NotificationCenter.default.post(name: .addGroup, object: group)
-            return true
+            completion(true)
         } catch {
             currentState = .initial
             showLoader = false
-            showAlertFor(title: "Error", message: "Something went wrong.")
-            return false
+            completion(false)
+            showToastForError()
         }
     }
 
-    private func updateGroup(group: Groups) async -> Bool {
+    private func updateGroup(group: Groups, completion: (Bool) -> Void) async {
         self.showLoader = true
 
         var newGroup = group
@@ -127,12 +127,12 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             let updatedGroup = try await groupRepository.updateGroupWithImage(imageData: imageData, newImageUrl: profileImageUrl, group: newGroup)
             showLoader = false
             NotificationCenter.default.post(name: .updateGroup, object: updatedGroup)
-            return true
+            completion(true)
         } catch {
             currentState = .initial
             showLoader = false
-            showAlertFor(title: "Error", message: "Something went wrong.")
-            return false
+            completion(false)
+            showToastForError()
         }
     }
 }

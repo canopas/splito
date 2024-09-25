@@ -36,6 +36,7 @@ class GroupStore: ObservableObject {
             try groupsCollection.document(groupId).setData(from: group, merge: false)
         } else {
             LogE("GroupStore :: \(#function) Group not found.")
+            throw ServiceError.dataNotFound
         }
     }
 

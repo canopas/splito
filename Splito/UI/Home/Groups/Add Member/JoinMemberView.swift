@@ -29,8 +29,8 @@ struct JoinMemberView: View {
 
                         OtpTextInputView(text: $viewModel.code, placeholder: "AF0R00", isFocused: $isFocused,
                                          keyboardType: .alphabet) {
-                            if viewModel.handleJoinMemberAction() {
-                                dismiss()
+                            viewModel.handleJoinMemberAction { isSucceed in
+                                if isSucceed { dismiss() }
                             }
                         }
 
@@ -50,8 +50,8 @@ struct JoinMemberView: View {
                 .scrollBounceBehavior(.basedOnSize)
 
                 PrimaryFloatingButton(text: "Join", isEnabled: !viewModel.code.isEmpty, showLoader: viewModel.showLoader) {
-                    if viewModel.handleJoinMemberAction() {
-                        dismiss()
+                    viewModel.handleJoinMemberAction { isSucceed in
+                        if isSucceed { dismiss() }
                     }
                 }
             }

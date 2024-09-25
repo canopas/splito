@@ -65,8 +65,9 @@ struct InviteMemberView: View {
         .sheet(isPresented: $viewModel.showShareSheet) {
             ShareSheetView(activityItems: ["Let's split the expense! Use invite code \(viewModel.inviteCode) to join the \(viewModel.group?.name ?? "") group, if you don't have an app then please download it."]) { isCompleted in
                 if isCompleted {
-                    viewModel.handleStoreShareCodeAction()
-                    dismiss()
+                    viewModel.handleStoreShareCodeAction { isSucceed in
+                        if isSucceed { dismiss() }
+                    }
                 }
             }
         }

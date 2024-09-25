@@ -159,18 +159,17 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func handleDoneAction() -> Bool {
-        guard isValidateSplitOption() else { return false }
+    func handleDoneAction(completion: @escaping (Bool) -> Void) {
+        isValidateSplitOption(completion: completion)
         handleSplitTypeSelection(selectedMembers, getSplitData(), selectedTab)
-        return true
     }
 
-    private func isValidateSplitOption() -> Bool {
+    private func isValidateSplitOption(completion: (Bool) -> Void) {
         switch selectedTab {
         case .equally:
             if selectedMembers.isEmpty {
                 showAlertFor(title: "Whoops!", message: "You must select at least one person to split with.")
-                return false
+                return completion(false)
             }
         case .fixedAmount:
             if totalFixedAmount != expenseAmount {
@@ -178,7 +177,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
                 let differenceAmount = totalFixedAmount < expenseAmount ? (expenseAmount - totalFixedAmount) : (totalFixedAmount - expenseAmount)
 
                 showAlertFor(title: "Whoops!", message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
-                return false
+                return completion(false)
             }
         case .percentage:
             if totalPercentage != 100 {
@@ -186,15 +185,16 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
                 let differenceAmount = totalPercentage < 100 ? (String(format: "%.0f", 100 - totalPercentage)) : (String(format: "%.0f", totalPercentage - 100))
 
                 showAlertFor(title: "Whoops!", message: "The shares do not add up to 100%. You are \(amountDescription) by \(differenceAmount)%")
-                return false
+                return completion(false)
             }
         case .shares:
             if totalShares <= 0 {
                 showAlertFor(title: "Whoops!", message: "You must assign a non-zero share to at least one person.")
-                return false
+                return completion(false)
             }
         }
-        return true
+
+        completion(true)
     }
 
     private func getSplitData() -> [String: Double] {

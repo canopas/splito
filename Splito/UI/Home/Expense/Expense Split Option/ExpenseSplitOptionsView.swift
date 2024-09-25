@@ -24,9 +24,8 @@ struct ExpenseSplitOptionsView: View {
                 }(),
                 trailingButton:
                     CheckmarkButton(padding: (.horizontal, 16)) {
-                        if viewModel.handleDoneAction() {
-                            // dismiss view only after action completion
-                            dismiss()
+                        viewModel.handleDoneAction { isValidInput in
+                            if isValidInput { dismiss() }
                         }
                     }
             )

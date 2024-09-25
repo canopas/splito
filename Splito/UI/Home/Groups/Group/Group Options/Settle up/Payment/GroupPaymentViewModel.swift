@@ -107,13 +107,13 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func handleSaveAction() {
+    func handleSaveAction(completion: @escaping (Bool) -> Void) {
         Task {
-            await performSaveAction()
+            await performSaveAction(completion: completion)
         }
     }
 
-    private func performSaveAction() async {
+    private func performSaveAction(completion: (Bool) -> Void) async {
         guard amount > 0 else {
             showAlertFor(title: "Whoops!", message: "You must enter an amount.")
             return
@@ -126,38 +126,42 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             newTransaction.amount = amount
             newTransaction.date = .init(date: paymentDate)
 
-            await updateTransaction(transaction: newTransaction, oldTransaction: transaction)
+            await updateTransaction(transaction: newTransaction, oldTransaction: transaction, completion: completion)
         } else {
             let transaction = Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
                                            amount: amount, date: .init(date: paymentDate))
-            await addTransaction(transaction: transaction)
+            await addTransaction(transaction: transaction, completion: completion)
         }
     }
 
-    private func addTransaction(transaction: Transactions) async {
+    private func addTransaction(transaction: Transactions, completion: (Bool) -> Void) async {
         do {
             showLoader = true
             let transaction = try await transactionRepository.addTransaction(groupId: groupId, transaction: transaction)
             await updateGroupMemberBalance(transaction: transaction, updateType: .Add)
             NotificationCenter.default.post(name: .addTransaction, object: transaction)
             showLoader = false
+            completion(true)
         } catch {
             viewState = .initial
             showLoader = false
+            completion(false)
             showToastForError()
         }
     }
 
-    private func updateTransaction(transaction: Transactions, oldTransaction: Transactions) async {
+    private func updateTransaction(transaction: Transactions, oldTransaction: Transactions, completion: (Bool) -> Void) async {
         do {
             showLoader = true
             try await transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
             await self.updateGroupMemberBalance(transaction: transaction, updateType: .Update(oldTransaction: oldTransaction))
             NotificationCenter.default.post(name: .updateTransaction, object: transaction)
             showLoader = false
+            completion(true)
         } catch {
             viewState = .initial
             showLoader = false
+            completion(false)
             showToastForError()
         }
     }

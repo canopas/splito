@@ -57,18 +57,20 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func handleStoreShareCodeAction() {
+    func handleStoreShareCodeAction(completion: @escaping (Bool) -> Void) {
         Task {
-            await storeSharedCode()
+            await storeSharedCode(completion: completion)
         }
     }
 
-    private func storeSharedCode() async {
+    private func storeSharedCode(completion: (Bool) -> Void) async {
         let shareCode = SharedCode(code: inviteCode.encryptHexCode(), groupId: groupId, expireDate: Timestamp())
 
         do {
             try await codeRepository.addSharedCode(sharedCode: shareCode)
+            completion(true)
         } catch {
+            completion(false)
             showToastForError()
         }
     }

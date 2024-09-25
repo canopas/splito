@@ -37,6 +37,7 @@ public class ExpenseStore: ObservableObject {
             try expenseReference(groupId: groupId).document(expenseId).setData(from: expense, merge: false)
         } else {
             LogE("ExpenseStore :: \(#function) Expense not found.")
+            throw ServiceError.dataNotFound
         }
     }
 

@@ -48,9 +48,6 @@ struct GroupExpenseListView: View {
                             if viewModel.expenses.isEmpty {
                                 EmptyStateView(geometry: geometry, minHeight: geometry.size.height - 250,
                                                onClick: viewModel.openAddExpenseSheet)
-                                .onAppear {
-                                    print("xxx \(viewModel.expenses)")
-                                }
                             } else if !viewModel.groupExpenses.isEmpty {
                                 let firstMonth = viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings).first
 

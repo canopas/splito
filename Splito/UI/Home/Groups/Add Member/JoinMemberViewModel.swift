@@ -23,29 +23,27 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         self.router = router
     }
 
-    func handleJoinMemberAction() -> Bool {
-        var isSucceed = false
+    func handleJoinMemberAction(completion: @escaping (Bool) -> Void) {
         Task {
-            isSucceed = await joinMemberWithCode()
+            await joinMemberWithCode(completion: completion)
         }
-        return isSucceed
     }
 
-    private func joinMemberWithCode() async -> Bool {
+    private func joinMemberWithCode(completion: (Bool) -> Void) async {
         do {
             showLoader = true
             let code = try await codeRepository.fetchSharedCode(code: code)
             guard let code else {
                 showLoader = false
                 showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "The code you've entered is not exists."))
-                return false
+                return
             }
             await addMemberIfCodeExists(code: code)
-            return true
+            completion(true)
         } catch {
             showLoader = false
+            completion(false)
             showToastForError()
-            return false
         }
     }
 

@@ -37,6 +37,7 @@ public class TransactionStore: ObservableObject {
             try transactionReference(groupId: groupId).document(transactionId).setData(from: transaction, merge: false)
         } else {
             LogE("TransactionStore :: \(#function) Transaction not found.")
+            throw ServiceError.dataNotFound
         }
     }
 
