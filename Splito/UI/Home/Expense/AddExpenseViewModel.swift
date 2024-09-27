@@ -325,8 +325,9 @@ extension AddExpenseViewModel {
         do {
             viewState = .loading
             var newExpense = try await expenseRepository.addExpense(groupId: groupId, expense: expense)
-            newExpense.groupId = groupId
-            NotificationCenter.default.post(name: .addExpense, object: newExpense)
+            
+            let expenseInfo: [String: Any] = ["groupId": groupId, "expense": newExpense]
+            NotificationCenter.default.post(name: .addExpense, object: nil, userInfo: expenseInfo)
 
             if !(selectedGroup?.hasExpenses ?? false) { selectedGroup?.hasExpenses = true }
 

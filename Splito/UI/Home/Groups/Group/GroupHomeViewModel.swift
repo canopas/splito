@@ -102,6 +102,21 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                         self.groupUserData.append(memberData)
                     }
                 }
+
+                NotificationCenter.default.post(name: .updateGroup, object: group)
+                self.group = group
+                self.fetchGroupBalance()
+            }.store(in: &cancelable)
+    }
+
+    func fetchExpenses() {
+        expensesWithUser = []
+        expenseRepository.fetchExpensesBy(groupId: groupId, limit: EXPENSES_LIMIT)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.groupState = .noMember
+                    self?.showToastFor(error)
+                }
             }
 
             self.group = group
@@ -318,14 +333,16 @@ extension GroupHomeViewModel {
     }
 
     @objc private func handleAddExpense(notification: Notification) {
-        guard let newExpense = notification.object as? Expense, newExpense.groupId == groupId else { return }
-        Task {
-            expenses.append(newExpense)
-            if let user = await fetchUserData(for: newExpense.paidBy.keys.first ?? "") {
-                let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
-                withAnimation {
-                    expensesWithUser.append(newExpenseWithUser)
-                }
+        guard let expenseInfo = notification.userInfo,
+              let newExpense = expenseInfo["expense"] as? Expense,
+              let notificationGroupId = expenseInfo["groupId"] as? String,
+              notificationGroupId == groupId else { return }
+        
+        expenses.append(newExpense)
+        fetchUserData(for: newExpense.paidBy.keys.first ?? "") { [weak self] user in
+            let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
+            withAnimation {
+                self?.expensesWithUser.append(newExpenseWithUser)
             }
         }
         refreshGroupData()

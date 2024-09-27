@@ -213,7 +213,6 @@
 				D865F8AD2BD7CB0B0084BD36 /* Array+Extension.swift */,
 				D8A7CA7F2BA867F80014EC67 /* String+Extension.swift */,
 				D89C934D2BC694C200FACD16 /* Double+Extension.swift */,
-				D826C0DE2BDA95C900AAA449 /* Timestamp+Extension.swift */,
 				D8613F672BFDECC4008BD53D /* Query+Extension.swift */,
 				D83D72EB2C8B23FB007BAAA9 /* DocumentReference+Extension.swift */,
 				213D0CC92C89DBC800D65C73 /* Notification+Extension.swift */,
