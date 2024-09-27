@@ -28,7 +28,7 @@ struct ErrorView: View {
                     VSpacer(40)
 
                     VStack(spacing: 16) {
-                        Text(isForNoInternet ? "No internet!" :  "Something went wrong!")
+                        Text(isForNoInternet ? "No internet!" : "Something went wrong!")
                             .font(.Header1())
                             .foregroundColor(primaryText)
                             .multilineTextAlignment(.center)
@@ -44,7 +44,7 @@ struct ErrorView: View {
 
                     CapsuleButton(buttonName: "Retry", paddingHr: 73, paddingVr: 12, onClick: onClick)
                 }
-                .frame(maxWidth: isIpad ? 600 : nil, minHeight: geometry.size.height - 100, maxHeight: .infinity, alignment: .center)
+                .frame(maxWidth: isIpad ? 600 : nil, minHeight: geometry.size.height - 50, maxHeight: .infinity, alignment: .center)
             }
             .frame(minWidth: geometry.size.width)
         }

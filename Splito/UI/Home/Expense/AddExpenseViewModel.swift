@@ -324,8 +324,7 @@ extension AddExpenseViewModel {
     private func addExpense(groupId: String, expense: Expense, completion: (Bool) -> Void) async {
         do {
             viewState = .loading
-            var newExpense = try await expenseRepository.addExpense(groupId: groupId, expense: expense)
-            
+            let newExpense = try await expenseRepository.addExpense(groupId: groupId, expense: expense)
             let expenseInfo: [String: Any] = ["groupId": groupId, "expense": newExpense]
             NotificationCenter.default.post(name: .addExpense, object: nil, userInfo: expenseInfo)
 

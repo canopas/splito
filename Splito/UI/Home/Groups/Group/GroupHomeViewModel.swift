@@ -102,21 +102,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                         self.groupUserData.append(memberData)
                     }
                 }
-
-                NotificationCenter.default.post(name: .updateGroup, object: group)
-                self.group = group
-                self.fetchGroupBalance()
-            }.store(in: &cancelable)
-    }
-
-    func fetchExpenses() {
-        expensesWithUser = []
-        expenseRepository.fetchExpensesBy(groupId: groupId, limit: EXPENSES_LIMIT)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.groupState = .noMember
-                    self?.showToastFor(error)
-                }
             }
 
             self.group = group
@@ -298,10 +283,10 @@ extension GroupHomeViewModel {
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
                       positiveBtnTitle: "Ok",
                       positiveBtnAction: {
-                        Task {
-                            await self.deleteExpense(expense: expense)
-                        }
-                      },
+            Task {
+                await self.deleteExpense(expense: expense)
+            }
+        },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
@@ -337,12 +322,14 @@ extension GroupHomeViewModel {
               let newExpense = expenseInfo["expense"] as? Expense,
               let notificationGroupId = expenseInfo["groupId"] as? String,
               notificationGroupId == groupId else { return }
-        
-        expenses.append(newExpense)
-        fetchUserData(for: newExpense.paidBy.keys.first ?? "") { [weak self] user in
-            let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
-            withAnimation {
-                self?.expensesWithUser.append(newExpenseWithUser)
+
+        Task {
+            expenses.append(newExpense)
+            if let user = await fetchUserData(for: newExpense.paidBy.keys.first ?? "") {
+                let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
+                withAnimation {
+                    expensesWithUser.append(newExpenseWithUser)
+                }
             }
         }
         refreshGroupData()

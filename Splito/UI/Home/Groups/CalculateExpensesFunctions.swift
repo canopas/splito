@@ -223,19 +223,19 @@ public func getUpdatedMemberBalanceFor(transaction: Transactions, group: Groups,
     if let payerIndex = memberBalance.firstIndex(where: { $0.id == payerId }) {
         switch updateType {
         case .Add:
-            memberBalance[payerIndex].balance += amount
+            memberBalance[payerIndex].balance = roundAmount(memberBalance[payerIndex].balance + amount)
 
             // Check if there's an existing summary for this date
             if var totalSummary = getLatestSummaryFrom(totalSummary: memberBalance[payerIndex].totalSummary, date: transactionDate)?.summary,
                let summaryIndex = getLatestSummaryIndex(totalSummary: memberBalance[payerIndex].totalSummary, date: transactionDate) {
-                totalSummary.paidAmount += amount
-                totalSummary.changeInBalance = (totalSummary.totalPaidAmount - totalSummary.totalShare) - totalSummary.receivedAmount + totalSummary.paidAmount
+                totalSummary.paidAmount = roundAmount(totalSummary.paidAmount + amount)
+                totalSummary.changeInBalance = roundAmount((totalSummary.totalPaidAmount - totalSummary.totalShare) - totalSummary.receivedAmount + totalSummary.paidAmount)
                 memberBalance[payerIndex].totalSummary[summaryIndex].summary = totalSummary
             } else {
                 // If no summary exists, create a new one
                 let memberSummary = GroupMemberSummary(groupTotalSpending: 0, totalPaidAmount: 0,
                                                        totalShare: 0, paidAmount: amount, receivedAmount: 0,
-                                                       changeInBalance: amount)
+                                                       changeInBalance: roundAmount(amount))
                 let totalSummary = GroupTotalSummary(year: currentYear, month: currentMonth, summary: memberSummary)
                 memberBalance[payerIndex].totalSummary.append(totalSummary)
             }
@@ -247,63 +247,63 @@ public func getUpdatedMemberBalanceFor(transaction: Transactions, group: Groups,
             // Update the summary for the old transaction date
             if let oldSummaryIndex = getLatestSummaryIndex(totalSummary: memberBalance[payerIndex].totalSummary, date: oldTransactionDate) {
                 var oldSummary = memberBalance[payerIndex].totalSummary[oldSummaryIndex].summary
-                oldSummary.paidAmount -= oldAmount
-                oldSummary.changeInBalance = (oldSummary.totalPaidAmount - oldSummary.totalShare) - oldSummary.receivedAmount + oldSummary.paidAmount
+                oldSummary.paidAmount = roundAmount(oldSummary.paidAmount - oldAmount)
+                oldSummary.changeInBalance = roundAmount((oldSummary.totalPaidAmount - oldSummary.totalShare) - oldSummary.receivedAmount + oldSummary.paidAmount)
                 memberBalance[payerIndex].totalSummary[oldSummaryIndex].summary = oldSummary
             }
 
-            memberBalance[payerIndex].balance += amount - oldAmount
+            memberBalance[payerIndex].balance = roundAmount(memberBalance[payerIndex].balance + (amount - oldAmount))
 
             // Update the summary for the new transaction date
             if var newSummary = getLatestSummaryFrom(totalSummary: memberBalance[payerIndex].totalSummary, date: transactionDate)?.summary,
                let newSummaryIndex = getLatestSummaryIndex(totalSummary: memberBalance[payerIndex].totalSummary, date: transactionDate) {
-                newSummary.paidAmount += amount
-                newSummary.changeInBalance = (newSummary.totalPaidAmount - newSummary.totalShare) - newSummary.receivedAmount + newSummary.paidAmount
+                newSummary.paidAmount = roundAmount(newSummary.paidAmount + amount)
+                newSummary.changeInBalance = roundAmount((newSummary.totalPaidAmount - newSummary.totalShare) - newSummary.receivedAmount + newSummary.paidAmount)
                 memberBalance[payerIndex].totalSummary[newSummaryIndex].summary = newSummary
             } else {
                 // If no summary exists for the new date, create a new one
                 let newMemberSummary = GroupMemberSummary(groupTotalSpending: 0, totalPaidAmount: 0,
                                                           totalShare: 0, paidAmount: amount, receivedAmount: 0,
-                                                          changeInBalance: amount)
+                                                          changeInBalance: roundAmount(amount))
                 let newTotalSummary = GroupTotalSummary(year: currentYear, month: currentMonth, summary: newMemberSummary)
                 memberBalance[payerIndex].totalSummary.append(newTotalSummary)
             }
 
         case .Delete:
-            memberBalance[payerIndex].balance -= amount
+            memberBalance[payerIndex].balance = roundAmount(memberBalance[payerIndex].balance - amount)
 
             if var totalSummary = getLatestSummaryFrom(totalSummary: memberBalance[payerIndex].totalSummary, date: transactionDate)?.summary,
                let summaryIndex = getLatestSummaryIndex(totalSummary: memberBalance[payerIndex].totalSummary, date: transactionDate) {
-                totalSummary.paidAmount -= amount
-                totalSummary.changeInBalance = (totalSummary.totalPaidAmount - totalSummary.totalShare) - totalSummary.receivedAmount + totalSummary.paidAmount
+                totalSummary.paidAmount = roundAmount(totalSummary.paidAmount - amount)
+                totalSummary.changeInBalance = roundAmount((totalSummary.totalPaidAmount - totalSummary.totalShare) - totalSummary.receivedAmount + totalSummary.paidAmount)
                 memberBalance[payerIndex].totalSummary[summaryIndex].summary = totalSummary
             }
         }
     } else {
         // If the payer does not have an existing balance entry, create a new one
         let memberSummary = GroupMemberSummary(groupTotalSpending: 0, totalPaidAmount: 0, totalShare: 0,
-                                               paidAmount: amount, receivedAmount: 0, changeInBalance: amount)
+                                               paidAmount: amount, receivedAmount: 0, changeInBalance: roundAmount(amount))
         let totalSummary = GroupTotalSummary(year: currentYear, month: currentMonth, summary: memberSummary)
-        memberBalance.append(GroupMemberBalance(id: payerId, balance: amount, totalSummary: [totalSummary]))
+        memberBalance.append(GroupMemberBalance(id: payerId, balance: roundAmount(amount), totalSummary: [totalSummary]))
     }
 
     // For receiver
     if let receiverIndex = memberBalance.firstIndex(where: { $0.id == receiverId }) {
         switch updateType {
         case .Add:
-            memberBalance[receiverIndex].balance -= amount
+            memberBalance[receiverIndex].balance = roundAmount(memberBalance[receiverIndex].balance - amount)
 
             // Check if there's an existing summary for this date
             if var totalSummary = getLatestSummaryFrom(totalSummary: memberBalance[receiverIndex].totalSummary, date: transactionDate)?.summary,
                let summaryIndex = getLatestSummaryIndex(totalSummary: memberBalance[receiverIndex].totalSummary, date: transactionDate) {
-                totalSummary.receivedAmount += amount
-                totalSummary.changeInBalance = (totalSummary.totalPaidAmount - totalSummary.totalShare) - totalSummary.receivedAmount + totalSummary.paidAmount
+                totalSummary.receivedAmount = roundAmount(totalSummary.receivedAmount + amount)
+                totalSummary.changeInBalance = roundAmount((totalSummary.totalPaidAmount - totalSummary.totalShare) - totalSummary.receivedAmount + totalSummary.paidAmount)
                 memberBalance[receiverIndex].totalSummary[summaryIndex].summary = totalSummary
             } else {
                 // If no summary exists, create a new one
                 let memberSummary = GroupMemberSummary(groupTotalSpending: 0, totalPaidAmount: 0,
                                                        totalShare: 0, paidAmount: 0, receivedAmount: amount,
-                                                       changeInBalance: -amount)
+                                                       changeInBalance: roundAmount(-amount))
                 let totalSummary = GroupTotalSummary(year: currentYear, month: currentMonth, summary: memberSummary)
                 memberBalance[receiverIndex].totalSummary.append(totalSummary)
             }
@@ -315,44 +315,44 @@ public func getUpdatedMemberBalanceFor(transaction: Transactions, group: Groups,
             // Update the summary for the old transaction date
             if let oldSummaryIndex = getLatestSummaryIndex(totalSummary: memberBalance[receiverIndex].totalSummary, date: oldTransactionDate) {
                 var oldSummary = memberBalance[receiverIndex].totalSummary[oldSummaryIndex].summary
-                oldSummary.receivedAmount -= oldAmount
-                oldSummary.changeInBalance = (oldSummary.totalPaidAmount - oldSummary.totalShare) - oldSummary.receivedAmount + oldSummary.paidAmount
+                oldSummary.receivedAmount = roundAmount(oldSummary.receivedAmount - oldAmount)
+                oldSummary.changeInBalance = roundAmount((oldSummary.totalPaidAmount - oldSummary.totalShare) - oldSummary.receivedAmount + oldSummary.paidAmount)
                 memberBalance[receiverIndex].totalSummary[oldSummaryIndex].summary = oldSummary
             }
 
-            memberBalance[receiverIndex].balance -= amount - oldAmount
+            memberBalance[receiverIndex].balance = roundAmount(memberBalance[receiverIndex].balance - (amount - oldAmount))
 
             // Update the summary for the new transaction date
             if var newSummary = getLatestSummaryFrom(totalSummary: memberBalance[receiverIndex].totalSummary, date: transactionDate)?.summary,
                let newSummaryIndex = getLatestSummaryIndex(totalSummary: memberBalance[receiverIndex].totalSummary, date: transactionDate) {
-                newSummary.receivedAmount += amount
-                newSummary.changeInBalance = (newSummary.totalPaidAmount - newSummary.totalShare) - newSummary.receivedAmount + newSummary.paidAmount
+                newSummary.receivedAmount = roundAmount(newSummary.receivedAmount + amount)
+                newSummary.changeInBalance = roundAmount((newSummary.totalPaidAmount - newSummary.totalShare) - newSummary.receivedAmount + newSummary.paidAmount)
                 memberBalance[receiverIndex].totalSummary[newSummaryIndex].summary = newSummary
             } else {
                 // If no summary exists for the new date, create a new one
                 let newMemberSummary = GroupMemberSummary(groupTotalSpending: 0, totalPaidAmount: 0,
                                                           totalShare: 0, paidAmount: 0, receivedAmount: amount,
-                                                          changeInBalance: -amount)
+                                                          changeInBalance: roundAmount(-amount))
                 let newTotalSummary = GroupTotalSummary(year: currentYear, month: currentMonth, summary: newMemberSummary)
                 memberBalance[receiverIndex].totalSummary.append(newTotalSummary)
             }
 
         case .Delete:
-            memberBalance[receiverIndex].balance += amount
+            memberBalance[receiverIndex].balance = roundAmount(memberBalance[receiverIndex].balance + amount)
 
             if var totalSummary = getLatestSummaryFrom(totalSummary: memberBalance[receiverIndex].totalSummary, date: transactionDate)?.summary,
                let summaryIndex = getLatestSummaryIndex(totalSummary: memberBalance[receiverIndex].totalSummary, date: transactionDate) {
-                totalSummary.receivedAmount -= amount
-                totalSummary.changeInBalance = (totalSummary.totalPaidAmount - totalSummary.totalShare) - totalSummary.receivedAmount + totalSummary.paidAmount
+                totalSummary.receivedAmount = roundAmount(totalSummary.receivedAmount - amount)
+                totalSummary.changeInBalance = roundAmount((totalSummary.totalPaidAmount - totalSummary.totalShare) - totalSummary.receivedAmount + totalSummary.paidAmount)
                 memberBalance[receiverIndex].totalSummary[summaryIndex].summary = totalSummary
             }
         }
     } else {
         // If the receiver does not have an existing balance entry, create a new one
         let memberSummary = GroupMemberSummary(groupTotalSpending: 0, totalPaidAmount: 0, totalShare: 0,
-                                               paidAmount: 0, receivedAmount: amount, changeInBalance: -amount)
+                                               paidAmount: 0, receivedAmount: amount, changeInBalance: roundAmount(-amount))
         let totalSummary = GroupTotalSummary(year: currentYear, month: currentMonth, summary: memberSummary)
-        memberBalance.append(GroupMemberBalance(id: receiverId, balance: -amount, totalSummary: [totalSummary]))
+        memberBalance.append(GroupMemberBalance(id: receiverId, balance: roundAmount(-amount), totalSummary: [totalSummary]))
     }
 
     let epsilon = 1e-10
@@ -361,6 +361,11 @@ public func getUpdatedMemberBalanceFor(transaction: Transactions, group: Groups,
     }
 
     return memberBalance
+}
+
+// Function to round values to two decimal places
+func roundAmount(_ value: Double) -> Double {
+    return round(value * 100) / 100
 }
 
 // Filtered group total summary data for current month
