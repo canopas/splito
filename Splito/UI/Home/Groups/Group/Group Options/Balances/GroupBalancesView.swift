@@ -70,7 +70,6 @@ struct GroupBalancesView: View {
     }
 }
 
-@MainActor
 private struct GroupBalanceItemView: View {
 
     let memberBalance: MembersCombinedBalance

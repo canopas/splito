@@ -75,7 +75,6 @@ struct GroupTransactionDetailView: View {
     }
 }
 
-@MainActor
 private struct TransactionInfoView: View {
 
     @Inject var preference: SplitoPreference

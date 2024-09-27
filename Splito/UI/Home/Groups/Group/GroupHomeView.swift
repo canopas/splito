@@ -22,7 +22,9 @@ struct GroupHomeView: View {
                 if .noInternet == viewModel.groupState || .somethingWentWrong == viewModel.groupState {
                     ErrorView(isForNoInternet: viewModel.groupState == .noInternet, onClick: viewModel.fetchGroupAndExpenses)
                 } else if case .loading = viewModel.groupState {
-                    LoaderView()
+                    VStack(alignment: .center) {
+                        LoaderView()
+                    }
                 } else {
                     if case .noMember = viewModel.groupState {
                         EmptyStateView(title: "You’re the only one here!",

@@ -13,7 +13,7 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
     @Inject var groupRepository: GroupRepository
 
     @Published var members: [AppUser] = []
-    @Published var viewState: ViewState = .initial
+    @Published var viewState: ViewState = .loading
 
     @Published private(set) var payerId: String
     @Published private(set) var selectedMemberId: String?
@@ -39,6 +39,7 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
         do {
             let members = try await groupRepository.fetchMembersBy(groupId: groupId)
             self.members = members
+            viewState = .initial
         } catch {
             handleServiceError()
         }

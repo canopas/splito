@@ -20,7 +20,7 @@ public struct LoaderView: View {
     }
 
     public var body: some View {
-        ZStack {
+        ZStack(alignment: .center) {
             if viewModel.isStillLoading {
                 Color.clear.ignoresSafeArea()
 

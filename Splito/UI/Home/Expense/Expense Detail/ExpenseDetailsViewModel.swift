@@ -153,11 +153,12 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     @objc private func getUpdatedExpense(notification: Notification) {
         guard let updatedExpense = notification.object as? Expense else { return }
+
         viewState = .loading
         Task {
             await processExpense(expense: updatedExpense)
+            viewState = .initial
         }
-        viewState = .initial
     }
 
     // MARK: - Error Handling

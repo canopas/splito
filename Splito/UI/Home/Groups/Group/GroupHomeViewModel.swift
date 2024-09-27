@@ -62,7 +62,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     let router: Router<AppRoute>
     var hasMoreExpenses: Bool = true
 
-    private var isLoadingFirstTime: Bool = true
     private var groupUserData: [AppUser] = []
     private var lastDocument: DocumentSnapshot?
 
@@ -106,10 +105,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }
 
             self.group = group
-            if !isLoadingFirstTime {
-                fetchGroupBalance()
-            }
-            isLoadingFirstTime = false
         } catch {
             handleServiceError()
         }
@@ -386,6 +381,7 @@ extension GroupHomeViewModel {
     private func refreshGroupData() {
         Task {
             await fetchGroup()
+            fetchGroupBalance()
             NotificationCenter.default.post(name: .updateGroup, object: group)
         }
     }
