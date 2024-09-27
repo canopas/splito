@@ -337,7 +337,7 @@ extension GroupHomeViewModel {
               let newExpense = expenseInfo["expense"] as? Expense,
               let notificationGroupId = expenseInfo["groupId"] as? String,
               notificationGroupId == groupId else { return }
-
+        
         expenses.append(newExpense)
         fetchUserData(for: newExpense.paidBy.keys.first ?? "") { [weak self] user in
             let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
