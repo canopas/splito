@@ -44,6 +44,7 @@ struct ErrorView: View {
 
                     CapsuleButton(buttonName: "Retry", paddingHr: 73, paddingVr: 12, onClick: onClick)
                 }
+                .padding(.horizontal, 16)
                 .frame(maxWidth: isIpad ? 600 : nil, minHeight: geometry.size.height - 50, maxHeight: .infinity, alignment: .center)
             }
             .frame(minWidth: geometry.size.width)

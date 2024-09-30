@@ -23,7 +23,11 @@ struct GroupListView: View {
             if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
                 ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchGroupsInitialData)
             } else if case .loading = viewModel.currentViewState {
-                LoaderView()
+                VStack(alignment: .center) {
+                    Spacer()
+                    LoaderView()
+                    Spacer()
+                }
             } else {
                 VStack(spacing: 0) {
                     if case .noGroup = viewModel.groupListState {
@@ -65,7 +69,6 @@ struct GroupListView: View {
                         }
                     }
                 }
-                .frame(maxHeight: .infinity)
             }
         }
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)

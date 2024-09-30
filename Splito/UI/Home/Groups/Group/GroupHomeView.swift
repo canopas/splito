@@ -24,7 +24,9 @@ struct GroupHomeView: View {
                 } else {
                     if case .loading = viewModel.groupState {
                         VStack(alignment: .center) {
+                            Spacer()
                             LoaderView()
+                            Spacer()
                         }
                     } else if case .noMember = viewModel.groupState {
                         EmptyStateView(title: "You’re the only one here!",

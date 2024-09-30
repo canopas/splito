@@ -12,19 +12,17 @@ struct HomeRouteView: View {
 
     @StateObject private var viewModel = HomeRouteViewModel()
 
-    @State private var isTabBarVisible = true
-
     var body: some View {
         ZStack(alignment: .bottom) {
             Group {
                 switch viewModel.selectedTab {
                 case 0:
-                    GroupRouteView(isTabBarVisible: $isTabBarVisible)
+                    GroupRouteView(isTabBarVisible: $viewModel.isTabBarVisible)
                         .onAppear {
                             viewModel.setLastSelectedTab(0)
                         }
                 case 2:
-                    AccountRouteView(isTabBarVisible: $isTabBarVisible)
+                    AccountRouteView(isTabBarVisible: $viewModel.isTabBarVisible)
                         .onAppear {
                             viewModel.setLastSelectedTab(2)
                         }
@@ -34,7 +32,7 @@ struct HomeRouteView: View {
             }
 
             // Conditionally show or hide the tab bar
-            if isTabBarVisible {
+            if viewModel.isTabBarVisible {
                 CustomTabBarView(selectedTab: $viewModel.selectedTab,
                                  onAddExpense: viewModel.openAddExpenseSheet,
                                  onTabItemClick: viewModel.setSelectedTab(_:))
