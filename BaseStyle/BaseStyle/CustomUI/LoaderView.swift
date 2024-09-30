@@ -95,11 +95,10 @@ private struct DotView: View {
     let height: CGFloat
 
     var body: some View {
-        VStack {}
-            .frame(width: height, height: height, alignment: .center)
-            .background(color)
-            .cornerRadius(20.0)
-            .offset(x: 0, y: transY)
+        Circle()
+            .fill(color)
+            .frame(width: height, height: height)
+            .offset(y: transY)
     }
 }
 

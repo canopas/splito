@@ -81,15 +81,15 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         do {
             let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT)
 
-            self.groups = result.data
-            self.lastDocument = result.lastDocument
-            self.hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
+            groups = result.data
+            lastDocument = result.lastDocument
+            hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
 
             let sortedGroups = try await self.processNewGroups(newGroups: result.data)
 
-            self.currentViewState = .initial
-            self.combinedGroups = sortedGroups
-            self.groupListState = sortedGroups.isEmpty ? .noGroup : .hasGroup
+            currentViewState = .initial
+            combinedGroups = sortedGroups
+            groupListState = sortedGroups.isEmpty ? .noGroup : .hasGroup
         } catch {
             handleServiceError()
         }
@@ -107,17 +107,17 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         do {
             let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT, lastDocument: lastDocument)
 
-            self.groups.append(contentsOf: result.data)
-            self.lastDocument = result.lastDocument
-            self.hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
+            groups.append(contentsOf: result.data)
+            lastDocument = result.lastDocument
+            hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
 
             let sortedGroups = try await self.processNewGroups(newGroups: result.data)
 
-            self.currentViewState = .initial
-            self.combinedGroups.append(contentsOf: sortedGroups)
-            self.groupListState = self.combinedGroups.isEmpty ? .noGroup : .hasGroup
+            currentViewState = .initial
+            combinedGroups.append(contentsOf: sortedGroups)
+            groupListState = combinedGroups.isEmpty ? .noGroup : .hasGroup
         } catch {
-            self.currentViewState = .initial
+            currentViewState = .initial
             showToastForError()
         }
     }
@@ -138,8 +138,8 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     private func fetchGroupInformation(group: Groups) async throws -> GroupInformation {
         let members = try await groupRepository.fetchMembersBy(groupId: group.id ?? "")
 
-        let userId = self.preference.user?.id ?? ""
-        let memberBalance = self.getMembersBalance(group: group, memberId: userId)
+        let userId = preference.user?.id ?? ""
+        let memberBalance = getMembersBalance(group: group, memberId: userId)
         let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
 
         return GroupInformation(group: group,
@@ -174,7 +174,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             do {
                 let user = try await userRepository.fetchUserBy(userID: userId)
                 if let user {
-                    self.groupMembers.append(user)
+                    groupMembers.append(user)
                 }
             } catch {
                 showToastForError()
@@ -303,7 +303,7 @@ extension GroupListViewModel {
         if self.combinedGroups.contains(where: { $0.group.id == joinedGroupId }) { return }
         Task {
             if let group = await fetchGroup(groupId: joinedGroupId) {
-                await self.processGroup(group: group, isNewGroup: true)
+                await processGroup(group: group, isNewGroup: true)
             }
         }
     }
@@ -327,8 +327,8 @@ extension GroupListViewModel {
 
     @objc private func handleDeleteGroup(notification: Notification) {
         guard let deletedGroup = notification.object as? Groups else { return }
-        withAnimation { self.combinedGroups.removeAll { $0.group.id == deletedGroup.id } }
-        self.showToastFor(toast: .init(type: .success, title: "Success", message: "Group deleted successfully"))
+        withAnimation { combinedGroups.removeAll { $0.group.id == deletedGroup.id } }
+        showToastFor(toast: .init(type: .success, title: "Success", message: "Group deleted successfully"))
     }
 
     private func processGroup(group: Groups, isNewGroup: Bool) async {
@@ -344,18 +344,18 @@ extension GroupListViewModel {
             group: group,
             userBalance: memberBalance,
             memberOweAmount: memberOwingAmount,
-            members: self.groupMembers,
+            members: groupMembers,
             hasExpenses: group.hasExpenses
         )
 
         if isNewGroup {
-            self.combinedGroups.insert(groupInfo, at: 0)
-            if self.combinedGroups.count == 1 {
-                self.groupListState = .hasGroup
+            combinedGroups.insert(groupInfo, at: 0)
+            if combinedGroups.count == 1 {
+                groupListState = .hasGroup
             }
         } else {
-            if let index = self.combinedGroups.firstIndex(where: { $0.group.id == group.id }) {
-                self.combinedGroups[index] = groupInfo
+            if let index = combinedGroups.firstIndex(where: { $0.group.id == group.id }) {
+                combinedGroups[index] = groupInfo
             }
         }
     }
