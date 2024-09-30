@@ -12,17 +12,19 @@ struct HomeRouteView: View {
 
     @StateObject private var viewModel = HomeRouteViewModel()
 
+    @State private var isTabBarVisible = true
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Group {
                 switch viewModel.selectedTab {
                 case 0:
-                    GroupRouteView()
+                    GroupRouteView(isTabBarVisible: $isTabBarVisible)
                         .onAppear {
                             viewModel.setLastSelectedTab(0)
                         }
                 case 2:
-                    AccountRouteView()
+                    AccountRouteView(isTabBarVisible: $isTabBarVisible)
                         .onAppear {
                             viewModel.setLastSelectedTab(2)
                         }
@@ -31,9 +33,12 @@ struct HomeRouteView: View {
                 }
             }
 
-            CustomTabBarView(selectedTab: $viewModel.selectedTab,
-                             onAddExpense: viewModel.openAddExpenseSheet,
-                             onTabItemClick: viewModel.setSelectedTab(_:))
+            // Conditionally show or hide the tab bar
+            if isTabBarVisible {
+                CustomTabBarView(selectedTab: $viewModel.selectedTab,
+                                 onAddExpense: viewModel.openAddExpenseSheet,
+                                 onTabItemClick: viewModel.setSelectedTab(_:))
+            }
         }
         .ignoresSafeArea(.keyboard) // Useful so the button doesn't move around on keyboard show
         .onAppear(perform: viewModel.openUserProfileIfNeeded)

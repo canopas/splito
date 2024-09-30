@@ -52,7 +52,7 @@ struct GroupListWithDetailView: View {
                         }
                     }
                     .id("groupList")
-                    .padding(.bottom, 24)
+                    .padding(.bottom, 62)
                     .background(GeometryReader { geo in
                         Color.clear
                             .onChange(of: geo.frame(in: .global).minY,
@@ -64,7 +64,8 @@ struct GroupListWithDetailView: View {
                         ScrollToTopButton {
                             withAnimation { scrollProxy.scrollTo(0) }
                         }
-                        .padding([.trailing, .bottom], 16)
+                        .padding(.trailing, 16)
+                        .padding(.bottom, 65)
                     }
                 }
                 .refreshable {

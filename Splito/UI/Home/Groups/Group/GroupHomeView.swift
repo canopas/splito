@@ -21,12 +21,12 @@ struct GroupHomeView: View {
             VStack(alignment: .leading, spacing: 0) {
                 if .noInternet == viewModel.groupState || .somethingWentWrong == viewModel.groupState {
                     ErrorView(isForNoInternet: viewModel.groupState == .noInternet, onClick: viewModel.fetchGroupAndExpenses)
-                } else if case .loading = viewModel.groupState {
-                    VStack(alignment: .center) {
-                        LoaderView()
-                    }
                 } else {
-                    if case .noMember = viewModel.groupState {
+                    if case .loading = viewModel.groupState {
+                        VStack(alignment: .center) {
+                            LoaderView()
+                        }
+                    } else if case .noMember = viewModel.groupState {
                         EmptyStateView(title: "You’re the only one here!",
                                        subtitle: "Invite some friends and make this group come alive!",
                                        buttonTitle: "Invite Member", image: .inviteFriends,
@@ -40,18 +40,18 @@ struct GroupHomeView: View {
                         .focused($isFocused)
                     }
 
-                    if viewModel.groupState != .noMember && viewModel.showAddExpenseBtn {
-                        PrimaryButton(text: "Add expense", onClick: viewModel.openAddExpenseSheet)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
+                    if viewModel.groupState != .noMember && viewModel.groupState != .noExpense {
+                        Spacer()
+                        PrimaryFloatingButton(text: "Add expense", bottomPadding: 8, onClick: viewModel.openAddExpenseSheet)
                     }
                 }
             }
+            .ignoresSafeArea(.keyboard) // Useful so the button doesn't move around on keyboard show
         }
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
-        .toastView(toast: $viewModel.toast)
+        .toastView(toast: $viewModel.toast, bottomPadding: 36)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .onDisappear {
             if viewModel.showSearchBar {
