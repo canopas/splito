@@ -648,9 +648,6 @@
     "Something went wrong." : {
       "extractionState" : "manual"
     },
-    "Sorry, we can not perform your request as the data is already exists." : {
-      "extractionState" : "manual"
-    },
     "Specify exactly how much each person owes." : {
       "extractionState" : "manual"
     },

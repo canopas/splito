@@ -185,6 +185,8 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                     self.isDeleteInProgress = false
                 })
                 showAlert = true
+            } else {
+                showToastForError()
             }
         }
     }

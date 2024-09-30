@@ -84,8 +84,7 @@ struct ToastModifier: ViewModifier {
                           message: toast.message, bottomPadding: bottomPadding,
                           onCancelTapped: {
                             dismissToast()
-                          }
-                )
+                          })
             }
             .transition(.move(edge: .bottom))
         }

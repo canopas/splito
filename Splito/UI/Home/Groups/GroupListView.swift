@@ -26,7 +26,7 @@ struct GroupListView: View {
                 VStack(alignment: .center) {
                     Spacer()
                     LoaderView()
-                    Spacer()
+                    Spacer(minLength: 60)
                 }
             } else {
                 VStack(spacing: 0) {

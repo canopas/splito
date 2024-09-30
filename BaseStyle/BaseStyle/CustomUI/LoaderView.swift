@@ -14,7 +14,7 @@ public struct LoaderView: View {
     private let tintColor: Color
     private let height: CGFloat
 
-    public init(tintColor: Color = primaryColor, height: CGFloat = 20) {
+    public init(tintColor: Color = primaryColor, height: CGFloat = 8) {
         self.tintColor = tintColor
         self.height = height
     }
@@ -24,8 +24,7 @@ public struct LoaderView: View {
             if viewModel.isStillLoading {
                 Color.clear.ignoresSafeArea()
 
-                JumpingDotsLoader(tintColor: tintColor)
-                    .frame(height: height)
+                DotsAnimation(color: primaryColor, height: height)
                     .padding()
             }
         }
@@ -34,40 +33,79 @@ public struct LoaderView: View {
     }
 }
 
-private struct JumpingDotsLoader: View {
+private struct DotsAnimation: View {
 
-    let tintColor: Color
+    let color: Color
+    let height: CGFloat
 
-    @State private var animate = [false, false, false]  // Array to manage multiple states
+    static let DATA: [AnimationData] = [
+        AnimationData(delay: 0.0, ty: -50),
+        AnimationData(delay: 0.1, ty: -60),
+        AnimationData(delay: 0.2, ty: -70)
+    ]
 
-    private let jumpHeight: CGFloat = 10
-    private let animationDuration: Double = 0.6
-    private let dotCount = 3
+    @State var transY: [CGFloat] = DATA.map { _ in return 0 }
+
+    var animation = Animation.easeInOut.speed(0.5)
 
     var body: some View {
-        HStack(spacing: 8) {
-            ForEach(0..<dotCount, id: \.self) { index in
-                Circle()
-                    .frame(width: 8, height: 8)
-                    .foregroundColor(tintColor)
-                    .offset(y: animate[index] ? -jumpHeight : 0)
-                    .animation(
-                        Animation.easeInOut(duration: animationDuration)
-                            .delay(Double(index) * 0.2)
-                            .repeatForever(autoreverses: true),
-                        value: animate[index]
-                    )
-            }
+        HStack {
+            DotView(transY: $transY[0], color: color, height: height)
+            DotView(transY: $transY[1], color: color, height: height)
+            DotView(transY: $transY[2], color: color, height: height)
         }
         .onAppear {
-            // Start animations for each dot with a delay
-            for index in 0..<dotCount {
-                DispatchQueue.main.asyncAfter(deadline: .now() + (Double(index) * 0.2)) {
-                    animate[index] = true
-                }
+            animateDots()
+        }
+    }
+
+    func animateDots() {
+        // Go through animation data and start each
+        // animation delayed as per data
+        for (index, data) in DotsAnimation.DATA.enumerated() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + data.delay) {
+                animateDot(binding: $transY[index], animationData: data)
+            }
+        }
+
+        // Repeat main loop
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            animateDots()
+        }
+    }
+
+    func animateDot(binding: Binding<CGFloat>, animationData: AnimationData) {
+        withAnimation(animation) {
+            binding.wrappedValue = animationData.ty
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            withAnimation(animation) {
+                binding.wrappedValue = 0
             }
         }
     }
+}
+
+private struct DotView: View {
+
+    @Binding var transY: CGFloat
+
+    let color: Color
+    let height: CGFloat
+
+    var body: some View {
+        VStack {}
+            .frame(width: height, height: height, alignment: .center)
+            .background(color)
+            .cornerRadius(20.0)
+            .offset(x: 0, y: transY)
+    }
+}
+
+private struct AnimationData {
+    var delay: TimeInterval
+    var ty: CGFloat
 }
 
 public struct ImageLoaderView: View {
