@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import BaseStyle
 
 public struct RouterView<T: Hashable, Content: View>: View {
 
@@ -26,6 +27,7 @@ public struct RouterView<T: Hashable, Content: View>: View {
                     buildView(path)
                 }
         }
+        .tint(primaryText)
         .environmentObject(router)
     }
 }

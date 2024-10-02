@@ -20,17 +20,11 @@ public struct VerifyOtpView: View {
                         AppLogoView(geometry: .constant(proxy))
 
                         Group {
-                            Text("Verification code")
-                                .font(.Header1())
-                                .foregroundStyle(primaryText)
+                            LoginTitleView(titleText: "Verification code")
 
                             VSpacer(16)
 
-                            Text("We’ve sent a verification code to your phone \(viewModel.hiddenPhoneNumber).")
-                                .font(.subTitle1())
-                                .foregroundStyle(disableText)
-                                .tracking(-0.2)
-                                .lineSpacing(4)
+                            LoginSubtitleView(subtitleText: "We’ve sent a verification code to your phone \(viewModel.hiddenPhoneNumber).")
 
                             VSpacer(40)
 

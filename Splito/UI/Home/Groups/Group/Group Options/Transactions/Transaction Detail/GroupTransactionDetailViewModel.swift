@@ -34,79 +34,71 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
         NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedTransaction(notification:)), name: .updateTransaction, object: nil)
 
-        fetchGroup()
-        fetchTransaction()
+        fetchInitialTransactionData()
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+    func fetchInitialTransactionData() {
+        Task {
+            await fetchGroup()
+            await fetchTransaction()
+        }
     }
 
     // MARK: - Data Loading
-    private func fetchGroup() {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.group = group
-            }.store(in: &cancelable)
+    private func fetchGroup() async {
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            self.group = group
+            viewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
-    func fetchTransaction() {
-        viewState = .loading
-        transactionRepository.fetchTransactionBy(groupId: groupId, transactionId: transactionId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] transaction in
-                guard let self else { return }
-                self.transaction = transaction
-                self.setTransactionUsersData()
-            }.store(in: &cancelable)
+    func fetchTransaction() async {
+        do {
+            viewState = .loading
+            let transaction = try await transactionRepository.fetchTransactionBy(groupId: groupId, transactionId: transactionId)
+            self.transaction = transaction
+            await setTransactionUsersData()
+            self.viewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
-    private func setTransactionUsersData() {
+    private func setTransactionUsersData() async {
         guard let transaction else { return }
 
-        let queue = DispatchGroup()
         var userData: [AppUser] = []
-
         var members: [String] = []
+
         members.append(transaction.payerId)
         members.append(transaction.receiverId)
         members.append(transaction.addedBy)
 
         for member in members.uniqued() {
-            queue.enter()
-            self.fetchUserData(for: member) { user in
+            if let user = await self.fetchUserData(for: member) {
                 userData.append(user)
-                queue.leave()
             }
         }
 
-        queue.notify(queue: .main) {
-            self.transactionUsersData = userData
-            self.viewState = .initial
-        }
+        self.transactionUsersData = userData
     }
 
-    private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
-        userRepository.fetchUserBy(userID: userId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] user in
-                guard let user else {
-                    self?.viewState = .initial
-                    return
-                }
-                completion(user)
-            }.store(in: &cancelable)
+    private func fetchUserData(for userId: String) async -> AppUser? {
+        do {
+            let user = try await userRepository.fetchUserBy(userID: userId)
+            guard let user else {
+                viewState = .initial
+                return nil
+            }
+            return user
+        } catch {
+            viewState = .initial
+            showToastForError()
+            return nil
+        }
     }
 
     func getMemberDataBy(id: String) -> AppUser? {
@@ -123,41 +115,45 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Delete Transaction",
                       message: "Are you sure you want to delete this transaction?",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: { self.deleteTransaction() },
+                      positiveBtnAction: {
+                        Task {
+                            await self.deleteTransaction()
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func deleteTransaction() {
-        viewState = .loading
-        transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.viewState = .initial
-                NotificationCenter.default.post(name: .deleteTransaction, object: self?.transaction)
-                self?.updateGroupMemberBalance(updateType: .Delete)
-                self?.router.pop()
-            }.store(in: &cancelable)
+    private func deleteTransaction() async {
+        do {
+            viewState = .loading
+            try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
+            NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
+            await updateGroupMemberBalance(updateType: .Delete)
+            viewState = .initial
+            router.pop()
+        } catch {
+            viewState = .initial
+            showToastForError()
+        }
     }
 
-    private func updateGroupMemberBalance(updateType: TransactionUpdateType) {
-        guard var group, let transaction else { return }
+    private func updateGroupMemberBalance(updateType: TransactionUpdateType) async {
+        guard var group, let transaction else {
+            viewState = .initial
+            return
+        }
 
-        let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
-        group.balances = memberBalance
+        do {
+            let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
+            group.balances = memberBalance
 
-        groupRepository.updateGroup(group: group)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.showToastFor(toast: .init(type: .success, title: "Success",
-                                                message: "Transaction deleted successfully."))
-            }.store(in: &cancelable)
+            try await groupRepository.updateGroup(group: group)
+            showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
+        } catch {
+            viewState = .initial
+            showToastForError()
+        }
     }
 
     @objc private func getUpdatedTransaction(notification: Notification) {
@@ -166,9 +162,12 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Error Handling
-    private func handleServiceError(_ error: ServiceError) {
-        viewState = .initial
-        showToastFor(error)
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
     }
 }
 
@@ -177,5 +176,7 @@ extension GroupTransactionDetailViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

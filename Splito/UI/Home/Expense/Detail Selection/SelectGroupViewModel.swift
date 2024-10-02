@@ -14,7 +14,7 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
     @Inject var groupRepository: GroupRepository
 
     @Published var selectedGroup: Groups?
-    @Published var currentViewState: ViewState = .initial
+    @Published private(set) var currentViewState: ViewState = .loading
 
     var onGroupSelection: ((Groups) -> Void)
 
@@ -23,25 +23,23 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
         self.onGroupSelection = onGroupSelection
         super.init()
 
-        self.fetchGroups()
+        fetchInitialGroupsData()
+    }
+
+    func fetchInitialGroupsData() {
+        Task {
+            await self.fetchGroups()
+        }
     }
 
     // MARK: - Data Loading
-    func fetchGroups() {
-        currentViewState = .loading
-        groupRepository.fetchGroupsBy(userId: preference.user?.id ?? "")
-            .sink { [weak self] completion in
-                switch completion {
-                case .finished:
-                    return
-                case .failure(let error):
-                    self?.currentViewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] (groups, _) in
-                self?.currentViewState = groups.isEmpty ? .noGroups : .hasGroups(groups: groups)
-            }
-            .store(in: &cancelable)
+    private func fetchGroups() async {
+        do {
+            let (groups, _) = try await groupRepository.fetchGroupsBy(userId: preference.user?.id ?? "")
+            currentViewState = groups.isEmpty ? .noGroups : .hasGroups(groups: groups)
+        } catch {
+            handleServiceError()
+        }
     }
 
     // MARK: - User Actions
@@ -49,19 +47,48 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
         selectedGroup = group
     }
 
-    func handleDoneAction(completion: @escaping () -> Void) {
-        completion()
+    func handleDoneAction() {
         if let selectedGroup {
             onGroupSelection(selectedGroup)
         }
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            currentViewState = .noInternet
+        } else {
+            currentViewState = .somethingWentWrong
+        }
+    }
 }
 
+// MARK: - View States
 extension SelectGroupViewModel {
-    enum ViewState {
-        case initial
+    enum ViewState: Equatable {
+        public static func == (lhs: SelectGroupViewModel.ViewState, rhs: SelectGroupViewModel.ViewState) -> Bool {
+            return lhs.key == rhs.key
+        }
+
         case loading
         case hasGroups(groups: [Groups])
         case noGroups
+        case noInternet
+        case somethingWentWrong
+
+        public var key: String {
+            switch self {
+            case .loading:
+                return "loading"
+            case .hasGroups:
+                return "hasGroups"
+            case .noGroups:
+                return "noGroups"
+            case .noInternet:
+                return "noInternet"
+            case .somethingWentWrong:
+                return "somethingWentWrong"
+            }
+        }
     }
 }

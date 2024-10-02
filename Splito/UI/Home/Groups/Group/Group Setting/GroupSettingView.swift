@@ -16,7 +16,9 @@ struct GroupSettingView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if case .loading = viewModel.currentViewState {
+            if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchInitialGroupData)
+            } else if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else if case .initial = viewModel.currentViewState {
                 ScrollView {
@@ -52,9 +54,7 @@ struct GroupSettingView: View {
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Group settings")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleTextView(text: "Group settings")
             }
         }
         .fullScreenCover(isPresented: $viewModel.showEditGroupSheet) {
@@ -67,7 +67,7 @@ struct GroupSettingView: View {
                 InviteMemberView(viewModel: InviteMemberViewModel(router: viewModel.router, groupId: viewModel.group?.id ?? ""))
             }
         }
-        .onAppear(perform: viewModel.fetchGroupDetails)
+        .onAppear(perform: viewModel.fetchInitialGroupData)
     }
 }
 
@@ -167,11 +167,15 @@ private struct GroupListEditCellView: View {
             if let icon {
                 Image(icon)
                     .resizable()
-                    .scaledToFit()
+                    .scaledToFill()
                     .frame(width: 24, height: 24)
                     .padding(8)
                     .background(container2Color)
-                    .clipShape(Circle())
+                    .cornerRadius(30)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(Color.gray, lineWidth: 1)
+                    )
             }
 
             Text(text.localized)

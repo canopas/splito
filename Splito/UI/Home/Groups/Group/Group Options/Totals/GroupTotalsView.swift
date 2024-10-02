@@ -14,7 +14,9 @@ struct GroupTotalsView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
-            if case .loading = viewModel.viewState {
+            if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
+                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchInitialGroupData)
+            } else if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
                 ScrollView {
@@ -39,9 +41,7 @@ struct GroupTotalsView: View {
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Group spending summary")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleTextView(text: "Group spending summary")
             }
         }
     }

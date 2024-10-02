@@ -37,36 +37,32 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateGroup(notification:)), name: .updateGroup, object: nil)
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+    func fetchInitialGroupData() {
+        Task {
+            await fetchGroupDetails()
+        }
     }
 
     // MARK: - Data Loading
-    func fetchGroupDetails() {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.group = group
-                self.checkForGroupAdmin()
-                self.fetchGroupMembers()
-            }.store(in: &cancelable)
+    private func fetchGroupDetails() async {
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            self.group = group
+            self.checkForGroupAdmin()
+            await fetchGroupMembers()
+            currentViewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
-    private func fetchGroupMembers() {
-        groupRepository.fetchMembersBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] members in
-                guard let self else { return }
-                self.sortGroupMembers(members: members)
-                self.currentViewState = .initial
-            }.store(in: &cancelable)
+    private func fetchGroupMembers() async {
+        do {
+            let members = try await groupRepository.fetchMembersBy(groupId: groupId)
+            sortGroupMembers(members: members)
+        } catch {
+            handleServiceError()
+        }
     }
 
     // MARK: - Helper Methods
@@ -85,7 +81,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     func sortGroupMembers(members: [AppUser]) {
-        guard let userId = preference.user?.id else { return }
+        guard let userId = preference.user?.id else {
+            currentViewState = .initial
+            return
+        }
 
         var sortedMembers = members
         sortedMembers.sort { (member1: AppUser, member2: AppUser) in
@@ -106,7 +105,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     private func checkForGroupAdmin() {
-        guard let userId = preference.user?.id, let group else { return }
+        guard let userId = preference.user?.id, let group else {
+            currentViewState = .initial
+            return
+        }
         isAdmin = userId == group.createdBy
     }
 
@@ -156,7 +158,11 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Remove from group?",
                       message: "Are you sure you want to remove this member from the group?",
                       positiveBtnTitle: "Remove",
-                      positiveBtnAction: { self.removeMemberFromGroup(memberId: memberId) },
+                      positiveBtnAction: {
+                        Task {
+                            await self.removeMemberFromGroup(memberId: memberId)
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
@@ -173,7 +179,11 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Leave Group?",
                       message: "Are you absolutely sure you want to leave this group?",
                       positiveBtnTitle: "Leave",
-                      positiveBtnAction: { self.removeMemberFromGroup(memberId: memberId) },
+                      positiveBtnAction: {
+                        Task {
+                            await self.removeMemberFromGroup(memberId: memberId)
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
@@ -190,60 +200,61 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func removeMemberFromGroup(memberId: String) {
+    private func removeMemberFromGroup(memberId: String) async {
         guard let group, let userId = preference.user?.id else {
             LogE("GroupSettingViewModel: \(#function) group not found.")
             return
         }
 
-        currentViewState = .loading
-        groupRepository.removeMemberFrom(group: group, memberId: memberId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                    self?.currentViewState = .initial
-                }
-            } receiveValue: { _ in
-                self.currentViewState = .initial
-                if userId == memberId {
-                    NotificationCenter.default.post(name: .deleteGroup, object: group)
-                    self.goBackToGroupList()
-                } else {
-                    self.showAlert = false
-                    withAnimation {
-                        if let index = self.members.firstIndex(where: { $0.id == memberId }) {
-                            self.members.remove(at: index)
-                        }
+        do {
+            currentViewState = .loading
+            try await groupRepository.removeMemberFrom(group: group, memberId: memberId)
+            currentViewState = .initial
+
+            if userId == memberId {
+                NotificationCenter.default.post(name: .deleteGroup, object: group)
+                goBackToGroupList()
+            } else {
+                showAlert = false
+                withAnimation {
+                    if let index = self.members.firstIndex(where: { $0.id == memberId }) {
+                        self.members.remove(at: index)
                     }
-                    self.showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed"))
                 }
-            }.store(in: &cancelable)
+                showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed"))
+            }
+        } catch {
+            currentViewState = .initial
+            showToastForError()
+        }
     }
 
     func handleDeleteGroupTap() {
         alert = .init(title: "Delete Group",
                       message: "Are you ABSOLUTELY sure you want to delete this group? This will remove this group for ALL users involved, not just yourself.",
                       positiveBtnTitle: "Delete",
-                      positiveBtnAction: { self.deleteGroup() },
+                      positiveBtnAction: {
+                        Task {
+                            await self.deleteGroup()
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
         showAlert = true
     }
 
-    private func deleteGroup() {
+    private func deleteGroup() async {
         guard let group else { return }
-
-        currentViewState = .loading
-        groupRepository.deleteGroup(group: group)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { _ in
-                self.currentViewState = .initial
-                NotificationCenter.default.post(name: .deleteGroup, object: group)
-                self.goBackToGroupList()
-            }.store(in: &cancelable)
+        do {
+            currentViewState = .loading
+            try await groupRepository.deleteGroup(group: group)
+            NotificationCenter.default.post(name: .deleteGroup, object: group)
+            currentViewState = .initial
+            goBackToGroupList()
+        } catch {
+            currentViewState = .initial
+            showToastForError()
+        }
     }
 
     @objc private func handleUpdateGroup(notification: Notification) {
@@ -257,9 +268,12 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Error Handling
-    private func handleServiceError(_ error: ServiceError) {
-        currentViewState = .initial
-        showToastFor(error)
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            currentViewState = .noInternet
+        } else {
+            currentViewState = .somethingWentWrong
+        }
     }
 }
 
@@ -269,6 +283,8 @@ extension GroupSettingViewModel {
         case initial
         case loading
         case hasMembers
+        case noInternet
+        case somethingWentWrong
     }
 
     enum MemberRemoveType: Equatable {

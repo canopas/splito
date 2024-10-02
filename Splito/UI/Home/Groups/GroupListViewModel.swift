@@ -26,7 +26,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Published var selectedGroup: Groups?
 
     @Published private var groups: [Groups] = []
-    @Published var combinedGroups: [GroupInformation] = []
+    @Published private(set) var combinedGroups: [GroupInformation] = []
     @Published private(set) var totalOweAmount: Double = 0.0
 
     @Published var showActionSheet = false
@@ -64,107 +64,92 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleDeleteGroup(notification:)), name: .deleteGroup, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleJoinGroup(notification:)), name: .joinGroup, object: nil)
 
-        fetchGroups()
-        fetchLatestUser()
+        fetchGroupsInitialData()
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+    func fetchGroupsInitialData() {
+        Task {
+            await fetchGroups()
+            await fetchLatestUser()
+        }
     }
 
     // MARK: - Data Loading
-    func fetchGroups() {
-        guard let userId = preference.user?.id else { return }
-        groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT)
-            .flatMap { [weak self] result -> AnyPublisher<[GroupInformation], ServiceError> in
-                guard let self else {
-                    self?.currentViewState = .initial
-                    return Fail(error: .dataNotFound).eraseToAnyPublisher()
-                }
+    func fetchGroups() async {
+        guard let userId = preference.user?.id else {
+            currentViewState = .initial
+            return
+        }
 
-                self.groups = result.groups
-                self.lastDocument = result.lastDocument
-                self.hasMoreGroups = !(result.groups.count < GROUPS_LIMIT)
+        do {
+            let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT)
 
-                // Tag each group with its original index
-                let indexedGroupInfoPublishers = result.groups.enumerated().map { index, group in
-                    self.fetchGroupInformation(group: group)
-                        .map { groupInfo in (index: index, groupInfo: groupInfo) }
-                        .eraseToAnyPublisher()
-                }
+            groups = result.data
+            lastDocument = result.lastDocument
+            hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
 
-                return Publishers.MergeMany(indexedGroupInfoPublishers)
-                    .collect()
-                    .map { $0.sorted(by: { $0.index < $1.index }).map { $0.groupInfo } }
-                    .eraseToAnyPublisher()
-            }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.currentViewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] groups in
-                guard let self else { return }
-                self.currentViewState = .initial
-                self.combinedGroups = groups
-                self.groupListState = groups.isEmpty ? .noGroup : .hasGroup
-            }
-            .store(in: &cancelable)
+            let sortedGroups = try await self.processNewGroups(newGroups: result.data)
+
+            currentViewState = .initial
+            combinedGroups = sortedGroups
+            groupListState = sortedGroups.isEmpty ? .noGroup : .hasGroup
+        } catch {
+            handleServiceError()
+        }
     }
 
-    func fetchMoreGroups() {
+    func loadMoreGroups() {
+        Task {
+            await fetchMoreGroups()
+        }
+    }
+
+    private func fetchMoreGroups() async {
         guard hasMoreGroups, let userId = preference.user?.id else { return }
 
-        groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT, lastDocument: lastDocument)
-            .flatMap { [weak self] result -> AnyPublisher<[GroupInformation], ServiceError> in
-                guard let self else {
-                    self?.currentViewState = .initial
-                    return Fail(error: .dataNotFound).eraseToAnyPublisher()
-                }
+        do {
+            let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT, lastDocument: lastDocument)
 
-                self.groups.append(contentsOf: result.groups)
+            groups.append(contentsOf: result.data)
+            lastDocument = result.lastDocument
+            hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
 
-                self.lastDocument = result.lastDocument
-                self.hasMoreGroups = !(result.groups.count < GROUPS_LIMIT)
+            let sortedGroups = try await self.processNewGroups(newGroups: result.data)
 
-                // Tag each group with its original index
-                let indexedGroupInfoPublishers = result.groups.enumerated().map { index, group in
-                    self.fetchGroupInformation(group: group)
-                        .map { groupInfo in (index: index, groupInfo: groupInfo) }
-                        .eraseToAnyPublisher()
-                }
-
-                return Publishers.MergeMany(indexedGroupInfoPublishers)
-                    .collect()
-                    .map { $0.sorted(by: { $0.index < $1.index }).map { $0.groupInfo } }
-                    .eraseToAnyPublisher()
-            }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.currentViewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] groups in
-                guard let self else { return }
-                self.currentViewState = .initial
-                self.combinedGroups.append(contentsOf: groups)
-                self.groupListState = self.combinedGroups.isEmpty ? .noGroup : .hasGroup
-            }
-            .store(in: &cancelable)
+            currentViewState = .initial
+            combinedGroups.append(contentsOf: sortedGroups)
+            groupListState = combinedGroups.isEmpty ? .noGroup : .hasGroup
+        } catch {
+            currentViewState = .initial
+            showToastForError()
+        }
     }
 
-    private func fetchGroupInformation(group: Groups) -> AnyPublisher<GroupInformation, ServiceError> {
-        groupRepository.fetchMembersBy(groupId: group.id ?? "")
-            .map { members in
-                let userId = self.preference.user?.id ?? ""
-                let memberBalance = self.getMembersBalance(group: group, memberId: userId)
-                let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
-                return GroupInformation(group: group, userBalance: memberBalance,
-                                        memberOweAmount: memberOwingAmount, members: members, hasExpenses: true)
-            }
-            .eraseToAnyPublisher()
+    private func processNewGroups(newGroups: [Groups]) async throws -> [GroupInformation] {
+        var indexedGroups: [(index: Int, groupInfo: GroupInformation)] = []
+
+        // Fetch detailed group information for each group and maintain the original index
+        for (index, group) in newGroups.enumerated() {
+            let groupInfo = try await fetchGroupInformation(group: group)
+            indexedGroups.append((index: index, groupInfo: groupInfo))
+        }
+
+        // Sort the group information by the original index
+        return indexedGroups.sorted(by: { $0.index < $1.index }).map { $0.groupInfo }
+    }
+
+    private func fetchGroupInformation(group: Groups) async throws -> GroupInformation {
+        let members = try await groupRepository.fetchMembersBy(groupId: group.id ?? "")
+
+        let userId = preference.user?.id ?? ""
+        let memberBalance = getMembersBalance(group: group, memberId: userId)
+        let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
+
+        return GroupInformation(group: group,
+                                userBalance: memberBalance,
+                                memberOweAmount: memberOwingAmount,
+                                members: members,
+                                hasExpenses: true)
     }
 
     private func getMembersBalance(group: Groups, memberId: String) -> Double {
@@ -174,48 +159,42 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         return 0
     }
 
-    private func fetchLatestUser() {
-        guard let userId = preference.user?.id else { return }
+    private func fetchLatestUser() async {
+        guard let userId = preference.user?.id else {
+            currentViewState = .initial
+            return
+        }
 
-        userRepository.fetchLatestUserBy(userId: userId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] user in
-                guard let user else { return }
-                self?.totalOweAmount = user.totalOweAmount
-            }.store(in: &cancelable)
-    }
-
-    private func fetchUserData(for userId: String?, completion: ((AppUser) -> Void)? = nil) {
-        guard let userId else { return }
-
-        if let existingUser = groupMembers.first(where: { $0.id == userId }) {
-            completion?(existingUser) // Return the available user from groupMembers
-        } else {
-            userRepository.fetchUserBy(userID: userId)
-                .sink { [weak self] completionResult in
-                    if case .failure(let error) = completionResult {
-                        self?.showToastFor(error)
-                    }
-                } receiveValue: { user in
-                    guard let user else { return }
-                    self.groupMembers.append(user)
-                    completion?(user)
-                }.store(in: &cancelable)
+        do {
+            let user = try await userRepository.fetchLatestUserBy(userID: userId)
+            if let user {
+                self.totalOweAmount = user.totalOweAmount
+            }
+        } catch {
+            handleServiceError()
         }
     }
 
-    private func fetchGroup(groupId: String, completion: @escaping (Groups?) -> Void) {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
+    private func fetchUserData(for userId: String) async {
+        if !groupMembers.contains(where: { $0.id == userId }) {
+            do {
+                let user = try await userRepository.fetchUserBy(userID: userId)
+                if let user {
+                    groupMembers.append(user)
                 }
-            } receiveValue: { group in
-                completion(group)
-            }.store(in: &cancelable)
+            } catch {
+                showToastForError()
+            }
+        }
+    }
+
+    private func fetchGroup(groupId: String) async -> Groups? {
+        do {
+            return try await groupRepository.fetchGroupBy(id: groupId)
+        } catch {
+            showToastForError()
+            return nil
+        }
     }
 }
 
@@ -247,7 +226,7 @@ extension GroupListViewModel {
     }
 
     func handleSearchBarTap() {
-        if filteredGroups.isEmpty {
+        if groups.isEmpty {
             showToastFor(toast: .init(type: .info, title: "No groups yet", message: "There are no groups available to search."))
         } else {
             withAnimation {
@@ -304,33 +283,35 @@ extension GroupListViewModel {
         alert = .init(title: "Delete Group",
                       message: "Are you ABSOLUTELY sure you want to delete this group? This will remove this group for ALL users involved, not just yourself.",
                       positiveBtnTitle: "Delete",
-                      positiveBtnAction: { self.deleteGroup(group: group) },
+                      positiveBtnAction: {
+                        Task {
+                            await self.deleteGroup(group: group)
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
         showAlert = true
     }
 
-    private func deleteGroup(group: Groups?) {
+    private func deleteGroup(group: Groups?) async {
         guard let group else { return }
-        groupRepository.deleteGroup(group: group)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { _ in
-                NotificationCenter.default.post(name: .deleteGroup, object: group)
-            }.store(in: &cancelable)
+        do {
+            try await groupRepository.deleteGroup(group: group)
+            NotificationCenter.default.post(name: .deleteGroup, object: group)
+        } catch {
+            showToastForError()
+        }
     }
 
     @objc private func handleJoinGroup(notification: Notification) {
         guard let joinedGroupId = notification.object as? String else { return }
 
-        fetchGroup(groupId: joinedGroupId, completion: { group in
-            if let group {
-                if self.combinedGroups.contains(where: { $0.group.id == group.id }) { return }
-                self.processGroup(group: group, isNewGroup: true)
+        if self.combinedGroups.contains(where: { $0.group.id == joinedGroupId }) { return }
+        Task {
+            if let group = await fetchGroup(groupId: joinedGroupId) {
+                await processGroup(group: group, isNewGroup: true)
             }
-        })
+        }
     }
 
     @objc private func handleAddGroup(notification: Notification) {
@@ -338,57 +319,59 @@ extension GroupListViewModel {
 
         // Check if the group already exists in combinedGroups
         if combinedGroups.contains(where: { $0.group.id == addedGroup.id }) { return }
-        processGroup(group: addedGroup, isNewGroup: true)
+        Task {
+            await processGroup(group: addedGroup, isNewGroup: true)
+        }
     }
 
     @objc private func handleUpdateGroup(notification: Notification) {
         guard let updatedGroup = notification.object as? Groups else { return }
-        processGroup(group: updatedGroup, isNewGroup: false)
+        Task {
+            await processGroup(group: updatedGroup, isNewGroup: false)
+        }
     }
 
     @objc private func handleDeleteGroup(notification: Notification) {
         guard let deletedGroup = notification.object as? Groups else { return }
-        withAnimation { self.combinedGroups.removeAll { $0.group.id == deletedGroup.id } }
-        self.showToastFor(toast: .init(type: .success, title: "Success", message: "Group deleted successfully"))
+        withAnimation { combinedGroups.removeAll { $0.group.id == deletedGroup.id } }
+        showToastFor(toast: .init(type: .success, title: "Success", message: "Group deleted successfully"))
     }
 
-    private func processGroup(group: Groups, isNewGroup: Bool) {
+    private func processGroup(group: Groups, isNewGroup: Bool) async {
         let userId = preference.user?.id ?? ""
         let memberBalance = getMembersBalance(group: group, memberId: userId)
         let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
 
-        let dispatchGroup = DispatchGroup()
-
         for memberId in group.members {
-            if !groupMembers.contains(where: { $0.id == memberId }) {
-                dispatchGroup.enter()
-
-                fetchUserData(for: memberId) { user in
-                    self.groupMembers.append(user)
-                    dispatchGroup.leave()
-                }
-            }
+            await fetchUserData(for: memberId)
         }
 
-        dispatchGroup.notify(queue: .main) {
-            let groupInfo = GroupInformation(
-                group: group,
-                userBalance: memberBalance,
-                memberOweAmount: memberOwingAmount,
-                members: self.groupMembers,
-                hasExpenses: group.hasExpenses
-            )
+        let groupInfo = GroupInformation(
+            group: group,
+            userBalance: memberBalance,
+            memberOweAmount: memberOwingAmount,
+            members: groupMembers,
+            hasExpenses: group.hasExpenses
+        )
 
-            if isNewGroup {
-                self.combinedGroups.insert(groupInfo, at: 0)
-                if self.combinedGroups.count == 1 {
-                    self.groupListState = .hasGroup
-                }
-            } else {
-                if let index = self.combinedGroups.firstIndex(where: { $0.group.id == group.id }) {
-                    self.combinedGroups[index] = groupInfo
-                }
+        if isNewGroup {
+            combinedGroups.insert(groupInfo, at: 0)
+            if combinedGroups.count == 1 {
+                groupListState = .hasGroup
             }
+        } else {
+            if let index = combinedGroups.firstIndex(where: { $0.group.id == group.id }) {
+                combinedGroups[index] = groupInfo
+            }
+        }
+    }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            currentViewState = .noInternet
+        } else {
+            currentViewState = .somethingWentWrong
         }
     }
 }
@@ -398,62 +381,12 @@ extension GroupListViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 
-    enum GroupListState: Equatable {
-        static func == (lhs: GroupListViewModel.GroupListState, rhs: GroupListViewModel.GroupListState) -> Bool {
-            lhs.key == rhs.key
-        }
-
+    enum GroupListState {
         case noGroup
         case hasGroup
-
-        var key: String {
-            switch self {
-            case .noGroup:
-                "noGroup"
-            case .hasGroup:
-                "hasGroup"
-            }
-        }
-    }
-}
-
-// MARK: - Tab Types
-enum GroupListTabType: Int, CaseIterable {
-    case all, settled, unsettled
-
-    var tabItem: String {
-        switch self {
-        case .all:
-            return "All"
-        case .settled:
-            return "Settled"
-        case .unsettled:
-            return "Unsettled"
-        }
-    }
-}
-
-enum OptionList: CaseIterable {
-    case editGroup
-    case deleteGroup
-
-    var title: String {
-        switch self {
-        case .editGroup:
-            return "Edit group"
-        case .deleteGroup:
-            return "Delete group"
-        }
-    }
-
-    var image: ImageResource {
-        switch self {
-        case .editGroup:
-            return .editPencilIcon
-        case .deleteGroup:
-            return .binIcon
-        }
     }
 }

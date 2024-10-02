@@ -99,7 +99,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
     func handleActionSelection(_ action: ActionsOfSheet) {
         switch action {
         case .camera:
-            self.checkCameraPermission {
+            checkCameraPermission {
                 self.sourceTypeIsCamera = true
                 self.showImagePicker = true
             }
@@ -112,7 +112,13 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func updateUserProfile() {
+    func updateUsersProfileData() {
+        Task {
+            await updateUserProfile()
+        }
+    }
+
+    private func updateUserProfile() async {
         guard let user = preference.user else { return }
 
         var newUser = user
@@ -124,65 +130,65 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
 
-        isSaveInProgress = true
-        userRepository.updateUserWithImage(imageData: imageData, newImageUrl: profileImageUrl, user: newUser)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.isSaveInProgress = false
-                    self?.showAlertFor(error)
-                }
-            } receiveValue: { [weak self] user in
-                guard let self else { return }
-                self.isSaveInProgress = false
-                self.preference.user = user
+        do {
+            isSaveInProgress = true
+            let user = try await userRepository.updateUserWithImage(imageData: imageData, newImageUrl: profileImageUrl, user: newUser)
+            preference.user = user
+            isSaveInProgress = false
 
-                if self.isOpenFromOnboard {
-                    self.onDismiss?()
-                } else {
-                    self.router?.pop()
-                }
-            }.store(in: &cancelable)
+            if isOpenFromOnboard {
+                onDismiss?()
+            } else {
+                router?.pop()
+            }
+        } catch {
+            isSaveInProgress = false
+            showToastForError()
+        }
     }
 
     func showDeleteAccountConfirmation() {
         alert = .init(title: "Delete your account",
                       message: "Are you ABSOLUTELY sure you want to close your splito account? You will no longer be able to log into your account or access your account history from your splito app.",
                       positiveBtnTitle: "Delete",
-                      positiveBtnAction: { self.deleteUser() },
+                      positiveBtnAction: {
+                        Task {
+                            await self.deleteUser()
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
         showAlert = true
     }
 
-    private func deleteUser() {
+    private func deleteUser() async {
         guard let user = preference.user else {
             LogD("UserProfileViewModel :: User does not exist.")
             return
         }
 
-        userRepository.deleteUser(id: user.id)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    guard let self else { return }
-                    if error.descriptionText.contains(self.REQUIRE_AGAIN_LOGIN_TEXT) {
-                        self.alert = .init(title: "", message: error.descriptionText,
-                                           positiveBtnTitle: "Reauthenticate", positiveBtnAction: {
-                            self.reAuthenticateUser()
-                        }, negativeBtnTitle: "Cancel", negativeBtnAction: {
-                            self.showAlert = false
-                            self.isDeleteInProgress = false
-                        })
-                        self.showAlert = true
-                    }
-                }
-            } receiveValue: { [weak self] _ in
-                guard let self else { return }
-                self.isDeleteInProgress = false
-                self.preference.isOnboardShown = false
-                self.preference.clearPreferenceSession()
-                self.goToOnboardScreen()
-                LogD("UserProfileViewModel :: user deleted.")
-            }.store(in: &cancelable)
+        do {
+            isDeleteInProgress = true
+            try await userRepository.deleteUser(id: user.id)
+            preference.isOnboardShown = false
+            preference.clearPreferenceSession()
+            isDeleteInProgress = false
+            goToOnboardScreen()
+            LogD("UserProfileViewModel :: user deleted.")
+        } catch {
+            isDeleteInProgress = false
+            if error.localizedDescription.contains(REQUIRE_AGAIN_LOGIN_TEXT) {
+                alert = .init(title: "", message: error.localizedDescription,
+                              positiveBtnTitle: "Reauthenticate", positiveBtnAction: {
+                    self.reAuthenticateUser()
+                }, negativeBtnTitle: "Cancel", negativeBtnAction: {
+                    self.showAlert = false
+                })
+                showAlert = true
+            } else {
+                showToastForError()
+            }
+        }
     }
 
     private func goToOnboardScreen() {
@@ -198,6 +204,7 @@ extension UserProfileViewModel {
             return
         }
 
+        isDeleteInProgress = true
         user.reload { [weak self] error in
             if let error {
                 self?.isDeleteInProgress = false
@@ -218,19 +225,25 @@ extension UserProfileViewModel {
             }
 
             user.reauthenticate(with: credential) { _, error in
+                guard let self else { return }
                 if let error {
-                    self?.isDeleteInProgress = false
-                    self?.showAlertFor(message: error.localizedDescription)
+                    self.isDeleteInProgress = false
+                    self.showAlertFor(message: error.localizedDescription)
                     LogE("UserProfileViewModel: Error re-authenticating user: \(error.localizedDescription)")
                 } else {
-                    self?.deleteUser()
+                    Task {
+                        await self.deleteUser()
+                    }
                 }
             }
         }
     }
 
     private func getAuthCredential(_ authUser: User, completion: @escaping (AuthCredential?) -> Void) {
-        guard let appUser = preference.user else { return }
+        guard let appUser = preference.user else {
+            isDeleteInProgress = false
+            return
+        }
 
         switch appUser.loginType {
         case .Apple:
@@ -270,6 +283,7 @@ extension UserProfileViewModel {
         GIDSignIn.sharedInstance.configuration = config
 
         guard let controller = TopViewController.shared.topViewController() else {
+            isDeleteInProgress = false
             LogE("UserProfileViewModel: Top Controller not found.")
             return
         }
@@ -297,8 +311,8 @@ extension UserProfileViewModel {
         FirebaseProvider.phoneAuthProvider
             .verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
                 guard let self = self else { return }
+                self.isDeleteInProgress = false
                 if let error {
-                    self.isDeleteInProgress = false
                     self.handleFirebaseAuthErrors(error)
                 } else {
                     self.phoneNumber = phoneNumber

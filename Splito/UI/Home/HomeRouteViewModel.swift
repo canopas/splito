@@ -13,8 +13,9 @@ class HomeRouteViewModel: ObservableObject {
 
     @Inject private var preference: SplitoPreference
 
-    @Published var openProfileView = false
-    @Published var openExpenseSheet = false
+    @Published var isTabBarVisible: Bool = true
+    @Published var openProfileView: Bool = false
+    @Published var openExpenseSheet: Bool = false
 
     @Published var selectedTab: Int = 0
     @Published private(set) var lastSelectedTab = 0
@@ -34,9 +35,7 @@ class HomeRouteViewModel: ObservableObject {
     }
 
     func setSelectedTab(_ index: Int) {
-        withAnimation {
-            selectedTab = index
-        }
+        selectedTab = index
     }
 
     func openAddExpenseSheet() {

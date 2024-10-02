@@ -17,44 +17,50 @@ struct InviteMemberView: View {
     var body: some View {
         GeometryReader { geometry in
             VStack(alignment: .center, spacing: 0) {
-                ScrollView {
-                    VStack(alignment: .center, spacing: 40) {
-                        VStack(spacing: 16) {
-                            Text("Share this code to invite friends.")
-                                .font(.Header1())
-                                .foregroundStyle(primaryText)
-                                .multilineTextAlignment(.center)
+                if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
+                    ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchInitialData)
+                } else if case .loading = viewModel.viewState {
+                    LoaderView()
+                } else {
+                    ScrollView {
+                        VStack(alignment: .center, spacing: 40) {
+                            VStack(spacing: 16) {
+                                Text("Share this code to invite friends.")
+                                    .font(.Header1())
+                                    .foregroundStyle(primaryText)
+                                    .multilineTextAlignment(.center)
 
-                            Text("Let's get the gang together! Invite your friends to join the group and make splitting expenses easier than ever.")
-                                .font(.subTitle1())
-                                .foregroundStyle(disableText)
-                                .tracking(-0.2)
-                                .lineSpacing(4)
+                                Text("Let's get the gang together! Invite your friends to join the group and make splitting expenses easier than ever.")
+                                    .font(.subTitle1())
+                                    .foregroundStyle(disableText)
+                                    .tracking(-0.2)
+                                    .lineSpacing(4)
+                            }
+                            .multilineTextAlignment(.center)
+
+                            VStack(spacing: 16) {
+                                Text(viewModel.inviteCode)
+                                    .font(.Header2())
+                                    .foregroundStyle(primaryDarkColor)
+
+                                Text("This code will be active for 2 days.")
+                                    .font(.body1())
+                                    .foregroundStyle(disableText)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 24)
+                            .padding(.horizontal, 40)
+                            .background(containerColor)
+                            .cornerRadius(12)
                         }
-                        .multilineTextAlignment(.center)
-
-                        VStack(spacing: 16) {
-                            Text(viewModel.inviteCode)
-                                .font(.Header2())
-                                .foregroundStyle(primaryDarkColor)
-
-                            Text("This code will be active for 2 days.")
-                                .font(.body1())
-                                .foregroundStyle(disableText)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 24)
-                        .padding(.horizontal, 40)
-                        .background(containerColor)
-                        .cornerRadius(12)
+                        .padding(.horizontal, 16)
+                        .frame(minHeight: geometry.size.height - 90)
                     }
-                    .padding(.horizontal, 16)
-                    .frame(minHeight: geometry.size.height - 90)
-                }
-                .scrollIndicators(.hidden)
-                .scrollBounceBehavior(.basedOnSize)
+                    .scrollIndicators(.hidden)
+                    .scrollBounceBehavior(.basedOnSize)
 
-                PrimaryFloatingButton(text: "Invite", onClick: viewModel.openShareSheet)
+                    PrimaryFloatingButton(text: "Invite", showLoader: viewModel.showLoader, onClick: viewModel.openShareSheet)
+                }
             }
         }
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
@@ -65,8 +71,8 @@ struct InviteMemberView: View {
         .sheet(isPresented: $viewModel.showShareSheet) {
             ShareSheetView(activityItems: ["Let's split the expense! Use invite code \(viewModel.inviteCode) to join the \(viewModel.group?.name ?? "") group, if you don't have an app then please download it."]) { isCompleted in
                 if isCompleted {
-                    viewModel.storeSharedCode {
-                        dismiss()
+                    viewModel.handleStoreShareCodeAction { isSucceed in
+                        if isSucceed { dismiss() }
                     }
                 }
             }
@@ -74,9 +80,7 @@ struct InviteMemberView: View {
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Invite Code")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleTextView(text: "Invite Code")
             }
         }
     }

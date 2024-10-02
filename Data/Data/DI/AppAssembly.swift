@@ -25,7 +25,7 @@ public class AppAssembly: Assembly {
 
         container.register(Firestore.self) { _ in
             let settings = FirestoreSettings()
-            settings.cacheSettings = MemoryCacheSettings()
+            settings.cacheSettings = MemoryCacheSettings() // Disable cache by using an empty memory cache
             let db = Firestore.firestore()
             db.settings = settings
             return db

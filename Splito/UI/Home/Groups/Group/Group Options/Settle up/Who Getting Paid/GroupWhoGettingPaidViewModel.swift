@@ -13,7 +13,7 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
     @Inject var groupRepository: GroupRepository
 
     @Published var members: [AppUser] = []
-    @Published var viewState: ViewState = .initial
+    @Published var viewState: ViewState = .loading
 
     @Published private(set) var payerId: String
     @Published private(set) var selectedMemberId: String?
@@ -28,16 +28,21 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
         super.init()
     }
 
+    func fetchInitialMembersData() {
+        Task {
+            await fetchGroupMembers()
+        }
+    }
+
     // MARK: - Data Loading
-    func fetchGroupMembers() {
-        groupRepository.fetchMembersBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] members in
-                self?.members = members
-            }.store(in: &cancelable)
+    private func fetchGroupMembers() async {
+        do {
+            let members = try await groupRepository.fetchMembersBy(groupId: groupId)
+            self.members = members
+            viewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
     func onMemberTap(memberId: String) {
@@ -46,9 +51,12 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Error Handling
-    private func handleServiceError(_ error: ServiceError) {
-        viewState = .initial
-        showToastFor(error)
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
     }
 }
 
@@ -57,5 +65,7 @@ extension GroupWhoGettingPaidViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

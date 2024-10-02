@@ -21,7 +21,7 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var groupMembers: [AppUser] = []
     @Published private(set) var membersAmount: [String: Double] = [:]
 
-    @Published var currentViewState: ViewState = .initial
+    @Published var currentViewState: ViewState = .loading
 
     @Published private(set) var dismissChoosePayerFlow: () -> Void
 
@@ -41,24 +41,24 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
             membersAmount[membersAmount.keys.first ?? ""] = expenseAmount
             totalAmount = expenseAmount
         }
-        self.fetchMembers()
+
+        fetchInitialMembersData()
     }
 
-    func fetchMembers() {
-        currentViewState = .loading
-        groupRepository.fetchMembersBy(groupId: groupId)
-            .sink { [weak self] completion in
-                switch completion {
-                case .finished:
-                    return
-                case .failure(let error):
-                    self?.currentViewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { users in
-                self.groupMembers = users
-                self.currentViewState = .initial
-            }.store(in: &cancelable)
+    func fetchInitialMembersData() {
+        Task {
+            await self.fetchMembers()
+        }
+    }
+
+    private func fetchMembers() async {
+        do {
+            let users = try await groupRepository.fetchMembersBy(groupId: groupId)
+            groupMembers = users
+            currentViewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
     func updateAmount(for memberId: String, amount: Double) {
@@ -79,11 +79,22 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
         onPayerSelection(membersAmount.filter({ $0.value != 0 }))
         dismissChoosePayerFlow()
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            currentViewState = .noInternet
+        } else {
+            currentViewState = .somethingWentWrong
+        }
+    }
 }
 
 extension ChooseMultiplePayerViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

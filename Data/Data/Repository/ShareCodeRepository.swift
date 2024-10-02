@@ -15,30 +15,20 @@ public class ShareCodeRepository: ObservableObject {
 
     private var cancelable = Set<AnyCancellable>()
 
-    public func addSharedCode(sharedCode: SharedCode) -> AnyPublisher<Void, ServiceError> {
-        store.addSharedCode(sharedCode: sharedCode)
+    public func addSharedCode(sharedCode: SharedCode) async throws {
+        try await store.addSharedCode(sharedCode: sharedCode)
     }
 
-    public func fetchSharedCode(code: String) -> Future<SharedCode?, ServiceError> {
-        return store.fetchSharedCode(code: code.encryptHexCode())
+    public func fetchSharedCode(code: String) async throws -> SharedCode? {
+        return try await store.fetchSharedCode(code: code.encryptHexCode())
     }
 
-    public func deleteSharedCode(documentId: String) -> AnyPublisher<Void, ServiceError> {
-        store.deleteSharedCode(documentId: documentId)
+    public func deleteSharedCode(documentId: String) async throws {
+        try await store.deleteSharedCode(documentId: documentId)
     }
 
-    public func checkForCodeAvailability(code: String) -> AnyPublisher<Bool, ServiceError> {
-        return Future { [weak self] promise in
-            guard let self else { promise(.failure(.unexpectedError)); return }
-            self.fetchSharedCode(code: code)
-                .sink { result in
-                    if case .failure(let error) = result {
-                        promise(.failure(error))
-                    }
-                } receiveValue: { code in
-                    promise(.success(code == nil))
-                }.store(in: &self.cancelable)
-        }
-        .eraseToAnyPublisher()
+    public func checkForCodeAvailability(code: String) async throws -> Bool {
+        let fetchedCode = try await fetchSharedCode(code: code)
+        return fetchedCode == nil
     }
 }

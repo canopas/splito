@@ -14,71 +14,36 @@ public class ShareCodeStore: ObservableObject {
 
     @Inject private var database: Firestore
 
-    func addSharedCode(sharedCode: SharedCode) -> AnyPublisher<Void, ServiceError> {
-        Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
-            }
-
-            do {
-                _ = try self.database.collection(self.COLLECTION_NAME).addDocument(from: sharedCode)
-                promise(.success(()))
-            } catch {
-                LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
-                promise(.failure(.databaseError(error: error.localizedDescription)))
-            }
-        }
-        .eraseToAnyPublisher()
-    }
-
-    func fetchSharedCode(code: String) -> Future<SharedCode?, ServiceError> {
-        Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
-            }
-
-            self.database.collection(COLLECTION_NAME).whereField("code", isEqualTo: code).getDocuments { snapshot, error in
-                if let error {
-                    LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
-                    return
-                }
-
-                guard let document = snapshot?.documents.first else {
-                    LogD("ShareCodeStore :: \(#function) The document is not available.")
-                    promise(.success(nil))
-                    return
-                }
-
-                do {
-                    let sharedCode = try document.data(as: SharedCode.self)
-                    promise(.success(sharedCode))
-                } catch {
-                    LogE("ShareCodeStore :: \(#function) Decode error: \(error.localizedDescription)")
-                    promise(.failure(.decodingError))
-                }
-            }
+    func addSharedCode(sharedCode: SharedCode) async throws {
+        do {
+            try database.collection(self.COLLECTION_NAME).addDocument(from: sharedCode)
+        } catch {
+            LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
+            throw error
         }
     }
 
-    func deleteSharedCode(documentId: String) -> AnyPublisher<Void, ServiceError> {
-        Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(.unexpectedError))
-                return
-            }
+    func fetchSharedCode(code: String) async throws -> SharedCode? {
+        let snapshot = try await database.collection(COLLECTION_NAME)
+            .whereField("code", isEqualTo: code)
+            .getDocuments()
 
-            self.database.collection(self.COLLECTION_NAME).document(documentId).delete { error in
-                if let error {
-                    LogE("ShareCodeStore :: \(#function): Deleting data failed with error: \(error.localizedDescription).")
-                    promise(.failure(.databaseError(error: error.localizedDescription)))
-                } else {
-                    LogD("ShareCodeStore :: \(#function): code deleted successfully.")
-                    promise(.success(()))
-                }
-            }
-        }.eraseToAnyPublisher()
+        // Check for documents and decode the first one
+        guard let document = snapshot.documents.first else {
+            LogD("ShareCodeStore :: \(#function) The document is not available.")
+            return nil
+        }
+
+        let sharedCode = try document.data(as: SharedCode.self)
+        return sharedCode
+    }
+
+    func deleteSharedCode(documentId: String) async throws {
+        do {
+            try await database.collection(COLLECTION_NAME).document(documentId).delete()
+        } catch {
+            LogE("ShareCodeStore :: \(#function): Deleting data failed with error: \(error.localizedDescription).")
+            throw error
+        }
     }
 }

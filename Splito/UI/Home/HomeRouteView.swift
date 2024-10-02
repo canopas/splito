@@ -17,12 +17,12 @@ struct HomeRouteView: View {
             Group {
                 switch viewModel.selectedTab {
                 case 0:
-                    GroupRouteView()
+                    GroupRouteView(isTabBarVisible: $viewModel.isTabBarVisible)
                         .onAppear {
                             viewModel.setLastSelectedTab(0)
                         }
                 case 2:
-                    AccountRouteView()
+                    AccountRouteView(isTabBarVisible: $viewModel.isTabBarVisible)
                         .onAppear {
                             viewModel.setLastSelectedTab(2)
                         }
@@ -31,9 +31,12 @@ struct HomeRouteView: View {
                 }
             }
 
-            CustomTabBarView(selectedTab: $viewModel.selectedTab,
-                             onAddExpense: viewModel.openAddExpenseSheet,
-                             onTabItemClick: viewModel.setSelectedTab(_:))
+            // Conditionally show or hide the tab bar
+            if viewModel.isTabBarVisible {
+                CustomTabBarView(selectedTab: $viewModel.selectedTab,
+                                 onAddExpense: viewModel.openAddExpenseSheet,
+                                 onTabItemClick: viewModel.setSelectedTab(_:))
+            }
         }
         .ignoresSafeArea(.keyboard) // Useful so the button doesn't move around on keyboard show
         .onAppear(perform: viewModel.openUserProfileIfNeeded)
@@ -64,17 +67,12 @@ struct CustomTabBarView: View {
                 TabBarItemView(selectedTab: $selectedTab, tabIndex: 0, image: .groupIcon,
                                selectedImage: .groupFillIcon, label: "Groups", onTabItemClick: onTabItemClick)
 
-                Spacer()
-
                 AddExpenseButtonView(onClick: onAddExpense)
-
-                Spacer()
 
                 TabBarItemView(selectedTab: $selectedTab, tabIndex: 2, image: .profileIcon,
                                selectedImage: .profileFillIcon, label: "Account", onTabItemClick: onTabItemClick)
             }
-            .padding(.horizontal, isIpad ? 150 : 50)
-            .padding(.top, 10)
+            .padding(.top, 5)
             .background(surfaceColor.ignoresSafeArea(edges: [.bottom, .horizontal]))
         }
     }
@@ -95,16 +93,23 @@ struct TabBarItemView: View {
         Button {
             onTabItemClick(tabIndex)
         } label: {
-            VStack {
-                Image(selectedTab == tabIndex ? selectedImage : image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 26, height: 26)
+            HStack {
+                if tabIndex == 2 { Spacer() }
 
-                Text(label)
-                    .font(.caption1())
-                    .foregroundStyle(selectedTab == tabIndex ? primaryText : disableText)
+                VStack(spacing: 1) {
+                    Image(selectedTab == tabIndex ? selectedImage : image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 26, height: 26)
+
+                    Text(label)
+                        .font(.caption1())
+                        .foregroundStyle(selectedTab == tabIndex ? primaryText : disableText)
+                }
+
+                if tabIndex == 0 { Spacer() }
             }
+            .padding(.horizontal, isIpad ? 150 : 50)
         }
     }
 }

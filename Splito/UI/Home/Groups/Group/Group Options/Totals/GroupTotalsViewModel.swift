@@ -13,7 +13,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
 
-    @Published private(set) var viewState: ViewState = .initial
+    @Published private(set) var viewState: ViewState = .loading
     @Published private(set) var selectedTab: DateRangeTabType = .thisMonth
     @Published private(set) var summaryData: GroupMemberSummary?
 
@@ -23,23 +23,25 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     init(groupId: String) {
         self.groupId = groupId
         super.init()
-        fetchGroup()
+        fetchInitialGroupData()
+    }
+
+    func fetchInitialGroupData() {
+        Task {
+            await fetchGroup()
+        }
     }
 
     // MARK: - Data Loading
-    private func fetchGroup() {
-        viewState = .loading
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self else { return }
-                self.group = group
-                self.filterDataForSelectedTab()
-                self.viewState = .initial
-            }.store(in: &cancelable)
+    private func fetchGroup() async {
+        do {
+            let latestGroup = try await groupRepository.fetchGroupBy(id: groupId)
+            group = latestGroup
+            filterDataForSelectedTab()
+            viewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
     // MARK: - User Actions
@@ -51,7 +53,10 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     }
 
     private func filterDataForSelectedTab() {
-        guard let group, let userId = preference.user?.id else { return }
+        guard let group, let userId = preference.user?.id else {
+            viewState = .initial
+            return
+        }
 
         let summaries: [GroupTotalSummary]
         switch selectedTab {
@@ -74,7 +79,10 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     }
 
     private func getTotalSummaryForCurrentYear() -> [GroupTotalSummary] {
-        guard let user = preference.user, let group else { return [] }
+        guard let user = preference.user, let group else {
+            viewState = .initial
+            return []
+        }
         let currentYear = Calendar.current.component(.year, from: Date())
         return group.balances.first(where: { $0.id == user.id })?.totalSummary.filter {
             $0.year == currentYear
@@ -82,9 +90,12 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Error Handling
-    private func handleServiceError(_ error: ServiceError) {
-        viewState = .initial
-        showToastFor(error)
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
     }
 }
 
@@ -93,6 +104,8 @@ extension GroupTotalsViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }
 

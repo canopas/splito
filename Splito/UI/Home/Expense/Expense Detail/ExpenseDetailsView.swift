@@ -15,7 +15,9 @@ struct ExpenseDetailsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if case .loading = viewModel.viewState {
+            if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
+                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchGroupAndExpenseData)
+            } else if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
                 ScrollView {
@@ -45,12 +47,10 @@ struct ExpenseDetailsView: View {
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Details")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleTextView(text: "Details")
             }
             ToolbarItem(placement: .topBarTrailing) {
-                ToolbarButtonView(imageIcon: .binIcon, onClick: viewModel.handleDeleteBtnAction)
+                ToolbarButtonView(imageIcon: .binIcon, onClick: viewModel.handleDeleteButtonAction)
             }
             ToolbarItem(placement: .topBarTrailing) {
                 ToolbarButtonView(imageIcon: .editPencilIcon, onClick: viewModel.handleEditBtnAction)

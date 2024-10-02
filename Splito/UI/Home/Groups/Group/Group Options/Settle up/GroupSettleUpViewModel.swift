@@ -27,42 +27,54 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         super.init()
+        fetchInitialViewData()
+    }
 
-        fetchGroupDetails()
+    func fetchInitialViewData() {
+        Task {
+            await fetchGroupDetails()
+            await fetchGroupMembers()
+        }
     }
 
     // MARK: - Data Loading
-    private func fetchGroupDetails() {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.group = group
-                self.calculateMemberPayableAmount(group: group)
-                self.fetchGroupMembers()
-            }.store(in: &cancelable)
+    func fetchGroupDetails() async {
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            guard let group else {
+                viewState = .initial
+                return
+            }
+            self.group = group
+            calculateMemberPayableAmount(group: group)
+            viewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
     func calculateMemberPayableAmount(group: Groups) {
-        guard let userId = self.preference.user?.id else { return }
+        guard let userId = preference.user?.id else {
+            viewState = .initial
+            return
+        }
         memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
     }
 
-    private func fetchGroupMembers() {
-        groupRepository.fetchMembersBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] members in
-                guard let self, let userId = preference.user?.id else { return }
-                self.members = members
-                self.members.removeAll(where: { $0.id == userId })
-                self.viewState = .initial
-            }.store(in: &cancelable)
+    private func fetchGroupMembers() async {
+        do {
+            viewState = .loading
+            guard let userId = preference.user?.id else {
+                viewState = .initial
+                return
+            }
+            let members = try await groupRepository.fetchMembersBy(groupId: groupId)
+            self.members = members
+            self.members.removeAll(where: { $0.id == userId })
+            viewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
     // MARK: - Helper Methods
@@ -97,9 +109,12 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Error Handling
-    private func handleServiceError(_ error: ServiceError) {
-        viewState = .initial
-        showToastFor(error)
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
     }
 }
 
@@ -108,5 +123,7 @@ extension GroupSettleUpViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

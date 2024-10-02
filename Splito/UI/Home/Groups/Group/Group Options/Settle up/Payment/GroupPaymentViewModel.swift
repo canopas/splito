@@ -42,7 +42,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     private var transaction: Transactions?
     private let router: Router<AppRoute>?
 
-    init(router: Router<AppRoute>, transactionId: String?, groupId: String, payerId: String, receiverId: String, amount: Double) {
+    init(router: Router<AppRoute>, transactionId: String?, groupId: String,
+         payerId: String, receiverId: String, amount: Double) {
         self.router = router
         self.amount = abs(amount)
         self.groupId = groupId
@@ -52,134 +53,144 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
         super.init()
 
-        fetchGroup()
-        fetchTransaction()
-        getPayerUserDetail()
-        getPayableUserDetail()
+        fetchInitialViewData()
+    }
+
+    func fetchInitialViewData() {
+        Task {
+            await fetchGroup()
+            await fetchTransaction()
+            await getPayerUserDetail()
+            await getPayableUserDetail()
+        }
     }
 
     // MARK: - Data Loading
-    private func fetchGroup() {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.group = group
-                self.viewState = .initial
-            }.store(in: &cancelable)
+    private func fetchGroup() async {
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            self.group = group
+            self.viewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
-    func fetchTransaction() {
+    func fetchTransaction() async {
         guard let transactionId else { return }
-
-        viewState = .loading
-        transactionRepository.fetchTransactionBy(groupId: groupId, transactionId: transactionId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] transaction in
-                guard let self else { return }
-                self.transaction = transaction
-                self.paymentDate = transaction.date.dateValue()
-                self.viewState = .initial
-            }.store(in: &cancelable)
+        do {
+            viewState = .loading
+            let transaction = try await transactionRepository.fetchTransactionBy(groupId: groupId, transactionId: transactionId)
+            self.transaction = transaction
+            self.paymentDate = transaction.date.dateValue()
+            self.viewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
-    private func getPayerUserDetail() {
-        userRepository.fetchUserBy(userID: payerId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] user in
-                self?.payer = user
-            }.store(in: &cancelable)
+    private func getPayerUserDetail() async {
+        do {
+            viewState = .loading
+            let user = try await userRepository.fetchUserBy(userID: payerId)
+            if let user { payer = user }
+            viewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
-    private func getPayableUserDetail() {
-        userRepository.fetchUserBy(userID: receiverId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] user in
-                self?.receiver = user
-            }.store(in: &cancelable)
+    private func getPayableUserDetail() async {
+        do {
+            viewState = .loading
+            let user = try await userRepository.fetchUserBy(userID: receiverId)
+            if let user { receiver = user }
+            viewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
-    func handleSaveAction(completion: @escaping () -> Void) {
+    func handleSaveAction(completion: @escaping (Bool) -> Void) {
+        Task {
+            await performSaveAction(completion: completion)
+        }
+    }
+
+    private func performSaveAction(completion: (Bool) -> Void) async {
         guard amount > 0 else {
             showAlertFor(title: "Whoops!", message: "You must enter an amount.")
             return
         }
+
         guard let userId = preference.user?.id else { return }
 
         if let transaction {
             var newTransaction = transaction
             newTransaction.amount = amount
             newTransaction.date = .init(date: paymentDate)
-            updateTransaction(transaction: newTransaction, oldTransaction: transaction, completion: completion)
+
+            await updateTransaction(transaction: newTransaction, oldTransaction: transaction, completion: completion)
         } else {
-            addTransaction(transaction: Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
-                                                     amount: amount, date: .init(date: paymentDate)), completion: completion)
+            let transaction = Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
+                                           amount: amount, date: .init(date: paymentDate))
+            await addTransaction(transaction: transaction, completion: completion)
         }
     }
 
-    private func addTransaction(transaction: Transactions, completion: @escaping () -> Void) {
-        showLoader = true
-        transactionRepository.addTransaction(groupId: groupId, transaction: transaction)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showLoader = false
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.showLoader = false
-                NotificationCenter.default.post(name: .addTransaction, object: transaction)
-                self?.updateGroupMemberBalance(transaction: transaction, updateType: .Add, completion: completion)
-            }.store(in: &cancelable)
+    private func addTransaction(transaction: Transactions, completion: (Bool) -> Void) async {
+        do {
+            showLoader = true
+            let transaction = try await transactionRepository.addTransaction(groupId: groupId, transaction: transaction)
+            await updateGroupMemberBalance(transaction: transaction, updateType: .Add)
+            NotificationCenter.default.post(name: .addTransaction, object: transaction)
+            showLoader = false
+            completion(true)
+        } catch {
+            showLoader = false
+            completion(false)
+            showToastForError()
+        }
     }
 
-    private func updateTransaction(transaction: Transactions, oldTransaction: Transactions, completion: @escaping () -> Void) {
-        showLoader = true
-        transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showLoader = false
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.showLoader = false
-                NotificationCenter.default.post(name: .updateTransaction, object: transaction)
-                self?.updateGroupMemberBalance(transaction: transaction, updateType: .Update(oldTransaction: oldTransaction), completion: completion)
-            }.store(in: &cancelable)
+    private func updateTransaction(transaction: Transactions, oldTransaction: Transactions, completion: (Bool) -> Void) async {
+        do {
+            showLoader = true
+            try await transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
+            await updateGroupMemberBalance(transaction: transaction, updateType: .Update(oldTransaction: oldTransaction))
+            NotificationCenter.default.post(name: .updateTransaction, object: transaction)
+            showLoader = false
+            completion(true)
+        } catch {
+            showLoader = false
+            completion(false)
+            showToastForError()
+        }
     }
 
-    private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType, completion: @escaping () -> Void) {
-        guard var group else { return }
+    private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) async {
+        guard var group else {
+            showLoader = false
+            return
+        }
 
-        let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
-        group.balances = memberBalance
-
-        groupRepository.updateGroup(group: group)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.viewState = .initial
-                completion()
-            }.store(in: &cancelable)
+        do {
+            let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
+            group.balances = memberBalance
+            try await groupRepository.updateGroup(group: group)
+        } catch {
+            showLoader = false
+            showToastForError()
+        }
     }
 
     // MARK: - Error Handling
-    private func handleServiceError(_ error: ServiceError) {
-        viewState = .initial
-        showToastFor(error)
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
     }
 }
 
@@ -188,5 +199,7 @@ extension GroupPaymentViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

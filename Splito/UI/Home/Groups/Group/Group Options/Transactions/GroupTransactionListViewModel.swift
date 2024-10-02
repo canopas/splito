@@ -46,97 +46,99 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateTransaction(notification:)), name: .updateTransaction, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleDeleteTransaction(notification:)), name: .deleteTransaction, object: nil)
 
-        fetchGroup()
-        fetchTransactions()
+        fetchInitialViewData()
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+    func fetchInitialViewData() {
+        Task {
+            await fetchGroup()
+            await fetchTransactions()
+        }
     }
 
     // MARK: - Data Loading
-    private func fetchGroup() {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.group = group
-            }.store(in: &cancelable)
+    private func fetchGroup() async {
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            guard let group else {
+                currentViewState = .initial
+                return
+            }
+            self.group = group
+            currentViewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
-    func fetchTransactions() {
-        transactionsWithUser = []
-        transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] result in
-                guard let self else { return }
-                self.lastDocument = result.lastDocument
-                self.transactions = result.transactions.uniqued()
+    func fetchTransactions() async {
+        do {
+            currentViewState = .loading
+            transactionsWithUser = []
 
-                self.combinedTransactionsWithUser(transactions: result.transactions)
-                self.hasMoreTransactions = !(result.transactions.count < self.TRANSACTIONS_LIMIT)
-            }.store(in: &cancelable)
+            let result = try await transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT)
+            lastDocument = result.lastDocument
+            transactions = result.transactions.uniqued()
+
+            await combinedTransactionsWithUser(transactions: result.transactions)
+            hasMoreTransactions = !(result.transactions.count < TRANSACTIONS_LIMIT)
+            currentViewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
-    func fetchMoreTransactions() {
-        transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT, lastDocument: lastDocument)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] result in
-                guard let self else { return }
-                self.lastDocument = result.lastDocument
-                self.transactions.append(contentsOf: result.transactions.uniqued())
-
-                self.combinedTransactionsWithUser(transactions: result.transactions.uniqued())
-                self.hasMoreTransactions = !(result.transactions.count < self.TRANSACTIONS_LIMIT)
-            }.store(in: &cancelable)
+    func loadMoreTransactions() {
+        Task {
+            await fetchMoreTransactions()
+        }
     }
 
-    private func combinedTransactionsWithUser(transactions: [Transactions]) {
-        let queue = DispatchGroup()
+    private func fetchMoreTransactions() async {
+        do {
+            let result = try await transactionRepository.fetchTransactionsBy(groupId: groupId,
+                                                                             limit: TRANSACTIONS_LIMIT, lastDocument: lastDocument)
+            lastDocument = result.lastDocument
+            transactions.append(contentsOf: result.transactions.uniqued())
+
+            await combinedTransactionsWithUser(transactions: result.transactions.uniqued())
+            hasMoreTransactions = !(result.transactions.count < TRANSACTIONS_LIMIT)
+        } catch {
+            showToastForError()
+        }
+    }
+
+    private func combinedTransactionsWithUser(transactions: [Transactions]) async {
         var combinedData: [TransactionWithUser] = []
 
         for transaction in transactions {
-            queue.enter()
-            self.fetchUserData(for: transaction.payerId) { payer in
-                self.fetchUserData(for: transaction.receiverId) { receiver in
+            if let payer = await fetchUserData(for: transaction.payerId) {
+                if let receiver = await fetchUserData(for: transaction.receiverId) {
                     combinedData.append(TransactionWithUser(transaction: transaction,
                                                             payer: payer, receiver: receiver))
-                    queue.leave()
                 }
             }
         }
 
-        queue.notify(queue: .main) { [weak self] in
-            guard let self else { return }
-            self.transactionsWithUser.append(contentsOf: combinedData)
-            self.filteredTransactionsForSelectedTab()
-            self.currentViewState = .initial
-        }
+        self.transactionsWithUser.append(contentsOf: combinedData)
+        self.filteredTransactionsForSelectedTab()
     }
 
-    private func fetchUserData(for userId: String, completion: @escaping (AppUser) -> Void) {
+    private func fetchUserData(for userId: String) async -> AppUser? {
         if let existingUser = groupMembers.first(where: { $0.id == userId }) {
-            completion(existingUser) // Return the available user from groupMembers
+            return existingUser // Return the available user from groupMembers
         } else {
-            groupRepository.fetchMemberBy(userId: userId)
-                .sink { [weak self] completion in
-                    if case .failure(let error) = completion {
-                        self?.handleServiceError(error)
-                    }
-                } receiveValue: { user in
-                    guard let user else { return }
-                    self.groupMembers.append(user)
-                    completion(user)
-                }.store(in: &cancelable)
+            do {
+                let user = try await groupRepository.fetchMemberBy(userId: userId)
+                if let user {
+                    groupMembers.append(user)
+                }
+                return user
+            } catch {
+                currentViewState = .initial
+                showToastForError()
+                return nil
+            }
         }
     }
 
@@ -146,36 +148,35 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Delete Transaction",
                       message: "Are you sure you want to delete this transaction?",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: { self.deleteTransaction(transaction: transaction) },
+                      positiveBtnAction: {
+                        Task {
+                            await self.deleteTransaction(transaction: transaction)
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func deleteTransaction(transaction: Transactions) {
+    private func deleteTransaction(transaction: Transactions) async {
         guard let transactionId = transaction.id else { return }
-        transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] _ in
-                self?.updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
-            }.store(in: &cancelable)
+        do {
+            try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
+            await updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
+        } catch {
+            showToastForError()
+        }
     }
 
-    private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) {
+    private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) async {
         guard var group else { return }
-        let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
-        group.balances = memberBalance
-
-        groupRepository.updateGroup(group: group)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { _ in
-                NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
-            }.store(in: &cancelable)
+        do {
+            let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
+            group.balances = memberBalance
+            try await groupRepository.updateGroup(group: group)
+            NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
+        } catch {
+            showToastForError()
+        }
     }
 
     func handleTransactionItemTap(_ transactionId: String?) {
@@ -259,49 +260,23 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
     }
 
-    // MARK: - Helper Methods
-    func sortMonthYearStrings(_ s1: String, _ s2: String) -> Bool {
-        guard let date1 = GroupTransactionListViewModel.dateFormatter.date(from: s1),
-              let date2 = GroupTransactionListViewModel.dateFormatter.date(from: s2) else {
-            return false
-        }
-
-        let components1 = Calendar.current.dateComponents([.year, .month], from: date1)
-        let components2 = Calendar.current.dateComponents([.year, .month], from: date2)
-
-        // Compare years first
-        if components1.year != components2.year {
-            return (components1.year ?? 0) > (components2.year ?? 0)
-        } else {
-            return (components1.month ?? 0) > (components2.month ?? 0)
-        }
-    }
-
     // MARK: - Error Handling
-    private func handleServiceError(_ error: ServiceError) {
-        currentViewState = .initial
-        showToastFor(error)
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            currentViewState = .noInternet
+        } else {
+            currentViewState = .somethingWentWrong
+        }
     }
 }
 
 // MARK: - View States
 extension GroupTransactionListViewModel {
-    enum ViewState: Equatable {
-        static func == (lhs: GroupTransactionListViewModel.ViewState, rhs: GroupTransactionListViewModel.ViewState) -> Bool {
-            lhs.key == rhs.key
-        }
-
+    enum ViewState {
         case loading
         case initial
-
-        var key: String {
-            switch self {
-            case .loading:
-                return "loading"
-            case .initial:
-                return "initial"
-            }
-        }
+        case noInternet
+        case somethingWentWrong
     }
 }
 
@@ -310,4 +285,26 @@ struct TransactionWithUser: Hashable {
     var transaction: Transactions
     let payer: AppUser?
     let receiver: AppUser?
+}
+
+func sortMonthYearStrings(_ s1: String, _ s2: String) -> Bool {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "MMMM yyyy"
+
+    guard let date1 = dateFormatter.date(from: s1),
+          let date2 = dateFormatter.date(from: s2) else {
+        return false
+    }
+
+    let components1 = Calendar.current.dateComponents([.year, .month], from: date1)
+    let components2 = Calendar.current.dateComponents([.year, .month], from: date2)
+
+    // Compare years first
+    if components1.year != components2.year {
+        return (components1.year ?? 0) > (components2.year ?? 0)
+    }
+    // If years are the same, compare months
+    else {
+        return (components1.month ?? 0) > (components2.month ?? 0)
+    }
 }

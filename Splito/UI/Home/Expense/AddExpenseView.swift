@@ -68,12 +68,15 @@ struct AddExpenseView: View {
         .sheet(isPresented: $viewModel.showGroupSelection) {
             NavigationStack {
                 SelectGroupView(viewModel: SelectGroupViewModel(selectedGroup: viewModel.selectedGroup,
-                                                                onGroupSelection: viewModel.handleGroupSelection(group:)))
+                                                                onGroupSelection: viewModel.handleGroupSelectionAction(group:)))
             }
         }
         .sheet(isPresented: $viewModel.showPayerSelection) {
             NavigationStack {
-                ChoosePayerRouteView(appRoute: .init(root: .ChoosePayerView(groupId: viewModel.selectedGroup?.id ?? "", amount: viewModel.expenseAmount, selectedPayer: viewModel.selectedPayers, onPayerSelection: viewModel.handlePayerSelection(payers:)))) {
+                ChoosePayerRouteView(appRoute: .init(root: .ChoosePayerView(groupId: viewModel.selectedGroup?.id ?? "",
+                                                                            amount: viewModel.expenseAmount,
+                                                                            selectedPayer: viewModel.selectedPayers,
+                                                                            onPayerSelection: viewModel.handlePayerSelection(payers:)))) {
                     viewModel.showPayerSelection = false
                 }
             }
@@ -83,12 +86,9 @@ struct AddExpenseView: View {
                 ExpenseSplitOptionsView(
                     viewModel:
                         ExpenseSplitOptionsViewModel(
-                            amount: viewModel.expenseAmount,
-                            splitType: viewModel.splitType,
-                            splitData: viewModel.splitData,
-                            members: viewModel.groupMembers,
-                            selectedMembers: viewModel.selectedMembers,
-                            handleSplitTypeSelection: viewModel.handleSplitTypeSelection(members:splitData:splitType:)
+                            amount: viewModel.expenseAmount, splitType: viewModel.splitType, splitData: viewModel.splitData,
+                            members: viewModel.groupMembers, selectedMembers: viewModel.selectedMembers,
+                            handleSplitTypeSelection: viewModel.handleSplitTypeSelectionAction(members:splitData:splitType:)
                         )
                 )
             }
@@ -101,11 +101,11 @@ struct AddExpenseView: View {
                 .foregroundStyle(.blue)
             }
             ToolbarItem(placement: .topBarTrailing) {
-                CheckmarkButton(onClick: {
-                    viewModel.handleSaveAction {
-                        dismiss()
+                CheckmarkButton(showLoader: viewModel.showLoader) {
+                    viewModel.handleSaveAction { isSucceed in
+                        if isSucceed { dismiss() }
                     }
-                })
+                }
             }
         }
         .onAppear {

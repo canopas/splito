@@ -221,10 +221,10 @@
     "Contact Us" : {
       "extractionState" : "manual"
     },
-    "Countries" : {
+    "Couldn't connect to the network. \nPlease check and try again." : {
 
     },
-    "Create a group" : {
+    "Countries" : {
 
     },
     "Create group" : {
@@ -248,19 +248,10 @@
     "Delete your account" : {
       "extractionState" : "manual"
     },
-    "Details" : {
-
-    },
     "Done" : {
       "extractionState" : "manual"
     },
     "Edit expense" : {
-
-    },
-    "Edit group" : {
-
-    },
-    "Edit payment" : {
 
     },
     "Email" : {
@@ -335,9 +326,6 @@
     "Great for time-based splitting (2 nights - 2 shares) and splitting across families (family of 3 - 3 shares)." : {
       "extractionState" : "manual"
     },
-    "Group balances" : {
-
-    },
     "Group deleted successfully" : {
       "extractionState" : "manual"
     },
@@ -348,12 +336,6 @@
 
     },
     "Group Name" : {
-
-    },
-    "Group settings" : {
-
-    },
-    "Group spending summary" : {
 
     },
     "Groups" : {
@@ -371,16 +353,10 @@
     "Invalid OTP" : {
       "extractionState" : "manual"
     },
-    "Invite Code" : {
-
-    },
     "It seems that everything has settled down in all groups." : {
 
     },
     "Join group" : {
-
-    },
-    "Join Group" : {
 
     },
     "Last Name" : {
@@ -439,6 +415,9 @@
     },
     "No internet connection!" : {
       "extractionState" : "manual"
+    },
+    "No internet!" : {
+
     },
     "No members in your selected group." : {
 
@@ -518,9 +497,6 @@
     "privacy policy." : {
 
     },
-    "Profile" : {
-
-    },
     "Rate Splito" : {
       "extractionState" : "manual"
     },
@@ -529,9 +505,6 @@
     },
     "Reauthenticate" : {
       "extractionState" : "manual"
-    },
-    "Record a payment" : {
-
     },
     "Remove" : {
 
@@ -560,6 +533,9 @@
           }
         }
       }
+    },
+    "Retry" : {
+      "extractionState" : "manual"
     },
     "Search" : {
       "extractionState" : "manual"
@@ -630,13 +606,13 @@
     "Someone" : {
       "extractionState" : "manual"
     },
+    "Something went wrong!" : {
+
+    },
     "Something went wrong! Please try after some time." : {
       "extractionState" : "manual"
     },
     "Something went wrong." : {
-      "extractionState" : "manual"
-    },
-    "Sorry, we can not perform your request as the data is already exists." : {
       "extractionState" : "manual"
     },
     "Specify exactly how much each person owes." : {
@@ -702,6 +678,9 @@
     "This code will be active for 2 days." : {
 
     },
+    "This is all we know, but we won't stop until we fix the issue!" : {
+
+    },
     "This month" : {
       "extractionState" : "manual"
     },
@@ -735,12 +714,6 @@
     "Transaction deleted successfully" : {
       "extractionState" : "manual"
     },
-    "Transaction detail" : {
-
-    },
-    "Transactions" : {
-
-    },
     "unequally" : {
       "extractionState" : "manual"
     },
@@ -763,16 +736,10 @@
       "extractionState" : "manual"
     },
     "We’ve sent a verification code to your phone %@." : {
-
+      "extractionState" : "manual"
     },
     "What’s your phone number?" : {
       "extractionState" : "manual"
-    },
-    "Who is getting paid?" : {
-
-    },
-    "Who is paying?" : {
-
     },
     "Whoops!" : {
       "extractionState" : "manual"
