@@ -2,7 +2,7 @@
 //  ErrorView.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 23/09/24.
+//  Created by Amisha Italiya on 23/09/24.
 //
 
 import SwiftUI

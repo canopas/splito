@@ -2,7 +2,7 @@
 //  NavigationTitleTextView.swift
 //  BaseStyle
 //
-//  Created by Nirali Sonani on 02/10/24.
+//  Created by Amisha Italiya on 02/10/24.
 //
 
 import SwiftUI
