@@ -72,7 +72,7 @@ struct CustomTabBarView: View {
                 TabBarItemView(selectedTab: $selectedTab, tabIndex: 2, image: .profileIcon,
                                selectedImage: .profileFillIcon, label: "Account", onTabItemClick: onTabItemClick)
             }
-            .padding(.top, 5)
+            .padding(.vertical, 5)
             .background(surfaceColor.ignoresSafeArea(edges: [.bottom, .horizontal]))
         }
     }
