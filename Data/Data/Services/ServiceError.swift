@@ -8,66 +8,33 @@
 import Foundation
 
 // MARK: - Errors
-public enum ServiceError: LocalizedError, Equatable {
-    case none
-    case unauthorized
-    case serverError(statusCode: Int? = nil)
-    case networkError
+public enum ServiceError: LocalizedError {
     case decodingError
-    case databaseError(error: String)
+    case databaseError(error: Error)
     case unexpectedError
-    case validationFailed
     case dataNotFound
-    case alreadyExists
-    case deleteFailed(error: String)
 
     public var descriptionText: String {
         switch self {
-        case .none:
-            return ""
-        case .unauthorized:
-            return "You are an unauthorised user."
-        case .serverError:
-            return "Server error encountered."
-        case .networkError:
-            return "No internet connection!"
-        case .databaseError, .decodingError, .unexpectedError:
+        case .databaseError(let error):
+            return "\(error.localizedDescription)"
+        case .decodingError, .unexpectedError:
             return "Something went wrong."
         case .dataNotFound:
             return "Your requested data not found."
-        case .alreadyExists:
-            return "Sorry, we can not perform your request as the data is already exists."
-        case .deleteFailed(let error):
-            return error
-        default:
-            return "Oops"
         }
     }
 
     public var key: String {
         switch self {
-        case .none:
-            return "none"
-        case .unauthorized:
-            return "unauthorized"
-        case .networkError:
-            return "networkError"
-        case .serverError:
-            return "serverError"
         case .databaseError:
             return "databaseError"
         case .decodingError:
             return "decodingError"
         case .unexpectedError:
             return "unexpectedError"
-        case .validationFailed:
-            return "validationFailed"
         case .dataNotFound:
             return "dataNotFound"
-        case .alreadyExists:
-            return "alreadyExists"
-        case .deleteFailed:
-            return "deleteFailed"
         }
     }
 }

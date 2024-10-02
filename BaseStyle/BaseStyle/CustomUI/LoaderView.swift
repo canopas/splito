@@ -8,47 +8,108 @@
 import SwiftUI
 
 public struct LoaderView: View {
+
     @StateObject private var viewModel: LoaderViewModel = .init()
 
     private let tintColor: Color
     private let height: CGFloat
 
-    private let totalDots = 7
-    private let timer = Timer.publish(every: 0.20, on: .main, in: .common).autoconnect()
-
-    @State var current = 0
-
-    public init(tintColor: Color = primaryColor, height: CGFloat = 38) {
+    public init(tintColor: Color = primaryColor, height: CGFloat = 8) {
         self.tintColor = tintColor
         self.height = height
     }
 
     public var body: some View {
-        ZStack {
-            if viewModel.isStillLoading {
-                Color.clear.ignoresSafeArea()
+        GeometryReader { geometry in
+            ZStack {
+                if viewModel.isStillLoading {
+                    Color.clear.ignoresSafeArea()
 
-                ForEach(0..<totalDots, id: \.self) { index in
-                    Circle()
-                        .fill(tintColor)
-                        .frame(height: height / 4)
-                        .frame(height: height, alignment: .top)
-                        .rotationEffect(Angle(degrees: 360 / Double(totalDots) * Double(index)))
-                        .opacity(current == index ? 1.0 : current == index + 1 ? 0.5 :
-                                    current == (totalDots - 1) && index == (totalDots - 1) ? 0.5 : 0)
+                    DotsAnimation(color: tintColor, height: height)
+                        .position(x: geometry.size.width / 2, y: geometry.size.height / 2) // Center the loader by using the size from GeometryReader
                 }
             }
         }
         .onAppear(perform: viewModel.onViewAppear)
-        .onReceive(timer, perform: { _ in
-            withAnimation(Animation.easeInOut(duration: 0.5).repeatCount(1, autoreverses: true)) {
-                current = current == (totalDots - 1) ? 0 : current + 1
-            }
-        })
     }
 }
 
+private struct DotsAnimation: View {
+
+    let color: Color
+    let height: CGFloat
+
+    static let DATA: [AnimationData] = [
+        AnimationData(delay: 0.0, ty: -20),
+        AnimationData(delay: 0.1, ty: -24),
+        AnimationData(delay: 0.2, ty: -28)
+    ]
+
+    @State var transY: [CGFloat] = DATA.map { _ in return 0 }
+
+    var animation = Animation.easeInOut.speed(0.5)
+
+    var body: some View {
+        HStack(spacing: 5) {
+            DotView(transY: $transY[0], color: color, height: height)
+            DotView(transY: $transY[1], color: color, height: height)
+            DotView(transY: $transY[2], color: color, height: height)
+        }
+        .onAppear {
+            animateDots()
+        }
+    }
+
+    func animateDots() {
+        // Go through animation data and start each
+        // animation delayed as per data
+        for (index, data) in DotsAnimation.DATA.enumerated() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + data.delay) {
+                animateDot(binding: $transY[index], animationData: data)
+            }
+        }
+
+        // Repeat main loop
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            animateDots()
+        }
+    }
+
+    func animateDot(binding: Binding<CGFloat>, animationData: AnimationData) {
+        withAnimation(animation) {
+            binding.wrappedValue = animationData.ty
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            withAnimation(animation) {
+                binding.wrappedValue = 0
+            }
+        }
+    }
+}
+
+private struct DotView: View {
+
+    @Binding var transY: CGFloat
+
+    let color: Color
+    let height: CGFloat
+
+    var body: some View {
+        Circle()
+            .fill(color)
+            .frame(width: height, height: height)
+            .offset(y: transY)
+    }
+}
+
+private struct AnimationData {
+    var delay: TimeInterval
+    var ty: CGFloat
+}
+
 public struct ImageLoaderView: View {
+
     @StateObject var viewModel: LoaderViewModel = .init()
 
     private let tintColor: Color

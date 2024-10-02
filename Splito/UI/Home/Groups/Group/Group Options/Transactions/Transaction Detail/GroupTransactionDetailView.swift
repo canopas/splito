@@ -16,7 +16,9 @@ struct GroupTransactionDetailView: View {
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
-                if case .loading = viewModel.viewState {
+                if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
+                    ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchInitialTransactionData)
+                } else if case .loading = viewModel.viewState {
                     LoaderView()
                 } else {
                     ScrollView {
@@ -59,9 +61,7 @@ struct GroupTransactionDetailView: View {
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Transaction detail")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleTextView(text: "Transaction detail")
             }
             ToolbarItem(placement: .topBarTrailing) {
                 ToolbarButtonView(imageIcon: .binIcon, onClick: viewModel.handleDeleteBtnAction)

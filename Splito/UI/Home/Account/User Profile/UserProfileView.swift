@@ -33,7 +33,7 @@ struct UserProfileView: View {
                         !(viewModel.userLoginType == .Google)
 
                         PrimaryButton(text: "Save", isEnabled: isEnable,
-                                      showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUserProfile)
+                                      showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUsersProfileData)
                     }
 
                     PrimaryButton(text: "Delete Account", textColor: alertColor,
@@ -57,18 +57,12 @@ struct UserProfileView: View {
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Profile")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleTextView(text: "Profile")
             }
             ToolbarItem(placement: .topBarTrailing, content: {
-                if viewModel.isSaveInProgress {
-                    ImageLoaderView(tintColor: primaryColor)
-                } else {
-                    CheckmarkButton(iconSize: (24, 32), padding: (.leading, 16), onClick: viewModel.updateUserProfile)
-                        .disabled(!viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count < 3)
-                        .opacity((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3) ? 1 : 0.6)
-                }
+                CheckmarkButton(showLoader: viewModel.isSaveInProgress, iconSize: (24, 32), padding: (.leading, 16), onClick: viewModel.updateUsersProfileData)
+                    .disabled(!viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count < 3)
+                    .opacity((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3) ? 1 : 0.6)
             })
         }
         .onTapGesture {
@@ -79,9 +73,9 @@ struct UserProfileView: View {
                             image: $viewModel.profileImage, isPresented: $viewModel.showImagePicker)
         }
         .sheet(isPresented: $viewModel.showOTPView) {
-            VerifyOtpView(viewModel: VerifyOtpViewModel(phoneNumber: viewModel.phoneNumber, verificationId: viewModel.verificationId, onLoginSuccess: { otp in
-                viewModel.otpPublisher.send(otp)
-            }))
+            VerifyOtpView(viewModel: VerifyOtpViewModel(phoneNumber: viewModel.phoneNumber,
+                                                        verificationId: viewModel.verificationId,
+                                                        onLoginSuccess: viewModel.otpPublisher.send(_:)))
         }
     }
 }

@@ -20,17 +20,11 @@ struct LoginView: View {
                         AppLogoView(geometry: .constant(proxy))
 
                         Group {
-                            Text("Getting started with us")
-                                .font(.Header1())
-                                .foregroundStyle(primaryText)
+                            LoginTitleView()
 
                             VSpacer(16)
 
-                            Text("Sign up in the app to use amazing splitting features.")
-                                .font(.subTitle1())
-                                .foregroundStyle(disableText)
-                                .tracking(-0.2)
-                                .lineSpacing(4)
+                            LoginSubtitleView()
                         }
                         .padding(.horizontal, 16)
                         .frame(maxWidth: isIpad ? 600 : nil, alignment: .leading)
@@ -164,5 +158,37 @@ struct AppLogoView: View {
         .frame(maxWidth: .infinity, alignment: .center)
         .background(colorScheme == .dark ? containerColor : primaryDarkColor)
         .padding(.bottom, 24)
+    }
+}
+
+struct LoginTitleView: View {
+
+    var titleText: String = "Getting started with us"
+
+    var body: some View {
+        HStack {
+            Text(titleText)
+                .font(.Header1())
+                .foregroundStyle(primaryText)
+
+            Spacer()
+        }
+    }
+}
+
+struct LoginSubtitleView: View {
+
+    var subtitleText: String = "Sign up in the app to use amazing splitting features."
+
+    var body: some View {
+        HStack {
+            Text(subtitleText)
+                .font(.subTitle1())
+                .foregroundStyle(disableText)
+                .tracking(-0.2)
+                .lineSpacing(4)
+
+            Spacer()
+        }
     }
 }

@@ -12,6 +12,8 @@ struct ToastView: View {
     var type: ToastStyle
     var title: String
     var message: String
+    let bottomPadding: CGFloat
+
     var onCancelTapped: (() -> Void)
 
     var body: some View {
@@ -49,11 +51,14 @@ struct ToastView: View {
         .cornerRadius(8)
         .shadow(color: primaryLightText.opacity(0.8), radius: 4, x: 0, y: 1)
         .padding(.horizontal, 16)
+        .padding(.bottom, bottomPadding)
     }
 }
 
 struct ToastModifier: ViewModifier {
     @Binding var toast: ToastPrompt?
+
+    let bottomPadding: CGFloat
 
     @State private var workItem: DispatchWorkItem?
 
@@ -75,11 +80,11 @@ struct ToastModifier: ViewModifier {
         if let toast {
             VStack(spacing: 0) {
                 Spacer()
-                ToastView(type: toast.type,
-                          title: toast.title,
-                          message: toast.message, onCancelTapped: {
-                    dismissToast()
-                })
+                ToastView(type: toast.type, title: toast.title,
+                          message: toast.message, bottomPadding: bottomPadding,
+                          onCancelTapped: {
+                            dismissToast()
+                          })
             }
             .transition(.move(edge: .bottom))
         }
@@ -95,7 +100,7 @@ struct ToastModifier: ViewModifier {
             workItem?.cancel()
 
             let task = DispatchWorkItem {
-               dismissToast()
+                dismissToast()
             }
 
             workItem = task
@@ -117,7 +122,7 @@ struct ToastModifier: ViewModifier {
 }
 
 public extension View {
-    func toastView(toast: Binding<ToastPrompt?>) -> some View {
-        self.modifier(ToastModifier(toast: toast))
+    func toastView(toast: Binding<ToastPrompt?>, bottomPadding: CGFloat = 0) -> some View {
+        self.modifier(ToastModifier(toast: toast, bottomPadding: bottomPadding))
     }
 }

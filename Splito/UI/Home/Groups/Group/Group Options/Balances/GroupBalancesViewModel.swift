@@ -14,7 +14,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
 
-    @Published var viewState: ViewState = .initial
+    @Published var viewState: ViewState = .loading
 
     @Published var groupId: String
     @Published var showSettleUpSheet: Bool = false
@@ -35,45 +35,39 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
         NotificationCenter.default.addObserver(self, selector: #selector(handleAddTransaction(notification:)), name: .addTransaction, object: nil)
 
-        fetchGroupMembers()
+        fetchInitialBalancesData()
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+    func fetchInitialBalancesData() {
+        Task {
+            await fetchGroupMembers()
+        }
     }
 
     // MARK: - Data Loading
-    func fetchGroupMembers() {
-        viewState = .loading
-        groupRepository.fetchMembersBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { users in
-                self.groupMemberData = users
-                self.fetchGroupDetails()
-            }.store(in: &cancelable)
+    func fetchGroupMembers() async {
+        do {
+            groupMemberData = try await groupRepository.fetchMembersBy(groupId: groupId)
+            await fetchGroupDetails()
+            viewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
-    private func fetchGroupDetails() {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.viewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.group = group
-                self.calculateExpensesSimplified()
-            }.store(in: &cancelable)
+    private func fetchGroupDetails() async {
+        do {
+            group = try await groupRepository.fetchGroupBy(id: groupId)
+            calculateExpensesSimplified()
+        } catch {
+            handleServiceError()
+        }
     }
 
     // MARK: - Helper Methods
     private func calculateExpensesSimplified() {
         guard let group else {
+            viewState = .initial
             LogE("GroupBalancesViewModel :: \(#function) group not found.")
             return
         }
@@ -104,13 +98,14 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             }
         }
 
-        DispatchQueue.main.async {
-            self.sortMemberBalances(memberBalances: combinedBalances)
-        }
+        self.sortMemberBalances(memberBalances: combinedBalances)
     }
 
     private func sortMemberBalances(memberBalances: [MembersCombinedBalance]) {
-        guard let userId = preference.user?.id, let userIndex = memberBalances.firstIndex(where: { $0.id == userId }) else { return }
+        guard let userId = preference.user?.id, let userIndex = memberBalances.firstIndex(where: { $0.id == userId }) else {
+            viewState = .initial
+            return
+        }
 
         var sortedMembers = memberBalances
 
@@ -123,7 +118,6 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         }
 
         self.memberBalances = sortedMembers
-        viewState = .initial
     }
 
     private func getMemberDataBy(id: String) -> AppUser? {
@@ -158,7 +152,18 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
     @objc private func handleAddTransaction(notification: Notification) {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
-        fetchGroupDetails()
+        Task {
+            await fetchGroupDetails()
+        }
+    }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
     }
 }
 
@@ -175,5 +180,7 @@ extension GroupBalancesViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

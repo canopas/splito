@@ -14,8 +14,11 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
     @Inject var groupRepository: GroupRepository
     @Inject var codeRepository: ShareCodeRepository
 
-    @Published var inviteCode = ""
+    @Published private(set) var inviteCode = ""
     @Published var showShareSheet = false
+    @Published private(set) var showLoader = false
+
+    @Published var viewState: ViewState = .loading
 
     var group: Groups?
     private let groupId: String
@@ -25,52 +28,83 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         super.init()
+        self.fetchInitialData()
+    }
 
-        fetchGroup()
-        generateInviteCode()
+    func fetchInitialData() {
+        Task {
+            await fetchGroup()
+            await generateInviteCode()
+        }
     }
 
     // MARK: - Data Loading
-    private func generateInviteCode() {
-        inviteCode = inviteCode.randomString(length: 6).uppercased()
-        codeRepository.checkForCodeAvailability(code: inviteCode)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] isAvailable in
-                if let self, !isAvailable {
-                    self.generateInviteCode()
-                }
-            }.store(in: &cancelable)
+    private func fetchGroup() async {
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            self.group = group
+            viewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
-    private func fetchGroup() {
-        groupRepository.fetchGroupBy(id: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { [weak self] group in
-                guard let self, let group else { return }
-                self.group = group
-            }.store(in: &cancelable)
+    private func generateInviteCode() async {
+        do {
+            viewState = .loading
+            inviteCode = inviteCode.randomString(length: 6).uppercased()
+            let isAvailable = try await codeRepository.checkForCodeAvailability(code: inviteCode)
+            if !isAvailable {
+                await generateInviteCode()
+            }
+            viewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
-    func storeSharedCode(completion: @escaping () -> Void) {
+    func handleStoreShareCodeAction(completion: @escaping (Bool) -> Void) {
+        Task {
+            await storeSharedCode(completion: completion)
+        }
+    }
+
+    private func storeSharedCode(completion: (Bool) -> Void) async {
         let shareCode = SharedCode(code: inviteCode.encryptHexCode(), groupId: groupId, expireDate: Timestamp())
-        codeRepository.addSharedCode(sharedCode: shareCode)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { _ in
-                completion()
-            }.store(in: &cancelable)
+
+        do {
+            showLoader = true
+            try await codeRepository.addSharedCode(sharedCode: shareCode)
+            showLoader = false
+            completion(true)
+        } catch {
+            showLoader = false
+            completion(false)
+            showToastForError()
+        }
     }
 
     // MARK: - User Actions
     func openShareSheet() {
         showShareSheet = true
+    }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
+    }
+}
+
+// MARK: - View's State
+extension InviteMemberViewModel {
+    enum ViewState {
+        case initial
+        case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

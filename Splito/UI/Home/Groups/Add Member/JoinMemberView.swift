@@ -29,8 +29,8 @@ struct JoinMemberView: View {
 
                         OtpTextInputView(text: $viewModel.code, placeholder: "AF0R00", isFocused: $isFocused,
                                          keyboardType: .alphabet) {
-                            viewModel.joinMemberWithCode {
-                                dismiss()
+                            viewModel.handleJoinMemberAction { isSucceed in
+                                if isSucceed { dismiss() }
                             }
                         }
 
@@ -49,10 +49,9 @@ struct JoinMemberView: View {
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
 
-                PrimaryFloatingButton(text: "Join", isEnabled: !viewModel.code.isEmpty,
-                                      showLoader: viewModel.showLoader) {
-                    viewModel.joinMemberWithCode {
-                        dismiss()
+                PrimaryFloatingButton(text: "Join", isEnabled: !viewModel.code.isEmpty, showLoader: viewModel.showLoader) {
+                    viewModel.handleJoinMemberAction { isSucceed in
+                        if isSucceed { dismiss() }
                     }
                 }
             }
@@ -68,9 +67,7 @@ struct JoinMemberView: View {
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Join Group")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleTextView(text: "Join Group")
             }
         }
     }

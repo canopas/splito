@@ -16,28 +16,31 @@ struct ExpenseSplitOptionsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            NavigationBarTopView(title: "Spilt options",
+            NavigationBarTopView(
+                title: "Spilt options",
                 leadingButton: {
-                    DismissButton(iconSize: (22, .regular), padding: (16, 0), foregroundColor: primaryText, onDismissAction: {
-                        dismiss()
-                    })
+                    DismissButton(iconSize: (22, .regular), padding: (16, 0),
+                                  foregroundColor: primaryText, onDismissAction: { dismiss() })
                 }(),
-                trailingButton: CheckmarkButton(padding: (.horizontal, 16), onClick: {
-                    viewModel.handleDoneAction { dismiss() }
-                })
+                trailingButton:
+                    CheckmarkButton(padding: (.horizontal, 16)) {
+                        viewModel.handleDoneAction { isValidInput in
+                            if isValidInput { dismiss() }
+                        }
+                    }
             )
 
             Spacer(minLength: 0)
 
-            if case .loading = viewModel.viewState {
+            if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
+                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchInitialMembersData)
+            } else if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
                 ScrollView {
                     VStack(spacing: 0) {
                         VSpacer(27)
-
                         ExpenseSplitOptionsTabView(viewModel: viewModel)
-
                         Spacer()
                     }
                 }

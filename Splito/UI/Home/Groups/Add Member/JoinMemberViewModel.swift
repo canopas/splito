@@ -23,28 +23,32 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
         self.router = router
     }
 
-    func joinMemberWithCode(completion: @escaping () -> Void) {
-        showLoader = true
-        codeRepository.fetchSharedCode(code: code)
-            .sink { [weak self] completion in
-                guard let self else { return }
-                self.showLoader = false
-                if case .failure(let error) = completion {
-                    self.showToastFor(error)
-                }
-            } receiveValue: { [weak self] code in
-                guard let self else { return }
-                guard let code else {
-                    self.showLoader = false
-                    self.showToastFor(toast: ToastPrompt(type: .error, title: "Error",
-                                                         message: "The code you've entered is not exists."))
-                    return
-                }
-                self.addMemberIfCodeExists(code: code, completion: completion)
-            }.store(in: &cancelable)
+    func handleJoinMemberAction(completion: @escaping (Bool) -> Void) {
+        Task {
+            await joinMemberWithCode(completion: completion)
+        }
     }
 
-    private func addMemberIfCodeExists(code: SharedCode, completion: @escaping () -> Void) {
+    private func joinMemberWithCode(completion: (Bool) -> Void) async {
+        do {
+            showLoader = true
+            let code = try await codeRepository.fetchSharedCode(code: code)
+            guard let code else {
+                showLoader = false
+                showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "The code you've entered is not exists."))
+                return
+            }
+            await addMemberIfCodeExists(code: code)
+            showLoader = false
+            completion(true)
+        } catch {
+            showLoader = false
+            completion(false)
+            showToastForError()
+        }
+    }
+
+    private func addMemberIfCodeExists(code: SharedCode) async {
         let expireDate = code.expireDate.dateValue()
         let daysDifference = Calendar.current.dateComponents([.day], from: expireDate, to: Date()).day
 
@@ -55,25 +59,22 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        addMember(groupId: code.groupId) {
-            self.showLoader = false
-            _ = self.codeRepository.deleteSharedCode(documentId: code.id ?? "")
-            completion()
-        }
+        await addMemberFor(code: code)
     }
 
-    private func addMember(groupId: String, completion: @escaping () -> Void) {
-        guard let userId = preference.user?.id else { return }
+    private func addMemberFor(code: SharedCode) async {
+        guard let userId = preference.user?.id else {
+            showLoader = false
+            return
+        }
 
-        groupRepository.addMemberToGroup(groupId: groupId, memberId: userId)
-            .sink { [weak self] result in
-                if case .failure(let error) = result {
-                    self?.showToastFor(error)
-                    completion()
-                }
-            } receiveValue: { _ in
-                NotificationCenter.default.post(name: .joinGroup, object: groupId)
-                completion()
-            }.store(in: &cancelable)
+        do {
+            try await groupRepository.addMemberToGroup(groupId: code.groupId, memberId: userId)
+            NotificationCenter.default.post(name: .joinGroup, object: code.groupId)
+            try await codeRepository.deleteSharedCode(documentId: code.code)
+        } catch {
+            showLoader = false
+            showToastForError()
+        }
     }
 }

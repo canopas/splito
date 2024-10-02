@@ -21,6 +21,7 @@
 		21BA6D4A2C3BB63B0020ED04 /* ChooseMultiplePayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D492C3BB63B0020ED04 /* ChooseMultiplePayerView.swift */; };
 		21BA6D4D2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D4C2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift */; };
 		21BA6D4F2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D4E2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift */; };
+		21D26E212CA13A9F0090488B /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D26E202CA13A9F0090488B /* ErrorView.swift */; };
 		21F27BDE2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F27BDD2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift */; };
 		741540F86E36400CE27B1FAD /* Pods_SplitoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 701193A10871F36C3EDB356C /* Pods_SplitoTests.framework */; };
 		D826C0E22BDBD65600AAA449 /* GroupBalancesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826C0E12BDBD65600AAA449 /* GroupBalancesView.swift */; };
@@ -109,6 +110,8 @@
 		D8E244BB2B9843A100C6C82A /* CreateGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244BA2B9843A100C6C82A /* CreateGroupView.swift */; };
 		D8E244BD2B98444900C6C82A /* CreateGroupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244BC2B98444900C6C82A /* CreateGroupViewModel.swift */; };
 		D8E244BF2B98592C00C6C82A /* GroupHomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244BE2B98592C00C6C82A /* GroupHomeViewModel.swift */; };
+		D8EB0ED52CAD884A00AC6A44 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EB0ED32CAD884A00AC6A44 /* AppRoute.swift */; };
+		D8EB0ED62CAD884A00AC6A44 /* RouterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EB0ED22CAD884A00AC6A44 /* RouterView.swift */; };
 		E2D6A34174334B81314FAF12 /* Pods_Splito.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43FFDB1561C565EE6E3DC86A /* Pods_Splito.framework */; };
 /* End PBXBuildFile section */
 
@@ -160,6 +163,7 @@
 		21BA6D492C3BB63B0020ED04 /* ChooseMultiplePayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseMultiplePayerView.swift; sourceTree = "<group>"; };
 		21BA6D4C2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseMultiplePayerViewModel.swift; sourceTree = "<group>"; };
 		21BA6D4E2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoosePayerRouteView.swift; sourceTree = "<group>"; };
+		21D26E202CA13A9F0090488B /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
 		21F27BDD2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseSplitOptionsTabView.swift; sourceTree = "<group>"; };
 		43FFDB1561C565EE6E3DC86A /* Pods_Splito.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splito.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		44312D517F674E980CBAE838 /* Pods-Splito.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito.debug.xcconfig"; path = "Target Support Files/Pods-Splito/Pods-Splito.debug.xcconfig"; sourceTree = "<group>"; };
@@ -261,6 +265,8 @@
 		D8E244BA2B9843A100C6C82A /* CreateGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGroupView.swift; sourceTree = "<group>"; };
 		D8E244BC2B98444900C6C82A /* CreateGroupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGroupViewModel.swift; sourceTree = "<group>"; };
 		D8E244BE2B98592C00C6C82A /* GroupHomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupHomeViewModel.swift; sourceTree = "<group>"; };
+		D8EB0ED22CAD884A00AC6A44 /* RouterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterView.swift; sourceTree = "<group>"; };
+		D8EB0ED32CAD884A00AC6A44 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
 		DFDBE222145831CBD9B686FF /* Pods-SplitoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SplitoTests.release.xcconfig"; path = "Target Support Files/Pods-SplitoTests/Pods-SplitoTests.release.xcconfig"; sourceTree = "<group>"; };
 		F76BDF4C42A2EF9A9F45B069 /* Pods-Splito-SplitoUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito-SplitoUITests.debug.xcconfig"; path = "Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -606,6 +612,7 @@
 				D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */,
 				217620472C50DD6300FED0D4 /* GroupListWithDetailView.swift */,
 				214CF8482C2977E10044C188 /* CalculateExpensesFunctions.swift */,
+				21D26E202CA13A9F0090488B /* ErrorView.swift */,
 				D8A7CA6C2BA483BC0014EC67 /* Group */,
 				D8302D9D2B9F2770005ACA13 /* Create Group */,
 				D8302D9E2B9F2810005ACA13 /* Add Member */,
@@ -658,6 +665,7 @@
 		D8AC26E22B84B12800CEAAD3 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				D8EB0ED42CAD884A00AC6A44 /* Router */,
 				D8AC26E52B84B12800CEAAD3 /* MainRouteView.swift */,
 				D86BB33E2C05ED9D00463E6C /* MainRouteViewModel.swift */,
 				D8E244B62B972BE700C6C82A /* BaseViewModel.swift */,
@@ -721,6 +729,15 @@
 				D8D14A642BA2DD7300F45FF2 /* UserProfileImageView.swift */,
 			);
 			path = "User Profile";
+			sourceTree = "<group>";
+		};
+		D8EB0ED42CAD884A00AC6A44 /* Router */ = {
+			isa = PBXGroup;
+			children = (
+				D8EB0ED22CAD884A00AC6A44 /* RouterView.swift */,
+				D8EB0ED32CAD884A00AC6A44 /* AppRoute.swift */,
+			);
+			path = Router;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1024,6 +1041,7 @@
 				D8E244BF2B98592C00C6C82A /* GroupHomeViewModel.swift in Sources */,
 				D833446C2C0F2D4200CD9F05 /* GroupWhoGettingPaidView.swift in Sources */,
 				D8D14A562BA189EC00F45FF2 /* JoinMemberView.swift in Sources */,
+				21D26E212CA13A9F0090488B /* ErrorView.swift in Sources */,
 				D89C933D2BC020B200FACD16 /* AccountHomeViewModel.swift in Sources */,
 				D8E244BD2B98444900C6C82A /* CreateGroupViewModel.swift in Sources */,
 				D83344632C0EF1FA00CD9F05 /* GroupTotalsViewModel.swift in Sources */,
@@ -1066,6 +1084,8 @@
 				D88721452B9B2C78009DC5BE /* GroupListView.swift in Sources */,
 				D86BB33F2C05ED9D00463E6C /* MainRouteViewModel.swift in Sources */,
 				D8D14A582BA189F800F45FF2 /* JoinMemberViewModel.swift in Sources */,
+				D8EB0ED52CAD884A00AC6A44 /* AppRoute.swift in Sources */,
+				D8EB0ED62CAD884A00AC6A44 /* RouterView.swift in Sources */,
 				D89DBE232B875C2200E5F1BD /* PhoneLoginView.swift in Sources */,
 				21F27BDE2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift in Sources */,
 				D85E86E92BB3FD49002EDF76 /* ChoosePayerView.swift in Sources */,

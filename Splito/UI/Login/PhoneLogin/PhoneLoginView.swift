@@ -21,17 +21,11 @@ public struct PhoneLoginView: View {
                         AppLogoView(geometry: .constant(proxy))
 
                         Group {
-                            Text("What’s your phone number?")
-                                .font(.Header1())
-                                .foregroundStyle(primaryText)
+                            LoginTitleView(titleText: "What’s your phone number?")
 
                             VSpacer(16)
 
-                            Text("We’ll verify your phone number with a verification code.")
-                                .font(.subTitle1())
-                                .foregroundStyle(disableText)
-                                .tracking(-0.2)
-                                .lineSpacing(4)
+                            LoginSubtitleView(subtitleText: "We’ll verify your phone number with a verification code.")
 
                             VSpacer(40)
 

@@ -17,7 +17,9 @@ struct GroupPaymentView: View {
     var body: some View {
         GeometryReader { geometry in
             VStack(alignment: .center, spacing: 0) {
-                if case .loading = viewModel.viewState {
+                if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
+                    ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchInitialViewData)
+                } else if case .loading = viewModel.viewState {
                     LoaderView()
                 } else {
                     ScrollView {
@@ -60,8 +62,8 @@ struct GroupPaymentView: View {
                     .scrollBounceBehavior(.basedOnSize)
 
                     PrimaryButton(text: "Done", showLoader: viewModel.showLoader, onClick: {
-                        viewModel.handleSaveAction {
-                            dismiss()
+                        viewModel.handleSaveAction { isSucceed in
+                            if isSucceed { dismiss() }
                         }
                     })
                     .padding([.horizontal, .bottom], 16)
@@ -79,9 +81,7 @@ struct GroupPaymentView: View {
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text(viewModel.transactionId != nil ? "Edit payment" : "Record a payment")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleTextView(text: viewModel.transactionId != nil ? "Edit payment" : "Record a payment")
             }
         }
     }

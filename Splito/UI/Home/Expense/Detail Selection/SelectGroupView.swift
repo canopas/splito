@@ -18,16 +18,16 @@ struct SelectGroupView: View {
     var body: some View {
         VStack(spacing: 0) {
             NavigationBarTopView(title: "Select a group", leadingButton: EmptyView(),
-                trailingButton: DismissButton(padding: (16, 0), foregroundColor: primaryText, onDismissAction: {
-                    dismiss()
-                })
-                .fontWeight(.regular)
-            )
-            .padding(.leading, 16)
+                                 trailingButton: DismissButton(padding: (16, 0), foregroundColor: primaryText,
+                                                               onDismissAction: { dismiss() })
+                                    .fontWeight(.regular)
+            ).padding(.leading, 16)
 
             Spacer(minLength: 0)
 
-            if case .loading = viewModel.currentViewState {
+            if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchInitialGroupsData)
+            } else if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else if case .noGroups = viewModel.currentViewState {
                 NoGroupFoundView()
@@ -52,9 +52,8 @@ struct SelectGroupView: View {
                 .scrollBounceBehavior(.basedOnSize)
 
                 PrimaryButton(text: "Done", isEnabled: viewModel.selectedGroup != nil, onClick: {
-                    viewModel.handleDoneAction {
-                        dismiss()
-                    }
+                    viewModel.handleDoneAction()
+                    dismiss()
                 })
                 .padding([.bottom, .horizontal], 16)
                 .padding(.top, 8)

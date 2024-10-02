@@ -16,7 +16,7 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
     @Published var groupId: String
     @Published var selectedPayers: [String: Double]
 
-    @Published var currentViewState: ViewState = .initial
+    @Published var currentViewState: ViewState = .loading
     @Published private(set) var amount: Double = 0
 
     var onPayerSelection: (([String: Double]) -> Void)
@@ -30,24 +30,23 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
         self.onPayerSelection = onPayerSelection
         super.init()
 
-        self.fetchMembers()
+        fetchInitialMembersData()
+    }
+
+    func fetchInitialMembersData() {
+        Task {
+            await self.fetchMembers()
+        }
     }
 
     // MARK: - Data Loading
-    func fetchMembers() {
-        currentViewState = .loading
-        groupRepository.fetchMembersBy(groupId: groupId)
-            .sink { [weak self] completion in
-                switch completion {
-                case .finished:
-                    return
-                case .failure(let error):
-                    self?.currentViewState = .initial
-                    self?.showToastFor(error)
-                }
-            } receiveValue: { users in
-                self.currentViewState = users.isEmpty ? .noMember : .hasMembers(users)
-            }.store(in: &cancelable)
+    private func fetchMembers() async {
+        do {
+            let users = try await groupRepository.fetchMembersBy(groupId: groupId)
+            currentViewState = users.isEmpty ? .noMember : .hasMembers(users)
+        } catch {
+            handleServiceError()
+        }
     }
 
     // MARK: - User Actions
@@ -61,21 +60,31 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
                                             message: "Please enter a cost for your expense first!"))
             return
         }
-        router?.push(.ChooseMultiplePayerView(groupId: groupId, selectedPayers: selectedPayers, amount: amount, onPayerSelection: { payers in
-            self.onPayerSelection(payers)
-        }))
+
+        router?.push(.ChooseMultiplePayerView(groupId: groupId, selectedPayers: selectedPayers,
+                                              amount: amount, onPayerSelection: onPayerSelection))
     }
 
     func handleSaveBtnTap() {
         onPayerSelection(selectedPayers)
     }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            currentViewState = .noInternet
+        } else {
+            currentViewState = .somethingWentWrong
+        }
+    }
 }
 
 extension ChoosePayerViewModel {
-    enum ViewState {
-        case initial
+    enum ViewState: Equatable {
         case loading
         case noMember
         case hasMembers([AppUser])
+        case noInternet
+        case somethingWentWrong
     }
 }

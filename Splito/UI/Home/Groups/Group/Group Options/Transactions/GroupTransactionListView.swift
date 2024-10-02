@@ -15,7 +15,9 @@ struct GroupTransactionListView: View {
 
     var body: some View {
         VStack(alignment: .center) {
-            if case .loading = viewModel.currentViewState {
+            if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchInitialViewData)
+            } else if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else {
                 VStack(alignment: .center, spacing: 0) {
@@ -38,9 +40,7 @@ struct GroupTransactionListView: View {
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Transactions")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleTextView(text: "Transactions")
             }
         }
     }
@@ -58,9 +58,9 @@ private struct TransactionListWithDetailView: View {
                         if viewModel.filteredTransactions.isEmpty {
                             EmptyTransactionView(geometry: geometry)
                         } else {
-                            let firstMonth = viewModel.filteredTransactions.keys.sorted(by: viewModel.sortMonthYearStrings).first
+                            let firstMonth = viewModel.filteredTransactions.keys.sorted(by: sortMonthYearStrings).first
 
-                            ForEach(viewModel.filteredTransactions.keys.sorted(by: viewModel.sortMonthYearStrings), id: \.self) { month in
+                            ForEach(viewModel.filteredTransactions.keys.sorted(by: sortMonthYearStrings), id: \.self) { month in
                                 Section(header: sectionHeader(month: month)) {
                                     ForEach(viewModel.filteredTransactions[month] ?? [], id: \.transaction.id) { transaction in
                                         TransactionItemView(transactionWithUser: transaction,
@@ -93,7 +93,7 @@ private struct TransactionListWithDetailView: View {
                                             ProgressView()
                                                 .frame(maxWidth: .infinity, alignment: .center)
                                                 .onAppear {
-                                                    viewModel.fetchMoreTransactions()
+                                                    viewModel.loadMoreTransactions()
                                                 }
                                                 .padding(.vertical, 8)
                                         }
@@ -109,7 +109,9 @@ private struct TransactionListWithDetailView: View {
                 }
                 .listStyle(.plain)
                 .refreshable {
-                    viewModel.fetchTransactions()
+                    Task {
+                        await viewModel.fetchTransactions()
+                    }
                 }
                 .overlay(alignment: .bottomTrailing) {
                     if viewModel.showScrollToTopBtn {

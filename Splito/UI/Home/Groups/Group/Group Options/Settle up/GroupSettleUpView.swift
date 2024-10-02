@@ -15,7 +15,9 @@ struct GroupSettleUpView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if case .loading = viewModel.viewState {
+            if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
+                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchInitialViewData)
+            } else if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
                 ScrollView {
@@ -40,9 +42,7 @@ struct GroupSettleUpView: View {
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Settle up")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleTextView(text: "Settle up")
             }
         }
     }

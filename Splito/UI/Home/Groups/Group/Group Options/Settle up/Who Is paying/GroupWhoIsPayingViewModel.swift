@@ -13,7 +13,7 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
 
     @Published private(set) var members: [AppUser] = []
-    @Published private(set) var viewState: ViewState = .initial
+    @Published private(set) var currentViewState: ViewState = .loading
 
     @Published private(set) var selectedMemberId: String?
     @Published private(set) var isPaymentSettled: Bool
@@ -28,16 +28,21 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
         super.init()
     }
 
+    func fetchInitialMembersData() {
+        Task {
+            await fetchGroupMembers()
+        }
+    }
+
     // MARK: - Data Loading
-    func fetchGroupMembers() {
-        groupRepository.fetchMembersBy(groupId: groupId)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleServiceError(error)
-                }
-            } receiveValue: { [weak self] members in
-                self?.members = members
-            }.store(in: &cancelable)
+    private func fetchGroupMembers() async {
+        do {
+            let members = try await groupRepository.fetchMembersBy(groupId: groupId)
+            self.members = members
+            currentViewState = .initial
+        } catch {
+            handleServiceError()
+        }
     }
 
     func onMemberTap(_ memberId: String) {
@@ -46,9 +51,12 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Error Handling
-    private func handleServiceError(_ error: ServiceError) {
-        viewState = .initial
-        showToastFor(error)
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            currentViewState = .noInternet
+        } else {
+            currentViewState = .somethingWentWrong
+        }
     }
 }
 
@@ -57,5 +65,7 @@ extension GroupWhoIsPayingViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

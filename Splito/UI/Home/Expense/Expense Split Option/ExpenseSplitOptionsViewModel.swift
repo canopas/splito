@@ -27,7 +27,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var fixedAmounts: [String: Double] = [:]
 
     @Published var selectedTab: SplitType
-    @Published private(set) var viewState: ViewState = .initial
+    @Published private(set) var viewState: ViewState = .loading
 
     @Published var selectedMembers: [String] {
         didSet {
@@ -62,41 +62,42 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             shares = splitData
             totalShares = splitData.values.reduce(0, +)
         }
-        fetchUsersData()
         splitAmount = expenseAmount / Double(selectedMembers.count)
+
+        fetchInitialMembersData()
+    }
+
+    func fetchInitialMembersData() {
+        Task {
+            await fetchGroupMembersDetail()
+        }
     }
 
     // MARK: - Data Loading
-    private func fetchUsersData() {
+    private func fetchGroupMembersDetail() async {
         var users: [AppUser] = []
-        let queue = DispatchGroup()
-
-        self.viewState = .loading
 
         for memberId in members {
-            queue.enter()
-            userRepository.fetchUserBy(userID: memberId)
-                .sink { [weak self] completion in
-                    if case .failure(let error) = completion {
-                        self?.viewState = .initial
-                        self?.showToastFor(error)
-                    }
-                } receiveValue: { [weak self] user in
-                    guard let user else {
-                        self?.viewState = .initial
-                        return
-                    }
-                    users.append(user)
-                    self?.calculateFixedAmountForMember(memberId: memberId)
-                    queue.leave()
-                }.store(in: &cancelable)
+            let user = await fetchMemberData(for: memberId)
+            guard let user else {
+                viewState = .initial
+                return
+            }
+            users.append(user)
+            calculateFixedAmountForMember(memberId: memberId)
         }
 
-        queue.notify(queue: .main) { [weak self] in
-            guard let self else { return }
-            self.groupMembers = users
-            self.totalFixedAmount = fixedAmounts.values.reduce(0, +)
-            self.viewState = .initial
+        self.groupMembers = users
+        self.totalFixedAmount = fixedAmounts.values.reduce(0, +)
+        self.viewState = .initial
+    }
+
+    func fetchMemberData(for memberId: String) async -> AppUser? {
+        do {
+            return try await userRepository.fetchUserBy(userID: memberId)
+        } catch {
+            handleServiceError()
+            return nil
         }
     }
 
@@ -157,35 +158,64 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func handleDoneAction(completion: @escaping () -> Void) {
-        if selectedTab == .equally && selectedMembers.count == 0 {
-            showAlertFor(title: "Whoops!", message: "You must select at least one person to split with.")
-            return
+    func handleDoneAction(completion: @escaping (Bool) -> Void) {
+        isValidateSplitOption(completion: completion)
+        handleSplitTypeSelection(selectedMembers, getSplitData(), selectedTab)
+    }
+
+    private func isValidateSplitOption(completion: (Bool) -> Void) {
+        switch selectedTab {
+        case .equally:
+            if selectedMembers.isEmpty {
+                showAlertFor(title: "Whoops!", message: "You must select at least one person to split with.")
+                return completion(false)
+            }
+        case .fixedAmount:
+            if totalFixedAmount != expenseAmount {
+                let amountDescription = totalFixedAmount < expenseAmount ? "short" : "over"
+                let differenceAmount = totalFixedAmount < expenseAmount ? (expenseAmount - totalFixedAmount) : (totalFixedAmount - expenseAmount)
+
+                showAlertFor(title: "Whoops!", message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
+                return completion(false)
+            }
+        case .percentage:
+            if totalPercentage != 100 {
+                let amountDescription = totalPercentage < 100 ? "short" : "over"
+                let differenceAmount = totalPercentage < 100 ? (String(format: "%.0f", 100 - totalPercentage)) : (String(format: "%.0f", totalPercentage - 100))
+
+                showAlertFor(title: "Whoops!", message: "The shares do not add up to 100%. You are \(amountDescription) by \(differenceAmount)%")
+                return completion(false)
+            }
+        case .shares:
+            if totalShares <= 0 {
+                showAlertFor(title: "Whoops!", message: "You must assign a non-zero share to at least one person.")
+                return completion(false)
+            }
         }
 
-        if selectedTab == .percentage && totalPercentage != 100 {
-            let amountDescription = totalPercentage < 100 ? "short" : "over"
-            let differenceAmount = totalPercentage < 100 ? (String(format: "%.0f", 100 - totalPercentage)) : (String(format: "%.0f", totalPercentage - 100))
+        completion(true)
+    }
 
-            showAlertFor(title: "Whoops!", message: "The shares do not add up to 100%. You are \(amountDescription) by \(differenceAmount)%")
-            return
+    private func getSplitData() -> [String: Double] {
+        switch selectedTab {
+        case .fixedAmount:
+            return fixedAmounts.filter { $0.value != 0 }
+        case .percentage:
+            return percentages.filter { $0.value != 0 }
+        case .shares:
+            return shares.filter { $0.value != 0 }
+        case .equally:
+            return [:]
         }
+    }
 
-        if selectedTab == .shares && totalShares <= 0 {
-            showAlertFor(title: "Whoops!", message: "You must assign a non-zero share to at least one person.")
-            return
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
         }
-
-        if selectedTab == .fixedAmount && totalFixedAmount != expenseAmount {
-            let amountDescription = totalFixedAmount < expenseAmount ? "short" : "over"
-            let differenceAmount = totalFixedAmount < expenseAmount ? (expenseAmount - totalFixedAmount) : (totalFixedAmount - expenseAmount)
-
-            showAlertFor(title: "Whoops!", message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
-            return
-        }
-
-        handleSplitTypeSelection(selectedMembers, (selectedTab == .fixedAmount) ? fixedAmounts.filter({ $0.value != 0 }) : (selectedTab == .percentage) ? percentages.filter({ $0.value != 0 }) : shares.filter({ $0.value != 0 }), selectedTab)
-        completion()
     }
 }
 
@@ -194,6 +224,8 @@ extension ExpenseSplitOptionsViewModel {
     enum ViewState {
         case initial
         case loading
+        case noInternet
+        case somethingWentWrong
     }
 }
 

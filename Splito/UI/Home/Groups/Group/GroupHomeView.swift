@@ -19,10 +19,12 @@ struct GroupHomeView: View {
     var body: some View {
         GeometryReader { geometry in
             VStack(alignment: .leading, spacing: 0) {
-                if case .loading = viewModel.groupState {
-                    LoaderView()
+                if .noInternet == viewModel.groupState || .somethingWentWrong == viewModel.groupState {
+                    ErrorView(isForNoInternet: viewModel.groupState == .noInternet, onClick: viewModel.fetchGroupAndExpenses)
                 } else {
-                    if case .noMember = viewModel.groupState {
+                    if case .loading = viewModel.groupState {
+                        LoaderView()
+                    } else if case .noMember = viewModel.groupState {
                         EmptyStateView(title: "You’re the only one here!",
                                        subtitle: "Invite some friends and make this group come alive!",
                                        buttonTitle: "Invite Member", image: .inviteFriends,
@@ -36,18 +38,18 @@ struct GroupHomeView: View {
                         .focused($isFocused)
                     }
 
-                    if viewModel.groupState != .noMember && viewModel.showAddExpenseBtn {
-                        PrimaryButton(text: "Add expense", onClick: viewModel.openAddExpenseSheet)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
+                    if viewModel.groupState != .noMember && viewModel.groupState != .noExpense {
+                        Spacer()
+                        PrimaryFloatingButton(text: "Add expense", bottomPadding: 8, onClick: viewModel.openAddExpenseSheet)
                     }
                 }
             }
+            .ignoresSafeArea(.keyboard) // Useful so the button doesn't move around on keyboard show
         }
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
-        .toastView(toast: $viewModel.toast)
+        .toastView(toast: $viewModel.toast, bottomPadding: 36)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .onDisappear {
             if viewModel.showSearchBar {
@@ -63,9 +65,27 @@ struct GroupHomeView: View {
         }
         .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
             if !(viewModel.memberOwingAmount.isEmpty) {
-                GroupSettleUpRouteView(appRoute: .init(root: .GroupSettleUpView(groupId: viewModel.group?.id ?? "")))
+                GroupSettleUpRouteView(appRoute: .init(root: .GroupSettleUpView(groupId: viewModel.groupId)))
             } else {
-                GroupSettleUpRouteView(appRoute: .init(root: .GroupWhoIsPayingView(groupId: viewModel.group?.id ?? "", isPaymentSettled: true)))
+                GroupSettleUpRouteView(appRoute: .init(root: .GroupWhoIsPayingView(groupId: viewModel.groupId, isPaymentSettled: true)))
+            }
+        }
+        .fullScreenCover(isPresented: $viewModel.showTransactionsSheet) {
+            GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.groupId)))
+        }
+        .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
+            NavigationStack {
+                GroupBalancesView(viewModel: GroupBalancesViewModel(router: viewModel.router, groupId: viewModel.groupId))
+            }
+        }
+        .fullScreenCover(isPresented: $viewModel.showGroupTotalSheet) {
+            NavigationStack {
+                GroupTotalsView(viewModel: GroupTotalsViewModel(groupId: viewModel.groupId))
+            }
+        }
+        .fullScreenCover(isPresented: $viewModel.showInviteMemberSheet) {
+            NavigationStack {
+                InviteMemberView(viewModel: InviteMemberViewModel(router: viewModel.router, groupId: viewModel.groupId))
             }
         }
         .sheet(isPresented: $viewModel.showSimplifyInfoSheet) {
@@ -75,29 +95,9 @@ struct GroupHomeView: View {
                 .presentationDetents([.height(sheetHeight)])
                 .presentationCornerRadius(24)
         }
-        .fullScreenCover(isPresented: $viewModel.showTransactionsSheet) {
-            GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.group?.id ?? "")))
-        }
-        .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
-            NavigationStack {
-                GroupBalancesView(viewModel: GroupBalancesViewModel(router: viewModel.router, groupId: viewModel.group?.id ?? ""))
-            }
-        }
-        .fullScreenCover(isPresented: $viewModel.showGroupTotalSheet) {
-            NavigationStack {
-                GroupTotalsView(viewModel: GroupTotalsViewModel(groupId: viewModel.group?.id ?? ""))
-            }
-        }
-        .fullScreenCover(isPresented: $viewModel.showInviteMemberSheet) {
-            NavigationStack {
-                InviteMemberView(viewModel: InviteMemberViewModel(router: viewModel.router, groupId: viewModel.groupId))
-            }
-        }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text(viewModel.group?.name ?? "")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleTextView(text: viewModel.group?.name ?? "")
             }
             ToolbarItem(placement: .topBarTrailing) {
                 ToolbarButtonView(systemImageName: "magnifyingglass", onClick: viewModel.handleSearchOptionTap)

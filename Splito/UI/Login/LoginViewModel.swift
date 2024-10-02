@@ -55,7 +55,8 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 
             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
             self.showGoogleLoading = true
-            self.performFirebaseLogin(showGoogleLoading: showGoogleLoading, credential: credential, loginType: .Google, userData: (firstName, lastName, email))
+            self.performFirebaseLogin(showGoogleLoading: showGoogleLoading, credential: credential,
+                                      loginType: .Google, userData: (firstName, lastName, email))
         }
     }
 
@@ -66,9 +67,11 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         request.nonce = NonceGenerator.sha256(currentNonce)
 
         appleSignInDelegates = SignInWithAppleDelegates { (token, fName, lName, email)  in
-            let credential = OAuthProvider.credential(providerID: AuthProviderID(rawValue: "apple.com")!, idToken: token, rawNonce: self.currentNonce)
+            let credential = OAuthProvider.credential(providerID: AuthProviderID(rawValue: "apple.com")!,
+                                                      idToken: token, rawNonce: self.currentNonce)
             self.showAppleLoading = true
-            self.performFirebaseLogin(showAppleLoading: self.showAppleLoading, credential: credential, loginType: .Apple, userData: (fName, lName, email))
+            self.performFirebaseLogin(showAppleLoading: self.showAppleLoading, credential: credential,
+                                      loginType: .Apple, userData: (fName, lName, email))
         }
 
         let authorizationController = ASAuthorizationController(authorizationRequests: [request])
@@ -76,7 +79,8 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         authorizationController.performRequests()
     }
 
-    private func performFirebaseLogin(showGoogleLoading: Bool = false, showAppleLoading: Bool = false, credential: AuthCredential, loginType: LoginType, userData: (String, String, String)) {
+    private func performFirebaseLogin(showGoogleLoading: Bool = false, showAppleLoading: Bool = false,
+                                      credential: AuthCredential, loginType: LoginType, userData: (String, String, String)) {
         self.showGoogleLoading = showGoogleLoading
         self.showAppleLoading = showAppleLoading
 
@@ -92,8 +96,11 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
                 } else if let result {
                     self.showGoogleLoading = false
                     self.showAppleLoading = false
-                    let user = AppUser(id: result.user.uid, firstName: userData.0, lastName: userData.1, emailId: userData.2, phoneNumber: nil, loginType: loginType)
-                    self.storeUser(user: user)
+                    let user = AppUser(id: result.user.uid, firstName: userData.0, lastName: userData.1,
+                                       emailId: userData.2, phoneNumber: nil, loginType: loginType)
+                    Task {
+                        await self.storeUser(user: user)
+                    }
                     LogD("LoginViewModel :: Logged in User: \(result.user)")
                 } else {
                     self.alert = .init(message: "Contact Support")
@@ -102,19 +109,15 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
             }
     }
 
-    private func storeUser(user: AppUser) {
-        userRepository.storeUser(user: user)
-            .sink { [weak self] completion in
-                guard let self else { return }
-                if case .failure(let error) = completion {
-                    self.alert = .init(message: error.localizedDescription)
-                    self.showAlert = true
-                }
-            } receiveValue: { [weak self] user in
-                guard let self else { return }
-                self.preference.user = user
-                self.onLoginSuccess()
-            }.store(in: &cancelable)
+    private func storeUser(user: AppUser) async {
+        do {
+            let user = try await userRepository.storeUser(user: user)
+            self.preference.user = user
+            self.onLoginSuccess()
+        } catch {
+            self.alert = .init(message: error.localizedDescription)
+            self.showAlert = true
+        }
     }
 
     private func onLoginSuccess() {

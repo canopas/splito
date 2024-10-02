@@ -18,35 +18,33 @@ struct CreateGroupView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
-            if case .loading = viewModel.currentState {
-                LoaderView()
-            } else {
-                ScrollView {
-                    VStack(spacing: 0) {
-                        VSpacer(40)
+            ScrollView {
+                VStack(spacing: 0) {
+                    VSpacer(40)
 
-                        AddGroupImageView(image: viewModel.profileImage, imageUrl: viewModel.profileImageUrl, handleProfileTap: viewModel.handleProfileTap)
+                    AddGroupImageView(image: viewModel.profileImage, imageUrl: viewModel.profileImageUrl, handleProfileTap: viewModel.handleProfileTap)
 
-                        VSpacer(30)
+                    VSpacer(30)
 
-                        AddGroupNameView(groupName: $viewModel.groupName)
-                            .focused($isFocused)
+                    AddGroupNameView(groupName: $viewModel.groupName)
+                        .focused($isFocused)
 
-                        Spacer(minLength: 130)
-                    }
-                    .padding(.horizontal, 16)
+                    Spacer(minLength: 130)
                 }
-                .scrollIndicators(.hidden)
-                .scrollBounceBehavior(.basedOnSize)
-
-                PrimaryButton(text: viewModel.group != nil ? "Save" : "Create", isEnabled: viewModel.groupName.count >= 3, showLoader: viewModel.showLoader, onClick: {
-                    viewModel.handleDoneAction {
-                        dismiss()
-                    }
-                })
-                .padding(.bottom, 20)
                 .padding(.horizontal, 16)
             }
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
+
+            PrimaryButton(text: viewModel.group != nil ? "Save" : "Create", isEnabled: viewModel.groupName.count >= 3, showLoader: viewModel.showLoader, onClick: {
+                Task {
+                    await viewModel.handleDoneAction { saveSuccessful in
+                        if saveSuccessful { dismiss() }
+                    }
+                }
+            })
+            .padding(.bottom, 20)
+            .padding(.horizontal, 16)
         }
         .onAppear {
             isFocused = true
@@ -78,18 +76,10 @@ struct CreateGroupView: View {
         .onTapGesture {
             isFocused = false
         }
+        .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                HStack(spacing: 12) {
-                    BackButton(size: (10, 18), iconColor: primaryText, padding: (0, 0), onClick: {
-                        dismiss()
-                    })
-                    .fontWeight(.semibold)
-
-                    Text(viewModel.group == nil ? "Create a group" : "Edit group")
-                        .font(.Header2())
-                        .foregroundStyle(primaryText)
-                }
+                NavigationTitleTextView(text: viewModel.group == nil ? "Create a group" : "Edit group")
             }
         }
     }

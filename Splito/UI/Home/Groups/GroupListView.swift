@@ -20,8 +20,11 @@ struct GroupListView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
-            if case .loading = viewModel.currentViewState {
+            if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchGroupsInitialData)
+            } else if case .loading = viewModel.currentViewState {
                 LoaderView()
+                Spacer(minLength: 60)
             } else {
                 VStack(spacing: 0) {
                     if case .noGroup = viewModel.groupListState {
@@ -63,13 +66,12 @@ struct GroupListView: View {
                         }
                     }
                 }
-                .frame(maxHeight: .infinity)
             }
         }
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
-        .toastView(toast: $viewModel.toast)
+        .toastView(toast: $viewModel.toast, bottomPadding: 36)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
@@ -261,5 +263,44 @@ private struct GroupActionSheetView: View {
         .frame(maxHeight: .infinity)
         .padding(.top, 8)
         .padding(.bottom, 4)
+    }
+}
+
+// MARK: - Tab Types
+enum GroupListTabType: Int, CaseIterable {
+    case all, settled, unsettled
+
+    var tabItem: String {
+        switch self {
+        case .all:
+            return "All"
+        case .settled:
+            return "Settled"
+        case .unsettled:
+            return "Unsettled"
+        }
+    }
+}
+
+enum OptionList: CaseIterable {
+    case editGroup
+    case deleteGroup
+
+    var title: String {
+        switch self {
+        case .editGroup:
+            return "Edit group"
+        case .deleteGroup:
+            return "Delete group"
+        }
+    }
+
+    var image: ImageResource {
+        switch self {
+        case .editGroup:
+            return .editPencilIcon
+        case .deleteGroup:
+            return .binIcon
+        }
     }
 }

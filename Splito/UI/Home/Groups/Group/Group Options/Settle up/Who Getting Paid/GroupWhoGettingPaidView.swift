@@ -14,7 +14,9 @@ struct GroupWhoGettingPaidView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if case .loading = viewModel.viewState {
+            if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
+                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchInitialMembersData)
+            } else if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
                 ScrollView {
@@ -39,13 +41,11 @@ struct GroupWhoGettingPaidView: View {
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .onAppear(perform: viewModel.fetchGroupMembers)
+        .onAppear(perform: viewModel.fetchInitialMembersData)
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Who is getting paid?")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleTextView(text: "Who is getting paid?")
             }
         }
     }

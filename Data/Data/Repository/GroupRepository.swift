@@ -16,110 +16,87 @@ public class GroupRepository: ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
     @Inject private var storageManager: StorageManager
+    @Inject private var codeRepository: ShareCodeRepository
 
-    private var cancelable = Set<AnyCancellable>()
+    public func createGroup(group: Groups, imageData: Data?) async throws -> Groups {
+        let groupId = try await store.createGroup(group: group)
 
-    public func createGroup(group: Groups, imageData: Data?) -> AnyPublisher<Groups, ServiceError> {
-        return store.createGroup(group: group)
-            .flatMap { [weak self] groupId -> AnyPublisher<Groups, ServiceError> in
-                guard let self else { return Fail(error: .unexpectedError).eraseToAnyPublisher() }
-                var newGroup = group
-                newGroup.id = groupId
+        var newGroup = group
+        newGroup.id = groupId
 
-                guard let imageData else {
-                    return Just(newGroup).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
-                }
-
-                return self.uploadImage(imageData: imageData, group: newGroup)
-                    .map { group in
-                        return group
-                    }
-                    .eraseToAnyPublisher()
-            }
-            .eraseToAnyPublisher()
-    }
-
-    private func uploadImage(imageData: Data, group: Groups) -> AnyPublisher<Groups, ServiceError> {
-        guard let groupId = group.id else {
-            return Fail(error: .unexpectedError).eraseToAnyPublisher()
+        // If image data is provided, upload the image and update the group's imageUrl
+        if let imageData = imageData {
+            let imageUrl = try await uploadImage(imageData: imageData, group: newGroup)
+            newGroup.imageUrl = imageUrl
         }
 
-        return storageManager.uploadImage(for: .group, id: groupId, imageData: imageData)
-            .flatMap { imageUrl -> AnyPublisher<Groups, ServiceError> in
-                var updatedGroup = group
-                updatedGroup.imageUrl = imageUrl
-                return self.updateGroup(group: updatedGroup)
-            }
-            .eraseToAnyPublisher()
+        return newGroup
     }
 
-    public func updateGroupWithImage(imageData: Data?, newImageUrl: String?, group: Groups) -> AnyPublisher<Groups, ServiceError> {
+    private func uploadImage(imageData: Data, group: Groups) async throws -> String {
+        guard let groupId = group.id else { return "" }
+
+        // Upload the image and get the image URL
+        return try await storageManager.uploadImage(for: .group, id: groupId, imageData: imageData) ?? ""
+    }
+
+    public func updateGroupWithImage(imageData: Data?, newImageUrl: String?, group: Groups) async throws -> Groups {
         var newGroup = group
 
-        if let currentUrl = group.imageUrl, newImageUrl == nil {
+        // If image data is provided, upload the new image and update the imageUrl
+        if let imageData = imageData {
+            // Upload the image and get the new image URL
+            let uploadedImageUrl = try await uploadImage(imageData: imageData, group: newGroup)
+            newGroup.imageUrl = uploadedImageUrl
+        } else if let currentUrl = group.imageUrl, newImageUrl == nil {
+            // If there's a current image URL and we want to remove it, delete the image and set imageUrl to nil
+            try await storageManager.deleteImage(imageUrl: currentUrl)
+            newGroup.imageUrl = nil
+        } else if let newImageUrl = newImageUrl {
+            // If a new image URL is explicitly passed, update it
             newGroup.imageUrl = newImageUrl
-
-            return storageManager.deleteImage(imageUrl: currentUrl)
-                .flatMap { _ in
-                    self.performImageAction(imageData: imageData, group: newGroup)
-                }
-                .eraseToAnyPublisher()
-        } else {
-            return self.performImageAction(imageData: imageData, group: newGroup)
         }
+
+        try await updateGroup(group: newGroup)
+        return newGroup
     }
 
-    private func performImageAction(imageData: Data?, group: Groups) -> AnyPublisher<Groups, ServiceError> {
-        if let imageData {
-            return self.uploadImage(imageData: imageData, group: group)
-        } else {
-            return self.updateGroup(group: group)
-        }
+    public func addMemberToGroup(groupId: String, memberId: String) async throws {
+        try await store.addMemberToGroup(groupId: groupId, memberId: memberId)
     }
 
-    public func addMemberToGroup(groupId: String, memberId: String) -> AnyPublisher<Void, ServiceError> {
-        store.addMemberToGroup(groupId: groupId, memberId: memberId)
+    public func updateGroup(group: Groups) async throws {
+        try await store.updateGroup(group: group)
     }
 
-    public func updateGroup(group: Groups) -> AnyPublisher<Groups, ServiceError> {
-        return store.updateGroup(group: group)
-            .map { _ in group }
-            .eraseToAnyPublisher()
+    public func fetchGroupBy(id: String) async throws -> Groups? {
+        return try await store.fetchGroupBy(id: id)
     }
 
-    public func fetchGroupBy(id: String) -> AnyPublisher<Groups?, ServiceError> {
-        store.fetchGroupBy(id: id)
+    public func fetchGroupsBy(userId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) async throws -> (data: [Groups], lastDocument: DocumentSnapshot?) {
+        return try await store.fetchGroupsBy(userId: userId, limit: limit, lastDocument: lastDocument)
     }
 
-    public func fetchGroupsBy(userId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) -> AnyPublisher<(groups: [Groups], lastDocument: DocumentSnapshot?), ServiceError> {
-        store.fetchGroupsBy(userId: userId, limit: limit, lastDocument: lastDocument)
+    public func fetchMemberBy(userId: String) async throws -> AppUser? {
+        return try await userRepository.fetchUserBy(userID: userId)
     }
 
-    public func fetchMemberBy(userId: String) -> AnyPublisher<AppUser?, ServiceError> {
-        userRepository.fetchUserBy(userID: userId)
-    }
+    public func fetchMembersBy(groupId: String) async throws -> [AppUser] {
+        guard let group = try await fetchGroupBy(id: groupId) else { return [] }
 
-    public func fetchMembersBy(groupId: String) -> AnyPublisher<[AppUser], ServiceError> {
-        fetchGroupBy(id: groupId)
-            .flatMap { group -> AnyPublisher<[AppUser], ServiceError> in
-                guard let group else {
-                    return Fail(error: .dataNotFound).eraseToAnyPublisher()
-                }
-
-                // Create a publisher for each member ID and fetch user data
-                let memberPublishers = group.members.map { (userId: String) -> AnyPublisher<AppUser?, ServiceError> in
-                    return self.fetchMemberBy(userId: userId)
-                }
-
-                return Publishers.MergeMany(memberPublishers)
-                    .compactMap { $0 }
-                    .collect()
-                    .eraseToAnyPublisher()
+        var members: [AppUser?] = []
+        for memberId in group.members {
+            do {
+                let member = try await fetchMemberBy(userId: memberId)
+                members.append(member)
+            } catch {
+                LogE("Failed to fetch member with memberId: \(memberId), error: \(error.localizedDescription)")
             }
-            .eraseToAnyPublisher()
+        }
+        return members.compactMap { $0 }
     }
 
-    public func removeMemberFrom(group: Groups, memberId: String) -> AnyPublisher<Groups, ServiceError> {
+    public func removeMemberFrom(group: Groups, memberId: String) async throws {
         var group = group
 
         // Remove member from group
@@ -138,17 +115,15 @@ public class GroupRepository: ObservableObject {
             }
         }
 
-        return updateGroup(group: group)
+        return try await updateGroup(group: group)
     }
 
-    public func deleteGroup(group: Groups) -> AnyPublisher<Void, ServiceError> {
+    public func deleteGroup(group: Groups) async throws {
         var group = group
 
         // Make group inactive
         group.isActive = false
 
-        return updateGroup(group: group)
-            .map { _ in () }
-            .eraseToAnyPublisher()
+        return try await updateGroup(group: group)
     }
 }
