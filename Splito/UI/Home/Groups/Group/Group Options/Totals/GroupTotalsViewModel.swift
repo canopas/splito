@@ -13,7 +13,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
 
-    @Published private(set) var viewState: ViewState = .initial
+    @Published private(set) var viewState: ViewState = .loading
     @Published private(set) var selectedTab: DateRangeTabType = .thisMonth
     @Published private(set) var summaryData: GroupMemberSummary?
 
@@ -35,7 +35,6 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroup() async {
         do {
-            viewState = .loading
             let latestGroup = try await groupRepository.fetchGroupBy(id: groupId)
             group = latestGroup
             filterDataForSelectedTab()
@@ -54,7 +53,10 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     }
 
     private func filterDataForSelectedTab() {
-        guard let group, let userId = preference.user?.id else { return }
+        guard let group, let userId = preference.user?.id else {
+            viewState = .initial
+            return
+        }
 
         let summaries: [GroupTotalSummary]
         switch selectedTab {
@@ -77,7 +79,10 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     }
 
     private func getTotalSummaryForCurrentYear() -> [GroupTotalSummary] {
-        guard let user = preference.user, let group else { return [] }
+        guard let user = preference.user, let group else {
+            viewState = .initial
+            return []
+        }
         let currentYear = Calendar.current.component(.year, from: Date())
         return group.balances.first(where: { $0.id == user.id })?.totalSummary.filter {
             $0.year == currentYear

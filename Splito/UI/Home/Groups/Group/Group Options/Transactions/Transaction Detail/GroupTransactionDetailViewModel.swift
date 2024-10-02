@@ -128,9 +128,9 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         do {
             viewState = .loading
             try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
-            viewState = .initial
             NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
             await updateGroupMemberBalance(updateType: .Delete)
+            viewState = .initial
             router.pop()
         } catch {
             viewState = .initial
@@ -139,7 +139,10 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateGroupMemberBalance(updateType: TransactionUpdateType) async {
-        guard var group, let transaction else { return }
+        guard var group, let transaction else {
+            viewState = .initial
+            return
+        }
 
         do {
             let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)

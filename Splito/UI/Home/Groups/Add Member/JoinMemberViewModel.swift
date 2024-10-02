@@ -39,6 +39,7 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
                 return
             }
             await addMemberIfCodeExists(code: code)
+            showLoader = false
             completion(true)
         } catch {
             showLoader = false
@@ -62,14 +63,17 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
     }
 
     private func addMemberFor(code: SharedCode) async {
-        guard let userId = preference.user?.id else { return }
+        guard let userId = preference.user?.id else {
+            showLoader = false
+            return
+        }
 
         do {
             try await groupRepository.addMemberToGroup(groupId: code.groupId, memberId: userId)
             NotificationCenter.default.post(name: .joinGroup, object: code.groupId)
             try await codeRepository.deleteSharedCode(documentId: code.code)
-            showLoader = false
         } catch {
+            showLoader = false
             showToastForError()
         }
     }

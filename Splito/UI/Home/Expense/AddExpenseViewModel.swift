@@ -26,6 +26,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published var showGroupSelection = false
     @Published var showPayerSelection = false
     @Published var showSplitTypeSelection = false
+    @Published private(set) var showLoader: Bool = false
 
     @Published var selectedGroup: Groups?
     @Published private(set) var expense: Expense?
@@ -323,7 +324,7 @@ extension AddExpenseViewModel {
 
     private func addExpense(groupId: String, expense: Expense, completion: (Bool) -> Void) async {
         do {
-            viewState = .loading
+            showLoader = true
             let newExpense = try await expenseRepository.addExpense(groupId: groupId, expense: expense)
             let expenseInfo: [String: Any] = ["groupId": groupId, "expense": newExpense]
             NotificationCenter.default.post(name: .addExpense, object: nil, userInfo: expenseInfo)
@@ -331,10 +332,10 @@ extension AddExpenseViewModel {
             if !(selectedGroup?.hasExpenses ?? false) { selectedGroup?.hasExpenses = true }
 
             await updateGroupMemberBalance(expense: expense, updateType: .Add)
-            viewState = .initial
+            showLoader = false
             completion(true)
         } catch {
-            viewState = .initial
+            showLoader = false
             completion(false)
             showToastForError()
         }
@@ -342,27 +343,30 @@ extension AddExpenseViewModel {
 
     private func updateExpense(groupId: String, expense: Expense, oldExpense: Expense, completion: (Bool) -> Void) async {
         do {
-            viewState = .loading
+            showLoader = true
             try await expenseRepository.updateExpense(groupId: groupId, expense: expense)
             NotificationCenter.default.post(name: .updateExpense, object: expense)
             await updateGroupMemberBalance(expense: expense, updateType: .Update(oldExpense: oldExpense))
-            viewState = .initial
+            showLoader = false
             completion(true)
         } catch {
-            viewState = .initial
+            showLoader = false
             completion(false)
             showToastForError()
         }
     }
 
     private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {
-        guard var group = selectedGroup else { return }
+        guard var group = selectedGroup else {
+            showLoader = false
+            return
+        }
         do {
             let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
             group.balances = memberBalance
             try await groupRepository.updateGroup(group: group)
         } catch {
-            viewState = .initial
+            showLoader = false
             showToastForError()
         }
     }

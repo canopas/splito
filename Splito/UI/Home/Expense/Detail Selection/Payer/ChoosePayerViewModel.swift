@@ -16,7 +16,7 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
     @Published var groupId: String
     @Published var selectedPayers: [String: Double]
 
-    @Published var currentViewState: ViewState = .initial
+    @Published var currentViewState: ViewState = .loading
     @Published private(set) var amount: Double = 0
 
     var onPayerSelection: (([String: Double]) -> Void)
@@ -42,7 +42,6 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchMembers() async {
         do {
-            currentViewState = .loading
             let users = try await groupRepository.fetchMembersBy(groupId: groupId)
             currentViewState = users.isEmpty ? .noMember : .hasMembers(users)
         } catch {
@@ -82,7 +81,6 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
 
 extension ChoosePayerViewModel {
     enum ViewState: Equatable {
-        case initial
         case loading
         case noMember
         case hasMembers([AppUser])

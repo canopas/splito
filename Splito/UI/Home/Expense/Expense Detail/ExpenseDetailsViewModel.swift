@@ -18,7 +18,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var expense: Expense?
     @Published private(set) var expenseUsersData: [AppUser] = []
-    @Published private(set) var viewState: ViewState = .initial
+    @Published private(set) var viewState: ViewState = .loading
 
     @Published private(set) var groupImageUrl: String = ""
     @Published var showEditExpenseSheet = false
@@ -48,7 +48,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroup() async {
         do {
-            viewState = .loading
             group = try await groupRepository.fetchGroupBy(id: groupId)
             if let imageUrl = group?.imageUrl {
                 self.groupImageUrl = imageUrl
@@ -93,6 +92,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         do {
             return try await userRepository.fetchUserBy(userID: userId)
         } catch {
+            viewState = .initial
             showToastForError()
             return nil
         }
@@ -134,7 +134,11 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateGroupMemberBalance(updateType: ExpenseUpdateType) async {
-        guard var group, let expense else { return }
+        guard var group, let expense else {
+            viewState = .initial
+            return
+        }
+        
         do {
             let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
             group.balances = memberBalance

@@ -60,13 +60,9 @@ struct UserProfileView: View {
                 NavigationTitleView(navigationTitle: "Profile")
             }
             ToolbarItem(placement: .topBarTrailing, content: {
-                if viewModel.isSaveInProgress {
-                    ImageLoaderView(tintColor: primaryColor)
-                } else {
-                    CheckmarkButton(iconSize: (24, 32), padding: (.leading, 16), onClick: viewModel.updateUsersProfileData)
-                        .disabled(!viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count < 3)
-                        .opacity((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3) ? 1 : 0.6)
-                }
+                CheckmarkButton(showLoader: viewModel.isSaveInProgress, iconSize: (24, 32), padding: (.leading, 16), onClick: viewModel.updateUsersProfileData)
+                    .disabled(!viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count < 3)
+                    .opacity((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3) ? 1 : 0.6)
             })
         }
         .onTapGesture {

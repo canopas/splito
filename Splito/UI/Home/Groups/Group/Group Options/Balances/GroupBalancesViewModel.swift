@@ -14,7 +14,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
 
-    @Published var viewState: ViewState = .initial
+    @Published var viewState: ViewState = .loading
 
     @Published var groupId: String
     @Published var showSettleUpSheet: Bool = false
@@ -47,9 +47,9 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     func fetchGroupMembers() async {
         do {
-            viewState = .loading
             groupMemberData = try await groupRepository.fetchMembersBy(groupId: groupId)
             await fetchGroupDetails()
+            viewState = .initial
         } catch {
             handleServiceError()
         }
@@ -67,6 +67,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     // MARK: - Helper Methods
     private func calculateExpensesSimplified() {
         guard let group else {
+            viewState = .initial
             LogE("GroupBalancesViewModel :: \(#function) group not found.")
             return
         }
@@ -101,7 +102,10 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     }
 
     private func sortMemberBalances(memberBalances: [MembersCombinedBalance]) {
-        guard let userId = preference.user?.id, let userIndex = memberBalances.firstIndex(where: { $0.id == userId }) else { return }
+        guard let userId = preference.user?.id, let userIndex = memberBalances.firstIndex(where: { $0.id == userId }) else {
+            viewState = .initial
+            return
+        }
 
         var sortedMembers = memberBalances
 
@@ -114,7 +118,6 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         }
 
         self.memberBalances = sortedMembers
-        viewState = .initial
     }
 
     private func getMemberDataBy(id: String) -> AppUser? {

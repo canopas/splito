@@ -76,7 +76,10 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Data Loading
     func fetchGroups() async {
-        guard let userId = preference.user?.id else { return }
+        guard let userId = preference.user?.id else {
+            currentViewState = .initial
+            return
+        }
 
         do {
             let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT)
@@ -157,7 +160,10 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func fetchLatestUser() async {
-        guard let userId = preference.user?.id else { return }
+        guard let userId = preference.user?.id else {
+            currentViewState = .initial
+            return
+        }
 
         do {
             let user = try await userRepository.fetchLatestUserBy(userID: userId)

@@ -130,12 +130,11 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
 
-        isSaveInProgress = true
-
         do {
+            isSaveInProgress = true
             let user = try await userRepository.updateUserWithImage(imageData: imageData, newImageUrl: profileImageUrl, user: newUser)
-            isSaveInProgress = false
             preference.user = user
+            isSaveInProgress = false
 
             if isOpenFromOnboard {
                 onDismiss?()
@@ -144,7 +143,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             }
         } catch {
             isSaveInProgress = false
-            showAlertFor(title: "Error", message: "Something went wrong.")
+            showToastForError()
         }
     }
 
@@ -169,20 +168,21 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         }
 
         do {
+            isDeleteInProgress = true
             try await userRepository.deleteUser(id: user.id)
-            isDeleteInProgress = false
             preference.isOnboardShown = false
             preference.clearPreferenceSession()
+            isDeleteInProgress = false
             goToOnboardScreen()
             LogD("UserProfileViewModel :: user deleted.")
         } catch {
+            isDeleteInProgress = false
             if error.localizedDescription.contains(REQUIRE_AGAIN_LOGIN_TEXT) {
                 alert = .init(title: "", message: error.localizedDescription,
                               positiveBtnTitle: "Reauthenticate", positiveBtnAction: {
                     self.reAuthenticateUser()
                 }, negativeBtnTitle: "Cancel", negativeBtnAction: {
                     self.showAlert = false
-                    self.isDeleteInProgress = false
                 })
                 showAlert = true
             } else {
@@ -204,6 +204,7 @@ extension UserProfileViewModel {
             return
         }
 
+        isDeleteInProgress = true
         user.reload { [weak self] error in
             if let error {
                 self?.isDeleteInProgress = false
@@ -239,7 +240,10 @@ extension UserProfileViewModel {
     }
 
     private func getAuthCredential(_ authUser: User, completion: @escaping (AuthCredential?) -> Void) {
-        guard let appUser = preference.user else { return }
+        guard let appUser = preference.user else {
+            isDeleteInProgress = false
+            return
+        }
 
         switch appUser.loginType {
         case .Apple:
@@ -279,6 +283,7 @@ extension UserProfileViewModel {
         GIDSignIn.sharedInstance.configuration = config
 
         guard let controller = TopViewController.shared.topViewController() else {
+            isDeleteInProgress = false
             LogE("UserProfileViewModel: Top Controller not found.")
             return
         }
@@ -306,19 +311,19 @@ extension UserProfileViewModel {
         FirebaseProvider.phoneAuthProvider
             .verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
                 guard let self = self else { return }
+                self.isDeleteInProgress = false
                 if let error {
-                    self.isDeleteInProgress = false
                     self.handleFirebaseAuthErrors(error)
                 } else {
                     self.phoneNumber = phoneNumber
                     self.verificationId = verificationID ?? ""
                     self.showOTPView = true
-
+                    
                     self.otpPublisher
                         .sink { otp in
                             guard !otp.isEmpty else { return }
                             self.showOTPView = false
-
+                            
                             let credential = FirebaseProvider.phoneAuthProvider
                                 .credential(withVerificationID: self.verificationId, verificationCode: otp)
                             completion(credential)

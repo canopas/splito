@@ -50,6 +50,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             self.group = group
             self.checkForGroupAdmin()
             await fetchGroupMembers()
+            currentViewState = .initial
         } catch {
             handleServiceError()
         }
@@ -58,11 +59,9 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     private func fetchGroupMembers() async {
         do {
             let members = try await groupRepository.fetchMembersBy(groupId: groupId)
-            self.sortGroupMembers(members: members)
-            self.currentViewState = .initial
+            sortGroupMembers(members: members)
         } catch {
-            currentViewState = .initial
-            showToastForError()
+            handleServiceError()
         }
     }
 
@@ -82,7 +81,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     func sortGroupMembers(members: [AppUser]) {
-        guard let userId = preference.user?.id else { return }
+        guard let userId = preference.user?.id else {
+            currentViewState = .initial
+            return
+        }
 
         var sortedMembers = members
         sortedMembers.sort { (member1: AppUser, member2: AppUser) in
@@ -103,7 +105,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     private func checkForGroupAdmin() {
-        guard let userId = preference.user?.id, let group else { return }
+        guard let userId = preference.user?.id, let group else {
+            currentViewState = .initial
+            return
+        }
         isAdmin = userId == group.createdBy
     }
 
@@ -243,8 +248,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         do {
             currentViewState = .loading
             try await groupRepository.deleteGroup(group: group)
-            self.currentViewState = .initial
             NotificationCenter.default.post(name: .deleteGroup, object: group)
+            currentViewState = .initial
             goBackToGroupList()
         } catch {
             currentViewState = .initial

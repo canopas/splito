@@ -91,7 +91,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private func fetchGroup() async {
         do {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
-            guard let group else { return }
+            guard let group else {
+                groupState = .noMember
+                return
+            }
             let groupTotalSummary = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
             currentMonthSpending = groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }
 
@@ -171,6 +174,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 }
                 return user
             } catch {
+                groupState = .noMember
                 showToastForError()
                 return nil
             }
@@ -178,7 +182,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     private func fetchGroupBalance() {
-        guard let userId = preference.user?.id, let group else { return }
+        guard let userId = preference.user?.id, let group else {
+            groupState = .noMember
+            return
+        }
 
         self.memberOwingAmount = Splito.calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
         withAnimation(.easeOut) {
@@ -188,7 +195,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     private func setGroupViewState() {
-        guard let group else { return }
+        guard let group else {
+            groupState = .noMember
+            return
+        }
+
         groupState = group.members.count > 1 ?
         ((expenses.isEmpty && group.balances.allSatisfy({ $0.balance == 0 })) ? .noExpense : .hasExpense) : (expenses.isEmpty ? .noMember : .hasExpense)
     }

@@ -101,7 +101,7 @@ struct AddExpenseView: View {
                 .foregroundStyle(.blue)
             }
             ToolbarItem(placement: .topBarTrailing) {
-                CheckmarkButton {
+                CheckmarkButton(showLoader: viewModel.showLoader) {
                     viewModel.handleSaveAction { isSucceed in
                         if isSucceed { dismiss() }
                     }

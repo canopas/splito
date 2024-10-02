@@ -21,7 +21,7 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var groupMembers: [AppUser] = []
     @Published private(set) var membersAmount: [String: Double] = [:]
 
-    @Published var currentViewState: ViewState = .initial
+    @Published var currentViewState: ViewState = .loading
 
     @Published private(set) var dismissChoosePayerFlow: () -> Void
 
@@ -53,7 +53,6 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
 
     private func fetchMembers() async {
         do {
-            currentViewState = .loading
             let users = try await groupRepository.fetchMembersBy(groupId: groupId)
             groupMembers = users
             currentViewState = .initial

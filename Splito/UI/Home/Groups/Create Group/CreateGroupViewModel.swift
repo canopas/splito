@@ -28,7 +28,6 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     @Published var profileImageUrl: String?
 
     @Published var group: Groups?
-    @Published var currentState: ViewState = .initial
 
     private let router: Router<AppRoute>
 
@@ -91,9 +90,8 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     }
 
     private func createGroup(completion: (Bool) -> Void) async {
-        showLoader = true
+        guard let userId = preference.user?.id else { return }
 
-        let userId = preference.user?.id ?? ""
         let memberBalance = GroupMemberBalance(id: userId, balance: 0, totalSummary: [])
         let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId,
                            imageUrl: nil, members: [userId], balances: [memberBalance], createdAt: Timestamp())
@@ -102,12 +100,12 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
 
         do {
+            showLoader = true
             let group = try await groupRepository.createGroup(group: group, imageData: imageData)
-            showLoader = false
             NotificationCenter.default.post(name: .addGroup, object: group)
+            showLoader = false
             completion(true)
         } catch {
-            currentState = .initial
             showLoader = false
             completion(false)
             showToastForError()
@@ -115,8 +113,6 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateGroup(group: Groups, completion: (Bool) -> Void) async {
-        self.showLoader = true
-
         var newGroup = group
         newGroup.name = groupName.trimming(spaces: .leadingAndTrailing)
 
@@ -124,12 +120,12 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
 
         do {
+            self.showLoader = true
             let updatedGroup = try await groupRepository.updateGroupWithImage(imageData: imageData, newImageUrl: profileImageUrl, group: newGroup)
-            showLoader = false
             NotificationCenter.default.post(name: .updateGroup, object: updatedGroup)
+            showLoader = false
             completion(true)
         } catch {
-            currentState = .initial
             showLoader = false
             completion(false)
             showToastForError()
@@ -143,13 +139,5 @@ extension CreateGroupViewModel {
         case camera
         case gallery
         case remove
-    }
-}
-
-// MARK: - View's State
-extension CreateGroupViewModel {
-    enum ViewState {
-        case initial
-        case loading
     }
 }

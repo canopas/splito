@@ -60,7 +60,10 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     private func fetchGroup() async {
         do {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
-            guard let group else { return }
+            guard let group else {
+                currentViewState = .initial
+                return
+            }
             self.group = group
             currentViewState = .initial
         } catch {
@@ -78,7 +81,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             transactions = result.transactions.uniqued()
 
             await combinedTransactionsWithUser(transactions: result.transactions)
-            hasMoreTransactions = !(result.transactions.count < self.TRANSACTIONS_LIMIT)
+            hasMoreTransactions = !(result.transactions.count < TRANSACTIONS_LIMIT)
+            currentViewState = .initial
         } catch {
             handleServiceError()
         }
@@ -100,7 +104,6 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             await combinedTransactionsWithUser(transactions: result.transactions.uniqued())
             hasMoreTransactions = !(result.transactions.count < TRANSACTIONS_LIMIT)
         } catch {
-            currentViewState = .initial
             showToastForError()
         }
     }
@@ -119,7 +122,6 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
         self.transactionsWithUser.append(contentsOf: combinedData)
         self.filteredTransactionsForSelectedTab()
-        self.currentViewState = .initial
     }
 
     private func fetchUserData(for userId: String) async -> AppUser? {
@@ -161,7 +163,6 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
             await updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
         } catch {
-            currentViewState = .initial
             showToastForError()
         }
     }
@@ -174,7 +175,6 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             try await groupRepository.updateGroup(group: group)
             NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
         } catch {
-            currentViewState = .initial
             showToastForError()
         }
     }

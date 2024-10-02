@@ -27,7 +27,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var fixedAmounts: [String: Double] = [:]
 
     @Published var selectedTab: SplitType
-    @Published private(set) var viewState: ViewState = .initial
+    @Published private(set) var viewState: ViewState = .loading
 
     @Published var selectedMembers: [String] {
         didSet {
@@ -76,7 +76,6 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroupMembersDetail() async {
         var users: [AppUser] = []
-        viewState = .loading
 
         for memberId in members {
             let user = await fetchMemberData(for: memberId)

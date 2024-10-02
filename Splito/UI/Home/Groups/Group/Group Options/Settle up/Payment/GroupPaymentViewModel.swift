@@ -91,8 +91,10 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     private func getPayerUserDetail() async {
         do {
+            viewState = .loading
             let user = try await userRepository.fetchUserBy(userID: payerId)
             if let user { payer = user }
+            viewState = .initial
         } catch {
             handleServiceError()
         }
@@ -100,8 +102,10 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     private func getPayableUserDetail() async {
         do {
+            viewState = .loading
             let user = try await userRepository.fetchUserBy(userID: receiverId)
             if let user { receiver = user }
+            viewState = .initial
         } catch {
             handleServiceError()
         }
@@ -143,7 +147,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             showLoader = false
             completion(true)
         } catch {
-            viewState = .initial
             showLoader = false
             completion(false)
             showToastForError()
@@ -154,12 +157,11 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         do {
             showLoader = true
             try await transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
-            await self.updateGroupMemberBalance(transaction: transaction, updateType: .Update(oldTransaction: oldTransaction))
+            await updateGroupMemberBalance(transaction: transaction, updateType: .Update(oldTransaction: oldTransaction))
             NotificationCenter.default.post(name: .updateTransaction, object: transaction)
             showLoader = false
             completion(true)
         } catch {
-            viewState = .initial
             showLoader = false
             completion(false)
             showToastForError()
@@ -167,14 +169,17 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) async {
-        guard var group else { return }
+        guard var group else {
+            showLoader = false
+            return
+        }
+
         do {
             let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
             group.balances = memberBalance
             try await groupRepository.updateGroup(group: group)
-            viewState = .initial
         } catch {
-            viewState = .initial
+            showLoader = false
             showToastForError()
         }
     }

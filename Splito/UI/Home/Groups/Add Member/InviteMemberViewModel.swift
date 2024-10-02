@@ -14,8 +14,11 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
     @Inject var groupRepository: GroupRepository
     @Inject var codeRepository: ShareCodeRepository
 
-    @Published var inviteCode = ""
+    @Published private(set) var inviteCode = ""
     @Published var showShareSheet = false
+    @Published private(set) var showLoader = false
+
+    @Published var viewState: ViewState = .loading
 
     var group: Groups?
     private let groupId: String
@@ -28,7 +31,7 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
         self.fetchInitialData()
     }
 
-    private func fetchInitialData() {
+    func fetchInitialData() {
         Task {
             await fetchGroup()
             await generateInviteCode()
@@ -36,24 +39,27 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Data Loading
+    private func fetchGroup() async {
+        do {
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            self.group = group
+            viewState = .initial
+        } catch {
+            handleServiceError()
+        }
+    }
+
     private func generateInviteCode() async {
         do {
+            viewState = .loading
             inviteCode = inviteCode.randomString(length: 6).uppercased()
             let isAvailable = try await codeRepository.checkForCodeAvailability(code: inviteCode)
             if !isAvailable {
                 await generateInviteCode()
             }
+            viewState = .initial
         } catch {
-            showToastForError()
-        }
-    }
-
-    private func fetchGroup() async {
-        do {
-            let group = try await groupRepository.fetchGroupBy(id: groupId)
-            self.group = group
-        } catch {
-            showToastForError()
+            handleServiceError()
         }
     }
 
@@ -67,9 +73,12 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
         let shareCode = SharedCode(code: inviteCode.encryptHexCode(), groupId: groupId, expireDate: Timestamp())
 
         do {
+            showLoader = true
             try await codeRepository.addSharedCode(sharedCode: shareCode)
+            showLoader = false
             completion(true)
         } catch {
+            showLoader = false
             completion(false)
             showToastForError()
         }
@@ -78,5 +87,24 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
     // MARK: - User Actions
     func openShareSheet() {
         showShareSheet = true
+    }
+
+    // MARK: - Error Handling
+    private func handleServiceError() {
+        if !networkMonitor.isConnected {
+            viewState = .noInternet
+        } else {
+            viewState = .somethingWentWrong
+        }
+    }
+}
+
+// MARK: - View's State
+extension InviteMemberViewModel {
+    enum ViewState {
+        case initial
+        case loading
+        case noInternet
+        case somethingWentWrong
     }
 }

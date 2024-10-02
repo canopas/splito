@@ -14,7 +14,7 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
     @Inject var groupRepository: GroupRepository
 
     @Published var selectedGroup: Groups?
-    @Published private(set) var currentViewState: ViewState = .initial
+    @Published private(set) var currentViewState: ViewState = .loading
 
     var onGroupSelection: ((Groups) -> Void)
 
@@ -35,7 +35,6 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroups() async {
         do {
-            currentViewState = .loading
             let (groups, _) = try await groupRepository.fetchGroupsBy(userId: preference.user?.id ?? "")
             currentViewState = groups.isEmpty ? .noGroups : .hasGroups(groups: groups)
         } catch {
@@ -71,7 +70,6 @@ extension SelectGroupViewModel {
             return lhs.key == rhs.key
         }
 
-        case initial
         case loading
         case hasGroups(groups: [Groups])
         case noGroups
@@ -80,8 +78,6 @@ extension SelectGroupViewModel {
 
         public var key: String {
             switch self {
-            case .initial:
-                return "initial"
             case .loading:
                 return "loading"
             case .hasGroups:
