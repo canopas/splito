@@ -54,12 +54,10 @@ struct UserProfileView: View {
         .background(surfaceColor)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toastView(toast: $viewModel.toast)
-        .toolbarRole(.editor)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Profile")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleView(navigationTitle: "Profile")
             }
             ToolbarItem(placement: .topBarTrailing, content: {
                 if viewModel.isSaveInProgress {

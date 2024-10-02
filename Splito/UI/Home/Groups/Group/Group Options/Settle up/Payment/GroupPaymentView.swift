@@ -78,12 +78,10 @@ struct GroupPaymentView: View {
         .onTapGesture {
             UIApplication.shared.endEditing()
         }
-        .toolbarRole(.editor)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text(viewModel.transactionId != nil ? "Edit payment" : "Record a payment")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleView(navigationTitle: viewModel.transactionId != nil ? "Edit payment" : "Record a payment")
             }
         }
     }

@@ -44,12 +44,10 @@ struct ExpenseDetailsView: View {
                 AddExpenseView(viewModel: AddExpenseViewModel(router: viewModel.router, groupId: viewModel.groupId, expenseId: viewModel.expenseId))
             }
         }
-        .toolbarRole(.editor)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Details")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleView(navigationTitle: "Details")
             }
             ToolbarItem(placement: .topBarTrailing) {
                 ToolbarButtonView(imageIcon: .binIcon, onClick: viewModel.handleDeleteButtonAction)

@@ -39,12 +39,10 @@ struct GroupSettleUpView: View {
         .interactiveDismissDisabled()
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .toolbarRole(.editor)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Settle up")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleView(navigationTitle: "Settle up")
             }
         }
     }

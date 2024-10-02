@@ -59,12 +59,10 @@ struct GroupBalancesView: View {
                 )
             }
         }
-        .toolbarRole(.editor)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Group balances")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleView(navigationTitle: "Group balances")
             }
         }
     }

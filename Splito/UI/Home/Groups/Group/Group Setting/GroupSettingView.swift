@@ -51,12 +51,10 @@ struct GroupSettingView: View {
         .confirmationDialog("", isPresented: $viewModel.showRemoveMemberDialog, titleVisibility: .hidden) {
             Button("Remove from group", action: viewModel.onRemoveAndLeaveFromGroupTap)
         }
-        .toolbarRole(.editor)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Group settings")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleView(navigationTitle: "Group settings")
             }
         }
         .fullScreenCover(isPresented: $viewModel.showEditGroupSheet) {

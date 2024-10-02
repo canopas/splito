@@ -63,25 +63,15 @@ public class TransactionStore: ObservableObject {
     }
 
     func deleteTransaction(groupId: String, transactionId: String) async throws {
-        do {
-            try await transactionReference(groupId: groupId).document(transactionId).delete()
-        } catch {
-            LogE("TransactionStore :: \(#function): Deleting collection failed with error: \(error.localizedDescription).")
-            throw error
-        }
+        try await transactionReference(groupId: groupId).document(transactionId).delete()
     }
 
     func deleteTransactionsOf(groupId: String) async throws {
-        do {
-            let snapshot = try await transactionReference(groupId: groupId).getDocuments(source: .server)
-
-            let batch = database.batch()
-            snapshot.documents.forEach { batch.deleteDocument($0.reference) }
-
-            try await batch.commit()
-        } catch {
-            LogE("TransactionStore :: \(#function) Database error: \(error.localizedDescription)")
-            throw error
-        }
+        let snapshot = try await transactionReference(groupId: groupId).getDocuments(source: .server)
+        
+        let batch = database.batch()
+        snapshot.documents.forEach { batch.deleteDocument($0.reference) }
+        
+        try await batch.commit()
     }
 }

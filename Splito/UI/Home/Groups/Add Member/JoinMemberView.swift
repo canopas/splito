@@ -64,12 +64,10 @@ struct JoinMemberView: View {
         .onTapGesture {
             isFocused = false
         }
-        .toolbarRole(.editor)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Join Group")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleView(navigationTitle: "Join Group")
             }
         }
     }

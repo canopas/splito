@@ -71,12 +71,10 @@ struct InviteMemberView: View {
                 }
             }
         }
-        .toolbarRole(.editor)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Invite Code")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleView(navigationTitle: "Invite Code")
             }
         }
     }

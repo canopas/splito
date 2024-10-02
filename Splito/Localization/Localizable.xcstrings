@@ -251,9 +251,6 @@
     "Delete your account" : {
       "extractionState" : "manual"
     },
-    "Details" : {
-
-    },
     "Done" : {
       "extractionState" : "manual"
     },
@@ -261,9 +258,6 @@
 
     },
     "Edit group" : {
-
-    },
-    "Edit payment" : {
 
     },
     "Email" : {
@@ -338,9 +332,6 @@
     "Great for time-based splitting (2 nights - 2 shares) and splitting across families (family of 3 - 3 shares)." : {
       "extractionState" : "manual"
     },
-    "Group balances" : {
-
-    },
     "Group deleted successfully" : {
       "extractionState" : "manual"
     },
@@ -351,12 +342,6 @@
 
     },
     "Group Name" : {
-
-    },
-    "Group settings" : {
-
-    },
-    "Group spending summary" : {
 
     },
     "Groups" : {
@@ -374,16 +359,10 @@
     "Invalid OTP" : {
       "extractionState" : "manual"
     },
-    "Invite Code" : {
-
-    },
     "It seems that everything has settled down in all groups." : {
 
     },
     "Join group" : {
-
-    },
-    "Join Group" : {
 
     },
     "Last Name" : {
@@ -524,9 +503,6 @@
     "privacy policy." : {
 
     },
-    "Profile" : {
-
-    },
     "Rate Splito" : {
       "extractionState" : "manual"
     },
@@ -535,9 +511,6 @@
     },
     "Reauthenticate" : {
       "extractionState" : "manual"
-    },
-    "Record a payment" : {
-
     },
     "Remove" : {
 
@@ -747,12 +720,6 @@
     "Transaction deleted successfully" : {
       "extractionState" : "manual"
     },
-    "Transaction detail" : {
-
-    },
-    "Transactions" : {
-
-    },
     "unequally" : {
       "extractionState" : "manual"
     },
@@ -779,12 +746,6 @@
     },
     "What’s your phone number?" : {
       "extractionState" : "manual"
-    },
-    "Who is getting paid?" : {
-
-    },
-    "Who is paying?" : {
-
     },
     "Whoops!" : {
       "extractionState" : "manual"

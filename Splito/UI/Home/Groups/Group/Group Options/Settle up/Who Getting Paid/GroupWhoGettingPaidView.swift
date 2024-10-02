@@ -42,12 +42,10 @@ struct GroupWhoGettingPaidView: View {
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .onAppear(perform: viewModel.fetchInitialMembersData)
-        .toolbarRole(.editor)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Who is getting paid?")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleView(navigationTitle: "Who is getting paid?")
             }
         }
     }

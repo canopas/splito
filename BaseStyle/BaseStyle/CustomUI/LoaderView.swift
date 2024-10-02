@@ -39,9 +39,9 @@ private struct DotsAnimation: View {
     let height: CGFloat
 
     static let DATA: [AnimationData] = [
-        AnimationData(delay: 0.0, ty: -50),
-        AnimationData(delay: 0.1, ty: -60),
-        AnimationData(delay: 0.2, ty: -70)
+        AnimationData(delay: 0.0, ty: -20),
+        AnimationData(delay: 0.1, ty: -24),
+        AnimationData(delay: 0.2, ty: -28)
     ]
 
     @State var transY: [CGFloat] = DATA.map { _ in return 0 }
@@ -49,7 +49,7 @@ private struct DotsAnimation: View {
     var animation = Animation.easeInOut.speed(0.5)
 
     var body: some View {
-        HStack {
+        HStack(spacing: 5) {
             DotView(transY: $transY[0], color: color, height: height)
             DotView(transY: $transY[1], color: color, height: height)
             DotView(transY: $transY[2], color: color, height: height)
@@ -69,7 +69,7 @@ private struct DotsAnimation: View {
         }
 
         // Repeat main loop
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             animateDots()
         }
     }

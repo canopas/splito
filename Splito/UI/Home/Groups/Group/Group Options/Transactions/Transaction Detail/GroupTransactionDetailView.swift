@@ -58,12 +58,10 @@ struct GroupTransactionDetailView: View {
                 )
             }
         }
-        .toolbarRole(.editor)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Transaction detail")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleView(navigationTitle: "Transaction detail")
             }
             ToolbarItem(placement: .topBarTrailing) {
                 ToolbarButtonView(imageIcon: .binIcon, onClick: viewModel.handleDeleteBtnAction)

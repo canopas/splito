@@ -9,6 +9,7 @@ import SwiftUI
 import BaseStyle
 
 struct GroupHomeView: View {
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var homeRouteViewModel: HomeRouteViewModel
 
     @StateObject var viewModel: GroupHomeViewModel
@@ -101,9 +102,7 @@ struct GroupHomeView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text(viewModel.group?.name ?? "")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleView(navigationTitle: viewModel.group?.name ?? "")
             }
             ToolbarItem(placement: .topBarTrailing) {
                 ToolbarButtonView(systemImageName: "magnifyingglass", onClick: viewModel.handleSearchOptionTap)
@@ -112,6 +111,7 @@ struct GroupHomeView: View {
                 ToolbarButtonView(systemImageName: "gearshape", onClick: viewModel.handleSettingsOptionTap)
             }
         }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
@@ -281,5 +281,24 @@ struct ToolbarButtonView: View {
             }
         }
         .foregroundStyle(primaryText)
+    }
+}
+
+struct NavigationTitleView: View {
+    @Environment(\.dismiss) var dismiss
+
+    let navigationTitle: String
+
+    var body: some View {
+        HStack(spacing: 12) {
+            BackButton(size: (10, 18), iconColor: primaryText, padding: (0, 0), onClick: {
+                dismiss()
+            })
+            .fontWeight(.semibold)
+
+            Text(navigationTitle)
+                .font(.Header2())
+                .foregroundStyle(primaryText)
+        }
     }
 }
