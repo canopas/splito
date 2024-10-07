@@ -81,3 +81,62 @@ exports.onGroupWrite = onDocumentWritten(
     }
   }
 );
+
+
+// New function: Send notifications when an expense is added, edited, or deleted
+// Interface for expense data
+interface ExpenseData {
+  amount: number;
+  addedBy: string;
+  splitTo: string[];
+}
+
+exports.onExpenseWrite = onDocumentWritten(
+  { document: 'expenses/{expenseId}' },
+  async (event) => {
+    try {
+      const beforeData = event.data?.before?.data() as ExpenseData | undefined;
+      const afterData = event.data?.after?.data() as ExpenseData | undefined;
+
+      if (!afterData) {
+        logger.warn('Expense deleted. No notification needed.');
+        return;
+      }
+
+      let title = 'Expense Updated';
+      let body = '';
+
+      if (!beforeData) {
+        title = 'New Expense Added';
+        body = `An expense of ₹${afterData.amount} was added by ${afterData.addedBy}.`;
+      } else if (beforeData.amount !== afterData.amount) {
+        body = `An expense was updated to ₹${afterData.amount} by ${afterData.addedBy}.`;
+      }
+
+      const usersToNotify = afterData.splitTo || [];
+
+      for (const userId of usersToNotify) {
+        const userDoc = await db.collection('users').doc(userId).get();
+
+        if (userDoc.exists && userDoc.data()?.fcmToken) {
+          const fcmToken = userDoc.data()?.fcmToken;
+
+          const message = {
+            notification: {
+              title,
+              body,
+            },
+            token: fcmToken,
+          };
+
+          await admin.messaging().send(message);
+          logger.info(`Notification sent to user ${userId}: ${body}`);
+        } else {
+          logger.warn(`No FCM token found for user ${userId}`);
+        }
+      }
+    } catch (error) {
+      logger.error('Error sending notification:', error);
+    }
+  }
+);
