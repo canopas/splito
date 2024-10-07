@@ -236,7 +236,7 @@ private struct GroupExpenseItemView: View {
                     }
                 }
                 .lineLimit(1)
-                .foregroundStyle(isBorrowed ? alertColor : successColor)
+                .foregroundStyle(isBorrowed ? errorColor : successColor)
             }
             .padding(.horizontal, 16)
             .padding(.top, 20)
@@ -311,7 +311,7 @@ private struct GroupExpenseHeaderOverallView: View {
 
                 Text("\(abs(viewModel.overallOwingAmount).formattedCurrency)")
                     .font(.body1())
-                    .foregroundStyle(isDue ? alertColor : successColor)
+                    .foregroundStyle(isDue ? errorColor : successColor)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(16)
@@ -356,7 +356,7 @@ private struct GroupExpenseMemberOweView: View {
                     Text("You owe \(name.localized) ")
                         .foregroundColor(disableText)
                     + Text("\(amount.formattedCurrency)")
-                        .foregroundColor(alertColor)
+                        .foregroundColor(errorColor)
                 }
                 .font(.body3())
             }

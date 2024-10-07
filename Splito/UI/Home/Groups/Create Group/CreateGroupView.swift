@@ -22,7 +22,9 @@ struct CreateGroupView: View {
                 VStack(spacing: 0) {
                     VSpacer(40)
 
-                    AddGroupImageView(image: viewModel.profileImage, imageUrl: viewModel.profileImageUrl, handleProfileTap: viewModel.handleProfileTap)
+                    AddGroupImageView(showImagePickerOptions: $viewModel.showImagePickerOptions, image: viewModel.profileImage,
+                                      imageUrl: viewModel.profileImageUrl, handleProfileTap: viewModel.handleProfileTap,
+                                      handleActionSelection: viewModel.handleActionSelection(_:))
 
                     VSpacer(30)
 
@@ -54,25 +56,6 @@ struct CreateGroupView: View {
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
-        .confirmationDialog("", isPresented: $viewModel.showImagePickerOptions, titleVisibility: .hidden) {
-            Button("Take Picture") {
-                viewModel.handleActionSelection(.camera)
-            }
-            Button("Choose from Library") {
-                viewModel.handleActionSelection(.gallery)
-            }
-            if viewModel.profileImage != nil || viewModel.profileImageUrl != nil {
-                Button("Remove") {
-                    viewModel.handleActionSelection(.remove)
-                }
-                .foregroundStyle(.red)
-            }
-        }
-        .sheet(isPresented: $viewModel.showImagePicker) {
-            ImagePickerView(cropOption: .square,
-                            sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
-                            image: $viewModel.profileImage, isPresented: $viewModel.showImagePicker)
-        }
         .onTapGesture {
             isFocused = false
         }
@@ -82,15 +65,23 @@ struct CreateGroupView: View {
                 NavigationTitleTextView(text: viewModel.group == nil ? "Create a group" : "Edit group")
             }
         }
+        .sheet(isPresented: $viewModel.showImagePicker) {
+            ImagePickerView(cropOption: .square,
+                            sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
+                            image: $viewModel.profileImage, isPresented: $viewModel.showImagePicker)
+        }
     }
 }
 
 private struct AddGroupImageView: View {
 
+    @Binding var showImagePickerOptions: Bool
+
     let image: UIImage?
     let imageUrl: String?
 
     let handleProfileTap: (() -> Void)
+    let handleActionSelection: ((ActionsOfSheet) -> Void)
 
     var body: some View {
         ZStack {
@@ -100,6 +91,9 @@ private struct AddGroupImageView: View {
                     .aspectRatio(contentMode: .fill)
             } else if let imageUrl, let url = URL(string: imageUrl) {
                 KFImage(url)
+                    .placeholder({ _ in
+                        ImageLoaderView()
+                    })
                     .resizable()
                     .aspectRatio(contentMode: .fill)
             } else {
@@ -123,6 +117,31 @@ private struct AddGroupImageView: View {
         }
         .padding(.horizontal, 16)
         .onTapGesture(perform: handleProfileTap)
+        .confirmationDialog("", isPresented: $showImagePickerOptions, titleVisibility: .hidden) {
+            ImagePickerOptionsView(image: image, imageUrl: imageUrl, handleActionSelection: handleActionSelection)
+        }
+    }
+}
+
+struct ImagePickerOptionsView: View {
+
+    let image: UIImage?
+    let imageUrl: String?
+
+    let handleActionSelection: (ActionsOfSheet) -> Void
+
+    var body: some View {
+        Button("Take a picture") {
+            handleActionSelection(.camera)
+        }
+        Button("Choose from Library") {
+            handleActionSelection(.gallery)
+        }
+        if image != nil || imageUrl != nil {
+            Button("Remove") {
+                handleActionSelection(.remove)
+            }
+        }
     }
 }
 

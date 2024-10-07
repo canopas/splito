@@ -10,11 +10,10 @@ import SwiftUI
 public let primaryColor = Color.mainPrimary
 public let primaryDarkColor = Color.primaryDark
 public let surfaceColor = Color.surface
-public let settleUpColor = Color.settleUp
-public let alertColor = Color.alert
+public let errorColor = Color.error
+public let infoColor = Color.info
 public let successColor = Color.success
 public let warningColor = Color.warning
-public let infoColor = Color.info
 
 public let outlineColor = Color.outline
 public let inverseOutlineColor = Color.inverseOutline

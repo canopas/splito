@@ -113,16 +113,18 @@ public struct ImageLoaderView: View {
     @StateObject var viewModel: LoaderViewModel = .init()
 
     private let tintColor: Color
+    private let scaleEffect: Double
 
-    public init(tintColor: Color = secondaryText) {
+    public init(tintColor: Color = secondaryText, scaleEffect: Double = 1) {
         self.tintColor = tintColor
+        self.scaleEffect = scaleEffect
     }
 
     public var body: some View {
         ZStack {
             if viewModel.isStillLoading {
                 ProgressView()
-                    .scaleEffect(1, anchor: .center)
+                    .scaleEffect(scaleEffect, anchor: .center)
                     .progressViewStyle(CircularProgressViewStyle(tint: tintColor))
             }
         }

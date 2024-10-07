@@ -109,7 +109,7 @@ struct TabBarItemView: View {
 
                 if tabIndex == 0 { Spacer() }
             }
-            .padding(.horizontal, isIpad ? 150 : 50)
+            .padding(.horizontal, 50)
         }
     }
 }

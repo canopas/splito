@@ -128,7 +128,7 @@ private struct GroupListCellView: View {
                     }
                 }
                 .lineLimit(1)
-                .foregroundStyle(group.userBalance < 0 ? alertColor : successColor)
+                .foregroundStyle(group.userBalance < 0 ? errorColor : successColor)
 
                 if group.userBalance != 0 {
                     GroupExpandBtnView(showInfo: $showInfo, isFirstGroup: isFirstGroup)
@@ -204,7 +204,7 @@ private struct GroupExpenseMemberOweView: View {
                 Text("You owe \(name.localized) ")
                     .foregroundColor(disableText)
                 + Text("\(amount.formattedCurrency)")
-                    .foregroundColor(alertColor)
+                    .foregroundColor(errorColor)
             }
             .font(.body3())
         }

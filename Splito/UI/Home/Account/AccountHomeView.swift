@@ -59,7 +59,7 @@ struct AccountHomeView: View {
         .onAppear {
             homeRouteViewModel.updateSelectedGroup(id: nil)
         }
-        .toastView(toast: $viewModel.toast)
+        .toastView(toast: $viewModel.toast, bottomPadding: 32)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showShareSheet) {
             MailComposeView(logFilePath: viewModel.logFilePath, showToast: viewModel.showMailSendToast)
@@ -149,7 +149,7 @@ private struct AccountAboutSectionView: View {
 
             AccountItemCellView(optionText: "Acknowledgements", onClick: onAcknowledgementsTap)
 
-            AccountItemCellView(optionText: "Sign Out", optionTextColor: alertColor, showForwardIcon: false, onClick: onLogoutTap)
+            AccountItemCellView(optionText: "Sign Out", optionTextColor: errorColor, showForwardIcon: false, onClick: onLogoutTap)
         }
         .padding(.horizontal, 16)
     }

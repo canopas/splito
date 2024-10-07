@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
-    <device id="retina6_7" orientation="portrait" appearance="light"/>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_9" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
-        <capability name="Named colors" minToolsVersion="9.0"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -14,45 +14,60 @@
             <objects>
                 <viewController id="01J-lp-oVM" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="kg7-BU-gQ2">
-                        <rect key="frame" x="0.0" y="0.0" width="428" height="926"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Yab-Cx-FOg">
-                                <rect key="frame" x="0.0" y="47" width="428" height="845"/>
+                                <rect key="frame" x="0.0" y="62" width="440" height="860"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="h8b-ks-zQC">
-                                        <rect key="frame" x="0.0" y="337" width="428" height="171"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="h8b-ks-zQC">
+                                        <rect key="frame" x="0.0" y="0.0" width="440" height="860"/>
                                         <subviews>
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="SplashTopWave" translatesAutoresizingMaskIntoConstraints="NO" id="QR8-6b-7gl">
+                                                <rect key="frame" x="0.0" y="0.0" width="440" height="354.66666666666669"/>
+                                            </imageView>
                                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="AppLogo" translatesAutoresizingMaskIntoConstraints="NO" id="Wtn-Yd-aui">
-                                                <rect key="frame" x="128.33333333333331" y="0.0" width="171.33333333333331" height="171"/>
+                                                <rect key="frame" x="74.666666666666657" y="354.66666666666669" width="290.66666666666674" height="150.66666666666669"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="width" secondItem="Wtn-Yd-aui" secondAttribute="height" multiplier="1:1" id="Zzq-Me-MOi"/>
+                                                    <constraint firstAttribute="width" secondItem="Wtn-Yd-aui" secondAttribute="height" multiplier="1:1" constant="140" id="tip-K0-lcS">
+                                                        <variation key="heightClass=regular-widthClass=regular" constant="240"/>
+                                                    </constraint>
                                                 </constraints>
                                             </imageView>
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="SplashBottomWave" translatesAutoresizingMaskIntoConstraints="NO" id="bK7-Bk-ODg">
+                                                <rect key="frame" x="0.0" y="505.33333333333337" width="440" height="354.66666666666663"/>
+                                            </imageView>
                                         </subviews>
+                                        <constraints>
+                                            <constraint firstItem="Wtn-Yd-aui" firstAttribute="centerX" secondItem="h8b-ks-zQC" secondAttribute="centerX" id="53R-QE-tMZ"/>
+                                            <constraint firstItem="Wtn-Yd-aui" firstAttribute="width" secondItem="h8b-ks-zQC" secondAttribute="width" multiplier="0.66" id="TkO-Qt-9RL">
+                                                <variation key="heightClass=regular-widthClass=regular" constant="-150"/>
+                                            </constraint>
+                                            <constraint firstItem="bK7-Bk-ODg" firstAttribute="leading" secondItem="h8b-ks-zQC" secondAttribute="leading" id="UGk-Il-Qsh"/>
+                                            <constraint firstAttribute="trailing" secondItem="QR8-6b-7gl" secondAttribute="trailing" id="dgK-nt-k1H"/>
+                                            <constraint firstItem="QR8-6b-7gl" firstAttribute="leading" secondItem="h8b-ks-zQC" secondAttribute="leading" id="fzC-NA-ctF"/>
+                                            <constraint firstItem="bK7-Bk-ODg" firstAttribute="height" secondItem="QR8-6b-7gl" secondAttribute="height" id="tTt-cj-az3"/>
+                                            <constraint firstAttribute="trailing" secondItem="bK7-Bk-ODg" secondAttribute="trailing" id="y2Z-ef-Gbh"/>
+                                        </constraints>
                                     </stackView>
                                 </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstItem="h8b-ks-zQC" firstAttribute="leading" secondItem="Yab-Cx-FOg" secondAttribute="leading" id="7Dd-PI-Nsb"/>
+                                    <constraint firstAttribute="bottom" secondItem="h8b-ks-zQC" secondAttribute="bottom" id="Pn0-8U-PKB"/>
                                     <constraint firstItem="h8b-ks-zQC" firstAttribute="centerX" secondItem="Yab-Cx-FOg" secondAttribute="centerX" id="VZT-zp-p6W"/>
                                     <constraint firstItem="h8b-ks-zQC" firstAttribute="centerY" secondItem="Yab-Cx-FOg" secondAttribute="centerY" id="cJ8-O8-EpR"/>
+                                    <constraint firstItem="h8b-ks-zQC" firstAttribute="top" secondItem="Yab-Cx-FOg" secondAttribute="top" id="jaY-o3-7GW"/>
                                     <constraint firstAttribute="trailing" secondItem="h8b-ks-zQC" secondAttribute="trailing" id="wpd-5x-1DI"/>
-                                    <constraint firstItem="Wtn-Yd-aui" firstAttribute="width" secondItem="Yab-Cx-FOg" secondAttribute="width" multiplier="0.4" id="zAi-If-ncd">
-                                        <variation key="heightClass=compact-widthClass=compact" constant="-150"/>
-                                        <variation key="heightClass=compact-widthClass=regular" constant="-150"/>
-                                        <variation key="heightClass=regular-widthClass=regular" constant="-150"/>
-                                    </constraint>
                                 </constraints>
                             </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Ta-40-yoQ"/>
-                        <color key="backgroundColor" name="Background"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="Yab-Cx-FOg" firstAttribute="leading" secondItem="6Ta-40-yoQ" secondAttribute="leading" id="AkA-z9-Oet"/>
+                            <constraint firstItem="Yab-Cx-FOg" firstAttribute="leading" secondItem="kg7-BU-gQ2" secondAttribute="leading" id="AkA-z9-Oet"/>
                             <constraint firstItem="6Ta-40-yoQ" firstAttribute="bottom" secondItem="Yab-Cx-FOg" secondAttribute="bottom" id="KD4-f4-hDP"/>
                             <constraint firstItem="Yab-Cx-FOg" firstAttribute="top" secondItem="6Ta-40-yoQ" secondAttribute="top" id="N5Y-g6-Di2"/>
-                            <constraint firstItem="6Ta-40-yoQ" firstAttribute="trailing" secondItem="Yab-Cx-FOg" secondAttribute="trailing" id="d0M-yF-OmW"/>
+                            <constraint firstAttribute="trailing" secondItem="Yab-Cx-FOg" secondAttribute="trailing" id="d0M-yF-OmW"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -62,9 +77,11 @@
         </scene>
     </scenes>
     <resources>
-        <image name="AppLogo" width="512" height="512"/>
-        <namedColor name="Background">
-            <color red="0.99607843137254903" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
+        <image name="AppLogo" width="215" height="85"/>
+        <image name="SplashBottomWave" width="375" height="332"/>
+        <image name="SplashTopWave" width="375" height="287"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>

@@ -5,7 +5,7 @@
 //  Created by Amisha Italiya on 26/02/24.
 //
 
-import Foundation
+import Data
 import SwiftUI
 import BaseStyle
 

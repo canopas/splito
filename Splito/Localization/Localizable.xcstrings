@@ -221,9 +221,6 @@
     "Contact Us" : {
       "extractionState" : "manual"
     },
-    "Couldn't connect to the network. \nPlease check and try again." : {
-
-    },
     "Countries" : {
 
     },
@@ -329,6 +326,9 @@
     "Group deleted successfully" : {
       "extractionState" : "manual"
     },
+    "Group left successfully." : {
+      "extractionState" : "manual"
+    },
     "Group member removed" : {
       "extractionState" : "manual"
     },
@@ -415,9 +415,6 @@
     },
     "No internet connection!" : {
       "extractionState" : "manual"
-    },
-    "No internet!" : {
-
     },
     "No members in your selected group." : {
 
@@ -515,9 +512,6 @@
     "Remove from group?" : {
       "extractionState" : "manual"
     },
-    "Remove picture" : {
-
-    },
     "requires recent authentication" : {
       "extractionState" : "manual"
     },
@@ -606,9 +600,6 @@
     "Someone" : {
       "extractionState" : "manual"
     },
-    "Something went wrong!" : {
-
-    },
     "Something went wrong! Please try after some time." : {
       "extractionState" : "manual"
     },
@@ -648,9 +639,6 @@
     "Take a picture" : {
 
     },
-    "Take Picture" : {
-
-    },
     "terms of service" : {
 
     },
@@ -676,9 +664,6 @@
       "extractionState" : "manual"
     },
     "This code will be active for 2 days." : {
-
-    },
-    "This is all we know, but we won't stop until we fix the issue!" : {
 
     },
     "This month" : {

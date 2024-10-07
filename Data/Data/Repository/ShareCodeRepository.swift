@@ -5,15 +5,13 @@
 //  Created by Amisha Italiya on 12/03/24.
 //
 
-import Combine
+import Foundation
 
 public class ShareCodeRepository: ObservableObject {
 
     public let CODE_EXPIRATION_LIMIT = 2 /// Limit for code expiration, in days.
 
     @Inject private var store: ShareCodeStore
-
-    private var cancelable = Set<AnyCancellable>()
 
     public func addSharedCode(sharedCode: SharedCode) async throws {
         try await store.addSharedCode(sharedCode: sharedCode)

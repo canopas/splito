@@ -36,7 +36,7 @@ struct UserProfileView: View {
                                       showLoader: viewModel.isSaveInProgress, onClick: viewModel.updateUsersProfileData)
                     }
 
-                    PrimaryButton(text: "Delete Account", textColor: alertColor,
+                    PrimaryButton(text: "Delete Account", textColor: errorColor,
                                   bgColor: container2Color, showLoader: viewModel.isDeleteInProgress,
                                   onClick: viewModel.showDeleteAccountConfirmation)
                     .hidden(viewModel.isOpenFromOnboard)
@@ -88,7 +88,7 @@ private struct DecoratedProfileImageView: View {
     let profileImageUrl: String?
 
     let handleProfileTap: () -> Void
-    let handleActionSelection: (UserProfileViewModel.ActionsOfSheet) -> Void
+    let handleActionSelection: (ActionsOfSheet) -> Void
 
     var body: some View {
         VSpacer(16)
@@ -102,23 +102,10 @@ private struct DecoratedProfileImageView: View {
                 .fill(primaryDarkColor.opacity(0.05))
                 .frame(width: 128, height: 128)
 
-            UserProfileImageView(image: $profileImage,
-                                 profileImageUrl: profileImageUrl,
-                                 size: (80, 80),
-                                 showOverlay: true,
-                                 handleProfileTap: handleProfileTap)
+            UserProfileImageView(image: $profileImage, profileImageUrl: profileImageUrl, size: (80, 80),
+                                 showOverlay: true, handleProfileTap: handleProfileTap)
             .confirmationDialog("", isPresented: $showImagePickerOption, titleVisibility: .hidden) {
-                Button("Take a picture") {
-                    handleActionSelection(.camera)
-                }
-                Button("Choose from Library") {
-                    handleActionSelection(.gallery)
-                }
-                if profileImage != nil || profileImageUrl != nil {
-                    Button("Remove picture") {
-                        handleActionSelection(.remove)
-                    }
-                }
+                ImagePickerOptionsView(image: profileImage, imageUrl: profileImageUrl, handleActionSelection: handleActionSelection)
             }
         }
     }
@@ -200,7 +187,7 @@ private struct UserDetailCell: View {
                 if validationEnabled && !isValidInput && focused.wrappedValue == fieldType {
                     Text(validationType.errorText.localized)
                         .font(.body1(12))
-                        .foregroundStyle(alertColor)
+                        .foregroundStyle(errorColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
@@ -263,7 +250,7 @@ private struct UserProfileDataEditableTextField: View {
             .padding(.vertical, 12)
             .overlay {
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(showError ? alertColor : outlineColor, lineWidth: 1)
+                    .stroke(showError ? errorColor : outlineColor, lineWidth: 1)
             }
     }
 }

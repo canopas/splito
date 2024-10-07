@@ -68,6 +68,7 @@ struct GroupBalancesView: View {
     }
 }
 
+@MainActor
 private struct GroupBalanceItemView: View {
 
     let memberBalance: MembersCombinedBalance
@@ -105,7 +106,7 @@ private struct GroupBalanceItemView: View {
                             + Text(" \(owesOrGetsBack.localized) ")
 
                             + Text(memberBalance.totalOwedAmount.formattedCurrency)
-                                .foregroundColor(hasDue ? alertColor : successColor)
+                                .foregroundColor(hasDue ? errorColor : successColor)
 
                             + Text(" in total")
                         }
@@ -139,7 +140,7 @@ private struct GroupBalanceItemView: View {
 }
 
 private struct GroupBalanceItemMemberView: View {
-    let SUBIMAGEHEIGHT: CGFloat = 24
+    let SUB_IMAGE_HEIGHT: CGFloat = 24
 
     let id: String
     let balances: [String: Double]
@@ -158,13 +159,13 @@ private struct GroupBalanceItemMemberView: View {
 
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(alignment: .center, spacing: 16) {
-                            MemberProfileImageView(imageUrl: imageUrl, height: SUBIMAGEHEIGHT)
+                            MemberProfileImageView(imageUrl: imageUrl, height: SUB_IMAGE_HEIGHT, scaleEffect: 0.6)
 
                             Group {
                                 Text("\(owedMemberName) owes ")
 
                                 + Text(amount.formattedCurrency)
-                                    .foregroundColor(hasDue ? alertColor : successColor)
+                                    .foregroundColor(hasDue ? errorColor : successColor)
 
                                 + Text(" to \(owesMemberName)")
                             }
@@ -173,7 +174,7 @@ private struct GroupBalanceItemMemberView: View {
                         }
 
                         HStack(alignment: .center, spacing: 16) {
-                            HSpacer(SUBIMAGEHEIGHT)
+                            HSpacer(SUB_IMAGE_HEIGHT)
 
                             Button {
                                 viewModel.handleSettleUpTap(payerId: hasDue ? id : memberId, receiverId: hasDue ? memberId : id, amount: amount)

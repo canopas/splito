@@ -6,7 +6,6 @@
 //
 
 import Data
-import Combine
 import BaseStyle
 import SwiftUI
 
@@ -212,7 +211,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             currentViewState = .initial
 
             if userId == memberId {
-                NotificationCenter.default.post(name: .deleteGroup, object: group)
+                NotificationCenter.default.post(name: .leaveGroup, object: group)
                 goBackToGroupList()
             } else {
                 showAlert = false

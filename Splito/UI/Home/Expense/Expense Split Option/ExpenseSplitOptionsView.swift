@@ -103,7 +103,7 @@ struct BottomInfoCardView: View {
                 if isForEqualSplit && memberCount == 0 {
                     Text("You must select at least one person to split with.")
                         .font(.body1())
-                        .foregroundStyle(alertColor)
+                        .foregroundStyle(errorColor)
                         .multilineTextAlignment(.center)
                 } else {
                     Text(title.localized)

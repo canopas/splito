@@ -90,11 +90,11 @@ private struct GroupTotalSummaryView: View {
             if let summaryData = viewModel.summaryData {
                 GroupSummaryAmountView(text: "Total group spending", amount: summaryData.groupTotalSpending)
                 GroupSummaryAmountView(text: "Total you paid for", amount: summaryData.totalPaidAmount)
-                GroupSummaryAmountView(text: "Your total share", amount: summaryData.totalShare, fontColor: alertColor)
+                GroupSummaryAmountView(text: "Your total share", amount: summaryData.totalShare, fontColor: errorColor)
                 GroupSummaryAmountView(text: "Payments made", amount: summaryData.paidAmount)
-                GroupSummaryAmountView(text: "Payments received", amount: summaryData.receivedAmount, fontColor: alertColor)
+                GroupSummaryAmountView(text: "Payments received", amount: summaryData.receivedAmount, fontColor: errorColor)
                 GroupSummaryAmountView(text: "Total change in balance", amount: summaryData.changeInBalance,
-                                       fontColor: (summaryData.changeInBalance < 0 ? alertColor : successColor), isLast: true)
+                                       fontColor: (summaryData.changeInBalance < 0 ? errorColor : successColor), isLast: true)
             }
         }
     }

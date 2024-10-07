@@ -12,11 +12,13 @@ public struct MemberProfileImageView: View {
 
     let imageUrl: String?
     let height: CGFloat
+    let scaleEffect: Double
     let defaultImageBgColor: Color
 
-    public init(imageUrl: String?, height: CGFloat = 40, defaultImageBgColor: Color = .clear) {
+    public init(imageUrl: String?, height: CGFloat = 40, scaleEffect: Double = 1, defaultImageBgColor: Color = .clear) {
         self.imageUrl = imageUrl
         self.height = height
+        self.scaleEffect = scaleEffect
         self.defaultImageBgColor = defaultImageBgColor
     }
 
@@ -25,7 +27,7 @@ public struct MemberProfileImageView: View {
             if let imageUrl, let url = URL(string: imageUrl) {
                 KFImage(url)
                     .placeholder({ _ in
-                        ImageLoaderView()
+                        ImageLoaderView(scaleEffect: scaleEffect)
                     })
                     .setProcessor(ResizingImageProcessor(referenceSize: CGSize(width: (height * UIScreen.main.scale), height: (height * UIScreen.main.scale)), mode: .aspectFill))
                     .resizable()

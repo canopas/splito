@@ -6,7 +6,6 @@
 //
 
 import Data
-import Combine
 import BaseStyle
 
 class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {

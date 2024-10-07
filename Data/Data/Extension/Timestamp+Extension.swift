@@ -8,7 +8,7 @@
 import Foundation
 import FirebaseFirestore
 
-extension Timestamp: Comparable {
+extension Timestamp: @retroactive Comparable {
     public static func < (lhs: Timestamp, rhs: Timestamp) -> Bool {
         return lhs.dateValue() < rhs.dateValue()
     }

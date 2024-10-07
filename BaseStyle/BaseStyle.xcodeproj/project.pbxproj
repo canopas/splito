@@ -53,6 +53,7 @@
 		D8E244B52B972AD200C6C82A /* EmptyRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244B42B972AD200C6C82A /* EmptyRouteView.swift */; };
 		D8E244C12B986CD800C6C82A /* ImagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244C02B986CD800C6C82A /* ImagePickerView.swift */; };
 		D8E244C32B986D4F00C6C82A /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244C22B986D4F00C6C82A /* UIImage+Extension.swift */; };
+		D8EB0ED82CAD8C9F00AC6A44 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EB0ED72CAD8C9F00AC6A44 /* ErrorView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -116,6 +117,7 @@
 		D8E244B42B972AD200C6C82A /* EmptyRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyRouteView.swift; sourceTree = "<group>"; };
 		D8E244C02B986CD800C6C82A /* ImagePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerView.swift; sourceTree = "<group>"; };
 		D8E244C22B986D4F00C6C82A /* UIImage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
+		D8EB0ED72CAD8C9F00AC6A44 /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
 		E0B1A6930B9FF35E9142463B /* Pods-BaseStyle.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyle.debug.xcconfig"; path = "Target Support Files/Pods-BaseStyle/Pods-BaseStyle.debug.xcconfig"; sourceTree = "<group>"; };
 		E4AFAF996FB5C233D40D81D5 /* Pods_BaseStyleTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BaseStyleTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -224,8 +226,8 @@
 			isa = PBXGroup;
 			children = (
 				D8D42A562B85CD42009B345D /* BaseAssets.xcassets */,
-				D89DBE2C2B88828300E5F1BD /* Countries.json */,
 				D8D42A892B85D525009B345D /* AppColors.swift */,
+				D89DBE2C2B88828300E5F1BD /* Countries.json */,
 				D8D42A582B85CDB2009B345D /* Fonts */,
 			);
 			path = Resource;
@@ -260,6 +262,7 @@
 			isa = PBXGroup;
 			children = (
 				D8D42A802B85D07C009B345D /* Spacers.swift */,
+				D8EB0ED72CAD8C9F00AC6A44 /* ErrorView.swift */,
 				D89C933E2BC3C0F800FACD16 /* ForwardIcon.swift */,
 				D8D42A982B870961009B345D /* AlertPrompt.swift */,
 				D8D42A9C2B870A5D009B345D /* ToastPrompt.swift */,
@@ -515,6 +518,7 @@
 				D86632962C2410BB009D3EF5 /* OtpTextInputView.swift in Sources */,
 				D8E244C12B986CD800C6C82A /* ImagePickerView.swift in Sources */,
 				D8D42A862B85D08F009B345D /* Font+Extension.swift in Sources */,
+				D8EB0ED82CAD8C9F00AC6A44 /* ErrorView.swift in Sources */,
 				D8D42A992B870961009B345D /* AlertPrompt.swift in Sources */,
 				2176204A2C521EDF00FED0D4 /* RadioButton.swift in Sources */,
 				D8302D9C2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift in Sources */,

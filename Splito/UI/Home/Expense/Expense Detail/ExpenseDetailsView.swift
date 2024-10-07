@@ -59,6 +59,7 @@ struct ExpenseDetailsView: View {
     }
 }
 
+@MainActor
 private struct ExpenseHeaderView: View {
 
     let viewModel: ExpenseDetailsViewModel
@@ -97,7 +98,9 @@ private struct ExpenseHeaderView: View {
     }
 }
 
+@MainActor
 private struct ExpenseInfoView: View {
+    let SUB_IMAGE_HEIGHT: CGFloat = 24
 
     let viewModel: ExpenseDetailsViewModel
 
@@ -133,7 +136,6 @@ private struct ExpenseInfoView: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(viewModel.expenseUsersData, id: \.self) { userData in
-                    let subImageHeight: CGFloat = 24
                     let owes = viewModel.preference.user?.id == userData.id ? "owe" : "owes"
                     let memberName = viewModel.preference.user?.id == userData.id ? "You" : userData.nameWithLastInitial
 
@@ -142,7 +144,7 @@ private struct ExpenseInfoView: View {
 
                     HStack(spacing: 16) {
                         if let paidBy = expense?.paidBy, paidBy.contains(where: { $0.key == userData.id }), paidBy.count > 1 {
-                            MemberProfileImageView(imageUrl: userData.imageUrl, height: subImageHeight)
+                            MemberProfileImageView(imageUrl: userData.imageUrl, height: SUB_IMAGE_HEIGHT, scaleEffect: 0.6)
 
                             if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
                                 Text("\(memberName.localized) paid \(paidAmount.formattedCurrency) and \(owes.localized) \(splitAmount)")
@@ -150,7 +152,7 @@ private struct ExpenseInfoView: View {
                                 Text("\(memberName.localized) paid \(paidAmount.formattedCurrency)")
                             }
                         } else if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
-                            MemberProfileImageView(imageUrl: userData.imageUrl, height: subImageHeight)
+                            MemberProfileImageView(imageUrl: userData.imageUrl, height: SUB_IMAGE_HEIGHT, scaleEffect: 0.6)
 
                             Text("\(memberName.localized) \(owes.localized) \(splitAmount)")
                         }
