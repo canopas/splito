@@ -5,10 +5,9 @@
 //  Created by Amisha Italiya on 25/04/24.
 //
 
-import Foundation
 import FirebaseFirestore
 
-extension Timestamp: Comparable {
+extension Timestamp {
     public static func < (lhs: Timestamp, rhs: Timestamp) -> Bool {
         return lhs.dateValue() < rhs.dateValue()
     }
