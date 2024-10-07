@@ -71,7 +71,7 @@ struct GroupListView: View {
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
-        .toastView(toast: $viewModel.toast, bottomPadding: 36)
+        .toastView(toast: $viewModel.toast, bottomPadding: 32)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
@@ -174,7 +174,7 @@ private struct GroupListHeaderView: View {
                     Spacer()
 
                     Text("\(totalOweAmount.formattedCurrency)")
-                        .foregroundStyle(isOwed ? alertColor : successColor)
+                        .foregroundStyle(isOwed ? errorColor : successColor)
                 }
                 .font(.Header3())
             }
@@ -242,13 +242,13 @@ private struct GroupActionSheetView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 24, height: 24)
-                            .foregroundStyle(option != .deleteGroup ? primaryText : alertColor)
+                            .foregroundStyle(option != .deleteGroup ? primaryText : errorColor)
 
                         Text(option.title)
                             .font(.subTitle2())
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .foregroundStyle(option != .deleteGroup ? primaryText : alertColor)
+                    .foregroundStyle(option != .deleteGroup ? primaryText : errorColor)
                 }
                 .padding(option != .deleteGroup ? .vertical : .top, 20)
                 .padding(.horizontal, 16)

@@ -189,7 +189,7 @@ private struct GroupListEditCellView: View {
                     .fontWeight(.regular)
             }
         }
-        .foregroundStyle(isDistructive ? alertColor : primaryText)
+        .foregroundStyle(isDistructive ? errorColor : primaryText)
         .onTouchGesture(onTap)
     }
 }
@@ -260,7 +260,7 @@ private struct GroupMemberCellView: View {
                 }
             }
             .lineLimit(1)
-            .foregroundStyle(isBorrowed ? alertColor : successColor)
+            .foregroundStyle(isBorrowed ? errorColor : successColor)
         }
     }
 }
@@ -301,7 +301,7 @@ private struct GroupAdvanceSettingsView: View {
 
                 GroupListEditCellView(text: "Leave group", showArrowBtn: true, isDistructive: false, onTap: onLeaveGroupTap)
 
-                GroupListEditCellView(text: "Delete group", fontColor: alertColor, isDistructive: true, onTap: onDeleteGroupTap)
+                GroupListEditCellView(text: "Delete group", fontColor: errorColor, isDistructive: true, onTap: onDeleteGroupTap)
             }
             .padding(.horizontal, 8)
         }

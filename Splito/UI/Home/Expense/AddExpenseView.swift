@@ -258,7 +258,8 @@ struct DatePickerRow: View {
 }
 
 private struct ExpenseDetailRowWithBtn: View {
-
+    let IMAGE_HEIGHT: CGFloat = 26
+    
     let name: String
     let subtitle: String
     var memberProfileUrls: [String] = []
@@ -294,7 +295,8 @@ private struct ExpenseDetailRowWithBtn: View {
                 if !memberProfileUrls.isEmpty {
                     HStack(spacing: -10) {
                         ForEach(visibleProfileUrls, id: \.self) { imageUrl in
-                            MemberProfileImageView(imageUrl: imageUrl, height: 26, defaultImageBgColor: containerColor)
+                            MemberProfileImageView(imageUrl: imageUrl, height: IMAGE_HEIGHT,
+                                                   scaleEffect: 0.7, defaultImageBgColor: containerColor)
                         }
 
                         if additionalMembersCount > 0 {

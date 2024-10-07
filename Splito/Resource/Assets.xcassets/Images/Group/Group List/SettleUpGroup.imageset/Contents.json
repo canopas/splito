@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "online-investment.svg",
+      "filename" : "settle.svg",
       "idiom" : "universal"
     },
     {
@@ -11,7 +11,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "settle.svg",
+      "filename" : "settle.png",
       "idiom" : "universal"
     }
   ],

@@ -6,12 +6,10 @@
 //
 
 import Data
-import Combine
 import SwiftUI
 import FirebaseFirestore
 
 class GroupListViewModel: BaseViewModel, ObservableObject {
-
     private let GROUPS_LIMIT = 10
 
     @Inject private var preference: SplitoPreference
@@ -62,6 +60,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleAddGroup(notification:)), name: .addGroup, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateGroup(notification:)), name: .updateGroup, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleDeleteGroup(notification:)), name: .deleteGroup, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleLeaveGroup(notification:)), name: .leaveGroup, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleJoinGroup(notification:)), name: .joinGroup, object: nil)
 
         fetchGroupsInitialData()
@@ -70,8 +69,8 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     func fetchGroupsInitialData() {
         Task {
             await fetchGroups()
-            await fetchLatestUser()
         }
+        fetchLatestUser()
     }
 
     // MARK: - Data Loading
@@ -159,32 +158,29 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         return 0
     }
 
-    private func fetchLatestUser() async {
+    private func fetchLatestUser() {
         guard let userId = preference.user?.id else {
             currentViewState = .initial
             return
         }
 
-        do {
-            let user = try await userRepository.fetchLatestUserBy(userID: userId)
+        userRepository.fetchLatestUserBy(userID: userId) { [weak self] user in
             if let user {
-                self.totalOweAmount = user.totalOweAmount
+                self?.totalOweAmount = user.totalOweAmount
+            } else {
+                self?.handleServiceError()
             }
-        } catch {
-            handleServiceError()
         }
     }
 
     private func fetchUserData(for userId: String) async {
-        if !groupMembers.contains(where: { $0.id == userId }) {
-            do {
-                let user = try await userRepository.fetchUserBy(userID: userId)
-                if let user {
-                    groupMembers.append(user)
-                }
-            } catch {
-                showToastForError()
+        guard !groupMembers.contains(where: { $0.id == userId }) else { return }
+        do {
+            if let user = try await userRepository.fetchUserBy(userID: userId) {
+                groupMembers.append(user)
             }
+        } catch {
+            showToastForError()
         }
     }
 
@@ -332,9 +328,20 @@ extension GroupListViewModel {
     }
 
     @objc private func handleDeleteGroup(notification: Notification) {
-        guard let deletedGroup = notification.object as? Groups else { return }
-        withAnimation { combinedGroups.removeAll { $0.group.id == deletedGroup.id } }
-        showToastFor(toast: .init(type: .success, title: "Success", message: "Group deleted successfully"))
+        handleRemoveGroupAction(notification: notification, action: .deleteGroup)
+    }
+
+    @objc private func handleLeaveGroup(notification: Notification) {
+        handleRemoveGroupAction(notification: notification, action: .leaveGroup)
+    }
+
+    @objc private func handleRemoveGroupAction(notification: Notification, action: Notification.Name) {
+        guard let group = notification.object as? Groups else { return }
+
+        withAnimation { combinedGroups.removeAll { $0.group.id == group.id } }
+
+        showToastFor(toast: .init(type: .success, title: "Success",
+                                  message: action == .deleteGroup ? "Group deleted successfully." : "Group left successfully."))
     }
 
     private func processGroup(group: Groups, isNewGroup: Bool) async {

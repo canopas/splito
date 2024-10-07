@@ -21,4 +21,5 @@ public extension Notification.Name {
     static let addGroup = Notification.Name("addGroup")
     static let updateGroup = Notification.Name("updateGroup")
     static let deleteGroup = Notification.Name("deleteGroup")
+    static let leaveGroup = Notification.Name("leaveGroup")
 }

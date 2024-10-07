@@ -49,7 +49,7 @@ struct GroupHomeView: View {
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
-        .toastView(toast: $viewModel.toast, bottomPadding: 36)
+        .toastView(toast: $viewModel.toast, bottomPadding: 32)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .onDisappear {
             if viewModel.showSearchBar {
@@ -145,10 +145,10 @@ private struct GroupOptionsButtonView: View {
     var body: some View {
         Text(text.localized)
             .font(.buttonText())
-            .foregroundStyle(primaryText)
+            .foregroundStyle(isForSettleUp ? .white : primaryText)
             .padding(.vertical, 8)
             .padding(.horizontal, 24)
-            .background(isForSettleUp ? settleUpColor : container2Color)
+            .background(isForSettleUp ? infoColor : container2Color)
             .cornerRadius(30)
             .onTouchGesture(onTap)
     }

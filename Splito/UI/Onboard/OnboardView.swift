@@ -92,8 +92,8 @@ struct OnboardPageView: View {
                         .frame(width: proxy.size.width, height: (index == 1) ? 420 : 225, alignment: .center)
                 } else {
                     FirstIndexImageView(image: .schoolBuddies, width: 180, height: 180)
-                    FirstIndexImageView(image: .colleagues, width: 200, height: 230, yOffset: -80, alignment: .leading)
-                    FirstIndexImageView(image: .roomies, width: 200, height: 200, yOffset: -140)
+                    FirstIndexImageView(image: .colleagues, width: 200, height: 230, yOffset: -70, alignment: .leading)
+                    FirstIndexImageView(image: .roomies, width: 200, height: 200, yOffset: -130)
                 }
 
                 if let description = items[index].description {

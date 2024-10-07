@@ -129,7 +129,7 @@ private struct GroupMemberCellView: View {
                     .font(.body1())
             }
             .lineLimit(1)
-            .foregroundStyle(isBorrowed ? alertColor : successColor)
+            .foregroundStyle(isBorrowed ? errorColor : successColor)
         }
         .padding(.vertical, 20)
         .padding(.horizontal, 16)

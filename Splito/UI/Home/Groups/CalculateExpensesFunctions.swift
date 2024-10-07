@@ -7,7 +7,6 @@
 
 import Data
 import UIKit
-import Combine
 
 // MARK: - Simplified expense calculation
 
@@ -117,15 +116,15 @@ public func getUpdatedMemberBalanceFor(expense: Expense, group: Groups, updateTy
         if let index = memberBalance.firstIndex(where: { $0.id == member }) {
             switch updateType {
             case .Add:
-                memberBalance[index].balance += newSplitAmount
+                memberBalance[index].balance = roundAmount(memberBalance[index].balance + newSplitAmount)
 
                 // Update the corresponding total summary if it exists for the expense date
                 if var totalSummary = getLatestSummaryFrom(totalSummary: memberBalance[index].totalSummary, date: expenseDate)?.summary,
                    let summaryIndex = getLatestSummaryIndex(totalSummary: memberBalance[index].totalSummary, date: expenseDate) {
-                    totalSummary.groupTotalSpending += expense.amount
-                    totalSummary.totalPaidAmount += expense.paidBy[member] ?? 0
-                    totalSummary.totalShare += totalSplitAmount
-                    totalSummary.changeInBalance = ((totalSummary.totalPaidAmount - totalSummary.totalShare) - totalSummary.receivedAmount + totalSummary.paidAmount)
+                    totalSummary.groupTotalSpending = roundAmount(totalSummary.groupTotalSpending + expense.amount)
+                    totalSummary.totalPaidAmount = roundAmount(totalSummary.totalPaidAmount + (expense.paidBy[member] ?? 0))
+                    totalSummary.totalShare = roundAmount(totalSummary.totalShare + totalSplitAmount)
+                    totalSummary.changeInBalance = roundAmount((totalSummary.totalPaidAmount - totalSummary.totalShare) - totalSummary.receivedAmount + totalSummary.paidAmount)
 
                     memberBalance[index].totalSummary[summaryIndex].summary = totalSummary
                 } else {
@@ -141,24 +140,24 @@ public func getUpdatedMemberBalanceFor(expense: Expense, group: Groups, updateTy
                 if let oldSummaryIndex = getLatestSummaryIndex(totalSummary: memberBalance[index].totalSummary,
                                                                date: oldExpense.date.dateValue()) {
                     var oldSummary = memberBalance[index].totalSummary[oldSummaryIndex].summary
-                    oldSummary.groupTotalSpending -= oldExpense.amount
-                    oldSummary.totalPaidAmount -= oldExpense.paidBy[member] ?? 0
-                    oldSummary.totalShare -= abs(oldSplitAmount)
-                    oldSummary.changeInBalance = ((oldSummary.totalPaidAmount - oldSummary.totalShare) - oldSummary.receivedAmount + oldSummary.paidAmount)
+                    oldSummary.groupTotalSpending = roundAmount(oldSummary.groupTotalSpending - oldExpense.amount)
+                    oldSummary.totalPaidAmount = roundAmount(oldSummary.totalPaidAmount - (oldExpense.paidBy[member] ?? 0))
+                    oldSummary.totalShare = roundAmount(oldSummary.totalShare - abs(oldSplitAmount))
+                    oldSummary.changeInBalance = roundAmount((oldSummary.totalPaidAmount - oldSummary.totalShare) - oldSummary.receivedAmount + oldSummary.paidAmount)
 
                     memberBalance[index].totalSummary[oldSummaryIndex].summary = oldSummary
                 }
 
                 let oldCalculatedSplitAmount = oldExpense.getCalculatedSplitAmountOf(member: member)
-                memberBalance[index].balance += newSplitAmount - oldCalculatedSplitAmount
+                memberBalance[index].balance = roundAmount(memberBalance[index].balance + (newSplitAmount - oldCalculatedSplitAmount))
 
                 // Update the new date's summary
                 if var newSummary = getLatestSummaryFrom(totalSummary: memberBalance[index].totalSummary, date: expenseDate)?.summary,
                    let newSummaryIndex = getLatestSummaryIndex(totalSummary: memberBalance[index].totalSummary, date: expenseDate) {
-                    newSummary.groupTotalSpending += expense.amount
-                    newSummary.totalPaidAmount += expense.paidBy[member] ?? 0
-                    newSummary.totalShare += totalSplitAmount
-                    newSummary.changeInBalance = ((newSummary.totalPaidAmount - newSummary.totalShare) - newSummary.receivedAmount + newSummary.paidAmount)
+                    newSummary.groupTotalSpending = roundAmount(newSummary.groupTotalSpending + expense.amount)
+                    newSummary.totalPaidAmount = roundAmount(newSummary.totalPaidAmount + (expense.paidBy[member] ?? 0))
+                    newSummary.totalShare = roundAmount(newSummary.totalShare + totalSplitAmount)
+                    newSummary.changeInBalance = roundAmount((newSummary.totalPaidAmount - newSummary.totalShare) - newSummary.receivedAmount + newSummary.paidAmount)
 
                     memberBalance[index].totalSummary[newSummaryIndex].summary = newSummary
                 } else {
@@ -167,14 +166,14 @@ public func getUpdatedMemberBalanceFor(expense: Expense, group: Groups, updateTy
                 }
 
             case .Delete:
-                memberBalance[index].balance -= newSplitAmount
+                memberBalance[index].balance = roundAmount(memberBalance[index].balance - newSplitAmount)
 
                 if var totalSummary = getLatestSummaryFrom(totalSummary: memberBalance[index].totalSummary, date: expenseDate)?.summary,
                    let summaryIndex = getLatestSummaryIndex(totalSummary: memberBalance[index].totalSummary, date: expenseDate) {
-                    totalSummary.groupTotalSpending -= expense.amount
-                    totalSummary.totalPaidAmount -= expense.paidBy[member] ?? 0
-                    totalSummary.totalShare -= totalSplitAmount
-                    totalSummary.changeInBalance = ((totalSummary.totalPaidAmount - totalSummary.totalShare) - totalSummary.receivedAmount + totalSummary.paidAmount)
+                    totalSummary.groupTotalSpending = roundAmount(totalSummary.groupTotalSpending - expense.amount)
+                    totalSummary.totalPaidAmount = roundAmount(totalSummary.totalPaidAmount - (expense.paidBy[member] ?? 0))
+                    totalSummary.totalShare = roundAmount(totalSummary.totalShare - totalSplitAmount)
+                    totalSummary.changeInBalance = roundAmount((totalSummary.totalPaidAmount - totalSummary.totalShare) - totalSummary.receivedAmount + totalSummary.paidAmount)
 
                     memberBalance[index].totalSummary[summaryIndex].summary = totalSummary
                 }
@@ -182,7 +181,7 @@ public func getUpdatedMemberBalanceFor(expense: Expense, group: Groups, updateTy
         } else {
             // If the member doesn't have an existing entry, create a new one with the initial balance and summary
             let summary = getInitialGroupSummaryFor(member: member, expense: expense)
-            memberBalance.append(GroupMemberBalance(id: member, balance: newSplitAmount, totalSummary: [summary]))
+            memberBalance.append(GroupMemberBalance(id: member, balance: roundAmount(newSplitAmount), totalSummary: [summary]))
         }
     }
 
@@ -196,10 +195,10 @@ func getInitialGroupSummaryFor(member: String, expense: Expense) -> GroupTotalSu
 
     let splitAmount = abs(expense.getTotalSplitAmountOf(member: member))
 
-    let memberSummary = GroupMemberSummary(groupTotalSpending: expense.amount,
-                                           totalPaidAmount: expense.paidBy[member] ?? 0,
-                                           totalShare: splitAmount, paidAmount: 0, receivedAmount: 0,
-                                           changeInBalance: ((expense.paidBy[member] ?? 0.0) - splitAmount))
+    let memberSummary = GroupMemberSummary(groupTotalSpending: roundAmount(expense.amount),
+                                           totalPaidAmount: roundAmount(expense.paidBy[member] ?? 0),
+                                           totalShare: roundAmount(splitAmount), paidAmount: 0, receivedAmount: 0,
+                                           changeInBalance: roundAmount((expense.paidBy[member] ?? 0.0) - splitAmount))
 
     let totalSummary = GroupTotalSummary(year: expenseYear, month: expenseMonth, summary: memberSummary)
     return totalSummary

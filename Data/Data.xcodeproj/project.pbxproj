@@ -377,7 +377,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1520;
-				LastUpgradeCheck = 1520;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					D8DF8BB52B7A315000165138 = {
 						CreatedOnToolsVersion = 15.2;
@@ -683,8 +683,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BED6C37AA3F8FD2A6350DE1C /* Pods-Data.debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = "$(inherited)";
@@ -780,8 +780,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E03ED35E1B582FED247ACC38 /* Pods-Data.release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = "$(inherited)";
@@ -876,7 +876,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5B14CF1A2EEF27479BF50566 /* Pods-DataTests.debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = S985H2T7J8;
@@ -894,7 +893,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 803094012FE4C155F2A347B6 /* Pods-DataTests.release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = S985H2T7J8;

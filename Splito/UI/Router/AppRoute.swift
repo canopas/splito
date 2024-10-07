@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Data
 
 public enum AppRoute: Hashable {
 

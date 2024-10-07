@@ -6,20 +6,19 @@
 //
 
 import SwiftUI
-import BaseStyle
 
-struct ErrorView: View {
+public struct ErrorView: View {
 
     let isForNoInternet: Bool
 
     let onClick: (() -> Void)?
 
-    init(isForNoInternet: Bool, onClick: (() -> Void)?) {
+    public init(isForNoInternet: Bool, onClick: (() -> Void)?) {
         self.isForNoInternet = isForNoInternet
         self.onClick = onClick
     }
 
-    var body: some View {
+    public var body: some View {
         GeometryReader { geometry in
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {

@@ -6,7 +6,7 @@
 //
 
 import Data
-import Combine
+import Foundation
 
 class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
 

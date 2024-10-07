@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "invite.svg",
+      "filename" : "invite (1).svg",
       "idiom" : "universal"
     },
     {
@@ -11,7 +11,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "invite (1).svg",
+      "filename" : "invite.svg",
       "idiom" : "universal"
     }
   ],

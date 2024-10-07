@@ -348,12 +348,3 @@ extension UserProfileViewModel {
         }
     }
 }
-
-// MARK: - Action sheet Struct
-extension UserProfileViewModel {
-    enum ActionsOfSheet {
-        case camera
-        case gallery
-        case remove
-    }
-}

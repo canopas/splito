@@ -5,14 +5,11 @@
 //  Created by Amisha Italiya on 20/03/24.
 //
 
-import Combine
 import FirebaseFirestore
 
 public class ExpenseRepository: ObservableObject {
 
     @Inject private var store: ExpenseStore
-
-    private var cancelable = Set<AnyCancellable>()
 
     public func addExpense(groupId: String, expense: Expense) async throws -> Expense {
         return try await store.addExpense(groupId: groupId, expense: expense)

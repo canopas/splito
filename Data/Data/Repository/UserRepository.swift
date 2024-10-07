@@ -5,17 +5,13 @@
 //  Created by Amisha Italiya on 26/02/24.
 //
 
-import Combine
 import SwiftUI
-import FirebaseAuth
 
 public class UserRepository: ObservableObject {
 
     @Inject private var store: UserStore
     @Inject private var preference: SplitoPreference
     @Inject private var storageManager: StorageManager
-
-    private var cancelable = Set<AnyCancellable>()
 
     public func storeUser(user: AppUser) async throws -> AppUser {
         if let storedUser = try await store.fetchUserBy(id: user.id) {
@@ -30,8 +26,10 @@ public class UserRepository: ObservableObject {
         return try await store.fetchUserBy(id: userID)
     }
 
-    public func fetchLatestUserBy(userID: String) async throws -> AppUser? {
-        return try await store.fetchLatestUserBy(id: userID)
+    public func fetchLatestUserBy(userID: String, completion: @escaping (AppUser?) -> Void) {
+        store.fetchLatestUserBy(id: userID) { user in
+            completion(user)
+        }
     }
 
     private func uploadImage(imageData: Data, user: AppUser) async throws -> AppUser {

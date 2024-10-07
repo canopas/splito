@@ -7,7 +7,6 @@
 
 import Data
 import UIKit
-import Combine
 import BaseStyle
 import AVFoundation
 import FirebaseFirestore
@@ -133,11 +132,9 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     }
 }
 
-// MARK: - Action sheet Struct
-extension CreateGroupViewModel {
-    enum ActionsOfSheet {
-        case camera
-        case gallery
-        case remove
-    }
+// MARK: - Image Picker Action sheet
+enum ActionsOfSheet {
+    case camera
+    case gallery
+    case remove
 }
