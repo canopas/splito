@@ -259,7 +259,7 @@ struct DatePickerRow: View {
 
 private struct ExpenseDetailRowWithBtn: View {
     let IMAGE_HEIGHT: CGFloat = 26
-    
+
     let name: String
     let subtitle: String
     var memberProfileUrls: [String] = []
