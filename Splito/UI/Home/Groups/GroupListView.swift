@@ -9,6 +9,7 @@ import SwiftUI
 import BaseStyle
 import Data
 import Kingfisher
+import FirebaseMessaging
 
 struct GroupListView: View {
     @EnvironmentObject var homeRouteViewModel: HomeRouteViewModel
@@ -103,6 +104,7 @@ struct GroupListView: View {
             }
         }
         .onAppear {
+           print("xxx \(Messaging.messaging().apnsToken)")
             homeRouteViewModel.updateSelectedGroup(id: nil)
         }
         .sheet(isPresented: $viewModel.showActionSheet) {
