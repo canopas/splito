@@ -4,6 +4,7 @@ import { getFirestore, Firestore } from 'firebase-admin/firestore';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
 import * as logger from 'firebase-functions/logger';
+import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 
 admin.initializeApp();
 
@@ -83,60 +84,61 @@ exports.onGroupWrite = onDocumentWritten(
 );
 
 
-// New function: Send notifications when an expense is added, edited, or deleted
-// Interface for expense data
-interface ExpenseData {
-  amount: number;
-  addedBy: string;
-  splitTo: string[];
+// Function to send notification using FCM
+async function sendNotification(userId: string, title: string, body: string) {
+  try {
+    const userDoc = await db.collection('users').doc(userId).get();
+
+    if (userDoc.exists && userDoc.data()?.fcmToken) {
+      const fcmToken = userDoc.data()?.fcmToken;
+
+      const payload = {
+        notification: {
+          title,
+          body,
+        },
+        token: fcmToken,
+      };
+
+      await admin.messaging().send(payload);
+      logger.info(`Notification sent to user: ${userId}`);
+    } else {
+      logger.warn(`No FCM token found for user: ${userId}`);
+    }
+  } catch (error) {
+    logger.error('Error sending notification:', error);
+  }
 }
 
-exports.onExpenseWrite = onDocumentWritten(
+// Cloud Function to handle new expense creation and notify users
+exports.onExpenseCreated = onDocumentCreated(
   { document: 'expenses/{expenseId}' },
   async (event) => {
     try {
-      const beforeData = event.data?.before?.data() as ExpenseData | undefined;
-      const afterData = event.data?.after?.data() as ExpenseData | undefined;
-
-      if (!afterData) {
-        logger.warn('Expense deleted. No notification needed.');
+      const expenseData = event.data?.data();
+      if (!expenseData) {
+        logger.warn('No data found for the newly created expense.');
         return;
       }
 
-      let title = 'Expense Updated';
-      let body = '';
+      // Extract users who share the expense and the user who added it
+      const splitToUsers = expenseData.splitTo || [];
+      const addedBy = expenseData.addedBy;
 
-      if (!beforeData) {
-        title = 'New Expense Added';
-        body = `An expense of ₹${afterData.amount} was added by ${afterData.addedBy}.`;
-      } else if (beforeData.amount !== afterData.amount) {
-        body = `An expense was updated to ₹${afterData.amount} by ${afterData.addedBy}.`;
-      }
-
-      const usersToNotify = afterData.splitTo || [];
-
-      for (const userId of usersToNotify) {
-        const userDoc = await db.collection('users').doc(userId).get();
-
-        if (userDoc.exists && userDoc.data()?.fcmToken) {
-          const fcmToken = userDoc.data()?.fcmToken;
-
-          const message = {
-            notification: {
-              title,
-              body,
-            },
-            token: fcmToken,
-          };
-
-          await admin.messaging().send(message);
-          logger.info(`Notification sent to user ${userId}: ${body}`);
-        } else {
-          logger.warn(`No FCM token found for user ${userId}`);
+      // Notify all users in splitTo except the one who added the expense
+      for (const userId of splitToUsers) {
+        if (userId !== addedBy) {
+          await sendNotification(
+            userId,
+            `New Expense Added`,
+            `${expenseData.name} of ₹${expenseData.amount.toFixed(2)} has been added.`
+          );
         }
       }
+
+      logger.info('Expense created notification sent successfully.');
     } catch (error) {
-      logger.error('Error sending notification:', error);
+      logger.error('Error in onExpenseCreated function:', error);
     }
   }
 );
