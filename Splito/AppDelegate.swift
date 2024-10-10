@@ -55,10 +55,10 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         @Inject var preference: SplitoPreference
         guard let userId = preference.user?.id else { return }
 
-        Firestore.firestore().collection("users").document(userId).updateData([
+        Firestore.firestore().collection("users").document(userId).setData([
             "deviceFcmToken": token
-        ]) { error in
-            if let error = error {
+        ], merge: true) { error in
+            if let error {
                 LogE("Error updating FCM token: \(error)")
             } else {
                 LogI("FCM token successfully updated in Firestore")

@@ -52,7 +52,6 @@ exports.onExpenseCreated = onDocumentCreated(
   }
 );
 
-// Cloud Function to handle updates to existing expenses and notify users
 exports.onExpenseUpdated = onDocumentUpdated(
   { document: 'groups/{groupId}/expenses/{expenseId}' },
   async (event) => {
@@ -127,7 +126,8 @@ exports.onExpenseUpdated = onDocumentUpdated(
       // Notify payers removed from the expense
       const oldPayers = oldExpenseData.paid_by || {};
       for (const userId of Object.keys(oldPayers)) {
-        if (!Object.keys(newPayers).includes(userId) && userId !== addedBy) {
+        // Only send notification if the user is not in the new payers list and is also not in the split list
+        if (!Object.keys(newPayers).includes(userId) && !splitToUsers.includes(userId) && userId !== addedBy) {
           const title = `Splito`;
           const body = `Expense updated: ${oldExpenseData.name} (₹${oldExpenseData.amount.toFixed(2)})\n- You do not owe anything`;
 
@@ -166,27 +166,28 @@ function calculateOwedAmount(expenseData: admin.firestore.DocumentData, memberId
 function getTotalSplitAmountOf(expenseData: admin.firestore.DocumentData, member: string): number {
   if (!expenseData.split_to.includes(member)) return 0;
 
-  const splitType = expenseData.split_type;
+  const splitType = expenseData.split_type as 'equally' | 'fixedAmount' | 'percentage' | 'shares';
+  const splitData = expenseData.split_data as Record<string, number>;
 
   switch (splitType) {
     case 'equally':
       return expenseData.amount / expenseData.split_to.length;
 
     case 'fixedAmount':
-      return (expenseData.split_data as Record<string, number>)[member] || 0;
+      return (splitData)[member] || 0;
 
     case 'percentage': {
-      const totalPercentage = Object.values(expenseData.split_data as Record<string, number>)
+      const totalPercentage = Object.values(splitData)
         .reduce((sum, val) => sum + (val as number), 0);
       if (totalPercentage === 0) return 0; // Avoid division by zero
-      return (expenseData.amount * ((expenseData.split_data as Record<string, number>)[member] || 0)) / totalPercentage;
+      return (expenseData.amount * ((splitData)[member] || 0)) / totalPercentage;
     }
 
     case 'shares': {
-      const totalShares = Object.values(expenseData.split_data as Record<string, number>)
+      const totalShares = Object.values(splitData)
         .reduce((sum, val) => sum + (val as number), 0); 
       if (totalShares === 0) return 0; // Avoid division by zero
-      return (expenseData.amount * ((expenseData.split_data as Record<string, number>)[member] || 0)) / totalShares;
+      return (expenseData.amount * ((splitData)[member] || 0)) / totalShares;
     }
 
     default:
