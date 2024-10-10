@@ -21,21 +21,21 @@ exports.onExpenseCreated = onDocumentCreated(
       }
 
       // Extract users who share the expense and the user who added it
-      const splitToUsers = expenseData.splitTo || [];
-      const addedBy = expenseData.addedBy;
+      const splitToUsers = expenseData.split_to || [];
+      const addedBy = expenseData.added_by;
 
       // Notify all users in splitTo except the one who added the expense
       for (const userId of splitToUsers) {
         if (userId !== addedBy) {
           await sendNotification(
             userId,
-            'Expense Added',
-            `${expenseData.name} of ₹${expenseData.amount.toFixed(2)} has been added.`
+            `${expenseData.name} (₹${expenseData.amount.toFixed(2)})`,
+            `- You owe (₹${expenseData.amount.toFixed(2)})`
           );
         }
       }
 
-      logger.info('Expense created notification sent successfully.');
+      logger.info(`Expense created notification sent successfully Expense Data: ${expenseData}`);
     } catch (error) {
       logger.error('Error in onExpenseCreated function:', error);
     }

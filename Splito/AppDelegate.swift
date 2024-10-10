@@ -20,18 +20,18 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         addDDLoggers()
         FirebaseProvider.configureFirebase()
         Messaging.messaging().delegate = self
-        registerForPushNotifications()
+        registerForPushNotifications(application: application)
         return true
     }
 
-    func registerForPushNotifications() {
+    private func registerForPushNotifications(application: UIApplication) {
         UNUserNotificationCenter.current().delegate = self
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
 
         UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { (granted, _) in
             guard granted else { return }
             DispatchQueue.main.async {
-                UIApplication.shared.registerForRemoteNotifications()
+                application.registerForRemoteNotifications()
             }
         }
     }
@@ -41,10 +41,13 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         FirebaseProvider.auth.setAPNSToken(deviceToken, type: .sandbox)
     }
 
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("Fail to register for remote notifications with error: \(error)")
+    }
+
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        print("Firebase registration token: \(String(describing: fcmToken))")
-        guard let fcmToken = fcmToken else { return }
-        // Update Firestore with the refreshed token
+        guard let fcmToken else { return }
+        // Update the FCM token in Firestore for the current user
         updateFCMTokenInFirestore(token: fcmToken)
     }
 
@@ -52,8 +55,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         @Inject var preference: SplitoPreference
         guard let userId = preference.user?.id else { return }
 
-        let db = Firestore.firestore()
-        db.collection("users").document(userId).updateData([
+        Firestore.firestore().collection("users").document(userId).updateData([
             "deviceFcmToken": token
         ]) { error in
             if let error = error {
