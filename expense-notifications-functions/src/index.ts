@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import { getFirestore, Firestore } from "firebase-admin/firestore";
-import { onDocumentCreated, onDocumentUpdated } from "firebase-functions/v2/firestore";
+import { onDocumentCreated, onDocumentUpdated, onDocumentDeleted } from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 
@@ -138,6 +138,69 @@ exports.onExpenseUpdated = onDocumentUpdated(
       logger.info(`Expense updated notification sent successfully. Expense Data: ${JSON.stringify(newExpenseData)}`);
     } catch (error) {
       logger.error('Error in onExpenseUpdated function:', error);
+    }
+  }
+);
+
+// Cloud Function to handle expense deletion and notify users
+exports.onExpenseDeleted = onDocumentDeleted(
+  { document: 'groups/{groupId}/expenses/{expenseId}' },
+  async (event) => {
+    try {
+      const expenseData = event.data?.data(); // Get the deleted expense data
+
+      if (!expenseData) {
+        logger.warn('No data found for the deleted expense.');
+        return;
+      }
+
+      const splitToUsers = expenseData.split_to || [];
+      const paidByUsers = expenseData.paid_by || {};
+      const addedBy = expenseData.added_by;
+
+      // Notify users who were in the split list
+      for (const userId of splitToUsers) {
+        if (userId !== addedBy) {
+          // Check if user gets back or owes money
+          const owedAmount = calculateOwedAmount(expenseData, userId);
+          let message = '';
+          if (owedAmount < 0) { // User owes money
+            message = `- You owe ₹${Math.abs(owedAmount).toFixed(2)}`;
+          } else if (owedAmount > 0) { // User gets money back
+            message = `- You get back ₹${owedAmount.toFixed(2)}`;
+          } else {
+            message = `- You owe ₹0.00`;
+          }
+
+          const title = `Splito`;
+          const body = `Expense deleted: ${expenseData.name} (₹${expenseData.amount.toFixed(2)})\n${message}`;
+          
+          await sendNotification(userId, title, body);
+        }
+      }
+
+      // Notify users who paid but are not in the split list
+      for (const userId of Object.keys(paidByUsers)) {
+        if (!splitToUsers.includes(userId) && userId !== addedBy) {
+          const paidAmount = paidByUsers[userId] || 0;
+          let message = '';
+          
+          if (paidAmount > 0) {
+            message = `- You get back ₹${paidAmount.toFixed(2)}`;
+          } else {
+            message = `- You no longer need to settle this expense.`;
+          }
+
+          const title = `Splito`;
+          const body = `Expense deleted: ${expenseData.name} (₹${expenseData.amount.toFixed(2)})\n${message}`;
+
+          await sendNotification(userId, title, body);
+        }
+      }
+
+      logger.info(`Expense deletion notification sent successfully. Expense Data: ${JSON.stringify(expenseData)}`);
+    } catch (error) {
+      logger.error('Error in onExpenseDeleted function:', error);
     }
   }
 );
