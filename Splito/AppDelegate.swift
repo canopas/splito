@@ -42,7 +42,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        print("Fail to register for remote notifications with error: \(error)")
+        LogE("Fail to register for remote notifications with error: \(error)")
     }
 
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
@@ -59,9 +59,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
             "deviceFcmToken": token
         ]) { error in
             if let error = error {
-                print("Error updating FCM token: \(error)")
+                LogE("Error updating FCM token: \(error)")
             } else {
-                print("FCM token successfully updated in Firestore")
+                LogI("FCM token successfully updated in Firestore")
             }
         }
     }

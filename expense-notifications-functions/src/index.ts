@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import { getFirestore, Firestore } from "firebase-admin/firestore";
-import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import { onDocumentCreated, onDocumentUpdated } from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 
@@ -45,9 +45,99 @@ exports.onExpenseCreated = onDocumentCreated(
         }
       }
 
-      logger.info(`Expense created notification sent successfully Expense Data: ${expenseData}`);
+      logger.info(`Expense created notification sent successfully. Expense Data: ${JSON.stringify(expenseData)}`);
     } catch (error) {
       logger.error('Error in onExpenseCreated function:', error);
+    }
+  }
+);
+
+// Cloud Function to handle updates to existing expenses and notify users
+exports.onExpenseUpdated = onDocumentUpdated(
+  { document: 'groups/{groupId}/expenses/{expenseId}' },
+  async (event) => {
+    try {
+      const oldExpenseData = event.data?.before?.data(); // The data before the update
+      const newExpenseData = event.data?.after?.data();  // The data after the update
+
+      if (!oldExpenseData || !newExpenseData) {
+        logger.warn('No data found for the updated expense.');
+        return;
+      }
+
+      const splitToUsers = newExpenseData.split_to || [];
+      const addedBy = newExpenseData.added_by;
+
+      // Notify users who remain in the split list
+      for (const userId of splitToUsers) {
+        if (userId !== addedBy) {
+          const oldOwedAmount = calculateOwedAmount(oldExpenseData, userId);
+          const newOwedAmount = calculateOwedAmount(newExpenseData, userId);
+
+          // Notify only if the user's owed or payback amount has changed
+          if (oldOwedAmount !== newOwedAmount) {
+            let message = '';
+            if (newOwedAmount < 0) {
+              message = `- You owe ₹${Math.abs(newOwedAmount).toFixed(2)}`;
+            } else if (newOwedAmount > 0) {
+              message = `- You get back ₹${newOwedAmount.toFixed(2)}`;
+            } else {
+              message = `- You owe ₹0.00`;
+            }
+
+            const title = `Splito`;
+            const body = `Expense updated: ${newExpenseData.name} (₹${newExpenseData.amount.toFixed(2)})\n${message}`;
+
+            await sendNotification(userId, title, body);
+          }
+        }
+      }
+
+      // Notify users who were removed from the expense split list
+      const oldSplitUsers = oldExpenseData.split_to || [];
+      for (const userId of oldSplitUsers) {
+        if (!splitToUsers.includes(userId) && userId !== addedBy) {
+          const title = `Splito`;
+          const body = `Expense updated: ${oldExpenseData.name} (₹${oldExpenseData.amount.toFixed(2)})\n- You do not owe anything`;
+
+          await sendNotification(userId, title, body);
+        }
+      }
+
+      // Notify users added as payers but not in the split list
+      const newPayers = newExpenseData.paid_by || {};
+      for (const userId of Object.keys(newPayers)) {
+        if (!splitToUsers.includes(userId) && userId !== addedBy) {
+          // Calculate how much they get back based on the new expense data
+          const owedAmount = calculateOwedAmount(newExpenseData, userId);
+
+          let message = '';
+          if (owedAmount > 0) {
+            message = `- You get back ₹${owedAmount.toFixed(2)}`;
+          } else {
+            message = `- You owe ₹0.00`;
+          }
+
+          const title = `Splito`;
+          const body = `Expense updated: ${newExpenseData.name} (₹${newExpenseData.amount.toFixed(2)})\n${message}`;
+          await sendNotification(userId, title, body);
+        }
+      }
+
+      // Notify payers removed from the expense
+      const oldPayers = oldExpenseData.paid_by || {};
+      for (const userId of Object.keys(oldPayers)) {
+        if (!Object.keys(newPayers).includes(userId) && userId !== addedBy) {
+          const title = `Splito`;
+          const body = `Expense updated: ${oldExpenseData.name} (₹${oldExpenseData.amount.toFixed(2)})\n- You do not owe anything`;
+
+          await sendNotification(userId, title, body);
+        }
+      }
+
+      logger.info(`Expense updated notification sent successfully. Expense Data: ${JSON.stringify(newExpenseData)}`);
+    } catch (error) {
+      logger.error('Error in onExpenseUpdated function:', error);
     }
   }
 );
@@ -88,12 +178,14 @@ function getTotalSplitAmountOf(expenseData: admin.firestore.DocumentData, member
     case 'percentage': {
       const totalPercentage = Object.values(expenseData.split_data as Record<string, number>)
         .reduce((sum, val) => sum + (val as number), 0);
+      if (totalPercentage === 0) return 0; // Avoid division by zero
       return (expenseData.amount * ((expenseData.split_data as Record<string, number>)[member] || 0)) / totalPercentage;
     }
 
     case 'shares': {
       const totalShares = Object.values(expenseData.split_data as Record<string, number>)
         .reduce((sum, val) => sum + (val as number), 0); 
+      if (totalShares === 0) return 0; // Avoid division by zero
       return (expenseData.amount * ((expenseData.split_data as Record<string, number>)[member] || 0)) / totalShares;
     }
 
@@ -106,9 +198,10 @@ function getTotalSplitAmountOf(expenseData: admin.firestore.DocumentData, member
 async function sendNotification(userId: string, title: string, body: string) {
   try {
     const userDoc = await db.collection('users').doc(userId).get();
+    const userData = userDoc.data();
 
-    if (userDoc.exists && userDoc.data()?.deviceFcmToken) { // Adjusted to use deviceFcmToken
-      const fcmToken = userDoc.data()?.deviceFcmToken;
+    if (userDoc.exists && userData?.deviceFcmToken) { // Adjusted to use deviceFcmToken
+      const fcmToken = userData?.deviceFcmToken;
 
       const payload = {
         notification: {
