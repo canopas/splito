@@ -382,3 +382,65 @@ async function getUserDisplayName(userId: string) {
   }
 }
 
+// Cloud Function to handle delete group and notify users
+exports.onGroupDeleted = onDocumentDeleted(
+  { document: 'groups/{groupId}' },
+  async (event) => {
+    try {
+      const deletedGroupData = event.data?.data(); // Data of the deleted group
+
+      if (!deletedGroupData) {
+        logger.warn('No data found for the deleted group.');
+        return;
+      }
+
+      const groupId = event.params.groupId; // Get the groupId from the event parameters
+      const members = deletedGroupData.members; // Get the list of members from the deleted group
+
+      // Construct the notification message
+      const message = `The group '${deletedGroupData.name}' has been deleted.`;
+
+      // Send notifications to all group members
+      for (const memberId of members) {
+        await sendNotification(memberId, notificationTitle, message);
+      }
+
+      logger.info(`Group deletion notification sent successfully to members of group ${groupId}.`);
+    } catch (error) {
+      logger.error('Error in onGroupDeleted function:', error);
+    }
+  }
+);
+
+// Cloud Function to handle member removal from a group and notify users
+exports.onMemberRemoved = onDocumentUpdated(
+  { document: 'groups/{groupId}' },
+  async (event) => {
+    try {
+      const oldGroupData = event.data?.before.data(); // Data before the update
+      const newGroupData = event.data?.after.data(); // Data after the update
+
+      if (!oldGroupData || !newGroupData) {
+        logger.warn('No data found for the updated group.');
+        return;
+      }
+
+      const oldMembers: string[] = oldGroupData.members; // Members before the update
+      const newMembers: string[] = newGroupData.members; // Members after the update
+
+      // Check for removed members
+      const removedMembers = oldMembers.filter((memberId: string) => !newMembers.includes(memberId));
+
+      // Send notifications to removed members
+      for (const memberId of removedMembers) {
+        const removerName = await getUserDisplayName(newGroupData.createdBy); // Get the name of the user who removed the member
+        const message = `${removerName} removed you from the group “${newGroupData.name}”.`;
+        await sendNotification(memberId, notificationTitle, message);
+      }
+
+      logger.info(`Member removal notifications sent successfully for group ${event.params.groupId}.`);
+    } catch (error) {
+      logger.error('Error in onMemberRemoved function:', error);
+    }
+  }
+);
