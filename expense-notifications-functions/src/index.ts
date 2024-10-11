@@ -225,33 +225,6 @@ function getTotalSplitAmountOf(expenseData: admin.firestore.DocumentData, member
   }
 }
 
-// Function to send notification using FCM
-async function sendNotification(userId: string, title: string, body: string) {
-  try {
-    const userDoc = await db.collection('users').doc(userId).get();
-    const userData = userDoc.data();
-
-    if (userDoc.exists && userData?.deviceFcmToken) {
-      const fcmToken = userData?.deviceFcmToken;
-
-      const payload = {
-        notification: {
-          title,
-          body,
-        },
-        token: fcmToken,
-      };
-
-      await admin.messaging().send(payload);
-      logger.info(`Notification sent to user: ${userId}`);
-    } else {
-      logger.warn(`No FCM token found for user: ${userId}`);
-    }
-  } catch (error) {
-    logger.error('Error sending notification:', error);
-  }
-}
-
 // Cloud Function to handle add transaction and notify users
 exports.onTransactionCreated = onDocumentCreated(
   { document: 'groups/{groupId}/transactions/{transactionId}' },
@@ -269,8 +242,8 @@ exports.onTransactionCreated = onDocumentCreated(
       let receiverMessage;
       let payerMessage;
       if (transactionData.added_by && transactionData.added_by !== transactionData.receiver_id && transactionData.added_by !== transactionData.payer_id) {
-        receiverMessage = `${payerName} paid you ${formatCurrency(transactionData.amount)}`;  // Notify the receiver that the payer has made a payment
         payerMessage = `You paid ${receiverName} ${formatCurrency(transactionData.amount)}`;  // Notify the payer that the someone has made a payment
+        receiverMessage = `${payerName} paid you ${formatCurrency(transactionData.amount)}`;  // Notify the receiver that the someone has made a payment
       } else {
         receiverMessage = `${payerName} paid you ${formatCurrency(transactionData.amount)}`; // Notify the receiver that the payer has made a payment
       }
@@ -300,23 +273,23 @@ exports.onTransactionUpdated = onDocumentUpdated(
         return;
       }
 
-      // Only notify if the amount has changed
+      // Only notify if the transaction has changed
       if (oldTransactionData !== newTransactionData) {
         const payerName = await getUserDisplayName(newTransactionData.payer_id);
         const receiverName = await getUserDisplayName(newTransactionData.receiver_id);
 
         let receiverMessage;
         let payerMessage;
+
         if (newTransactionData.updated_by && newTransactionData.updated_by !== newTransactionData.receiver_id && newTransactionData.updated_by !== newTransactionData.payer_id) {
-          receiverMessage = `Payment updated: ${payerName} paid you ${formatCurrency(newTransactionData.amount)}`;  // Notify the receiver that the payer has made a payment
-          payerMessage = `Payment updated: you paid ${receiverName} ${formatCurrency(newTransactionData.amount)}`;  // Notify the payer that the someone has made a payment
+          payerMessage = `Payment updated: you paid ${receiverName} ${formatCurrency(newTransactionData.amount)}`;  // Notify the payer that the someone has updated a payment
+          receiverMessage = `Payment updated: ${payerName} paid you ${formatCurrency(newTransactionData.amount)}`;  // Notify the receiver that the someone has updated a payment
         } else if (newTransactionData.updated_by && newTransactionData.updated_by == newTransactionData.receiver_id) {
-          payerMessage = `You paid ${receiverName} ${formatCurrency(newTransactionData.amount)}`;  // Notify the payer that the someone has made a payment
+          payerMessage = `Payment updated: You paid ${receiverName} ${formatCurrency(newTransactionData.amount)}`;  // Notify the payer that the receiver has updated a payment
         } else if (newTransactionData.updated_by && newTransactionData.updated_by == newTransactionData.payer_id) {
-          receiverMessage = `${payerName} paid you ${formatCurrency(newTransactionData.amount)}`;  // Notify the receiver that the payer has made a payment
+          receiverMessage = `Payment updated: ${payerName} paid you ${formatCurrency(newTransactionData.amount)}`;  // Notify the receiver that the payer has updated a payment
         }
 
-        // Send notifications
         if (receiverMessage) {
           await sendNotification(newTransactionData.receiver_id, notificationTitle, receiverMessage);
         }
@@ -337,7 +310,7 @@ exports.onTransactionDeleted = onDocumentDeleted(
   { document: 'groups/{groupId}/transactions/{transactionId}' },
   async (event) => {
     try {
-      const deletedTransactionData = event.data?.data(); // Data of the deleted transaction
+      const deletedTransactionData = event.data?.data();
 
       if (!deletedTransactionData) {
         logger.warn('No data found for the deleted transaction.');
@@ -347,12 +320,24 @@ exports.onTransactionDeleted = onDocumentDeleted(
       const payerName = await getUserDisplayName(deletedTransactionData.payer_id);
       const receiverName = await getUserDisplayName(deletedTransactionData.receiver_id);
 
-      const receiverMessage = `${payerName} deleted the payment of ${formatCurrency(deletedTransactionData.amount)} that was made to you.`; // Notify the receiver about the deletion
-      const payerMessage = `You deleted the payment of ${formatCurrency(deletedTransactionData.amount)} that was made to ${receiverName}.`; // Notify the payer about the deletion
+      let receiverMessage;
+      let payerMessage;
+        
+        if (deletedTransactionData.updated_by && deletedTransactionData.updated_by !== deletedTransactionData.receiver_id && deletedTransactionData.updated_by !== deletedTransactionData.payer_id) {
+          payerMessage = `Payment deleted: you paid ${receiverName} ${formatCurrency(deletedTransactionData.amount)}`;  // Notify the payer that the someone has deleted a payment
+          receiverMessage = `Payment deleted: ${payerName} paid you ${formatCurrency(deletedTransactionData.amount)}`;  // Notify the receiver that the someone has deleted a payment
+        } else if (deletedTransactionData.updated_by && deletedTransactionData.updated_by == deletedTransactionData.receiver_id) {
+          payerMessage = `Payment deleted: You paid ${receiverName} ${formatCurrency(deletedTransactionData.amount)}`;  // Notify the payer that the receiver has deleted a payment
+        } else if (deletedTransactionData.updated_by && deletedTransactionData.updated_by == deletedTransactionData.payer_id) {
+          receiverMessage = `Payment deleted: ${payerName} paid you ${formatCurrency(deletedTransactionData.amount)}`;  // Notify the receiver that the payer has deleted a payment
+        }
 
-      // Send notifications
-      await sendNotification(deletedTransactionData.receiver_id, notificationTitle, receiverMessage);
-      await sendNotification(deletedTransactionData.payer_id, notificationTitle, payerMessage);
+        if (receiverMessage) {
+          await sendNotification(deletedTransactionData.receiver_id, notificationTitle, receiverMessage);
+        }
+        if (payerMessage) {
+          await sendNotification(deletedTransactionData.payer_id, notificationTitle, payerMessage);
+        }
 
       logger.info(`Transaction deleted notification sent successfully. Deleted Data: ${JSON.stringify(deletedTransactionData)}`);
     } catch (error) {
@@ -374,46 +359,16 @@ async function getUserDisplayName(userId: string) {
       const userData = userDoc.data();
       return userData && userData.first_name ? userData.first_name : 'Unknown';
     } else {
-      return 'Unknown'; // Return 'Unknown' if the document doesn't exist
+      return 'Unknown';
     }
   } catch (error) {
     console.error('Error retrieving user name:', error);
-    return 'Unknown'; // Return 'Unknown' in case of an error
+    return 'Unknown';
   }
 }
 
-// Cloud Function to handle delete group and notify users
-exports.onGroupDeleted = onDocumentDeleted(
-  { document: 'groups/{groupId}' },
-  async (event) => {
-    try {
-      const deletedGroupData = event.data?.data(); // Data of the deleted group
-
-      if (!deletedGroupData) {
-        logger.warn('No data found for the deleted group.');
-        return;
-      }
-
-      const groupId = event.params.groupId; // Get the groupId from the event parameters
-      const members = deletedGroupData.members; // Get the list of members from the deleted group
-
-      // Construct the notification message
-      const message = `The group '${deletedGroupData.name}' has been deleted.`;
-
-      // Send notifications to all group members
-      for (const memberId of members) {
-        await sendNotification(memberId, notificationTitle, message);
-      }
-
-      logger.info(`Group deletion notification sent successfully to members of group ${groupId}.`);
-    } catch (error) {
-      logger.error('Error in onGroupDeleted function:', error);
-    }
-  }
-);
-
-// Cloud Function to handle member removal from a group and notify users
-exports.onMemberRemoved = onDocumentUpdated(
+// Cloud Function to handle group updates and notify users
+exports.onGroupUpdated = onDocumentUpdated(
   { document: 'groups/{groupId}' },
   async (event) => {
     try {
@@ -424,23 +379,93 @@ exports.onMemberRemoved = onDocumentUpdated(
         logger.warn('No data found for the updated group.');
         return;
       }
+      
+      // Notify all members if group name was changed
+      if (oldGroupData.name !== newGroupData.name) {
+        const updatedBy = newGroupData.updated_by;
+        const updaterName = await getUserDisplayName(updatedBy);
+        let notificationMessage = `${updaterName} changed the group name to "${newGroupData.name}".`;
+     
+        for (const memberId of newGroupData.members) {
+          if (updatedBy !== memberId) {
+            await sendNotification(memberId, notificationTitle, notificationMessage);
+          }
+        }
+      }
 
       const oldMembers: string[] = oldGroupData.members; // Members before the update
       const newMembers: string[] = newGroupData.members; // Members after the update
 
-      // Check for removed members
-      const removedMembers = oldMembers.filter((memberId: string) => !newMembers.includes(memberId));
+      const removedMembers = oldMembers.filter((memberId: string) => !newMembers.includes(memberId)); // Check for removed members
 
-      // Send notifications to removed members
-      for (const memberId of removedMembers) {
-        const removerName = await getUserDisplayName(newGroupData.createdBy); // Get the name of the user who removed the member
-        const message = `${removerName} removed you from the group “${newGroupData.name}”.`;
-        await sendNotification(memberId, notificationTitle, message);
+      // Ensure that only members who were actually removed get notifications
+      if (removedMembers.length > 0) {      
+        const removerName = await getUserDisplayName(newGroupData.created_by); // Get the name of the user who removed the member
+        for (const memberId of removedMembers) {
+          const message = `${removerName} removed you from the group “${newGroupData.name}”.`;
+          await sendNotification(memberId, notificationTitle, message);
+        }
       }
 
-      logger.info(`Member removal notifications sent successfully for group ${event.params.groupId}.`);
+      logger.info(`Group update notifications sent successfully for group ${event.params.groupId}.`);
     } catch (error) {
-      logger.error('Error in onMemberRemoved function:', error);
+      logger.error('Error in onGroupUpdated function:', error);
     }
   }
 );
+
+// Cloud Function to handle delete group and notify users
+exports.onGroupDeleted = onDocumentDeleted(
+  { document: 'groups/{groupId}' },
+  async (event) => {
+    try {
+      const deletedGroupData = event.data?.data();
+
+      if (!deletedGroupData) {
+        logger.warn('No data found for the deleted group.');
+        return;
+      }
+
+      const deletedGroupMemberName = await getUserDisplayName(deletedGroupData.updated_by);
+      const message = `${deletedGroupMemberName} deleted the group "${deletedGroupData.name}".`;
+
+      // Send notifications to all group members
+      for (const memberId of deletedGroupData.members) {
+        if (deletedGroupData.updated_by !== memberId) {
+          await sendNotification(memberId, notificationTitle, message);
+        }
+      }
+
+      logger.info(`Group deletion notification sent successfully to members of group ${event.params.groupId}.`);
+    } catch (error) {
+      logger.error('Error in onGroupDeleted function:', error);
+    }
+  }
+);
+
+// Function to send notification using FCM
+async function sendNotification(userId: string, title: string, body: string) {
+  try {
+    const userDoc = await db.collection('users').doc(userId).get();
+    const userData = userDoc.data();
+
+    if (userDoc.exists && userData?.deviceFcmToken) {
+      const fcmToken = userData?.deviceFcmToken;
+
+      const payload = {
+        notification: {
+          title,
+          body,
+        },
+        token: fcmToken,
+      };
+
+      await admin.messaging().send(payload);
+      logger.info(`Notification sent to user: ${userId}`);
+    } else {
+      logger.warn(`No FCM token found for user: ${userId}`);
+    }
+  } catch (error) {
+    logger.error('Error sending notification:', error);
+  }
+}
