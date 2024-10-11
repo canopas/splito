@@ -14,13 +14,15 @@ public struct Transactions: Codable, Hashable {
     public let payerId: String
     public let receiverId: String
     public let addedBy: String
+    public var updatedBy: String
     public var amount: Double
     public var date: Timestamp
 
-    public init(payerId: String, receiverId: String, addedBy: String, amount: Double, date: Timestamp) {
+    public init(payerId: String, receiverId: String, addedBy: String, updatedBy: String, amount: Double, date: Timestamp) {
         self.payerId = payerId
         self.receiverId = receiverId
         self.addedBy = addedBy
+        self.updatedBy = updatedBy
         self.amount = amount
         self.date = date
     }
@@ -30,6 +32,7 @@ public struct Transactions: Codable, Hashable {
         case payerId = "payer_id"
         case receiverId = "receiver_id"
         case addedBy = "added_by"
+        case updatedBy = "updated_by"
         case amount
         case date
     }

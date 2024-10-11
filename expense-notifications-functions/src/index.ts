@@ -251,3 +251,134 @@ async function sendNotification(userId: string, title: string, body: string) {
     logger.error('Error sending notification:', error);
   }
 }
+
+// Cloud Function to handle add transaction and notify users
+exports.onTransactionCreated = onDocumentCreated(
+  { document: 'groups/{groupId}/transactions/{transactionId}' },
+  async (event) => {
+    try {
+      const transactionData = event.data?.data();
+      if (!transactionData) {
+        logger.warn('No data found for the newly created transaction.');
+        return;
+      }
+
+      const payerName = await getUserDisplayName(transactionData.payer_id);
+      const receiverName = await getUserDisplayName(transactionData.receiver_id);
+
+      let receiverMessage;
+      let payerMessage;
+      if (transactionData.added_by && transactionData.added_by !== transactionData.receiver_id && transactionData.added_by !== transactionData.payer_id) {
+        receiverMessage = `${payerName} paid you ${formatCurrency(transactionData.amount)}`;  // Notify the receiver that the payer has made a payment
+        payerMessage = `You paid ${receiverName} ${formatCurrency(transactionData.amount)}`;  // Notify the payer that the someone has made a payment
+      } else {
+        receiverMessage = `${payerName} paid you ${formatCurrency(transactionData.amount)}`; // Notify the receiver that the payer has made a payment
+      }
+
+      await sendNotification(transactionData.receiver_id, notificationTitle, receiverMessage);
+      if (payerMessage) {
+        await sendNotification(transactionData.payer_id, notificationTitle, payerMessage);
+      }
+
+      logger.info(`Transaction created notification sent successfully. Transaction Data: ${JSON.stringify(transactionData)}`);
+    } catch (error) {
+      logger.error('Error in onTransactionCreated function:', error);
+    }
+  }
+);
+
+// Cloud Function to handle update transaction and notify users
+exports.onTransactionUpdated = onDocumentUpdated(
+  { document: 'groups/{groupId}/transactions/{transactionId}' },
+  async (event) => {
+    try {
+      const oldTransactionData = event.data?.before.data(); // Data before the update
+      const newTransactionData = event.data?.after.data(); // Data after the update
+
+      if (!oldTransactionData || !newTransactionData) {
+        logger.warn('No data found for the updated transaction.');
+        return;
+      }
+
+      // Only notify if the amount has changed
+      if (oldTransactionData !== newTransactionData) {
+        const payerName = await getUserDisplayName(newTransactionData.payer_id);
+        const receiverName = await getUserDisplayName(newTransactionData.receiver_id);
+
+        let receiverMessage;
+        let payerMessage;
+        if (newTransactionData.updated_by && newTransactionData.updated_by !== newTransactionData.receiver_id && newTransactionData.updated_by !== newTransactionData.payer_id) {
+          receiverMessage = `Payment updated: ${payerName} paid you ${formatCurrency(newTransactionData.amount)}`;  // Notify the receiver that the payer has made a payment
+          payerMessage = `Payment updated: you paid ${receiverName} ${formatCurrency(newTransactionData.amount)}`;  // Notify the payer that the someone has made a payment
+        } else if (newTransactionData.updated_by && newTransactionData.updated_by == newTransactionData.receiver_id) {
+          payerMessage = `You paid ${receiverName} ${formatCurrency(newTransactionData.amount)}`;  // Notify the payer that the someone has made a payment
+        } else if (newTransactionData.updated_by && newTransactionData.updated_by == newTransactionData.payer_id) {
+          receiverMessage = `${payerName} paid you ${formatCurrency(newTransactionData.amount)}`;  // Notify the receiver that the payer has made a payment
+        }
+
+        // Send notifications
+        if (receiverMessage) {
+          await sendNotification(newTransactionData.receiver_id, notificationTitle, receiverMessage);
+        }
+        if (payerMessage) {
+          await sendNotification(newTransactionData.payer_id, notificationTitle, payerMessage);
+        }
+
+        logger.info(`Transaction updated notification sent successfully. Updated Data: ${JSON.stringify(newTransactionData)}`);
+      }
+    } catch (error) {
+      logger.error('Error in onTransactionUpdated function:', error);
+    }
+  }
+);
+
+// Cloud Function to handle delete transaction and notify users
+exports.onTransactionDeleted = onDocumentDeleted(
+  { document: 'groups/{groupId}/transactions/{transactionId}' },
+  async (event) => {
+    try {
+      const deletedTransactionData = event.data?.data(); // Data of the deleted transaction
+
+      if (!deletedTransactionData) {
+        logger.warn('No data found for the deleted transaction.');
+        return;
+      }
+
+      const payerName = await getUserDisplayName(deletedTransactionData.payer_id);
+      const receiverName = await getUserDisplayName(deletedTransactionData.receiver_id);
+
+      const receiverMessage = `${payerName} deleted the payment of ${formatCurrency(deletedTransactionData.amount)} that was made to you.`; // Notify the receiver about the deletion
+      const payerMessage = `You deleted the payment of ${formatCurrency(deletedTransactionData.amount)} that was made to ${receiverName}.`; // Notify the payer about the deletion
+
+      // Send notifications
+      await sendNotification(deletedTransactionData.receiver_id, notificationTitle, receiverMessage);
+      await sendNotification(deletedTransactionData.payer_id, notificationTitle, payerMessage);
+
+      logger.info(`Transaction deleted notification sent successfully. Deleted Data: ${JSON.stringify(deletedTransactionData)}`);
+    } catch (error) {
+      logger.error('Error in onTransactionDeleted function:', error);
+    }
+  }
+);
+
+async function getUserDisplayName(userId: string) {
+  if (!userId) {
+    console.error('Invalid userId:', userId);
+    return 'Unknown';
+  }
+
+  try {
+    const userDoc = await db.collection('users').doc(userId).get();
+
+    if (userDoc.exists) {
+      const userData = userDoc.data();
+      return userData && userData.first_name ? userData.first_name : 'Unknown';
+    } else {
+      return 'Unknown'; // Return 'Unknown' if the document doesn't exist
+    }
+  } catch (error) {
+    console.error('Error retrieving user name:', error);
+    return 'Unknown'; // Return 'Unknown' in case of an error
+  }
+}
+
