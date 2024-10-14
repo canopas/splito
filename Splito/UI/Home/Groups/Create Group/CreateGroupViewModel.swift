@@ -92,7 +92,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         guard let userId = preference.user?.id else { return }
 
         let memberBalance = GroupMemberBalance(id: userId, balance: 0, totalSummary: [])
-        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId,
+        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId, updatedBy: userId,
                            imageUrl: nil, members: [userId], balances: [memberBalance], createdAt: Timestamp())
 
         let resizedImage = profileImage?.aspectFittedToHeight(200)
@@ -112,8 +112,11 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateGroup(group: Groups, completion: (Bool) -> Void) async {
+        guard let userId = preference.user?.id else { return }
+
         var newGroup = group
         newGroup.name = groupName.trimming(spaces: .leadingAndTrailing)
+        newGroup.updatedBy = userId
 
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)

@@ -28,6 +28,7 @@ end
 def splito_pods
   data_pods
   base_style_pods
+  pod 'Firebase/Messaging'
 end
 
 target 'Data' do

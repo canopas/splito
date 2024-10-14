@@ -9,7 +9,8 @@ import Data
 import Foundation
 
 class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
-
+    
+    @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
@@ -125,8 +126,12 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteTransaction() async {
+        guard var transaction, let userId = preference.user?.id else { return }
+        
         do {
             viewState = .loading
+            transaction.updatedBy = userId
+            try await transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
             try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
             NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
             await updateGroupMemberBalance(updateType: .Delete)

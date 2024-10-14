@@ -282,31 +282,32 @@ extension AddExpenseViewModel {
             return
         }
 
-        guard let selectedGroup, let groupId = selectedGroup.id, let user = preference.user else { return }
+        guard let selectedGroup, let groupId = selectedGroup.id, let userId = preference.user?.id else { return }
 
         Task {
             if let expense {
-                await handleUpdateExpenseAction(groupId: groupId, expense: expense, completion: completion)
+                await handleUpdateExpenseAction(groupId: groupId, userId: userId, expense: expense, completion: completion)
             } else {
-                await handleAddExpenseAction(groupId: groupId, userId: user.id, completion: completion)
+                await handleAddExpenseAction(groupId: groupId, userId: userId, completion: completion)
             }
         }
     }
 
     private func handleAddExpenseAction(groupId: String, userId: String, completion: (Bool) -> Void) async {
         let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
-                              date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: userId,
+                              date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: userId, updatedBy: userId,
                               splitTo: (splitType == .equally) ? selectedMembers : splitData.map({ $0.key }),
                               splitType: splitType, splitData: splitData)
 
         await addExpense(groupId: groupId, expense: expense, completion: completion)
     }
 
-    private func handleUpdateExpenseAction(groupId: String, expense: Expense, completion: (Bool) -> Void) async {
+    private func handleUpdateExpenseAction(groupId: String, userId: String, expense: Expense, completion: (Bool) -> Void) async {
         var newExpense = expense
         newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing)
         newExpense.amount = expenseAmount
         newExpense.date = Timestamp(date: expenseDate)
+        newExpense.updatedBy = userId
 
         if selectedPayers.count == 1 {
             newExpense.paidBy = [selectedPayers.first?.key ?? "": expenseAmount]

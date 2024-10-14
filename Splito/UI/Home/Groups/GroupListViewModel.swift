@@ -290,10 +290,12 @@ extension GroupListViewModel {
     }
 
     private func deleteGroup(group: Groups?) async {
-        guard let group else { return }
+        guard let group, let userId = preference.user?.id else { return }
         do {
-            try await groupRepository.deleteGroup(group: group)
-            NotificationCenter.default.post(name: .deleteGroup, object: group)
+            var deletedGroup = group
+            deletedGroup.updatedBy = userId
+            try await groupRepository.deleteGroup(group: deletedGroup)
+            NotificationCenter.default.post(name: .deleteGroup, object: deletedGroup)
         } catch {
             showToastForError()
         }

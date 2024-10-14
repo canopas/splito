@@ -243,11 +243,13 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteGroup() async {
-        guard let group else { return }
+        guard let group, let userId = preference.user?.id else { return }
         do {
             currentViewState = .loading
-            try await groupRepository.deleteGroup(group: group)
-            NotificationCenter.default.post(name: .deleteGroup, object: group)
+            var deletedGroup = group
+            deletedGroup.updatedBy = userId
+            try await groupRepository.deleteGroup(group: deletedGroup)
+            NotificationCenter.default.post(name: .deleteGroup, object: deletedGroup)
             currentViewState = .initial
             goBackToGroupList()
         } catch {

@@ -13,6 +13,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
     private let TRANSACTIONS_LIMIT = 10
 
+    @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
 
@@ -158,10 +159,14 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteTransaction(transaction: Transactions) async {
-        guard let transactionId = transaction.id else { return }
+        guard let transactionId = transaction.id, let userId = preference.user?.id else { return }
+        
         do {
+            var deletedTransaction = transaction
+            deletedTransaction.updatedBy = userId
+            try await transactionRepository.updateTransaction(groupId: groupId, transaction: deletedTransaction)
             try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
-            await updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
+            await updateGroupMemberBalance(transaction: deletedTransaction, updateType: .Delete)
         } catch {
             showToastForError()
         }

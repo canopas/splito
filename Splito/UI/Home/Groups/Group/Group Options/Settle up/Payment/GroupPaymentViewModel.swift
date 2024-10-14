@@ -129,11 +129,12 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             var newTransaction = transaction
             newTransaction.amount = amount
             newTransaction.date = .init(date: paymentDate)
-
+            newTransaction.updatedBy = userId
+        
             await updateTransaction(transaction: newTransaction, oldTransaction: transaction, completion: completion)
         } else {
             let transaction = Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
-                                           amount: amount, date: .init(date: paymentDate))
+                                           updatedBy: userId, amount: amount, date: .init(date: paymentDate))
             await addTransaction(transaction: transaction, completion: completion)
         }
     }
@@ -154,6 +155,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateTransaction(transaction: Transactions, oldTransaction: Transactions, completion: (Bool) -> Void) async {
+        guard let userId = preference.user?.id else { return }
+
         do {
             showLoader = true
             try await transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)

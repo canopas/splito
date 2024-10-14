@@ -292,21 +292,24 @@ extension GroupHomeViewModel {
         alert = .init(title: "Delete Expense",
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: {
-                        Task {
-                            await self.deleteExpense(expense: expense)
-                        }
-                      },
+                      positiveBtnAction: { self.deleteExpense(expense: expense) },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func deleteExpense(expense: Expense) async {
-        do {
-            try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expense.id ?? "")
-            await updateGroupMemberBalance(expense: expense, updateType: .Delete)
-        } catch {
-            showToastForError()
+    private func deleteExpense(expense: Expense) {
+        guard let userId = preference.user?.id else { return }
+
+        Task {
+            do {
+                var deletedExpense = expense
+                deletedExpense.updatedBy = userId
+                try await expenseRepository.updateExpense(groupId: groupId, expense: deletedExpense)
+                try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expense.id ?? "")
+                await updateGroupMemberBalance(expense: deletedExpense, updateType: .Delete)
+            } catch {
+                showToastForError()
+            }
         }
     }
 
