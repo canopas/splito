@@ -57,11 +57,11 @@ exports.onExpenseUpdated = onDocumentUpdated(
       }
 
       const splitToUsers = newExpenseData.split_to || [];
-      const addedBy = newExpenseData.added_by;
+      const updatedBy = newExpenseData.updated_by;
 
       // Notify users who remain in the split list if their owed amount has changed
       for (const userId of splitToUsers) {
-        if (userId !== addedBy) {
+        if (userId !== updatedBy) {
           const oldOwedAmount = calculateOwedAmount(oldExpenseData, userId);
           const newOwedAmount = calculateOwedAmount(newExpenseData, userId);
 
@@ -78,7 +78,7 @@ exports.onExpenseUpdated = onDocumentUpdated(
       // Notify users who were removed from the expense split list
       const oldSplitUsers = oldExpenseData.split_to || [];
       for (const userId of oldSplitUsers) {
-        if (!splitToUsers.includes(userId) && userId !== addedBy) {
+        if (!splitToUsers.includes(userId) && userId !== updatedBy) {
           const body = `Expense updated: ${oldExpenseData.name} (${formatCurrency(oldExpenseData.amount)})\n- You do not owe anything`;
 
           await sendNotification(userId, notificationTitle, body);
@@ -88,7 +88,7 @@ exports.onExpenseUpdated = onDocumentUpdated(
       // Notify users added as payers but not in the split list
       const newPayers = newExpenseData.paid_by || {};
       for (const userId of Object.keys(newPayers)) {
-        if (!splitToUsers.includes(userId) && userId !== addedBy) {
+        if (!splitToUsers.includes(userId) && userId !== updatedBy) {
           const owedAmount = calculateOwedAmount(newExpenseData, userId);
           const message = generateNotificationMessage(owedAmount);
           const body = `Expense updated: ${newExpenseData.name} (${formatCurrency(newExpenseData.amount)})\n${message}`;
@@ -100,7 +100,7 @@ exports.onExpenseUpdated = onDocumentUpdated(
       // Notify payers removed from the expense
       const oldPayers = oldExpenseData.paid_by || {};
       for (const userId of Object.keys(oldPayers)) {
-        if (!Object.keys(newPayers).includes(userId) && !splitToUsers.includes(userId) && userId !== addedBy) {
+        if (!Object.keys(newPayers).includes(userId) && !splitToUsers.includes(userId) && userId !== updatedBy) {
           const body = `Expense updated: ${oldExpenseData.name} (${formatCurrency(oldExpenseData.amount)})\n- You do not owe anything`;
 
           await sendNotification(userId, notificationTitle, body);
@@ -127,11 +127,11 @@ exports.onExpenseDeleted = onDocumentDeleted(
 
       const splitToUsers = expenseData.split_to || [];
       const paidByUsers = expenseData.paid_by || {};
-      const addedBy = expenseData.added_by;
+      const updatedBy = expenseData.updated_by;
 
       // Notify users who were in the split list
       for (const userId of splitToUsers) {
-        if (userId !== addedBy) {
+        if (userId !== updatedBy) {
           const owedAmount = calculateOwedAmount(expenseData, userId);
           const message = generateNotificationMessage(owedAmount)
           const body = `Expense deleted: ${expenseData.name} (${formatCurrency(expenseData.amount)})\n${message}`;
@@ -142,7 +142,7 @@ exports.onExpenseDeleted = onDocumentDeleted(
 
       // Notify users who paid but are not in the split list
       for (const userId of Object.keys(paidByUsers)) {
-        if (!splitToUsers.includes(userId) && userId !== addedBy) {
+        if (!splitToUsers.includes(userId) && userId !== updatedBy) {
           const paidAmount = paidByUsers[userId] || 0;
           let message = generateNotificationMessage(paidAmount)
           const body = `Expense deleted: ${expenseData.name} (${formatCurrency(expenseData.amount)})\n${message}`;

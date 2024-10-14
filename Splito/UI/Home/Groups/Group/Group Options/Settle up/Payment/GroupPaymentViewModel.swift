@@ -129,7 +129,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             var newTransaction = transaction
             newTransaction.amount = amount
             newTransaction.date = .init(date: paymentDate)
-
+            newTransaction.updatedBy = userId
+        
             await updateTransaction(transaction: newTransaction, oldTransaction: transaction, completion: completion)
         } else {
             let transaction = Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
@@ -158,12 +159,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
         do {
             showLoader = true
-            var newTransaction = transaction
-            newTransaction.updatedBy = userId
-
-            try await transactionRepository.updateTransaction(groupId: groupId, transaction: newTransaction)
-            await updateGroupMemberBalance(transaction: newTransaction, updateType: .Update(oldTransaction: oldTransaction))
-            NotificationCenter.default.post(name: .updateTransaction, object: newTransaction)
+            try await transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
+            await updateGroupMemberBalance(transaction: transaction, updateType: .Update(oldTransaction: oldTransaction))
+            NotificationCenter.default.post(name: .updateTransaction, object: transaction)
             showLoader = false
             completion(true)
         } catch {

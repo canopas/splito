@@ -117,12 +117,16 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteExpense() {
+        guard var expense, let userId = preference.user?.id else { return }
+
         Task {
             do {
                 viewState = .loading
+                expense.updatedBy = userId
+                try await expenseRepository.updateExpense(groupId: groupId, expense: expense)
                 try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
-                NotificationCenter.default.post(name: .deleteExpense, object: expense)
                 await self.updateGroupMemberBalance(updateType: .Delete)
+                NotificationCenter.default.post(name: .deleteExpense, object: expense)
                 viewState = .initial
                 router.pop()
             } catch {
