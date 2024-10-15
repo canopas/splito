@@ -152,7 +152,7 @@ private struct ActivityListCellView: View {
         case .groupCreated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupMemberRemoved:
             return ""
         case .expenseAdded, .expenseUpdated, .expenseDeleted:
-            return "\(activity.actionUserName) \(activity.amount ?? 0 > 0 ? "get back" : "owe") \(activity.amount?.formattedCurrency ?? "0.0")"
+            return ((activity.amount ?? 0) == 0) ? "You do not owe anything" : "You \((activity.amount ?? 0) > 0 ? "get back" : "owe") \(activity.amount?.formattedCurrency ?? "0.0")"
         case .transactionAdded, .transactionUpdated, .transactionDeleted:
             return "\(activity.amount ?? 0 > 0 ? activity.payerName ?? "" : activity.receiverName ?? "") \(activity.amount ?? 0 > 0 ? "paid" : "received") \(activity.amount?.formattedCurrency ?? "0.0")"
         }

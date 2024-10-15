@@ -17,6 +17,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
+    @Inject private var activityRepository: ActivityRepository
 
     @Published private(set) var groupId: String
     @Published private(set) var overallOwingAmount: Double = 0.0
@@ -305,8 +306,42 @@ extension GroupHomeViewModel {
         do {
             try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expense.id ?? "")
             await updateGroupMemberBalance(expense: expense, updateType: .Delete)
+            await addLogForDeleteExpense(deletedExpense: expense)
         } catch {
             showToastForError()
+        }
+    }
+    
+    private func addLogForDeleteExpense(deletedExpense: Expense) async {
+        guard let user = preference.user else { return }
+
+        if let expenseId = deletedExpense.id {
+            var involvedUserIds = Set(deletedExpense.splitTo).union(deletedExpense.paidBy.keys)
+            involvedUserIds.insert(user.id) // Ensure the user who deleted the expense is included
+
+            for memberId in involvedUserIds {
+                // Calculate the old owe amount specific to the member before the expense is deleted
+                let oldOweAmount = deletedExpense.getCalculatedSplitAmountOf(member: memberId)
+                let actionUserName = (memberId == user.id) ? "You" : user.nameWithLastInitial
+
+                let activity = ActivityLog(
+                    type: .expenseDeleted,
+                    groupId: groupId,
+                    activityId: expenseId,
+                    groupName: group?.name ?? "",
+                    actionUserName: actionUserName,
+                    recordedOn: Timestamp(date: Date()),
+                    expenseName: deletedExpense.name,
+                    amount: oldOweAmount
+                )
+
+                do {
+                    try await activityRepository.addActivityLog(userId: memberId, activity: activity)
+                } catch {
+                    LogE("Failed to add activity log for user \(memberId): \(error)")
+                    showToastForError()
+                }
+            }
         }
     }
 
