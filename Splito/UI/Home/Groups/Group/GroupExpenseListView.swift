@@ -50,12 +50,14 @@ struct GroupExpenseListView: View {
                                                onClick: viewModel.openAddExpenseSheet)
                             } else if !viewModel.groupExpenses.isEmpty {
                                 let firstMonth = viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings).first
+                                let lastMonth = viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings).last
 
                                 ForEach(viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings), id: \.self) { month in
                                     Section(header: sectionHeader(month: month)) {
                                         ForEach(viewModel.groupExpenses[month] ?? [], id: \.expense.id) { expense in
                                             GroupExpenseItemView(expenseWithUser: expense,
                                                                  isLastItem: expense.expense == (viewModel.groupExpenses[month] ?? []).last?.expense)
+                                            .padding(.bottom, (month == lastMonth && viewModel.groupExpenses[month]?.last?.expense.id == expense.expense.id) ? 60 : 0)
                                             .onTouchGesture {
                                                 viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
                                             }
@@ -105,7 +107,8 @@ struct GroupExpenseListView: View {
                             ScrollToTopButton {
                                 withAnimation { scrollProxy.scrollTo("expense_list", anchor: .top) }
                             }
-                            .padding([.trailing, .bottom], 16)
+                            .padding(.trailing, 16)
+                            .padding(.bottom, isFocused.wrappedValue == true ? 16 : 55)
                         }
                     }
                     .refreshable {

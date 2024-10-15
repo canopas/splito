@@ -61,7 +61,7 @@ struct GroupListView: View {
                                 .padding(.bottom, 8)
                         }
 
-                        GroupListWithDetailView(viewModel: viewModel) {
+                        GroupListWithDetailView(isFocused: $isFocused, viewModel: viewModel) {
                             isFocused = false
                         }
                     }

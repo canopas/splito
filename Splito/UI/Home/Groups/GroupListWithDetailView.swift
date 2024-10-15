@@ -10,6 +10,7 @@ import Data
 import BaseStyle
 
 struct GroupListWithDetailView: View {
+    var isFocused: FocusState<Bool>.Binding
 
     @ObservedObject var viewModel: GroupListViewModel
 
@@ -48,11 +49,10 @@ struct GroupListWithDetailView: View {
                                 }
                             }
 
-                            VSpacer(10)
+                            VSpacer(72)
                         }
                     }
                     .id("groupList")
-                    .padding(.bottom, 62)
                     .background(GeometryReader { geo in
                         Color.clear
                             .onChange(of: geo.frame(in: .global).minY,
@@ -65,7 +65,7 @@ struct GroupListWithDetailView: View {
                             withAnimation { scrollProxy.scrollTo(0) }
                         }
                         .padding(.trailing, 16)
-                        .padding(.bottom, 65)
+                        .padding(.bottom, isFocused.wrappedValue ? 16 : 65)
                     }
                 }
                 .refreshable {

@@ -70,7 +70,7 @@ struct CustomTabBarView: View {
                 AddExpenseButtonView(onClick: onAddExpense)
 
                 TabBarItemView(selectedTab: $selectedTab, tabIndex: 2, image: .activityIcon,
-                                 selectedImage: .activityFillIcon, label: "Activities", onTabItemClick: onTabItemClick)
+                                 selectedImage: .activityFillIcon, label: "Activity", onTabItemClick: onTabItemClick)
             }
             .padding(.vertical, 5)
             .background(surfaceColor.ignoresSafeArea(edges: [.bottom, .horizontal]))

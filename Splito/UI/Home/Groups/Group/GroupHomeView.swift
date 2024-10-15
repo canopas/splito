@@ -37,14 +37,17 @@ struct GroupHomeView: View {
                         }
                         .focused($isFocused)
                     }
-
-                    if viewModel.groupState != .noMember && viewModel.groupState != .noExpense {
-                        Spacer()
-                        PrimaryFloatingButton(text: "Add expense", bottomPadding: 8, onClick: viewModel.openAddExpenseSheet)
-                    }
                 }
             }
-            .ignoresSafeArea(.keyboard) // Useful so the button doesn't move around on keyboard show
+
+            if viewModel.groupState != .noMember && viewModel.groupState != .noExpense {
+                VStack(spacing: 0) {
+                    Spacer()
+                    PrimaryFloatingButton(text: "Add expense", bottomPadding: 30, onClick: viewModel.openAddExpenseSheet)
+                }
+                .ignoresSafeArea(.keyboard) // Useful so the button doesn't move around on keyboard show
+                .ignoresSafeArea(edges: .bottom)
+            }
         }
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)

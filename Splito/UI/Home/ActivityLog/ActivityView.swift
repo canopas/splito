@@ -62,7 +62,7 @@ struct ActivityView: View {
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Activity")
+                Text("Recent activity")
                     .font(.Header2())
                     .foregroundStyle(primaryText)
             }

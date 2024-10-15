@@ -84,23 +84,13 @@ class ActivityViewModel: BaseViewModel, ObservableObject {
     // MARK: - User Actions
     func handleActivityItemTap(_ activity: Activity) {
         switch activity.type {
-        case .groupAdded:
-            router.push(.GroupHomeView(groupId: activity.itemId))
-        case .groupUpdated:
+        case .groupAdded, .groupUpdated:
             router.push(.GroupHomeView(groupId: activity.itemId))
         case .groupDeleted:
             router.push(.GroupHomeView(groupId: activity.itemId))
-        case .expenseAdded:
+        case .expenseAdded, .expenseUpdated, .expenseDeleted:
             router.push(.ExpenseDetailView(groupId: activity.groupId, expenseId: activity.itemId))
-        case .expenseUpdated:
-            router.push(.ExpenseDetailView(groupId: activity.groupId, expenseId: activity.itemId))
-        case .expenseDeleted:
-            router.push(.ExpenseDetailView(groupId: activity.groupId, expenseId: activity.itemId))
-        case .transactionAdded:
-            router.push(.TransactionDetailView(transactionId: activity.itemId, groupId: activity.groupId))
-        case .transactionUpdated:
-            router.push(.TransactionDetailView(transactionId: activity.itemId, groupId: activity.groupId))
-        case .transactionDeleted:
+        case .transactionAdded, .transactionUpdated, .transactionDeleted:
             router.push(.TransactionDetailView(transactionId: activity.itemId, groupId: activity.groupId))
         }
     }
