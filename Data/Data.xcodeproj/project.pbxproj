@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		213D0CCA2C89DBC800D65C73 /* Notification+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213D0CC92C89DBC800D65C73 /* Notification+Extension.swift */; };
+		21559CA42CBD05570039F127 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CA32CBD05570039F127 /* Activity.swift */; };
+		21559CAE2CBD2AED0039F127 /* ActivityStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CAD2CBD2AED0039F127 /* ActivityStore.swift */; };
+		21559CB02CBD2B400039F127 /* ActivityRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CAF2CBD2B400039F127 /* ActivityRepository.swift */; };
 		21D8D0832C0857F10061B365 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8D0822C0857F10061B365 /* Constants.swift */; };
 		64E499C5CFAEA368EC21313F /* Pods_DataTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */; };
 		7EF3A291581F7EA20CB1042D /* Pods_Data.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E91B3E23688435064A60C0C4 /* Pods_Data.framework */; };
@@ -64,6 +67,9 @@
 /* Begin PBXFileReference section */
 		1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DataTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		213D0CC92C89DBC800D65C73 /* Notification+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification+Extension.swift"; sourceTree = "<group>"; };
+		21559CA32CBD05570039F127 /* Activity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
+		21559CAD2CBD2AED0039F127 /* ActivityStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStore.swift; sourceTree = "<group>"; };
+		21559CAF2CBD2B400039F127 /* ActivityRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityRepository.swift; sourceTree = "<group>"; };
 		21D8D0822C0857F10061B365 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		5B14CF1A2EEF27479BF50566 /* Pods-DataTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DataTests.debug.xcconfig"; path = "Target Support Files/Pods-DataTests/Pods-DataTests.debug.xcconfig"; sourceTree = "<group>"; };
 		803094012FE4C155F2A347B6 /* Pods-DataTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DataTests.release.xcconfig"; path = "Target Support Files/Pods-DataTests/Pods-DataTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -159,6 +165,7 @@
 			isa = PBXGroup;
 			children = (
 				D89DBE452B8CBE0F00E5F1BD /* UserRepository.swift */,
+				21559CAF2CBD2B400039F127 /* ActivityRepository.swift */,
 				D83B15082B999789004A5F4F /* GroupRepository.swift */,
 				D85E86E42BAB088F002EDF76 /* ExpenseRepository.swift */,
 				D8CF5A242C199ADB0014E3AD /* TransactionRepository.swift */,
@@ -170,6 +177,7 @@
 		D89DBE262B88801F00E5F1BD /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				21559CA32CBD05570039F127 /* Activity.swift */,
 				D89DBE272B88802800E5F1BD /* Country.swift */,
 				D89DBE472B8CBE4C00E5F1BD /* AppUser.swift */,
 				D83B15042B9996C0004A5F4F /* Groups.swift */,
@@ -226,6 +234,7 @@
 			children = (
 				D8AC25BA2B7F327A00CEAAD3 /* SplitoPreference.swift */,
 				D8A7CA742BA5AB670014EC67 /* UserStore.swift */,
+				21559CAD2CBD2AED0039F127 /* ActivityStore.swift */,
 				D8A7CA762BA5AB800014EC67 /* GroupStore.swift */,
 				D8910E372BB6D1D300877CE0 /* ExpenseStore.swift */,
 				D8CF5A222C1989630014E3AD /* TransactionStore.swift */,
@@ -511,7 +520,9 @@
 				D8D14A542BA092F500F45FF2 /* ShareCodeRepository.swift in Sources */,
 				D8A7CA7B2BA5B6AC0014EC67 /* ShareCodeStore.swift in Sources */,
 				D865F8AE2BD7CB0B0084BD36 /* Array+Extension.swift in Sources */,
+				21559CB02CBD2B400039F127 /* ActivityRepository.swift in Sources */,
 				D89DBE2B2B88817E00E5F1BD /* JSONUtils.swift in Sources */,
+				21559CA42CBD05570039F127 /* Activity.swift in Sources */,
 				D8A7CA802BA867F80014EC67 /* String+Extension.swift in Sources */,
 				213D0CCA2C89DBC800D65C73 /* Notification+Extension.swift in Sources */,
 				D895F2282CA297B900C2E4EB /* NetworkManager.swift in Sources */,
@@ -532,6 +543,7 @@
 				D89DBE1D2B872F0B00E5F1BD /* NonceGenerator.swift in Sources */,
 				D85E86DE2BAB0292002EDF76 /* Expense.swift in Sources */,
 				D8D42AA92B872726009B345D /* DDLogProvider.swift in Sources */,
+				21559CAE2CBD2AED0039F127 /* ActivityStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -197,6 +197,10 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 // MARK: - User Actions
 
 extension GroupListViewModel {
+    func handleAccountBtnTap() {
+        router.push(.AccountHomeView)
+    }
+
     func getMemberData(from members: [AppUser], of id: String) -> AppUser? {
         return members.first(where: { $0.id == id })
     }

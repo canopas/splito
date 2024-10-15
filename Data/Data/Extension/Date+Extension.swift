@@ -20,6 +20,12 @@ public extension Date {
         Int((self.timeIntervalSince1970 * 1000.0).rounded())
     }
 
+    var dayAndTime: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE 'at' h:mm a" // Monday at 7:35 PM
+        return dateFormatter.string(from: self)
+    }
+
     var secondsSince1970: Int {
         Int((self.timeIntervalSince1970).rounded())
     }

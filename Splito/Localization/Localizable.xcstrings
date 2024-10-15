@@ -124,6 +124,12 @@
     "Acknowledgements cannot be accessed." : {
       "extractionState" : "manual"
     },
+    "Activities" : {
+      "extractionState" : "manual"
+    },
+    "Activity" : {
+
+    },
     "Add a new member" : {
       "extractionState" : "manual"
     },
@@ -396,6 +402,9 @@
 
     },
     "Multiple people" : {
+
+    },
+    "No Activity Available" : {
 
     },
     "no balance" : {
@@ -800,6 +809,9 @@
     },
     "Your device cannot send email." : {
       "extractionState" : "manual"
+    },
+    "Your recent activity will appear here." : {
+
     },
     "Your requested data not found." : {
       "extractionState" : "manual"

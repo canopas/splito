@@ -22,7 +22,7 @@ struct HomeRouteView: View {
                             viewModel.setLastSelectedTab(0)
                         }
                 case 2:
-                    AccountRouteView(isTabBarVisible: $viewModel.isTabBarVisible)
+                    ActivityRouteView(isTabBarVisible: $viewModel.isTabBarVisible)
                         .onAppear {
                             viewModel.setLastSelectedTab(2)
                         }
@@ -69,8 +69,8 @@ struct CustomTabBarView: View {
 
                 AddExpenseButtonView(onClick: onAddExpense)
 
-                TabBarItemView(selectedTab: $selectedTab, tabIndex: 2, image: .profileIcon,
-                               selectedImage: .profileFillIcon, label: "Account", onTabItemClick: onTabItemClick)
+                TabBarItemView(selectedTab: $selectedTab, tabIndex: 2, image: .activityIcon,
+                                 selectedImage: .activityFillIcon, label: "Activities", onTabItemClick: onTabItemClick)
             }
             .padding(.vertical, 5)
             .background(surfaceColor.ignoresSafeArea(edges: [.bottom, .horizontal]))
@@ -102,7 +102,7 @@ struct TabBarItemView: View {
                         .scaledToFit()
                         .frame(width: 26, height: 26)
 
-                    Text(label)
+                    Text(label.localized)
                         .font(.caption1())
                         .foregroundStyle(selectedTab == tabIndex ? primaryText : disableText)
                 }

@@ -38,6 +38,13 @@ struct GroupRouteView: View {
                     .onAppear { isTabBarVisible = false }
             case .AddExpenseView(let groupId, let expenseId):
                 AddExpenseView(viewModel: AddExpenseViewModel(router: appRoute, groupId: groupId, expenseId: expenseId))
+
+            case .AccountHomeView:
+                AccountHomeView(viewModel: AccountHomeViewModel(router: appRoute))
+                    .onAppear { isTabBarVisible = false }
+            case .ProfileView:
+                UserProfileView(viewModel: UserProfileViewModel(router: appRoute, isOpenFromOnboard: false, onDismiss: nil))
+                    .onAppear { isTabBarVisible = false }
             default:
                 EmptyRouteView(routeName: self)
             }

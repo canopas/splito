@@ -15,6 +15,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
+    @Inject private var activityRepository: ActivityRepository
 
     @Published var expenseName = ""
     @Published private(set) var payerName = "You"
@@ -322,6 +323,8 @@ extension AddExpenseViewModel {
     }
 
     private func addExpense(groupId: String, expense: Expense, completion: (Bool) -> Void) async {
+        guard let user = preference.user else { return }
+
         do {
             showLoader = true
             let newExpense = try await expenseRepository.addExpense(groupId: groupId, expense: expense)
@@ -331,6 +334,12 @@ extension AddExpenseViewModel {
             if !(selectedGroup?.hasExpenses ?? false) { selectedGroup?.hasExpenses = true }
 
             await updateGroupMemberBalance(expense: expense, updateType: .Add)
+
+            if let itemId = newExpense.id {
+                let activity = Activity(type: .expenseAdded, groupId: groupId, itemId: itemId, groupName: selectedGroup?.name ?? "", actionUserName: user.fullName, recordedOn: Timestamp(date: Date()), expenseName: newExpense.name, amount: expense.getCalculatedSplitAmountOf(member: user.id))
+                try await activityRepository.addActivityLog(userId: user.id, activity: activity)
+            }
+
             showLoader = false
             completion(true)
         } catch {
