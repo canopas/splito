@@ -335,8 +335,8 @@ extension AddExpenseViewModel {
 
             await updateGroupMemberBalance(expense: expense, updateType: .Add)
 
-            if let itemId = newExpense.id {
-                let activity = Activity(type: .expenseAdded, groupId: groupId, itemId: itemId, groupName: selectedGroup?.name ?? "", actionUserName: user.fullName, recordedOn: Timestamp(date: Date()), expenseName: newExpense.name, amount: expense.getCalculatedSplitAmountOf(member: user.id))
+            if let activityId = newExpense.id {
+                let activity = ActivityLog(type: .expenseAdded, groupId: groupId, activityId: activityId, groupName: selectedGroup?.name ?? "", actionUserName: user.fullName, recordedOn: Timestamp(date: Date()), expenseName: newExpense.name, amount: expense.getCalculatedSplitAmountOf(member: user.id))
                 try await activityRepository.addActivityLog(userId: user.id, activity: activity)
             }
 

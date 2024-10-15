@@ -106,7 +106,7 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
 }
 
 // MARK: - Group States
-extension ActivityViewModel {
+extension ActivityLogViewModel {
     enum ViewState {
         case initial
         case loading

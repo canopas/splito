@@ -27,7 +27,7 @@ class ActivityStore: ObservableObject {
             .collection(SUB_COLLECTION_NAME)
     }
 
-    func addActivityLog(for userId: String, activity: Activity) async throws {
+    func addActivityLog(for userId: String, activity: ActivityLog) async throws {
         let documentRef = activityReference(userId: userId).document()
 
         var newActivity = activity
@@ -36,7 +36,7 @@ class ActivityStore: ObservableObject {
         try documentRef.setData(from: newActivity)
     }
 
-    func fetchActivitiesBy(userId: String, limit: Int, lastDocument: DocumentSnapshot?) async throws -> (data: [Activity], lastDocument: DocumentSnapshot?) {
+    func fetchActivitiesBy(userId: String, limit: Int, lastDocument: DocumentSnapshot?) async throws -> (data: [ActivityLog], lastDocument: DocumentSnapshot?) {
         var query = activityReference(userId: userId)
             .limit(to: limit)
 
@@ -44,10 +44,10 @@ class ActivityStore: ObservableObject {
             query = query.start(afterDocument: lastDocument)
         }
 
-        return try await query.getDocuments(as: Activity.self)
+        return try await query.getDocuments(as: ActivityLog.self)
     }
 
-    func listenToActivityLogs(for userId: String, completion: @escaping ([Activity]?) -> Void) {
+    func listenToActivityLogs(for userId: String, completion: @escaping ([ActivityLog]?) -> Void) {
         listener?.remove() // Remove any previous listeners
 
         listener = activityReference(userId: userId).addSnapshotListener { snapshot, error in
@@ -62,7 +62,7 @@ class ActivityStore: ObservableObject {
                 return
             }
 
-            let activities = documents.compactMap { try? $0.data(as: Activity.self) }
+            let activities = documents.compactMap { try? $0.data(as: ActivityLog.self) }
             completion(activities)
         }
     }

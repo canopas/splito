@@ -1,5 +1,5 @@
 //
-//  Activity.swift
+//  ActivityLog.swift
 //  Data
 //
 //  Created by Nirali Sonani on 14/10/24.
@@ -7,13 +7,13 @@
 
 import FirebaseFirestore
 
-public struct Activity: Codable, Identifiable {
+public struct ActivityLog: Codable, Identifiable {
 
     @DocumentID public var id: String? // Automatically generated ID by Firestore
 
     public let type: ActivityType   // The type of activity, e.g., group added, expense updated.
     public let groupId: String
-    public let itemId: String   // The ID of the item (e.g., group, expense or transaction).
+    public let activityId: String   // The ID of the activity (e.g., group, expense or transaction).
     public let groupName: String
     public let actionUserName: String   // The name of the user who performed the action.
     public let recordedOn: Timestamp
@@ -23,10 +23,10 @@ public struct Activity: Codable, Identifiable {
     public let receiverName: String?
     public let amount: Double?
 
-    public init(type: ActivityType, groupId: String, itemId: String, groupName: String, actionUserName: String, recordedOn: Timestamp, groupImageUrl: String? = nil, expenseName: String? = nil, payerName: String? = nil, receiverName: String? = nil, amount: Double? = nil) {
+    public init(type: ActivityType, groupId: String, activityId: String, groupName: String, actionUserName: String, recordedOn: Timestamp, groupImageUrl: String? = nil, expenseName: String? = nil, payerName: String? = nil, receiverName: String? = nil, amount: Double? = nil) {
         self.type = type
         self.groupId = groupId
-        self.itemId = itemId
+        self.activityId = activityId
         self.groupName = groupName
         self.actionUserName = actionUserName
         self.recordedOn = recordedOn
@@ -41,7 +41,7 @@ public struct Activity: Codable, Identifiable {
         case id
         case type
         case groupId = "group_id"
-        case itemId = "item_id"
+        case activityId = "activity_id"
         case groupName = "group_name"
         case actionUserName = "action_user_name"
         case recordedOn = "recorded_on"
@@ -54,8 +54,10 @@ public struct Activity: Codable, Identifiable {
 }
 
 public enum ActivityType: String, Codable {
-    case groupAdded = "group_added"
-    case groupUpdated = "group_updated"
+    case groupCreated = "group_created"
+    case groupNameUpdated = "group_name_updated"
+    case groupImageUpdated = "group_image_updated"
+    case groupMemberRemoved = "group_member_removed"
     case groupDeleted = "group_deleted"
     case expenseAdded = "expense_added"
     case expenseUpdated = "expense_updated"

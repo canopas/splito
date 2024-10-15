@@ -11,9 +11,9 @@
 		213BA0602C0F465000116130 /* GroupSettleUpRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213BA05F2C0F465000116130 /* GroupSettleUpRouteView.swift */; };
 		213BA0662C11B70F00116130 /* HomeRouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */; };
 		214CF8492C2977E10044C188 /* CalculateExpensesFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 214CF8482C2977E10044C188 /* CalculateExpensesFunctions.swift */; };
-		21559CA62CBD20FB0039F127 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CA52CBD20FB0039F127 /* ActivityView.swift */; };
-		21559CA92CBD211F0039F127 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CA82CBD211F0039F127 /* ActivityViewModel.swift */; };
-		21559CAC2CBD25B30039F127 /* ActivityRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CAB2CBD25B30039F127 /* ActivityRouteView.swift */; };
+		21559CA62CBD20FB0039F127 /* ActivityLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CA52CBD20FB0039F127 /* ActivityLogView.swift */; };
+		21559CA92CBD211F0039F127 /* ActivityLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CA82CBD211F0039F127 /* ActivityLogViewModel.swift */; };
+		21559CAC2CBD25B30039F127 /* ActivityLogRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CAB2CBD25B30039F127 /* ActivityLogRouteView.swift */; };
 		2156A8B02C24069800CFAB64 /* GroupTransactionsRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2156A8AF2C24069800CFAB64 /* GroupTransactionsRouteView.swift */; };
 		217620482C50DD6300FED0D4 /* GroupListWithDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 217620472C50DD6300FED0D4 /* GroupListWithDetailView.swift */; };
 		2177692B2C203160009B3B37 /* GroupTransactionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2177692A2C203160009B3B37 /* GroupTransactionDetailView.swift */; };
@@ -154,9 +154,9 @@
 		213BA05F2C0F465000116130 /* GroupSettleUpRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSettleUpRouteView.swift; sourceTree = "<group>"; };
 		213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRouteViewModel.swift; sourceTree = "<group>"; };
 		214CF8482C2977E10044C188 /* CalculateExpensesFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculateExpensesFunctions.swift; sourceTree = "<group>"; };
-		21559CA52CBD20FB0039F127 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
-		21559CA82CBD211F0039F127 /* ActivityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
-		21559CAB2CBD25B30039F127 /* ActivityRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityRouteView.swift; sourceTree = "<group>"; };
+		21559CA52CBD20FB0039F127 /* ActivityLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLogView.swift; sourceTree = "<group>"; };
+		21559CA82CBD211F0039F127 /* ActivityLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLogViewModel.swift; sourceTree = "<group>"; };
+		21559CAB2CBD25B30039F127 /* ActivityLogRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLogRouteView.swift; sourceTree = "<group>"; };
 		2156A8AF2C24069800CFAB64 /* GroupTransactionsRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionsRouteView.swift; sourceTree = "<group>"; };
 		217620472C50DD6300FED0D4 /* GroupListWithDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListWithDetailView.swift; sourceTree = "<group>"; };
 		2177692A2C203160009B3B37 /* GroupTransactionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionDetailView.swift; sourceTree = "<group>"; };
@@ -308,9 +308,9 @@
 		21559CAA2CBD21850039F127 /* ActivityLog */ = {
 			isa = PBXGroup;
 			children = (
-				21559CAB2CBD25B30039F127 /* ActivityRouteView.swift */,
-				21559CA52CBD20FB0039F127 /* ActivityView.swift */,
-				21559CA82CBD211F0039F127 /* ActivityViewModel.swift */,
+				21559CAB2CBD25B30039F127 /* ActivityLogRouteView.swift */,
+				21559CA52CBD20FB0039F127 /* ActivityLogView.swift */,
+				21559CA82CBD211F0039F127 /* ActivityLogViewModel.swift */,
 			);
 			path = ActivityLog;
 			sourceTree = "<group>";
@@ -1038,9 +1038,9 @@
 				21BA6D4D2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift in Sources */,
 				D85E86EF2BB41B9F002EDF76 /* SelectGroupViewModel.swift in Sources */,
 				D8E244B72B972BE700C6C82A /* BaseViewModel.swift in Sources */,
-				21559CA92CBD211F0039F127 /* ActivityViewModel.swift in Sources */,
+				21559CA92CBD211F0039F127 /* ActivityLogViewModel.swift in Sources */,
 				D8AC26F22B84B12800CEAAD3 /* MainRouteView.swift in Sources */,
-				21559CA62CBD20FB0039F127 /* ActivityView.swift in Sources */,
+				21559CA62CBD20FB0039F127 /* ActivityLogView.swift in Sources */,
 				21BA6D4F2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift in Sources */,
 				D85E86E02BAB06A3002EDF76 /* AddExpenseView.swift in Sources */,
 				D856C7322BCFD21C0008A341 /* ExpenseDetailsView.swift in Sources */,
@@ -1067,7 +1067,7 @@
 				D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */,
 				D89DBE5F2B8DE98600E5F1BD /* AccountRouteView.swift in Sources */,
 				D8CD952C2BD65F1900407B47 /* ExpenseSplitOptionsView.swift in Sources */,
-				21559CAC2CBD25B30039F127 /* ActivityRouteView.swift in Sources */,
+				21559CAC2CBD25B30039F127 /* ActivityLogRouteView.swift in Sources */,
 				D8D14A652BA2DD7300F45FF2 /* UserProfileImageView.swift in Sources */,
 				D89C933B2BC0204100FACD16 /* AccountHomeView.swift in Sources */,
 				D8D14A672BA2E25100F45FF2 /* UserProfileList.swift in Sources */,

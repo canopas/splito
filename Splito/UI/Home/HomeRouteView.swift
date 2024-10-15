@@ -22,7 +22,7 @@ struct HomeRouteView: View {
                             viewModel.setLastSelectedTab(0)
                         }
                 case 2:
-                    ActivityRouteView(isTabBarVisible: $viewModel.isTabBarVisible)
+                    ActivityLogRouteView(isTabBarVisible: $viewModel.isTabBarVisible)
                         .onAppear {
                             viewModel.setLastSelectedTab(2)
                         }

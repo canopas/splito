@@ -1,5 +1,5 @@
 //
-//  ActivityView.swift
+//  ActivityLogView.swift
 //  Splito
 //
 //  Created by Nirali Sonani on 14/10/24.
@@ -9,10 +9,10 @@ import SwiftUI
 import BaseStyle
 import Data
 
-struct ActivityView: View {
+struct ActivityLogView: View {
     @EnvironmentObject var homeRouteViewModel: HomeRouteViewModel
 
-    @StateObject var viewModel: ActivityViewModel
+    @StateObject var viewModel: ActivityLogViewModel
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
@@ -75,7 +75,7 @@ struct ActivityView: View {
 
 private struct ActivityListCellView: View {
 
-    let activity: Activity
+    let activity: ActivityLog
 
     var body: some View {
         HStack(spacing: 16) {
@@ -109,11 +109,7 @@ private struct ActivityListCellView: View {
     // Helper function to get an appropriate icon for the activity type
     private func getActivityIcon(for type: ActivityType) -> ImageResource {
         switch type {
-        case .groupAdded:
-            return .group
-        case .groupUpdated:
-            return .group
-        case .groupDeleted:
+        case .groupCreated, .groupNameUpdated, .groupImageUpdated, .groupMemberRemoved, .groupDeleted:
             return .group
         case .expenseAdded:
             return .upArrow
@@ -121,21 +117,17 @@ private struct ActivityListCellView: View {
             return .upArrow
         case .expenseDeleted:
             return .upArrow
-        case .transactionAdded:
-            return .transactionIcon
-        case .transactionUpdated:
-            return .transactionIcon
-        case .transactionDeleted:
+        case .transactionAdded, .transactionUpdated, .transactionDeleted:
             return .transactionIcon
         }
     }
 
     // Helper function to generate description for each activity
-    private func getActivityDescription(for activity: Activity) -> String {
+    private func getActivityDescription(for activity: ActivityLog) -> String {
         switch activity.type {
-        case .groupAdded:
+        case .groupCreated:
             return "\(activity.actionUserName) created the group \"\(activity.groupName)\"."
-        case .groupUpdated:
+        case .groupNameUpdated, .groupImageUpdated, .groupMemberRemoved:
             return "\(activity.actionUserName) changed the cover photo for \"\(activity.groupName)\"."
         case .groupDeleted:
             return "\(activity.actionUserName) deleted the group \"\(activity.groupName)\"."
@@ -155,26 +147,14 @@ private struct ActivityListCellView: View {
     }
 
     // Helper function to generate subdescription for each activity
-    private func getActivitySubdescription(for activity: Activity) -> String {
+    private func getActivitySubdescription(for activity: ActivityLog) -> String {
         switch activity.type {
-        case .groupAdded:
+        case .groupCreated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupMemberRemoved:
             return ""
-        case .groupUpdated:
-            return ""
-        case .groupDeleted:
-            return ""
-        case .expenseAdded:
+        case .expenseAdded, .expenseUpdated, .expenseDeleted:
             return "\(activity.actionUserName) \(activity.amount ?? 0 > 0 ? "get back" : "owe") \(activity.amount?.formattedCurrency ?? "0.0")"
-        case .expenseUpdated:
-            return "\(activity.actionUserName) \(activity.amount ?? 0 > 0 ? "get back" : "owe") \(activity.amount?.formattedCurrency ?? "0.0")"
-        case .expenseDeleted:
-            return "\(activity.actionUserName) \(activity.amount ?? 0 > 0 ? "get back" : "owe") \(activity.amount?.formattedCurrency ?? "0.0")"
-        case .transactionAdded:
+        case .transactionAdded, .transactionUpdated, .transactionDeleted:
             return "\(activity.amount ?? 0 > 0 ? activity.payerName ?? "" : activity.receiverName ?? "") \(activity.amount ?? 0 > 0 ? "paid" : "received") \(activity.amount?.formattedCurrency ?? "0.0")"
-        case .transactionUpdated:
-            return "\(activity.actionUserName) settled up"
-        case .transactionDeleted:
-            return "\(activity.actionUserName) settled up"
         }
     }
 }

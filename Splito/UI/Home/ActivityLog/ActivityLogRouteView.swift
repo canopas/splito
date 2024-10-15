@@ -1,5 +1,5 @@
 //
-//  ActivityRouteView.swift
+//  ActivityLogRouteView.swift
 //  Splito
 //
 //  Created by Nirali Sonani on 14/10/24.
@@ -9,7 +9,7 @@ import Data
 import SwiftUI
 import BaseStyle
 
-struct ActivityRouteView: View {
+struct ActivityLogRouteView: View {
 
     @StateObject var appRoute = Router(root: AppRoute.ActivityHomeView)
 
@@ -19,7 +19,7 @@ struct ActivityRouteView: View {
         RouterView(router: appRoute) { route in
             switch route {
             case .ActivityHomeView:
-                ActivityView(viewModel: ActivityViewModel(router: appRoute))
+                ActivityLogView(viewModel: ActivityLogViewModel(router: appRoute))
                     .onAppear { isTabBarVisible = true }
             case .GroupHomeView(let id):
                 GroupHomeView(viewModel: GroupHomeViewModel(router: appRoute, groupId: id))

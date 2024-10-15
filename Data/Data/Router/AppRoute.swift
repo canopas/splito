@@ -44,7 +44,7 @@ public enum AppRoute: Hashable {
     case ChooseMultiplePayerView(groupId: String, selectedPayers: [String: Double], amount: Double, onPayerSelection: (([String: Double]) -> Void))
 
     // MARK: - Activity Tab
-    case ActivityHomeView
+    case ActivityLogView
 
     // MARK: - Account Tab
     case AccountHomeView
@@ -67,8 +67,8 @@ public enum AppRoute: Hashable {
         case .FriendsHomeView:
             "friendsHomeView"
 
-        case .ActivityHomeView:
-            "activityHomeView"
+        case .ActivityLogView:
+            "activityLogView"
         case .ExpenseDetailView:
             "expenseDetailView"
 

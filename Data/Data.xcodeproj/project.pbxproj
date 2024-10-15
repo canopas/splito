@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		213D0CCA2C89DBC800D65C73 /* Notification+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213D0CC92C89DBC800D65C73 /* Notification+Extension.swift */; };
-		21559CA42CBD05570039F127 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CA32CBD05570039F127 /* Activity.swift */; };
+		21559CA42CBD05570039F127 /* ActivityLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CA32CBD05570039F127 /* ActivityLog.swift */; };
 		21559CAE2CBD2AED0039F127 /* ActivityStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CAD2CBD2AED0039F127 /* ActivityStore.swift */; };
 		21559CB02CBD2B400039F127 /* ActivityRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CAF2CBD2B400039F127 /* ActivityRepository.swift */; };
 		21D8D0832C0857F10061B365 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8D0822C0857F10061B365 /* Constants.swift */; };
@@ -67,7 +67,7 @@
 /* Begin PBXFileReference section */
 		1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DataTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		213D0CC92C89DBC800D65C73 /* Notification+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification+Extension.swift"; sourceTree = "<group>"; };
-		21559CA32CBD05570039F127 /* Activity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
+		21559CA32CBD05570039F127 /* ActivityLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLog.swift; sourceTree = "<group>"; };
 		21559CAD2CBD2AED0039F127 /* ActivityStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStore.swift; sourceTree = "<group>"; };
 		21559CAF2CBD2B400039F127 /* ActivityRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityRepository.swift; sourceTree = "<group>"; };
 		21D8D0822C0857F10061B365 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -177,7 +177,7 @@
 		D89DBE262B88801F00E5F1BD /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				21559CA32CBD05570039F127 /* Activity.swift */,
+				21559CA32CBD05570039F127 /* ActivityLog.swift */,
 				D89DBE272B88802800E5F1BD /* Country.swift */,
 				D89DBE472B8CBE4C00E5F1BD /* AppUser.swift */,
 				D83B15042B9996C0004A5F4F /* Groups.swift */,
@@ -522,7 +522,7 @@
 				D865F8AE2BD7CB0B0084BD36 /* Array+Extension.swift in Sources */,
 				21559CB02CBD2B400039F127 /* ActivityRepository.swift in Sources */,
 				D89DBE2B2B88817E00E5F1BD /* JSONUtils.swift in Sources */,
-				21559CA42CBD05570039F127 /* Activity.swift in Sources */,
+				21559CA42CBD05570039F127 /* ActivityLog.swift in Sources */,
 				D8A7CA802BA867F80014EC67 /* String+Extension.swift in Sources */,
 				213D0CCA2C89DBC800D65C73 /* Notification+Extension.swift in Sources */,
 				D895F2282CA297B900C2E4EB /* NetworkManager.swift in Sources */,
