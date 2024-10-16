@@ -126,9 +126,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 NotificationCenter.default.post(name: .deleteExpense, object: expense)
 
                 await self.updateGroupMemberBalance(updateType: .Delete)
-                if let expense {
-                    await addLogForDeleteExpense(deletedExpense: expense)
-                }
+                await addLogForDeleteExpense()
 
                 viewState = .initial
                 router.pop()
@@ -139,29 +137,16 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func addLogForDeleteExpense(deletedExpense: Expense) async {
-        guard let user = preference.user else { return }
-
-        if let expenseId = deletedExpense.id {
-            var involvedUserIds = Set(deletedExpense.splitTo).union(deletedExpense.paidBy.keys)
-            involvedUserIds.insert(user.id) // Ensure the user who deleted the expense is included
-
-            for memberId in involvedUserIds {
-                // Calculate the old owe amount specific to the member before the expense is deleted
-                let oldOweAmount = deletedExpense.getCalculatedSplitAmountOf(member: memberId)
-                let actionUserName = (memberId == user.id) ? "You" : user.nameWithLastInitial
-
-                let activity = ActivityLog(
-                    type: .expenseDeleted,
-                    groupId: groupId,
-                    activityId: expenseId,
-                    groupName: group?.name ?? "",
-                    actionUserName: actionUserName,
-                    recordedOn: Timestamp(date: Date()),
-                    expenseName: deletedExpense.name,
-                    amount: oldOweAmount
-                )
-
+    private func addLogForDeleteExpense() async {
+        guard let expense, let user = preference.user else { return }
+        
+        var involvedUserIds = Set(expense.splitTo).union(expense.paidBy.keys)
+        involvedUserIds.insert(user.id)
+        
+        for memberId in involvedUserIds {
+            let oldOweAmount = expense.getCalculatedSplitAmountOf(member: memberId)
+            
+            if let activity = createActivityLogForExpense(expense: expense, type: .expenseDeleted, memberId: memberId, currentUser: user, group: group, amount: oldOweAmount) {
                 do {
                     try await activityRepository.addActivityLog(userId: memberId, activity: activity)
                 } catch {
