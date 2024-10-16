@@ -344,11 +344,11 @@ extension AddExpenseViewModel {
     }
 
     private func addLogForAddExpense(expense: Expense) async {
-        guard let user = preference.user else { return }
-        
+        guard let userId = preference.user?.id else { return }
+
         var involvedUserIds = Set(expense.splitTo).union(expense.paidBy.keys)
-        involvedUserIds.insert(user.id)
-        
+        involvedUserIds.insert(userId)
+
         for memberId in involvedUserIds {
             let amount = (expense.splitTo.contains(memberId) || expense.paidBy.keys.contains(memberId)) ? expense.getCalculatedSplitAmountOf(member: memberId) : 0
             await addActivityLog(expense: expense, type: .expenseAdded, memberId: memberId, amount: amount)
@@ -360,10 +360,10 @@ extension AddExpenseViewModel {
             showLoader = true
             try await expenseRepository.updateExpense(groupId: groupId, expense: expense)
             NotificationCenter.default.post(name: .updateExpense, object: expense)
-            
+
             await updateGroupMemberBalance(expense: expense, updateType: .Update(oldExpense: oldExpense))
             await addLogForUpdateExpense(updatedExpense: expense, oldExpense: oldExpense)
-            
+
             showLoader = false
             completion(true)
         } catch {
@@ -372,24 +372,24 @@ extension AddExpenseViewModel {
             showToastForError()
         }
     }
-    
+
     private func addLogForUpdateExpense(updatedExpense: Expense, oldExpense: Expense) async {
-        guard let user = preference.user else { return }
-        
+        guard let userId = preference.user?.id else { return }
+
         var involvedUserIds = Set(oldExpense.splitTo).union(oldExpense.paidBy.keys)
         involvedUserIds = involvedUserIds.union(updatedExpense.splitTo).union(updatedExpense.paidBy.keys)
-        involvedUserIds.insert(user.id)
-        
+        involvedUserIds.insert(userId)
+
         for memberId in involvedUserIds {
             let newAmount = updatedExpense.getCalculatedSplitAmountOf(member: memberId)
             await addActivityLog(expense: updatedExpense, type: .expenseUpdated, memberId: memberId, amount: newAmount)
         }
     }
-    
+
     private func addActivityLog(expense: Expense, type: ActivityType, memberId: String, amount: Double) async {
-        guard let user = preference.user else { return }
-        
-        if let activity = createActivityLogForExpense(expense: expense, type: type, memberId: memberId, currentUser: user, group: selectedGroup, amount: amount) {
+        guard let userId = preference.user?.id else { return }
+
+        if let activity = createActivityLogForExpense(expense: expense, type: type, memberId: memberId, currentUserId: userId, group: selectedGroup, amount: amount) {
             do {
                 try await activityRepository.addActivityLog(userId: memberId, activity: activity)
             } catch {

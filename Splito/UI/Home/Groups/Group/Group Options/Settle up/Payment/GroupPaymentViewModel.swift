@@ -13,6 +13,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
+    @Inject private var activityRepository: ActivityRepository
     @Inject private var transactionRepository: TransactionRepository
 
     @Published var amount: Double = 0
@@ -143,7 +144,10 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             showLoader = true
             let transaction = try await transactionRepository.addTransaction(groupId: groupId, transaction: transaction)
             await updateGroupMemberBalance(transaction: transaction, updateType: .Add)
+
             NotificationCenter.default.post(name: .addTransaction, object: transaction)
+//            await addLogForAddTransaction(transaction: transaction)
+
             showLoader = false
             completion(true)
         } catch {
@@ -152,6 +156,31 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             showToastForError()
         }
     }
+
+//    private func addLogForAddTransaction(transaction: Transactions) async {
+//        let involvedUserIds: Set<String> = [transaction.payerId, transaction.receiverId, transaction.addedBy]
+//
+//        for memberId in involvedUserIds {
+//            let amount = (memberId == transaction.payerId) ? transaction.amount : -transaction.amount
+//            await addActivityLog(transaction: transaction, type: .transactionAdded, memberId: memberId, amount: amount)
+//        }
+//    }
+//
+//    private func addActivityLog(transaction: Transactions, type: ActivityType, memberId: String, amount: Double) async {
+//        guard let user = preference.user else { return }
+//
+//        let payerName = (transaction.payerId == memberId) ? "You" : payerName
+//        let receiverName = (transaction.receiverId == memberId) ? "you" : payableName
+//
+//        if let activity = createActivityLogForTransaction(transaction: transaction, type: type, memberId: memberId, currentUser: user, payerName: payerName, receiverName: receiverName, group: group, amount: amount) {
+//            do {
+//                try await activityRepository.addActivityLog(userId: memberId, activity: activity)
+//            } catch {
+//                LogE("Failed to add activity log for user \(memberId): \(error)")
+//                showToastForError()
+//            }
+//        }
+//    }
 
     private func updateTransaction(transaction: Transactions, oldTransaction: Transactions, completion: (Bool) -> Void) async {
         do {

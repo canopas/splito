@@ -12,13 +12,15 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
 
     private let ACTIVITIES_LIMIT = 10
 
-    @Inject private var preference: SplitoPreference
+    @Inject var preference: SplitoPreference
+    @Inject private var groupRepository: GroupRepository
     @Inject private var activityRepository: ActivityRepository
 
     @Published private(set) var viewState: ViewState = .initial
     @Published private(set) var activityListState: ActivityListState = .noActivity
 
-    @Published var activities: [ActivityLog] = []
+    @Published private(set) var activities: [ActivityLog] = []
+    @Published private(set) var groupMemberData: [AppUser] = []
 
     @Published private(set) var hasMoreActivities: Bool = true
 
@@ -78,6 +80,38 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         } catch {
             viewState = .initial
             showToastForError()
+        }
+    }
+
+    func fetchMemberData(for userId: String) async -> AppUser? {
+        if let existingUser = groupMemberData.first(where: { $0.id == userId }) {
+            return existingUser // Return the available user from groupMemberData
+        } else {
+            do {
+                let user = try await groupRepository.fetchMemberBy(userId: userId)
+                if let user {
+                    self.groupMemberData.append(user)
+                }
+                return user
+            } catch {
+                showToastForError()
+                return nil
+            }
+        }
+    }
+
+    // Fetch and return user name from the cache, or fetch from API if not cached
+    func getMemberName(for userId: String?) -> String {
+        guard let userId else { return "Unknown" }
+
+        if let user = groupMemberData.first(where: { $0.id == userId }) {
+            return user.nameWithLastInitial
+        } else {
+            Task {
+                let fetchedUser = await fetchMemberData(for: userId)
+                return fetchedUser?.nameWithLastInitial
+            }
+            return "Unknown" // Return Unknown while waiting for async fetch
         }
     }
 

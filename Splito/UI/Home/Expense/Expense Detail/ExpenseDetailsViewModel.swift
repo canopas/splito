@@ -138,15 +138,15 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     private func addLogForDeleteExpense() async {
-        guard let expense, let user = preference.user else { return }
-        
+        guard let expense, let userId = preference.user?.id else { return }
+
         var involvedUserIds = Set(expense.splitTo).union(expense.paidBy.keys)
-        involvedUserIds.insert(user.id)
-        
+        involvedUserIds.insert(userId)
+
         for memberId in involvedUserIds {
             let oldOweAmount = expense.getCalculatedSplitAmountOf(member: memberId)
-            
-            if let activity = createActivityLogForExpense(expense: expense, type: .expenseDeleted, memberId: memberId, currentUser: user, group: group, amount: oldOweAmount) {
+
+            if let activity = createActivityLogForExpense(expense: expense, type: .expenseDeleted, memberId: memberId, currentUserId: userId, group: group, amount: oldOweAmount) {
                 do {
                     try await activityRepository.addActivityLog(userId: memberId, activity: activity)
                 } catch {
