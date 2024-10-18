@@ -108,6 +108,34 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         showEditExpenseSheet = true
     }
 
+    func handleRestoreButtonAction() {
+        showAlert = true
+        alert = .init(title: "Undelete expense",
+                      message: "Are you sure you want to undelete this expense?",
+                      positiveBtnTitle: "Ok",
+                      positiveBtnAction: self.restoreExpense,
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false })
+    }
+
+    func restoreExpense() {
+        guard var expense else { return }
+
+        Task {
+            do {
+                viewState = .loading
+                expense.isActive = true
+                try await expenseRepository.updateExpense(groupId: groupId, expense: expense)
+                await updateGroupMemberBalance(updateType: .Update(oldExpense: expense))
+                viewState = .initial
+                router.pop()
+            } catch {
+                viewState = .initial
+                showToastForError()
+            }
+        }
+    }
+
     func handleDeleteButtonAction() {
         showAlert = true
         alert = .init(title: "Delete Expense",
@@ -119,10 +147,12 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteExpense() {
+        guard let expense else { return }
+
         Task {
             do {
                 viewState = .loading
-                try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
+                try await expenseRepository.deleteExpense(groupId: groupId, expense: expense)
                 NotificationCenter.default.post(name: .deleteExpense, object: expense)
 
                 await self.updateGroupMemberBalance(updateType: .Delete)

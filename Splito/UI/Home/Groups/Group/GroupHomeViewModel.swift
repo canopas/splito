@@ -304,7 +304,7 @@ extension GroupHomeViewModel {
 
     private func deleteExpense(expense: Expense) async {
         do {
-            try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expense.id ?? "")
+            try await expenseRepository.deleteExpense(groupId: groupId, expense: expense)
             await updateGroupMemberBalance(expense: expense, updateType: .Delete)
             await addLogForDeleteExpense(deletedExpense: expense)
         } catch {

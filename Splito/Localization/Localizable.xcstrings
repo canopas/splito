@@ -597,6 +597,9 @@
         }
       }
     },
+    "Restore" : {
+
+    },
     "Retry" : {
       "extractionState" : "manual"
     },

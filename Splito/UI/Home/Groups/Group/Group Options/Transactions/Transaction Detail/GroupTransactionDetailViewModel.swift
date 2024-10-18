@@ -112,6 +112,34 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         showEditTransactionSheet = true
     }
 
+    func handleRestoreButtonAction() {
+        showAlert = true
+        alert = .init(title: "Undelete expense",
+                      message: "Are you sure you want to undelete this expense?",
+                      positiveBtnTitle: "Ok",
+                      positiveBtnAction: self.restoreTransaction,
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false })
+    }
+
+    func restoreTransaction() {
+        guard var transaction else { return }
+
+        Task {
+            do {
+                viewState = .loading
+                transaction.isActive = true
+                try await transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
+                await updateGroupMemberBalance(updateType: .Update(oldTransaction: transaction))
+                viewState = .initial
+                router.pop()
+            } catch {
+                viewState = .initial
+                showToastForError()
+            }
+        }
+    }
+
     func handleDeleteBtnAction() {
         showAlert = true
         alert = .init(title: "Delete Transaction",
@@ -127,9 +155,11 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteTransaction() async {
+        guard let transaction else { return }
+
         do {
             viewState = .loading
-            try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
+            try await transactionRepository.deleteTransaction(groupId: groupId, transaction: transaction)
             NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
             await updateGroupMemberBalance(updateType: .Delete)
             await addLogForDeleteTransaction()

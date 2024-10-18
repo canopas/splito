@@ -162,7 +162,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     private func deleteTransaction(transaction: Transactions) async {
         guard let transactionId = transaction.id else { return }
         do {
-            try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
+            try await transactionRepository.deleteTransaction(groupId: groupId, transaction: transaction)
             await updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
             await addLogForDeleteTransaction(transaction: transaction)
         } catch {

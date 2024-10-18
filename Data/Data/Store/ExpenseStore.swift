@@ -60,17 +60,4 @@ public class ExpenseStore: ObservableObject {
 
         return (expenses, snapshot.documents.last)
     }
-
-    func deleteExpense(groupId: String, expenseId: String) async throws {
-        try await expenseReference(groupId: groupId).document(expenseId).delete()
-    }
-
-    func deleteExpensesOf(groupId: String) async throws {
-        let snapshot = try await expenseReference(groupId: groupId).getDocuments(source: .server)
-
-        let batch = database.batch()
-        snapshot.documents.forEach { batch.deleteDocument($0.reference) }
-
-        try await batch.commit()
-    }
 }

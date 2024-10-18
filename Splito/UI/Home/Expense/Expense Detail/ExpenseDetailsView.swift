@@ -49,11 +49,17 @@ struct ExpenseDetailsView: View {
             ToolbarItem(placement: .topBarLeading) {
                 NavigationTitleTextView(text: "Details")
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                ToolbarButtonView(imageIcon: .binIcon, onClick: viewModel.handleDeleteButtonAction)
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                ToolbarButtonView(imageIcon: .editPencilIcon, onClick: viewModel.handleEditBtnAction)
+            if viewModel.expense?.isActive ?? true {
+                ToolbarItem(placement: .topBarTrailing) {
+                    ToolbarButtonView(imageIcon: .binIcon, onClick: viewModel.handleDeleteButtonAction)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    ToolbarButtonView(imageIcon: .editPencilIcon, onClick: viewModel.handleEditBtnAction)
+                }
+            } else {
+                ToolbarItem(placement: .topBarTrailing) {
+                    RestoreButton(onClick: viewModel.handleRestoreButtonAction)
+                }
             }
         }
     }
@@ -166,6 +172,19 @@ private struct ExpenseInfoView: View {
             }
             .font(.body3())
             .foregroundStyle(disableText)
+        }
+    }
+}
+
+struct RestoreButton: View {
+
+    let onClick: () -> Void
+
+    var body: some View {
+        Button(action: onClick) {
+            Text("Restore")
+                .font(.subTitle3())
+                .foregroundStyle(primaryText)
         }
     }
 }
