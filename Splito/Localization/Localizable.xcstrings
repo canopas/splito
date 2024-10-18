@@ -127,6 +127,9 @@
     "Activities" : {
       "extractionState" : "manual"
     },
+    "Activity" : {
+
+    },
     "Add a new member" : {
       "extractionState" : "manual"
     },
@@ -508,9 +511,6 @@
     },
     "Reauthenticate" : {
       "extractionState" : "manual"
-    },
-    "Recent activity" : {
-
     },
     "Remove" : {
 

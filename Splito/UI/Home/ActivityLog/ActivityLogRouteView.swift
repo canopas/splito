@@ -24,6 +24,9 @@ struct ActivityLogRouteView: View {
             case .GroupHomeView(let id):
                 GroupHomeView(viewModel: GroupHomeViewModel(router: appRoute, groupId: id))
                     .onAppear { isTabBarVisible = false }
+            case .GroupSettingView(let id):
+                GroupSettingView(viewModel: GroupSettingViewModel(router: appRoute, groupId: id))
+                    .onAppear { isTabBarVisible = false }
             case .ExpenseDetailView(let groupId, let expenseId):
                 ExpenseDetailsView(viewModel: ExpenseDetailsViewModel(router: appRoute, groupId: groupId, expenseId: expenseId))
             case .TransactionDetailView(let transactionId, let groupId):

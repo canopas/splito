@@ -10,9 +10,11 @@ import Foundation
 
 class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
+    @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
+    @Inject private var activityRepository: ActivityRepository
 
     @Published private(set) var transaction: Transactions?
     @Published private(set) var transactionUsersData: [AppUser] = []
@@ -130,11 +132,33 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
             NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
             await updateGroupMemberBalance(updateType: .Delete)
+            await addLogForDeleteTransaction()
             viewState = .initial
             router.pop()
         } catch {
             viewState = .initial
             showToastForError()
+        }
+    }
+
+    private func addLogForDeleteTransaction() async {
+        guard let transaction, let user = preference.user else { return }
+
+        let payerName = getMemberDataBy(id: transaction.payerId)?.nameWithLastInitial ?? "Someone"
+        let receiverName = getMemberDataBy(id: transaction.receiverId)?.nameWithLastInitial ?? "Someone"
+        let involvedUserIds: Set<String> = [transaction.payerId, transaction.receiverId, transaction.addedBy, transaction.updatedBy]
+
+        for memberId in involvedUserIds {
+            let amount = (memberId != transaction.payerId && memberId != transaction.receiverId) ? 0 : (memberId == transaction.payerId) ? transaction.amount : -transaction.amount
+
+            if let activity = createActivityLogForTransaction(transaction: transaction, type: .transactionDeleted, actionUserName: (memberId == user.id) ? "You" : user.nameWithLastInitial, payerName: payerName, receiverName: receiverName, group: group, amount: amount) {
+                do {
+                    try await activityRepository.addActivityLog(userId: memberId, activity: activity)
+                } catch {
+                    LogE("Failed to add activity log for user \(memberId): \(error)")
+                    showToastForError()
+                }
+            }
         }
     }
 

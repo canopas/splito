@@ -387,9 +387,9 @@ extension AddExpenseViewModel {
     }
 
     private func addActivityLog(expense: Expense, type: ActivityType, memberId: String, amount: Double) async {
-        guard let userId = preference.user?.id else { return }
+        guard let user = preference.user else { return }
 
-        if let activity = createActivityLogForExpense(expense: expense, type: type, memberId: memberId, currentUserId: userId, group: selectedGroup, amount: amount) {
+        if let activity = createActivityLogForExpense(expense: expense, type: type, memberId: memberId, currentUser: user, group: selectedGroup, amount: amount) {
             do {
                 try await activityRepository.addActivityLog(userId: memberId, activity: activity)
             } catch {

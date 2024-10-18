@@ -311,17 +311,17 @@ extension GroupHomeViewModel {
             showToastForError()
         }
     }
-    
+
     private func addLogForDeleteExpense(deletedExpense: Expense) async {
-        guard let userId = preference.user?.id else { return }
+        guard let user = preference.user else { return }
 
         var involvedUserIds = Set(deletedExpense.splitTo).union(deletedExpense.paidBy.keys)
-        involvedUserIds.insert(userId)
+        involvedUserIds.insert(user.id)
 
         for memberId in involvedUserIds {
             let oldOweAmount = deletedExpense.getCalculatedSplitAmountOf(member: memberId)
 
-            if let activity = createActivityLogForExpense(expense: deletedExpense, type: .expenseDeleted, memberId: memberId, currentUserId: userId, group: group, amount: oldOweAmount) {
+            if let activity = createActivityLogForExpense(expense: deletedExpense, type: .expenseDeleted, memberId: memberId, currentUser: user, group: group, amount: oldOweAmount) {
                 do {
                     try await activityRepository.addActivityLog(userId: memberId, activity: activity)
                 } catch {

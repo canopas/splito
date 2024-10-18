@@ -13,9 +13,10 @@ import FirebaseFirestore
 
 class CreateGroupViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var preference: SplitoPreference
-    @Inject var storageManager: StorageManager
-    @Inject var groupRepository: GroupRepository
+    @Inject private var preference: SplitoPreference
+    @Inject private var storageManager: StorageManager
+    @Inject private var groupRepository: GroupRepository
+    @Inject private var activityRepository: ActivityRepository
 
     @Published var showImagePicker = false
     @Published var showImagePickerOptions = false
@@ -102,6 +103,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             showLoader = true
             let group = try await groupRepository.createGroup(group: group, imageData: imageData)
             NotificationCenter.default.post(name: .addGroup, object: group)
+            await addLogForCreateGroup(group: group)
             showLoader = false
             completion(true)
         } catch {
@@ -111,7 +113,17 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    private func addLogForCreateGroup(group: Groups) async {
+        guard let userId = preference.user?.id else { return }
+        await addActivityLog(group: group, type: .groupCreated, memberId: userId)
+    }
+
     private func updateGroup(group: Groups, completion: (Bool) -> Void) async {
+        if self.group?.imageUrl == group.imageUrl && self.group?.name == groupName.trimming(spaces: .leadingAndTrailing) {
+            completion(true)
+            return
+        }
+
         var newGroup = group
         newGroup.name = groupName.trimming(spaces: .leadingAndTrailing)
 
@@ -122,12 +134,37 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             self.showLoader = true
             let updatedGroup = try await groupRepository.updateGroupWithImage(imageData: imageData, newImageUrl: profileImageUrl, group: newGroup)
             NotificationCenter.default.post(name: .updateGroup, object: updatedGroup)
+            await addLogForUpdateGroup(updatedGroup: updatedGroup)
             showLoader = false
             completion(true)
         } catch {
             showLoader = false
             completion(false)
             showToastForError()
+        }
+    }
+
+    private func addLogForUpdateGroup(updatedGroup: Groups) async {
+        guard let group else { return }
+
+        for memberId in Set(group.members) {
+            let type: ActivityType = group.imageUrl != updatedGroup.imageUrl ? .groupImageUpdated : .groupNameUpdated
+            await addActivityLog(group: updatedGroup, type: type, memberId: memberId)
+        }
+    }
+
+    private func addActivityLog(group: Groups, type: ActivityType, memberId: String) async {
+        guard let user = preference.user else { return }
+
+        let actionUserName = (memberId == user.id) ? "You" : user.nameWithLastInitial
+
+        if let activity = createActivityLogForGroup(group: group, type: type, memberId: memberId, actionUserName: actionUserName) {
+            do {
+                try await activityRepository.addActivityLog(userId: memberId, activity: activity)
+            } catch {
+                LogE("Failed to add activity log for user \(memberId): \(error)")
+                showToastForError()
+            }
         }
     }
 }

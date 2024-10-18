@@ -13,6 +13,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
+    @Inject private var activityRepository: ActivityRepository
 
     @Published private(set) var isAdmin = false
     @Published var showLeaveGroupDialog = false
@@ -130,27 +131,27 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleLeaveGroupTap() {
-        guard let userId = preference.user?.id else { return }
-        showLeaveGroupAlert(memberId: userId)
+        guard let user = preference.user else { return }
+        showLeaveGroupAlert(member: user)
         showAlert = true
     }
 
-    func handleMemberTap(memberId: String) {
+    func handleMemberTap(member: AppUser) {
         guard let userId = preference.user?.id else { return }
-        if userId == memberId {
+        if userId == member.id {
             showLeaveGroupDialog = true
-            showLeaveGroupAlert(memberId: memberId)
+            showLeaveGroupAlert(member: member)
         } else {
             showRemoveMemberDialog = isAdmin
-            showRemoveMemberAlert(memberId: memberId)
+            showRemoveMemberAlert(member: member)
         }
     }
 
-    private func showRemoveMemberAlert(memberId: String) {
-        let memberBalance = getMembersBalance(memberId: memberId)
+    private func showRemoveMemberAlert(member: AppUser) {
+        let memberBalance = getMembersBalance(memberId: member.id)
         guard memberBalance == 0 else {
             memberRemoveType = .remove
-            showDebtOutstandingAlert(memberId: memberId)
+            showDebtOutstandingAlert(memberId: member.id)
             return
         }
 
@@ -159,19 +160,19 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                       positiveBtnTitle: "Remove",
                       positiveBtnAction: {
                         Task {
-                            await self.removeMemberFromGroup(memberId: memberId)
+                            await self.removeMemberFromGroup(member: member)
                         }
                       },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func showLeaveGroupAlert(memberId: String) {
-        let memberBalance = getMembersBalance(memberId: memberId)
+    private func showLeaveGroupAlert(member: AppUser) {
+        let memberBalance = getMembersBalance(memberId: member.id)
 
         guard memberBalance == 0 else {
             memberRemoveType = .leave
-            showDebtOutstandingAlert(memberId: memberId)
+            showDebtOutstandingAlert(memberId: member.id)
             return
         }
 
@@ -180,7 +181,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                       positiveBtnTitle: "Leave",
                       positiveBtnAction: {
                         Task {
-                            await self.removeMemberFromGroup(memberId: memberId)
+                            await self.removeMemberFromGroup(member: member)
                         }
                       },
                       negativeBtnTitle: "Cancel",
@@ -199,7 +200,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func removeMemberFromGroup(memberId: String) async {
+    private func removeMemberFromGroup(member: AppUser) async {
         guard let group, let userId = preference.user?.id else {
             LogE("GroupSettingViewModel: \(#function) group not found.")
             return
@@ -207,24 +208,43 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
         do {
             currentViewState = .loading
-            try await groupRepository.removeMemberFrom(group: group, memberId: memberId)
+            try await groupRepository.removeMemberFrom(group: group, memberId: member.id)
             currentViewState = .initial
 
-            if userId == memberId {
+            if userId == member.id {
                 NotificationCenter.default.post(name: .leaveGroup, object: group)
+                await addLogForLeftMember()
                 goBackToGroupList()
             } else {
                 showAlert = false
                 withAnimation {
-                    if let index = self.members.firstIndex(where: { $0.id == memberId }) {
+                    if let index = self.members.firstIndex(where: { $0.id == member.id }) {
                         self.members.remove(at: index)
                     }
                 }
                 showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed"))
+                await addLogForRemovedMember(removedMember: member)
             }
         } catch {
             currentViewState = .initial
             showToastForError()
+        }
+    }
+
+    private func addLogForLeftMember() async {
+        guard let group else { return }
+
+        for memberId in group.members {
+            await addActivityLog(type: .groupMemberLeft, memberId: memberId)
+        }
+    }
+
+    private func addLogForRemovedMember(removedMember: AppUser) async {
+        guard let group else { return }
+
+        for memberId in group.members {
+            let removedMemberName = (memberId == removedMember.id) ? "you" : removedMember.nameWithLastInitial
+            await addActivityLog(type: .groupMemberRemoved, memberId: memberId, removedMemberName: removedMemberName)
         }
     }
 
@@ -248,11 +268,35 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             currentViewState = .loading
             try await groupRepository.deleteGroup(group: group)
             NotificationCenter.default.post(name: .deleteGroup, object: group)
+            await addLogForDeleteGroup()
             currentViewState = .initial
             goBackToGroupList()
         } catch {
             currentViewState = .initial
             showToastForError()
+        }
+    }
+
+    private func addLogForDeleteGroup() async {
+        guard let group else { return }
+
+        for memberId in group.members {
+            await addActivityLog(type: .groupDeleted, memberId: memberId)
+        }
+    }
+
+    private func addActivityLog(type: ActivityType, memberId: String, removedMemberName: String? = nil) async {
+        guard let user = preference.user else { return }
+
+        let actionUserName = (memberId == user.id) ? "You" : user.nameWithLastInitial
+
+        if let activity = createActivityLogForGroup(group: group, type: type, memberId: memberId, actionUserName: actionUserName, removedMemberName: removedMemberName) {
+            do {
+                try await activityRepository.addActivityLog(userId: memberId, activity: activity)
+            } catch {
+                LogE("Failed to add activity log for user \(memberId): \(error)")
+                showToastForError()
+            }
         }
     }
 

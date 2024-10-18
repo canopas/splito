@@ -14,12 +14,6 @@ class ActivityStore: ObservableObject {
 
     @Inject private var database: Firestore
 
-    private var listener: ListenerRegistration?
-
-    deinit {
-        listener?.remove()
-    }
-
     private func activityReference(userId: String) -> CollectionReference {
         database
             .collection(COLLECTION_NAME)
@@ -38,6 +32,7 @@ class ActivityStore: ObservableObject {
 
     func fetchActivitiesBy(userId: String, limit: Int, lastDocument: DocumentSnapshot?) async throws -> (data: [ActivityLog], lastDocument: DocumentSnapshot?) {
         var query = activityReference(userId: userId)
+            .order(by: "recorded_on", descending: true)
             .limit(to: limit)
 
         if let lastDocument {
@@ -47,23 +42,29 @@ class ActivityStore: ObservableObject {
         return try await query.getDocuments(as: ActivityLog.self)
     }
 
-    func listenToActivityLogs(for userId: String, completion: @escaping ([ActivityLog]?) -> Void) {
-        listener?.remove() // Remove any previous listeners
+    func deleteAllLogs(for userId: String) async throws {
+        let batchSize = 15
+        var lastDocument: DocumentSnapshot?
 
-        listener = activityReference(userId: userId).addSnapshotListener { snapshot, error in
-            if let error {
-                LogE("UserStore :: \(#function) Error fetching activities: \(error.localizedDescription)")
-                completion(nil)
-                return
+        repeat {
+            // Fetch a batch of activities
+            let (activities, lastDoc) = try await fetchActivitiesBy(userId: userId, limit: batchSize, lastDocument: lastDocument)
+            lastDocument = lastDoc
+
+            guard !activities.isEmpty else { break }
+
+            // Create a new batch
+            let batch = database.batch()
+
+            // Add delete operations to the batch
+            for activity in activities {
+                let documentRef = activityReference(userId: userId).document(activity.id!)
+                batch.deleteDocument(documentRef)
             }
 
-            guard let documents = snapshot?.documents else {
-                completion(nil)
-                return
-            }
+            // Commit the batch
+            try await batch.commit()
 
-            let activities = documents.compactMap { try? $0.data(as: ActivityLog.self) }
-            completion(activities)
-        }
+        } while lastDocument != nil
     }
 }

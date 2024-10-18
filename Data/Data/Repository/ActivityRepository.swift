@@ -18,4 +18,8 @@ public class ActivityRepository: ObservableObject {
     public func fetchActivitiesBy(userId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) async throws -> (data: [ActivityLog], lastDocument: DocumentSnapshot?) {
         return try await store.fetchActivitiesBy(userId: userId, limit: limit, lastDocument: lastDocument)
     }
+
+    public func deleteAllLogs(for userId: String) async throws {
+        try await store.deleteAllLogs(for: userId)
+    }
 }

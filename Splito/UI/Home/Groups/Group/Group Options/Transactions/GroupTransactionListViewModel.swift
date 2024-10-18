@@ -13,7 +13,9 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
     private let TRANSACTIONS_LIMIT = 10
 
+    @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
+    @Inject private var activityRepository: ActivityRepository
     @Inject private var transactionRepository: TransactionRepository
 
     @Published private(set) var transactionsWithUser: [TransactionWithUser] = []
@@ -162,8 +164,30 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         do {
             try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
             await updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
+            await addLogForDeleteTransaction(transaction: transaction)
         } catch {
             showToastForError()
+        }
+    }
+
+    private func addLogForDeleteTransaction(transaction: Transactions) async {
+        guard let user = preference.user else { return }
+
+        let payerName = await fetchUserData(for: transaction.payerId)?.nameWithLastInitial ?? "Someone"
+        let receiverName = await fetchUserData(for: transaction.receiverId)?.nameWithLastInitial ?? "Someone"
+        let involvedUserIds: Set<String> = [transaction.payerId, transaction.receiverId, transaction.addedBy, transaction.updatedBy]
+
+        for memberId in involvedUserIds {
+            let amount = (memberId != transaction.payerId && memberId != transaction.receiverId) ? 0 : (memberId == transaction.payerId) ? transaction.amount : -transaction.amount
+
+            if let activity = createActivityLogForTransaction(transaction: transaction, type: .transactionDeleted, actionUserName: (memberId == user.id) ? "You" : user.nameWithLastInitial, payerName: payerName, receiverName: receiverName, group: group, amount: amount) {
+                do {
+                    try await activityRepository.addActivityLog(userId: memberId, activity: activity)
+                } catch {
+                    LogE("Failed to add activity log for user \(memberId): \(error)")
+                    showToastForError()
+                }
+            }
         }
     }
 

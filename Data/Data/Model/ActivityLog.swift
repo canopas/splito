@@ -15,25 +15,25 @@ public struct ActivityLog: Codable, Identifiable {
     public let groupId: String
     public let activityId: String   // The ID of the activity (e.g., expense or transaction)
     public let groupName: String
-    public let actionUserId: String   // The id of the user who performed the action
+    public let actionUserName: String   // The id of the user who performed the action
     public let recordedOn: Timestamp
-    public let groupImageUrl: String?
+    public let removedMemberName: String?
     public let expenseName: String?
-    public let payerId: String?
-    public let receiverId: String?
+    public let payerName: String?
+    public let receiverName: String?
     public let amount: Double?
 
-    public init(type: ActivityType, groupId: String, activityId: String, groupName: String, actionUserId: String, recordedOn: Timestamp, groupImageUrl: String? = nil, expenseName: String? = nil, payerId: String? = nil, receiverId: String? = nil, amount: Double? = nil) {
+    public init(type: ActivityType, groupId: String, activityId: String, groupName: String, actionUserName: String, recordedOn: Timestamp, removedMemberName: String? = nil, expenseName: String? = nil, payerName: String? = nil, receiverName: String? = nil, amount: Double? = nil) {
         self.type = type
         self.groupId = groupId
         self.activityId = activityId
         self.groupName = groupName
-        self.actionUserId = actionUserId
+        self.actionUserName = actionUserName
         self.recordedOn = recordedOn
-        self.groupImageUrl = groupImageUrl
+        self.removedMemberName = removedMemberName
         self.expenseName = expenseName
-        self.payerId = payerId
-        self.receiverId = receiverId
+        self.payerName = payerName
+        self.receiverName = receiverName
         self.amount = amount
     }
 
@@ -43,12 +43,12 @@ public struct ActivityLog: Codable, Identifiable {
         case groupId = "group_id"
         case activityId = "activity_id"
         case groupName = "group_name"
-        case actionUserId = "action_user_id"
+        case actionUserName = "action_user_name"
         case recordedOn = "recorded_on"
-        case groupImageUrl = "group_image_url"
+        case removedMemberName = "removed_member_name"
         case expenseName = "expense_name"
-        case payerId = "payer_id"
-        case receiverId = "receiver_id"
+        case payerName = "payer_name"
+        case receiverName = "receiver_name"
         case amount
     }
 }
@@ -58,6 +58,7 @@ public enum ActivityType: String, Codable {
     case groupNameUpdated = "group_name_updated"
     case groupImageUpdated = "group_image_updated"
     case groupMemberRemoved = "group_member_removed"
+    case groupMemberLeft = "group_member_left"
     case groupDeleted = "group_deleted"
     case expenseAdded = "expense_added"
     case expenseUpdated = "expense_updated"
