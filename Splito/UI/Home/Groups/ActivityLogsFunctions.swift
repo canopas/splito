@@ -41,7 +41,7 @@ func createActivityLogForTransaction(transaction: Transactions, type: ActivityTy
     )
  }
 
-func createActivityLogForGroup(group: Groups?, type: ActivityType, memberId: String, actionUserName: String, removedMemberName: String? = nil) -> ActivityLog? {
+func createActivityLogForGroup(group: Groups?, type: ActivityType, memberId: String, actionUserName: String, previousGroupName: String? = nil, removedMemberName: String? = nil) -> ActivityLog? {
     guard let groupId = group?.id else { return nil }
 
     return ActivityLog(
@@ -51,6 +51,7 @@ func createActivityLogForGroup(group: Groups?, type: ActivityType, memberId: Str
         groupName: group?.name ?? "",
         actionUserName: actionUserName,
         recordedOn: Timestamp(date: Date()),
+        previousGroupName: previousGroupName,
         removedMemberName: removedMemberName
     )
 }

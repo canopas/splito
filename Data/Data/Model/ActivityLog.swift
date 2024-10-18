@@ -11,25 +11,27 @@ public struct ActivityLog: Codable, Identifiable {
 
     @DocumentID public var id: String? // Automatically generated ID by Firestore
 
-    public let type: ActivityType   // The type of activity (e.g., group added, expense updated)
+    public let type: ActivityType   // The type of activity (e.g., group created, expense updated)
     public let groupId: String
-    public let activityId: String   // The ID of the activity (e.g., expense or transaction)
+    public let activityId: String   // The id of the activity (e.g., expense or transaction)
     public let groupName: String
     public let actionUserName: String   // The id of the user who performed the action
     public let recordedOn: Timestamp
+    public let previousGroupName: String?    // The previous name of the group
     public let removedMemberName: String?
     public let expenseName: String?
     public let payerName: String?
     public let receiverName: String?
     public let amount: Double?
 
-    public init(type: ActivityType, groupId: String, activityId: String, groupName: String, actionUserName: String, recordedOn: Timestamp, removedMemberName: String? = nil, expenseName: String? = nil, payerName: String? = nil, receiverName: String? = nil, amount: Double? = nil) {
+    public init(type: ActivityType, groupId: String, activityId: String, groupName: String, actionUserName: String, recordedOn: Timestamp, previousGroupName: String? = nil, removedMemberName: String? = nil, expenseName: String? = nil, payerName: String? = nil, receiverName: String? = nil, amount: Double? = nil) {
         self.type = type
         self.groupId = groupId
         self.activityId = activityId
         self.groupName = groupName
         self.actionUserName = actionUserName
         self.recordedOn = recordedOn
+        self.previousGroupName = previousGroupName
         self.removedMemberName = removedMemberName
         self.expenseName = expenseName
         self.payerName = payerName
@@ -45,6 +47,7 @@ public struct ActivityLog: Codable, Identifiable {
         case groupName = "group_name"
         case actionUserName = "action_user_name"
         case recordedOn = "recorded_on"
+        case previousGroupName = "previous_group_name"
         case removedMemberName = "removed_member_name"
         case expenseName = "expense_name"
         case payerName = "payer_name"
@@ -55,6 +58,7 @@ public struct ActivityLog: Codable, Identifiable {
 
 public enum ActivityType: String, Codable {
     case groupCreated = "group_created"
+    case groupUpdated = "group_updated"
     case groupNameUpdated = "group_name_updated"
     case groupImageUpdated = "group_image_updated"
     case groupMemberRemoved = "group_member_removed"

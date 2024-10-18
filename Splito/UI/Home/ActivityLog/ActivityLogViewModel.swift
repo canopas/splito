@@ -133,7 +133,7 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
     // MARK: - User Actions
     func handleActivityItemTap(_ activity: ActivityLog) {
         switch activity.type {
-        case .groupCreated, .groupNameUpdated, .groupImageUpdated, .groupMemberRemoved, .groupMemberLeft:
+        case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupMemberRemoved, .groupMemberLeft:
             router.push(.GroupHomeView(groupId: activity.activityId))
         case .groupDeleted:
             router.push(.GroupHomeView(groupId: activity.activityId))

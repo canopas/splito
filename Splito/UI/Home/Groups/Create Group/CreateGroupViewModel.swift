@@ -36,8 +36,6 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         self.group = group
         self.groupName = group?.name ?? ""
         self.profileImageUrl = group?.imageUrl
-
-        print("xxx \(group)")
         super.init()
     }
 
@@ -142,18 +140,26 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     }
 
     private func addLogForUpdateGroup(updatedGroup: Groups) async {
+        let currentGroupName = group?.name ?? ""
+        let currentImageUrl = group?.imageUrl
+        let hasNameChanged = currentGroupName.trimmingCharacters(in: .whitespacesAndNewlines) != updatedGroup.name
+        let hasImageChanged = currentImageUrl != updatedGroup.imageUrl
+
+        if !hasNameChanged && !hasImageChanged { return }
+
+        let type: ActivityType = (group?.imageUrl != updatedGroup.imageUrl && group?.name != updatedGroup.name) ? .groupUpdated : group?.imageUrl != updatedGroup.imageUrl ? .groupImageUpdated : .groupNameUpdated
+
         for memberId in Set(updatedGroup.members) {
-            let type: ActivityType = group?.imageUrl != updatedGroup.imageUrl ? .groupImageUpdated : .groupNameUpdated
-            await addActivityLog(group: updatedGroup, type: type, memberId: memberId)
+            await addActivityLog(group: updatedGroup, type: type, memberId: memberId, previousGroupName: (type == .groupNameUpdated || type == .groupUpdated) ? group?.name : nil)
         }
     }
 
-    private func addActivityLog(group: Groups, type: ActivityType, memberId: String) async {
+    private func addActivityLog(group: Groups, type: ActivityType, memberId: String, previousGroupName: String? = nil) async {
         guard let user = preference.user else { return }
 
         let actionUserName = (memberId == user.id) ? "You" : user.nameWithLastInitial
 
-        if let activity = createActivityLogForGroup(group: group, type: type, memberId: memberId, actionUserName: actionUserName) {
+        if let activity = createActivityLogForGroup(group: group, type: type, memberId: memberId, actionUserName: actionUserName, previousGroupName: previousGroupName) {
             do {
                 try await activityRepository.addActivityLog(userId: memberId, activity: activity)
             } catch {

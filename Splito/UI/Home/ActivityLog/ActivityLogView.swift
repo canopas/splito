@@ -95,9 +95,8 @@ private struct ActivityListCellView: View {
                 .cornerRadius(8)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(getActivityDescription())
+                getActivityDescription()
                     .font(.subTitle2())
-                    .foregroundColor(primaryText)
 
                 if !getActivitySubdescription().isEmpty {
                     Text(getActivitySubdescription())
@@ -122,57 +121,172 @@ private struct ActivityListCellView: View {
         }
     }
 
-    // Helper function to get an appropriate icon for the activity type
-    private func getActivityIcon(for type: ActivityType) -> ImageResource {
-        switch type {
-        case .groupCreated, .groupNameUpdated, .groupImageUpdated, .groupMemberRemoved, .groupDeleted, .groupMemberLeft:
-            return .activityGroupIcon
-        case .expenseAdded, .expenseUpdated, .expenseDeleted:
-            return .expenseIcon
-        case .transactionAdded, .transactionUpdated, .transactionDeleted:
-            return .transactionIcon
-        }
-    }
-
-    // Helper function to generate description for each activity
-    private func getActivityDescription() -> String {
+    // Helper function to generate description for each activity, including different color
+    @ViewBuilder
+    private func getActivityDescription() -> some View {
         let actionUserName = activity.actionUserName
-        let payerName = activity.payerName ?? "Unknown"
-        let receiverName = activity.receiverName ?? "Unknown"
-        let removedMemberName = activity.removedMemberName ?? "Unknown"
+        let payerName = activity.payerName ?? "Someone"
+        let receiverName = activity.receiverName ?? "Someone"
+        let removedMemberName = activity.removedMemberName ?? "Someone"
+        let oldGroupName = activity.previousGroupName ?? ""
 
         switch activity.type {
         case .groupCreated, .groupDeleted:
             let type = activity.type == .groupCreated ? "created" : "deleted"
-            return "\(actionUserName) \(type) the group \"\(activity.groupName)\"."
+            Text(actionUserName)
+                .foregroundColor(primaryText) +
+            Text(" \(type) the group")
+                .foregroundColor(disableText) +
+            Text(" \"\(activity.groupName)\".")
+                .foregroundColor(primaryText)
+
+        case .groupUpdated:
+            Text(actionUserName)
+                .foregroundColor(primaryText) +
+            Text(" updated the group name")
+                .foregroundColor(disableText) +
+            Text(" \"\(oldGroupName)\"")
+                .foregroundColor(primaryText) +
+            Text(" to")
+                .foregroundColor(disableText) +
+            Text(" \"\(activity.groupName)\"")
+                .foregroundColor(primaryText) +
+            Text(" and")
+                .foregroundColor(disableText) +
+            Text(" changed the cover photo.")
+                .foregroundColor(disableText)
+
         case .groupNameUpdated:
-            return "\(actionUserName) updated the group name to \"\(activity.groupName)\"."
+            Text(actionUserName)
+                .foregroundColor(primaryText) +
+            Text(" updated the group name")
+                .foregroundColor(disableText) +
+            Text(" \"\(oldGroupName)\"")
+                .foregroundColor(primaryText) +
+            Text(" to")
+                .foregroundColor(disableText) +
+            Text(" \"\(activity.groupName)\".")
+                .foregroundColor(primaryText)
+
         case .groupImageUpdated:
-            return "\(actionUserName) changed the cover photo for \"\(activity.groupName)\"."
+            Text(actionUserName)
+                .foregroundColor(primaryText) +
+            Text(" changed the cover photo for")
+                .foregroundColor(disableText) +
+            Text(" \"\(activity.groupName)\".")
+                .foregroundColor(primaryText)
+
         case .groupMemberLeft:
-            return actionUserName == "You" ? "\(actionUserName) removed yourself from the group \"\(activity.groupName)\"." : "\(actionUserName) left the group \"\(activity.groupName)\"."
+            Text(actionUserName)
+                .foregroundColor(primaryText) +
+            Text(actionUserName == "You" ? " removed yourself from the group" : " left the group")
+                .foregroundColor(disableText) +
+            Text(" \"\(activity.groupName)\".")
+                .foregroundColor(primaryText)
+
         case .groupMemberRemoved:
-            return "\(actionUserName) removed \(removedMemberName) from the group \"\(activity.groupName)\"."
+            Text(actionUserName)
+                .foregroundColor(primaryText) +
+            Text(" removed ")
+                .foregroundColor(disableText) +
+            Text(removedMemberName)
+                .foregroundColor(primaryText) +
+            Text(" from the group")
+                .foregroundColor(disableText) +
+            Text(" \"\(activity.groupName)\".")
+                .foregroundColor(primaryText)
+
         case .expenseAdded, .expenseUpdated, .expenseDeleted:
-            let type = activity.type == .expenseAdded ? "added" : activity.type == .expenseUpdated ? "updated" : "deleted"
-            return "\(actionUserName) \(type) \"\(activity.expenseName ?? "")\" in \"\(activity.groupName)\"."
+            let type = activity.type == .expenseAdded ? " added" : activity.type == .expenseUpdated ? " updated" : " deleted"
+            Text(actionUserName)
+                .foregroundColor(primaryText) +
+            Text(type)
+                .foregroundColor(disableText) +
+            Text(" \"\(activity.expenseName ?? "")\"")
+                .foregroundColor(primaryText) +
+            Text(" in")
+                .foregroundColor(disableText) +
+            Text(" \"\(activity.groupName)\".")
+                .foregroundColor(primaryText)
+
         case .transactionAdded:
-            return (actionUserName != payerName && actionUserName != receiverName) ? "\(actionUserName) added a payment from \(payerName) to \(receiverName) in \"\(activity.groupName)\"." : (actionUserName != payerName) ? "\(actionUserName) recorded a payment from \(payerName) in \"\(activity.groupName)\"." : "\(payerName) paid \(receiverName) in \"\(activity.groupName)\"."
+            if actionUserName != payerName && actionUserName != receiverName {
+                Text(actionUserName)
+                    .foregroundColor(primaryText) +
+                Text(" added a payment from ")
+                    .foregroundColor(disableText) +
+                Text(payerName)
+                    .foregroundColor(primaryText) +
+                Text(" to ")
+                    .foregroundColor(disableText) +
+                Text(receiverName)
+                    .foregroundColor(primaryText) +
+                Text(" in")
+                    .foregroundColor(disableText) +
+                Text(" \"\(activity.groupName)\".")
+                    .foregroundColor(primaryText)
+            } else if actionUserName != payerName {
+                Text(actionUserName)
+                    .foregroundColor(primaryText) +
+                Text(" recorded a payment from ")
+                    .foregroundColor(disableText) +
+                Text(payerName)
+                    .foregroundColor(successColor) +
+                Text(" in")
+                    .foregroundColor(disableText) +
+                Text(" \"\(activity.groupName)\".")
+                    .foregroundColor(primaryText)
+            } else {
+                Text(payerName)
+                    .foregroundColor(primaryText) +
+                Text(" paid ")
+                    .foregroundColor(disableText) +
+                Text(receiverName)
+                    .foregroundColor(primaryText) +
+                Text(" in")
+                    .foregroundColor(disableText) +
+                Text(" \"\(activity.groupName)\".")
+                    .foregroundColor(primaryText)
+            }
+
         case .transactionUpdated, .transactionDeleted:
             let type = activity.type == .transactionUpdated ? "updated" : "deleted"
-            return "\(actionUserName) \(type) a payment from \(payerName) to \(receiverName) in \"\(activity.groupName)\"."
+            Text(actionUserName)
+                .foregroundColor(primaryText) +
+            Text(" \(type) a payment from ")
+                .foregroundColor(disableText) +
+            Text(payerName)
+                .foregroundColor(primaryText) +
+            Text(" to ")
+                .foregroundColor(disableText) +
+            Text(receiverName)
+                .foregroundColor(primaryText) +
+            Text(" in")
+                .foregroundColor(disableText) +
+            Text(" \"\(activity.groupName)\".")
+                .foregroundColor(primaryText)
         }
     }
 
-    // Helper function to generate subdescription for each activity
     private func getActivitySubdescription() -> String {
         switch activity.type {
-        case .groupCreated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupMemberRemoved, .groupMemberLeft:
+        case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupMemberRemoved, .groupMemberLeft:
             return ""
         case .expenseAdded, .expenseUpdated, .expenseDeleted:
             return ((activity.amount ?? 0) == 0) ? "You do not owe anything" : "You \((activity.amount ?? 0) > 0 ? "get back" : "owe") \(activity.amount?.formattedCurrency ?? "0.0")"
         case .transactionAdded, .transactionUpdated, .transactionDeleted:
             return ((activity.amount ?? 0) == 0) ? "You do not owe anything" : "You \(activity.amount ?? 0 > 0 ? "paid" : "received") \(activity.amount?.formattedCurrency ?? "0.0")"
+        }
+    }
+
+    private func getActivityIcon(for type: ActivityType) -> ImageResource {
+        switch type {
+        case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupMemberRemoved, .groupDeleted, .groupMemberLeft:
+            return .activityGroupIcon
+        case .expenseAdded, .expenseUpdated, .expenseDeleted:
+            return .expenseIcon
+        case .transactionAdded, .transactionUpdated, .transactionDeleted:
+            return .transactionIcon
         }
     }
 }

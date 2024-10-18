@@ -4,16 +4,46 @@
     "" : {
 
     },
+    " \"%@\"" : {
+
+    },
+    " \"%@\"." : {
+
+    },
     " (Admin)" : {
 
     },
     " %@ " : {
 
     },
+    " %@ a payment from " : {
+
+    },
+    " %@ the group" : {
+
+    },
+    " added a payment from " : {
+
+    },
+    " and" : {
+
+    },
     " and " : {
 
     },
+    " changed the cover photo for" : {
+
+    },
+    " changed the cover photo." : {
+
+    },
     " Enter mobile number" : {
+
+    },
+    " from the group" : {
+
+    },
+    " in" : {
 
     },
     " in total" : {
@@ -22,7 +52,31 @@
     " is settled up" : {
 
     },
+    " left the group" : {
+
+    },
+    " paid " : {
+
+    },
+    " recorded a payment from " : {
+
+    },
+    " removed " : {
+
+    },
+    " removed yourself from the group" : {
+
+    },
+    " to" : {
+
+    },
+    " to " : {
+
+    },
     " to %@" : {
+
+    },
+    " updated the group name" : {
 
     },
     "\"Simplify debts\" is ENABLED in this group. This feature shuffles \"who owes who\" to minimize repayments. For example:" : {
