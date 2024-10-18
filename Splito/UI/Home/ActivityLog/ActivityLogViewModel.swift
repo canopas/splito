@@ -115,6 +115,21 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    func deleteAllActivities() {
+        guard let userId = preference.user?.id else { return }
+
+        Task {
+            do {
+                viewState = .loading
+                try await activityRepository.deleteAllLogs(for: userId)
+                viewState = .initial
+                activityListState = activities.isEmpty ? .noActivity : .hasActivity
+            } catch {
+                handleServiceError()
+            }
+        }
+    }
+
     // MARK: - User Actions
     func handleActivityItemTap(_ activity: ActivityLog) {
         switch activity.type {

@@ -25,15 +25,16 @@ struct ActivityLogView: View {
                 if case .noActivity = viewModel.activityListState {
                     EmptyActivityView()
                 } else if case .hasActivity = viewModel.activityListState {
-                    VSpacer(16)
+                    VSpacer(4)
 
                     ScrollView {
-                        LazyVStack(alignment: .center, spacing: 16) {
+                        LazyVStack(alignment: .center, spacing: 0) {
                             ForEach(viewModel.activities, id: \.id) { activity in
                                 ActivityListCellView(
                                     activity: activity,
                                     description: getActivityDescription(for: activity),
-                                    subDescription: getActivitySubdescription(for: activity)
+                                    subDescription: getActivitySubdescription(for: activity),
+                                    isLastActivity: viewModel.activities.last?.id == activity.id
                                 )
                                 .onTapGestureForced {
                                     viewModel.handleActivityItemTap(activity)
@@ -69,6 +70,12 @@ struct ActivityLogView: View {
                 Text("Activity")
                     .font(.Header2())
                     .foregroundStyle(primaryText)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Text("Delete")
+                    .font(.subTitle3())
+                    .foregroundStyle(disableText)
+                    .onTapGesture(perform: viewModel.deleteAllActivities)
             }
         }
         .onAppear {
@@ -124,15 +131,16 @@ private struct ActivityListCellView: View {
     let activity: ActivityLog
     let description: String
     let subDescription: String
+    let isLastActivity: Bool
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(alignment: .top, spacing: 16) {
             Image(getActivityIcon(for: activity.type))
                 .resizable()
                 .renderingMode(.template)
                 .frame(width: 24, height: 24)
                 .foregroundStyle(primaryText)
-                .padding(12)
+                .padding(8)
                 .background(container2Color)
                 .cornerRadius(8)
 
@@ -143,26 +151,33 @@ private struct ActivityListCellView: View {
 
                 if !subDescription.isEmpty {
                     Text(subDescription)
-                        .font(.body1())
-                        .foregroundColor(secondaryText)
+                        .font(.caption1())
+                        .foregroundColor((activity.amount ?? 0) > 0 ? successColor : errorColor)
                 }
 
-                Text(activity.recordedOn.dateValue().dayAndTime)
-                    .font(.caption)
+                Text(activity.recordedOn.dateValue().getFormatedPastTime())
+                    .font(.caption1(10))
                     .foregroundColor(disableText)
             }
         }
         .padding(.horizontal, 16)
+        .padding(.vertical, 20)
         .frame(maxWidth: .infinity, alignment: .leading)
+
+        if !isLastActivity {
+            Divider()
+                .frame(height: 1)
+                .background(dividerColor)
+        }
     }
 
     // Helper function to get an appropriate icon for the activity type
     private func getActivityIcon(for type: ActivityType) -> ImageResource {
         switch type {
         case .groupCreated, .groupNameUpdated, .groupImageUpdated, .groupMemberRemoved, .groupDeleted, .groupMemberLeft:
-            return .group
+            return .activityGroupIcon
         case .expenseAdded, .expenseUpdated, .expenseDeleted:
-            return .upArrow
+            return .expenseIcon
         case .transactionAdded, .transactionUpdated, .transactionDeleted:
             return .transactionIcon
         }

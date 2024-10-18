@@ -14,10 +14,8 @@ class HomeRouteViewModel: ObservableObject {
 
     @Published var isTabBarVisible: Bool = true
     @Published var openProfileView: Bool = false
-    @Published var openExpenseSheet: Bool = false
 
     @Published var selectedTab: Int = 0
-    @Published private(set) var lastSelectedTab = 0
 
     @Published private(set) var selectedGroupId: String?
 
@@ -29,17 +27,8 @@ class HomeRouteViewModel: ObservableObject {
         }
     }
 
-    func setLastSelectedTab(_ index: Int) {
-        lastSelectedTab = index
-    }
-
     func setSelectedTab(_ index: Int) {
         selectedTab = index
-    }
-
-    func openAddExpenseSheet() {
-        openExpenseSheet = true
-        selectedTab = lastSelectedTab
     }
 
     func dismissProfileView() {

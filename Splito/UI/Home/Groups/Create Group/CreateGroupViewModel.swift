@@ -36,6 +36,8 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         self.group = group
         self.groupName = group?.name ?? ""
         self.profileImageUrl = group?.imageUrl
+
+        print("xxx \(group)")
         super.init()
     }
 
@@ -119,11 +121,6 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateGroup(group: Groups, completion: (Bool) -> Void) async {
-        if self.group?.imageUrl == group.imageUrl && self.group?.name == groupName.trimming(spaces: .leadingAndTrailing) {
-            completion(true)
-            return
-        }
-
         var newGroup = group
         newGroup.name = groupName.trimming(spaces: .leadingAndTrailing)
 
@@ -145,10 +142,8 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     }
 
     private func addLogForUpdateGroup(updatedGroup: Groups) async {
-        guard let group else { return }
-
-        for memberId in Set(group.members) {
-            let type: ActivityType = group.imageUrl != updatedGroup.imageUrl ? .groupImageUpdated : .groupNameUpdated
+        for memberId in Set(updatedGroup.members) {
+            let type: ActivityType = group?.imageUrl != updatedGroup.imageUrl ? .groupImageUpdated : .groupNameUpdated
             await addActivityLog(group: updatedGroup, type: type, memberId: memberId)
         }
     }

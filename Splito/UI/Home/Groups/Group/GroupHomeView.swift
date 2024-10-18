@@ -98,6 +98,7 @@ struct GroupHomeView: View {
                 .presentationDetents([.height(sheetHeight)])
                 .presentationCornerRadius(24)
         }
+        .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 NavigationTitleTextView(text: viewModel.group?.name ?? "")

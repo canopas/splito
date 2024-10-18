@@ -101,13 +101,6 @@ struct GroupListView: View {
                         .foregroundStyle(primaryText)
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                Image(.profileFillIcon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 26, height: 26, alignment: .center)
-                    .onTapGesture(perform: viewModel.handleAccountBtnTap)
-            }
         }
         .onAppear {
             homeRouteViewModel.updateSelectedGroup(id: nil)

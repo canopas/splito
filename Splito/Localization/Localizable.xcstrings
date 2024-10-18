@@ -236,6 +236,9 @@
     "Date" : {
       "extractionState" : "manual"
     },
+    "Delete" : {
+
+    },
     "Delete Account" : {
       "extractionState" : "manual"
     },

@@ -1,7 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "download.png",
+      "filename" : "activity.icon.svg",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "activity.icon (3).svg",
       "idiom" : "universal"
     }
   ],
