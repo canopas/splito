@@ -30,12 +30,8 @@ struct ActivityLogView: View {
                     ScrollView {
                         LazyVStack(alignment: .center, spacing: 0) {
                             ForEach(viewModel.activities, id: \.id) { activity in
-                                ActivityListCellView(
-                                    activity: activity,
-                                    description: getActivityDescription(for: activity),
-                                    subDescription: getActivitySubdescription(for: activity),
-                                    isLastActivity: viewModel.activities.last?.id == activity.id
-                                )
+                                ActivityListCellView(activity: activity,
+                                                     isLastActivity: viewModel.activities.last?.id == activity.id)
                                 .onTapGestureForced {
                                     viewModel.handleActivityItemTap(activity)
                                 }
@@ -53,9 +49,7 @@ struct ActivityLogView: View {
                         .padding(.bottom, 62)
                     }
                     .refreshable {
-                        Task {
-                            await viewModel.fetchActivities()
-                        }
+                        viewModel.fetchActivitiesInitialData()
                     }
                 }
             }
@@ -82,55 +76,11 @@ struct ActivityLogView: View {
             homeRouteViewModel.updateSelectedGroup(id: nil)
         }
     }
-
-    // Helper function to generate description for each activity
-    private func getActivityDescription(for activity: ActivityLog) -> String {
-        let actionUserName = activity.actionUserName
-        let payerName = activity.payerName ?? "Unknown"
-        let receiverName = activity.receiverName ?? "Unknown"
-        let removedMemberName = activity.removedMemberName ?? "Unknown"
-
-        switch activity.type {
-        case .groupCreated, .groupDeleted:
-            let type = activity.type == .groupCreated ? "created" : "deleted"
-            return "\(actionUserName) \(type) the group \"\(activity.groupName)\"."
-        case .groupNameUpdated:
-            return "\(actionUserName) updated the group name to \"\(activity.groupName)\"."
-        case .groupImageUpdated:
-            return "\(actionUserName) changed the cover photo for \"\(activity.groupName)\"."
-        case .groupMemberLeft:
-            return actionUserName == "You" ? "\(actionUserName) removed yourself from the group \"\(activity.groupName)\"." : "\(actionUserName) left the group \"\(activity.groupName)\"."
-        case .groupMemberRemoved:
-            return "\(actionUserName) removed \(removedMemberName) from the group \"\(activity.groupName)\"."
-        case .expenseAdded, .expenseUpdated, .expenseDeleted:
-            let type = activity.type == .expenseAdded ? "added" : activity.type == .expenseUpdated ? "updated" : "deleted"
-            return "\(actionUserName) \(type) \"\(activity.expenseName ?? "")\" in \"\(activity.groupName)\"."
-        case .transactionAdded:
-            return (actionUserName != payerName && actionUserName != receiverName) ? "\(actionUserName) added a payment from \(payerName) to \(receiverName) in \"\(activity.groupName)\"." : (actionUserName != payerName) ? "\(actionUserName) recorded a payment from \(payerName) in \"\(activity.groupName)\"." : "\(payerName) paid \(receiverName) in \"\(activity.groupName)\"."
-        case .transactionUpdated, .transactionDeleted:
-            let type = activity.type == .transactionUpdated ? "updated" : "deleted"
-            return "\(actionUserName) \(type) a payment from \(payerName) to \(receiverName) in \"\(activity.groupName)\"."
-        }
-    }
-
-    // Helper function to generate subdescription for each activity
-    private func getActivitySubdescription(for activity: ActivityLog) -> String {
-        switch activity.type {
-        case .groupCreated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupMemberRemoved, .groupMemberLeft:
-            return ""
-        case .expenseAdded, .expenseUpdated, .expenseDeleted:
-            return ((activity.amount ?? 0) == 0) ? "You do not owe anything" : "You \((activity.amount ?? 0) > 0 ? "get back" : "owe") \(activity.amount?.formattedCurrency ?? "0.0")"
-        case .transactionAdded, .transactionUpdated, .transactionDeleted:
-            return ((activity.amount ?? 0) == 0) ? "You do not owe anything" : "You \(activity.amount ?? 0 > 0 ? "paid" : "received") \(activity.amount?.formattedCurrency ?? "0.0")"
-        }
-    }
 }
 
 private struct ActivityListCellView: View {
 
     let activity: ActivityLog
-    let description: String
-    let subDescription: String
     let isLastActivity: Bool
 
     var body: some View {
@@ -145,14 +95,15 @@ private struct ActivityListCellView: View {
                 .cornerRadius(8)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(description)
+                Text(getActivityDescription())
                     .font(.subTitle2())
                     .foregroundColor(primaryText)
 
-                if !subDescription.isEmpty {
-                    Text(subDescription)
+                if !getActivitySubdescription().isEmpty {
+                    Text(getActivitySubdescription())
                         .font(.caption1())
                         .foregroundColor((activity.amount ?? 0) > 0 ? successColor : errorColor)
+                        .strikethrough(activity.type == .expenseDeleted || activity.type == .transactionDeleted)
                 }
 
                 Text(activity.recordedOn.dateValue().getFormatedPastTime())
@@ -182,32 +133,79 @@ private struct ActivityListCellView: View {
             return .transactionIcon
         }
     }
+
+    // Helper function to generate description for each activity
+    private func getActivityDescription() -> String {
+        let actionUserName = activity.actionUserName
+        let payerName = activity.payerName ?? "Unknown"
+        let receiverName = activity.receiverName ?? "Unknown"
+        let removedMemberName = activity.removedMemberName ?? "Unknown"
+
+        switch activity.type {
+        case .groupCreated, .groupDeleted:
+            let type = activity.type == .groupCreated ? "created" : "deleted"
+            return "\(actionUserName) \(type) the group \"\(activity.groupName)\"."
+        case .groupNameUpdated:
+            return "\(actionUserName) updated the group name to \"\(activity.groupName)\"."
+        case .groupImageUpdated:
+            return "\(actionUserName) changed the cover photo for \"\(activity.groupName)\"."
+        case .groupMemberLeft:
+            return actionUserName == "You" ? "\(actionUserName) removed yourself from the group \"\(activity.groupName)\"." : "\(actionUserName) left the group \"\(activity.groupName)\"."
+        case .groupMemberRemoved:
+            return "\(actionUserName) removed \(removedMemberName) from the group \"\(activity.groupName)\"."
+        case .expenseAdded, .expenseUpdated, .expenseDeleted:
+            let type = activity.type == .expenseAdded ? "added" : activity.type == .expenseUpdated ? "updated" : "deleted"
+            return "\(actionUserName) \(type) \"\(activity.expenseName ?? "")\" in \"\(activity.groupName)\"."
+        case .transactionAdded:
+            return (actionUserName != payerName && actionUserName != receiverName) ? "\(actionUserName) added a payment from \(payerName) to \(receiverName) in \"\(activity.groupName)\"." : (actionUserName != payerName) ? "\(actionUserName) recorded a payment from \(payerName) in \"\(activity.groupName)\"." : "\(payerName) paid \(receiverName) in \"\(activity.groupName)\"."
+        case .transactionUpdated, .transactionDeleted:
+            let type = activity.type == .transactionUpdated ? "updated" : "deleted"
+            return "\(actionUserName) \(type) a payment from \(payerName) to \(receiverName) in \"\(activity.groupName)\"."
+        }
+    }
+
+    // Helper function to generate subdescription for each activity
+    private func getActivitySubdescription() -> String {
+        switch activity.type {
+        case .groupCreated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupMemberRemoved, .groupMemberLeft:
+            return ""
+        case .expenseAdded, .expenseUpdated, .expenseDeleted:
+            return ((activity.amount ?? 0) == 0) ? "You do not owe anything" : "You \((activity.amount ?? 0) > 0 ? "get back" : "owe") \(activity.amount?.formattedCurrency ?? "0.0")"
+        case .transactionAdded, .transactionUpdated, .transactionDeleted:
+            return ((activity.amount ?? 0) == 0) ? "You do not owe anything" : "You \(activity.amount ?? 0 > 0 ? "paid" : "received") \(activity.amount?.formattedCurrency ?? "0.0")"
+        }
+    }
 }
 
 private struct EmptyActivityView: View {
+
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(alignment: .center, spacing: 0) {
+                    Image(.emptyActivityList)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 156, height: 156)
+                        .padding(.bottom, 40)
 
-            Image(systemName: "tray")
-                .font(.system(size: 64))
-                .foregroundColor(.gray)
-                .padding(.bottom, 8)
+                    Text("No activity yet!")
+                        .font(.Header1())
+                        .foregroundStyle(primaryText)
+                        .padding(.bottom, 16)
 
-            Text("No Activity Available")
-                .font(.subTitle1())
-                .foregroundColor(primaryText)
-                .padding(.bottom, 8)
-
-            Text("Your recent activity will appear here.")
-                .font(.subTitle3())
-                .foregroundColor(secondaryText)
-
-            VSpacer(60)
-
-            Spacer()
+                    Text("Let's get started! Add your first expense and see your activity here.")
+                        .font(.subTitle1())
+                        .foregroundStyle(disableText)
+                        .tracking(-0.2)
+                }
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .frame(minHeight: geometry.size.height - 100, maxHeight: .infinity, alignment: .center)
+            }
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
         }
-        .padding(.horizontal, 16)
-        .multilineTextAlignment(.center)
     }
 }

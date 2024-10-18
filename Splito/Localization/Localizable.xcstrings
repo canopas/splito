@@ -389,6 +389,9 @@
     "Let's add expenses!" : {
       "extractionState" : "manual"
     },
+    "Let's get started! Add your first expense and see your activity here." : {
+
+    },
     "Let's get the gang together! Invite your friends to join the group and make splitting expenses easier than ever." : {
 
     },
@@ -407,7 +410,7 @@
     "Multiple people" : {
 
     },
-    "No Activity Available" : {
+    "No activity yet!" : {
 
     },
     "no balance" : {
@@ -812,9 +815,6 @@
     },
     "Your device cannot send email." : {
       "extractionState" : "manual"
-    },
-    "Your recent activity will appear here." : {
-
     },
     "Your requested data not found." : {
       "extractionState" : "manual"

@@ -43,7 +43,7 @@ struct GroupHomeView: View {
             if viewModel.groupState != .noMember && viewModel.groupState != .noExpense {
                 VStack(spacing: 0) {
                     Spacer()
-                    PrimaryFloatingButton(text: "Add expense", bottomPadding: 30, onClick: viewModel.openAddExpenseSheet)
+                    PrimaryFloatingButton(text: "Add expense", bottomPadding: 35, onClick: viewModel.openAddExpenseSheet)
                 }
                 .ignoresSafeArea(.keyboard) // Useful so the button doesn't move around on keyboard show
                 .ignoresSafeArea(edges: .bottom)
