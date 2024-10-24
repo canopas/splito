@@ -11,6 +11,7 @@
 		213F377E2C416C9C00972316 /* ScrollToTopButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213F377D2C416C9C00972316 /* ScrollToTopButton.swift */; };
 		217620462C4F7CE700FED0D4 /* BackButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 217620452C4F7CE700FED0D4 /* BackButton.swift */; };
 		2176204A2C521EDF00FED0D4 /* RadioButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 217620492C521EDF00FED0D4 /* RadioButton.swift */; };
+		219F43D92CCA4A7000729C67 /* RestoreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 219F43D82CCA4A7000729C67 /* RestoreButton.swift */; };
 		21BEF8A52C637E4900FBC9CF /* NavigationBarTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BEF8A42C637E4900FBC9CF /* NavigationBarTopView.swift */; };
 		21BEF8A72C6399BA00FBC9CF /* BottomSheetHeightModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BEF8A62C6399BA00FBC9CF /* BottomSheetHeightModifier.swift */; };
 		21D26E232CA199630090488B /* CapsuleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D26E222CA199610090488B /* CapsuleButton.swift */; };
@@ -72,6 +73,7 @@
 		213F377D2C416C9C00972316 /* ScrollToTopButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollToTopButton.swift; sourceTree = "<group>"; };
 		217620452C4F7CE700FED0D4 /* BackButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButton.swift; sourceTree = "<group>"; };
 		217620492C521EDF00FED0D4 /* RadioButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioButton.swift; sourceTree = "<group>"; };
+		219F43D82CCA4A7000729C67 /* RestoreButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreButton.swift; sourceTree = "<group>"; };
 		21BEF8A42C637E4900FBC9CF /* NavigationBarTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarTopView.swift; sourceTree = "<group>"; };
 		21BEF8A62C6399BA00FBC9CF /* BottomSheetHeightModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetHeightModifier.swift; sourceTree = "<group>"; };
 		21D26E222CA199610090488B /* CapsuleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapsuleButton.swift; sourceTree = "<group>"; };
@@ -269,6 +271,7 @@
 				D8E244B42B972AD200C6C82A /* EmptyRouteView.swift */,
 				21BEF8A42C637E4900FBC9CF /* NavigationBarTopView.swift */,
 				21D614782CAD527D00779F1E /* NavigationTitleTextView.swift */,
+				219F43D82CCA4A7000729C67 /* RestoreButton.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -523,6 +526,7 @@
 				2176204A2C521EDF00FED0D4 /* RadioButton.swift in Sources */,
 				D8302D9C2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift in Sources */,
 				D887213F2B99992A009DC5BE /* LoaderViewModel.swift in Sources */,
+				219F43D92CCA4A7000729C67 /* RestoreButton.swift in Sources */,
 				D8D42AA32B8715B4009B345D /* TopViewController.swift in Sources */,
 				D89DBE332B888F2D00E5F1BD /* SearchBar.swift in Sources */,
 				D8D14A502BA090F000F45FF2 /* ShareSheetView.swift in Sources */,

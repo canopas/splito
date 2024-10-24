@@ -27,11 +27,10 @@ public class ExpenseRepository: ObservableObject {
         return try await store.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
     }
 
-    public func deleteExpense(groupId: String, expenseId: String) async throws {
-        try await store.deleteExpense(groupId: groupId, expenseId: expenseId)
-    }
+    public func deleteExpense(groupId: String, expense: Expense) async throws {
+        var expense = expense
+        expense.isActive = false  // Make expense inactive
 
-    public func deleteExpensesOf(groupId: String) async throws {
-        try await store.deleteExpensesOf(groupId: groupId)
+        try await updateExpense(groupId: groupId, expense: expense)
     }
 }

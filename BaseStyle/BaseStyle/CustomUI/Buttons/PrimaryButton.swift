@@ -12,6 +12,8 @@ public struct PrimaryButton: View {
 
     @StateObject var loaderModel: LoaderViewModel = .init()
 
+    private let buttonHeight: CGFloat = 50
+
     private let text: String
     private var bgColor: Color
     private var textColor: Color
@@ -55,9 +57,9 @@ public struct PrimaryButton: View {
             .padding(.vertical, 15)
             .minimumScaleFactor(0.5)
             .background(isEnabled ? bgColor : bgColor.opacity(0.6))
-            .cornerRadius(12)
+            .clipShape(RoundedRectangle(cornerRadius: buttonHeight / 2))
         }
-        .frame(minHeight: 50)
+        .frame(minHeight: buttonHeight)
         .buttonStyle(.scale)
         .disabled(!isEnabled || showLoader)
         .opacity(showLoader ? 0.8 : 1)

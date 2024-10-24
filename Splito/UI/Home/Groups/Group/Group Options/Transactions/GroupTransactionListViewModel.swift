@@ -13,8 +13,10 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
     private let TRANSACTIONS_LIMIT = 10
 
+    @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
+    @Inject private var activityLogRepository: ActivityLogRepository
 
     @Published private(set) var transactionsWithUser: [TransactionWithUser] = []
     @Published private(set) var filteredTransactions: [String: [TransactionWithUser]] = [:]
@@ -158,11 +160,44 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteTransaction(transaction: Transactions) async {
-        guard let transactionId = transaction.id else { return }
+        guard let userId = preference.user?.id else { return }
+
         do {
-            try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
-            await updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
+            var deletedTransaction = transaction
+            deletedTransaction.updatedBy = userId
+
+            try await transactionRepository.deleteTransaction(groupId: groupId, transaction: deletedTransaction)
+            await updateGroupMemberBalance(transaction: deletedTransaction, updateType: .Delete)
+            await addLogForDeleteTransaction(transaction: deletedTransaction)
         } catch {
+            showToastForError()
+        }
+    }
+
+    private func addLogForDeleteTransaction(transaction: Transactions) async {
+        guard let deletedGroup = group, let user = preference.user else { return }
+
+        var errors: [Error] = []
+        let payerName = await fetchUserData(for: transaction.payerId)?.nameWithLastInitial ?? "Someone"
+        let receiverName = await fetchUserData(for: transaction.receiverId)?.nameWithLastInitial ?? "Someone"
+        let involvedUserIds: Set<String> = [transaction.payerId, transaction.receiverId, transaction.addedBy, transaction.updatedBy]
+
+        await withTaskGroup(of: Void.self) { group in
+            for memberId in involvedUserIds {
+                group.addTask { [weak self] in
+                    guard let self else { return }
+                    if let activity = createActivityLogForTransaction(context: ActivityLogContext(group: deletedGroup, transaction: transaction, type: .transactionDeleted, memberId: memberId, currentUser: user, payerName: payerName, receiverName: receiverName)) {
+                        do {
+                            try await activityLogRepository.addActivityLog(userId: memberId, activity: activity)
+                        } catch {
+                            errors.append(error)
+                        }
+                    }
+                }
+            }
+        }
+
+        if !errors.isEmpty {
             showToastForError()
         }
     }
@@ -231,7 +266,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         if let index = transactionsWithUser.firstIndex(where: { $0.transaction.id == updatedTransaction.id }) {
             self.transactionsWithUser[index].transaction = updatedTransaction
             withAnimation {
-                self.filteredTransactionsForSelectedTab()
+                filteredTransactionsForSelectedTab()
             }
         }
 
