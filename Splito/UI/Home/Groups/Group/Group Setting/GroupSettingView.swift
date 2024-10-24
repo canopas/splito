@@ -136,7 +136,7 @@ private struct GroupMembersView: View {
                         GroupMemberCellView(member: member, amount: balance,
                                             isAdmin: member.id == viewModel.group?.createdBy)
                         .onTouchGesture {
-                            viewModel.handleMemberTap(memberId: member.id)
+                            viewModel.handleMemberTap(member: member)
                         }
                     }
                 }

@@ -27,11 +27,10 @@ public class TransactionRepository: ObservableObject {
         return try await store.fetchTransactionsBy(groupId: groupId, transactionId: transactionId)
     }
 
-    public func deleteTransaction(groupId: String, transactionId: String) async throws {
-        try await store.deleteTransaction(groupId: groupId, transactionId: transactionId)
-    }
+    public func deleteTransaction(groupId: String, transaction: Transactions) async throws {
+        var transaction = transaction
+        transaction.isActive = false  // Make transaction inactive
 
-    public func deleteTransactionsOf(groupId: String) async throws {
-        try await store.deleteTransactionsOf(groupId: groupId)
+        try await updateTransaction(groupId: groupId, transaction: transaction)
     }
 }

@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "expense.icon.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

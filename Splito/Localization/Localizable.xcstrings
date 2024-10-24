@@ -16,14 +16,26 @@
     " Enter mobile number" : {
 
     },
+    " from the group" : {
+      "extractionState" : "manual"
+    },
+    " in" : {
+      "extractionState" : "manual"
+    },
     " in total" : {
 
     },
     " is settled up" : {
 
     },
+    " removed " : {
+      "extractionState" : "manual"
+    },
     " to %@" : {
 
+    },
+    " updated the group name from" : {
+      "extractionState" : "manual"
     },
     "\"Simplify debts\" is ENABLED in this group. This feature shuffles \"who owes who\" to minimize repayments. For example:" : {
 
@@ -40,6 +52,9 @@
           }
         }
       }
+    },
+    "%@ a payment from" : {
+      "extractionState" : "manual"
     },
     "%@ and %@" : {
       "extractionState" : "manual"
@@ -74,6 +89,9 @@
       "extractionState" : "manual"
     },
     "%@ people paid %@" : {
+      "extractionState" : "manual"
+    },
+    "%@ the group" : {
       "extractionState" : "manual"
     },
     "%@ total shares" : {
@@ -124,6 +142,12 @@
     "Acknowledgements cannot be accessed." : {
       "extractionState" : "manual"
     },
+    "Activities" : {
+      "extractionState" : "manual"
+    },
+    "Activity" : {
+
+    },
     "Add a new member" : {
       "extractionState" : "manual"
     },
@@ -135,6 +159,9 @@
     },
     "Add expense" : {
 
+    },
+    "added" : {
+      "extractionState" : "manual"
     },
     "Added by %@ on %@" : {
       "localizations" : {
@@ -185,6 +212,12 @@
     "Are you sure you want to remove this member from the group?" : {
       "extractionState" : "manual"
     },
+    "Are you sure you want to restore this expense?" : {
+      "extractionState" : "manual"
+    },
+    "Are you sure you want to restore this transaction?" : {
+      "extractionState" : "manual"
+    },
     "Are you sure you want to sign out?" : {
       "extractionState" : "manual"
     },
@@ -209,6 +242,9 @@
     "Cancel" : {
 
     },
+    "changed the cover photo for" : {
+      "extractionState" : "manual"
+    },
     "Choose date" : {
       "extractionState" : "manual"
     },
@@ -227,6 +263,9 @@
     "Create group" : {
 
     },
+    "created" : {
+      "extractionState" : "manual"
+    },
     "Date" : {
       "extractionState" : "manual"
     },
@@ -243,6 +282,9 @@
       "extractionState" : "manual"
     },
     "Delete your account" : {
+      "extractionState" : "manual"
+    },
+    "deleted" : {
       "extractionState" : "manual"
     },
     "Done" : {
@@ -296,6 +338,9 @@
     "Error" : {
       "extractionState" : "manual"
     },
+    "Expense" : {
+
+    },
     "Expense date" : {
       "extractionState" : "manual"
     },
@@ -306,6 +351,9 @@
       "extractionState" : "manual"
     },
     "First Name" : {
+      "extractionState" : "manual"
+    },
+    "get back" : {
       "extractionState" : "manual"
     },
     "Get OTP" : {
@@ -344,6 +392,12 @@
     "Groups help you stay organized by tracking and splitting expenses for various activities." : {
 
     },
+    "hour ago" : {
+      "extractionState" : "manual"
+    },
+    "hours ago" : {
+      "extractionState" : "manual"
+    },
     "Important!" : {
       "extractionState" : "manual"
     },
@@ -374,11 +428,17 @@
     "Leave Group?" : {
       "extractionState" : "manual"
     },
+    "left the group" : {
+      "extractionState" : "manual"
+    },
     "Let's add an expense to get you started splitting bills with your friends!" : {
       "extractionState" : "manual"
     },
     "Let's add expenses!" : {
       "extractionState" : "manual"
+    },
+    "Let's get started! Add your first group and see your activities here." : {
+
     },
     "Let's get the gang together! Invite your friends to join the group and make splitting expenses easier than ever." : {
 
@@ -389,6 +449,9 @@
     "Looks like there are no outstanding settlements in any of your groups yet." : {
 
     },
+    "min ago" : {
+      "extractionState" : "manual"
+    },
     "Minimum 3 characters are required" : {
       "extractionState" : "manual"
     },
@@ -396,6 +459,9 @@
 
     },
     "Multiple people" : {
+
+    },
+    "No activity yet!" : {
 
     },
     "no balance" : {
@@ -449,11 +515,17 @@
     "Overall, %@  " : {
 
     },
+    "owe" : {
+      "extractionState" : "manual"
+    },
     "owes" : {
 
     },
     "owes you" : {
 
+    },
+    "paid" : {
+      "extractionState" : "manual"
     },
     "Payment made successfully" : {
       "extractionState" : "manual"
@@ -503,6 +575,12 @@
     "Reauthenticate" : {
       "extractionState" : "manual"
     },
+    "received" : {
+      "extractionState" : "manual"
+    },
+    "recorded a payment from" : {
+      "extractionState" : "manual"
+    },
     "Remove" : {
 
     },
@@ -510,6 +588,9 @@
 
     },
     "Remove from group?" : {
+      "extractionState" : "manual"
+    },
+    "removed yourself from the group" : {
       "extractionState" : "manual"
     },
     "requires recent authentication" : {
@@ -527,6 +608,24 @@
           }
         }
       }
+    },
+    "Restore expense" : {
+      "extractionState" : "manual"
+    },
+    "Restore group" : {
+      "extractionState" : "manual"
+    },
+    "Restore this group to access the settings." : {
+      "extractionState" : "manual"
+    },
+    "Restore this group to enable the search functionality." : {
+      "extractionState" : "manual"
+    },
+    "Restore transaction" : {
+      "extractionState" : "manual"
+    },
+    "restored" : {
+      "extractionState" : "manual"
     },
     "Retry" : {
       "extractionState" : "manual"
@@ -651,6 +750,12 @@
     "The code you've entered is not exists." : {
       "extractionState" : "manual"
     },
+    "The group associated with this expense has been deleted, so it cannot be restored." : {
+      "extractionState" : "manual"
+    },
+    "The group associated with this transaction has been deleted, so it cannot be restored." : {
+      "extractionState" : "manual"
+    },
     "The payment values do not add up to the total cost of ₹ %@. You are short by ₹ %@." : {
       "extractionState" : "manual"
     },
@@ -666,16 +771,37 @@
     "This code will be active for 2 days." : {
 
     },
+    "This expense could not be deleted. You do not have permission to delete this expense, Sorry!" : {
+      "extractionState" : "manual"
+    },
+    "This expense could not be edited. You do not have permission to edit this expense, Sorry!" : {
+      "extractionState" : "manual"
+    },
+    "This group has been deleted." : {
+      "extractionState" : "manual"
+    },
     "This month" : {
       "extractionState" : "manual"
     },
     "This payment was noted using the \"record a payment\" feature, No money has been transferred." : {
 
     },
+    "This transaction could not be deleted. You do not have permission to delete this transaction, Sorry!" : {
+      "extractionState" : "manual"
+    },
+    "This transaction could not be edited. You do not have permission to edit this transaction, Sorry!" : {
+      "extractionState" : "manual"
+    },
+    "This will restore all activities, expenses and transactions for this group." : {
+      "extractionState" : "manual"
+    },
     "This year" : {
       "extractionState" : "manual"
     },
     "Time to settle up! Track shared expenses and split them in seconds." : {
+      "extractionState" : "manual"
+    },
+    "to" : {
       "extractionState" : "manual"
     },
     "Today" : {
@@ -703,6 +829,9 @@
       "extractionState" : "manual"
     },
     "Unknown" : {
+      "extractionState" : "manual"
+    },
+    "updated" : {
       "extractionState" : "manual"
     },
     "Use settle up to divide costs with your friends or colleagues. It's easy and ensures everyone pays or receives their fair share.\\n\\nLet's get started splitting bills easily with friends." : {
@@ -735,6 +864,9 @@
     "With you and:" : {
       "extractionState" : "manual"
     },
+    "Yesterday" : {
+      "extractionState" : "manual"
+    },
     "You" : {
       "extractionState" : "manual"
     },
@@ -759,10 +891,16 @@
     "you borrowed" : {
 
     },
+    "You can restore it to recover all activities, expenses and transactions." : {
+      "extractionState" : "manual"
+    },
     "You can't leave this group because you have outstanding debts with other group members. Please make sure all of your debts have been settle up, and try again." : {
       "extractionState" : "manual"
     },
     "You can't remove %@ from this group because they have outstanding debts with other group members. Please make sure all of %@'s debts have been settle up, and try again." : {
+      "extractionState" : "manual"
+    },
+    "You do not owe anything" : {
       "extractionState" : "manual"
     },
     "You don’t have any groups. Groups that you a part of will be listed here." : {
@@ -780,6 +918,9 @@
     "You must select at least one person to split with." : {
 
     },
+    "You no longer have access to this group's activities, expenses and transactions." : {
+      "extractionState" : "manual"
+    },
     "you owe" : {
 
     },
@@ -791,6 +932,9 @@
     },
     "You were not involved" : {
 
+    },
+    "You're no longer part of this group." : {
+      "extractionState" : "manual"
     },
     "You're the only member in this group, and there's no point in settling up with yourself :)" : {
       "extractionState" : "manual"

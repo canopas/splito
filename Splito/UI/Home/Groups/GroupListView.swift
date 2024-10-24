@@ -11,7 +11,6 @@ import Data
 import Kingfisher
 
 struct GroupListView: View {
-    @EnvironmentObject var homeRouteViewModel: HomeRouteViewModel
 
     @StateObject var viewModel: GroupListViewModel
 
@@ -61,7 +60,7 @@ struct GroupListView: View {
                                 .padding(.bottom, 8)
                         }
 
-                        GroupListWithDetailView(viewModel: viewModel) {
+                        GroupListWithDetailView(isFocused: $isFocused, viewModel: viewModel) {
                             isFocused = false
                         }
                     }
@@ -94,16 +93,19 @@ struct GroupListView: View {
                         Label("Join group", systemImage: "person.2")
                     }
                 } label: {
-                    Image(systemName: "plus")
-                        .resizable()
-                        .scaledToFit()
-                        .font(.system(size: 16).weight(.medium))
-                        .foregroundStyle(primaryText)
+                    SystemPlusButton()
                 }
             }
         }
-        .onAppear {
-            homeRouteViewModel.updateSelectedGroup(id: nil)
+        .overlay(alignment: .bottomTrailing) {
+            if !viewModel.showScrollToTopBtn {
+                VStack(spacing: 0) {
+                    Spacer()
+                    AddExpenseButtonView(onClick: viewModel.openAddExpenseSheet)
+                        .padding([.bottom, .trailing], 16)
+                }
+                .ignoresSafeArea(.keyboard)
+            }
         }
         .sheet(isPresented: $viewModel.showActionSheet) {
             GroupActionSheetView(onSelectionWith: viewModel.handleOptionSelection(with:))
@@ -111,6 +113,9 @@ struct GroupListView: View {
                 .modifier(BottomSheetHeightModifier(height: $sheetHeight))
                 .presentationDetents([.height(sheetHeight)])
                 .presentationCornerRadius(24)
+        }
+        .fullScreenCover(isPresented: $viewModel.showAddExpenseSheet) {
+            ExpenseRouteView()
         }
         .fullScreenCover(isPresented: $viewModel.showCreateGroupSheet) {
             NavigationStack {
@@ -302,5 +307,40 @@ enum OptionList: CaseIterable {
         case .deleteGroup:
             return .binIcon
         }
+    }
+}
+
+struct AddExpenseButtonView: View {
+
+    let onClick: () -> Void
+
+    var body: some View {
+        Button(action: onClick) {
+            HStack(spacing: 4) {
+                SystemPlusButton(color: primaryLightText)
+
+                Text("Expense")
+                    .font(.buttonText())
+                    .foregroundStyle(primaryLightText)
+            }
+            .padding(.vertical, 10)
+            .padding(.horizontal, 16)
+            .background(primaryColor)
+            .cornerRadius(30)
+        }
+    }
+}
+
+struct SystemPlusButton: View {
+
+    var imageName: String = "plus"
+    var size: Double = 16
+    var imageWeight: Font.Weight = .medium
+    var color: Color = primaryText
+
+    var body: some View {
+        Image(systemName: imageName)
+            .font(.system(size: size, weight: imageWeight))
+            .foregroundStyle(color)
     }
 }

@@ -63,11 +63,19 @@ struct GroupTransactionDetailView: View {
             ToolbarItem(placement: .topBarLeading) {
                 NavigationTitleTextView(text: "Transaction detail")
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                ToolbarButtonView(imageIcon: .binIcon, onClick: viewModel.handleDeleteBtnAction)
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                ToolbarButtonView(imageIcon: .editPencilIcon, onClick: viewModel.handleEditBtnAction)
+            if viewModel.viewState != .loading {
+                if (viewModel.transaction?.isActive ?? false) && (viewModel.group?.isActive ?? false) {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        ToolbarButtonView(imageIcon: .binIcon, onClick: viewModel.handleDeleteBtnAction)
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        ToolbarButtonView(imageIcon: .editPencilIcon, onClick: viewModel.handleEditBtnAction)
+                    }
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        RestoreButton(onClick: viewModel.handleRestoreButtonAction)
+                    }
+                }
             }
         }
     }

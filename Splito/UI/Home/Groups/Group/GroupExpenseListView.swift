@@ -14,7 +14,6 @@ struct GroupExpenseListView: View {
     @ObservedObject var viewModel: GroupHomeViewModel
 
     let isFocused: FocusState<Bool>.Binding
-    let onSearchBarAppear: () -> Void
 
     var body: some View {
         GeometryReader { geometry in
@@ -37,7 +36,11 @@ struct GroupExpenseListView: View {
                             .focused(isFocused)
                             .padding(.bottom, 8)
                             .padding(.horizontal, 16)
-                            .onAppear(perform: onSearchBarAppear)
+                            .onAppear {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    isFocused.wrappedValue = true
+                                }
+                            }
                     }
 
                     List {
@@ -50,12 +53,14 @@ struct GroupExpenseListView: View {
                                                onClick: viewModel.openAddExpenseSheet)
                             } else if !viewModel.groupExpenses.isEmpty {
                                 let firstMonth = viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings).first
+                                let lastMonth = viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings).last
 
                                 ForEach(viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings), id: \.self) { month in
                                     Section(header: sectionHeader(month: month)) {
                                         ForEach(viewModel.groupExpenses[month] ?? [], id: \.expense.id) { expense in
                                             GroupExpenseItemView(expenseWithUser: expense,
                                                                  isLastItem: expense.expense == (viewModel.groupExpenses[month] ?? []).last?.expense)
+                                            .padding(.bottom, (month == lastMonth && viewModel.groupExpenses[month]?.last?.expense.id == expense.expense.id) ? 50 : 0)
                                             .onTouchGesture {
                                                 viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
                                             }

@@ -53,3 +53,64 @@ public extension Date {
         return Date()
     }
 }
+
+public extension Date {
+    func isToday() -> Bool {
+        return Calendar.current.isDateInToday(self)
+    }
+
+    func isYesterday() -> Bool {
+        return Calendar.current.isDateInYesterday(self)
+    }
+
+    func get(_ components: Calendar.Component..., calendar: Calendar = Calendar.current) -> DateComponents {
+        return calendar.dateComponents(Set(components), from: self)
+    }
+
+    func getDateIn(format: String) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = format
+        return dateFormatter.string(from: self)
+    }
+}
+
+public extension Date {
+    /// This will return string of formatted time with respect to current time in format of **"1 minute ago", "1 hour ago", "10: 30 PM Yesterday",  "10:30 AM  01, Jan" or "10:30 AM 01, Jan 1970"**
+    func getFormattedPastTime() -> String {
+        let currentTime = Date()
+        if isToday() {
+            let dateSeconds = Int(self.timeIntervalSince1970)
+            let currentTimeSeconds = Int(currentTime.timeIntervalSince1970)
+            if (currentTimeSeconds - dateSeconds) < 60 {
+                return "Just now"
+            } else if (currentTimeSeconds - dateSeconds) < (60*60) {
+                return "\(Int(currentTimeSeconds - dateSeconds)/60)" + " " + "min ago"
+            } else {
+                let hours = Int((currentTimeSeconds - dateSeconds)/(60*60))
+                if hours < 2 {
+                    return "\(hours)" + " " + "hour ago"
+                } else {
+                    return "\(hours)" + " " + "hours ago"
+                }
+            }
+        } else if isYesterday() {
+            if isTimeIn24HourFormat {
+                return "Yesterday" + " " + self.getDateIn(format: "HH:mm")
+            } else {
+                return "Yesterday" + " " + self.getDateIn(format: "hh:mm a")
+            }
+        } else {
+            let isSameYear = self.get(.year).year == Date().get(.year).year
+            if isTimeIn24HourFormat {
+                return self.getDateIn(format: isSameYear ? "dd MMM, HH:mm" : "dd MMMM yyyy, HH:mm")
+            } else {
+                return self.getDateIn(format: isSameYear ? "dd MMM, hh:mm a" : "dd MMMM yyyy, hh:mm a")
+            }
+        }
+    }
+}
+
+public var isTimeIn24HourFormat: Bool {
+    let dateFormat = DateFormatter.dateFormat(fromTemplate: "j", options: 0, locale: Locale.current)
+    return dateFormat == "HH"
+}

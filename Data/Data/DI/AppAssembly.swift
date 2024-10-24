@@ -41,6 +41,10 @@ public class AppAssembly: Assembly {
             UserStore.init()
         }.inObjectScope(.container)
 
+        container.register(ActivityLogStore.self) { _ in
+            ActivityLogStore.init()
+        }.inObjectScope(.container)
+
         container.register(GroupStore.self) { _ in
             GroupStore.init()
         }.inObjectScope(.container)
@@ -61,6 +65,10 @@ public class AppAssembly: Assembly {
 
         container.register(UserRepository.self) { _ in
             UserRepository.init()
+        }.inObjectScope(.container)
+
+        container.register(ActivityLogRepository.self) { _ in
+            ActivityLogRepository.init()
         }.inObjectScope(.container)
 
         container.register(GroupRepository.self) { _ in

@@ -13,6 +13,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
+    @Inject private var activityLogRepository: ActivityLogRepository
     @Inject private var transactionRepository: TransactionRepository
 
     @Published var amount: Double = 0
@@ -129,11 +130,12 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             var newTransaction = transaction
             newTransaction.amount = amount
             newTransaction.date = .init(date: paymentDate)
+            newTransaction.updatedBy = userId
 
             await updateTransaction(transaction: newTransaction, oldTransaction: transaction, completion: completion)
         } else {
             let transaction = Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
-                                           amount: amount, date: .init(date: paymentDate))
+                                           updatedBy: userId, amount: amount, date: .init(date: paymentDate))
             await addTransaction(transaction: transaction, completion: completion)
         }
     }
@@ -141,9 +143,12 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     private func addTransaction(transaction: Transactions, completion: (Bool) -> Void) async {
         do {
             showLoader = true
-            let transaction = try await transactionRepository.addTransaction(groupId: groupId, transaction: transaction)
-            await updateGroupMemberBalance(transaction: transaction, updateType: .Add)
+
+            self.transaction = try await transactionRepository.addTransaction(groupId: groupId, transaction: transaction)
             NotificationCenter.default.post(name: .addTransaction, object: transaction)
+            await updateGroupMemberBalance(transaction: transaction, updateType: .Add)
+            await addLogForAddTransaction()
+
             showLoader = false
             completion(true)
         } catch {
@@ -153,18 +158,85 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    private func addLogForAddTransaction() async {
+        guard let transaction, let payer, let receiver, let userId = preference.user?.id else {
+            showLoader = false
+            return
+        }
+
+        var errors: [Error] = []
+        var payerName = payer.nameWithLastInitial
+        var receiverName = receiver.nameWithLastInitial
+        let involvedUserIds: Set<String> = [transaction.payerId, transaction.receiverId, transaction.addedBy]
+
+        await withTaskGroup(of: Void.self) { group in
+            for memberId in involvedUserIds {
+                group.addTask { [weak self] in
+                    guard let self else { return }
+                    if userId == transaction.payerId {
+                        payerName = (memberId == transaction.payerId) ? "You" : payer.nameWithLastInitial
+                        receiverName = (memberId == transaction.receiverId) ? "you" : receiver.nameWithLastInitial
+                    }
+                    await addActivityLog(type: .transactionAdded, memberId: memberId, payerName: payerName, receiverName: receiverName, errors: &errors)
+                }
+            }
+        }
+
+        handleActivityLogErrors(errors)
+    }
+
     private func updateTransaction(transaction: Transactions, oldTransaction: Transactions, completion: (Bool) -> Void) async {
         do {
             showLoader = true
+            self.transaction = transaction
+
             try await transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
-            await updateGroupMemberBalance(transaction: transaction, updateType: .Update(oldTransaction: oldTransaction))
             NotificationCenter.default.post(name: .updateTransaction, object: transaction)
+            await updateGroupMemberBalance(transaction: transaction, updateType: .Update(oldTransaction: oldTransaction))
+            await addLogForUpdateTransaction()
+
             showLoader = false
             completion(true)
         } catch {
             showLoader = false
             completion(false)
             showToastForError()
+        }
+    }
+
+    private func addLogForUpdateTransaction() async {
+        guard let transaction = self.transaction else {
+            showLoader = false
+            return
+        }
+
+        var errors: [Error] = []
+        let involvedUserIds: Set<String> = [transaction.payerId, transaction.receiverId, transaction.addedBy, transaction.updatedBy]
+
+        await withTaskGroup(of: Void.self) { group in
+            for memberId in involvedUserIds {
+                group.addTask { [weak self] in
+                    guard let self else { return }
+                    await addActivityLog(type: .transactionUpdated, memberId: memberId, payerName: payer?.nameWithLastInitial, receiverName: receiver?.nameWithLastInitial, errors: &errors)
+                }
+            }
+        }
+
+        handleActivityLogErrors(errors)
+    }
+
+    private func addActivityLog(type: ActivityType, memberId: String, payerName: String?, receiverName: String?, errors: inout [Error]) async {
+        guard let transaction, let user = preference.user else {
+            showLoader = false
+            return
+        }
+
+        if let activity = createActivityLogForTransaction(context: ActivityLogContext(group: group, transaction: transaction, type: type, memberId: memberId, currentUser: user, payerName: payerName ?? "Someone", receiverName: receiverName ?? "Someone")) {
+            do {
+                try await activityLogRepository.addActivityLog(userId: memberId, activity: activity)
+            } catch {
+                errors.append(error)
+            }
         }
     }
 
@@ -190,6 +262,13 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             viewState = .noInternet
         } else {
             viewState = .somethingWentWrong
+        }
+    }
+
+    private func handleActivityLogErrors(_ errors: [Error]) {
+        if !errors.isEmpty {
+            showLoader = false
+            showToastForError()
         }
     }
 }
