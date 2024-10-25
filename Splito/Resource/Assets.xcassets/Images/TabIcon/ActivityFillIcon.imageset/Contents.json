@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "group.icon.svg",
+      "filename" : "activity.icon (1).svg",
       "idiom" : "universal"
     },
     {
@@ -11,12 +11,15 @@
           "value" : "dark"
         }
       ],
-      "filename" : "group.icon (2).svg",
+      "filename" : "activity.icon (2).svg",
       "idiom" : "universal"
     }
   ],
   "info" : {
     "author" : "xcode",
     "version" : 1
+  },
+  "properties" : {
+    "template-rendering-intent" : "template"
   }
 }

@@ -7,7 +7,7 @@
 
 import FirebaseFirestore
 
-public struct Expense: Codable, Hashable {
+public struct Expense: Codable, Hashable, Identifiable {
 
     public var id: String? // Automatically generated ID by Firestore
 
@@ -20,9 +20,11 @@ public struct Expense: Codable, Hashable {
     public var splitTo: [String] // Reference to user ids involved in the split
     public var splitType: SplitType
     public var splitData: [String: Double]? // Use this to store percentage or share data
+    public var isActive: Bool
 
-    public init(name: String, amount: Double, date: Timestamp, paidBy: [String: Double], addedBy: String, updatedBy: String,
-                splitTo: [String], splitType: SplitType = .equally, splitData: [String: Double]? = [:]) {
+    public init(name: String, amount: Double, date: Timestamp, paidBy: [String: Double], addedBy: String,
+                updatedBy: String, splitTo: [String], splitType: SplitType = .equally,
+                splitData: [String: Double]? = [:], isActive: Bool = true) {
         self.name = name
         self.amount = amount
         self.date = date
@@ -32,6 +34,7 @@ public struct Expense: Codable, Hashable {
         self.splitTo = splitTo
         self.splitType = splitType
         self.splitData = splitData
+        self.isActive = isActive
     }
 
     enum CodingKeys: String, CodingKey {
@@ -45,6 +48,7 @@ public struct Expense: Codable, Hashable {
         case splitTo = "split_to"
         case splitType = "split_type"
         case splitData = "split_data"
+        case isActive = "is_active"
     }
 
     // Calculated properties for better UI representation
@@ -94,7 +98,7 @@ public enum SplitType: String, Codable, CaseIterable {
     case shares
 }
 
-// Struct to hold combined expense and user information
+/// Struct to hold combined expense and user information
 public struct ExpenseWithUser: Hashable {
     public let expense: Expense
     public let user: AppUser

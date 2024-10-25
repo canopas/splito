@@ -7,6 +7,7 @@
 
 import Data
 import SwiftUI
+import BaseStyle
 
 class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
@@ -14,6 +15,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
+    @Inject private var activityLogRepository: ActivityLogRepository
 
     @Published private(set) var expense: Expense?
     @Published private(set) var expenseUsersData: [AppUser] = []
@@ -22,10 +24,10 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var groupImageUrl: String = ""
     @Published var showEditExpenseSheet = false
 
+    var group: Groups?
     var groupId: String
     var expenseId: String
     let router: Router<AppRoute>
-    private var group: Groups?
 
     init(router: Router<AppRoute>, groupId: String, expenseId: String) {
         self.router = router
@@ -103,7 +105,50 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleEditBtnAction() {
+        guard validateUserPermission(operationText: "edited", action: "edit") else { return }
         showEditExpenseSheet = true
+    }
+
+    func handleRestoreButtonAction() {
+        showAlert = true
+        alert = .init(title: "Restore expense",
+                      message: "Are you sure you want to restore this expense?",
+                      positiveBtnTitle: "Ok",
+                      positiveBtnAction: self.restoreExpense,
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false })
+    }
+
+    func restoreExpense() {
+        guard let group, group.isActive else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.showAlertFor(title: "Error",
+                                  message: "The group associated with this expense has been deleted, so it cannot be restored.")
+            }
+            return
+        }
+
+        guard validateUserPermission(operationText: "restored", action: "restored") else { return }
+
+        guard var expense, let userId = preference.user?.id else { return }
+
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                self.viewState = .loading
+                expense.isActive = true
+                expense.updatedBy = userId
+
+                try await self.expenseRepository.updateExpense(groupId: groupId, expense: expense)
+                await self.updateGroupMemberBalance(updateType: .Update(oldExpense: expense))
+                await self.addLogForDeletedExpense(type: .expenseRestored)
+
+                self.viewState = .initial
+                self.router.pop()
+            } catch {
+                self.handleServiceError()
+            }
+        }
     }
 
     func handleDeleteButtonAction() {
@@ -117,16 +162,19 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteExpense() {
+        guard validateUserPermission(operationText: "deleted", action: "delete") else { return }
         guard var expense, let userId = preference.user?.id else { return }
 
         Task {
             do {
                 viewState = .loading
                 expense.updatedBy = userId
-                try await expenseRepository.updateExpense(groupId: groupId, expense: expense)
-                try await expenseRepository.deleteExpense(groupId: groupId, expenseId: expenseId)
-                await self.updateGroupMemberBalance(updateType: .Delete)
+
+                try await expenseRepository.deleteExpense(groupId: groupId, expense: expense)
                 NotificationCenter.default.post(name: .deleteExpense, object: expense)
+                await self.updateGroupMemberBalance(updateType: .Delete)
+                await addLogForDeletedExpense(type: .expenseDeleted)
+
                 viewState = .initial
                 router.pop()
             } catch {
@@ -134,6 +182,17 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 showToastForError()
             }
         }
+    }
+
+    private func validateUserPermission(operationText: String, action: String) -> Bool {
+        guard let userId = preference.user?.id, let group, group.members.contains(userId) else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.showAlertFor(title: "Error",
+                                  message: "This expense could not be \(operationText). You do not have permission to \(action) this expense, Sorry!")
+            }
+            return false
+        }
+        return true
     }
 
     private func updateGroupMemberBalance(updateType: ExpenseUpdateType) async {
@@ -147,6 +206,35 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             group.balances = memberBalance
             try await groupRepository.updateGroup(group: group)
         } catch {
+            viewState = .initial
+            showToastForError()
+        }
+    }
+
+    private func addLogForDeletedExpense(type: ActivityType) async {
+        guard let group, let expense, let user = preference.user else {
+            viewState = .initial
+            return
+        }
+
+        var errors: [Error] = []
+        let involvedUserIds = Set(expense.splitTo + Array(expense.paidBy.keys) + [user.id, expense.addedBy, expense.updatedBy])
+
+        await withTaskGroup(of: Void.self) { groupTasks in
+            for memberId in involvedUserIds {
+                groupTasks.addTask { [weak self] in
+                    if let activity = createActivityLogForExpense(context: ActivityLogContext(group: group, expense: expense, type: type, memberId: memberId, currentUser: user)) {
+                        do {
+                            try await self?.activityLogRepository.addActivityLog(userId: memberId, activity: activity)
+                        } catch {
+                            errors.append(error)
+                        }
+                    }
+                }
+            }
+        }
+
+        if !errors.isEmpty {
             viewState = .initial
             showToastForError()
         }

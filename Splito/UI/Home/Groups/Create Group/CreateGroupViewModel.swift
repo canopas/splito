@@ -13,9 +13,10 @@ import FirebaseFirestore
 
 class CreateGroupViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var preference: SplitoPreference
-    @Inject var storageManager: StorageManager
-    @Inject var groupRepository: GroupRepository
+    @Inject private var preference: SplitoPreference
+    @Inject private var storageManager: StorageManager
+    @Inject private var groupRepository: GroupRepository
+    @Inject private var activityLogRepository: ActivityLogRepository
 
     @Published var showImagePicker = false
     @Published var showImagePickerOptions = false
@@ -102,6 +103,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             showLoader = true
             let group = try await groupRepository.createGroup(group: group, imageData: imageData)
             NotificationCenter.default.post(name: .addGroup, object: group)
+            await addLogForCreateGroup(group: group)
             showLoader = false
             completion(true)
         } catch {
@@ -109,6 +111,18 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             completion(false)
             showToastForError()
         }
+    }
+
+    private func addLogForCreateGroup(group: Groups) async {
+        guard let userId = preference.user?.id else {
+            showLoader = false
+            return
+        }
+
+        var errors: [Error] = []
+        await addActivityLog(group: group, type: .groupCreated, memberId: userId, errors: &errors)
+
+        handleActivityLogErrors(errors)
     }
 
     private func updateGroup(group: Groups, completion: (Bool) -> Void) async {
@@ -125,11 +139,65 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             self.showLoader = true
             let updatedGroup = try await groupRepository.updateGroupWithImage(imageData: imageData, newImageUrl: profileImageUrl, group: newGroup)
             NotificationCenter.default.post(name: .updateGroup, object: updatedGroup)
+            await addLogForUpdateGroup(updatedGroup: updatedGroup)
             showLoader = false
             completion(true)
         } catch {
             showLoader = false
             completion(false)
+            showToastForError()
+        }
+    }
+
+    private func addLogForUpdateGroup(updatedGroup: Groups) async {
+        guard let group else {
+            showLoader = false
+            return
+        }
+
+        let currentGroupName = group.name
+        let currentImageUrl = group.imageUrl
+        let hasNameChanged = currentGroupName.trimmingCharacters(in: .whitespacesAndNewlines) != updatedGroup.name
+        let hasImageChanged = currentImageUrl != updatedGroup.imageUrl
+
+        if !hasNameChanged && !hasImageChanged {
+            showLoader = false
+            return
+        }
+
+        var errors: [Error] = []
+        let type: ActivityType = (group.imageUrl != updatedGroup.imageUrl && group.name != updatedGroup.name) ? .groupUpdated : group.imageUrl != updatedGroup.imageUrl ? .groupImageUpdated : .groupNameUpdated
+
+        await withTaskGroup(of: Void.self) { groupTasks in
+            for memberId in Set(updatedGroup.members) {
+                groupTasks.addTask { [weak self] in
+                    await self?.addActivityLog(group: updatedGroup, type: type, memberId: memberId, previousGroupName: (type == .groupNameUpdated || type == .groupUpdated) ? group.name : nil, errors: &errors)
+                }
+            }
+        }
+
+        handleActivityLogErrors(errors)
+    }
+
+    private func addActivityLog(group: Groups, type: ActivityType, memberId: String, previousGroupName: String? = nil, errors: inout [Error]) async {
+        guard let user = preference.user else {
+            showLoader = false
+            return
+        }
+
+        if let activity = createActivityLogForGroup(context: ActivityLogContext(group: group, type: type, memberId: memberId, currentUser: user, previousGroupName: previousGroupName)) {
+            do {
+                try await activityLogRepository.addActivityLog(userId: memberId, activity: activity)
+            } catch {
+                errors.append(error)
+            }
+        }
+    }
+
+    // MARK: - Error Handling
+    private func handleActivityLogErrors(_ errors: [Error]) {
+        if !errors.isEmpty {
+            showLoader = false
             showToastForError()
         }
     }

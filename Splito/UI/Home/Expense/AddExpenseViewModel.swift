@@ -15,6 +15,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
+    @Inject private var activityLogRepository: ActivityLogRepository
 
     @Published var expenseName = ""
     @Published private(set) var payerName = "You"
@@ -286,7 +287,7 @@ extension AddExpenseViewModel {
 
         Task {
             if let expense {
-                await handleUpdateExpenseAction(groupId: groupId, userId: userId, expense: expense, completion: completion)
+                await handleUpdateExpenseAction(groupId: groupId, userId: user.id, expense: expense, completion: completion)
             } else {
                 await handleAddExpenseAction(groupId: groupId, userId: userId, completion: completion)
             }
@@ -330,8 +331,9 @@ extension AddExpenseViewModel {
             NotificationCenter.default.post(name: .addExpense, object: nil, userInfo: expenseInfo)
 
             if !(selectedGroup?.hasExpenses ?? false) { selectedGroup?.hasExpenses = true }
-
             await updateGroupMemberBalance(expense: expense, updateType: .Add)
+            await addLogForAddExpense(expense: newExpense)
+
             showLoader = false
             completion(true)
         } catch {
@@ -341,18 +343,76 @@ extension AddExpenseViewModel {
         }
     }
 
+    private func addLogForAddExpense(expense: Expense) async {
+        guard let userId = preference.user?.id else {
+            showLoader = false
+            return
+        }
+
+        var errors: [Error] = []
+        let involvedUserIds = Set(expense.splitTo + Array(expense.paidBy.keys) + [userId, expense.addedBy])
+
+        await withTaskGroup(of: Void.self) { groupTasks in
+            for memberId in involvedUserIds {
+                groupTasks.addTask { [weak self] in
+                    await self?.addActivityLog(expense: expense, type: .expenseAdded, memberId: memberId, errors: &errors)
+                }
+            }
+        }
+
+        handleActivityLogErrors(errors)
+    }
+
     private func updateExpense(groupId: String, expense: Expense, oldExpense: Expense, completion: (Bool) -> Void) async {
         do {
             showLoader = true
+
             try await expenseRepository.updateExpense(groupId: groupId, expense: expense)
             NotificationCenter.default.post(name: .updateExpense, object: expense)
             await updateGroupMemberBalance(expense: expense, updateType: .Update(oldExpense: oldExpense))
+            await addLogForUpdateExpense(updatedExpense: expense, oldExpense: oldExpense)
+
             showLoader = false
             completion(true)
         } catch {
             showLoader = false
             completion(false)
             showToastForError()
+        }
+    }
+
+    private func addLogForUpdateExpense(updatedExpense: Expense, oldExpense: Expense) async {
+        guard let userId = preference.user?.id else {
+            showLoader = false
+            return
+        }
+
+        var errors: [Error] = []
+        let involvedUserIds = Set(oldExpense.splitTo + Array(oldExpense.paidBy.keys) + updatedExpense.splitTo + Array(updatedExpense.paidBy.keys) + [userId, updatedExpense.addedBy, updatedExpense.updatedBy])
+
+        await withTaskGroup(of: Void.self) { groupTasks in
+            for memberId in involvedUserIds {
+                groupTasks.addTask { [weak self] in
+                    await self?.addActivityLog(expense: updatedExpense, type: .expenseUpdated, memberId: memberId, errors: &errors)
+                }
+            }
+        }
+
+        handleActivityLogErrors(errors)
+    }
+
+    private func addActivityLog(expense: Expense, type: ActivityType, memberId: String, errors: inout [Error]) async {
+        guard let user = preference.user else {
+            showLoader = false
+            return
+        }
+
+        if let activity = createActivityLogForExpense(context: ActivityLogContext(group: selectedGroup, expense: expense, type: type, memberId: memberId, currentUser: user)) {
+            do {
+                try await activityLogRepository.addActivityLog(userId: memberId, activity: activity)
+            } catch {
+                errors.append(error)
+            }
         }
     }
 
@@ -366,6 +426,13 @@ extension AddExpenseViewModel {
             group.balances = memberBalance
             try await groupRepository.updateGroup(group: group)
         } catch {
+            showLoader = false
+            showToastForError()
+        }
+    }
+
+    private func handleActivityLogErrors(_ errors: [Error]) {
+        if !errors.isEmpty {
             showLoader = false
             showToastForError()
         }

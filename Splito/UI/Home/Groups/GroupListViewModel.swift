@@ -10,25 +10,26 @@ import SwiftUI
 import FirebaseFirestore
 
 class GroupListViewModel: BaseViewModel, ObservableObject {
+
     private let GROUPS_LIMIT = 10
 
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var userRepository: UserRepository
+    @Inject private var activityLogRepository: ActivityLogRepository
 
-    @Published private(set) var currentViewState: ViewState = .loading
+    @Published private(set) var currentViewState: ViewState = .initial
     @Published private(set) var groupListState: GroupListState = .noGroup
     @Published private(set) var selectedTab: GroupListTabType = .all
 
-    @Published var searchedGroup: String = ""
     @Published var selectedGroup: Groups?
-
-    @Published private var groups: [Groups] = []
-    @Published private(set) var combinedGroups: [GroupInformation] = []
+    @Published var searchedGroup: String = ""
     @Published private(set) var totalOweAmount: Double = 0.0
+    @Published private(set) var combinedGroups: [GroupInformation] = []
 
     @Published var showActionSheet = false
     @Published var showJoinGroupSheet = false
+    @Published var showAddExpenseSheet = false
     @Published var showCreateGroupSheet = false
     @Published private(set) var showSearchBar = false
     @Published private(set) var showScrollToTopBtn = false
@@ -75,15 +76,12 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Data Loading
     func fetchGroups() async {
-        guard let userId = preference.user?.id else {
-            currentViewState = .initial
-            return
-        }
+        guard let userId = preference.user?.id else { return }
 
         do {
+            currentViewState = combinedGroups.isEmpty ? .loading : .initial
             let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT)
 
-            groups = result.data
             lastDocument = result.lastDocument
             hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
 
@@ -109,7 +107,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         do {
             let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT, lastDocument: lastDocument)
 
-            groups.append(contentsOf: result.data)
             lastDocument = result.lastDocument
             hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
 
@@ -210,6 +207,10 @@ extension GroupListViewModel {
         showJoinGroupSheet = true
     }
 
+    func openAddExpenseSheet() {
+        showAddExpenseSheet = true
+    }
+
     func handleGroupItemTap(_ group: Groups, isTapped: Bool = true) {
         if isTapped {
             onSearchBarCancelBtnTap()
@@ -222,7 +223,7 @@ extension GroupListViewModel {
     }
 
     func handleSearchBarTap() {
-        if groups.isEmpty {
+        if combinedGroups.isEmpty {
             showToastFor(toast: .init(type: .info, title: "No groups yet", message: "There are no groups available to search."))
         } else {
             withAnimation {
@@ -292,11 +293,33 @@ extension GroupListViewModel {
     private func deleteGroup(group: Groups?) async {
         guard let group, let userId = preference.user?.id else { return }
         do {
-            var deletedGroup = group
-            deletedGroup.updatedBy = userId
-            try await groupRepository.deleteGroup(group: deletedGroup)
-            NotificationCenter.default.post(name: .deleteGroup, object: deletedGroup)
+            try await groupRepository.deleteGroup(group: group)
+            NotificationCenter.default.post(name: .deleteGroup, object: group)
+            await addLogForDeleteGroup(deletedGroup: group)
         } catch {
+            showToastForError()
+        }
+    }
+
+    private func addLogForDeleteGroup(deletedGroup: Groups) async {
+        guard let user = preference.user else { return }
+
+        var errors: [Error] = []
+        await withTaskGroup(of: Void.self) { group in
+            for memberId in deletedGroup.members {
+                group.addTask { [weak self] in
+                    if let activity = createActivityLogForGroup(context: ActivityLogContext(group: deletedGroup, type: .groupDeleted, memberId: memberId, currentUser: user)) {
+                        do {
+                            try await self?.activityLogRepository.addActivityLog(userId: memberId, activity: activity)
+                        } catch {
+                            errors.append(error)
+                        }
+                    }
+                }
+            }
+        }
+
+        if !errors.isEmpty {
             showToastForError()
         }
     }

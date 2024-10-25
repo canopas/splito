@@ -10,7 +10,6 @@ import SwiftUI
 import BaseStyle
 
 struct AccountHomeView: View {
-    @EnvironmentObject var homeRouteViewModel: HomeRouteViewModel
 
     @StateObject var viewModel: AccountHomeViewModel
 
@@ -56,9 +55,6 @@ struct AccountHomeView: View {
             }
         }
         .background(surfaceColor)
-        .onAppear {
-            homeRouteViewModel.updateSelectedGroup(id: nil)
-        }
         .toastView(toast: $viewModel.toast, bottomPadding: 32)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showShareSheet) {

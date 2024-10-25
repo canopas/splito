@@ -9,11 +9,12 @@ import Data
 import Foundation
 
 class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
-    
+
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
+    @Inject private var activityLogRepository: ActivityLogRepository
 
     @Published private(set) var transaction: Transactions?
     @Published private(set) var transactionUsersData: [AppUser] = []
@@ -21,11 +22,10 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     @Published var showEditTransactionSheet = false
 
+    var group: Groups?
     let router: Router<AppRoute>
     let groupId: String
     let transactionId: String
-
-    private var group: Groups?
 
     init(router: Router<AppRoute>, groupId: String, transactionId: String) {
         self.router = router
@@ -108,7 +108,51 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - User Actions
     func handleEditBtnAction() {
+        guard validateUserPermission(operationText: "edited", action: "edit") else { return }
         showEditTransactionSheet = true
+    }
+
+    func handleRestoreButtonAction() {
+        showAlert = true
+        alert = .init(title: "Restore transaction",
+                      message: "Are you sure you want to restore this transaction?",
+                      positiveBtnTitle: "Ok",
+                      positiveBtnAction: self.restoreTransaction,
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { self.showAlert = false })
+    }
+
+    func restoreTransaction() {
+        guard let group, group.isActive else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.showAlertFor(title: "Error",
+                             message: "The group associated with this transaction has been deleted, so it cannot be restored.")
+            }
+            return
+        }
+
+        guard validateUserPermission(operationText: "restored", action: "restored") else { return }
+
+        guard var transaction, let userId = preference.user?.id else { return }
+
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                self.viewState = .loading
+                transaction.isActive = true
+                transaction.updatedBy = userId
+
+                try await self.transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
+                await self.updateGroupMemberBalance(updateType: .Update(oldTransaction: transaction))
+                await self.addLogForDeletedTransaction(type: .transactionRestored)
+
+                self.viewState = .initial
+                self.router.pop()
+            } catch {
+                self.viewState = .initial
+                self.showToastForError()
+            }
+        }
     }
 
     func handleDeleteBtnAction() {
@@ -116,28 +160,72 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Delete Transaction",
                       message: "Are you sure you want to delete this transaction?",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: {
-                        Task {
-                            await self.deleteTransaction()
-                        }
-                      },
+                      positiveBtnAction: self.deleteTransaction,
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false })
     }
 
-    private func deleteTransaction() async {
+    private func deleteTransaction() {
+        guard validateUserPermission(operationText: "deleted", action: "delete") else { return }
         guard var transaction, let userId = preference.user?.id else { return }
-        
-        do {
-            viewState = .loading
-            transaction.updatedBy = userId
-            try await transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
-            try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
-            NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
-            await updateGroupMemberBalance(updateType: .Delete)
+
+        Task {
+            do {
+                viewState = .loading
+                transaction.updatedBy = userId
+
+                try await transactionRepository.deleteTransaction(groupId: groupId, transaction: transaction)
+                NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
+                await updateGroupMemberBalance(updateType: .Delete)
+                await addLogForDeletedTransaction(type: .transactionDeleted)
+
+                viewState = .initial
+                router.pop()
+            } catch {
+                viewState = .initial
+                showToastForError()
+            }
+        }
+    }
+
+    private func validateUserPermission(operationText: String, action: String) -> Bool {
+        guard let userId = preference.user?.id, let group, group.members.contains(userId) else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.showAlertFor(title: "Error",
+                                  message: "This transaction could not be \(operationText). You do not have permission to \(action) this transaction, Sorry!")
+            }
+            return false
+        }
+        return true
+    }
+
+    private func addLogForDeletedTransaction(type: ActivityType) async {
+        guard let group, let transaction, let user = preference.user else {
             viewState = .initial
-            router.pop()
-        } catch {
+            return
+        }
+
+        var errors: [Error] = []
+        let payerName = getMemberDataBy(id: transaction.payerId)?.nameWithLastInitial ?? "Someone"
+        let receiverName = getMemberDataBy(id: transaction.receiverId)?.nameWithLastInitial ?? "Someone"
+        let involvedUserIds: Set<String> = [transaction.payerId, transaction.receiverId, transaction.addedBy, transaction.updatedBy]
+
+        await withTaskGroup(of: Void.self) { groupTasks in
+            for memberId in involvedUserIds {
+                groupTasks.addTask { [weak self] in
+                    guard let self else { return }
+                    if let activity = createActivityLogForTransaction(context: ActivityLogContext(group: group, transaction: transaction, type: type, memberId: memberId, currentUser: user, payerName: payerName, receiverName: receiverName)) {
+                        do {
+                            try await activityLogRepository.addActivityLog(userId: memberId, activity: activity)
+                        } catch {
+                            errors.append(error)
+                        }
+                    }
+                }
+            }
+        }
+
+        if !errors.isEmpty {
             viewState = .initial
             showToastForError()
         }

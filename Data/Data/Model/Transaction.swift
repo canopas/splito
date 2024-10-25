@@ -7,7 +7,7 @@
 
 import FirebaseFirestore
 
-public struct Transactions: Codable, Hashable {
+public struct Transactions: Codable, Hashable, Identifiable {
 
     public var id: String? // Automatically generated ID by Firestore
 
@@ -17,14 +17,16 @@ public struct Transactions: Codable, Hashable {
     public var updatedBy: String
     public var amount: Double
     public var date: Timestamp
+    public var isActive: Bool
 
-    public init(payerId: String, receiverId: String, addedBy: String, updatedBy: String, amount: Double, date: Timestamp) {
+    public init(payerId: String, receiverId: String, addedBy: String, updatedBy: String, amount: Double, date: Timestamp, isActive: Bool = true) {
         self.payerId = payerId
         self.receiverId = receiverId
         self.addedBy = addedBy
         self.updatedBy = updatedBy
         self.amount = amount
         self.date = date
+        self.isActive = isActive
     }
 
     enum CodingKeys: String, CodingKey {
@@ -35,5 +37,6 @@ public struct Transactions: Codable, Hashable {
         case updatedBy = "updated_by"
         case amount
         case date
+        case isActive = "is_active"
     }
 }

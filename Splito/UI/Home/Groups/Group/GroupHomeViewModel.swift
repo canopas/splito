@@ -14,18 +14,19 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     private let EXPENSES_LIMIT = 10
 
-    @Inject private var preference: SplitoPreference
-    @Inject private var groupRepository: GroupRepository
-    @Inject private var expenseRepository: ExpenseRepository
+    @Inject var preference: SplitoPreference
+    @Inject var groupRepository: GroupRepository
+    @Inject var expenseRepository: ExpenseRepository
+    @Inject var activityLogRepository: ActivityLogRepository
 
     @Published private(set) var groupId: String
     @Published private(set) var overallOwingAmount: Double = 0.0
     @Published private(set) var currentMonthSpending: Double = 0.0
 
-    @Published private(set) var group: Groups?
-    @Published private(set) var groupState: GroupState = .loading
+    @Published var group: Groups?
+    @Published var groupState: GroupState = .loading
 
-    @Published private(set) var expenses: [Expense] = []
+    @Published var expenses: [Expense] = []
     @Published private(set) var memberOwingAmount: [String: Double] = [:]
     @Published private(set) var groupExpenses: [String: [ExpenseWithUser]] = [:]
 
@@ -37,10 +38,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var showSimplifyInfoSheet = false
     @Published var showInviteMemberSheet = false
 
-    @Published private(set) var showSearchBar = false
-    @Published private(set) var showScrollToTopBtn = false
+    @Published var showSearchBar = false
+    @Published var showScrollToTopBtn = false
 
-    @Published private(set) var expensesWithUser: [ExpenseWithUser] = [] {
+    @Published var expensesWithUser: [ExpenseWithUser] = [] {
         didSet {
             updateGroupExpenses()
         }
@@ -61,7 +62,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     let router: Router<AppRoute>
     var hasMoreExpenses: Bool = true
 
-    private var groupUserData: [AppUser] = []
+    var groupUserData: [AppUser] = []
     private var lastDocument: DocumentSnapshot?
 
     init(router: Router<AppRoute>, groupId: String) {
@@ -88,7 +89,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Data Loading
-    private func fetchGroup() async {
+    func fetchGroup() async {
         do {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             guard let group else {
@@ -113,8 +114,12 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     func fetchExpenses() async {
-        self.expensesWithUser = []
+        if let state = validateGroupState() {
+            groupState = state
+            return
+        }
 
+        expensesWithUser = []
         do {
             let result = try await expenseRepository.fetchExpensesBy(groupId: groupId, limit: EXPENSES_LIMIT)
             lastDocument = result.lastDocument
@@ -125,6 +130,19 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         } catch {
             handleServiceError()
         }
+    }
+
+    private func validateGroupState() -> GroupState? {
+        guard let userId = preference.user?.id, let group = group else {
+            return .noMember
+        }
+
+        if !group.isActive && group.members.contains(userId) {
+            return .deactivateGroup
+        } else if !group.members.contains(userId) {
+            return .memberNotInGroup
+        }
+        return nil
     }
 
     func loadMoreExpenses() {
@@ -163,7 +181,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func fetchUserData(for userId: String) async -> AppUser? {
+    func fetchUserData(for userId: String) async -> AppUser? {
         if let existingUser = groupUserData.first(where: { $0.id == userId }) {
             return existingUser // Return the available user from groupUserData
         } else {
@@ -181,7 +199,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func fetchGroupBalance() {
+    func fetchGroupBalance() {
         guard let userId = preference.user?.id, let group else {
             groupState = .noMember
             return
@@ -404,11 +422,17 @@ extension GroupHomeViewModel {
     }
 
     // MARK: - Error Handling
-    private func handleServiceError() {
+    func handleServiceError() {
         if !networkMonitor.isConnected {
             groupState = .noInternet
         } else {
             groupState = .somethingWentWrong
+        }
+    }
+
+    func handleActivityLogErrors(_ errors: [Error]) {
+        if !errors.isEmpty {
+            showToastForError()
         }
     }
 }
@@ -420,6 +444,8 @@ extension GroupHomeViewModel {
         case noMember
         case noExpense
         case hasExpense
+        case deactivateGroup
+        case memberNotInGroup
         case noInternet
         case somethingWentWrong
     }

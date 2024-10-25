@@ -42,6 +42,7 @@ public class TransactionStore: ObservableObject {
 
     func fetchTransactionsBy(groupId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) async throws -> (transactions: [Transactions], lastDocument: DocumentSnapshot?) {
         var query = transactionReference(groupId: groupId)
+            .whereField("is_active", isEqualTo: true)
             .order(by: "date", descending: true)
             .limit(to: limit)
 
@@ -59,18 +60,5 @@ public class TransactionStore: ObservableObject {
 
     func fetchTransactionsBy(groupId: String, transactionId: String) async throws -> Transactions {
         return try await transactionReference(groupId: groupId).document(transactionId).getDocument(as: Transactions.self, source: .server)
-    }
-
-    func deleteTransaction(groupId: String, transactionId: String) async throws {
-        try await transactionReference(groupId: groupId).document(transactionId).delete()
-    }
-
-    func deleteTransactionsOf(groupId: String) async throws {
-        let snapshot = try await transactionReference(groupId: groupId).getDocuments(source: .server)
-
-        let batch = database.batch()
-        snapshot.documents.forEach { batch.deleteDocument($0.reference) }
-
-        try await batch.commit()
     }
 }
