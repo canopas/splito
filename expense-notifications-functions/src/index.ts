@@ -284,9 +284,9 @@ exports.onTransactionUpdated = onDocumentUpdated(
         if (newTransactionData.updated_by && newTransactionData.updated_by !== newTransactionData.receiver_id && newTransactionData.updated_by !== newTransactionData.payer_id) {
           payerMessage = `Payment updated: you paid ${receiverName} ${formatCurrency(newTransactionData.amount)}`;  // Notify the payer that the someone has updated a payment
           receiverMessage = `Payment updated: ${payerName} paid you ${formatCurrency(newTransactionData.amount)}`;  // Notify the receiver that the someone has updated a payment
-        } else if (newTransactionData.updated_by && newTransactionData.updated_by == newTransactionData.receiver_id) {
+        } else if (newTransactionData.updated_by && newTransactionData.updated_by === newTransactionData.receiver_id) {
           payerMessage = `Payment updated: You paid ${receiverName} ${formatCurrency(newTransactionData.amount)}`;  // Notify the payer that the receiver has updated a payment
-        } else if (newTransactionData.updated_by && newTransactionData.updated_by == newTransactionData.payer_id) {
+        } else if (newTransactionData.updated_by && newTransactionData.updated_by === newTransactionData.payer_id) {
           receiverMessage = `Payment updated: ${payerName} paid you ${formatCurrency(newTransactionData.amount)}`;  // Notify the receiver that the payer has updated a payment
         }
 
@@ -326,9 +326,9 @@ exports.onTransactionDeleted = onDocumentDeleted(
         if (deletedTransactionData.updated_by && deletedTransactionData.updated_by !== deletedTransactionData.receiver_id && deletedTransactionData.updated_by !== deletedTransactionData.payer_id) {
           payerMessage = `Payment deleted: you paid ${receiverName} ${formatCurrency(deletedTransactionData.amount)}`;  // Notify the payer that the someone has deleted a payment
           receiverMessage = `Payment deleted: ${payerName} paid you ${formatCurrency(deletedTransactionData.amount)}`;  // Notify the receiver that the someone has deleted a payment
-        } else if (deletedTransactionData.updated_by && deletedTransactionData.updated_by == deletedTransactionData.receiver_id) {
+        } else if (deletedTransactionData.updated_by && deletedTransactionData.updated_by === deletedTransactionData.receiver_id) {
           payerMessage = `Payment deleted: You paid ${receiverName} ${formatCurrency(deletedTransactionData.amount)}`;  // Notify the payer that the receiver has deleted a payment
-        } else if (deletedTransactionData.updated_by && deletedTransactionData.updated_by == deletedTransactionData.payer_id) {
+        } else if (deletedTransactionData.updated_by && deletedTransactionData.updated_by === deletedTransactionData.payer_id) {
           receiverMessage = `Payment deleted: ${payerName} paid you ${formatCurrency(deletedTransactionData.amount)}`;  // Notify the receiver that the payer has deleted a payment
         }
 
@@ -348,7 +348,7 @@ exports.onTransactionDeleted = onDocumentDeleted(
 
 async function getUserDisplayName(userId: string) {
   if (!userId) {
-    console.error('Invalid userId:', userId);
+    logger.error('Invalid userId:', userId);
     return 'Unknown';
   }
 

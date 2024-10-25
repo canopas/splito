@@ -16,18 +16,19 @@ import FirebaseFirestore
 
 class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
 
+    @Inject private var userRepository: UserRepository
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         addDDLoggers()
         FirebaseProvider.configureFirebase()
         Messaging.messaging().delegate = self
-        UNUserNotificationCenter.current().delegate = self
         registerForPushNotifications(application: application)
         return true
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        DispatchQueue.main.async {
-            NotificationCenter.default.post(name: .showActivityLog, object: nil)
+        DispatchQueue.main.async { [weak self] in
+            NotificationCenter.default.post(name: .showActivityLog, object: self)
         }
         completionHandler()
     }
@@ -36,7 +37,11 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         UNUserNotificationCenter.current().delegate = self
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
 
-        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { (granted, _) in
+        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { (granted, error) in
+            if let error {
+                LogE("Failed to request notification authorization: \(error)")
+                return
+            }
             guard granted else { return }
             DispatchQueue.main.async {
                 application.registerForRemoteNotifications()
@@ -55,22 +60,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
 
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         guard let fcmToken else { return }
-        // Update the FCM token in Firestore for the current user
-        updateFCMTokenInFirestore(token: fcmToken)
-    }
-
-    func updateFCMTokenInFirestore(token: String) {
-        @Inject var preference: SplitoPreference
-        guard let userId = preference.user?.id else { return }
-
-        Firestore.firestore().collection("users").document(userId).setData([
-            "device_fcm_token": token
-        ], merge: true) { error in
-            if let error {
-                LogE("Error updating FCM token: \(error)")
-            } else {
-                LogI("FCM token successfully updated in Firestore")
-            }
-        }
+        userRepository.updateFCMTokenForUser(deviceFcmToken: fcmToken) // Update the FCM token in Firestore for the current user
     }
 }

@@ -80,4 +80,8 @@ public class UserRepository: ObservableObject {
             }
         }
     }
+
+    public func updateFCMTokenForUser(deviceFcmToken: String) {
+        store.updateFCMTokenForUser(deviceFcmToken: deviceFcmToken)
+    }
 }

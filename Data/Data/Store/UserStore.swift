@@ -12,6 +12,7 @@ class UserStore: ObservableObject {
     private let COLLECTION_NAME: String = "users"
 
     @Inject private var database: Firestore
+    @Inject var preference: SplitoPreference
 
     private var listener: ListenerRegistration?
 
@@ -64,5 +65,20 @@ class UserStore: ObservableObject {
 
     func deactivateUserAfterDelete(userId: String) async throws {
         try await usersCollection.document(userId).updateData(["is_active": false])
+    }
+
+    func updateFCMTokenForUser(deviceFcmToken: String) {
+        guard let userId = preference.user?.id else { return }
+
+        Task {
+            do {
+                try await usersCollection.document(userId).setData([
+                    "device_fcm_token": deviceFcmToken
+                ], merge: true)
+                LogI("FCM token successfully updated in Firestore")
+            } catch {
+                LogE("Error updating FCM token: \(error)")
+            }
+        }
     }
 }
