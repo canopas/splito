@@ -16,8 +16,6 @@ import FirebaseFirestore
 
 class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
 
-    @Inject private var userRepository: UserRepository
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         addDDLoggers()
         FirebaseProvider.configureFirebase()
@@ -59,7 +57,22 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     }
 
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        guard let fcmToken else { return }
-        userRepository.updateFCMTokenForUser(deviceFcmToken: fcmToken) // Update the FCM token in Firestore for the current user
+        guard let fcmToken else {
+            LogE("Received invalid FCM token")
+            return
+        }
+
+        @Inject var preference: SplitoPreference
+        guard let userId = preference.user?.id else { return }
+
+        Firestore.firestore().collection("users").document(userId).setData([
+            "device_fcm_token": fcmToken
+        ], merge: true) { error in
+            if let error {
+                LogE("Error updating FCM token: \(error)")
+            } else {
+                LogI("FCM token successfully updated in Firestore")
+            }
+        }
     }
 }
