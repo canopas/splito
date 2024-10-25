@@ -278,6 +278,9 @@
     "Delete group" : {
       "extractionState" : "manual"
     },
+    "Delete Log" : {
+
+    },
     "Delete Transaction" : {
       "extractionState" : "manual"
     },

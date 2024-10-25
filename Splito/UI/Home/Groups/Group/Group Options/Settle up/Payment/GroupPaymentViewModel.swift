@@ -186,8 +186,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateTransaction(transaction: Transactions, oldTransaction: Transactions, completion: (Bool) -> Void) async {
-        guard let userId = preference.user?.id else { return }
-
         do {
             showLoader = true
             self.transaction = transaction

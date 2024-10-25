@@ -161,7 +161,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
     private func deleteTransaction(transaction: Transactions) async {
         guard let userId = preference.user?.id else { return }
-
+        
         do {
             var deletedTransaction = transaction
             deletedTransaction.updatedBy = userId

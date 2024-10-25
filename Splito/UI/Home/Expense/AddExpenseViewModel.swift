@@ -287,7 +287,7 @@ extension AddExpenseViewModel {
 
         Task {
             if let expense {
-                await handleUpdateExpenseAction(groupId: groupId, userId: user.id, expense: expense, completion: completion)
+                await handleUpdateExpenseAction(groupId: groupId, userId: userId, expense: expense, completion: completion)
             } else {
                 await handleAddExpenseAction(groupId: groupId, userId: userId, completion: completion)
             }
