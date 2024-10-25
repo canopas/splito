@@ -52,5 +52,8 @@ struct HomeRouteView: View {
             UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenFromOnboard: true, onDismiss: viewModel.dismissProfileView))
                 .interactiveDismissDisabled()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .showActivityLog)) { _ in
+            viewModel.switchToActivityLog()
+        }
     }
 }

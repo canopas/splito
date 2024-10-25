@@ -32,4 +32,8 @@ class HomeRouteViewModel: ObservableObject {
     func dismissProfileView() {
         openProfileView = false
     }
+
+    func switchToActivityLog() {
+        selectedTab = 1
+    }
 }

@@ -20,8 +20,16 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         addDDLoggers()
         FirebaseProvider.configureFirebase()
         Messaging.messaging().delegate = self
+        UNUserNotificationCenter.current().delegate = self
         registerForPushNotifications(application: application)
         return true
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .showActivityLog, object: nil)
+        }
+        completionHandler()
     }
 
     private func registerForPushNotifications(application: UIApplication) {
@@ -56,7 +64,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         guard let userId = preference.user?.id else { return }
 
         Firestore.firestore().collection("users").document(userId).setData([
-            "deviceFcmToken": token
+            "device_fcm_token": token
         ], merge: true) { error in
             if let error {
                 LogE("Error updating FCM token: \(error)")

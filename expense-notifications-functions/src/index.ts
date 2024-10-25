@@ -32,7 +32,7 @@ exports.onExpenseCreated = onDocumentCreated(
           const message = generateNotificationMessage(owedAmount);
           const body = `${expenseData.name} (${formatCurrency(expenseData.amount)})\n${message}`;
           
-          await sendNotification(userId, notificationTitle, body);
+          await sendNotification(userId, notificationTitle, body, expenseData.id);
         }
       }
 
@@ -70,7 +70,7 @@ exports.onExpenseUpdated = onDocumentUpdated(
             const message = generateNotificationMessage(newOwedAmount);
             const body = `Expense updated: ${newExpenseData.name} (${formatCurrency(newExpenseData.amount)})\n${message}`;
 
-            await sendNotification(userId, notificationTitle, body);
+            await sendNotification(userId, notificationTitle, body, newExpenseData.id);
           }
         }
       }
@@ -81,7 +81,7 @@ exports.onExpenseUpdated = onDocumentUpdated(
         if (!splitToUsers.includes(userId) && userId !== updatedBy) {
           const body = `Expense updated: ${oldExpenseData.name} (${formatCurrency(oldExpenseData.amount)})\n- You do not owe anything`;
 
-          await sendNotification(userId, notificationTitle, body);
+          await sendNotification(userId, notificationTitle, body, oldExpenseData.id);
         }
       }
 
@@ -93,7 +93,7 @@ exports.onExpenseUpdated = onDocumentUpdated(
           const message = generateNotificationMessage(owedAmount);
           const body = `Expense updated: ${newExpenseData.name} (${formatCurrency(newExpenseData.amount)})\n${message}`;
 
-          await sendNotification(userId, notificationTitle, body);
+          await sendNotification(userId, notificationTitle, body, newExpenseData.id);
         }
       }
 
@@ -103,7 +103,7 @@ exports.onExpenseUpdated = onDocumentUpdated(
         if (!Object.keys(newPayers).includes(userId) && !splitToUsers.includes(userId) && userId !== updatedBy) {
           const body = `Expense updated: ${oldExpenseData.name} (${formatCurrency(oldExpenseData.amount)})\n- You do not owe anything`;
 
-          await sendNotification(userId, notificationTitle, body);
+          await sendNotification(userId, notificationTitle, body, oldExpenseData.id);
         }
       }
 
@@ -136,7 +136,7 @@ exports.onExpenseDeleted = onDocumentDeleted(
           const message = generateNotificationMessage(owedAmount)
           const body = `Expense deleted: ${expenseData.name} (${formatCurrency(expenseData.amount)})\n${message}`;
 
-          await sendNotification(userId, notificationTitle, body);
+          await sendNotification(userId, notificationTitle, body, expenseData.id);
         }
       }
 
@@ -147,7 +147,7 @@ exports.onExpenseDeleted = onDocumentDeleted(
           let message = generateNotificationMessage(paidAmount)
           const body = `Expense deleted: ${expenseData.name} (${formatCurrency(expenseData.amount)})\n${message}`;
 
-          await sendNotification(userId, notificationTitle, body);
+          await sendNotification(userId, notificationTitle, body, expenseData.id);
         }
       }
 
@@ -248,9 +248,9 @@ exports.onTransactionCreated = onDocumentCreated(
         receiverMessage = `${payerName} paid you ${formatCurrency(transactionData.amount)}`; // Notify the receiver that the payer has made a payment
       }
 
-      await sendNotification(transactionData.receiver_id, notificationTitle, receiverMessage);
+      await sendNotification(transactionData.receiver_id, notificationTitle, receiverMessage, undefined, transactionData.id);
       if (payerMessage) {
-        await sendNotification(transactionData.payer_id, notificationTitle, payerMessage);
+        await sendNotification(transactionData.payer_id, notificationTitle, payerMessage, undefined, transactionData.id);
       }
 
       logger.info(`Transaction created notification sent successfully. Transaction Data: ${JSON.stringify(transactionData)}`);
@@ -291,10 +291,10 @@ exports.onTransactionUpdated = onDocumentUpdated(
         }
 
         if (receiverMessage) {
-          await sendNotification(newTransactionData.receiver_id, notificationTitle, receiverMessage);
+          await sendNotification(newTransactionData.receiver_id, notificationTitle, receiverMessage, undefined, newTransactionData.id);
         }
         if (payerMessage) {
-          await sendNotification(newTransactionData.payer_id, notificationTitle, payerMessage);
+          await sendNotification(newTransactionData.payer_id, notificationTitle, payerMessage, undefined, newTransactionData.id);
         }
 
         logger.info(`Transaction updated notification sent successfully. Updated Data: ${JSON.stringify(newTransactionData)}`);
@@ -333,10 +333,10 @@ exports.onTransactionDeleted = onDocumentDeleted(
         }
 
         if (receiverMessage) {
-          await sendNotification(deletedTransactionData.receiver_id, notificationTitle, receiverMessage);
+          await sendNotification(deletedTransactionData.receiver_id, notificationTitle, receiverMessage, undefined, deletedTransactionData.id);
         }
         if (payerMessage) {
-          await sendNotification(deletedTransactionData.payer_id, notificationTitle, payerMessage);
+          await sendNotification(deletedTransactionData.payer_id, notificationTitle, payerMessage, undefined, deletedTransactionData.id);
         }
 
       logger.info(`Transaction deleted notification sent successfully. Deleted Data: ${JSON.stringify(deletedTransactionData)}`);
@@ -388,7 +388,7 @@ exports.onGroupUpdated = onDocumentUpdated(
      
         for (const memberId of newGroupData.members) {
           if (updatedBy !== memberId) {
-            await sendNotification(memberId, notificationTitle, notificationMessage);
+            await sendNotification(memberId, notificationTitle, notificationMessage, undefined, undefined, newGroupData.id);
           }
         }
       }
@@ -403,7 +403,7 @@ exports.onGroupUpdated = onDocumentUpdated(
         const removerName = await getUserDisplayName(newGroupData.created_by); // Get the name of the user who removed the member
         for (const memberId of removedMembers) {
           const message = `${removerName} removed you from the group “${newGroupData.name}”.`;
-          await sendNotification(memberId, notificationTitle, message);
+          await sendNotification(memberId, notificationTitle, message, undefined, undefined, newGroupData.id);
         }
       }
 
@@ -432,7 +432,7 @@ exports.onGroupDeleted = onDocumentDeleted(
       // Send notifications to all group members
       for (const memberId of deletedGroupData.members) {
         if (deletedGroupData.updated_by !== memberId) {
-          await sendNotification(memberId, notificationTitle, message);
+          await sendNotification(memberId, notificationTitle, message, undefined, undefined, deletedGroupData.id);
         }
       }
 
@@ -444,7 +444,7 @@ exports.onGroupDeleted = onDocumentDeleted(
 );
 
 // Function to send notification using FCM
-async function sendNotification(userId: string, title: string, body: string) {
+async function sendNotification(userId: string, title: string, body: string, expenseId?: string, transactionId?: string, groupId?: string) {
   try {
     const userDoc = await db.collection('users').doc(userId).get();
     const userData = userDoc.data();
@@ -456,6 +456,11 @@ async function sendNotification(userId: string, title: string, body: string) {
         notification: {
           title,
           body,
+        },
+        data: {
+          expenseId: expenseId || "", 
+          transactionId: transactionId || "", 
+          groupId: groupId || ""
         },
         token: fcmToken,
       };

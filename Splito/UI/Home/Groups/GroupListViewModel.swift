@@ -292,7 +292,7 @@ extension GroupListViewModel {
 
     private func deleteGroup(group: Groups?) async {
         guard let group else { return }
-        
+
         do {
             try await groupRepository.deleteGroup(group: group)
             NotificationCenter.default.post(name: .deleteGroup, object: group)
