@@ -34,6 +34,7 @@ struct HomeRouteView: View {
                         }
                     }
                     .tag(1)
+                    .environmentObject(viewModel)
 
                 AccountRouteView(isTabBarVisible: $viewModel.isTabBarVisible)
                     .tabItem {
@@ -52,8 +53,10 @@ struct HomeRouteView: View {
             UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenFromOnboard: true, onDismiss: viewModel.dismissProfileView))
                 .interactiveDismissDisabled()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .showActivityLog)) { _ in
-            viewModel.switchToActivityLog()
+        .onReceive(NotificationCenter.default.publisher(for: .showActivityLog)) { notification in
+            if let activityId = notification.userInfo?["activityId"] as? String {
+                viewModel.switchToActivityLog(activityId: activityId)
+            }
         }
     }
 }

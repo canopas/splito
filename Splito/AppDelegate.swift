@@ -25,8 +25,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        DispatchQueue.main.async { [weak self] in
-            NotificationCenter.default.post(name: .showActivityLog, object: self)
+        let userInfo = response.notification.request.content.userInfo
+
+        if let activityId = userInfo["activityId"] as? String {
+            NotificationCenter.default.post(name: .showActivityLog, object: nil, userInfo: ["activityId": activityId])
+        } else {
+            LogE("Activity id not found in notification data.")
         }
         completionHandler()
     }

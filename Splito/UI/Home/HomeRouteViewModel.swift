@@ -16,6 +16,7 @@ class HomeRouteViewModel: ObservableObject {
     @Published var openProfileView: Bool = false
 
     @Published var selectedTab: Int = 0
+    @Published var activityLogId: String?
 
     func openUserProfileIfNeeded() {
         if preference.isVerifiedUser {
@@ -33,7 +34,8 @@ class HomeRouteViewModel: ObservableObject {
         openProfileView = false
     }
 
-    func switchToActivityLog() {
+    func switchToActivityLog(activityId: String) {
+        activityLogId = activityId
         selectedTab = 1
     }
 }
