@@ -9,6 +9,7 @@ admin.initializeApp();
 
 const db: Firestore = getFirestore();
 const notificationTitle = `Splito`;
+const currencyFormatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
 
 // Cloud Function to observe new activity documents in the user's activity subcollection
 exports.onActivityCreated = onDocumentCreated(
@@ -108,8 +109,7 @@ function generateAmountMessage(owedAmount: number): string {
 
 // Helper function to format currency
 function formatCurrency(amount: number) {
-  const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
-  return formatter.format(amount);
+  return currencyFormatter.format(amount);
 }
 
 // Function to send notification using FCM

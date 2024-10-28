@@ -28,7 +28,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         let userInfo = response.notification.request.content.userInfo
 
         if let activityId = userInfo["activityId"] as? String {
-            NotificationCenter.default.post(name: .showActivityLog, object: nil, userInfo: ["activityId": activityId])
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                NotificationCenter.default.post(name: .showActivityLog, object: nil, userInfo: ["activityId": activityId])
+            }
         } else {
             LogE("Activity id not found in notification data.")
         }

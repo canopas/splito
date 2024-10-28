@@ -14,7 +14,6 @@ public struct MainRouteView: View {
     @Inject var preference: SplitoPreference
 
     @StateObject var viewModel = MainRouteViewModel()
-    @StateObject var homeRouteViewModel = HomeRouteViewModel()
 
     init() {
         Font.loadFonts()
@@ -25,7 +24,7 @@ public struct MainRouteView: View {
             OnboardRouteView()
         } else {
             HomeRouteView()
-                .environmentObject(homeRouteViewModel)
+                .environmentObject(HomeRouteViewModel())
         }
     }
 }
