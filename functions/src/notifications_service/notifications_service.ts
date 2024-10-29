@@ -65,16 +65,17 @@ function generateNotificationMessage(activityData: ActivityData) {
   const amount = activityData.amount ?? 0;
   const amountMessage = generateAmountMessage(amount);
   const actionUserName = activityData.action_user_name;
-  const payer = activityData.payer_name;
-  const receiver = activityData.receiver_name;
-  const groupName = activityData.group_name ?? 'Unknown Group';
-  
+  const payerName = activityData.payer_name ?? 'Someone';
+  const receiverName = activityData.receiver_name ?? 'Someone';
+  const groupName = activityData.group_name;
+  const previousGroupName = activityData.previous_group_name ?? 'Unknown Group';
+
   switch (activityData.type) {
     case 'group_created':
       return `${actionUserName} created the group "${groupName}"`;
 
     case 'group_updated':
-      return `${actionUserName} updated the group name from "${activityData.previous_group_name}" to "${groupName}" and changed the cover photo`;
+      return `${actionUserName} updated the group name from "${previousGroupName}" to "${groupName}" and changed the cover photo`;
 
     case 'group_deleted':
       return `${actionUserName} deleted the group "${groupName}"`;
@@ -83,7 +84,7 @@ function generateNotificationMessage(activityData: ActivityData) {
       return `${actionUserName} restored the group "${groupName}"`;
 
     case 'group_name_updated':
-      return `${actionUserName} updated the group name from "${activityData.previous_group_name}" to "${groupName}"`;
+      return `${actionUserName} updated the group name from "${previousGroupName}" to "${groupName}"`;
 
     case 'group_image_updated':
       return `${actionUserName} changed the cover photo for "${groupName}"`;
@@ -92,7 +93,7 @@ function generateNotificationMessage(activityData: ActivityData) {
       return `${actionUserName} left the group "${groupName}"`;
             
     case 'group_member_removed':
-      return `${actionUserName} removed ${activityData.removed_member_name} from the group "${groupName}"`;
+      return `${actionUserName} removed ${activityData.removed_member_name ?? ''} from the group "${groupName}"`;
 
     case 'expense_added':
       return `${activityData.expense_name} \n${amountMessage}`;
@@ -107,16 +108,16 @@ function generateNotificationMessage(activityData: ActivityData) {
       return `Expense restored: ${activityData.expense_name} \n${amountMessage}`;
 
     case 'transaction_added':
-      return `${payer} paid ${receiver} ${formatCurrency(Math.abs(amount))}`;
+      return `${payerName} paid ${receiverName} ${formatCurrency(Math.abs(amount))}`;
 
     case 'transaction_updated':
-      return `Payment updated: ${payer} paid ${receiver} ${formatCurrency(Math.abs(amount))}`;
+      return `Payment updated: ${payerName} paid ${receiverName} ${formatCurrency(Math.abs(amount))}`;
 
     case 'transaction_deleted':
-      return `Payment deleted: ${payer} paid ${receiver} ${formatCurrency(Math.abs(amount))}`;
+      return `Payment deleted: ${payerName} paid ${receiverName} ${formatCurrency(Math.abs(amount))}`;
 
     case 'transaction_restored':
-      return `Payment restored: ${payer} paid ${receiver} ${formatCurrency(Math.abs(amount))}`;
+      return `Payment restored: ${payerName} paid ${receiverName} ${formatCurrency(Math.abs(amount))}`;
 
     default:
       return `New activity detected.`;
@@ -143,26 +144,29 @@ function formatCurrency(amount: number) {
 async function sendNotification(userId: string, title: string, body: string, activityId: string) {
   try {
     const userDoc = await db.collection('users').doc(userId).get();
-    const userData = userDoc.data() as UserData;
 
-    if (userDoc.exists && userData?.device_fcm_token) {
-      const fcmToken = userData.device_fcm_token;
+    if (userDoc.exists) {
+      const userData = userDoc.data() as UserData;
 
-      const payload = {
-        notification: {
-          title,
-          body,
-        },
-        data: {
-          activityId: activityId || "",
-        },
-        token: fcmToken,
-      };
+      if (userData?.device_fcm_token) {
+        const fcmToken = userData.device_fcm_token;
 
-      await admin.messaging().send(payload);
-      logger.info(`Notification sent to user: ${userId}`);
-    } else {
-      logger.warn(`No FCM token found for user: ${userId}`);
+        const payload = {
+          notification: {
+            title,
+            body,
+          },
+          data: {
+            activityId: activityId || "",
+          },
+          token: fcmToken,
+        };
+
+        await admin.messaging().send(payload);
+        logger.info(`Notification sent to user: ${userId}`);
+      } else {
+        logger.warn(`No FCM token found for user: ${userId}`);
+      }
     }
   } catch (error) {
     logger.error('Error sending notification:', error);

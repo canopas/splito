@@ -80,10 +80,19 @@ private struct ActivityLogListView: View {
                 viewModel.fetchActivityLogsInitialData()
             }
             .onAppear {
-                if let id = homeRouteViewModel.activityLogId {
-                    withAnimation {
-                        proxy.scrollTo(id, anchor: .center)
-                    }
+                scrollToActivityLogIfNeeded(using: proxy)
+            }
+            .onChange(of: homeRouteViewModel.activityLogId) { _ in
+                scrollToActivityLogIfNeeded(using: proxy)
+            }
+        }
+    }
+
+    private func scrollToActivityLogIfNeeded(using proxy: ScrollViewProxy) {
+        if let id = homeRouteViewModel.activityLogId {
+            DispatchQueue.main.async {
+                withAnimation {
+                    proxy.scrollTo(id, anchor: .center)
                 }
             }
         }

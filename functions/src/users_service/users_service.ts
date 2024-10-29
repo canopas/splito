@@ -3,6 +3,7 @@
 import * as admin from 'firebase-admin';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import * as logger from 'firebase-functions/logger';
+import * as _ from 'lodash';
 
 // Initialize Firebase app if not already initialized
 if (admin.apps.length === 0) {
@@ -37,7 +38,8 @@ interface Balance {
         }
   
         // Check if balances field changed
-        if (beforeData.balances != afterData.balances) {
+        if (!_.isEqual(beforeData.balances, afterData.balances)) {
+
           const olderBalances = beforeData.balances || [];
           const updatedBalances = afterData.balances || [];
   
