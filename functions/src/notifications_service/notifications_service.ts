@@ -1,0 +1,170 @@
+/* eslint-disable */
+
+import { getFirestore, Firestore } from "firebase-admin/firestore";
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import * as admin from "firebase-admin";
+import * as logger from "firebase-functions/logger";
+
+// Initialize Firebase app if not already initialized
+if (admin.apps.length === 0) {
+  admin.initializeApp();
+}
+
+const db: Firestore = getFirestore();
+
+const notificationTitle = `Splito`;
+const currencyFormatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
+
+ // TypeScript interface for user data in the users document
+ interface UserData {
+  device_fcm_token?: string;
+}
+
+ // TypeScript interface for activity data in the activity document
+interface ActivityData {
+  activity_id: string;
+  type: 'group_created' | 'group_updated' | 'group_deleted' | 'group_restored' |
+        'group_name_updated' | 'group_image_updated' | 'group_member_left' |
+        'group_member_removed' | 'expense_added' | 'expense_updated' |
+        'expense_deleted' | 'expense_restored' | 'transaction_added' |
+        'transaction_updated' | 'transaction_deleted' | 'transaction_restored';
+  action_user_name: string;
+  group_name: string;
+  previous_group_name?: string;
+  removed_member_name?: string;
+  expense_name?: string;
+  payer_name?: string;
+  receiver_name?: string
+  amount?: number;
+}
+
+// Cloud Function to observe new activity documents in the user's activity subcollection
+export const onActivityCreate = onDocumentCreated(
+  { document: 'users/{userId}/activity/{activityId}' },
+  async (event) => {
+    try {
+      const activityData = event.data?.data() as ActivityData;
+      if (!activityData) {
+        logger.warn('No data found for the newly created activity.');
+        return;
+      }
+
+      const userId = event.params.userId;
+      const activityMessage = generateNotificationMessage(activityData);
+
+      await sendNotification(userId, notificationTitle, activityMessage, event.params.activityId);
+      logger.info(`Notification processed for activity ${event.params.activityId} for user ${userId}`);
+    } catch (error) {
+      logger.error('Error in onActivityCreate function:', error);
+    }
+  }
+);
+
+// Helper function to generate notification message based on activity type and amount
+function generateNotificationMessage(activityData: ActivityData) {
+  const amount = activityData.amount ?? 0;
+  const amountMessage = generateAmountMessage(amount);
+  const actionUserName = activityData.action_user_name;
+  const payer = activityData.payer_name;
+  const receiver = activityData.receiver_name;
+  const groupName = activityData.group_name ?? 'Unknown Group';
+  
+  switch (activityData.type) {
+    case 'group_created':
+      return `${actionUserName} created the group "${groupName}"`;
+
+    case 'group_updated':
+      return `${actionUserName} updated the group name from "${activityData.previous_group_name}" to "${groupName}" and changed the cover photo`;
+
+    case 'group_deleted':
+      return `${actionUserName} deleted the group "${groupName}"`;
+
+    case 'group_restored':
+      return `${actionUserName} restored the group "${groupName}"`;
+
+    case 'group_name_updated':
+      return `${actionUserName} updated the group name from "${activityData.previous_group_name}" to "${groupName}"`;
+
+    case 'group_image_updated':
+      return `${actionUserName} changed the cover photo for "${groupName}"`;
+
+    case 'group_member_left':
+      return `${actionUserName} left the group "${groupName}"`;
+            
+    case 'group_member_removed':
+      return `${actionUserName} removed ${activityData.removed_member_name} from the group "${groupName}"`;
+
+    case 'expense_added':
+      return `${activityData.expense_name} \n${amountMessage}`;
+
+    case 'expense_updated':
+      return `Expense updated: ${activityData.expense_name} \n${amountMessage}`;
+
+    case 'expense_deleted':
+      return `Expense deleted: ${activityData.expense_name} \n${amountMessage}`;
+
+    case 'expense_restored':
+      return `Expense restored: ${activityData.expense_name} \n${amountMessage}`;
+
+    case 'transaction_added':
+      return `${payer} paid ${receiver} ${formatCurrency(Math.abs(amount))}`;
+
+    case 'transaction_updated':
+      return `Payment updated: ${payer} paid ${receiver} ${formatCurrency(Math.abs(amount))}`;
+
+    case 'transaction_deleted':
+      return `Payment deleted: ${payer} paid ${receiver} ${formatCurrency(Math.abs(amount))}`;
+
+    case 'transaction_restored':
+      return `Payment restored: ${payer} paid ${receiver} ${formatCurrency(Math.abs(amount))}`;
+
+    default:
+      return `New activity detected.`;
+  }
+}
+
+// Helper function to generate notification message based on owedAmount
+function generateAmountMessage(owedAmount: number): string {
+  if (owedAmount < 0) { 
+    return `- You owe ${formatCurrency(Math.abs(owedAmount))}`; 
+  } else if (owedAmount > 0) { 
+    return `- You get back ${formatCurrency(owedAmount)}`;
+  } else {
+    return `- You do not owe anything`;
+  }
+}
+
+// Helper function to format currency
+function formatCurrency(amount: number) {
+  return currencyFormatter.format(amount);
+}
+
+// Function to send notification using FCM
+async function sendNotification(userId: string, title: string, body: string, activityId: string) {
+  try {
+    const userDoc = await db.collection('users').doc(userId).get();
+    const userData = userDoc.data() as UserData;
+
+    if (userDoc.exists && userData?.device_fcm_token) {
+      const fcmToken = userData.device_fcm_token;
+
+      const payload = {
+        notification: {
+          title,
+          body,
+        },
+        data: {
+          activityId: activityId || "",
+        },
+        token: fcmToken,
+      };
+
+      await admin.messaging().send(payload);
+      logger.info(`Notification sent to user: ${userId}`);
+    } else {
+      logger.warn(`No FCM token found for user: ${userId}`);
+    }
+  } catch (error) {
+    logger.error('Error sending notification:', error);
+  }
+}
