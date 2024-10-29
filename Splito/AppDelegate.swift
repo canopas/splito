@@ -28,8 +28,8 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         let userInfo = response.notification.request.content.userInfo
 
         if let activityId = userInfo["activityId"] as? String {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                NotificationCenter.default.post(name: .showActivityLog, object: nil, userInfo: ["activityId": activityId])
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                NotificationCenter.default.post(name: .showActivityLog, object: self, userInfo: ["activityId": activityId])
             }
         } else {
             LogE("Activity id not found in notification data.")
@@ -64,10 +64,14 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
 
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         guard let fcmToken else {
-            LogE("Received invalid FCM token")
+            LogE("Device FCM token not found")
             return
         }
 
+        updateDeviceFcmToken(fcmToken: fcmToken)
+    }
+    
+    func updateDeviceFcmToken(fcmToken: String) {
         @Inject var preference: SplitoPreference
         guard let userId = preference.user?.id else { return }
 
