@@ -38,7 +38,16 @@ interface ActivityData {
   amount?: number;
 }
 
-// Cloud Function to observe new activity documents in the user's activity subcollection
+// Helper function to format currency
+function formatCurrency(amount: number) {
+  if (!Number.isFinite(amount)) {
+    logger.warn(`Invalid amount provided for formatting: ${amount}`);
+    return currencyFormatter.format(0);
+  }
+  return currencyFormatter.format(amount);
+}
+
+// Cloud Function to observe new activity documents in the user's activity collection
 export const onActivityCreate = onDocumentCreated(
   { document: 'users/{userId}/activity/{activityId}' },
   async (event) => {
@@ -60,7 +69,7 @@ export const onActivityCreate = onDocumentCreated(
   }
 );
 
-// Helper function to generate notification message based on activity type and amount
+// Helper function to generate notification message based on activity type
 function generateNotificationMessage(activityData: ActivityData) {
   const amount = activityData.amount ?? 0;
   const amountMessage = generateAmountMessage(amount);
@@ -124,7 +133,7 @@ function generateNotificationMessage(activityData: ActivityData) {
   }
 }
 
-// Helper function to generate notification message based on owedAmount
+// Helper function to generate notification amount message based on owedAmount
 function generateAmountMessage(owedAmount: number): string {
   if (owedAmount < 0) { 
     return `- You owe ${formatCurrency(Math.abs(owedAmount))}`; 
@@ -135,40 +144,52 @@ function generateAmountMessage(owedAmount: number): string {
   }
 }
 
-// Helper function to format currency
-function formatCurrency(amount: number) {
-  return currencyFormatter.format(amount);
-}
+// Function to send notification using FCM with retry mechanism
+async function sendNotification(userId: string, title: string, body: string, activityId: string, maxRetries = 5) {
+  const baseDelay = 1000; // Initial delay in milliseconds
+  let attempt = 0;
 
-// Function to send notification using FCM
-async function sendNotification(userId: string, title: string, body: string, activityId: string) {
-  try {
-    const userDoc = await db.collection('users').doc(userId).get();
+  while (attempt <= maxRetries) {
+    try {
+      const userDoc = await db.collection('users').doc(userId).get();
 
-    if (userDoc.exists) {
-      const userData = userDoc.data() as UserData;
+      if (userDoc.exists) {
+        const userData = userDoc.data() as UserData;
 
-      if (userData?.device_fcm_token) {
-        const fcmToken = userData.device_fcm_token;
+        if (userData?.device_fcm_token) {
+          const fcmToken = userData.device_fcm_token;
 
-        const payload = {
-          notification: {
-            title,
-            body,
-          },
-          data: {
-            activityId: activityId || "",
-          },
-          token: fcmToken,
-        };
+          const payload = {
+            notification: {
+              title,
+              body,
+            },
+            data: {
+              activityId: activityId || "",
+            },
+            token: fcmToken,
+          };
 
-        await admin.messaging().send(payload);
-        logger.info(`Notification sent to user: ${userId}`);
-      } else {
-        logger.warn(`No FCM token found for user: ${userId}`);
+          await admin.messaging().send(payload);
+          logger.info(`Notification sent to user: ${userId}`);
+          return; // Exit function on success
+        } else {
+          logger.warn(`No FCM token found for user: ${userId}`);
+          return; // Exit if there is no FCM token
+        }
       }
+    } catch (error) {
+      attempt++;
+      logger.error(`Error sending notification (attempt ${attempt}):`, error);
+
+      if (attempt > maxRetries) {
+        logger.error(`Max retries reached for user: ${userId}. Notification failed.`);
+        break;
+      }
+
+      // Calculate exponential backoff delay
+      const delay = baseDelay * Math.pow(2, attempt);
+      await new Promise(resolve => setTimeout(resolve, delay)); // Wait before retrying
     }
-  } catch (error) {
-    logger.error('Error sending notification:', error);
   }
 }

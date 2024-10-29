@@ -1,8 +1,8 @@
 /* eslint-disable */
 
 import * as admin from 'firebase-admin';
+import * as logger from 'firebase-functions/logger';
 import { onGroupWrite } from './users_service/users_service'; 
-import * as logger from 'firebase-functions/logger'; // Import logger
 import { onActivityCreate } from './notifications_service/notifications_service';
 
 // Initialize Firebase app if not already initialized

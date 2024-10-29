@@ -105,8 +105,9 @@ private struct ActivityLogListView: View {
         }
 
         return Text((headerText ?? month).localized)
-            .font(.Header4())
+            .font(.subTitle1())
             .foregroundStyle(primaryText)
+            .tracking(-0.2)
             .padding(.horizontal, 16)
             .padding(.vertical, 4)
             .frame(maxWidth: .infinity, alignment: .center)
@@ -151,8 +152,7 @@ private struct ActivityListCellView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 20)
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .frame(maxWidth: .infinity, alignment: .center)
+        .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
         .background(isHighlighted ? container2Color : surfaceColor)
 
         if !isLastActivityLog {

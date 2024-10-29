@@ -28,7 +28,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         let userInfo = response.notification.request.content.userInfo
 
         if let activityId = userInfo["activityId"] as? String {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            DispatchQueue.main.async { [weak self] in
                 NotificationCenter.default.post(name: .showActivityLog, object: self, userInfo: ["activityId": activityId])
             }
         } else {
@@ -78,14 +78,14 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
             "device_fcm_token": fcmToken
         ], merge: true) { error in
             if let error {
-                LogE("Error updating FCM token: \(error)")
+                LogE("Error updating device FCM token: \(error)")
                 if retryCount > 0 {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
                         self?.updateDeviceFcmToken(userId: userId, fcmToken: fcmToken, retryCount: retryCount - 1)
                     }
                 }
             } else {
-                LogI("FCM token successfully updated in Firestore")
+                LogI("Device FCM token successfully updated in Firestore")
             }
         }
     }
