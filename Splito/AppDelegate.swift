@@ -27,7 +27,8 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     private func registerForPushNotifications(application: UIApplication) {
         UNUserNotificationCenter.current().delegate = self
 
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
+        let options: UNAuthorizationOptions = [.alert, .badge, .sound, .provisional]
+        UNUserNotificationCenter.current().requestAuthorization(options: options) { (granted, error) in
             if let error {
                 LogE("Failed to request notification authorization: \(error)")
                 return
@@ -36,6 +37,16 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
             DispatchQueue.main.async {
                 application.registerForRemoteNotifications()
             }
+        }
+    }
+
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        return GIDSignIn.sharedInstance.handle(url)
+    }
+
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        if FirebaseProvider.auth.canHandleNotification(userInfo) {
+            completionHandler(.noData)
         }
     }
 
