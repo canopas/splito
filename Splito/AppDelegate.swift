@@ -24,6 +24,21 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         return true
     }
 
+    private func registerForPushNotifications(application: UIApplication) {
+        UNUserNotificationCenter.current().delegate = self
+
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
+            if let error {
+                LogE("Failed to request notification authorization: \(error)")
+                return
+            }
+            guard granted else { return }
+            DispatchQueue.main.async {
+                application.registerForRemoteNotifications()
+            }
+        }
+    }
+
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let userInfo = response.notification.request.content.userInfo
 
@@ -35,22 +50,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
             LogE("Activity id not found in notification data.")
         }
         completionHandler()
-    }
-
-    private func registerForPushNotifications(application: UIApplication) {
-        UNUserNotificationCenter.current().delegate = self
-        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-
-        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { (granted, error) in
-            if let error {
-                LogE("Failed to request notification authorization: \(error)")
-                return
-            }
-            guard granted else { return }
-            DispatchQueue.main.async {
-                application.registerForRemoteNotifications()
-            }
-        }
     }
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {

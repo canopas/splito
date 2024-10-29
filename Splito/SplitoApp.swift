@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Data
-import UserNotifications
 
 @main
 struct SplitoApp: App {

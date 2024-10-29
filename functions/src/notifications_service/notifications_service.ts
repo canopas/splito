@@ -73,6 +73,7 @@ export const onActivityCreate = onDocumentCreated(
 function generateNotificationMessage(activityData: ActivityData) {
   const amount = activityData.amount ?? 0;
   const amountMessage = generateAmountMessage(amount);
+  const expenseName = activityData.expense_name ?? 'An expense';
   const actionUserName = activityData.action_user_name;
   const payerName = activityData.payer_name ?? 'Someone';
   const receiverName = activityData.receiver_name ?? 'Someone';
@@ -105,16 +106,16 @@ function generateNotificationMessage(activityData: ActivityData) {
       return `${actionUserName} removed ${activityData.removed_member_name ?? ''} from the group "${groupName}"`;
 
     case 'expense_added':
-      return `${activityData.expense_name} \n${amountMessage}`;
+      return `${expenseName} \n${amountMessage}`;
 
     case 'expense_updated':
-      return `Expense updated: ${activityData.expense_name} \n${amountMessage}`;
+      return `Expense updated: ${expenseName} \n${amountMessage}`;
 
     case 'expense_deleted':
-      return `Expense deleted: ${activityData.expense_name} \n${amountMessage}`;
+      return `Expense deleted: ${expenseName} \n${amountMessage}`;
 
     case 'expense_restored':
-      return `Expense restored: ${activityData.expense_name} \n${amountMessage}`;
+      return `Expense restored: ${expenseName} \n${amountMessage}`;
 
     case 'transaction_added':
       return `${payerName} paid ${receiverName} ${formatCurrency(Math.abs(amount))}`;
@@ -177,6 +178,10 @@ async function sendNotification(userId: string, title: string, body: string, act
           logger.warn(`No FCM token found for user: ${userId}`);
           return; // Exit if there is no FCM token
         }
+      } else {
+        logger.warn(`User document does not exist for user: ${userId}`);
+        attempt++;
+        return;
       }
     } catch (error) {
       attempt++;

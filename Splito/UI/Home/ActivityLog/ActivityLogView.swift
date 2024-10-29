@@ -57,7 +57,7 @@ private struct ActivityLogListView: View {
                             ForEach(viewModel.filteredLogs[month] ?? [], id: \.id) { activityLog in
                                 ActivityListCellView(activityLog: activityLog,
                                                      isLastActivityLog: (viewModel.filteredLogs[month] ?? []).last?.id == activityLog.id,
-                                                     isHighlighted: activityLog.id == homeRouteViewModel.activityLogId)
+                                                     isSelectedActivity: activityLog.id == homeRouteViewModel.activityLogId)
                                 .onTapGestureForced {
                                     homeRouteViewModel.activityLogId = nil
                                     viewModel.handleActivityItemTap(activityLog)
@@ -118,7 +118,7 @@ private struct ActivityListCellView: View {
 
     let activityLog: ActivityLog
     let isLastActivityLog: Bool
-    let isHighlighted: Bool
+    let isSelectedActivity: Bool
 
     var amount: Double {
         return activityLog.amount ?? 0
@@ -153,7 +153,7 @@ private struct ActivityListCellView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 20)
         .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
-        .background(isHighlighted ? container2Color : surfaceColor)
+        .background(isSelectedActivity ? container2Color : surfaceColor)
 
         if !isLastActivityLog {
             Divider()

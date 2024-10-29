@@ -70,11 +70,13 @@ public class UserRepository: ObservableObject {
     }
 
     private func deleteUserFromAuth() async throws {
-        FirebaseProvider.auth.currentUser?.delete { error in
-            if let error {
-                LogE("UserRepository :: \(#function): Deleting user from Auth failed with error: \(error.localizedDescription).")
-            } else {
-                LogD("UserRepository :: \(#function): User deactivated.")
+        Task {
+            FirebaseProvider.auth.currentUser?.delete { error in
+                if let error {
+                    LogE("UserRepository :: \(#function): Deleting user from Auth failed with error: \(error.localizedDescription).")
+                } else {
+                    LogD("UserRepository :: \(#function): User deactivated.")
+                }
             }
         }
     }
