@@ -18,11 +18,12 @@ public struct Groups: Codable, Identifiable {
     public var members: [String]
     public var balances: [GroupMemberBalance]
     public let createdAt: Timestamp
+    public var updatedAt: Timestamp
     public var hasExpenses: Bool
     public var isActive: Bool
 
-    public init(name: String, createdBy: String, updatedBy: String, imageUrl: String? = nil, members: [String],
-                balances: [GroupMemberBalance], createdAt: Timestamp, hasExpenses: Bool = false, isActive: Bool = true) {
+    public init(name: String, createdBy: String, updatedBy: String, imageUrl: String? = nil, members: [String], balances: [GroupMemberBalance],
+                createdAt: Timestamp, updatedAt: Timestamp, hasExpenses: Bool = false, isActive: Bool = true) {
         self.name = name
         self.createdBy = createdBy
         self.updatedBy = updatedBy
@@ -31,6 +32,7 @@ public struct Groups: Codable, Identifiable {
 
         self.imageUrl = imageUrl
         self.createdAt = createdAt
+        self.updatedAt = updatedAt
         self.hasExpenses = hasExpenses
         self.isActive = isActive
     }
@@ -44,6 +46,7 @@ public struct Groups: Codable, Identifiable {
         case balances
         case imageUrl = "image_url"
         case createdAt = "created_at"
+        case updatedAt = "updated_at"
         case hasExpenses = "has_expenses"
         case isActive = "is_active"
     }

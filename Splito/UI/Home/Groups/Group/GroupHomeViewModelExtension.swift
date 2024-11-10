@@ -108,34 +108,12 @@ extension GroupHomeViewModel {
                 self.groupState = .loading
                 group.isActive = true
                 group.updatedBy = userId
-                try await self.groupRepository.updateGroup(group: group)
-                await self.addLogForRestoreGroup()
+                try await self.groupRepository.updateGroup(group: group, type: .groupRestored)
                 self.fetchGroupAndExpenses()
             } catch {
                 self.handleServiceError()
             }
         }
-    }
-
-    private func addLogForRestoreGroup() async {
-        guard let group, let user = preference.user else { return }
-
-        var errors: [Error] = []
-        await withTaskGroup(of: Void.self) { groupTasks in
-            for memberId in group.members {
-                groupTasks.addTask { [weak self] in
-                    if let activity = createActivityLogForGroup(context: ActivityLogContext(group: group, type: .groupRestored, memberId: memberId, currentUser: user)) {
-                        do {
-                            try await self?.activityLogRepository.addActivityLog(userId: memberId, activity: activity)
-                        } catch {
-                            errors.append(error)
-                        }
-                    }
-                }
-            }
-        }
-
-        handleActivityLogErrors(errors)
     }
 
     func showExpenseDeleteAlert(expense: Expense) {
@@ -149,43 +127,19 @@ extension GroupHomeViewModel {
     }
 
     private func deleteExpense(expense: Expense) {
-        guard let userId = preference.user?.id else { return }
+        guard let group, let userId = preference.user?.id else { return }
 
         Task {
             do {
                 var deletedExpense = expense
                 deletedExpense.updatedBy = userId
 
-                try await expenseRepository.deleteExpense(groupId: groupId, expense: deletedExpense)
+                try await expenseRepository.deleteExpense(group: group, expense: deletedExpense)
                 await updateGroupMemberBalance(expense: deletedExpense, updateType: .Delete)
-                await addLogForDeleteExpense(deletedExpense: deletedExpense)
             } catch {
                 showToastForError()
             }
         }
-    }
-
-    private func addLogForDeleteExpense(deletedExpense: Expense) async {
-        guard let group, let user = preference.user else { return }
-
-        var errors: [Error] = []
-        let involvedUserIds = Set(deletedExpense.splitTo + Array(deletedExpense.paidBy.keys) + [user.id, deletedExpense.addedBy, deletedExpense.updatedBy])
-
-        await withTaskGroup(of: Void.self) { groupTasks in
-            for memberId in involvedUserIds {
-                groupTasks.addTask { [weak self] in
-                    if let activity = createActivityLogForExpense(context: ActivityLogContext(group: group, expense: deletedExpense, type: .expenseDeleted, memberId: memberId, currentUser: user)) {
-                        do {
-                            try await self?.activityLogRepository.addActivityLog(userId: memberId, activity: activity)
-                        } catch {
-                            errors.append(error)
-                        }
-                    }
-                }
-            }
-        }
-
-        handleActivityLogErrors(errors)
     }
 
     private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {
@@ -194,7 +148,7 @@ extension GroupHomeViewModel {
         group.balances = memberBalance
 
         do {
-            try await groupRepository.updateGroup(group: group)
+            try await groupRepository.updateGroup(group: group, type: .none)
             NotificationCenter.default.post(name: .deleteExpense, object: expense)
         } catch {
             self.showToastForError()

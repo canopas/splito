@@ -141,7 +141,7 @@ private struct ActivityListCellView: View {
 
     private func getActivityLogIcon() -> ImageResource {
         switch activityLog.type {
-        case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupRestored, .groupMemberRemoved, .groupMemberLeft:
+        case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupRestored, .groupMemberRemoved, .groupMemberLeft, .none:
             return .activityGroupIcon
         case .expenseAdded, .expenseUpdated, .expenseDeleted, .expenseRestored:
             return .expenseIcon
@@ -152,7 +152,7 @@ private struct ActivityListCellView: View {
 
     private func getLogSubdescription() -> String {
         switch activityLog.type {
-        case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupRestored, .groupMemberRemoved, .groupMemberLeft:
+        case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupRestored, .groupMemberRemoved, .groupMemberLeft, .none:
             return ""
         case .expenseAdded, .expenseUpdated, .expenseDeleted, .expenseRestored:
             let action = (amount > 0 ? "get back" : "owe")
@@ -196,6 +196,8 @@ private struct ActivityLogDescriptionView: View {
     @ViewBuilder
     private func getActivityLogDescription() -> some View {
         switch type {
+        case .none:
+            Spacer(minLength: 0)
         case .groupCreated, .groupDeleted, .groupRestored:
             groupDescription()
         case .groupUpdated:

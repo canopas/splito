@@ -25,3 +25,16 @@ public class ActivityLogRepository: ObservableObject {
         return try await store.fetchActivitiesBy(userId: userId, limit: limit, lastDocument: lastDocument)
     }
 }
+
+struct ActivityLogContext {
+    var group: Groups?
+    var expense: Expense?
+    var transaction: Transactions?
+    let type: ActivityType
+    var memberId: String?
+    var currentUser: AppUser?
+    var payerName: String?
+    var receiverName: String?
+    var previousGroupName: String?
+    var removedMemberName: String?
+}
