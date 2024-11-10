@@ -777,10 +777,22 @@
     "This expense could not be edited. You do not have permission to edit this expense, Sorry!" : {
       "extractionState" : "manual"
     },
+    "This expense involves a person who has left the group, and thus it can no longer be edited. If you wish to change this expense, you must first add that person back to your group." : {
+      "extractionState" : "manual"
+    },
     "This group has been deleted." : {
       "extractionState" : "manual"
     },
     "This month" : {
+      "extractionState" : "manual"
+    },
+    "This payment involves a person who has left the group, and thus it can no longer be deleted. If you wish to change this payment, you must first add that person back to your group." : {
+      "extractionState" : "manual"
+    },
+    "This payment involves a person who has left the group, and thus it can no longer be edited. If you wish to change this payment, you must first add that person back to your group." : {
+      "extractionState" : "manual"
+    },
+    "This payment involves a person who has left the group, and thus it can no longer be restored. If you wish to change this payment, you must first add that person back to your group." : {
       "extractionState" : "manual"
     },
     "This payment was noted using the \"record a payment\" feature, No money has been transferred." : {

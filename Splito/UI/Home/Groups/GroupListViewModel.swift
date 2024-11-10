@@ -16,7 +16,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var userRepository: UserRepository
-    @Inject private var activityLogRepository: ActivityLogRepository
 
     @Published private(set) var currentViewState: ViewState = .initial
     @Published private(set) var groupListState: GroupListState = .noGroup
@@ -141,11 +140,8 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         let memberBalance = getMembersBalance(group: group, memberId: userId)
         let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
 
-        return GroupInformation(group: group,
-                                userBalance: memberBalance,
-                                memberOweAmount: memberOwingAmount,
-                                members: members,
-                                hasExpenses: true)
+        return GroupInformation(group: group, userBalance: memberBalance, memberOweAmount: memberOwingAmount,
+                                members: members, hasExpenses: true)
     }
 
     private func getMembersBalance(group: Groups, memberId: String) -> Double {
@@ -295,31 +291,7 @@ extension GroupListViewModel {
         do {
             try await groupRepository.deleteGroup(group: group)
             NotificationCenter.default.post(name: .deleteGroup, object: group)
-            await addLogForDeleteGroup(deletedGroup: group)
         } catch {
-            showToastForError()
-        }
-    }
-
-    private func addLogForDeleteGroup(deletedGroup: Groups) async {
-        guard let user = preference.user else { return }
-
-        var errors: [Error] = []
-        await withTaskGroup(of: Void.self) { group in
-            for memberId in deletedGroup.members {
-                group.addTask { [weak self] in
-                    if let activity = createActivityLogForGroup(context: ActivityLogContext(group: deletedGroup, type: .groupDeleted, memberId: memberId, currentUser: user)) {
-                        do {
-                            try await self?.activityLogRepository.addActivityLog(userId: memberId, activity: activity)
-                        } catch {
-                            errors.append(error)
-                        }
-                    }
-                }
-            }
-        }
-
-        if !errors.isEmpty {
             showToastForError()
         }
     }

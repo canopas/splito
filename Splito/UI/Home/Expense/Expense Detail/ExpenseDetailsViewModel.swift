@@ -15,7 +15,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
-    @Inject private var activityLogRepository: ActivityLogRepository
 
     @Published private(set) var expense: Expense?
     @Published private(set) var expenseUsersData: [AppUser] = []
@@ -139,9 +138,8 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 expense.isActive = true
                 expense.updatedBy = userId
 
-                try await self.expenseRepository.updateExpense(groupId: groupId, expense: expense)
-                await self.updateGroupMemberBalance(updateType: .Update(oldExpense: expense))
-                await self.addLogForDeletedExpense(type: .expenseRestored)
+                try await self.expenseRepository.updateExpense(group: group, expense: expense, oldExpense: expense, type: .expenseRestored)
+                await self.updateGroupMemberBalance(updateType: .Add)
 
                 self.viewState = .initial
                 self.router.pop()
@@ -163,17 +161,14 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     private func deleteExpense() {
         guard validateUserPermission(operationText: "deleted", action: "delete") else { return }
-        guard var expense, let userId = preference.user?.id else { return }
+        guard let group, let expense else { return }
 
         Task {
             do {
                 viewState = .loading
-                expense.updatedBy = userId
-
-                try await expenseRepository.deleteExpense(groupId: groupId, expense: expense)
+                try await expenseRepository.deleteExpense(group: group, expense: expense)
                 NotificationCenter.default.post(name: .deleteExpense, object: expense)
                 await self.updateGroupMemberBalance(updateType: .Delete)
-                await addLogForDeletedExpense(type: .expenseDeleted)
 
                 viewState = .initial
                 router.pop()
@@ -204,37 +199,8 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         do {
             let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
             group.balances = memberBalance
-            try await groupRepository.updateGroup(group: group)
+            try await groupRepository.updateGroup(group: group, type: .none)
         } catch {
-            viewState = .initial
-            showToastForError()
-        }
-    }
-
-    private func addLogForDeletedExpense(type: ActivityType) async {
-        guard let group, let expense, let user = preference.user else {
-            viewState = .initial
-            return
-        }
-
-        var errors: [Error] = []
-        let involvedUserIds = Set(expense.splitTo + Array(expense.paidBy.keys) + [user.id, expense.addedBy, expense.updatedBy])
-
-        await withTaskGroup(of: Void.self) { groupTasks in
-            for memberId in involvedUserIds {
-                groupTasks.addTask { [weak self] in
-                    if let activity = createActivityLogForExpense(context: ActivityLogContext(group: group, expense: expense, type: type, memberId: memberId, currentUser: user)) {
-                        do {
-                            try await self?.activityLogRepository.addActivityLog(userId: memberId, activity: activity)
-                        } catch {
-                            errors.append(error)
-                        }
-                    }
-                }
-            }
-        }
-
-        if !errors.isEmpty {
             viewState = .initial
             showToastForError()
         }

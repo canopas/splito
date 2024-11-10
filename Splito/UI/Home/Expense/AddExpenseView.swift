@@ -102,8 +102,13 @@ struct AddExpenseView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 CheckmarkButton(showLoader: viewModel.showLoader) {
-                    viewModel.handleSaveAction { isSucceed in
-                        if isSucceed { dismiss() }
+                    Task {
+                        let isActionSucceed = await viewModel.handleSaveAction()
+                        if isActionSucceed {
+                            dismiss()
+                        } else {
+                            viewModel.showSaveFailedError()
+                        }
                     }
                 }
             }
