@@ -210,7 +210,7 @@ public class GroupRepository: ObservableObject {
         try await withThrowingTaskGroup(of: AppUser?.self) { groupTask in
             for memberId in missingMemberIds {
                 groupTask.addTask {
-                    return try await self.fetchMemberBy(userId: memberId)
+                    try await self.fetchMemberBy(userId: memberId)
                 }
             }
 

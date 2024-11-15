@@ -159,7 +159,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteTransaction(transaction: Transactions) async {
-        guard validateGroupMembers(transaction: transaction), let group,
+        guard let group, validateGroupMembers(transaction: transaction),
               let payer = await fetchUserData(for: transaction.payerId),
               let receiver = await fetchUserData(for: transaction.receiverId) else { return }
 

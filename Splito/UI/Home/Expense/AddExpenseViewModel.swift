@@ -417,5 +417,6 @@ extension AddExpenseViewModel {
     enum AddExpenseField {
         case expenseName
         case amount
+        case date
     }
 }

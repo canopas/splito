@@ -118,7 +118,6 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     private func updateGroup(group: Groups) async -> Bool {
         guard let userId = preference.user?.id else { return false }
 
-    private func updateGroup(group: Groups) async -> Bool {
         var newGroup = group
         newGroup.name = groupName.trimming(spaces: .leadingAndTrailing)
         newGroup.updatedBy = userId

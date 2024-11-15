@@ -234,10 +234,10 @@ struct DatePickerRow: View {
         .sheet(isPresented: $showDatePicker) {
             VStack(spacing: 0) {
                 NavigationBarTopView(title: "Choose date", leadingButton: EmptyView(),
-                                     trailingButton: DismissButton(padding: (16, 0), foregroundColor: primaryText, onDismissAction: {
-                                        showDatePicker = false
-                                     })
-                                     .fontWeight(.regular)
+                    trailingButton: DismissButton(padding: (16, 0), foregroundColor: primaryText, onDismissAction: {
+                        showDatePicker = false
+                    })
+                    .fontWeight(.regular)
                 )
                 .padding(.leading, 16)
 
