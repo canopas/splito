@@ -55,7 +55,7 @@ struct AccountHomeView: View {
             }
         }
         .background(surfaceColor)
-        .toastView(toast: $viewModel.toast, bottomPadding: 32)
+        .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showShareSheet) {
             MailComposeView(logFilePath: viewModel.logFilePath, showToast: viewModel.showMailSendToast)
