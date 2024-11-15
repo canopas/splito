@@ -31,7 +31,7 @@ struct ActivityLogView: View {
             }
         }
         .background(surfaceColor)
-        .toastView(toast: $viewModel.toast, bottomPadding: 32)
+        .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -57,7 +57,7 @@ private struct ActivityLogListView: View {
                             ForEach(viewModel.filteredLogs[month] ?? [], id: \.id) { activityLog in
                                 ActivityListCellView(activityLog: activityLog,
                                                      isLastActivityLog: (viewModel.filteredLogs[month] ?? []).last?.id == activityLog.id,
-                                                     isSelectedActivity: activityLog.id == homeRouteViewModel.activityLogId)
+                                                     isLogNotificationOpened: activityLog.id == homeRouteViewModel.activityLogId)
                                 .onTapGestureForced {
                                     homeRouteViewModel.activityLogId = nil
                                     viewModel.handleActivityItemTap(activityLog)
@@ -80,20 +80,18 @@ private struct ActivityLogListView: View {
                 viewModel.fetchActivityLogsInitialData()
             }
             .onAppear {
-                scrollToActivityLogIfNeeded(using: proxy)
+                scrollToActivityLog(proxy)
             }
             .onChange(of: homeRouteViewModel.activityLogId) { _ in
-                scrollToActivityLogIfNeeded(using: proxy)
+                scrollToActivityLog(proxy)
             }
         }
     }
 
-    private func scrollToActivityLogIfNeeded(using proxy: ScrollViewProxy) {
+    private func scrollToActivityLog(_ proxy: ScrollViewProxy) {
         if let id = homeRouteViewModel.activityLogId {
-            DispatchQueue.main.async {
-                withAnimation {
-                    proxy.scrollTo(id, anchor: .center)
-                }
+            withAnimation {
+                proxy.scrollTo(id)
             }
         }
     }
@@ -118,7 +116,7 @@ private struct ActivityListCellView: View {
 
     let activityLog: ActivityLog
     let isLastActivityLog: Bool
-    let isSelectedActivity: Bool
+    let isLogNotificationOpened: Bool
 
     var amount: Double {
         return activityLog.amount ?? 0
@@ -152,8 +150,9 @@ private struct ActivityListCellView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 20)
-        .frame(maxWidth: isIpad ? 600 : .infinity, alignment: .center)
-        .background(isSelectedActivity ? container2Color : surfaceColor)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .background(isLogNotificationOpened ? container2Color : surfaceColor)
 
         if !isLastActivityLog {
             Divider()
@@ -164,7 +163,7 @@ private struct ActivityListCellView: View {
 
     private func getActivityLogIcon() -> ImageResource {
         switch activityLog.type {
-        case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupRestored, .groupMemberRemoved, .groupMemberLeft:
+        case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupRestored, .groupMemberRemoved, .groupMemberLeft, .none:
             return .activityGroupIcon
         case .expenseAdded, .expenseUpdated, .expenseDeleted, .expenseRestored:
             return .expenseIcon
@@ -175,7 +174,7 @@ private struct ActivityListCellView: View {
 
     private func getLogSubdescription() -> String {
         switch activityLog.type {
-        case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupRestored, .groupMemberRemoved, .groupMemberLeft:
+        case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupRestored, .groupMemberRemoved, .groupMemberLeft, .none:
             return ""
         case .expenseAdded, .expenseUpdated, .expenseDeleted, .expenseRestored:
             let action = (amount > 0 ? "get back" : "owe")
@@ -220,6 +219,8 @@ private struct ActivityLogDescriptionView: View {
     @ViewBuilder
     private func getActivityLogDescription() -> some View {
         switch type {
+        case .none:
+            Spacer(minLength: 0)
         case .groupCreated, .groupDeleted, .groupRestored:
             groupDescription()
         case .groupUpdated:

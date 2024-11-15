@@ -16,7 +16,6 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
-    @Inject private var activityLogRepository: ActivityLogRepository
 
     @Published private(set) var transactionsWithUser: [TransactionWithUser] = []
     @Published private(set) var filteredTransactions: [String: [TransactionWithUser]] = [:]
@@ -160,46 +159,33 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteTransaction(transaction: Transactions) async {
-        guard let userId = preference.user?.id else { return }
+        guard validateGroupMembers(transaction: transaction), let group,
+              let payer = await fetchUserData(for: transaction.payerId),
+              let receiver = await fetchUserData(for: transaction.receiverId) else { return }
 
         do {
-            var deletedTransaction = transaction
-            deletedTransaction.updatedBy = userId
-
-            try await transactionRepository.deleteTransaction(groupId: groupId, transaction: deletedTransaction)
-            await updateGroupMemberBalance(transaction: deletedTransaction, updateType: .Delete)
-            await addLogForDeleteTransaction(transaction: deletedTransaction)
+            let updatedTransaction = try await transactionRepository.deleteTransaction(group: group, transaction: transaction,
+                                                                                       payer: payer, receiver: receiver)
+            await updateGroupMemberBalance(transaction: updatedTransaction, updateType: .Delete)
         } catch {
             showToastForError()
         }
     }
 
-    private func addLogForDeleteTransaction(transaction: Transactions) async {
-        guard let deletedGroup = group, let user = preference.user else { return }
-
-        var errors: [Error] = []
-        let payerName = await fetchUserData(for: transaction.payerId)?.nameWithLastInitial ?? "Someone"
-        let receiverName = await fetchUserData(for: transaction.receiverId)?.nameWithLastInitial ?? "Someone"
-        let involvedUserIds: Set<String> = [transaction.payerId, transaction.receiverId, transaction.addedBy, transaction.updatedBy]
-
-        await withTaskGroup(of: Void.self) { group in
-            for memberId in involvedUserIds {
-                group.addTask { [weak self] in
-                    guard let self else { return }
-                    if let activity = createActivityLogForTransaction(context: ActivityLogContext(group: deletedGroup, transaction: transaction, type: .transactionDeleted, memberId: memberId, currentUser: user, payerName: payerName, receiverName: receiverName)) {
-                        do {
-                            try await activityLogRepository.addActivityLog(userId: memberId, activity: activity)
-                        } catch {
-                            errors.append(error)
-                        }
-                    }
-                }
+    private func validateGroupMembers(transaction: Transactions) -> Bool {
+        guard let group else {
+            LogE("GroupTransactionListViewModel: Missing required group.")
+            return false
+        }
+        
+        if !group.members.contains(transaction.payerId) || !group.members.contains(transaction.receiverId) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.showAlertFor(message: "This payment involves a person who has left the group, and thus it can no longer be deleted. If you wish to change this payment, you must first add that person back to your group.")
             }
+            return false
         }
 
-        if !errors.isEmpty {
-            showToastForError()
-        }
+        return true
     }
 
     private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) async {
@@ -207,7 +193,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         do {
             let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
             group.balances = memberBalance
-            try await groupRepository.updateGroup(group: group)
+            try await groupRepository.updateGroup(group: group, type: .none)
             NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
         } catch {
             showToastForError()
@@ -292,7 +278,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                 }
             }
         }
-        showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
+        showToastFor(toast: .init(type: .success, title: "Success", message: "Payment deleted successfully."))
     }
 
     // MARK: - Error Handling

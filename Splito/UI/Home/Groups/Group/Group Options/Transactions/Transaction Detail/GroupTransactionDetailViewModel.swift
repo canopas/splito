@@ -14,7 +14,6 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
-    @Inject private var activityLogRepository: ActivityLogRepository
 
     @Published private(set) var transaction: Transactions?
     @Published private(set) var transactionUsersData: [AppUser] = []
@@ -108,7 +107,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - User Actions
     func handleEditBtnAction() {
-        guard validateUserPermission(operationText: "edited", action: "edit") else { return }
+        guard validateUserPermission(operationText: "edited", action: "edit"), validateGroupMembers(action: "edited") else { return }
         showEditTransactionSheet = true
     }
 
@@ -126,25 +125,28 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         guard let group, group.isActive else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.showAlertFor(title: "Error",
-                             message: "The group associated with this transaction has been deleted, so it cannot be restored.")
+                                  message: "The group associated with this transaction has been deleted, so it cannot be restored.")
             }
             return
         }
 
-        guard validateUserPermission(operationText: "restored", action: "restored") else { return }
+        guard validateUserPermission(operationText: "restored", action: "restored"), validateGroupMembers(action: "restored") else { return }
 
-        guard var transaction, let userId = preference.user?.id else { return }
+        guard var transaction else {
+            LogE("GroupTransactionDetailViewModel: \(#function) transaction not found.")
+            return
+        }
 
         Task { [weak self] in
-            guard let self else { return }
+            guard let self, let payer = getMemberDataBy(id: transaction.payerId),
+                  let receiver = getMemberDataBy(id: transaction.receiverId) else { return }
             do {
                 self.viewState = .loading
                 transaction.isActive = true
-                transaction.updatedBy = userId
+                transaction.updatedBy = preference.user?.id ?? ""
 
-                try await self.transactionRepository.updateTransaction(groupId: groupId, transaction: transaction)
-                await self.updateGroupMemberBalance(updateType: .Update(oldTransaction: transaction))
-                await self.addLogForDeletedTransaction(type: .transactionRestored)
+                self.transaction = try await self.transactionRepository.updateTransaction(group: group, transaction: transaction, oldTransaction: transaction, members: (payer, receiver), type: .transactionRestored)
+                await self.updateGroupMemberBalance(updateType: .Add)
 
                 self.viewState = .initial
                 self.router.pop()
@@ -166,18 +168,18 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteTransaction() {
-        guard validateUserPermission(operationText: "deleted", action: "delete") else { return }
-        guard var transaction, let userId = preference.user?.id else { return }
+        guard let transaction, validateUserPermission(operationText: "deleted", action: "delete"), validateGroupMembers(action: "deleted") else { return }
 
-        Task {
+        Task { [weak self] in
+            guard let self, let group, let payer = getMemberDataBy(id: transaction.payerId),
+                  let receiver = getMemberDataBy(id: transaction.receiverId) else { return }
             do {
                 viewState = .loading
-                transaction.updatedBy = userId
-
-                try await transactionRepository.deleteTransaction(groupId: groupId, transaction: transaction)
-                NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
+                self.transaction = try await transactionRepository.deleteTransaction(group: group, transaction: transaction,
+                                                                                     payer: payer, receiver: receiver)
+                NotificationCenter.default.post(name: .deleteTransaction, object: self.transaction)
                 await updateGroupMemberBalance(updateType: .Delete)
-                await addLogForDeletedTransaction(type: .transactionDeleted)
+                self.showToastFor(toast: .init(type: .success, title: "Success", message: "Payment deleted successfully."))
 
                 viewState = .initial
                 router.pop()
@@ -188,47 +190,34 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    private func validateGroupMembers(action: String) -> Bool {
+        guard let group, let transaction else {
+            LogE("GroupTransactionDetailViewModel: Missing required group or transaction.")
+            return false
+        }
+
+        let isPayerInGroup = group.members.contains(transaction.payerId)
+        let isReceiverInGroup = group.members.contains(transaction.receiverId)
+
+        if !isPayerInGroup || !isReceiverInGroup {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.showAlertFor(message: "This payment involves a person who has left the group, and thus it can no longer be \(action). If you wish to change this payment, you must first add that person back to your group.")
+            }
+            return false
+        }
+
+        return true
+    }
+
     private func validateUserPermission(operationText: String, action: String) -> Bool {
         guard let userId = preference.user?.id, let group, group.members.contains(userId) else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.showAlertFor(title: "Error",
                                   message: "This transaction could not be \(operationText). You do not have permission to \(action) this transaction, Sorry!")
             }
             return false
         }
         return true
-    }
-
-    private func addLogForDeletedTransaction(type: ActivityType) async {
-        guard let group, let transaction, let user = preference.user else {
-            viewState = .initial
-            return
-        }
-
-        var errors: [Error] = []
-        let payerName = getMemberDataBy(id: transaction.payerId)?.nameWithLastInitial ?? "Someone"
-        let receiverName = getMemberDataBy(id: transaction.receiverId)?.nameWithLastInitial ?? "Someone"
-        let involvedUserIds: Set<String> = [transaction.payerId, transaction.receiverId, transaction.addedBy, transaction.updatedBy]
-
-        await withTaskGroup(of: Void.self) { groupTasks in
-            for memberId in involvedUserIds {
-                groupTasks.addTask { [weak self] in
-                    guard let self else { return }
-                    if let activity = createActivityLogForTransaction(context: ActivityLogContext(group: group, transaction: transaction, type: type, memberId: memberId, currentUser: user, payerName: payerName, receiverName: receiverName)) {
-                        do {
-                            try await activityLogRepository.addActivityLog(userId: memberId, activity: activity)
-                        } catch {
-                            errors.append(error)
-                        }
-                    }
-                }
-            }
-        }
-
-        if !errors.isEmpty {
-            viewState = .initial
-            showToastForError()
-        }
     }
 
     private func updateGroupMemberBalance(updateType: TransactionUpdateType) async {
@@ -240,9 +229,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         do {
             let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
             group.balances = memberBalance
-
-            try await groupRepository.updateGroup(group: group)
-            showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
+            try await groupRepository.updateGroup(group: group, type: .none)
         } catch {
             viewState = .initial
             showToastForError()

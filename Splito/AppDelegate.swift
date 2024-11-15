@@ -74,7 +74,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
 
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         guard let fcmToken else {
-            LogE("Device FCM token not found")
+            LogE("Device fcm token not found")
             return
         }
 
@@ -95,7 +95,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
                     }
                 }
             } else {
-                LogI("Device FCM token successfully updated in Firestore")
+                LogI("Device fcm token successfully updated in Firestore")
             }
         }
     }
