@@ -64,6 +64,20 @@ public class GroupRepository: ObservableObject {
             updatedGroup.imageUrl = newImageUrl
         }
 
+        let imageChanged = group.imageUrl != updatedGroup.imageUrl
+        let nameChanged = olderGroupName != updatedGroup.name
+
+        let activityType: ActivityType
+        if imageChanged && nameChanged {
+            activityType = .groupUpdated
+        } else if imageChanged {
+            activityType = .groupImageUpdated
+        } else if nameChanged {
+            activityType = .groupNameUpdated
+        } else {
+            activityType = .none
+        }
+
         try await updateGroup(group: updatedGroup, type: getActivityType(oldGroup: group, updatedGroup: updatedGroup))
         return updatedGroup
     }
@@ -211,12 +225,14 @@ public class GroupRepository: ObservableObject {
                 }
             }
 
+            var members: [AppUser] = []
             for try await member in groupTask {
                 if let member {
                     members.append(member)
                     groupMembers.append(member)
                 }
             }
+            return members
         }
 
         return members

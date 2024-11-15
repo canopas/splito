@@ -15,7 +15,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
-    @Inject private var activityLogRepository: ActivityLogRepository
 
     @Published var expenseName = ""
     @Published private(set) var payerName = "You"
@@ -261,7 +260,27 @@ extension AddExpenseViewModel {
         await fetchMemberProfileUrls()
     }
 
-    func handleSaveAction(completion: @escaping (Bool) -> Void) {
+    func showSaveFailedError() {
+        guard let selectedGroup, let expense else { return }
+        guard validateMembersInGroup(group: selectedGroup, expense: expense) else {
+            showAlertFor(message: "This expense involves a person who has left the group, and thus it can no longer be edited. If you wish to change this expense, you must first add that person back to your group.")
+            return
+        }
+        self.showToastFor(toast: ToastPrompt(type: .error, title: "Oops", message: "Failed to save expense."))
+    }
+
+    private func validateMembersInGroup(group: Groups, expense: Expense) -> Bool {
+        for payer in expense.paidBy where !group.members.contains(payer.key) {
+            return false
+        }
+        for memberId in expense.splitTo where !group.members.contains(memberId) {
+            return false
+        }
+
+        return true
+    }
+
+    func handleSaveAction() async -> Bool {
         if let user = preference.user, selectedPayers == [:] || selectedPayers[user.id] == 0 {
             selectedPayers = [user.id: expenseAmount]
         }
@@ -269,7 +288,7 @@ extension AddExpenseViewModel {
         if expenseName == "" || expenseAmount == 0 || selectedGroup == nil || selectedPayers == [:] {
             showToastFor(toast: ToastPrompt(type: .warning, title: "Warning",
                                             message: "Please fill all data to add expense."))
-            return
+            return false
         }
 
         let totalPaidAmount = selectedPayers.map { $0.value }.reduce(0, +)
@@ -280,7 +299,7 @@ extension AddExpenseViewModel {
 
             showAlertFor(title: "Error",
                          message: "The total of everyone's paid shares (\(differenceAmount.formattedCurrency)) is different than the total cost (\(expenseAmount.formattedCurrency))")
-            return
+            return false
         }
 
         guard let selectedGroup, let groupId = selectedGroup.id, let userId = preference.user?.id else { return }
@@ -294,24 +313,46 @@ extension AddExpenseViewModel {
         }
     }
 
-    private func handleAddExpenseAction(groupId: String, userId: String, completion: (Bool) -> Void) async {
+    private func handleAddExpenseAction(userId: String, group: Groups) async -> Bool {
         let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
                               date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: userId, updatedBy: userId,
                               splitTo: (splitType == .equally) ? selectedMembers : splitData.map({ $0.key }),
                               splitType: splitType, splitData: splitData)
 
-        await addExpense(groupId: groupId, expense: expense, completion: completion)
+        return await addExpense(group: group, expense: expense)
     }
 
-    private func handleUpdateExpenseAction(groupId: String, userId: String, expense: Expense, completion: (Bool) -> Void) async {
+    private func addExpense(group: Groups, expense: Expense) async -> Bool {
+        guard let groupId = group.id else { return false }
+        do {
+            showLoader = true
+            let newExpense = try await expenseRepository.addExpense(group: group, expense: expense)
+            let expenseInfo: [String: Any] = ["groupId": groupId, "expense": newExpense]
+            NotificationCenter.default.post(name: .addExpense, object: nil, userInfo: expenseInfo)
+
+            if !group.hasExpenses {
+                selectedGroup?.hasExpenses = true
+            }
+            await updateGroupMemberBalance(expense: expense, updateType: .Add)
+
+            showLoader = false
+            return true
+        } catch {
+            showLoader = false
+            showToastForError()
+            return false
+        }
+    }
+
+    private func handleUpdateExpenseAction(userId: String, group: Groups, expense: Expense) async -> Bool {
         var newExpense = expense
         newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing)
         newExpense.amount = expenseAmount
         newExpense.date = Timestamp(date: expenseDate)
         newExpense.updatedBy = userId
 
-        if selectedPayers.count == 1 {
-            newExpense.paidBy = [selectedPayers.first?.key ?? "": expenseAmount]
+        if selectedPayers.count == 1, let payerId = selectedPayers.keys.first {
+            newExpense.paidBy = [payerId: expenseAmount]
         } else {
             newExpense.paidBy = selectedPayers
         }
@@ -320,100 +361,37 @@ extension AddExpenseViewModel {
         newExpense.splitTo = (splitType == .equally) ? selectedMembers : splitData.map({ $0.key })
         newExpense.splitData = splitData
 
-        await updateExpense(groupId: groupId, expense: newExpense, oldExpense: expense, completion: completion)
+        return await updateExpense(group: group, expense: newExpense, oldExpense: expense)
     }
 
-    private func addExpense(groupId: String, expense: Expense, completion: (Bool) -> Void) async {
-        do {
-            showLoader = true
-            let newExpense = try await expenseRepository.addExpense(groupId: groupId, expense: expense)
-            let expenseInfo: [String: Any] = ["groupId": groupId, "expense": newExpense]
-            NotificationCenter.default.post(name: .addExpense, object: nil, userInfo: expenseInfo)
-
-            if !(selectedGroup?.hasExpenses ?? false) { selectedGroup?.hasExpenses = true }
-            await updateGroupMemberBalance(expense: expense, updateType: .Add)
-            await addLogForAddExpense(expense: newExpense)
-
-            showLoader = false
-            completion(true)
-        } catch {
-            showLoader = false
-            completion(false)
-            showToastForError()
+    private func updateExpense(group: Groups, expense: Expense, oldExpense: Expense) async -> Bool {
+        guard validateMembersInGroup(group: group, expense: expense) else {
+            return false
         }
-    }
+        guard hasExpenseChanged(expense, oldExpense: oldExpense) else { return true }
 
-    private func addLogForAddExpense(expense: Expense) async {
-        guard let userId = preference.user?.id else {
-            showLoader = false
-            return
-        }
-
-        var errors: [Error] = []
-        let involvedUserIds = Set(expense.splitTo + Array(expense.paidBy.keys) + [userId, expense.addedBy])
-
-        await withTaskGroup(of: Void.self) { groupTasks in
-            for memberId in involvedUserIds {
-                groupTasks.addTask { [weak self] in
-                    await self?.addActivityLog(expense: expense, type: .expenseAdded, memberId: memberId, errors: &errors)
-                }
-            }
-        }
-
-        handleActivityLogErrors(errors)
-    }
-
-    private func updateExpense(groupId: String, expense: Expense, oldExpense: Expense, completion: (Bool) -> Void) async {
         do {
             showLoader = true
 
-            try await expenseRepository.updateExpense(groupId: groupId, expense: expense)
+            try await expenseRepository.updateExpense(group: group, expense: expense, oldExpense: oldExpense, type: .expenseUpdated)
             NotificationCenter.default.post(name: .updateExpense, object: expense)
             await updateGroupMemberBalance(expense: expense, updateType: .Update(oldExpense: oldExpense))
-            await addLogForUpdateExpense(updatedExpense: expense, oldExpense: oldExpense)
 
             showLoader = false
-            completion(true)
+            return true
         } catch {
             showLoader = false
-            completion(false)
             showToastForError()
+            return false
         }
     }
 
-    private func addLogForUpdateExpense(updatedExpense: Expense, oldExpense: Expense) async {
-        guard let userId = preference.user?.id else {
-            showLoader = false
-            return
-        }
-
-        var errors: [Error] = []
-        let involvedUserIds = Set(oldExpense.splitTo + Array(oldExpense.paidBy.keys) + updatedExpense.splitTo + Array(updatedExpense.paidBy.keys) + [userId, updatedExpense.addedBy, updatedExpense.updatedBy])
-
-        await withTaskGroup(of: Void.self) { groupTasks in
-            for memberId in involvedUserIds {
-                groupTasks.addTask { [weak self] in
-                    await self?.addActivityLog(expense: updatedExpense, type: .expenseUpdated, memberId: memberId, errors: &errors)
-                }
-            }
-        }
-
-        handleActivityLogErrors(errors)
-    }
-
-    private func addActivityLog(expense: Expense, type: ActivityType, memberId: String, errors: inout [Error]) async {
-        guard let user = preference.user else {
-            showLoader = false
-            return
-        }
-
-        if let activity = createActivityLogForExpense(context: ActivityLogContext(group: selectedGroup, expense: expense, type: type, memberId: memberId, currentUser: user)) {
-            do {
-                try await activityLogRepository.addActivityLog(userId: memberId, activity: activity)
-            } catch {
-                errors.append(error)
-            }
-        }
+    private func hasExpenseChanged(_ expense: Expense, oldExpense: Expense) -> Bool {
+        return oldExpense.name != expense.name || oldExpense.amount != expense.amount ||
+        oldExpense.date.dateValue() != expense.date.dateValue() || oldExpense.paidBy != expense.paidBy ||
+        oldExpense.updatedBy != expense.updatedBy || oldExpense.splitTo != expense.splitTo ||
+        oldExpense.splitType != expense.splitType || oldExpense.splitData != expense.splitData ||
+        oldExpense.isActive != expense.isActive
     }
 
     private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {
@@ -424,15 +402,8 @@ extension AddExpenseViewModel {
         do {
             let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
             group.balances = memberBalance
-            try await groupRepository.updateGroup(group: group)
+            try await groupRepository.updateGroup(group: group, type: .none)
         } catch {
-            showLoader = false
-            showToastForError()
-        }
-    }
-
-    private func handleActivityLogErrors(_ errors: [Error]) {
-        if !errors.isEmpty {
             showLoader = false
             showToastForError()
         }
