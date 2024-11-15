@@ -147,7 +147,6 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
                 self.transaction = try await self.transactionRepository.updateTransaction(group: group, transaction: transaction, oldTransaction: transaction, members: (payer, receiver), type: .transactionRestored)
                 await self.updateGroupMemberBalance(updateType: .Add)
-                showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction restored successfully."))
 
                 self.viewState = .initial
                 self.router.pop()
