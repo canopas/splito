@@ -111,13 +111,14 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         }
 
         activityLogRepository.fetchLatestActivityLogs(userId: userId) { [weak self] activityLogs in
+            guard let self else { return }
             if let activityLogs {
-                for activityLog in activityLogs where !(self?.activityLogs.contains(where: { $0.id == activityLog.id }) ?? false) {
-                    self?.activityLogs.append(activityLog)
+                for activityLog in activityLogs where !(self.activityLogs.contains(where: { $0.id == activityLog.id })) {
+                    self.activityLogs.append(activityLog)
                 }
-                self?.filterActivityLogs()
+                self.filterActivityLogs()
             } else {
-                self?.showToastForError()
+                self.showToastForError()
             }
         }
     }
