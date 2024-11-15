@@ -63,7 +63,7 @@ struct GroupTransactionDetailView: View {
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                NavigationTitleTextView(text: "Transaction detail")
+                NavigationTitleTextView(text: "Payment detail")
             }
             if viewModel.viewState != .loading {
                 if (viewModel.transaction?.isActive ?? false) && (viewModel.group?.isActive ?? false) {

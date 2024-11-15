@@ -37,7 +37,7 @@ struct GroupPaymentView: View {
 
                             PaymentDateRowView(date: $viewModel.paymentDate)
 
-                            Spacer(minLength: 0)
+                            Spacer(minLength: 40)
                         }
                         .padding(.horizontal, 16)
                     }

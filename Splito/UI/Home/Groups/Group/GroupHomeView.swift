@@ -32,11 +32,11 @@ struct GroupHomeView: View {
                         EmptyStateView(buttonTitle: "Add expense", geometry: geometry, onClick: viewModel.openAddExpenseSheet)
                     } else if case .memberNotInGroup = viewModel.groupState {
                         EmptyStateView(title: "You're no longer part of this group.",
-                                       subtitle: "You no longer have access to this group's activities, expenses and transactions.",
+                                       subtitle: "You no longer have access to this group's activities, expenses and payments.",
                                        image: .restoreGroupIcon, geometry: geometry)
                     } else if case .deactivateGroup = viewModel.groupState {
                         EmptyStateView(title: "This group has been deleted.",
-                                       subtitle: "You can restore it to recover all activities, expenses and transactions.",
+                                       subtitle: "You can restore it to recover all activities, expenses and payments.",
                                        buttonTitle: "Restore", image: .restoreGroupIcon,
                                        geometry: geometry, onClick: viewModel.handleRestoreGroupAction)
                     } else if case .hasExpense = viewModel.groupState {
@@ -131,7 +131,7 @@ struct GroupOptionsListView: View {
             HStack(spacing: 8) {
                 GroupOptionsButtonView(text: "Settle up", isForSettleUp: isSettleUpEnable, onTap: onSettleUpTap)
 
-                GroupOptionsButtonView(text: "Transactions", onTap: onTransactionsTap)
+                GroupOptionsButtonView(text: "Payments", onTap: onTransactionsTap)
 
                 GroupOptionsButtonView(text: "Balances", onTap: onBalanceTap)
 

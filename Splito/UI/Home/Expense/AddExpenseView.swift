@@ -26,6 +26,8 @@ struct AddExpenseView: View {
                         VSpacer(16)
 
                         ExpenseInfoView(viewModel: viewModel, focusedField: $focusedField)
+
+                        Spacer(minLength: 40)
                     }
                 }
                 .scrollIndicators(.hidden)
