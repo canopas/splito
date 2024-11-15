@@ -36,6 +36,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     let router: Router<AppRoute>
     var hasMoreGroups: Bool = true
     private var lastDocument: DocumentSnapshot?
+    private var groupMembers: [String: AppUser] = [:]
 
     var filteredGroups: [GroupInformation] {
         guard case .hasGroup = groupListState else { return [] }

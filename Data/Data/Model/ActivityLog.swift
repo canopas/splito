@@ -64,6 +64,7 @@ public struct ActivityLog: Codable, Identifiable, Hashable {
 }
 
 public enum ActivityType: String, Codable {
+    case none
     case groupCreated = "group_created"
     case groupUpdated = "group_updated"
     case groupDeleted = "group_deleted"

@@ -48,7 +48,7 @@ open class BaseViewModel {
         }
     }
 
-    /// Use this method to show toast with custom specificatons like title message and duration for toast.
+    /// Use this method to show toast with custom specifications like title message and duration for toast.
     public func showToastFor(toast item: ToastPrompt) {
         toast = item
     }

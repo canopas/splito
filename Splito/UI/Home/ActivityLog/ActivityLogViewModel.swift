@@ -111,13 +111,14 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         }
 
         activityLogRepository.fetchLatestActivityLogs(userId: userId) { [weak self] activityLogs in
+            guard let self else { return }
             if let activityLogs {
-                for activityLog in activityLogs where !(self?.activityLogs.contains(where: { $0.id == activityLog.id }) ?? false) {
-                    self?.activityLogs.append(activityLog)
+                for activityLog in activityLogs where !(self.activityLogs.contains(where: { $0.id == activityLog.id })) {
+                    self.activityLogs.append(activityLog)
                 }
-                self?.filterActivityLogs()
+                self.filterActivityLogs()
             } else {
-                self?.showToastForError()
+                self.showToastForError()
             }
         }
     }
@@ -127,7 +128,7 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         switch activity.type {
         case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupRestored:
             router.push(.GroupHomeView(groupId: activity.activityId))
-        case .groupMemberRemoved, .groupMemberLeft:
+        case .groupMemberRemoved, .groupMemberLeft, .none:
             break
         case .expenseAdded, .expenseUpdated, .expenseDeleted, .expenseRestored:
             router.push(.ExpenseDetailView(groupId: activity.groupId, expenseId: activity.activityId))
