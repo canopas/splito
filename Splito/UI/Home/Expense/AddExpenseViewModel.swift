@@ -33,7 +33,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var groupMembers: [String] = []
     @Published private(set) var selectedMembers: [String] = []
-    @Published private(set) var memberProfileUrls: [String] = []
 
     @Published private(set) var viewState: ViewState = .initial
     @Published private(set) var splitType: SplitType = .equally
@@ -76,7 +75,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 groupMembers = group.members
                 selectedMembers = group.members
             }
-            await fetchMemberProfileUrls()
             viewState = .initial
         } catch {
             viewState = .initial
@@ -107,7 +105,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             viewState = .loading
             let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
             await updateViewModelFieldsWithExpense(expense: expense)
-            await fetchMemberProfileUrls()
             await fetchAndUpdateGroupData(groupId: groupId)
             viewState = .initial
         } catch {
@@ -158,17 +155,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             return nil
         }
     }
-
-    private func fetchMemberProfileUrls() async {
-        var profileUrls: [String] = []
-
-        for member in selectedMembers {
-            if let user = await fetchUserData(for: member) {
-                profileUrls.append(user.imageUrl != nil ? user.imageUrl! : "")
-            }
-        }
-        self.memberProfileUrls = profileUrls
-    }
 }
 
 // MARK: - User Actions
@@ -190,10 +176,10 @@ extension AddExpenseViewModel {
 
                 if let user1, let user2 {
                     if selectedPayers.count == 2 {
-                        payerName = "\(user1.nameWithLastInitial) and \(user2.nameWithLastInitial)"
+                        payerName = "\(user1.nameWithLastInitial) & \(user2.nameWithLastInitial)"
                     } else {
                         let remainingCount = selectedPayers.count - 2
-                        payerName = "\(user1.nameWithLastInitial), \(user2.nameWithLastInitial) and +\(remainingCount)"
+                        payerName = "\(user1.nameWithLastInitial), \(user2.nameWithLastInitial) & +\(remainingCount)"
                     }
                 }
             }
@@ -214,7 +200,6 @@ extension AddExpenseViewModel {
         selectedGroup = group
         groupMembers = group.members
         selectedMembers = group.members
-        await fetchMemberProfileUrls()
     }
 
     func handlePayerBtnAction() {
@@ -257,7 +242,6 @@ extension AddExpenseViewModel {
         selectedMembers = splitType == .equally ? members : splitData.map({ $0.key })
         self.splitData = splitData
         self.splitType = splitType
-        await fetchMemberProfileUrls()
     }
 
     func showSaveFailedError() {
@@ -417,5 +401,6 @@ extension AddExpenseViewModel {
     enum AddExpenseField {
         case expenseName
         case amount
+        case date
     }
 }

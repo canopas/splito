@@ -23,14 +23,16 @@ struct GroupTransactionDetailView: View {
                 } else {
                     ScrollView {
                         VStack(alignment: .center, spacing: 0) {
+                            VSpacer(16)
+
                             TransactionInfoView(geometry: geometry, viewModel: viewModel)
-                                .padding(.top, 16)
+
+                            VSpacer(24)
 
                             Text("This payment was noted using the \"record a payment\" feature, No money has been transferred.")
                                 .font(.caption1())
                                 .foregroundStyle(disableText)
                                 .multilineTextAlignment(.center)
-                                .padding(.top, 24)
 
                             Spacer()
                         }
@@ -121,12 +123,15 @@ private struct TransactionInfoView: View {
 
                 Image(.transactionIcon)
                     .resizable()
-                    .frame(width: 35, height: 36)
-                    .padding(7)
+                    .scaledToFit()
+                    .frame(width: 42, height: 42)
 
                 ProfileCardView(name: receiverName, imageUrl: receiverImageUrl, geometry: geometry)
             }
             .padding(16)
+            .background(container2Color)
+            .cornerRadius(16)
+            .frame(maxWidth: .infinity, alignment: .center)
 
             TransactionSummaryView(date: viewModel.transaction?.date.dateValue(), amount: viewModel.transaction?.amount, payerName: payerName, receiverName: receiverName, addedUserName: addedUserName)
         }
@@ -153,10 +158,7 @@ struct ProfileCardView: View {
                 .foregroundStyle(primaryText)
                 .lineLimit(1)
         }
-        .padding(.horizontal, 8)
-        .frame(width: width * 0.3, height: 97)
-        .background(container2Color)
-        .cornerRadius(12)
+        .frame(width: width * 0.3, height: 87)
     }
 }
 

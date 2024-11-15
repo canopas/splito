@@ -109,9 +109,6 @@
     "%lld people" : {
 
     },
-    "+%lld" : {
-
-    },
     "₹ %@ of %@" : {
       "extractionState" : "manual"
     },
@@ -185,7 +182,7 @@
     "Allow" : {
       "extractionState" : "manual"
     },
-    "Amount of expense" : {
+    "Amount" : {
       "extractionState" : "manual"
     },
     "Ana borrows $10 from Bob" : {
@@ -287,6 +284,9 @@
     "deleted" : {
       "extractionState" : "manual"
     },
+    "Description" : {
+      "extractionState" : "manual"
+    },
     "Done" : {
       "extractionState" : "manual"
     },
@@ -335,19 +335,16 @@
     "equally" : {
       "extractionState" : "manual"
     },
+    "Equally" : {
+      "extractionState" : "manual"
+    },
     "Error" : {
       "extractionState" : "manual"
     },
     "Expense" : {
 
     },
-    "Expense date" : {
-      "extractionState" : "manual"
-    },
     "Expense deleted successfully" : {
-      "extractionState" : "manual"
-    },
-    "Expense description" : {
       "extractionState" : "manual"
     },
     "First Name" : {
@@ -527,7 +524,10 @@
     "paid" : {
       "extractionState" : "manual"
     },
-    "Payment made successfully" : {
+    "Payment deleted successfully." : {
+      "extractionState" : "manual"
+    },
+    "Payment made successfully." : {
       "extractionState" : "manual"
     },
     "Payments made" : {
@@ -648,9 +648,6 @@
     "Select which people owe an equal share." : {
       "extractionState" : "manual"
     },
-    "Select which people owe an equal split." : {
-      "extractionState" : "manual"
-    },
     "Server error" : {
       "extractionState" : "manual"
     },
@@ -708,7 +705,7 @@
     "Specify exactly how much each person owes." : {
       "extractionState" : "manual"
     },
-    "Spilt options" : {
+    "Spilt option" : {
       "extractionState" : "manual"
     },
     "Split by exact amounts" : {
@@ -838,6 +835,9 @@
       "extractionState" : "manual"
     },
     "unequally" : {
+      "extractionState" : "manual"
+    },
+    "Unequally" : {
       "extractionState" : "manual"
     },
     "Unknown" : {

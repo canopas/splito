@@ -26,35 +26,18 @@ struct GroupPaymentView: View {
                         VStack(alignment: .center, spacing: 0) {
                             VSpacer(27)
 
-                            VStack(alignment: .center, spacing: 24) {
-                                HStack(alignment: .center, spacing: 24) {
-                                    ProfileCardView(name: viewModel.payerName, imageUrl: viewModel.payer?.imageUrl, geometry: geometry)
-
-                                    Image(.transactionIcon)
-                                        .resizable()
-                                        .frame(width: 35, height: 36)
-                                        .padding(7)
-
-                                    ProfileCardView(name: viewModel.payableName, imageUrl: viewModel.receiver?.imageUrl, geometry: geometry)
-                                }
-
-                                Text("\(viewModel.payerName.localized) paid \(viewModel.payableName.localized)")
-                                    .font(.body3())
-                                    .foregroundStyle(disableText)
-                                    .tracking(0.5)
-                                    .multilineTextAlignment(.center)
-                            }
-                            .padding(16)
-
-                            VSpacer(40)
-
-                            PaymentDetailRow(amount: $viewModel.amount, date: $viewModel.paymentDate, subtitle: "Date", placeholder: "Enter payment date", forDatePicker: true)
+                            PayerReceiverProfileView(geometry: geometry, payerName: viewModel.payerName, payableName: viewModel.payableName,
+                                                     payerImageUrl: viewModel.payer?.imageUrl, receiverImageUrl: viewModel.receiver?.imageUrl)
 
                             VSpacer(16)
 
-                            PaymentDetailRow(amount: $viewModel.amount, date: $viewModel.paymentDate, subtitle: "Enter amount", placeholder: "0.00")
+                            AmountRowView(amount: $viewModel.amount, subtitle: "Enter amount")
 
-                            Spacer(minLength: 40)
+                            VSpacer(16)
+
+                            PaymentDateRowView(date: $viewModel.paymentDate)
+
+                            Spacer(minLength: 0)
                         }
                         .padding(.horizontal, 16)
                     }
@@ -92,57 +75,107 @@ struct GroupPaymentView: View {
     }
 }
 
-private struct PaymentDetailRow: View {
+private struct PayerReceiverProfileView: View {
+
+    let geometry: GeometryProxy
+    let payerName: String
+    let payableName: String
+    let payerImageUrl: String?
+    let receiverImageUrl: String?
+
+    var body: some View {
+        VStack(alignment: .center, spacing: 16) {
+            HStack(alignment: .center, spacing: 24) {
+                ProfileCardView(name: payerName, imageUrl: payerImageUrl, geometry: geometry)
+
+                Image(.transactionIcon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 42, height: 42)
+
+                ProfileCardView(name: payableName, imageUrl: receiverImageUrl, geometry: geometry)
+            }
+
+            Divider()
+                .frame(height: 1)
+                .background(dividerColor)
+
+            Text("\(payerName.localized) paid \(payableName.localized)")
+                .font(.body3())
+                .foregroundStyle(disableText)
+                .tracking(0.5)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .padding(16)
+        .background(container2Color)
+        .cornerRadius(16)
+        .frame(maxWidth: .infinity, alignment: .center)
+    }
+}
+
+struct AmountRowView: View {
 
     @Binding var amount: Double
-    @Binding var date: Date
 
     let subtitle: String
-    let placeholder: String
-    var forDatePicker: Bool = false
 
     @FocusState var isAmountFocused: Bool
-    @State private var showDatePicker: Bool = false
     @State private var amountString: String = ""
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .center, spacing: 24) {
             Text(subtitle.localized)
+                .font(.subTitle1())
+                .foregroundStyle(primaryText)
+                .tracking(-0.2)
+
+            TextField("0.00", text: $amountString)
+                .keyboardType(.decimalPad)
+                .font(.Header1())
+                .tint(primaryColor)
+                .foregroundStyle(primaryText)
+                .focused($isAmountFocused)
+                .multilineTextAlignment(.center)
+                .autocorrectionDisabled()
+                .onChange(of: amountString) { newValue in
+                    if let value = Double(newValue) {
+                        amount = value
+                    } else {
+                        amount = 0
+                    }
+                }
+                .onAppear {
+                    amountString = amount == 0 ? "" : String(format: "%.2f", amount)
+                }
+        }
+        .padding(24)
+        .overlay {
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(outlineColor, lineWidth: 1)
+        }
+        .onAppear {
+            isAmountFocused = true
+        }
+    }
+}
+
+private struct PaymentDateRowView: View {
+
+    @Binding var date: Date
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Date")
                 .font(.body3())
                 .foregroundStyle(disableText)
 
-            VStack(alignment: .leading, spacing: 0) {
-                if forDatePicker {
-                    DatePickerRow(date: $date)
-                } else {
-                    TextField("0.00", text: $amountString)
-                        .keyboardType(.decimalPad)
-                        .font(.subTitle2())
-                        .tint(primaryColor)
-                        .foregroundStyle(primaryText)
-                        .focused($isAmountFocused)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .onChange(of: amountString) { newValue in
-                            if let value = Double(newValue) {
-                                amount = value
-                            } else {
-                                amount = 0
-                            }
-                        }
-                        .onAppear {
-                            amountString = amount == 0 ? "" : String(format: "%.2f", amount)
-                        }
+            DatePickerRow(date: $date)
+                .padding(16)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(outlineColor, lineWidth: 1)
                 }
-            }
-            .padding(.vertical, 14)
-            .padding(.horizontal, 16)
-            .overlay {
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(outlineColor, lineWidth: 1)
-            }
-            .onAppear {
-                isAmountFocused = true
-            }
         }
     }
 }
