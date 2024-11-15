@@ -49,7 +49,6 @@ struct GroupHomeView: View {
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
-        .toastView(toast: $viewModel.toast, bottomPadding: 32)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .onDisappear {
             if viewModel.showSearchBar {
@@ -67,6 +66,7 @@ struct GroupHomeView: View {
                 .ignoresSafeArea(.keyboard)
             }
         }
+        .toastView(toast: $viewModel.toast)
         .fullScreenCover(isPresented: $viewModel.showAddExpenseSheet) {
             ExpenseRouteView(selectedGroupId: viewModel.groupId)
         }

@@ -21,18 +21,22 @@ class ActivityLogStore: ObservableObject {
             .collection(SUB_COLLECTION_NAME)
     }
 
-    func fetchLatestActivityLogs(userId: String, completion: @escaping ([ActivityLog]?) -> Void) {
-        let query = activityReference(userId: userId)
-            .limit(to: 20)
+    private var listener: ListenerRegistration?
 
-        query.addSnapshotListener { snapshot, error in
-            if let error = error {
+    deinit {
+        listener?.remove()
+    }
+
+    func fetchLatestActivityLogs(userId: String, completion: @escaping ([ActivityLog]?) -> Void) {
+        listener?.remove()
+        listener = activityReference(userId: userId).addSnapshotListener { snapshot, error in
+            if let error {
                 LogE("ActivityLogStore :: \(#function) Error fetching document: \(error.localizedDescription)")
                 completion(nil)
                 return
             }
 
-            guard let snapshot = snapshot else {
+            guard let snapshot else {
                 LogE("ActivityLogStore :: \(#function) snapshot is nil for requested user.")
                 completion(nil)
                 return

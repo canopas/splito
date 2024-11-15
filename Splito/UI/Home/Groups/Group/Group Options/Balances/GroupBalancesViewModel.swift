@@ -40,25 +40,21 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
     func fetchInitialBalancesData() {
         Task {
-            await fetchGroupMembers()
+            await fetchGroupWithMembers()
         }
     }
 
     // MARK: - Data Loading
-    func fetchGroupMembers() async {
+    private func fetchGroupWithMembers() async {
         do {
-            groupMemberData = try await groupRepository.fetchMembersBy(groupId: groupId)
-            await fetchGroupDetails()
-            viewState = .initial
-        } catch {
-            handleServiceError()
-        }
-    }
-
-    private func fetchGroupDetails() async {
-        do {
-            group = try await groupRepository.fetchGroupBy(id: groupId)
+            self.group = try await groupRepository.fetchGroupBy(id: groupId)
+            guard let group else {
+                viewState = .initial
+                return
+            }
+            groupMemberData = try await groupRepository.fetchMembersBy(memberIds: group.members)
             calculateExpensesSimplified()
+            viewState = .initial
         } catch {
             handleServiceError()
         }
@@ -153,7 +149,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     @objc private func handleAddTransaction(notification: Notification) {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully."))
         Task {
-            await fetchGroupDetails()
+            await fetchGroupWithMembers()
         }
     }
 
