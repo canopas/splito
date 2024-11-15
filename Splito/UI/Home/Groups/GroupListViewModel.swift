@@ -277,10 +277,10 @@ extension GroupListViewModel {
                       message: "Are you ABSOLUTELY sure you want to delete this group? This will remove this group for ALL users involved, not just yourself.",
                       positiveBtnTitle: "Delete",
                       positiveBtnAction: {
-            Task {
-                await self.deleteGroup(group: group)
-            }
-        },
+                        Task {
+                            await self.deleteGroup(group: group)
+                        }
+                      },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
         showAlert = true

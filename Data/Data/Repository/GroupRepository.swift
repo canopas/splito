@@ -19,7 +19,6 @@ public class GroupRepository: ObservableObject {
     @Inject private var activityLogRepository: ActivityLogRepository
 
     private var olderGroupName: String = ""
-    private var groupMembers: [AppUser] = []
 
     public func createGroup(group: Groups, imageData: Data?) async throws -> Groups {
         let groupId = try await store.createGroup(group: group)
@@ -196,8 +195,8 @@ public class GroupRepository: ObservableObject {
 
     public func fetchMembersBy(groupId: String) async throws -> [AppUser] {
         guard let group = try await fetchGroupBy(id: groupId) else { return [] }
+        var members: [AppUser] = []
 
-        // Filter out memberIds that already exist in groupMembers to minimize API calls
         return try await withThrowingTaskGroup(of: AppUser?.self) { groupTask in
             for memberId in group.members {
                 groupTask.addTask {
@@ -205,11 +204,9 @@ public class GroupRepository: ObservableObject {
                 }
             }
 
-            var members: [AppUser] = []
             for try await member in groupTask {
                 if let member {
                     members.append(member)
-                    groupMembers.append(member)
                 }
             }
             return members
