@@ -52,7 +52,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
                 viewState = .initial
                 return
             }
-            groupMemberData = try await groupRepository.fetchMembersBy(memberIds: group.members)
+            groupMemberData = try await groupRepository.fetchMembersBy(groupId: groupId)
             calculateExpensesSimplified()
             viewState = .initial
         } catch {
@@ -69,7 +69,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         }
 
         let filteredBalances = group.balances.filter { group.members.contains($0.id) }
-        
+
         let memberBalances = filteredBalances.map {
             MembersCombinedBalance(id: $0.id, totalOwedAmount: $0.balance)
         }

@@ -67,17 +67,6 @@ public class GroupRepository: ObservableObject {
         let imageChanged = group.imageUrl != updatedGroup.imageUrl
         let nameChanged = olderGroupName != updatedGroup.name
 
-        let activityType: ActivityType
-        if imageChanged && nameChanged {
-            activityType = .groupUpdated
-        } else if imageChanged {
-            activityType = .groupImageUpdated
-        } else if nameChanged {
-            activityType = .groupNameUpdated
-        } else {
-            activityType = .none
-        }
-
         try await updateGroup(group: updatedGroup, type: getActivityType(oldGroup: group, updatedGroup: updatedGroup))
         return updatedGroup
     }
@@ -205,21 +194,12 @@ public class GroupRepository: ObservableObject {
         try await userRepository.fetchUserBy(userID: userId)
     }
 
-    public func fetchMembersBy(memberIds: [String]) async throws -> [AppUser] {
-        var members: [AppUser] = []
+    public func fetchMembersBy(groupId: String) async throws -> [AppUser] {
+        guard let group = try await fetchGroupBy(id: groupId) else { return [] }
 
         // Filter out memberIds that already exist in groupMembers to minimize API calls
-        let missingMemberIds = memberIds.filter { memberId in
-            let cachedMember = groupMembers.first { $0.id == memberId }
-            return cachedMember == nil
-        }
-
-        if missingMemberIds.isEmpty {
-            return groupMembers.filter { memberIds.contains($0.id) }
-        }
-
-        try await withThrowingTaskGroup(of: AppUser?.self) { groupTask in
-            for memberId in missingMemberIds {
+        return try await withThrowingTaskGroup(of: AppUser?.self) { groupTask in
+            for memberId in group.members {
                 groupTask.addTask {
                     try await self.fetchMemberBy(userId: memberId)
                 }
@@ -234,7 +214,5 @@ public class GroupRepository: ObservableObject {
             }
             return members
         }
-
-        return members
     }
 }

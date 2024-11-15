@@ -177,7 +177,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             LogE("GroupTransactionListViewModel: Missing required group.")
             return false
         }
-        
+
         if !group.members.contains(transaction.payerId) || !group.members.contains(transaction.receiverId) {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.showAlertFor(message: "This payment involves a person who has left the group, and thus it can no longer be deleted. If you wish to change this payment, you must first add that person back to your group.")

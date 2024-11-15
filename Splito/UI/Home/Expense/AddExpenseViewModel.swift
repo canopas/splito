@@ -302,15 +302,17 @@ extension AddExpenseViewModel {
             return false
         }
 
-        guard let selectedGroup, let groupId = selectedGroup.id, let userId = preference.user?.id else { return }
+        guard let selectedGroup, let groupId = selectedGroup.id, let userId = preference.user?.id else { return false }
 
         Task {
             if let expense {
-                await handleUpdateExpenseAction(groupId: groupId, userId: userId, expense: expense, completion: completion)
+                return await handleUpdateExpenseAction(userId: userId, group: selectedGroup, expense: expense)
             } else {
-                await handleAddExpenseAction(groupId: groupId, userId: userId, completion: completion)
+                return await handleAddExpenseAction(userId: userId, group: selectedGroup)
             }
         }
+
+        return true
     }
 
     private func handleAddExpenseAction(userId: String, group: Groups) async -> Bool {
