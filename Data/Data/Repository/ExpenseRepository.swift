@@ -20,9 +20,11 @@ public class ExpenseRepository: ObservableObject {
     }
 
     public func deleteExpense(group: Groups, expense: Expense) async throws {
+        guard let userId = preference.user?.id else { return }
+
         var updatedExpense = expense
         updatedExpense.isActive = false  // Make expense inactive
-        updatedExpense.updatedBy = preference.user?.id ?? ""
+        updatedExpense.updatedBy = userId
         try await updateExpense(group: group, expense: updatedExpense, oldExpense: expense, type: .expenseDeleted)
     }
 
