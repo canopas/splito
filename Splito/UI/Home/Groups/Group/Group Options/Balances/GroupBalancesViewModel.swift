@@ -68,12 +68,14 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        let memberBalances = group.balances.map {
+        let filteredBalances = group.balances.filter { group.members.contains($0.id) }
+
+        let memberBalances = filteredBalances.map {
             MembersCombinedBalance(id: $0.id, totalOwedAmount: $0.balance)
         }
 
         // Create group member balances for settlements
-        let groupMemberBalances = group.balances.map {
+        let groupMemberBalances = filteredBalances.map {
             GroupMemberBalance(id: $0.id, balance: $0.balance, totalSummary: $0.totalSummary)
         }
 

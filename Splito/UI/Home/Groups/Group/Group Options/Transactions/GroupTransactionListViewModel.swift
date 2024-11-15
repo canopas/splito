@@ -146,8 +146,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     // MARK: - User Actions
     func showTransactionDeleteAlert(_ transaction: Transactions) {
         showAlert = true
-        alert = .init(title: "Delete Transaction",
-                      message: "Are you sure you want to delete this transaction?",
+        alert = .init(title: "Delete payment",
+                      message: "Are you sure you want to delete this payment?",
                       positiveBtnTitle: "Ok",
                       positiveBtnAction: {
                         Task {
