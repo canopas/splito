@@ -56,8 +56,13 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     private func fetchGroupMembers() async {
+        guard let group else {
+            currentViewState = .initial
+            return
+        }
+
         do {
-            let members = try await groupRepository.fetchMembersBy(groupId: groupId)
+            let members = try await groupRepository.fetchMembersBy(memberIds: group.members)
             sortGroupMembers(members: members)
         } catch {
             handleServiceError()

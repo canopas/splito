@@ -70,7 +70,6 @@ struct GroupListView: View {
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
-        .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
@@ -107,6 +106,7 @@ struct GroupListView: View {
                 .ignoresSafeArea(.keyboard)
             }
         }
+        .toastView(toast: $viewModel.toast)
         .sheet(isPresented: $viewModel.showActionSheet) {
             GroupActionSheetView(onSelectionWith: viewModel.handleOptionSelection(with:))
                 .fixedSize(horizontal: false, vertical: true)

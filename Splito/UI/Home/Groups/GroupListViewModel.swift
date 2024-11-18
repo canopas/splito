@@ -36,7 +36,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     let router: Router<AppRoute>
     var hasMoreGroups: Bool = true
     private var lastDocument: DocumentSnapshot?
-    private var groupMembers: [AppUser] = []
 
     var filteredGroups: [GroupInformation] {
         guard case .hasGroup = groupListState else { return [] }
@@ -134,7 +133,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func fetchGroupInformation(group: Groups) async throws -> GroupInformation {
-        let members = try await groupRepository.fetchMembersBy(groupId: group.id ?? "")
+        let members = try await groupRepository.fetchMembersBy(memberIds: group.members)
 
         let userId = preference.user?.id ?? ""
         let memberBalance = getMembersBalance(group: group, memberId: userId)
@@ -163,17 +162,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             } else {
                 self?.handleServiceError()
             }
-        }
-    }
-
-    private func fetchUserData(for userId: String) async {
-        guard !groupMembers.contains(where: { $0.id == userId }) else { return }
-        do {
-            if let user = try await userRepository.fetchUserBy(userID: userId) {
-                groupMembers.append(user)
-            }
-        } catch {
-            showToastForError()
         }
     }
 
@@ -347,27 +335,29 @@ extension GroupListViewModel {
         let memberBalance = getMembersBalance(group: group, memberId: userId)
         let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
 
-        for memberId in group.members {
-            await fetchUserData(for: memberId)
-        }
+        do {
+            let groupMembers = try await groupRepository.fetchMembersBy(memberIds: group.members)
 
-        let groupInfo = GroupInformation(
-            group: group,
-            userBalance: memberBalance,
-            memberOweAmount: memberOwingAmount,
-            members: groupMembers,
-            hasExpenses: group.hasExpenses
-        )
+            let groupInfo = GroupInformation(
+                group: group,
+                userBalance: memberBalance,
+                memberOweAmount: memberOwingAmount,
+                members: groupMembers,
+                hasExpenses: group.hasExpenses
+            )
 
-        if isNewGroup {
-            combinedGroups.insert(groupInfo, at: 0)
-            if combinedGroups.count == 1 {
-                groupListState = .hasGroup
+            if isNewGroup {
+                combinedGroups.insert(groupInfo, at: 0)
+                if combinedGroups.count == 1 {
+                    groupListState = .hasGroup
+                }
+            } else {
+                if let index = combinedGroups.firstIndex(where: { $0.group.id == group.id }) {
+                    combinedGroups[index] = groupInfo
+                }
             }
-        } else {
-            if let index = combinedGroups.firstIndex(where: { $0.group.id == group.id }) {
-                combinedGroups[index] = groupInfo
-            }
+        } catch {
+            showToastForError()
         }
     }
 

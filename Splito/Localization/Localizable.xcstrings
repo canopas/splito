@@ -109,9 +109,6 @@
     "%lld people" : {
 
     },
-    "+%lld" : {
-
-    },
     "₹ %@ of %@" : {
       "extractionState" : "manual"
     },
@@ -485,13 +482,13 @@
     "No members in your selected group." : {
 
     },
+    "No payments yet!" : {
+
+    },
     "No results found for \"%@\"!" : {
 
     },
     "No results were found that match your search criteria." : {
-
-    },
-    "No transactions yet!" : {
 
     },
     "No unsettled bills yet!" : {
@@ -726,7 +723,7 @@
     "Split your expenses between friends and colleagues with ease!" : {
       "extractionState" : "manual"
     },
-    "Start spending or receiving money to see your transactions here." : {
+    "Start spending or receiving money to see your payments here." : {
 
     },
     "Stay In Touch" : {

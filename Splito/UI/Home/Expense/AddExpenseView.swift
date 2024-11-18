@@ -11,11 +11,11 @@ import Data
 
 struct AddExpenseView: View {
     @Environment(\.dismiss) var dismiss
-    
+
     @StateObject var viewModel: AddExpenseViewModel
-    
+
     @FocusState private var focusedField: AddExpenseViewModel.AddExpenseField?
-    
+
     var body: some View {
         VStack(spacing: 0) {
             if case .loading = viewModel.viewState {
@@ -24,9 +24,9 @@ struct AddExpenseView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         VSpacer(16)
-                        
+
                         ExpenseInfoView(viewModel: viewModel, focusedField: $focusedField)
-                        
+
                         Spacer(minLength: 40)
                     }
                 }
@@ -96,33 +96,33 @@ struct AddExpenseView: View {
 }
 
 private struct ExpenseInfoView: View {
-    
+
     @ObservedObject var viewModel: AddExpenseViewModel
-    
+
     var focusedField: FocusState<AddExpenseViewModel.AddExpenseField?>.Binding
-    
+
     var body: some View {
         VStack(spacing: 16) {
             ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate, focusedField: focusedField,
                              subtitle: "With you and:", inputValue: viewModel.selectedGroup?.name ?? "Select group",
                              showButton: true, onTap: viewModel.handleGroupBtnAction)
-            
+
             ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate, focusedField: focusedField,
                              subtitle: "Description", field: .expenseName)
-            
+
             AmountRowView(amount: $viewModel.expenseAmount, subtitle: "Amount")
                 .onTapGesture {
                     focusedField.wrappedValue = .amount
                 }
                 .focused(focusedField, equals: .amount)
-            
+
             ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate,
                              focusedField: focusedField, subtitle: "Date", field: .date)
-            
+
             HStack(alignment: .top, spacing: 16) {
                 ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate, focusedField: focusedField,
                                  subtitle: "Paid by", inputValue: viewModel.payerName, onTap: viewModel.handlePayerBtnAction)
-                
+
                 ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate, focusedField: focusedField,
                                  subtitle: "Spilt option", inputValue: viewModel.splitType == .equally ? "Equally" : "Unequally",
                                  onTap: viewModel.handleSplitTypeBtnAction)
@@ -133,26 +133,26 @@ private struct ExpenseInfoView: View {
 }
 
 private struct ExpenseDetailRow: View {
-    
+
     @Binding var name: String
     @Binding var date: Date
     var focusedField: FocusState<AddExpenseViewModel.AddExpenseField?>.Binding
-    
+
     let subtitle: String
     var inputValue: String = ""
     var showButton: Bool = false
     var field: AddExpenseViewModel.AddExpenseField?
-    
+
     var onTap: (() -> Void)?
-    
+
     @State private var showDatePicker = false
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(subtitle.localized)
                 .font(.body3())
                 .foregroundStyle(disableText)
-            
+
             VStack(alignment: .leading, spacing: 0) {
                 if field == .date {
                     DatePickerRow(date: $date)
@@ -176,9 +176,9 @@ private struct ExpenseDetailRow: View {
                         Text(inputValue.localized)
                             .font(.subTitle2())
                             .foregroundStyle(primaryText)
-                        
+
                         Spacer()
-                        
+
                         if showButton {
                             ScrollToTopButton(icon: "chevron.down", iconColor: disableText, bgColor: surfaceColor,
                                               size: (12, 12), padding: 0, onClick: onTap)
@@ -199,25 +199,25 @@ private struct ExpenseDetailRow: View {
 }
 
 struct DatePickerRow: View {
-    
+
     @Binding var date: Date
-    
+
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         return formatter
     }
-    
+
     private let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date()) ?? Date()
-    
+
     @State private var tempDate: Date
     @State private var showDatePicker = false
-    
+
     init(date: Binding<Date>) {
         self._date = date
         self._tempDate = State(initialValue: date.wrappedValue)
     }
-    
+
     var body: some View {
         HStack {
             Text(dateFormatter.string(from: date))
@@ -240,7 +240,7 @@ struct DatePickerRow: View {
                     .fontWeight(.regular)
                 )
                 .padding(.leading, 16)
-                                
+
                 ScrollView {
                     DatePicker("", selection: $tempDate, in: ...maximumDate, displayedComponents: .date)
                         .datePickerStyle(GraphicalDatePickerStyle())
@@ -249,9 +249,9 @@ struct DatePickerRow: View {
                         .id(tempDate)
                 }
                 .scrollIndicators(.hidden)
-                
+
                 Spacer()
-                
+
                 PrimaryButton(text: "Done") {
                     date = tempDate
                     showDatePicker = false
