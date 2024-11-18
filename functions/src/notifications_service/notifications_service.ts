@@ -4,6 +4,7 @@ import { getFirestore, Firestore } from "firebase-admin/firestore";
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import messages from '../locales/en.json';
 
 // Initialize Firebase app if not already initialized
 if (admin.apps.length === 0) {
@@ -12,8 +13,11 @@ if (admin.apps.length === 0) {
 
 const db: Firestore = getFirestore();
 
-const notificationTitle = `Splito`;
-const currencyFormatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
+const notificationTitle = messages.splito;
+const currencyFormatter = new Intl.NumberFormat(
+  process.env.LOCALE || 'en-IN',
+  { style: 'currency', currency: process.env.CURRENCY || 'INR' }
+);
 
  // TypeScript interface for user data in the users document
  interface UserData {
@@ -73,75 +77,75 @@ export const onActivityCreate = onDocumentCreated(
 function generateNotificationMessage(activityData: ActivityData) {
   const amount = activityData.amount ?? 0;
   const amountMessage = generateAmountMessage(amount);
-  const expenseName = activityData.expense_name ?? 'An expense';
+  const expenseName = activityData.expense_name ?? messages.unknown;
   const actionUserName = activityData.action_user_name;
-  const payerName = activityData.payer_name ?? 'Someone';
-  const receiverName = activityData.receiver_name ?? 'Someone';
+  const payerName = activityData.payer_name ?? messages.someone;
+  const receiverName = activityData.receiver_name ?? messages.someone;
   const groupName = activityData.group_name;
-  const previousGroupName = activityData.previous_group_name ?? 'Unknown Group';
+  const previousGroupName = activityData.previous_group_name ?? messages.unknown;
 
   switch (activityData.type) {
     case 'group_created':
-      return `${actionUserName} created the group "${groupName}"`;
+      return messages.group_created.replace("{actionUserName}", actionUserName).replace("{groupName}", groupName);
 
     case 'group_updated':
-      return `${actionUserName} updated the group name from "${previousGroupName}" to "${groupName}" and changed the cover photo`;
+      return messages.group_updated.replace("{actionUserName}", actionUserName).replace("{previousGroupName}", previousGroupName).replace("{groupName}", groupName);
 
     case 'group_deleted':
-      return `${actionUserName} deleted the group "${groupName}"`;
+      return messages.group_deleted.replace("{actionUserName}", actionUserName).replace("{groupName}", groupName);
 
     case 'group_restored':
-      return `${actionUserName} restored the group "${groupName}"`;
+      return messages.group_restored.replace("{actionUserName}", actionUserName).replace("{groupName}", groupName);
 
     case 'group_name_updated':
-      return `${actionUserName} updated the group name from "${previousGroupName}" to "${groupName}"`;
+      return messages.group_name_updated.replace("{actionUserName}", actionUserName).replace("{previousGroupName}", previousGroupName).replace("{groupName}", groupName);
 
     case 'group_image_updated':
-      return `${actionUserName} changed the cover photo for "${groupName}"`;
+      return messages.group_image_updated.replace("{actionUserName}", actionUserName).replace("{groupName}", groupName);
 
     case 'group_member_left':
-      return `${actionUserName} left the group "${groupName}"`;
-            
+      return messages.group_member_left.replace("{actionUserName}", actionUserName).replace("{groupName}", groupName);
+
     case 'group_member_removed':
-      return `${actionUserName} removed ${activityData.removed_member_name ?? ''} from the group "${groupName}"`;
+      return messages.group_member_removed.replace("{actionUserName}", actionUserName).replace("{removedMemberName}", activityData.removed_member_name ?? '').replace("{groupName}", groupName);
 
     case 'expense_added':
-      return `${expenseName} \n${amountMessage}`;
+      return messages.expense_added.replace("{expenseName}", expenseName).replace("{amountMessage}", amountMessage);
 
     case 'expense_updated':
-      return `Expense updated: ${expenseName} \n${amountMessage}`;
+      return messages.expense_updated.replace("{expenseName}", expenseName).replace("{amountMessage}", amountMessage);
 
     case 'expense_deleted':
-      return `Expense deleted: ${expenseName} \n${amountMessage}`;
+      return messages.expense_deleted.replace("{expenseName}", expenseName).replace("{amountMessage}", amountMessage);
 
     case 'expense_restored':
-      return `Expense restored: ${expenseName} \n${amountMessage}`;
+      return messages.expense_restored.replace("{expenseName}", expenseName).replace("{amountMessage}", amountMessage);
 
     case 'transaction_added':
-      return `${payerName} paid ${receiverName} ${formatCurrency(Math.abs(amount))}`;
+      return messages.transaction_added.replace("{payerName}", payerName).replace("{receiverName}", receiverName).replace("{amountMessage}", formatCurrency(Math.abs(amount)));
 
     case 'transaction_updated':
-      return `Payment updated: ${payerName} paid ${receiverName} ${formatCurrency(Math.abs(amount))}`;
+      return messages.transaction_updated.replace("{payerName}", payerName).replace("{receiverName}", receiverName).replace("{amountMessage}", formatCurrency(Math.abs(amount)));
 
     case 'transaction_deleted':
-      return `Payment deleted: ${payerName} paid ${receiverName} ${formatCurrency(Math.abs(amount))}`;
+      return messages.transaction_deleted.replace("{payerName}", payerName).replace("{receiverName}", receiverName).replace("{amountMessage}", formatCurrency(Math.abs(amount)));
 
     case 'transaction_restored':
-      return `Payment restored: ${payerName} paid ${receiverName} ${formatCurrency(Math.abs(amount))}`;
+      return messages.transaction_restored.replace("{payerName}", payerName).replace("{receiverName}", receiverName).replace("{amountMessage}", formatCurrency(Math.abs(amount)));
 
     default:
-      return `New activity detected.`;
+      return messages.new_activity;
   }
 }
 
 // Helper function to generate notification amount message based on owedAmount
 function generateAmountMessage(owedAmount: number): string {
   if (owedAmount < 0) { 
-    return `- You owe ${formatCurrency(Math.abs(owedAmount))}`; 
+    return `- ${messages.owe.replace("{amount}", formatCurrency(Math.abs(owedAmount)))}`; 
   } else if (owedAmount > 0) { 
-    return `- You get back ${formatCurrency(owedAmount)}`;
+    return `- ${messages.getBack.replace("{amount}", formatCurrency(owedAmount))}`;
   } else {
-    return `- You do not owe anything`;
+    return `- ${messages.oweNothing}`;
   }
 }
 
@@ -181,7 +185,6 @@ async function sendNotification(userId: string, title: string, body: string, act
       } else {
         logger.warn(`User document does not exist for user: ${userId}`);
         attempt++;
-        return;
       }
     } catch (error) {
       attempt++;

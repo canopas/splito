@@ -158,7 +158,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteExpense() {
-        guard validateUserPermission(operationText: "deleted", action: "delete"), validateGroupMembers(action: "deleted"), let group, let expense else { return }
+        guard  let group, let expense, validateUserPermission(operationText: "deleted", action: "delete"), validateGroupMembers(action: "deleted") else { return }
 
         Task {
             do {

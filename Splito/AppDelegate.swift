@@ -19,12 +19,11 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         addDDLoggers()
         FirebaseProvider.configureFirebase()
-        Messaging.messaging().delegate = self
         registerForPushNotifications(application: application)
         return true
     }
 
-    private func registerForPushNotifications(application: UIApplication) {
+    private func registerForPushNotifications(application: UIApplication) {        Messaging.messaging().delegate = self
         UNUserNotificationCenter.current().delegate = self
 
         let options: UNAuthorizationOptions = [.alert, .badge, .sound, .provisional]

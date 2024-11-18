@@ -197,10 +197,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             return false
         }
 
-        let isPayerInGroup = group.members.contains(transaction.payerId)
-        let isReceiverInGroup = group.members.contains(transaction.receiverId)
-
-        if !isPayerInGroup || !isReceiverInGroup {
+        if !(group.members.contains(transaction.payerId)) || !(group.members.contains(transaction.receiverId)) {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.showAlertFor(message: "This payment involves a person who has left the group, and thus it can no longer be \(action). If you wish to change this payment, you must first add that person back to your group.")
             }
