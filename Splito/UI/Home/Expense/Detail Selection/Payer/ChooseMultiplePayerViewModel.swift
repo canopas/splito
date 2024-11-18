@@ -57,7 +57,8 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
                 currentViewState = .initial
                 return
             }
-            groupMembers = try await groupRepository.fetchMembersBy(memberIds: group.members)
+            let users = try await groupRepository.fetchMembersBy(memberIds: group.members)
+            groupMembers = users
             currentViewState = .initial
         } catch {
             handleServiceError()

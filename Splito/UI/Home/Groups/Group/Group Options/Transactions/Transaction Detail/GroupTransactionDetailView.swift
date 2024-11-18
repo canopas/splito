@@ -61,7 +61,7 @@ struct GroupTransactionDetailView: View {
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                NavigationTitleTextView(text: "Transaction detail")
+                NavigationTitleTextView(text: "Payment detail")
             }
             if viewModel.viewState != .loading {
                 if (viewModel.transaction?.isActive ?? false) && (viewModel.group?.isActive ?? false) {
@@ -127,6 +127,8 @@ private struct TransactionInfoView: View {
                 ProfileCardView(name: receiverName, imageUrl: receiverImageUrl, geometry: geometry)
             }
             .padding(16)
+            .background(container2Color)
+            .cornerRadius(16)
 
             TransactionSummaryView(date: viewModel.transaction?.date.dateValue(), amount: viewModel.transaction?.amount, payerName: payerName, receiverName: receiverName, addedUserName: addedUserName)
         }
@@ -153,10 +155,7 @@ struct ProfileCardView: View {
                 .foregroundStyle(primaryText)
                 .lineLimit(1)
         }
-        .padding(.horizontal, 8)
-        .frame(width: width * 0.3, height: 97)
-        .background(container2Color)
-        .cornerRadius(12)
+        .frame(width: width * 0.3, height: 87)
     }
 }
 

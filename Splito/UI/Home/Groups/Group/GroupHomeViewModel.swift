@@ -17,7 +17,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Inject var preference: SplitoPreference
     @Inject var groupRepository: GroupRepository
     @Inject var expenseRepository: ExpenseRepository
-    @Inject var activityLogRepository: ActivityLogRepository
 
     @Published private(set) var groupId: String
     @Published private(set) var overallOwingAmount: Double = 0.0
@@ -239,12 +238,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             groupState = .noInternet
         } else {
             groupState = .somethingWentWrong
-        }
-    }
-
-    func handleActivityLogErrors(_ errors: [Error]) {
-        if !errors.isEmpty {
-            showToastForError()
         }
     }
 }

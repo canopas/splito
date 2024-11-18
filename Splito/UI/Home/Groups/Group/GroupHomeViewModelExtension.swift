@@ -127,7 +127,7 @@ extension GroupHomeViewModel {
     }
 
     private func deleteExpense(expense: Expense) {
-        guard validateGroupMembers(expense: expense), let group, let userId = preference.user?.id else { return }
+        guard let group, let userId = preference.user?.id, validateGroupMembers(expense: expense) else { return }
 
         Task {
             do {

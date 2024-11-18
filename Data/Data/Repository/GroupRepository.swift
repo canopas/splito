@@ -64,6 +64,9 @@ public class GroupRepository: ObservableObject {
             updatedGroup.imageUrl = newImageUrl
         }
 
+        let imageChanged = group.imageUrl != updatedGroup.imageUrl
+        let nameChanged = olderGroupName != updatedGroup.name
+
         try await updateGroup(group: updatedGroup, type: getActivityType(oldGroup: group, updatedGroup: updatedGroup))
         return updatedGroup
     }
@@ -196,12 +199,12 @@ public class GroupRepository: ObservableObject {
 
         // Filter out memberIds that already exist in groupMembers to minimize API calls
         let missingMemberIds = memberIds.filter { memberId in
-            let cachedMember = groupMembers.first { $0.id == memberId }
+            let cachedMember = self.groupMembers.first { $0.id == memberId }
             return cachedMember == nil
         }
 
         if missingMemberIds.isEmpty {
-            return groupMembers.filter { memberIds.contains($0.id) }
+            return self.groupMembers.filter { memberIds.contains($0.id) }
         }
 
         try await withThrowingTaskGroup(of: AppUser?.self) { groupTask in
@@ -214,7 +217,7 @@ public class GroupRepository: ObservableObject {
             for try await member in groupTask {
                 if let member {
                     members.append(member)
-                    groupMembers.append(member)
+                    self.groupMembers.append(member)
                 }
             }
         }

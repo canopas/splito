@@ -28,17 +28,21 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
         super.init()
     }
 
-    func fetchInitialMembersData() {
+    func fetchGroupWithMembersData() {
         Task {
-            await fetchGroupMembers()
+            await fetchGroupWithMembers()
         }
     }
 
     // MARK: - Data Loading
-    private func fetchGroupMembers() async {
+    private func fetchGroupWithMembers() async {
         do {
-            let members = try await groupRepository.fetchMembersBy(groupId: groupId)
-            self.members = members
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            guard let group else {
+                currentViewState = .initial
+                return
+            }
+            self.members = try await groupRepository.fetchMembersBy(memberIds: group.members)
             currentViewState = .initial
         } catch {
             handleServiceError()

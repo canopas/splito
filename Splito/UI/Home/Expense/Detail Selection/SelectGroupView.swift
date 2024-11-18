@@ -37,13 +37,17 @@ struct SelectGroupView: View {
 
                     VStack(alignment: .leading, spacing: 0) {
                         ForEach(groups) { group in
-                            GroupCellView(group: group, isSelected: group.id == viewModel.selectedGroup?.id, action: {
-                                viewModel.handleGroupSelection(group: group)
-                            })
+                            GroupCellView(group: group, isSelected: group.id == viewModel.selectedGroup?.id,
+                                          isLastGroup: groups.last?.id == group.id,
+                                          action: {
+                                            viewModel.handleGroupSelection(group: group)
+                                          })
                             .onTapGestureForced {
                                 viewModel.handleGroupSelection(group: group)
                             }
                         }
+
+                        VSpacer(40)
                     }
                     .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -94,6 +98,7 @@ private struct GroupCellView: View {
 
     var group: Groups
     var isSelected: Bool
+    let isLastGroup: Bool
 
     var action: () -> Void
 
@@ -112,9 +117,11 @@ private struct GroupCellView: View {
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
 
-        Divider()
-            .frame(height: 1)
-            .background(dividerColor)
-            .padding(.vertical, 20)
+        if !isLastGroup {
+            Divider()
+                .frame(height: 1)
+                .background(dividerColor)
+                .padding(.vertical, 20)
+        }
     }
 }

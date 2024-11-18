@@ -47,7 +47,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroupWithMembers() async {
         do {
-            group = try await groupRepository.fetchGroupBy(id: groupId)
+            self.group = try await groupRepository.fetchGroupBy(id: groupId)
             guard let group else {
                 viewState = .initial
                 return
@@ -69,7 +69,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         }
 
         let filteredBalances = group.balances.filter { group.members.contains($0.id) }
-        
+
         let memberBalances = filteredBalances.map {
             MembersCombinedBalance(id: $0.id, totalOwedAmount: $0.balance)
         }

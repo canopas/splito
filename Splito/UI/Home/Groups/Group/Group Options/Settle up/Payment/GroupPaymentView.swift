@@ -24,7 +24,7 @@ struct GroupPaymentView: View {
                 } else {
                     ScrollView {
                         VStack(alignment: .center, spacing: 0) {
-                            VSpacer(27)
+                            VSpacer(16)
 
                             VStack(alignment: .center, spacing: 24) {
                                 HStack(alignment: .center, spacing: 24) {
@@ -45,14 +45,16 @@ struct GroupPaymentView: View {
                                     .multilineTextAlignment(.center)
                             }
                             .padding(16)
-
-                            VSpacer(40)
-
-                            PaymentDetailRow(amount: $viewModel.amount, date: $viewModel.paymentDate, subtitle: "Date", placeholder: "Enter payment date", forDatePicker: true)
+                            .background(container2Color)
+                            .cornerRadius(16)
 
                             VSpacer(16)
 
-                            PaymentDetailRow(amount: $viewModel.amount, date: $viewModel.paymentDate, subtitle: "Enter amount", placeholder: "0.00")
+                            AmountRowView(amount: $viewModel.amount, subtitle: "Enter amount")
+
+                            VSpacer(16)
+
+                            PaymentDateRow(date: $viewModel.paymentDate, subtitle: "Date")
 
                             Spacer(minLength: 40)
                         }
@@ -62,8 +64,13 @@ struct GroupPaymentView: View {
                     .scrollBounceBehavior(.basedOnSize)
 
                     PrimaryButton(text: "Done", showLoader: viewModel.showLoader, onClick: {
-                        viewModel.handleSaveAction { isSucceed in
-                            if isSucceed { dismiss() }
+                        Task {
+                            let isSucceed = await viewModel.handleSaveAction()
+                            if isSucceed {
+                                dismiss()
+                            } else {
+                                viewModel.showSaveFailedError()
+                            }
                         }
                     })
                     .padding([.horizontal, .bottom], 16)
@@ -87,18 +94,13 @@ struct GroupPaymentView: View {
     }
 }
 
-private struct PaymentDetailRow: View {
+private struct PaymentDateRow: View {
 
-    @Binding var amount: Double
     @Binding var date: Date
 
     let subtitle: String
-    let placeholder: String
-    var forDatePicker: Bool = false
 
-    @FocusState var isAmountFocused: Bool
     @State private var showDatePicker: Bool = false
-    @State private var amountString: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -106,38 +108,56 @@ private struct PaymentDetailRow: View {
                 .font(.body3())
                 .foregroundStyle(disableText)
 
-            VStack(alignment: .leading, spacing: 0) {
-                if forDatePicker {
-                    DatePickerRow(date: $date)
-                } else {
-                    TextField("0.00", text: $amountString)
-                        .keyboardType(.decimalPad)
-                        .font(.subTitle2())
-                        .tint(primaryColor)
-                        .foregroundStyle(primaryText)
-                        .focused($isAmountFocused)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .onChange(of: amountString) { newValue in
-                            if let value = Double(newValue) {
-                                amount = value
-                            } else {
-                                amount = 0
-                            }
-                        }
-                        .onAppear {
-                            amountString = amount == 0 ? "" : String(format: "%.2f", amount)
-                        }
+            DatePickerRow(date: $date)
+                .padding(16)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(outlineColor, lineWidth: 1)
                 }
-            }
-            .padding(.vertical, 14)
-            .padding(.horizontal, 16)
-            .overlay {
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(outlineColor, lineWidth: 1)
-            }
-            .onAppear {
-                isAmountFocused = true
-            }
+        }
+    }
+}
+
+struct AmountRowView: View {
+
+    @Binding var amount: Double
+
+    let subtitle: String
+
+    @FocusState var isAmountFocused: Bool
+    @State private var amountString: String = ""
+
+    var body: some View {
+        VStack(alignment: .center, spacing: 24) {
+            Text(subtitle.localized)
+                .font(.subTitle1())
+                .foregroundStyle(primaryText)
+                .tracking(-0.2)
+
+            TextField("0.00", text: $amountString)
+                .keyboardType(.decimalPad)
+                .font(.Header1())
+                .tint(primaryColor)
+                .foregroundStyle(primaryText)
+                .focused($isAmountFocused)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(.center)
+                .autocorrectionDisabled()
+                .onChange(of: amountString) { newValue in
+                    if let value = Double(newValue) {
+                        amount = value
+                    } else {
+                        amount = 0
+                    }
+                }
+                .onAppear {
+                    amountString = amount == 0 ? "" : String(format: "%.2f", amount)
+                }
+        }
+        .padding(16)
+        .overlay {
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(outlineColor, lineWidth: 1)
         }
     }
 }

@@ -34,14 +34,14 @@ public struct AppUser: Identifiable, Codable, Hashable {
         return firstName + (lastNameInitial.isEmpty ? "" : " \(lastNameInitial).")
     }
 
-    public init(id: String, firstName: String?, lastName: String?, emailId: String?, phoneNumber: String?, profileImageUrl: String? = nil,
+    public init(id: String, firstName: String?, lastName: String?, emailId: String?, phoneNumber: String?, imageUrl: String? = nil,
                 deviceFcmToken: String? = nil, loginType: LoginType, totalOweAmount: Double = 0, isActive: Bool = true) {
         self.id = id
         self.firstName = firstName
         self.lastName = lastName
         self.emailId = emailId
         self.phoneNumber = phoneNumber
-        self.imageUrl = profileImageUrl
+        self.imageUrl = imageUrl
         self.deviceFcmToken = deviceFcmToken
         self.loginType = loginType
         self.totalOweAmount = totalOweAmount

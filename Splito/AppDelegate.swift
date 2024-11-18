@@ -44,12 +44,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         return GIDSignIn.sharedInstance.handle(url)
     }
 
-    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        if FirebaseProvider.auth.canHandleNotification(userInfo) {
-            completionHandler(.noData)
-        }
-    }
-
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let userInfo = response.notification.request.content.userInfo
 
@@ -66,6 +60,13 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         Messaging.messaging().apnsToken = deviceToken
         FirebaseProvider.auth.setAPNSToken(deviceToken, type: .sandbox)
+    }
+
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        if FirebaseProvider.auth.canHandleNotification(userInfo) {
+            completionHandler(.noData)
+            return
+        }
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {

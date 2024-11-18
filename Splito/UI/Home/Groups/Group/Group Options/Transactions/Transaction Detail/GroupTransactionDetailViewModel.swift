@@ -113,8 +113,8 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     func handleRestoreButtonAction() {
         showAlert = true
-        alert = .init(title: "Restore transaction",
-                      message: "Are you sure you want to restore this transaction?",
+        alert = .init(title: "Restore payment",
+                      message: "Are you sure you want to restore this payment?",
                       positiveBtnTitle: "Ok",
                       positiveBtnAction: self.restoreTransaction,
                       negativeBtnTitle: "Cancel",
@@ -125,7 +125,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         guard let group, group.isActive else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.showAlertFor(title: "Error",
-                                  message: "The group associated with this transaction has been deleted, so it cannot be restored.")
+                                  message: "The group associated with this payment has been deleted, so it cannot be restored.")
             }
             return
         }
@@ -159,8 +159,8 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     func handleDeleteBtnAction() {
         showAlert = true
-        alert = .init(title: "Delete Transaction",
-                      message: "Are you sure you want to delete this transaction?",
+        alert = .init(title: "Delete payment",
+                      message: "Are you sure you want to delete this payment?",
                       positiveBtnTitle: "Ok",
                       positiveBtnAction: self.deleteTransaction,
                       negativeBtnTitle: "Cancel",
@@ -213,7 +213,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         guard let userId = preference.user?.id, let group, group.members.contains(userId) else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.showAlertFor(title: "Error",
-                                  message: "This transaction could not be \(operationText). You do not have permission to \(action) this transaction, Sorry!")
+                                  message: "This payment could not be \(operationText). You do not have permission to \(action) this payment, Sorry!")
             }
             return false
         }
