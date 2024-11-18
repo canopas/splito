@@ -88,7 +88,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    // MARK: - Data Loading
+// MARK: - Data Loading
     func fetchGroup() async {
         do {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
