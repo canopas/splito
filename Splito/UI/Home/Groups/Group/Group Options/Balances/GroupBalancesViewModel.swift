@@ -60,15 +60,6 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func fetchGroupDetails() async {
-        do {
-            group = try await groupRepository.fetchGroupBy(id: groupId)
-            calculateExpensesSimplified()
-        } catch {
-            handleServiceError()
-        }
-    }
-
     // MARK: - Helper Methods
     private func calculateExpensesSimplified() {
         guard let group else {
@@ -160,7 +151,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     @objc private func handleAddTransaction(notification: Notification) {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully."))
         Task {
-            await fetchGroupDetails()
+            await fetchGroupWithMembers()
         }
     }
 

@@ -152,6 +152,7 @@ struct AmountRowView: View {
                 }
                 .onAppear {
                     amountString = amount == 0 ? "" : String(format: "%.2f", amount)
+                    isAmountFocused = true
                 }
         }
         .padding(16)

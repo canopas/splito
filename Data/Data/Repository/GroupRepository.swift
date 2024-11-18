@@ -210,6 +210,7 @@ public class GroupRepository: ObservableObject {
                     try await self.fetchMemberBy(userId: memberId)
                 }
             }
+
             for try await member in groupTask {
                 if let member {
                     members.append(member)
