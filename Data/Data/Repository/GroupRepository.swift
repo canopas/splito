@@ -63,9 +63,6 @@ public class GroupRepository: ObservableObject {
             updatedGroup.imageUrl = newImageUrl
         }
 
-        let imageChanged = group.imageUrl != updatedGroup.imageUrl
-        let nameChanged = olderGroupName != updatedGroup.name
-
         try await updateGroup(group: updatedGroup, type: getActivityType(oldGroup: group, updatedGroup: updatedGroup))
         return updatedGroup
     }
