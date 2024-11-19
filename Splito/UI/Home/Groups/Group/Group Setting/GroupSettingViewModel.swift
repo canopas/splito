@@ -206,7 +206,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                             members.remove(at: index)
                         }
                     }
-                    showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed"))
+                    showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed."))
                 }
                 currentViewState = .initial
             } catch {

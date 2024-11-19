@@ -127,7 +127,7 @@ extension GroupHomeViewModel {
     }
 
     private func deleteExpense(expense: Expense) {
-        guard let group, let userId = preference.user?.id else { return }
+        guard let group, let userId = preference.user?.id, validateGroupMembers(expense: expense) else { return }
 
         Task {
             do {
@@ -140,6 +140,24 @@ extension GroupHomeViewModel {
                 showToastForError()
             }
         }
+    }
+
+    private func validateGroupMembers(expense: Expense) -> Bool {
+        guard let group else {
+            LogE("GroupHomeViewModel: Missing required group.")
+            return false
+        }
+
+        let missingMemberIds = Set(expense.splitTo + Array(expense.paidBy.keys)).subtracting(group.members)
+
+        if !missingMemberIds.isEmpty {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.showAlertFor(message: "This expense involves a person who has left the group, and thus it can no longer be deleted. If you wish to change this expense, you must first add that person back to your group.")
+            }
+            return false
+        }
+
+        return true
     }
 
     private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {
@@ -214,7 +232,7 @@ extension GroupHomeViewModel {
     }
 
     @objc func handleAddTransaction(notification: Notification) {
-        showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
+        showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully."))
         showSettleUpSheet = false
         refreshGroupData()
     }

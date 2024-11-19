@@ -302,12 +302,12 @@ extension AddExpenseViewModel {
             return false
         }
 
-        guard let selectedGroup, let user = preference.user else { return false }
+        guard let selectedGroup, let userId = preference.user?.id else { return false }
 
         if let expense {
-            return await handleUpdateExpenseAction(userId: user.id, group: selectedGroup, expense: expense)
+            return await handleUpdateExpenseAction(userId: userId, group: selectedGroup, expense: expense)
         } else {
-            return await handleAddExpenseAction(userId: user.id, group: selectedGroup)
+            return await handleAddExpenseAction(userId: userId, group: selectedGroup)
         }
     }
 
