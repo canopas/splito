@@ -23,7 +23,6 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var filteredLogs: [String: [ActivityLog]] = [:]
 
     @Published private(set) var hasMoreLogs: Bool = true
-    @Published private(set) var showScrollToTopBtn = false
 
     private let router: Router<AppRoute>
     private var lastDocument: DocumentSnapshot?
@@ -134,10 +133,6 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         case .transactionAdded, .transactionUpdated, .transactionDeleted, .transactionRestored:
             router.push(.TransactionDetailView(transactionId: activity.activityId, groupId: activity.groupId))
         }
-    }
-
-    func manageScrollToTopBtnVisibility(offset: CGFloat) {
-        showScrollToTopBtn = offset < 0
     }
 
     // MARK: - Error Handling

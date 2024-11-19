@@ -134,24 +134,19 @@ struct AmountRowView: View {
                 .foregroundStyle(primaryText)
                 .tracking(-0.2)
 
-            TextField("0.00", text: $amountString)
+            TextField(" ₹ 0.00", text: $amountString)
                 .keyboardType(.decimalPad)
                 .font(.Header1())
                 .tint(primaryColor)
                 .foregroundStyle(primaryText)
                 .focused($isAmountFocused)
-                .frame(maxWidth: .infinity, alignment: .leading)
                 .multilineTextAlignment(.center)
                 .autocorrectionDisabled()
                 .onChange(of: amountString) { newValue in
-                    if let value = Double(newValue) {
-                        amount = value
-                    } else {
-                        amount = 0
-                    }
+                    formatAmount(newValue: newValue)
                 }
                 .onAppear {
-                    amountString = amount == 0 ? "" : String(format: "%.2f", amount)
+                    amountString = amount == 0 ? "" : String(format: "₹ %.2f", amount)
                     isAmountFocused = true
                 }
         }
@@ -160,5 +155,18 @@ struct AmountRowView: View {
             RoundedRectangle(cornerRadius: 16)
                 .stroke(outlineColor, lineWidth: 1)
         }
+    }
+
+    private func formatAmount(newValue: String) {
+        // Remove the "₹" symbol and whitespace to process the numeric value
+        let numericInput = newValue.replacingOccurrences(of: "₹", with: "").trimmingCharacters(in: .whitespaces)
+        if let value = Double(numericInput) {
+            amount = value
+        } else {
+            amount = 0
+        }
+
+        // Update amountString to include "₹" prefix
+        amountString = numericInput.isEmpty ? "" : "₹ " + numericInput
     }
 }
