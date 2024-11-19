@@ -69,12 +69,26 @@ private struct ActivityLogListView: View {
 
                     if viewModel.hasMoreLogs {
                         ProgressView()
-                            .onAppear {
-                                viewModel.loadMoreActivityLogs()
-                            }
+                            .onAppear(perform: viewModel.loadMoreActivityLogs)
                     }
                 }
                 .padding(.bottom, 62)
+                .id("activityLogList")
+                .background(GeometryReader { geo in
+                    Color.clear
+                        .onChange(of: geo.frame(in: .global).minY,
+                                  perform: viewModel.manageScrollToTopBtnVisibility(offset:))
+                })
+            }
+            .overlay(alignment: .bottomTrailing) {
+                if viewModel.showScrollToTopBtn {
+                    ScrollToTopButton {
+                        withAnimation {
+                            proxy.scrollTo("activityLogList", anchor: .top)
+                        }
+                    }
+                    .padding([.trailing, .bottom], 16)
+                }
             }
             .refreshable {
                 viewModel.fetchActivityLogsInitialData()

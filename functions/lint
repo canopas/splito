@@ -1,0 +1,15 @@
+> eslint --ext .js,.ts .
+
+Running command: npm --prefix "$RESOURCE_DIR" run build
+
+> build
+> tsc
+
+✔  functions: Finished running predeploy script.
+i  functions: preparing codebase default for deployment
+i  functions: ensuring required API cloudfunctions.googleapis.com is enabled...
+i  functions: ensuring required API cloudbuild.googleapis.com is enabled...
+i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled...
+✔  functions: required API cloudbuild.googleapis.com is enabled
+✔  functions: required API cloudfunctions.googleapis.com is enabled
+✔  artifactregistry: required API artifactregistry.googleapis.com is enabled
