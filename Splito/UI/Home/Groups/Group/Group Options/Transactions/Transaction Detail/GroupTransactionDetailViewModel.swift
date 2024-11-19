@@ -107,7 +107,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - User Actions
     func handleEditBtnAction() {
-        guard validateGroupMembers(action: "edited"), validateUserPermission(operationText: "edited", action: "edit") else { return }
+        guard validateUserPermission(operationText: "edited", action: "edit"), validateGroupMembers(action: "edited") else { return }
         showEditTransactionSheet = true
     }
 
@@ -130,7 +130,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        guard validateGroupMembers(action: "restored"), validateUserPermission(operationText: "restored", action: "restored") else { return }
+        guard validateUserPermission(operationText: "restored", action: "restored"), validateGroupMembers(action: "restored") else { return }
 
         guard var transaction else {
             LogE("GroupTransactionDetailViewModel: \(#function) transaction not found.")
@@ -169,8 +169,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteTransaction() {
-        guard validateGroupMembers(action: "deleted"), validateUserPermission(operationText: "deleted", action: "delete") else { return }
-        guard let transaction else { return }
+        guard let transaction, validateUserPermission(operationText: "deleted", action: "delete"), validateGroupMembers(action: "deleted") else { return }
 
         Task { [weak self] in
             guard let self, let group, let payer = getMemberDataBy(id: transaction.payerId),
@@ -181,7 +180,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                                                                                      payer: payer, receiver: receiver)
                 NotificationCenter.default.post(name: .deleteTransaction, object: self.transaction)
                 await updateGroupMemberBalance(updateType: .Delete)
-                self.showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
+                self.showToastFor(toast: .init(type: .success, title: "Success", message: "Payment deleted successfully."))
 
                 viewState = .initial
                 router.pop()
@@ -198,10 +197,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             return false
         }
 
-        let isPayerInGroup = group.members.contains(transaction.payerId)
-        let isReceiverInGroup = group.members.contains(transaction.receiverId)
-
-        if !isPayerInGroup || !isReceiverInGroup {
+        if !(group.members.contains(transaction.payerId)) || !(group.members.contains(transaction.receiverId)) {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.showAlertFor(message: "This payment involves a person who has left the group, and thus it can no longer be \(action). If you wish to change this payment, you must first add that person back to your group.")
             }

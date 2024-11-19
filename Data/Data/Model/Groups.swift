@@ -29,7 +29,6 @@ public struct Groups: Codable, Identifiable {
         self.updatedBy = updatedBy
         self.members = members
         self.balances = balances
-
         self.imageUrl = imageUrl
         self.createdAt = createdAt
         self.updatedAt = updatedAt

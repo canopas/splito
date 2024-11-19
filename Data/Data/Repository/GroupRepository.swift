@@ -66,19 +66,18 @@ public class GroupRepository: ObservableObject {
         let imageChanged = group.imageUrl != updatedGroup.imageUrl
         let nameChanged = olderGroupName != updatedGroup.name
 
-        let activityType: ActivityType
-        if imageChanged && nameChanged {
-            activityType = .groupUpdated
-        } else if imageChanged {
-            activityType = .groupImageUpdated
-        } else if nameChanged {
-            activityType = .groupNameUpdated
-        } else {
-            activityType = .none
-        }
-
-        try await updateGroup(group: updatedGroup, type: activityType)
+        try await updateGroup(group: updatedGroup, type: getActivityType(oldGroup: group, updatedGroup: updatedGroup))
         return updatedGroup
+    }
+
+    private func getActivityType(oldGroup: Groups, updatedGroup: Groups) -> ActivityType {
+        let imageChanged = oldGroup.imageUrl != updatedGroup.imageUrl
+        let nameChanged = olderGroupName != updatedGroup.name
+
+        if imageChanged && nameChanged { return .groupUpdated }
+        if imageChanged { return .groupImageUpdated }
+        if nameChanged { return .groupNameUpdated }
+        return .none
     }
 
     private func uploadImage(imageData: Data, group: Groups) async throws -> String {
@@ -196,6 +195,7 @@ public class GroupRepository: ObservableObject {
 
     public func fetchMembersBy(groupId: String) async throws -> [AppUser] {
         guard let group = try await fetchGroupBy(id: groupId) else { return [] }
+        var members: [AppUser] = []
 
         return try await withThrowingTaskGroup(of: AppUser?.self) { groupTask in
             for memberId in group.members {
@@ -204,7 +204,6 @@ public class GroupRepository: ObservableObject {
                 }
             }
 
-            var members: [AppUser] = []
             for try await member in groupTask {
                 if let member {
                     members.append(member)

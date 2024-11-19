@@ -151,7 +151,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     }
 
     @objc private func handleAddTransaction(notification: Notification) {
-        showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully"))
+        showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully."))
         Task {
             await fetchGroupDetails()
         }

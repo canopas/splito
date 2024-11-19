@@ -30,10 +30,8 @@ struct ActivityLogView: View {
                 }
             }
         }
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
-        .toastView(toast: $viewModel.toast, bottomPadding: 32)
+        .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -46,35 +44,56 @@ struct ActivityLogView: View {
 }
 
 private struct ActivityLogListView: View {
+    @EnvironmentObject var homeRouteViewModel: HomeRouteViewModel
 
     @ObservedObject var viewModel: ActivityLogViewModel
 
     var body: some View {
-        ScrollView {
-            LazyVStack(alignment: .center, spacing: 0) {
-                ForEach(viewModel.filteredLogs.keys.sorted(by: viewModel.sortDayMonthYearStrings).uniqued(), id: \.self) { month in
-                    Section(header: sectionHeader(month: month)) {
-                        ForEach(viewModel.filteredLogs[month] ?? [], id: \.id) { activityLog in
-                            ActivityListCellView(activityLog: activityLog,
-                                                 isLastActivityLog: (viewModel.filteredLogs[month] ?? []).last?.id == activityLog.id)
-                            .onTapGestureForced {
-                                viewModel.handleActivityItemTap(activityLog)
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(alignment: .center, spacing: 0) {
+                    ForEach(viewModel.filteredLogs.keys.sorted(by: viewModel.sortDayMonthYearStrings).uniqued(), id: \.self) { month in
+                        Section(header: sectionHeader(month: month)) {
+                            ForEach(viewModel.filteredLogs[month] ?? [], id: \.id) { activityLog in
+                                ActivityListCellView(activityLog: activityLog,
+                                                     isLastActivityLog: (viewModel.filteredLogs[month] ?? []).last?.id == activityLog.id,
+                                                     isLogNotificationOpened: activityLog.id == homeRouteViewModel.activityLogId)
+                                .onTapGestureForced {
+                                    // Reset activityLogId after tap on any cell to remove cell highlight
+                                    homeRouteViewModel.activityLogId = nil
+                                    viewModel.handleActivityItemTap(activityLog)
+                                }
+                                .id(activityLog.id)
                             }
                         }
                     }
-                }
 
-                if viewModel.hasMoreLogs {
-                    ProgressView()
-                        .onAppear {
-                            viewModel.loadMoreActivityLogs()
-                        }
+                    if viewModel.hasMoreLogs {
+                        ProgressView()
+                            .onAppear {
+                                viewModel.loadMoreActivityLogs()
+                            }
+                    }
                 }
+                .padding(.bottom, 62)
             }
-            .padding(.bottom, 62)
+            .refreshable {
+                viewModel.fetchActivityLogsInitialData()
+            }
+            .onAppear {
+                scrollToActivityLog(proxy)
+            }
+            .onChange(of: homeRouteViewModel.activityLogId) { _ in
+                scrollToActivityLog(proxy)
+            }
         }
-        .refreshable {
-            viewModel.fetchActivityLogsInitialData()
+    }
+
+    private func scrollToActivityLog(_ proxy: ScrollViewProxy) {
+        if let id = homeRouteViewModel.activityLogId {
+            withAnimation {
+                proxy.scrollTo(id)
+            }
         }
     }
 
@@ -85,8 +104,9 @@ private struct ActivityLogListView: View {
         }
 
         return Text((headerText ?? month).localized)
-            .font(.Header4())
+            .font(.subTitle1())
             .foregroundStyle(primaryText)
+            .tracking(-0.2)
             .padding(.horizontal, 16)
             .padding(.vertical, 4)
             .frame(maxWidth: .infinity, alignment: .center)
@@ -97,6 +117,7 @@ private struct ActivityListCellView: View {
 
     let activityLog: ActivityLog
     let isLastActivityLog: Bool
+    let isLogNotificationOpened: Bool
 
     var amount: Double {
         return activityLog.amount ?? 0
@@ -130,7 +151,9 @@ private struct ActivityListCellView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 20)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .background(isLogNotificationOpened ? container2Color : surfaceColor)
 
         if !isLastActivityLog {
             Divider()
@@ -191,6 +214,7 @@ private struct ActivityLogDescriptionView: View {
         // Generate description for each activity log, including different color
         getActivityLogDescription()
             .font(.subTitle2())
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     @ViewBuilder
@@ -303,6 +327,7 @@ private struct EmptyActivityLogView: View {
                 }
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
+                .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .frame(minHeight: geometry.size.height - 100, maxHeight: .infinity, alignment: .center)
             }
