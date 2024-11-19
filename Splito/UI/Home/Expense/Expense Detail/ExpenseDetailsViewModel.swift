@@ -35,7 +35,8 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         super.init()
 
         fetchGroupAndExpenseData()
-        NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedExpense(notification:)), name: .updateExpense, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedExpense(notification:)),
+                                               name: .updateExpense, object: nil)
     }
 
     func fetchGroupAndExpenseData() {
@@ -104,7 +105,8 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleEditBtnAction() {
-        guard validateUserPermission(operationText: "edited", action: "edit"), validateGroupMembers(action: "edited") else { return }
+        guard validateUserPermission(operationText: "edited", action: "edit"),
+              validateGroupMembers(action: "edited") else { return }
         showEditExpenseSheet = true
     }
 
@@ -127,7 +129,9 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        guard var expense, let userId = preference.user?.id, validateUserPermission(operationText: "restored", action: "restored"), validateGroupMembers(action: "restored") else { return }
+        guard var expense, let userId = preference.user?.id,
+              validateUserPermission(operationText: "restored", action: "restored"),
+              validateGroupMembers(action: "restored") else { return }
 
         Task { [weak self] in
             guard let self else { return }
@@ -136,7 +140,8 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 expense.isActive = true
                 expense.updatedBy = userId
 
-                try await self.expenseRepository.updateExpense(group: group, expense: expense, oldExpense: expense, type: .expenseRestored)
+                try await self.expenseRepository.updateExpense(group: group, expense: expense,
+                                                               oldExpense: expense, type: .expenseRestored)
                 await self.updateGroupMemberBalance(updateType: .Add)
 
                 self.viewState = .initial
@@ -158,7 +163,8 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteExpense() {
-        guard  let group, let expense, validateUserPermission(operationText: "deleted", action: "delete"), validateGroupMembers(action: "deleted") else { return }
+        guard let group, let expense, validateUserPermission(operationText: "deleted", action: "delete"),
+              validateGroupMembers(action: "deleted") else { return }
 
         Task {
             do {

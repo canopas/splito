@@ -90,8 +90,7 @@ struct GroupExpenseListView: View {
                                                     .frame(maxWidth: .infinity, alignment: .center)
                                                     .onAppear {
                                                         viewModel.loadMoreExpenses()
-                                                    }
-                                                    .padding(.vertical, 8)
+                                                    }.padding(.vertical, 8)
                                             }
                                         }
                                     }
@@ -109,8 +108,7 @@ struct GroupExpenseListView: View {
                         if viewModel.showScrollToTopBtn {
                             ScrollToTopButton {
                                 withAnimation { scrollProxy.scrollTo("expense_list", anchor: .top) }
-                            }
-                            .padding([.trailing, .bottom], 16)
+                            }.padding([.trailing, .bottom], 16)
                         }
                     }
                     .refreshable {
@@ -289,8 +287,7 @@ private struct GroupExpenseHeaderView: View {
                         GroupExpenseMemberOweView(name: name, amount: amount,
                                                   handleSimplifyInfoSheet: viewModel.handleSimplifyInfoSheet)
                     }
-                }
-                .padding(16)
+                }.padding(16)
             }
         }
         .background(containerColor)
@@ -362,8 +359,7 @@ private struct GroupExpenseMemberOweView: View {
                         .foregroundColor(disableText)
                     + Text("\(amount.formattedCurrency)")
                         .foregroundColor(errorColor)
-                }
-                .font(.body3())
+                }.font(.body3())
             }
 
             Image(systemName: "questionmark.circle")

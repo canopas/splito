@@ -59,6 +59,7 @@ private struct ActivityLogListView: View {
                                                      isLastActivityLog: (viewModel.filteredLogs[month] ?? []).last?.id == activityLog.id,
                                                      isLogNotificationOpened: activityLog.id == homeRouteViewModel.activityLogId)
                                 .onTapGestureForced {
+                                    // Reset activityLogId after tap on any cell to remove cell highlight
                                     homeRouteViewModel.activityLogId = nil
                                     viewModel.handleActivityItemTap(activityLog)
                                 }
