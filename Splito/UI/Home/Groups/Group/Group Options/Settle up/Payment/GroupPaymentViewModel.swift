@@ -110,6 +110,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     }
 
     func showSaveFailedError() {
+        guard amount > 0 else { return }
+
         guard validateGroupMembers() else {
             showAlertFor(message: "This payment involves a person who has left the group, and thus it can no longer be edited. If you wish to change this payment, you must first add that person back to your group.")
             return
