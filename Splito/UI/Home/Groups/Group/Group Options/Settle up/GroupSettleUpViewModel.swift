@@ -61,17 +61,13 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     }
 
     private func fetchGroupMembers() async {
-        guard let group else {
+        guard let group, let userId = preference.user?.id else {
             viewState = .initial
             return
         }
 
         do {
             viewState = .loading
-            guard let userId = preference.user?.id else {
-                viewState = .initial
-                return
-            }
             self.members = try await groupRepository.fetchMembersBy(memberIds: group.members)
             self.members.removeAll(where: { $0.id == userId })
             viewState = .initial
