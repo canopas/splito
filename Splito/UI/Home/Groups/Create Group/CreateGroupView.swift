@@ -141,7 +141,7 @@ struct ImagePickerOptionsView: View {
             handleActionSelection(.gallery)
         }
         if image != nil || imageUrl != nil {
-            Button("Remove") {
+            Button("Remove", role: .destructive) {
                 handleActionSelection(.remove)
             }
         }
