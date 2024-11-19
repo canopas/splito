@@ -44,6 +44,7 @@ export const onGroupWrite = onDocumentWritten(
         const updatedBalances = afterData.balances || [];
   
         // Iterate through each member's balance and update their totalOweAmount
+        const batch = db.batch();
         for (const updatedBalance of updatedBalances) {
           const userId = updatedBalance.id;
           const userDocRef = db.collection('users').doc(userId);
@@ -67,16 +68,20 @@ export const onGroupWrite = onDocumentWritten(
             const newTotalOweAmount = (userData.total_owe_amount || 0) + diffAmount;
             logger.info(`Updating user ${userId} with new totalOweAmount:`, newTotalOweAmount);
   
-            // Update user's totalOweAmount field
-            await userDocRef.update({
+            // Batch the user's totalOweAmount update
+            batch.update(userDocRef, {
               total_owe_amount: newTotalOweAmount,
             });
-  
+
             logger.info(`Successfully updated user ${userId}'s totalOweAmount.`);
           } else {
             logger.warn(`User document does not exist for userId: ${userId}`);
           }
         }
+
+        // Commit the batched updates
+        await batch.commit();
+        logger.info('Successfully committed all updates.');
       } else {
         logger.info('No change in balances field detected.');
       }

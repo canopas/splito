@@ -92,7 +92,7 @@ extension GroupHomeViewModel {
     func handleRestoreGroupAction() {
         showAlert = true
         alert = .init(title: "Restore group",
-                      message: "This will restore all activities, expenses and transactions for this group.",
+                      message: "This will restore all activities, expenses and payments for this group.",
                       positiveBtnTitle: "Ok",
                       positiveBtnAction: self.restoreGroup,
                       negativeBtnTitle: "Cancel",

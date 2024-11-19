@@ -337,10 +337,13 @@ extension GroupListViewModel {
 
         Task {
             if let existingIndex = combinedGroups.firstIndex(where: { $0.group.id == notificationGroupId }) {
-                let updatedGroup = await fetchGroup(groupId: notificationGroupId)
-                if let updatedGroup {
-                    let groupInformation = try await fetchGroupInformation(group: updatedGroup)
-                    combinedGroups[existingIndex] = groupInformation
+                if let updatedGroup = await fetchGroup(groupId: notificationGroupId) {
+                    do {
+                        let groupInformation = try await fetchGroupInformation(group: updatedGroup)
+                        combinedGroups[existingIndex] = groupInformation
+                    } catch {
+                        showToastForError()
+                    }
                 }
             }
         }
