@@ -55,7 +55,6 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         }
 
         do {
-            viewState = .loading
             let result = try await activityLogRepository.fetchActivitiesBy(userId: userId, limit: ACTIVITY_LOG_LIMIT)
 
             activityLogs = result.data

@@ -70,9 +70,7 @@ private struct ActivityLogListView: View {
 
                     if viewModel.hasMoreLogs {
                         ProgressView()
-                            .onAppear {
-                                viewModel.loadMoreActivityLogs()
-                            }
+                            .onAppear(perform: viewModel.loadMoreActivityLogs)
                     }
                 }
                 .padding(.bottom, 62)

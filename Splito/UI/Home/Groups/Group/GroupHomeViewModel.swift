@@ -61,7 +61,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     let router: Router<AppRoute>
     var hasMoreExpenses: Bool = true
 
-    var groupUserData: [AppUser] = []
+    var groupMembers: [AppUser] = []
     private var lastDocument: DocumentSnapshot?
 
     init(router: Router<AppRoute>, groupId: String) {
@@ -100,8 +100,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
             if self.group?.members != group.members {
                 for member in group.members where member != self.preference.user?.id {
-                    if let memberData = await self.fetchUserData(for: member) {
-                        self.groupUserData.append(memberData)
+                    if let memberData = await fetchMemberData(for: member) {
+                        addMemberIfNotExist(memberData)
                     }
                 }
             }
@@ -168,9 +168,21 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     private func combineMemberWithExpense(expenses: [Expense]) async {
         var combinedData: [ExpenseWithUser] = []
 
-        for expense in expenses.uniqued() {
-            if let user = await fetchUserData(for: expense.paidBy.keys.first ?? "") {
-                combinedData.append(ExpenseWithUser(expense: expense, user: user))
+        await withTaskGroup(of: ExpenseWithUser?.self) { taskGroup in
+            for expense in expenses.uniqued() {
+                taskGroup.addTask { [weak self] in
+                    guard let self else { return nil }
+                    if let user = await self.fetchMemberData(for: expense.paidBy.keys.first ?? "") {
+                        return ExpenseWithUser(expense: expense, user: user)
+                    }
+                    return nil
+                }
+            }
+
+            for await result in taskGroup {
+                if let expenseWithUser = result {
+                    combinedData.append(expenseWithUser)
+                }
             }
         }
 
@@ -180,21 +192,23 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func fetchUserData(for userId: String) async -> AppUser? {
-        if let existingUser = groupUserData.first(where: { $0.id == userId }) {
-            return existingUser // Return the available user from groupUserData
-        } else {
-            do {
-                let user = try await groupRepository.fetchMemberBy(userId: userId)
-                if let user {
-                    self.groupUserData.append(user)
-                }
-                return user
-            } catch {
-                groupState = .noMember
-                showToastForError()
-                return nil
+    func fetchMemberData(for memberId: String) async -> AppUser? {
+        do {
+            let member = try await groupRepository.fetchMemberBy(userId: memberId)
+            if let member {
+                addMemberIfNotExist(member)
             }
+            return member
+        } catch {
+            groupState = .noMember
+            showToastForError()
+            return nil
+        }
+    }
+
+    private func addMemberIfNotExist(_ member: AppUser) {
+        if !groupMembers.contains(where: { $0.id == member.id }) {
+            groupMembers.append(member)
         }
     }
 

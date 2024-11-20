@@ -65,9 +65,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
 
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any],
                      fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        if FirebaseProvider.auth.canHandleNotification(userInfo) {
-            completionHandler(.noData)
-        }
+        completionHandler(.noData)
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {

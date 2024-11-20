@@ -19,6 +19,7 @@ public class GroupRepository: ObservableObject {
     @Inject private var activityLogRepository: ActivityLogRepository
 
     private var olderGroupName: String = ""
+    private var groupMembers: [AppUser] = []
 
     public func createGroup(group: Groups, imageData: Data?) async throws -> Groups {
         let groupId = try await store.createGroup(group: group)
@@ -187,15 +188,32 @@ public class GroupRepository: ObservableObject {
     }
 
     public func fetchMemberBy(userId: String) async throws -> AppUser? {
-        try await userRepository.fetchUserBy(userID: userId)
+        if let existingMember = groupMembers.first(where: { $0.id == userId }) {
+            return existingMember  // Return the available member from groupMembers
+        } else {
+            let member = try await userRepository.fetchUserBy(userID: userId)
+            if let member {
+                self.groupMembers.append(member)
+            }
+            return member
+        }
     }
 
-    public func fetchMembersBy(groupId: String) async throws -> [AppUser] {
-        guard let group = try await fetchGroupBy(id: groupId) else { return [] }
+    public func fetchMembersBy(memberIds: [String]) async throws -> [AppUser] {
         var members: [AppUser] = []
 
-        return try await withThrowingTaskGroup(of: AppUser?.self) { groupTask in
-            for memberId in group.members {
+        // Filter out memberIds that already exist in groupMembers to minimize API calls
+        let missingMemberIds = memberIds.filter { memberId in
+            let cachedMember = self.groupMembers.first { $0.id == memberId }
+            return cachedMember == nil
+        }
+
+        if missingMemberIds.isEmpty {
+            return self.groupMembers.filter { memberIds.contains($0.id) }
+        }
+
+        try await withThrowingTaskGroup(of: AppUser?.self) { groupTask in
+            for memberId in missingMemberIds {
                 groupTask.addTask {
                     try await self.fetchMemberBy(userId: memberId)
                 }
@@ -204,9 +222,13 @@ public class GroupRepository: ObservableObject {
             for try await member in groupTask {
                 if let member {
                     members.append(member)
+                    if !groupMembers.contains(where: { $0.id == member.id }) {
+                        self.groupMembers.append(member)
+                    }
                 }
             }
-            return members
         }
+
+        return members
     }
 }

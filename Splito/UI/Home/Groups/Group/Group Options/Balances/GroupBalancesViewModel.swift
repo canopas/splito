@@ -40,25 +40,21 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
     func fetchInitialBalancesData() {
         Task {
-            await fetchGroupMembers()
+            await fetchGroupWithMembers()
         }
     }
 
     // MARK: - Data Loading
-    func fetchGroupMembers() async {
+    func fetchGroupWithMembers() async {
         do {
-            groupMemberData = try await groupRepository.fetchMembersBy(groupId: groupId)
-            await fetchGroupDetails()
-            viewState = .initial
-        } catch {
-            handleServiceError()
-        }
-    }
-
-    private func fetchGroupDetails() async {
-        do {
-            group = try await groupRepository.fetchGroupBy(id: groupId)
+            self.group = try await groupRepository.fetchGroupBy(id: groupId)
+            guard let group else {
+                viewState = .initial
+                return
+            }
+            groupMemberData = try await groupRepository.fetchMembersBy(memberIds: group.members)
             calculateExpensesSimplified()
+            viewState = .initial
         } catch {
             handleServiceError()
         }
@@ -72,12 +68,14 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        let memberBalances = group.balances.map {
+        let filteredBalances = group.balances.filter { group.members.contains($0.id) }
+
+        let memberBalances = filteredBalances.map {
             MembersCombinedBalance(id: $0.id, totalOwedAmount: $0.balance)
         }
 
         // Create group member balances for settlements
-        let groupMemberBalances = group.balances.map {
+        let groupMemberBalances = filteredBalances.map {
             GroupMemberBalance(id: $0.id, balance: $0.balance, totalSummary: $0.totalSummary)
         }
 
@@ -153,7 +151,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     @objc private func handleAddTransaction(notification: Notification) {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully."))
         Task {
-            await fetchGroupDetails()
+            await fetchGroupWithMembers()
         }
     }
 

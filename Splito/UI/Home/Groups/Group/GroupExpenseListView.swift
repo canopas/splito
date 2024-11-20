@@ -326,6 +326,7 @@ private struct GroupExpenseHeaderOverallView: View {
                 Text("Your \(Date().nameOfMonth.lowercased()) spending")
                     .font(.body3())
                     .foregroundStyle(disableText)
+                    .multilineTextAlignment(.trailing)
 
                 Text("\(abs(viewModel.currentMonthSpending).formattedCurrency)")
                     .font(.body1())

@@ -1151,6 +1151,10 @@ PODS:
   - AppAuth/Core (1.7.5)
   - AppAuth/ExternalUserAgent (1.7.5):
     - AppAuth/Core
+  - AppCheckCore (11.0.0):
+    - GoogleUtilities/Environment (~> 8.0)
+    - GoogleUtilities/UserDefaults (~> 8.0)
+    - PromisesObjC (~> 2.4)
   - BoringSSL-GRPC (0.0.36):
     - BoringSSL-GRPC/Implementation (= 0.0.36)
     - BoringSSL-GRPC/Interface (= 0.0.36)
@@ -1229,8 +1233,9 @@ PODS:
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
-  - GoogleSignIn (7.1.0):
+  - GoogleSignIn (8.0.0):
     - AppAuth (< 2.0, >= 1.7.3)
+    - AppCheckCore (~> 11.0)
     - GTMAppAuth (< 5.0, >= 4.1.1)
     - GTMSessionFetcher/Core (~> 3.3)
   - GoogleUtilities/AppDelegateSwizzler (8.0.2):
@@ -1380,6 +1385,7 @@ SPEC REPOS:
   trunk:
     - abseil
     - AppAuth
+    - AppCheckCore
     - BoringSSL-GRPC
     - CocoaLumberjack
     - Firebase
@@ -1414,6 +1420,7 @@ SPEC REPOS:
 SPEC CHECKSUMS:
   abseil: d121da9ef7e2ff4cab7666e76c5a3e0915ae08c3
   AppAuth: 501c04eda8a8d11f179dbe8637b7a91bb7e5d2fa
+  AppCheckCore: e25aaaac234b333320b0bebb8fc21ed3576819ba
   BoringSSL-GRPC: ca6a8e5d04812fce8ffd6437810c2d46f925eaeb
   CocoaLumberjack: 6a459bc897d6d80bd1b8c78482ec7ad05dffc3f0
   Firebase: 9f574c08c2396885b5e7e100ed4293d956218af9
@@ -1430,7 +1437,7 @@ SPEC CHECKSUMS:
   FirebaseSharedSwift: 9d0e7130af2f0cf162ecd136971f9661f2a3f769
   FirebaseStorage: f9e2bf027d549db18b6195a37b31c85f56e40200
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
-  GoogleSignIn: d4281ab6cf21542b1cfaff85c191f230b399d2db
+  GoogleSignIn: ce8c89bb9b37fb624b92e7514cc67335d1e277e4
   GoogleUtilities: 26a3abef001b6533cf678d3eb38fd3f614b7872d
   "gRPC-C++": 049b3605db691c85d65fbde5b0750b5f54ce9b26
   gRPC-Core: d1716d28c3f432b4543bce193e3d7178d59341ef
