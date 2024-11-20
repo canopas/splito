@@ -28,7 +28,7 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
         super.init()
     }
 
-    func fetchGroupWithMembersData() {
+    func fetchInitialViewData() {
         Task {
             await fetchGroupWithMembers()
         }

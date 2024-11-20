@@ -29,10 +29,10 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
         self.onPayerSelection = onPayerSelection
         super.init()
 
-        fetchGroupWithMembersData()
+        fetchInitialViewData()
     }
 
-    func fetchGroupWithMembersData() {
+    func fetchInitialViewData() {
         Task {
             await fetchGroupWithMembers()
         }
