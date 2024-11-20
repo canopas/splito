@@ -188,7 +188,15 @@ public class GroupRepository: ObservableObject {
     }
 
     public func fetchMemberBy(userId: String) async throws -> AppUser? {
-        try await userRepository.fetchUserBy(userID: userId)
+        if let existingMember = groupMembers.first(where: { $0.id == userId }) {
+            return existingMember  // Return the available member from groupMembers
+        } else {
+            let member = try await userRepository.fetchUserBy(userID: userId)
+            if let member {
+                self.groupMembers.append(member)
+            }
+            return member
+        }
     }
 
     public func fetchMembersBy(memberIds: [String]) async throws -> [AppUser] {
@@ -214,7 +222,9 @@ public class GroupRepository: ObservableObject {
             for try await member in groupTask {
                 if let member {
                     members.append(member)
-                    self.groupMembers.append(member)
+                    if !groupMembers.contains(where: { $0.id == member.id }) {
+                        self.groupMembers.append(member)
+                    }
                 }
             }
         }

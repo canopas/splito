@@ -12,7 +12,7 @@ import BaseStyle
 // MARK: - User Actions
 extension GroupHomeViewModel {
     func getMemberDataBy(id: String) -> AppUser? {
-        return groupUserData.first(where: { $0.id == id })
+        return groupMembers.first(where: { $0.id == id })
     }
 
     func handleInviteMemberClick() {
@@ -185,7 +185,7 @@ extension GroupHomeViewModel {
 
         Task {
             expenses.append(newExpense)
-            if let user = await fetchUserData(for: newExpense.paidBy.keys.first ?? "") {
+            if let user = await fetchMemberData(for: newExpense.paidBy.keys.first ?? "") {
                 let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
                 withAnimation {
                     expensesWithUser.append(newExpenseWithUser)
@@ -203,7 +203,7 @@ extension GroupHomeViewModel {
         }
 
         Task { [weak self] in
-            if let user = await self?.fetchUserData(for: updatedExpense.paidBy.keys.first ?? "") {
+            if let user = await self?.fetchMemberData(for: updatedExpense.paidBy.keys.first ?? "") {
                 if let index = self?.expensesWithUser.firstIndex(where: { $0.expense.id == updatedExpense.id }) {
                     let updatedExpenseWithUser = ExpenseWithUser(expense: updatedExpense, user: user)
                     withAnimation {
