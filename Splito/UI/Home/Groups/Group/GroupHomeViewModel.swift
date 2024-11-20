@@ -100,8 +100,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
             if self.group?.members != group.members {
                 for member in group.members where member != self.preference.user?.id {
-                    if let memberData = await self.fetchMemberData(for: member) {
-                        self.groupMembers.append(memberData)
+                    if let memberData = await fetchMemberData(for: member) {
+                        addMemberIfNotExist(memberData)
                     }
                 }
             }
@@ -195,10 +195,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     func fetchMemberData(for memberId: String) async -> AppUser? {
         do {
             let member = try await groupRepository.fetchMemberBy(userId: memberId)
-            if !groupMembers.contains(where: { $0.id == memberId }) {
-                if let member {
-                    self.groupMembers.append(member)
-                }
+            if let member {
+                addMemberIfNotExist(member)
             }
             return member
         } catch {
@@ -208,6 +206,12 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    private func addMemberIfNotExist(_ member: AppUser) {
+        if !groupMembers.contains(where: { $0.id == member.id }) {
+            groupMembers.append(member)
+        }
+    }
+    
     func fetchGroupBalance() {
         guard let userId = preference.user?.id, let group else {
             groupState = .noMember
