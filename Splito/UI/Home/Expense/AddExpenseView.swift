@@ -115,6 +115,7 @@ private struct ExpenseInfoView: View {
                     focusedField.wrappedValue = .amount
                 }
                 .focused(focusedField, equals: .amount)
+                .padding(.vertical, 8)
 
             ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate,
                              focusedField: focusedField, subtitle: "Date", field: .date)
@@ -172,7 +173,7 @@ private struct ExpenseDetailRow: View {
                             focusedField.wrappedValue = .amount
                         }
                 } else {
-                    HStack(spacing: 0) {
+                    HStack(spacing: 16) {
                         Text(inputValue.localized)
                             .font(.subTitle2())
                             .foregroundStyle(primaryText)

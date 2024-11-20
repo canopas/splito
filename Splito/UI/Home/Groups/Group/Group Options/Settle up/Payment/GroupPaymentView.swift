@@ -26,17 +26,21 @@ struct GroupPaymentView: View {
                         VStack(alignment: .center, spacing: 0) {
                             VSpacer(16)
 
-                            VStack(alignment: .center, spacing: 24) {
+                            VStack(alignment: .center, spacing: 16) {
                                 HStack(alignment: .center, spacing: 24) {
                                     ProfileCardView(name: viewModel.payerName, imageUrl: viewModel.payer?.imageUrl, geometry: geometry)
 
                                     Image(.transactionIcon)
                                         .resizable()
-                                        .frame(width: 35, height: 36)
-                                        .padding(7)
+                                        .scaledToFit()
+                                        .frame(width: 42, height: 42)
 
                                     ProfileCardView(name: viewModel.payableName, imageUrl: viewModel.receiver?.imageUrl, geometry: geometry)
                                 }
+
+                                Divider()
+                                    .frame(height: 1)
+                                    .background(outlineColor)
 
                                 Text("\(viewModel.payerName.localized) paid \(viewModel.payableName.localized)")
                                     .font(.body3())
@@ -45,6 +49,7 @@ struct GroupPaymentView: View {
                                     .multilineTextAlignment(.center)
                             }
                             .padding(16)
+                            .frame(maxWidth: .infinity, alignment: .center)
                             .background(container2Color)
                             .cornerRadius(16)
 
@@ -138,7 +143,7 @@ struct AmountRowView: View {
                 .keyboardType(.decimalPad)
                 .font(.Header1())
                 .tint(primaryColor)
-                .foregroundStyle(primaryText)
+                .foregroundStyle(amountString.isEmpty ? outlineColor : primaryText)
                 .focused($isAmountFocused)
                 .multilineTextAlignment(.center)
                 .autocorrectionDisabled()

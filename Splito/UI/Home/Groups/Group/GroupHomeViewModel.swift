@@ -211,7 +211,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             groupMembers.append(member)
         }
     }
-    
+
     func fetchGroupBalance() {
         guard let userId = preference.user?.id, let group else {
             groupState = .noMember

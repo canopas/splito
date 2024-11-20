@@ -31,7 +31,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     var payableName: String {
         guard let user = preference.user else { return "" }
-        return user.id == receiverId ? "You" : receiver?.nameWithLastInitial ?? "Unknown"
+        return user.id == receiverId ? "you" : receiver?.nameWithLastInitial ?? "unknown"
     }
 
     private var group: Groups?
