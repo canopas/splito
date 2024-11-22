@@ -15,6 +15,7 @@ public struct AppUser: Identifiable, Codable, Hashable {
     public var emailId: String?
     public var phoneNumber: String?
     public var imageUrl: String?
+    public var deviceFcmToken: String?
     public let loginType: LoginType
     public var totalOweAmount: Double
     public let isActive: Bool
@@ -33,14 +34,16 @@ public struct AppUser: Identifiable, Codable, Hashable {
         return firstName + (lastNameInitial.isEmpty ? "" : " \(lastNameInitial).")
     }
 
-    public init(id: String, firstName: String?, lastName: String?, emailId: String?, phoneNumber: String?,
-                profileImageUrl: String? = nil, loginType: LoginType, totalOweAmount: Double = 0, isActive: Bool = true) {
+    public init(id: String, firstName: String?, lastName: String?, emailId: String?,
+                phoneNumber: String?, imageUrl: String? = nil, deviceFcmToken: String? = nil,
+                loginType: LoginType, totalOweAmount: Double = 0, isActive: Bool = true) {
         self.id = id
         self.firstName = firstName
         self.lastName = lastName
         self.emailId = emailId
         self.phoneNumber = phoneNumber
-        self.imageUrl = profileImageUrl
+        self.imageUrl = imageUrl
+        self.deviceFcmToken = deviceFcmToken
         self.loginType = loginType
         self.totalOweAmount = totalOweAmount
         self.isActive = isActive
@@ -53,6 +56,7 @@ public struct AppUser: Identifiable, Codable, Hashable {
         case emailId = "email_id"
         case phoneNumber = "phone_number"
         case imageUrl = "image_url"
+        case deviceFcmToken = "device_fcm_token"
         case loginType = "login_type"
         case totalOweAmount = "total_owe_amount"
         case isActive = "is_active"

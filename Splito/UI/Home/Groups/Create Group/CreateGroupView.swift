@@ -40,8 +40,11 @@ struct CreateGroupView: View {
 
             PrimaryButton(text: viewModel.group != nil ? "Save" : "Create", isEnabled: viewModel.groupName.count >= 3, showLoader: viewModel.showLoader, onClick: {
                 Task {
-                    await viewModel.handleDoneAction { saveSuccessful in
-                        if saveSuccessful { dismiss() }
+                    let isSucceed = await viewModel.handleDoneAction()
+                    if isSucceed {
+                        dismiss()
+                    } else {
+                        viewModel.showSaveFailedToast()
                     }
                 }
             })
@@ -138,7 +141,7 @@ struct ImagePickerOptionsView: View {
             handleActionSelection(.gallery)
         }
         if image != nil || imageUrl != nil {
-            Button("Remove") {
+            Button("Remove", role: .destructive) {
                 handleActionSelection(.remove)
             }
         }

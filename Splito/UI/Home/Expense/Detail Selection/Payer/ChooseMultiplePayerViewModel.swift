@@ -41,19 +41,23 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
             totalAmount = expenseAmount
         }
 
-        fetchInitialMembersData()
+        fetchInitialViewData()
     }
 
-    func fetchInitialMembersData() {
+    func fetchInitialViewData() {
         Task {
-            await self.fetchMembers()
+            await self.fetchGroupWithMembers()
         }
     }
 
-    private func fetchMembers() async {
+    private func fetchGroupWithMembers() async {
         do {
-            let users = try await groupRepository.fetchMembersBy(groupId: groupId)
-            groupMembers = users
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            guard let group else {
+                currentViewState = .initial
+                return
+            }
+            groupMembers = try await groupRepository.fetchMembersBy(memberIds: group.members)
             currentViewState = .initial
         } catch {
             handleServiceError()

@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "profile.icon.svg",
+      "filename" : "lost-tourist.svg",
       "idiom" : "universal"
     },
     {
@@ -11,7 +11,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "profile.icon 1.svg",
+      "filename" : "lost-tourist (1).svg",
       "idiom" : "universal"
     }
   ],

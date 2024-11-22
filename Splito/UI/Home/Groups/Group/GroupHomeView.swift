@@ -9,7 +9,6 @@ import SwiftUI
 import BaseStyle
 
 struct GroupHomeView: View {
-    @EnvironmentObject var homeRouteViewModel: HomeRouteViewModel
 
     @StateObject var viewModel: GroupHomeViewModel
 
@@ -31,25 +30,25 @@ struct GroupHomeView: View {
                                        geometry: geometry, onClick: viewModel.handleInviteMemberClick)
                     } else if case .noExpense = viewModel.groupState {
                         EmptyStateView(buttonTitle: "Add expense", geometry: geometry, onClick: viewModel.openAddExpenseSheet)
+                    } else if case .memberNotInGroup = viewModel.groupState {
+                        EmptyStateView(title: "You're no longer part of this group.",
+                                       subtitle: "You no longer have access to this group's activities, expenses and payments.",
+                                       image: .restoreGroupIcon, geometry: geometry)
+                    } else if case .deactivateGroup = viewModel.groupState {
+                        EmptyStateView(title: "This group has been deleted.",
+                                       subtitle: "You can restore it to recover all activities, expenses and payments.",
+                                       buttonTitle: "Restore", image: .restoreGroupIcon,
+                                       geometry: geometry, onClick: viewModel.handleRestoreGroupAction)
                     } else if case .hasExpense = viewModel.groupState {
-                        GroupExpenseListView(viewModel: viewModel, isFocused: $isFocused) {
-                            isFocused = true
-                        }
-                        .focused($isFocused)
-                    }
-
-                    if viewModel.groupState != .noMember && viewModel.groupState != .noExpense {
-                        Spacer()
-                        PrimaryFloatingButton(text: "Add expense", bottomPadding: 8, onClick: viewModel.openAddExpenseSheet)
+                        GroupExpenseListView(viewModel: viewModel, isFocused: $isFocused)
+                            .focused($isFocused)
                     }
                 }
             }
-            .ignoresSafeArea(.keyboard) // Useful so the button doesn't move around on keyboard show
         }
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
-        .toastView(toast: $viewModel.toast, bottomPadding: 32)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .onDisappear {
             if viewModel.showSearchBar {
@@ -57,11 +56,19 @@ struct GroupHomeView: View {
                 viewModel.onSearchBarCancelBtnTap()
             }
         }
-        .onAppear {
-            homeRouteViewModel.updateSelectedGroup(id: viewModel.groupId)
+        .overlay(alignment: .bottomTrailing) {
+            if !viewModel.showScrollToTopBtn && viewModel.groupState != .noExpense && viewModel.groupState != .deactivateGroup && viewModel.groupState != .memberNotInGroup {
+                VStack(spacing: 0) {
+                    Spacer()
+                    AddExpenseButtonView(onClick: viewModel.openAddExpenseSheet)
+                        .padding([.bottom, .trailing], 16)
+                }
+                .ignoresSafeArea(.keyboard)
+            }
         }
+        .toastView(toast: $viewModel.toast)
         .fullScreenCover(isPresented: $viewModel.showAddExpenseSheet) {
-            ExpenseRouteView()
+            ExpenseRouteView(selectedGroupId: viewModel.groupId)
         }
         .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
             if !(viewModel.memberOwingAmount.isEmpty) {
@@ -95,6 +102,7 @@ struct GroupHomeView: View {
                 .presentationDetents([.height(sheetHeight)])
                 .presentationCornerRadius(24)
         }
+        .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 NavigationTitleTextView(text: viewModel.group?.name ?? "")
@@ -123,7 +131,7 @@ struct GroupOptionsListView: View {
             HStack(spacing: 8) {
                 GroupOptionsButtonView(text: "Settle up", isForSettleUp: isSettleUpEnable, onTap: onSettleUpTap)
 
-                GroupOptionsButtonView(text: "Transactions", onTap: onTransactionsTap)
+                GroupOptionsButtonView(text: "Payments", onTap: onTransactionsTap)
 
                 GroupOptionsButtonView(text: "Balances", onTap: onBalanceTap)
 
@@ -164,7 +172,7 @@ struct EmptyStateView: View {
     let geometry: GeometryProxy
     var minHeight: CGFloat?
 
-    let onClick: () -> Void
+    var onClick: (() -> Void)?
 
     var body: some View {
         ScrollView {

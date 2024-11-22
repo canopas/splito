@@ -16,7 +16,7 @@ struct GroupWhoIsPayingView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
-                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchInitialMembersData)
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchInitialViewData)
             } else if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else {
@@ -41,7 +41,7 @@ struct GroupWhoIsPayingView: View {
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .onAppear(perform: viewModel.fetchInitialMembersData)
+        .onAppear(perform: viewModel.fetchInitialViewData)
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {

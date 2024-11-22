@@ -14,7 +14,6 @@ struct GroupExpenseListView: View {
     @ObservedObject var viewModel: GroupHomeViewModel
 
     let isFocused: FocusState<Bool>.Binding
-    let onSearchBarAppear: () -> Void
 
     var body: some View {
         GeometryReader { geometry in
@@ -37,7 +36,11 @@ struct GroupExpenseListView: View {
                             .focused(isFocused)
                             .padding(.bottom, 8)
                             .padding(.horizontal, 16)
-                            .onAppear(perform: onSearchBarAppear)
+                            .onAppear {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    isFocused.wrappedValue = true
+                                }
+                            }
                     }
 
                     List {
@@ -50,12 +53,14 @@ struct GroupExpenseListView: View {
                                                onClick: viewModel.openAddExpenseSheet)
                             } else if !viewModel.groupExpenses.isEmpty {
                                 let firstMonth = viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings).first
+                                let lastMonth = viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings).last
 
                                 ForEach(viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings), id: \.self) { month in
                                     Section(header: sectionHeader(month: month)) {
                                         ForEach(viewModel.groupExpenses[month] ?? [], id: \.expense.id) { expense in
                                             GroupExpenseItemView(expenseWithUser: expense,
                                                                  isLastItem: expense.expense == (viewModel.groupExpenses[month] ?? []).last?.expense)
+                                            .padding(.bottom, (month == lastMonth && viewModel.groupExpenses[month]?.last?.expense.id == expense.expense.id) ? 50 : 0)
                                             .onTouchGesture {
                                                 viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
                                             }
@@ -85,8 +90,7 @@ struct GroupExpenseListView: View {
                                                     .frame(maxWidth: .infinity, alignment: .center)
                                                     .onAppear {
                                                         viewModel.loadMoreExpenses()
-                                                    }
-                                                    .padding(.vertical, 8)
+                                                    }.padding(.vertical, 8)
                                             }
                                         }
                                     }
@@ -104,8 +108,7 @@ struct GroupExpenseListView: View {
                         if viewModel.showScrollToTopBtn {
                             ScrollToTopButton {
                                 withAnimation { scrollProxy.scrollTo("expense_list", anchor: .top) }
-                            }
-                            .padding([.trailing, .bottom], 16)
+                            }.padding([.trailing, .bottom], 16)
                         }
                     }
                     .refreshable {
@@ -284,8 +287,7 @@ private struct GroupExpenseHeaderView: View {
                         GroupExpenseMemberOweView(name: name, amount: amount,
                                                   handleSimplifyInfoSheet: viewModel.handleSimplifyInfoSheet)
                     }
-                }
-                .padding(16)
+                }.padding(16)
             }
         }
         .background(containerColor)
@@ -324,6 +326,7 @@ private struct GroupExpenseHeaderOverallView: View {
                 Text("Your \(Date().nameOfMonth.lowercased()) spending")
                     .font(.body3())
                     .foregroundStyle(disableText)
+                    .multilineTextAlignment(.trailing)
 
                 Text("\(abs(viewModel.currentMonthSpending).formattedCurrency)")
                     .font(.body1())
@@ -357,8 +360,7 @@ private struct GroupExpenseMemberOweView: View {
                         .foregroundColor(disableText)
                     + Text("\(amount.formattedCurrency)")
                         .foregroundColor(errorColor)
-                }
-                .font(.body3())
+                }.font(.body3())
             }
 
             Image(systemName: "questionmark.circle")

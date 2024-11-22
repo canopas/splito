@@ -13,6 +13,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
     private let TRANSACTIONS_LIMIT = 10
 
+    @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
 
@@ -145,8 +146,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     // MARK: - User Actions
     func showTransactionDeleteAlert(_ transaction: Transactions) {
         showAlert = true
-        alert = .init(title: "Delete Transaction",
-                      message: "Are you sure you want to delete this transaction?",
+        alert = .init(title: "Delete payment",
+                      message: "Are you sure you want to delete this payment?",
                       positiveBtnTitle: "Ok",
                       positiveBtnAction: {
                         Task {
@@ -158,13 +159,33 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteTransaction(transaction: Transactions) async {
-        guard let transactionId = transaction.id else { return }
+        guard let group, validateGroupMembers(transaction: transaction),
+              let payer = await fetchUserData(for: transaction.payerId),
+              let receiver = await fetchUserData(for: transaction.receiverId) else { return }
+
         do {
-            try await transactionRepository.deleteTransaction(groupId: groupId, transactionId: transactionId)
-            await updateGroupMemberBalance(transaction: transaction, updateType: .Delete)
+            let updatedTransaction = try await transactionRepository.deleteTransaction(group: group, transaction: transaction,
+                                                                                       payer: payer, receiver: receiver)
+            await updateGroupMemberBalance(transaction: updatedTransaction, updateType: .Delete)
         } catch {
             showToastForError()
         }
+    }
+
+    private func validateGroupMembers(transaction: Transactions) -> Bool {
+        guard let group else {
+            LogE("GroupTransactionListViewModel: Missing required group.")
+            return false
+        }
+
+        if !group.members.contains(transaction.payerId) || !group.members.contains(transaction.receiverId) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.showAlertFor(message: "This payment involves a person who has left the group, and thus it can no longer be deleted. If you wish to change this payment, you must first add that person back to your group.")
+            }
+            return false
+        }
+
+        return true
     }
 
     private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) async {
@@ -172,7 +193,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         do {
             let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
             group.balances = memberBalance
-            try await groupRepository.updateGroup(group: group)
+            try await groupRepository.updateGroup(group: group, type: .none)
             NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
         } catch {
             showToastForError()
@@ -231,7 +252,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         if let index = transactionsWithUser.firstIndex(where: { $0.transaction.id == updatedTransaction.id }) {
             self.transactionsWithUser[index].transaction = updatedTransaction
             withAnimation {
-                self.filteredTransactionsForSelectedTab()
+                filteredTransactionsForSelectedTab()
             }
         }
 
@@ -257,7 +278,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                 }
             }
         }
-        showToastFor(toast: .init(type: .success, title: "Success", message: "Transaction deleted successfully."))
+        showToastFor(toast: .init(type: .success, title: "Success", message: "Payment deleted successfully."))
     }
 
     // MARK: - Error Handling

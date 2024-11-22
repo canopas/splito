@@ -28,7 +28,7 @@ struct ChooseMultiplePayerView: View {
             Spacer(minLength: 0)
 
             if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
-                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchInitialMembersData)
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchInitialViewData)
             } else if case .loading = viewModel.currentViewState {
                 LoaderView()
             } else {
@@ -46,7 +46,7 @@ struct ChooseMultiplePayerView: View {
                 .scrollBounceBehavior(.basedOnSize)
 
                 BottomInfoCardView(title: "₹ \(String(format: "%.2f", viewModel.totalAmount)) of \(viewModel.expenseAmount.formattedCurrency)",
-                                   value: "\((viewModel.expenseAmount - viewModel.totalAmount).formattedCurrency) left")
+                                   value: "\((viewModel.expenseAmount - viewModel.totalAmount).formattedCurrencyWithSign) left")
             }
         }
         .background(surfaceColor)

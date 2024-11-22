@@ -13,9 +13,9 @@ import FirebaseFirestore
 
 class CreateGroupViewModel: BaseViewModel, ObservableObject {
 
-    @Inject var preference: SplitoPreference
-    @Inject var storageManager: StorageManager
-    @Inject var groupRepository: GroupRepository
+    @Inject private var preference: SplitoPreference
+    @Inject private var storageManager: StorageManager
+    @Inject private var groupRepository: GroupRepository
 
     @Published var showImagePicker = false
     @Published var showImagePickerOptions = false
@@ -80,20 +80,24 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         showImagePickerOptions = true
     }
 
-    func handleDoneAction(completion: @escaping (Bool) -> Void) async {
+    func handleDoneAction() async -> Bool {
         if let group {
-            return await updateGroup(group: group, completion: completion)
+            await updateGroup(group: group)
         } else {
-            return await createGroup(completion: completion)
+            await createGroup()
         }
     }
 
-    private func createGroup(completion: (Bool) -> Void) async {
-        guard let userId = preference.user?.id else { return }
+    func showSaveFailedToast() {
+        self.showToastFor(toast: ToastPrompt(type: .error, title: "Oops", message: "Failed to save group."))
+    }
+
+    private func createGroup() async -> Bool {
+        guard let userId = preference.user?.id else { return false }
 
         let memberBalance = GroupMemberBalance(id: userId, balance: 0, totalSummary: [])
-        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId,
-                           imageUrl: nil, members: [userId], balances: [memberBalance], createdAt: Timestamp())
+        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId, updatedBy: userId, imageUrl: nil,
+                           members: [userId], balances: [memberBalance], createdAt: Timestamp(), updatedAt: Timestamp())
 
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
@@ -103,31 +107,36 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             let group = try await groupRepository.createGroup(group: group, imageData: imageData)
             NotificationCenter.default.post(name: .addGroup, object: group)
             showLoader = false
-            completion(true)
+            return true
         } catch {
             showLoader = false
-            completion(false)
             showToastForError()
+            return false
         }
     }
 
-    private func updateGroup(group: Groups, completion: (Bool) -> Void) async {
+    private func updateGroup(group: Groups) async -> Bool {
+        guard let userId = preference.user?.id else { return false }
+
         var newGroup = group
         newGroup.name = groupName.trimming(spaces: .leadingAndTrailing)
+        newGroup.updatedBy = userId
+        newGroup.updatedAt = Timestamp()
 
         let resizedImage = profileImage?.aspectFittedToHeight(200)
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
 
         do {
             self.showLoader = true
-            let updatedGroup = try await groupRepository.updateGroupWithImage(imageData: imageData, newImageUrl: profileImageUrl, group: newGroup)
+            let updatedGroup = try await groupRepository.updateGroupWithImage(imageData: imageData, newImageUrl: profileImageUrl,
+                                                                              group: newGroup, oldGroupName: group.name)
             NotificationCenter.default.post(name: .updateGroup, object: updatedGroup)
             showLoader = false
-            completion(true)
+            return true
         } catch {
             showLoader = false
-            completion(false)
             showToastForError()
+            return false
         }
     }
 }

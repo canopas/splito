@@ -25,33 +25,9 @@ struct AddExpenseView: View {
                     VStack(spacing: 0) {
                         VSpacer(16)
 
-                        VStack(spacing: 16) {
-                            ExpenseDetailRowWithBtn(name: viewModel.selectedGroup?.name ?? "Select group",
-                                                    subtitle: "With you and:", onTap: viewModel.handleGroupBtnAction)
+                        ExpenseInfoView(viewModel: viewModel, focusedField: $focusedField)
 
-                            ExpenseDetailRow(name: $viewModel.expenseName, amount: .constant(0),
-                                             date: $viewModel.expenseDate, focusedField: $focusedField,
-                                             subtitle: "Expense description", placeholder: "Enter a description",
-                                             field: .expenseName)
-
-                            ExpenseDetailRow(name: .constant(""), amount: $viewModel.expenseAmount,
-                                             date: $viewModel.expenseDate, focusedField: $focusedField,
-                                             subtitle: "Amount of expense", placeholder: "0.00",
-                                             field: .amount, keyboardType: .decimalPad)
-
-                            ExpenseDetailRow(name: .constant(""), amount: .constant(0),
-                                             date: $viewModel.expenseDate, focusedField: $focusedField,
-                                             subtitle: "Date", placeholder: "Expense date")
-
-                            ExpenseDetailRowWithBtn(name: viewModel.payerName, subtitle: "Paid by",
-                                                    onTap: viewModel.handlePayerBtnAction)
-
-                            ExpenseDetailRowWithBtn(name: "Select which people owe an equal split.",
-                                                    subtitle: "Spilt options",
-                                                    memberProfileUrls: viewModel.memberProfileUrls,
-                                                    onTap: viewModel.handleSplitTypeBtnAction)
-                        }
-                        .padding(.horizontal, 1)
+                        Spacer(minLength: 40)
                     }
                 }
                 .scrollIndicators(.hidden)
@@ -102,14 +78,16 @@ struct AddExpenseView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 CheckmarkButton(showLoader: viewModel.showLoader) {
-                    viewModel.handleSaveAction { isSucceed in
-                        if isSucceed { dismiss() }
+                    Task {
+                        let isActionSucceed = await viewModel.handleSaveAction()
+                        if isActionSucceed {
+                            dismiss()
+                        } else {
+                            viewModel.showSaveFailedError()
+                        }
                     }
                 }
             }
-        }
-        .onAppear {
-            focusedField = .expenseName
         }
         .onTapGesture {
             focusedField = nil
@@ -117,21 +95,58 @@ struct AddExpenseView: View {
     }
 }
 
+private struct ExpenseInfoView: View {
+
+    @ObservedObject var viewModel: AddExpenseViewModel
+
+    var focusedField: FocusState<AddExpenseViewModel.AddExpenseField?>.Binding
+
+    var body: some View {
+        VStack(spacing: 16) {
+            ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate, focusedField: focusedField,
+                             subtitle: "With you and:", inputValue: viewModel.selectedGroup?.name ?? "Select group",
+                             showButton: true, onTap: viewModel.handleGroupBtnAction)
+
+            ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate, focusedField: focusedField,
+                             subtitle: "Description", field: .expenseName)
+
+            AmountRowView(amount: $viewModel.expenseAmount, subtitle: "Amount")
+                .onTapGesture {
+                    focusedField.wrappedValue = .amount
+                }
+                .focused(focusedField, equals: .amount)
+                .padding(.vertical, 8)
+
+            ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate,
+                             focusedField: focusedField, subtitle: "Date", field: .date)
+
+            HStack(alignment: .top, spacing: 16) {
+                ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate, focusedField: focusedField,
+                                 subtitle: "Paid by", inputValue: viewModel.payerName, onTap: viewModel.handlePayerBtnAction)
+
+                ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate, focusedField: focusedField,
+                                 subtitle: "Spilt option", inputValue: viewModel.splitType == .equally ? "Equally" : "Unequally",
+                                 onTap: viewModel.handleSplitTypeBtnAction)
+            }
+        }
+        .padding(.horizontal, 1)
+    }
+}
+
 private struct ExpenseDetailRow: View {
 
     @Binding var name: String
-    @Binding var amount: Double
     @Binding var date: Date
     var focusedField: FocusState<AddExpenseViewModel.AddExpenseField?>.Binding
 
     let subtitle: String
-    let placeholder: String
-
+    var inputValue: String = ""
+    var showButton: Bool = false
     var field: AddExpenseViewModel.AddExpenseField?
-    var keyboardType: UIKeyboardType = .default
+
+    var onTap: (() -> Void)?
 
     @State private var showDatePicker = false
-    @State private var amountString: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -140,52 +155,45 @@ private struct ExpenseDetailRow: View {
                 .foregroundStyle(disableText)
 
             VStack(alignment: .leading, spacing: 0) {
-                if field != .amount && field != .expenseName {
+                if field == .date {
                     DatePickerRow(date: $date)
+                } else if field == .expenseName {
+                    TextField("Enter a description", text: $name)
+                        .font(.subTitle2())
+                        .foregroundStyle(primaryText)
+                        .keyboardType(.default)
+                        .onTapGesture {
+                            focusedField.wrappedValue = .expenseName
+                        }
+                        .tint(primaryColor)
+                        .focused(focusedField, equals: field)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .onSubmit {
+                            focusedField.wrappedValue = .amount
+                        }
                 } else {
-                    if keyboardType == .default {
-                        TextField(placeholder.localized, text: $name)
+                    HStack(spacing: 16) {
+                        Text(inputValue.localized)
                             .font(.subTitle2())
                             .foregroundStyle(primaryText)
-                            .onTapGesture {
-                                focusedField.wrappedValue = .expenseName
-                            }
-                            .tint(primaryColor)
-                            .focused(focusedField, equals: field)
-                            .autocorrectionDisabled()
-                            .submitLabel(.next)
-                            .onSubmit {
-                                focusedField.wrappedValue = .amount
-                            }
-                    } else {
-                        TextField(placeholder.localized, text: $amountString)
-                            .font(.subTitle2())
-                            .foregroundStyle(primaryText)
-                            .onTapGesture {
-                                focusedField.wrappedValue = .amount
-                            }
-                            .tint(primaryColor)
-                            .focused(focusedField, equals: field)
-                            .autocorrectionDisabled()
-                            .keyboardType(keyboardType)
-                            .onChange(of: amountString) { newValue in
-                                if let value = Double(newValue) {
-                                    amount = value
-                                } else {
-                                    amount = 0
-                                }
-                            }
-                            .onAppear {
-                                amountString = amount == 0 ? "" : String(format: "%.2f", amount)
-                            }
+
+                        Spacer()
+
+                        if showButton {
+                            ScrollToTopButton(icon: "chevron.down", iconColor: disableText, bgColor: surfaceColor,
+                                              size: (12, 12), padding: 0, onClick: onTap)
+                        }
                     }
                 }
             }
-            .padding(.vertical, 14)
-            .padding(.horizontal, 16)
+            .padding(16)
             .overlay {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(outlineColor, lineWidth: 1)
+            }
+            .onTapGestureForced {
+                onTap?()
             }
         }
     }
@@ -234,13 +242,12 @@ struct DatePickerRow: View {
                 )
                 .padding(.leading, 16)
 
-                Spacer(minLength: 0)
-
                 ScrollView {
                     DatePicker("", selection: $tempDate, in: ...maximumDate, displayedComponents: .date)
                         .datePickerStyle(GraphicalDatePickerStyle())
                         .labelsHidden()
                         .padding(24)
+                        .id(tempDate)
                 }
                 .scrollIndicators(.hidden)
 
@@ -254,69 +261,5 @@ struct DatePickerRow: View {
             }
             .background(surfaceColor)
         }
-    }
-}
-
-private struct ExpenseDetailRowWithBtn: View {
-    let IMAGE_HEIGHT: CGFloat = 26
-    
-    let name: String
-    let subtitle: String
-    var memberProfileUrls: [String] = []
-
-    let onTap: () -> Void
-
-    private var visibleProfileUrls: [String] {
-        Array(memberProfileUrls.prefix(5))
-    }
-
-    private var additionalMembersCount: Int {
-        max(memberProfileUrls.count - 5, 0)
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(subtitle.localized)
-                .font(.body3())
-                .foregroundStyle(disableText)
-
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 0) {
-                    Text(name.localized)
-                        .font(.subTitle2())
-                        .foregroundStyle(primaryText)
-
-                    Spacer()
-
-                    ScrollToTopButton(icon: "chevron.down", iconColor: disableText,
-                                      bgColor: surfaceColor, size: (12, 12), padding: 0, onClick: onTap)
-                }
-
-                if !memberProfileUrls.isEmpty {
-                    HStack(spacing: -10) {
-                        ForEach(visibleProfileUrls, id: \.self) { imageUrl in
-                            MemberProfileImageView(imageUrl: imageUrl, height: IMAGE_HEIGHT,
-                                                   scaleEffect: 0.7, defaultImageBgColor: containerColor)
-                        }
-
-                        if additionalMembersCount > 0 {
-                            Text("+\(additionalMembersCount)")
-                                .font(.caption1())
-                                .foregroundStyle(primaryText)
-                                .frame(width: 26, height: 26)
-                                .background(containerColor)
-                                .clipShape(Circle())
-                        }
-                    }
-                }
-            }
-            .padding(.vertical, 14)
-            .padding(.horizontal, 16)
-            .overlay {
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(outlineColor, lineWidth: 1)
-            }
-        }
-        .onTapGestureForced(perform: onTap)
     }
 }
