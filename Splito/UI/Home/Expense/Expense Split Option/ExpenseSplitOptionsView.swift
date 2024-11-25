@@ -17,7 +17,7 @@ struct ExpenseSplitOptionsView: View {
     var body: some View {
         VStack(spacing: 0) {
             NavigationBarTopView(
-                title: "Spilt options",
+                title: "Split options",
                 leadingButton: {
                     DismissButton(iconSize: (22, .regular), padding: (16, 0),
                                   foregroundColor: primaryText, onDismissAction: { dismiss() })

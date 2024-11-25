@@ -55,6 +55,7 @@
 		D8E244C12B986CD800C6C82A /* ImagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244C02B986CD800C6C82A /* ImagePickerView.swift */; };
 		D8E244C32B986D4F00C6C82A /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244C22B986D4F00C6C82A /* UIImage+Extension.swift */; };
 		D8EB0ED82CAD8C9F00AC6A44 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EB0ED72CAD8C9F00AC6A44 /* ErrorView.swift */; };
+		D8FFD5C72CF44DBC009A0667 /* ZoomableImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FFD5C62CF44DBC009A0667 /* ZoomableImageView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -120,6 +121,7 @@
 		D8E244C02B986CD800C6C82A /* ImagePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerView.swift; sourceTree = "<group>"; };
 		D8E244C22B986D4F00C6C82A /* UIImage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
 		D8EB0ED72CAD8C9F00AC6A44 /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
+		D8FFD5C62CF44DBC009A0667 /* ZoomableImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomableImageView.swift; sourceTree = "<group>"; };
 		E0B1A6930B9FF35E9142463B /* Pods-BaseStyle.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyle.debug.xcconfig"; path = "Target Support Files/Pods-BaseStyle/Pods-BaseStyle.debug.xcconfig"; sourceTree = "<group>"; };
 		E4AFAF996FB5C233D40D81D5 /* Pods_BaseStyleTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BaseStyleTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -272,6 +274,7 @@
 				21BEF8A42C637E4900FBC9CF /* NavigationBarTopView.swift */,
 				21D614782CAD527D00779F1E /* NavigationTitleTextView.swift */,
 				219F43D82CCA4A7000729C67 /* RestoreButton.swift */,
+				D8FFD5C62CF44DBC009A0667 /* ZoomableImageView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -503,6 +506,7 @@
 				D82174BE2BBAD86D00DB42C3 /* ProfileImageView.swift in Sources */,
 				213F377E2C416C9C00972316 /* ScrollToTopButton.swift in Sources */,
 				D89C933F2BC3C0F800FACD16 /* ForwardIcon.swift in Sources */,
+				D8FFD5C72CF44DBC009A0667 /* ZoomableImageView.swift in Sources */,
 				D89DBE352B88A05F00E5F1BD /* UIApplication+Extension.swift in Sources */,
 				D8D42A772B85CE2A009B345D /* ButtonStyleTapGestureModifier.swift in Sources */,
 				21BEF8A52C637E4900FBC9CF /* NavigationBarTopView.swift in Sources */,

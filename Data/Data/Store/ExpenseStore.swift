@@ -21,14 +21,12 @@ public class ExpenseStore: ObservableObject {
             .collection(SUB_COLLECTION_NAME)
     }
 
-    func addExpense(groupId: String, expense: Expense) async throws -> Expense {
-        let documentRef = expenseReference(groupId: groupId).document()
+    func getNewExpenseDocument(groupId: String) async throws -> DocumentReference {
+        return expenseReference(groupId: groupId).document()
+    }
 
-        var newExpense = expense
-        newExpense.id = documentRef.documentID
-
-        try documentRef.setData(from: newExpense)
-        return newExpense
+    func addExpense(document: DocumentReference, expense: Expense) async throws {
+        try document.setData(from: expense)
     }
 
     func updateExpense(groupId: String, expense: Expense) async throws {

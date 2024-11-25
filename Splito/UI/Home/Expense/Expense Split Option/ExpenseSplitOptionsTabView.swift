@@ -100,6 +100,8 @@ private struct EqualShareView: View {
 
 private struct ExpenseMemberCellView: View {
 
+    @Inject private var preference: SplitoPreference
+
     let member: AppUser
     let isSelected: Bool
     let isLastCell: Bool
@@ -111,7 +113,7 @@ private struct ExpenseMemberCellView: View {
             HStack(alignment: .center, spacing: 16) {
                 MemberProfileImageView(imageUrl: member.imageUrl)
 
-                Text(member.fullName)
+                Text(member.id == preference.user?.id ? "You" : member.fullName)
                     .font(.subTitle2())
                     .foregroundStyle(primaryText)
 
@@ -215,6 +217,8 @@ private struct ShareView: View {
 
 struct MemberCellView: View {
 
+    @Inject private var preference: SplitoPreference
+
     @Binding var value: Double
 
     let member: AppUser
@@ -249,7 +253,7 @@ struct MemberCellView: View {
                 MemberProfileImageView(imageUrl: member.imageUrl)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(member.fullName)
+                    Text(member.id == preference.user?.id ? "You" : member.fullName)
                         .font(.subTitle2())
                         .foregroundStyle(primaryText)
 

@@ -19,7 +19,6 @@
 		2177692B2C203160009B3B37 /* GroupTransactionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2177692A2C203160009B3B37 /* GroupTransactionDetailView.swift */; };
 		2177692D2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2177692C2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift */; };
 		219F43D52CC672DF00729C67 /* GroupHomeViewModelExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 219F43D42CC672DF00729C67 /* GroupHomeViewModelExtension.swift */; };
-		21AE9DC12CBEAEFD005E6AF8 /* ActivityLogsFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21AE9DC02CBEAEFD005E6AF8 /* ActivityLogsFunctions.swift */; };
 		21B1C09A2C1C59F10098B4FD /* GroupTransactionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21B1C0992C1C59F10098B4FD /* GroupTransactionListView.swift */; };
 		21B1C09C2C1C5A050098B4FD /* GroupTransactionListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21B1C09B2C1C5A040098B4FD /* GroupTransactionListViewModel.swift */; };
 		21B1C09E2C1C5AA30098B4FD /* GroupExpenseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21B1C09D2C1C5AA30098B4FD /* GroupExpenseListView.swift */; };
@@ -116,6 +115,7 @@
 		D8E244BF2B98592C00C6C82A /* GroupHomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244BE2B98592C00C6C82A /* GroupHomeViewModel.swift */; };
 		D8EB0ED52CAD884A00AC6A44 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EB0ED32CAD884A00AC6A44 /* AppRoute.swift */; };
 		D8EB0ED62CAD884A00AC6A44 /* RouterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EB0ED22CAD884A00AC6A44 /* RouterView.swift */; };
+		D8FFD5C52CF44BF0009A0667 /* ZoomableImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FFD5C42CF44BF0009A0667 /* ZoomableImageView.swift */; };
 		E2D6A34174334B81314FAF12 /* Pods_Splito.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43FFDB1561C565EE6E3DC86A /* Pods_Splito.framework */; };
 /* End PBXBuildFile section */
 
@@ -165,7 +165,6 @@
 		2177692C2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionDetailViewModel.swift; sourceTree = "<group>"; };
 		217BEC0F2C00AB9E000CBBB4 /* Secrets.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		219F43D42CC672DF00729C67 /* GroupHomeViewModelExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupHomeViewModelExtension.swift; sourceTree = "<group>"; };
-		21AE9DC02CBEAEFD005E6AF8 /* ActivityLogsFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLogsFunctions.swift; sourceTree = "<group>"; };
 		21B1C0992C1C59F10098B4FD /* GroupTransactionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionListView.swift; sourceTree = "<group>"; };
 		21B1C09B2C1C5A040098B4FD /* GroupTransactionListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionListViewModel.swift; sourceTree = "<group>"; };
 		21B1C09D2C1C5AA30098B4FD /* GroupExpenseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupExpenseListView.swift; sourceTree = "<group>"; };
@@ -275,6 +274,7 @@
 		D8E244BE2B98592C00C6C82A /* GroupHomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupHomeViewModel.swift; sourceTree = "<group>"; };
 		D8EB0ED22CAD884A00AC6A44 /* RouterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterView.swift; sourceTree = "<group>"; };
 		D8EB0ED32CAD884A00AC6A44 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
+		D8FFD5C42CF44BF0009A0667 /* ZoomableImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomableImageView.swift; sourceTree = "<group>"; };
 		DFDBE222145831CBD9B686FF /* Pods-SplitoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SplitoTests.release.xcconfig"; path = "Target Support Files/Pods-SplitoTests/Pods-SplitoTests.release.xcconfig"; sourceTree = "<group>"; };
 		F76BDF4C42A2EF9A9F45B069 /* Pods-Splito-SplitoUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito-SplitoUITests.debug.xcconfig"; path = "Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -315,7 +315,6 @@
 				21559CAB2CBD25B30039F127 /* ActivityLogRouteView.swift */,
 				21559CA52CBD20FB0039F127 /* ActivityLogView.swift */,
 				21559CA82CBD211F0039F127 /* ActivityLogViewModel.swift */,
-				21AE9DC02CBEAEFD005E6AF8 /* ActivityLogsFunctions.swift */,
 			);
 			path = ActivityLog;
 			sourceTree = "<group>";
@@ -492,6 +491,7 @@
 				D85E86E62BB2E189002EDF76 /* ExpenseRouteView.swift */,
 				D85E86DF2BAB06A3002EDF76 /* AddExpenseView.swift */,
 				D85E86E22BAB06D9002EDF76 /* AddExpenseViewModel.swift */,
+				D8FFD5C42CF44BF0009A0667 /* ZoomableImageView.swift */,
 				D85E86F02BB41CBA002EDF76 /* Detail Selection */,
 				D856C7302BCFD2080008A341 /* Expense Detail */,
 				D8CD952A2BD65E6400407B47 /* Expense Split Option */,
@@ -1041,7 +1041,6 @@
 				21BA6D4A2C3BB63B0020ED04 /* ChooseMultiplePayerView.swift in Sources */,
 				D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */,
 				D83344712C0F2D7D00CD9F05 /* GroupPaymentViewModel.swift in Sources */,
-				21AE9DC12CBEAEFD005E6AF8 /* ActivityLogsFunctions.swift in Sources */,
 				21BA6D4D2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift in Sources */,
 				D85E86EF2BB41B9F002EDF76 /* SelectGroupViewModel.swift in Sources */,
 				D8E244B72B972BE700C6C82A /* BaseViewModel.swift in Sources */,
@@ -1117,6 +1116,7 @@
 				D856C7342BCFD2260008A341 /* ExpenseDetailsViewModel.swift in Sources */,
 				2156A8B02C24069800CFAB64 /* GroupTransactionsRouteView.swift in Sources */,
 				D8AC26F62B84B12800CEAAD3 /* LoginViewModel.swift in Sources */,
+				D8FFD5C52CF44BF0009A0667 /* ZoomableImageView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

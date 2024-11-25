@@ -2,7 +2,7 @@
 //  ActivityLogViewModel.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 14/10/24.
+//  Created by Amisha Italiya on 14/10/24.
 //
 
 import FirebaseFirestore
@@ -97,8 +97,7 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
     private func filterActivityLogs() {
         let sortedActivities = activityLogs.uniqued().sorted { $0.recordedOn.dateValue() > $1.recordedOn.dateValue() }
         filteredLogs = Dictionary(grouping: sortedActivities) { log in
-            let formattedDate = ActivityLogViewModel.dateFormatter.string(from: log.recordedOn.dateValue())
-            return formattedDate
+            return log.recordedOn.dateValue().monthWithYear
         }
     }
 
