@@ -2,7 +2,7 @@
 //  ActivityLogRouteView.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 14/10/24.
+//  Created by Amisha Italiya on 14/10/24.
 //
 
 import Data

@@ -25,12 +25,6 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var currentViewState: ViewState = .loading
     @Published private(set) var showScrollToTopBtn = false
 
-    static private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter
-    }()
-
     private var group: Groups?
     private let groupId: String
     private let router: Router<AppRoute>
@@ -214,14 +208,14 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
     private func filteredTransactionsForSelectedTab() {
         var currentMonth: String {
-            return GroupTransactionListViewModel.dateFormatter.string(from: Date())
+            return Date().monthWithYear
         }
 
         let currentYear = Calendar.current.component(.year, from: Date())
 
         var groupedTransactions: [String: [TransactionWithUser]] {
             Dictionary(grouping: transactionsWithUser.uniqued()) { transaction in
-                GroupTransactionListViewModel.dateFormatter.string(from: transaction.transaction.date.dateValue())
+                transaction.transaction.date.dateValue().monthWithYear
             }
         }
 

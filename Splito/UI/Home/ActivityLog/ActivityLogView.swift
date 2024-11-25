@@ -2,7 +2,7 @@
 //  ActivityLogView.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 14/10/24.
+//  Created by Amisha Italiya on 14/10/24.
 //
 
 import SwiftUI
@@ -52,7 +52,7 @@ private struct ActivityLogListView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(alignment: .center, spacing: 0) {
-                    ForEach(viewModel.filteredLogs.keys.sorted(by: viewModel.sortDayMonthYearStrings).uniqued(), id: \.self) { month in
+                    ForEach(viewModel.sortKeysByDayAndMonth(), id: \.self) { month in
                         Section(header: sectionHeader(month: month)) {
                             ForEach(viewModel.filteredLogs[month] ?? [], id: \.id) { activityLog in
                                 ActivityListCellView(activityLog: activityLog,

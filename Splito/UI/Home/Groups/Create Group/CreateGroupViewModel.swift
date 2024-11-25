@@ -42,15 +42,19 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
-                if granted {
-                    authorized()
+                DispatchQueue.main.async {
+                    if granted {
+                        authorized()
+                    }
                 }
             }
             return
         case .restricted, .denied:
-            showAlertFor(alert: .init(title: "Important!", message: "Camera access is required to take picture for your profile",
+            showAlertFor(alert: .init(title: "Important!", message: "Camera access is required to take picture for your group profile",
                                       positiveBtnTitle: "Allow", positiveBtnAction: { [weak self] in
-                UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(settingsURL)
+                }
                 self?.showAlert = false
             }))
         case .authorized:

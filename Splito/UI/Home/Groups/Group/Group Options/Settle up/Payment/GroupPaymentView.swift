@@ -103,30 +103,6 @@ struct GroupPaymentView: View {
     }
 }
 
-private struct PaymentDateRow: View {
-
-    @Binding var date: Date
-
-    let subtitle: String
-
-    @State private var showDatePicker: Bool = false
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(subtitle.localized)
-                .font(.body3())
-                .foregroundStyle(disableText)
-
-            DatePickerRow(date: $date)
-                .padding(16)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(outlineColor, lineWidth: 1)
-                }
-        }
-    }
-}
-
 struct AmountRowView: View {
 
     @Binding var amount: Double
@@ -177,5 +153,116 @@ struct AmountRowView: View {
 
         // Update amountString to include "₹" prefix
         amountString = numericInput.isEmpty ? "" : "₹ " + numericInput
+    }
+}
+
+private struct PaymentDateRow: View {
+
+    @Binding var date: Date
+
+    let subtitle: String
+
+    @State private var showDatePicker: Bool = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(subtitle.localized)
+                .font(.body3())
+                .foregroundStyle(disableText)
+
+            DatePickerView(date: $date)
+                .padding(16)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(outlineColor, lineWidth: 1)
+                }
+        }
+    }
+}
+
+struct DatePickerView: View {
+
+    @Binding var date: Date
+
+    var isForAddExpense: Bool
+
+    private let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date()) ?? Date()
+
+    @State private var tempDate: Date
+    @State private var showDatePicker = false
+
+    init(date: Binding<Date>, isForAddExpense: Bool = false) {
+        self._date = date
+        self.isForAddExpense = isForAddExpense
+        self._tempDate = State(initialValue: date.wrappedValue)
+    }
+
+    var body: some View {
+        HStack {
+            if !isForAddExpense {
+                Text(date.longDate)
+                    .font(.subTitle2())
+                    .foregroundStyle(primaryText)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                DateDisplayView(date: $date)
+            }
+        }
+        .onTapGestureForced {
+            tempDate = date
+            showDatePicker = true
+            UIApplication.shared.endEditing()
+        }
+        .sheet(isPresented: $showDatePicker) {
+            VStack(spacing: 0) {
+                NavigationBarTopView(title: "Choose date", leadingButton: EmptyView(),
+                    trailingButton: DismissButton(padding: (16, 0), foregroundColor: primaryText, onDismissAction: {
+                        showDatePicker = false
+                    })
+                    .fontWeight(.regular)
+                )
+                .padding(.leading, 16)
+
+                ScrollView {
+                    DatePicker("", selection: $tempDate, in: ...maximumDate, displayedComponents: .date)
+                        .datePickerStyle(GraphicalDatePickerStyle())
+                        .labelsHidden()
+                        .padding(24)
+                        .id(tempDate)
+                }
+                .scrollIndicators(.hidden)
+
+                Spacer()
+
+                PrimaryButton(text: "Done") {
+                    date = tempDate
+                    showDatePicker = false
+                }
+                .padding(16)
+            }
+            .background(surfaceColor)
+        }
+    }
+}
+
+private struct DateDisplayView: View {
+
+    @Binding var date: Date
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Text(date.isToday() ? "Today" : date.shortDate)
+                .font(.subTitle2())
+                .foregroundStyle(primaryText)
+
+            Image(.calendarIcon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(container2Color)
+        .cornerRadius(8)
     }
 }

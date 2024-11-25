@@ -27,8 +27,6 @@ struct GroupTransactionListView: View {
                                        onSelect: viewModel.handleTabItemSelection(_:))
 
                     TransactionListWithDetailView(viewModel: viewModel)
-
-                    VSpacer(40)
                 }
                 .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -59,12 +57,14 @@ private struct TransactionListWithDetailView: View {
                             EmptyTransactionView(geometry: geometry)
                         } else {
                             let firstMonth = viewModel.filteredTransactions.keys.sorted(by: sortMonthYearStrings).first
+                            let lastMonth = viewModel.filteredTransactions.keys.sorted(by: sortMonthYearStrings).last
 
                             ForEach(viewModel.filteredTransactions.keys.sorted(by: sortMonthYearStrings), id: \.self) { month in
                                 Section(header: sectionHeader(month: month)) {
                                     ForEach(viewModel.filteredTransactions[month] ?? [], id: \.transaction.id) { transaction in
                                         TransactionItemView(transactionWithUser: transaction,
                                                             isLastCell: transaction.transaction.id == (viewModel.filteredTransactions[month] ?? []).last?.transaction.id)
+                                        .padding(.bottom, (month == lastMonth && viewModel.filteredTransactions[month]?.last?.transaction.id == transaction.transaction.id) ? 50 : 0)
                                         .onTouchGesture {
                                             viewModel.handleTransactionItemTap(transaction.transaction.id)
                                         }

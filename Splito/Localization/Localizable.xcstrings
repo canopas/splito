@@ -233,6 +233,12 @@
     "By entering your number, you’re agreeing to our " : {
 
     },
+    "Camera access is required to take picture for expenses" : {
+      "extractionState" : "manual"
+    },
+    "Camera access is required to take picture for your group profile" : {
+      "extractionState" : "manual"
+    },
     "Camera access is required to take picture for your profile" : {
       "extractionState" : "manual"
     },

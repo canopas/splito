@@ -8,26 +8,27 @@
 import Foundation
 
 public extension Double {
-    func formattedCurrency(removeMinusSign: Bool = true) -> String {
+    var formattedCurrency: String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.locale = Locale.current
 
         if let formattedAmount = formatter.string(from: NSNumber(value: self)) {
-            if removeMinusSign && formattedAmount.hasPrefix("-") {
-                return String(formattedAmount.dropFirst())
-            }
-            return formattedAmount
+            return formattedAmount.hasPrefix("-") ? String(formattedAmount.dropFirst()) : formattedAmount
         } else {
             return String(format: "%.2f", self.rounded())  // Fallback to a basic decimal format
         }
     }
 
-    var formattedCurrency: String {
-        return formattedCurrency(removeMinusSign: true)
-    }
-
     var formattedCurrencyWithSign: String {
-        return formattedCurrency(removeMinusSign: false)
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.locale = Locale.current
+
+        if let formattedAmount = formatter.string(from: NSNumber(value: self)) {
+            return formattedAmount
+        } else {
+            return String(format: "%.2f", self.rounded())  // Fallback to a basic decimal format
+        }
     }
 }

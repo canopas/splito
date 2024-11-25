@@ -29,12 +29,17 @@ struct AddExpenseView: View {
 
                         Spacer(minLength: 40)
                     }
+                    .padding(.horizontal, 16)
                 }
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
+
+                AddExpenseFooterView(date: $viewModel.expenseDate, showImagePickerOptions: $viewModel.showImagePickerOptions,
+                               expenseImage: viewModel.expenseImage, expenseImageUrl: viewModel.expenseImageUrl,
+                               handleExpenseImageTap: viewModel.handleExpenseImageTap,
+                               handleActionSelection: viewModel.handleActionSelection(_:))
             }
         }
-        .padding(.horizontal, 16)
         .background(surfaceColor)
         .scrollDismissesKeyboard(.immediately)
         .navigationTitle(viewModel.expenseId == nil ? "Add expense" : "Edit expense")
@@ -68,6 +73,11 @@ struct AddExpenseView: View {
                         )
                 )
             }
+        }
+        .sheet(isPresented: $viewModel.showImagePicker) {
+            ImagePickerView(cropOption: .square,
+                            sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
+                            image: $viewModel.expenseImage, isPresented: $viewModel.showImagePicker)
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -103,11 +113,11 @@ private struct ExpenseInfoView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate, focusedField: focusedField,
-                             subtitle: "With you and:", inputValue: viewModel.selectedGroup?.name ?? "Select group",
+            ExpenseDetailRow(name: $viewModel.expenseName, focusedField: focusedField, subtitle: "With you and:",
+                             inputValue: viewModel.selectedGroup?.name ?? "Select group",
                              showButton: true, onTap: viewModel.handleGroupBtnAction)
 
-            ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate, focusedField: focusedField,
+            ExpenseDetailRow(name: $viewModel.expenseName, focusedField: focusedField,
                              subtitle: "Description", field: .expenseName)
 
             AmountRowView(amount: $viewModel.expenseAmount, subtitle: "Amount")
@@ -115,17 +125,13 @@ private struct ExpenseInfoView: View {
                     focusedField.wrappedValue = .amount
                 }
                 .focused(focusedField, equals: .amount)
-                .padding(.vertical, 8)
-
-            ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate,
-                             focusedField: focusedField, subtitle: "Date", field: .date)
 
             HStack(alignment: .top, spacing: 16) {
-                ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate, focusedField: focusedField,
-                                 subtitle: "Paid by", inputValue: viewModel.payerName, onTap: viewModel.handlePayerBtnAction)
+                ExpenseDetailRow(name: $viewModel.expenseName, focusedField: focusedField, subtitle: "Paid by",
+                                 inputValue: viewModel.payerName, onTap: viewModel.handlePayerBtnAction)
 
-                ExpenseDetailRow(name: $viewModel.expenseName, date: $viewModel.expenseDate, focusedField: focusedField,
-                                 subtitle: "Spilt option", inputValue: viewModel.splitType == .equally ? "Equally" : "Unequally",
+                ExpenseDetailRow(name: $viewModel.expenseName, focusedField: focusedField, subtitle: "Split option",
+                                 inputValue: viewModel.splitType == .equally ? "Equally" : "Unequally",
                                  onTap: viewModel.handleSplitTypeBtnAction)
             }
         }
@@ -136,7 +142,6 @@ private struct ExpenseInfoView: View {
 private struct ExpenseDetailRow: View {
 
     @Binding var name: String
-    @Binding var date: Date
     var focusedField: FocusState<AddExpenseViewModel.AddExpenseField?>.Binding
 
     let subtitle: String
@@ -146,8 +151,6 @@ private struct ExpenseDetailRow: View {
 
     var onTap: (() -> Void)?
 
-    @State private var showDatePicker = false
-
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(subtitle.localized)
@@ -155,9 +158,7 @@ private struct ExpenseDetailRow: View {
                 .foregroundStyle(disableText)
 
             VStack(alignment: .leading, spacing: 0) {
-                if field == .date {
-                    DatePickerRow(date: $date)
-                } else if field == .expenseName {
+                if field == .expenseName {
                     TextField("Enter a description", text: $name)
                         .font(.subTitle2())
                         .foregroundStyle(primaryText)
@@ -199,67 +200,68 @@ private struct ExpenseDetailRow: View {
     }
 }
 
-struct DatePickerRow: View {
+private struct AddExpenseFooterView: View {
 
     @Binding var date: Date
+    @Binding var showImagePickerOptions: Bool
 
-    private var dateFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .long
-        return formatter
-    }
+    let expenseImage: UIImage?
+    let expenseImageUrl: String?
 
-    private let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date()) ?? Date()
-
-    @State private var tempDate: Date
-    @State private var showDatePicker = false
-
-    init(date: Binding<Date>) {
-        self._date = date
-        self._tempDate = State(initialValue: date.wrappedValue)
-    }
+    let handleExpenseImageTap: (() -> Void)
+    let handleActionSelection: ((ActionsOfSheet) -> Void)
 
     var body: some View {
-        HStack {
-            Text(dateFormatter.string(from: date))
-                .font(.subTitle2())
-                .foregroundStyle(primaryText)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
+        Divider()
+            .frame(height: 1)
+            .background(dividerColor)
+
+        HStack(spacing: 16) {
+            Spacer()
+
+            DatePickerView(date: $date, isForAddExpense: true)
+
+            ExpenseImagePickerView(image: expenseImage, imageUrl: expenseImageUrl, handleImageBtnTap: handleExpenseImageTap)
         }
-        .onTapGesture {
-            tempDate = date
-            showDatePicker = true
-            UIApplication.shared.endEditing()
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .confirmationDialog("", isPresented: $showImagePickerOptions, titleVisibility: .hidden) {
+            ImagePickerOptionsView(image: expenseImage, imageUrl: expenseImageUrl, handleActionSelection: handleActionSelection)
         }
-        .sheet(isPresented: $showDatePicker) {
-            VStack(spacing: 0) {
-                NavigationBarTopView(title: "Choose date", leadingButton: EmptyView(),
-                    trailingButton: DismissButton(padding: (16, 0), foregroundColor: primaryText, onDismissAction: {
-                        showDatePicker = false
-                    })
-                    .fontWeight(.regular)
-                )
-                .padding(.leading, 16)
+    }
+}
 
-                ScrollView {
-                    DatePicker("", selection: $tempDate, in: ...maximumDate, displayedComponents: .date)
-                        .datePickerStyle(GraphicalDatePickerStyle())
-                        .labelsHidden()
-                        .padding(24)
-                        .id(tempDate)
-                }
-                .scrollIndicators(.hidden)
+private struct ExpenseImagePickerView: View {
 
-                Spacer()
+    let image: UIImage?
+    let imageUrl: String?
 
-                PrimaryButton(text: "Done") {
-                    date = tempDate
-                    showDatePicker = false
-                }
-                .padding(16)
+    let handleImageBtnTap: (() -> Void)
+
+    @State private var showImageDisplayView = false
+
+    var body: some View {
+        HStack(spacing: 0) {
+            if image != nil || imageUrl != nil {
+                ExpenseImageView(showImageDisplayView: $showImageDisplayView, image: image, imageUrl: imageUrl)
+                    .frame(width: 24, height: 24)
+                    .cornerRadius(4)
+                    .padding(.leading, 8)
+                    .padding(.vertical, 4)
             }
-            .background(surfaceColor)
+
+            Image(.cameraIcon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .onTouchGesture(handleImageBtnTap)
+        }
+        .background(container2Color)
+        .cornerRadius(8)
+        .navigationDestination(isPresented: $showImageDisplayView) {
+            ExpenseImageZoomView(image: image, imageUrl: imageUrl, animationNamespace: Namespace())
         }
     }
 }
