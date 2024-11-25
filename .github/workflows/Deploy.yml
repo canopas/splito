@@ -114,7 +114,7 @@ jobs:
 
           # Build and Archive Project
           ARCHIVE_PATH=$RUNNER_TEMP/Splito.xcarchive
-          xcodebuild clean archive -workspace Splito.xcworkspace -scheme "Splito" -archivePath "$ARCHIVE_PATH" -destination generic/platform=iOS | xcpretty --color
+          xcodebuild clean archive -workspace Splito.xcworkspace -scheme "Splito" -archivePath "$ARCHIVE_PATH" -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.0' | xcpretty --color
 
           # Export Archive
           EXPORT_PATH=$RUNNER_TEMP/build
