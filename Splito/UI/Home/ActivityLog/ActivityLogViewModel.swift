@@ -97,7 +97,11 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
     private func filterActivityLogs() {
         let sortedActivities = activityLogs.uniqued().sorted { $0.recordedOn.dateValue() > $1.recordedOn.dateValue() }
         filteredLogs = Dictionary(grouping: sortedActivities) { log in
-            return log.recordedOn.dateValue().monthWithYear
+            if log.recordedOn.dateValue().isCurrentMonth() {
+                return ActivityLogViewModel.dateFormatter.string(from: log.recordedOn.dateValue()) // day-wise format
+            } else {
+                return log.recordedOn.dateValue().monthWithYear // month-year format
+            }
         }
     }
 
@@ -144,6 +148,16 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Helpor Methods
+    func sortKeysByDayAndMonth() -> [String] {
+        let dayKeys = filteredLogs.keys.filter { ActivityLogViewModel.dateFormatter.date(from: $0) != nil }
+        let monthYearKeys = filteredLogs.keys.filter { ActivityLogViewModel.dateFormatter.date(from: $0) == nil }
+
+        let sortedDayKeys = dayKeys.sorted(by: sortDayMonthYearStrings)
+        let sortedMonthYearKeys = monthYearKeys.sorted(by: sortMonthYearStrings)
+
+        return (sortedDayKeys + sortedMonthYearKeys)  // Concatenate for final sorted order
+    }
+
     func sortDayMonthYearStrings(_ s1: String, _ s2: String) -> Bool {
         guard let date1 = ActivityLogViewModel.dateFormatter.date(from: s1),
               let date2 = ActivityLogViewModel.dateFormatter.date(from: s2) else {

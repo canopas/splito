@@ -55,6 +55,13 @@ public extension Date {
         return dateFormatter.string(from: self).capitalized
     }
 
+    func isCurrentMonth() -> Bool {
+        let calendar = Calendar.current
+        let currentDate = Date()
+        return calendar.isDate(self, equalTo: currentDate, toGranularity: .month) &&
+               calendar.isDate(self, equalTo: currentDate, toGranularity: .year)
+    }
+
     func startOfMonth() -> Date { // give start date of month
         let calendar = Calendar.current
         return calendar.date(from: calendar.dateComponents([.year, .month], from: self)) ?? Date()

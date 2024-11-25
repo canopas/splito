@@ -52,7 +52,7 @@ private struct ActivityLogListView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(alignment: .center, spacing: 0) {
-                    ForEach(viewModel.filteredLogs.keys.sorted(by: viewModel.sortDayMonthYearStrings).uniqued(), id: \.self) { month in
+                    ForEach(viewModel.sortKeysByDayAndMonth(), id: \.self) { month in
                         Section(header: sectionHeader(month: month)) {
                             ForEach(viewModel.filteredLogs[month] ?? [], id: \.id) { activityLog in
                                 ActivityListCellView(activityLog: activityLog,
