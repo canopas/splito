@@ -12,6 +12,7 @@ public class StorageManager: ObservableObject {
     public enum ImageStoreType {
         case user
         case group
+        case expense
 
         var pathName: String {
             switch self {
@@ -19,6 +20,8 @@ public class StorageManager: ObservableObject {
                 "user_images"
             case .group:
                 "group_images"
+            case .expense:
+                "expense_images"
             }
         }
     }

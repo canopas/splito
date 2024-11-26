@@ -12,6 +12,7 @@ import Data
 struct ExpenseDetailsView: View {
 
     @StateObject var viewModel: ExpenseDetailsViewModel
+    @State private var showImageDisplayView = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -26,7 +27,13 @@ struct ExpenseDetailsView: View {
 
                         ExpenseInfoView(viewModel: viewModel)
 
-                        Spacer()
+                        if let imageUrl = viewModel.expense?.imageUrl {
+                            ExpenseImageView(showImageDisplayView: $showImageDisplayView, imageUrl: imageUrl)
+                                .aspectRatio(16/9, contentMode: .fit)
+                                .cornerRadius(12)
+                        }
+
+                        VSpacer(24)
                     }
                     .padding(.horizontal, 16)
                     .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
@@ -64,6 +71,11 @@ struct ExpenseDetailsView: View {
                 }
             }
         }
+        .navigationDestination(isPresented: $showImageDisplayView) {
+            if let imageUrl = viewModel.expense?.imageUrl {
+                ExpenseImageZoomView(imageUrl: imageUrl, animationNamespace: Namespace())
+            }
+        }
     }
 }
 
@@ -98,10 +110,8 @@ private struct ExpenseHeaderView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .overlay {
-            RoundedRectangle(cornerRadius: 12)
-                .fill(container2Color)
-        }
+        .background(container2Color)
+        .cornerRadius(12)
         .padding(.top, 24)
     }
 }

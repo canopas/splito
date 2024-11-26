@@ -52,12 +52,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    static private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter
-    }()
-
     let router: Router<AppRoute>
     var hasMoreExpenses: Bool = true
 
@@ -242,7 +236,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             expense.expense.amount == Double(searchedExpense)
         }
         self.groupExpenses = Dictionary(grouping: filteredExpenses.uniqued().sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
-            return GroupHomeViewModel.dateFormatter.string(from: expense.expense.date.dateValue())
+            return expense.expense.date.dateValue().monthWithYear
         }
     }
 

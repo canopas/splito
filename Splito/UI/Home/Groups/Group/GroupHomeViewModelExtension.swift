@@ -2,7 +2,7 @@
 //  GroupHomeViewModelExtension.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 21/10/24.
+//  Created by Amisha Italiya on 21/10/24.
 //
 
 import Data

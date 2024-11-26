@@ -8,6 +8,8 @@
 import Data
 import BaseStyle
 import FirebaseFirestore
+import AVFoundation
+import SwiftUI
 
 class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
@@ -17,15 +19,20 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Inject private var expenseRepository: ExpenseRepository
 
     @Published var expenseName = ""
+    @Published private(set) var expenseImageUrl: String?
     @Published private(set) var payerName = "You"
 
-    @Published var expenseAmount: Double = 0
+    @Published var expenseImage: UIImage?
     @Published var expenseDate = Date()
+    @Published var expenseAmount: Double = 0
 
+    @Published var showImagePicker = false
     @Published var showGroupSelection = false
     @Published var showPayerSelection = false
+    @Published var showImagePickerOptions = false
     @Published var showSplitTypeSelection = false
     @Published private(set) var showLoader: Bool = false
+    @Published private(set) var sourceTypeIsCamera = false
 
     @Published var selectedGroup: Groups?
     @Published private(set) var expense: Expense?
@@ -33,7 +40,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var groupMembers: [String] = []
     @Published private(set) var selectedMembers: [String] = []
-    @Published private(set) var memberProfileUrls: [String] = []
 
     @Published private(set) var viewState: ViewState = .initial
     @Published private(set) var splitType: SplitType = .equally
@@ -76,7 +82,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 groupMembers = group.members
                 selectedMembers = group.members
             }
-            await fetchMemberProfileUrls()
             viewState = .initial
         } catch {
             viewState = .initial
@@ -107,7 +112,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             viewState = .loading
             let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
             await updateViewModelFieldsWithExpense(expense: expense)
-            await fetchMemberProfileUrls()
             await fetchAndUpdateGroupData(groupId: groupId)
             viewState = .initial
         } catch {
@@ -123,6 +127,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         expenseDate = expense.date.dateValue()
         splitType = expense.splitType
         selectedPayers = expense.paidBy
+        expenseImageUrl = expense.imageUrl
 
         if let splitData = expense.splitData {
             self.splitData = splitData
@@ -157,17 +162,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             showToastForError()
             return nil
         }
-    }
-
-    private func fetchMemberProfileUrls() async {
-        var profileUrls: [String] = []
-
-        for member in selectedMembers {
-            if let user = await fetchUserData(for: member) {
-                profileUrls.append(user.imageUrl != nil ? user.imageUrl! : "")
-            }
-        }
-        self.memberProfileUrls = profileUrls
     }
 }
 
@@ -204,6 +198,55 @@ extension AddExpenseViewModel {
         showGroupSelection = expenseId == nil
     }
 
+    func handleExpenseImageTap() {
+        UIApplication.shared.endEditing()
+        showImagePickerOptions = true
+    }
+
+    func handleActionSelection(_ action: ActionsOfSheet) {
+        switch action {
+        case .camera:
+            self.checkCameraPermission {
+                self.sourceTypeIsCamera = true
+                self.showImagePicker = true
+            }
+        case .gallery:
+            sourceTypeIsCamera = false
+            showImagePicker = true
+        case .remove:
+            withAnimation {
+                expenseImage = nil
+                expenseImageUrl = nil
+            }
+        }
+    }
+
+    private func checkCameraPermission(authorized: @escaping (() -> Void)) {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        authorized()
+                    }
+                }
+            }
+            return
+        case .restricted, .denied:
+            showAlertFor(alert: .init(title: "Important!", message: "Camera access is required to take picture for expenses",
+                                      positiveBtnTitle: "Allow", positiveBtnAction: { [weak self] in
+                if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(settingsURL)
+                }
+                self?.showAlert = false
+            }))
+        case .authorized:
+            authorized()
+        default:
+            return
+        }
+    }
+
     func handleGroupSelectionAction(group: Groups) {
         Task {
             await handleGroupSelection(group: group)
@@ -214,7 +257,6 @@ extension AddExpenseViewModel {
         selectedGroup = group
         groupMembers = group.members
         selectedMembers = group.members
-        await fetchMemberProfileUrls()
     }
 
     func handlePayerBtnAction() {
@@ -257,7 +299,6 @@ extension AddExpenseViewModel {
         selectedMembers = splitType == .equally ? members : splitData.map({ $0.key })
         self.splitData = splitData
         self.splitType = splitType
-        await fetchMemberProfileUrls()
     }
 
     func showSaveFailedError() {
@@ -322,9 +363,13 @@ extension AddExpenseViewModel {
 
     private func addExpense(group: Groups, expense: Expense) async -> Bool {
         guard let groupId = group.id else { return false }
+
+        let resizedImage = expenseImage?.aspectFittedToHeight(200)
+        let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
+
         do {
             showLoader = true
-            let newExpense = try await expenseRepository.addExpense(group: group, expense: expense)
+            let newExpense = try await expenseRepository.addExpense(group: group, expense: expense, imageData: imageData)
             let expenseInfo: [String: Any] = ["groupId": groupId, "expense": newExpense]
             NotificationCenter.default.post(name: .addExpense, object: nil, userInfo: expenseInfo)
 
@@ -366,15 +411,19 @@ extension AddExpenseViewModel {
         guard validateMembersInGroup(group: group, expense: expense) else {
             return false
         }
-        guard hasExpenseChanged(expense, oldExpense: oldExpense) else { return true }
+
+        let resizedImage = expenseImage?.aspectFittedToHeight(200)
+        let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
 
         do {
             showLoader = true
 
-            try await expenseRepository.updateExpense(group: group, expense: expense, oldExpense: oldExpense, type: .expenseUpdated)
-            NotificationCenter.default.post(name: .updateExpense, object: expense)
-            await updateGroupMemberBalance(expense: expense, updateType: .Update(oldExpense: oldExpense))
+            let updatedExpense = try await expenseRepository.updateExpenseWithImage(imageData: imageData, newImageUrl: expenseImageUrl,
+                                                                                    group: group, expense: (expense, oldExpense), type: .expenseUpdated)
+            NotificationCenter.default.post(name: .updateExpense, object: updatedExpense)
 
+            guard hasExpenseChanged(updatedExpense, oldExpense: oldExpense) else { return true }
+            await updateGroupMemberBalance(expense: updatedExpense, updateType: .Update(oldExpense: oldExpense))
             showLoader = false
             return true
         } catch {
@@ -387,7 +436,7 @@ extension AddExpenseViewModel {
     private func hasExpenseChanged(_ expense: Expense, oldExpense: Expense) -> Bool {
         return oldExpense.name != expense.name || oldExpense.amount != expense.amount ||
         oldExpense.date.dateValue() != expense.date.dateValue() || oldExpense.paidBy != expense.paidBy ||
-        oldExpense.updatedBy != expense.updatedBy || oldExpense.splitTo != expense.splitTo ||
+        oldExpense.imageUrl != expense.imageUrl || oldExpense.splitTo != expense.splitTo ||
         oldExpense.splitType != expense.splitType || oldExpense.splitData != expense.splitData ||
         oldExpense.isActive != expense.isActive
     }
@@ -417,6 +466,5 @@ extension AddExpenseViewModel {
     enum AddExpenseField {
         case expenseName
         case amount
-        case date
     }
 }

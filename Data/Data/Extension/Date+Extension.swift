@@ -16,6 +16,20 @@ public extension Date {
         return dateFormatter.string(from: self)
     }
 
+    // 13 Dec
+    var shortDate: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd MMM"
+        return dateFormatter.string(from: self)
+    }
+
+    // December 2024
+    var monthWithYear: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMMM yyyy"
+        return dateFormatter.string(from: self)
+    }
+
     var millisecondsSince1970: Int {
         Int((self.timeIntervalSince1970 * 1000.0).rounded())
     }
@@ -39,6 +53,13 @@ public extension Date {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMMM"
         return dateFormatter.string(from: self).capitalized
+    }
+
+    func isCurrentMonth() -> Bool {
+        let calendar = Calendar.current
+        let currentDate = Date()
+        return calendar.isDate(self, equalTo: currentDate, toGranularity: .month) &&
+               calendar.isDate(self, equalTo: currentDate, toGranularity: .year)
     }
 
     func startOfMonth() -> Date { // give start date of month

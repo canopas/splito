@@ -20,12 +20,13 @@ public class GroupRepository: ObservableObject {
 
     private var olderGroupName: String = ""
     private var groupMembers: [AppUser] = []
+    private let groupMembersQueue = DispatchQueue(label: "groupMembers.queue", attributes: .concurrent)
 
     public func createGroup(group: Groups, imageData: Data?) async throws -> Groups {
-        let groupId = try await store.createGroup(group: group)
+        let groupDocument = try await store.getNewGroupDocument()
 
         var newGroup = group
-        newGroup.id = groupId
+        newGroup.id = groupDocument.documentID
 
         // If image data is provided, upload the image and update the group's imageUrl
         if let imageData = imageData {
@@ -33,6 +34,7 @@ public class GroupRepository: ObservableObject {
             newGroup.imageUrl = imageUrl
         }
 
+        try await store.createGroup(document: groupDocument, group: newGroup)
         try await logAddGroupActivity(group: newGroup, type: .groupCreated)
 
         return newGroup
@@ -188,15 +190,25 @@ public class GroupRepository: ObservableObject {
     }
 
     public func fetchMemberBy(userId: String) async throws -> AppUser? {
-        if let existingMember = groupMembers.first(where: { $0.id == userId }) {
+        // Use a synchronous read to check if the member already exists in groupMembers
+        let existingMember = groupMembersQueue.sync { groupMembers.first(where: { $0.id == userId }) }
+
+        if let existingMember {
             return existingMember  // Return the available member from groupMembers
-        } else {
-            let member = try await userRepository.fetchUserBy(userID: userId)
-            if let member {
-                self.groupMembers.append(member)
-            }
-            return member
         }
+
+        let member = try await userRepository.fetchUserBy(userID: userId)
+
+        // Append to groupMembers safely with a barrier, ensuring thread safety
+        if let member {
+            try await withCheckedThrowingContinuation { continuation in
+                groupMembersQueue.async(flags: .barrier) {
+                    self.groupMembers.append(member)
+                    continuation.resume() // Resume after append is complete
+                }
+            }
+        }
+        return member
     }
 
     public func fetchMembersBy(memberIds: [String]) async throws -> [AppUser] {
@@ -204,12 +216,12 @@ public class GroupRepository: ObservableObject {
 
         // Filter out memberIds that already exist in groupMembers to minimise API calls
         let missingMemberIds = memberIds.filter { memberId in
-            let cachedMember = self.groupMembers.first { $0.id == memberId }
+            let cachedMember = self.groupMembersQueue.sync { self.groupMembers.first { $0.id == memberId } }
             return cachedMember == nil
         }
 
         if missingMemberIds.isEmpty {
-            return self.groupMembers.filter { memberIds.contains($0.id) }
+            return groupMembersQueue.sync { self.groupMembers.filter { memberIds.contains($0.id) } }
         }
 
         try await withThrowingTaskGroup(of: AppUser?.self) { groupTask in
@@ -222,8 +234,10 @@ public class GroupRepository: ObservableObject {
             for try await member in groupTask {
                 if let member {
                     members.append(member)
-                    if !groupMembers.contains(where: { $0.id == member.id }) {
-                        self.groupMembers.append(member)
+                    groupMembersQueue.async(flags: .barrier) {
+                        if !self.groupMembers.contains(where: { $0.id == member.id }) {
+                            self.groupMembers.append(member)
+                        }
                     }
                 }
             }

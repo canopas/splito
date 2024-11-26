@@ -11,10 +11,24 @@ public class ExpenseRepository: ObservableObject {
 
     @Inject private var store: ExpenseStore
     @Inject private var preference: SplitoPreference
+    @Inject private var storageManager: StorageManager
     @Inject private var activityLogRepository: ActivityLogRepository
 
-    public func addExpense(group: Groups, expense: Expense) async throws -> Expense {
-        let newExpense = try await store.addExpense(groupId: group.id ?? "", expense: expense)
+    public func addExpense(group: Groups, expense: Expense, imageData: Data?) async throws -> Expense {
+        // Generate a new document ID for the expense
+        let groupId = group.id ?? ""
+        let expenseDocument = try await store.getNewExpenseDocument(groupId: groupId)
+
+        var newExpense = expense
+        newExpense.id = expenseDocument.documentID
+
+        // If image data is provided, upload the image and update the expense's imageUrl
+        if let imageData {
+            let imageUrl = try await uploadImage(imageData: imageData, expense: newExpense)
+            newExpense.imageUrl = imageUrl
+        }
+
+        try await store.addExpense(document: expenseDocument, expense: newExpense)
         try await addActivityLogForExpense(group: group, expense: newExpense, oldExpense: newExpense, type: .expenseAdded)
         return newExpense
     }
@@ -26,6 +40,40 @@ public class ExpenseRepository: ObservableObject {
         updatedExpense.isActive = false  // Make expense inactive
         updatedExpense.updatedBy = userId
         try await updateExpense(group: group, expense: updatedExpense, oldExpense: expense, type: .expenseDeleted)
+    }
+
+    public func updateExpenseWithImage(imageData: Data?, newImageUrl: String?, group: Groups, expense: (new: Expense, old: Expense), type: ActivityType) async throws -> Expense {
+        var updatedExpense = expense.new
+
+        // If image data is provided, upload the new image and update the imageUrl
+        if let imageData {
+            let uploadedImageUrl = try await uploadImage(imageData: imageData, expense: updatedExpense)
+            updatedExpense.imageUrl = uploadedImageUrl
+        } else if let currentUrl = updatedExpense.imageUrl, newImageUrl == nil {
+            // If there's a current image URL and we want to remove it, delete the image and set imageUrl to nil
+            try await storageManager.deleteImage(imageUrl: currentUrl)
+            updatedExpense.imageUrl = nil
+        } else if let newImageUrl {
+            // If a new image URL is explicitly passed, update it
+            updatedExpense.imageUrl = newImageUrl
+        }
+
+        guard hasExpenseChanged(updatedExpense, oldExpense: expense.old) else { return updatedExpense }
+        try await updateExpense(group: group, expense: updatedExpense, oldExpense: expense.old, type: type)
+        return updatedExpense
+    }
+
+    private func uploadImage(imageData: Data, expense: Expense) async throws -> String {
+        guard let expenseId = expense.id else { return "" }
+        return try await storageManager.uploadImage(for: .expense, id: expenseId, imageData: imageData) ?? ""
+    }
+
+    private func hasExpenseChanged(_ expense: Expense, oldExpense: Expense) -> Bool {
+        return oldExpense.name != expense.name || oldExpense.amount != expense.amount ||
+        oldExpense.date.dateValue() != expense.date.dateValue() || oldExpense.paidBy != expense.paidBy ||
+        oldExpense.updatedBy != expense.updatedBy || oldExpense.imageUrl != expense.imageUrl ||
+        oldExpense.splitTo != expense.splitTo || oldExpense.splitType != expense.splitType ||
+        oldExpense.splitData != expense.splitData || oldExpense.isActive != expense.isActive
     }
 
     public func updateExpense(group: Groups, expense: Expense, oldExpense: Expense, type: ActivityType) async throws {
