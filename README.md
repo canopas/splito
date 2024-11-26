@@ -76,11 +76,14 @@ Splito is currently in active development 🚧, with plans to incorporate additi
     <td> <img src="./Screenshots/GroupBalance.png"/> </td>
     <td> <img src="./Screenshots/GroupSummary.png"/> </td>
     <td> <img src="./Screenshots/Transactions.png"/> </td>
-  </tr>  
+  </tr>
+  <tr>
+    <td> <img src="./Screenshots/ActivityLogs.png"/> </td>
+  </tr>
 </table>
 
 ## Requirements ✅
-Make sure you have the latest stable version of Xcode installed. You can then go ahead and clone this repository to Xcode.
+Make sure you have the latest stable version of Xcode installed. Then, you can clone this repository to Xcode.
 
 To run Splito locally, you'll need:
 - iOS (version 16.4 or higher)
