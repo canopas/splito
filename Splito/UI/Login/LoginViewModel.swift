@@ -37,13 +37,13 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         GIDSignIn.sharedInstance.configuration = config
 
         guard let controller = TopViewController.shared.topViewController() else {
-            LogE("LoginViewModel :: Top Controller not found.")
+            LogE("LoginViewModel: \(#function) Top Controller not found.")
             return
         }
 
         GIDSignIn.sharedInstance.signIn(withPresenting: controller) { [unowned self] result, error in
             guard error == nil else {
-                LogE("LoginViewModel :: Google Login Error: \(String(describing: error))")
+                LogE("LoginViewModel: \(#function) Google Login Error: \(String(describing: error)).")
                 return
             }
 
@@ -90,7 +90,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
                 if let error {
                     self.showGoogleLoading = false
                     self.showAppleLoading = false
-                    LogE("LoginViewModel :: Firebase Error: \(error), with type Apple login.")
+                    LogE("LoginViewModel: \(#function) Firebase Error: \(error), with type Apple login.")
                     self.alert = .init(message: "Server error")
                     self.showAlert = true
                 } else if let result {
@@ -101,7 +101,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
                     Task {
                         await self.storeUser(user: user)
                     }
-                    LogD("LoginViewModel :: Logged in User: \(result.user)")
+                    LogD("LoginViewModel: \(#function) Logged in User: \(result.user)")
                 } else {
                     self.alert = .init(message: "Contact Support")
                     self.showAlert = true
@@ -114,7 +114,9 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
             let user = try await userRepository.storeUser(user: user)
             self.preference.user = user
             self.onLoginSuccess()
+            LogD("LoginViewModel: \(#function) User stored successfully.")
         } catch {
+            LogE("LoginViewModel: \(#function) Failed to store user: \(error).")
             self.alert = .init(message: error.localizedDescription)
             self.showAlert = true
         }

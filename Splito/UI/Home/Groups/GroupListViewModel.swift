@@ -89,7 +89,9 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             currentViewState = .initial
             combinedGroups = sortedGroups
             groupListState = sortedGroups.isEmpty ? .noGroup : .hasGroup
+            LogD("GroupListViewModel: \(#function) Groups fetched successfully.")
         } catch {
+            LogE("GroupListViewModel: \(#function) Failed to fetch groups: \(error).")
             handleServiceError()
         }
     }
@@ -114,8 +116,10 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             currentViewState = .initial
             combinedGroups.append(contentsOf: sortedGroups)
             groupListState = combinedGroups.isEmpty ? .noGroup : .hasGroup
+            LogD("GroupListViewModel: \(#function) Groups fetched successfully.")
         } catch {
             currentViewState = .initial
+            LogE("GroupListViewModel: \(#function) Failed to fetch more groups: \(error).")
             showToastForError()
         }
     }
@@ -168,9 +172,12 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     private func fetchGroup(groupId: String) async -> Groups? {
         do {
-            return try await groupRepository.fetchGroupBy(id: groupId)
+            let group = try await groupRepository.fetchGroupBy(id: groupId)
+            LogD("GroupListViewModel: \(#function) Group fetched successfully.")
+            return group
         } catch {
             showToastForError()
+            LogE("GroupListViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             return nil
         }
     }
@@ -276,12 +283,14 @@ extension GroupListViewModel {
     }
 
     private func deleteGroup(group: Groups?) async {
-        guard let group else { return }
+        guard let group, let groupId = group.id else { return }
 
         do {
             try await groupRepository.deleteGroup(group: group)
             NotificationCenter.default.post(name: .deleteGroup, object: group)
+            LogD("GroupListViewModel: \(#function) Group deleted successfully.")
         } catch {
+            LogE("GroupListViewModel: \(#function) Failed to delete group \(groupId): \(error).")
             showToastForError()
         }
     }
@@ -341,7 +350,9 @@ extension GroupListViewModel {
                     do {
                         let groupInformation = try await fetchGroupInformation(group: updatedGroup)
                         combinedGroups[existingIndex] = groupInformation
+                        LogD("GroupListViewModel: \(#function) Group information fetched Successfully.")
                     } catch {
+                        LogE("GroupListViewModel: \(#function) Failed to fetch group information: \(error).")
                         showToastForError()
                     }
                 }
@@ -375,7 +386,9 @@ extension GroupListViewModel {
                     combinedGroups[index] = groupInfo
                 }
             }
+            LogD("GroupListViewModel: \(#function) Members fetched successfully.")
         } catch {
+            LogE("GroupListViewModel: \(#function) Failed to fetch members: \(error).")
             showToastForError()
         }
     }

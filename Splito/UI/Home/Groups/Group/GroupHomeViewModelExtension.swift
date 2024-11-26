@@ -100,7 +100,7 @@ extension GroupHomeViewModel {
     }
 
     func restoreGroup() {
-        guard var group, let userId = preference.user?.id else { return }
+        guard var group, let groupId = group.id, let userId = preference.user?.id else { return }
 
         Task { [weak self] in
             guard let self else { return }
@@ -110,7 +110,9 @@ extension GroupHomeViewModel {
                 group.updatedBy = userId
                 try await self.groupRepository.updateGroup(group: group, type: .groupRestored)
                 self.fetchGroupAndExpenses()
+                LogD("GroupHomeViewModel: \(#function) Group restored successfully.")
             } catch {
+                LogE("GroupHomeViewModel: \(#function) Failed to restore group \(groupId): \(error).")
                 self.handleServiceError()
             }
         }
@@ -127,7 +129,8 @@ extension GroupHomeViewModel {
     }
 
     private func deleteExpense(expense: Expense) {
-        guard let group, let userId = preference.user?.id, validateGroupMembers(expense: expense) else { return }
+        guard let group, let expenseId = expense.id, let userId = preference.user?.id,
+              validateGroupMembers(expense: expense) else { return }
 
         Task {
             do {
@@ -136,7 +139,9 @@ extension GroupHomeViewModel {
 
                 try await expenseRepository.deleteExpense(group: group, expense: deletedExpense)
                 await updateGroupMemberBalance(expense: deletedExpense, updateType: .Delete)
+                LogD("GroupHomeViewModel: \(#function) Expense deleted successfully.")
             } catch {
+                LogE("GroupHomeViewModel: \(#function) Failed to delete expense \(expenseId): \(error)")
                 showToastForError()
             }
         }
@@ -144,7 +149,7 @@ extension GroupHomeViewModel {
 
     private func validateGroupMembers(expense: Expense) -> Bool {
         guard let group else {
-            LogE("GroupHomeViewModel: Missing required group.")
+            LogE("GroupHomeViewModel: \(#function) Missing required group.")
             return false
         }
 
@@ -161,14 +166,16 @@ extension GroupHomeViewModel {
     }
 
     private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {
-        guard var group else { return }
+        guard var group, let expenseId = expense.id else { return }
         let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
         group.balances = memberBalance
 
         do {
             try await groupRepository.updateGroup(group: group, type: .none)
             NotificationCenter.default.post(name: .deleteExpense, object: expense)
+            LogD("GroupHomeViewModel: \(#function) Member balance updated successfully.")
         } catch {
+            LogE("GroupHomeViewModel: \(#function) Failed to update member balance for expense \(expenseId): \(error).")
             self.showToastForError()
         }
     }

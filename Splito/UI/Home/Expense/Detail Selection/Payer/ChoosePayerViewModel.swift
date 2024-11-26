@@ -48,7 +48,9 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
             }
             let users = try await groupRepository.fetchMembersBy(memberIds: group.members)
             currentViewState = users.isEmpty ? .noMember : .hasMembers(users)
+            LogD("ChoosePayerViewModel: \(#function) Group with members fetched successfully.")
         } catch {
+            LogE("ChoosePayerViewModel: \(#function) Failed to fetch group with members: \(error).")
             handleServiceError()
         }
     }

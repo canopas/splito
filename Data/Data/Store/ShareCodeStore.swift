@@ -17,7 +17,7 @@ public class ShareCodeStore: ObservableObject {
         do {
             try database.collection(self.COLLECTION_NAME).addDocument(from: sharedCode)
         } catch {
-            LogE("ShareCodeStore :: \(#function) error: \(error.localizedDescription)")
+            LogE("ShareCodeStore: \(#function) Failed to add shared code: \(error).")
             throw error
         }
     }
@@ -29,7 +29,7 @@ public class ShareCodeStore: ObservableObject {
 
         // Check for documents and decode the first one
         guard let document = snapshot.documents.first else {
-            LogD("ShareCodeStore :: \(#function) The document is not available.")
+            LogD("ShareCodeStore: \(#function) The document is not available.")
             return nil
         }
 
@@ -41,7 +41,7 @@ public class ShareCodeStore: ObservableObject {
         do {
             try await database.collection(COLLECTION_NAME).document(documentId).delete()
         } catch {
-            LogE("ShareCodeStore :: \(#function): Deleting data failed with error: \(error.localizedDescription).")
+            LogE("ShareCodeStore: \(#function) Failed to delete shared code: \(error).")
             throw error
         }
     }

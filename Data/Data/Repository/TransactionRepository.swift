@@ -90,7 +90,9 @@ public class TransactionRepository: ObservableObject {
         if let activity = createActivityLogForTransaction(context: context), let memberId = context.memberId {
             do {
                 try await activityLogRepository.addActivityLog(userId: memberId, activity: activity)
+                LogD("TransactionRepository: \(#function) Activity log added successfully for \(memberId).")
             } catch {
+                LogE("TransactionRepository: \(#function) Failed to add activity log for \(memberId): \(error).")
                 return error
             }
         }

@@ -39,7 +39,9 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
             group = latestGroup
             filterDataForSelectedTab()
             viewState = .initial
+            LogD("GroupTotalsViewModel: \(#function) Group fetched successfully.")
         } catch {
+            LogE("GroupTotalsViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             handleServiceError()
         }
     }

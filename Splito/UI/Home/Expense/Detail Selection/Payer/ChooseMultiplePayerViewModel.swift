@@ -59,7 +59,9 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
             }
             groupMembers = try await groupRepository.fetchMembersBy(memberIds: group.members)
             currentViewState = .initial
+            LogD("ChooseMultiplePayerViewModel: \(#function) Group with members fetched successfully.")
         } catch {
+            LogE("ChooseMultiplePayerViewModel: \(#function) Failed to fetch group with members: \(error).")
             handleServiceError()
         }
     }

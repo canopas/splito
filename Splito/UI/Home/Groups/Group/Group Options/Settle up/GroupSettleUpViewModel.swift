@@ -47,7 +47,9 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             self.group = group
             calculateMemberPayableAmount(group: group)
             viewState = .initial
+            LogD("GroupSettleUpViewModel: \(#function) Group fetched successfully.")
         } catch {
+            LogE("GroupSettleUpViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             handleServiceError()
         }
     }
@@ -71,7 +73,9 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             self.members = try await groupRepository.fetchMembersBy(memberIds: group.members)
             self.members.removeAll(where: { $0.id == userId })
             viewState = .initial
+            LogD("GroupSettleUpViewModel: \(#function) Group members fetched successfully.")
         } catch {
+            LogE("GroupSettleUpViewModel: \(#function) Failed to fetch group members: \(error).")
             handleServiceError()
         }
     }

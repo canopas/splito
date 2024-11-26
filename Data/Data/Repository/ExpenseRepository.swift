@@ -139,7 +139,9 @@ public class ExpenseRepository: ObservableObject {
         if let activity = createActivityLogForExpense(context: context), let memberId = context.memberId {
             do {
                 try await activityLogRepository.addActivityLog(userId: memberId, activity: activity)
+                LogD("ExpenseRepository: \(#function) Activity log added successfully for \(memberId).")
             } catch {
+                LogE("ExpenseRepository: \(#function) Failed to add activity log for \(memberId): \(error).")
                 return error
             }
         }

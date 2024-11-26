@@ -79,7 +79,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         do {
             self.group = try await groupRepository.fetchGroupBy(id: groupId)
             self.viewState = .initial
+            LogD("GroupPaymentViewModel: \(#function) Group fetched successfully.")
         } catch {
+            LogE("GroupPaymentViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             handleServiceError()
         }
     }
@@ -91,7 +93,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             self.transaction = try await transactionRepository.fetchTransactionBy(groupId: groupId, transactionId: transactionId)
             self.paymentDate = self.transaction?.date.dateValue() ?? Date.now
             self.viewState = .initial
+            LogD("GroupPaymentViewModel: \(#function) Payment fetched successfully.")
         } catch {
+            LogE("GroupPaymentViewModel: \(#function) Failed to fetch payment \(transactionId): \(error).")
             handleServiceError()
         }
     }
@@ -102,7 +106,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             let user = try await userRepository.fetchUserBy(userID: payerId)
             if let user { payer = user }
             viewState = .initial
+            LogD("GroupPaymentViewModel: \(#function) Payer fetched successfully.")
         } catch {
+            LogE("GroupPaymentViewModel: \(#function) Failed to fetch payer \(payerId): \(error).")
             handleServiceError()
         }
     }
@@ -113,7 +119,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             let user = try await userRepository.fetchUserBy(userID: receiverId)
             if let user { receiver = user }
             viewState = .initial
+            LogD("GroupPaymentViewModel: \(#function) Payable fetched successfully.")
         } catch {
+            LogE("GroupPaymentViewModel: \(#function) Failed to fetch payable \(receiverId): \(error).")
             handleServiceError()
         }
     }
@@ -131,7 +139,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     private func validateGroupMembers() -> Bool {
         guard let group, let payer, let receiver else {
-            LogE("GroupPaymentViewModel: Missing required group or member information.")
+            LogE("GroupPaymentViewModel: \(#function) Missing required group or member information.")
             return false
         }
 
@@ -174,16 +182,18 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             await updateGroupMemberBalance(updateType: .Add)
 
             showLoader = false
+            LogD("GroupPaymentViewModel: \(#function) Payment added successfully.")
             return true
         } catch {
             showLoader = false
+            LogE("GroupPaymentViewModel: \(#function) Failed to add payment: \(error).")
             showToastForError()
             return false
         }
     }
 
     private func updateTransaction(transaction: Transactions, oldTransaction: Transactions) async -> Bool {
-        guard let group, let payer, let receiver else {
+        guard let group, let transactionId, let payer, let receiver else {
             LogE("GroupPaymentViewModel: \(#function) Missing required group or member information.")
             return false
         }
@@ -204,9 +214,11 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             await updateGroupMemberBalance(updateType: .Update(oldTransaction: oldTransaction))
 
             showLoader = false
+            LogD("GroupPaymentViewModel: \(#function) Payment updated successfully.")
             return true
         } catch {
             showLoader = false
+            LogE("GroupPaymentViewModel: \(#function) Failed to update payment \(transactionId): \(error).")
             showToastForError()
             return false
         }
@@ -220,7 +232,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateGroupMemberBalance(updateType: TransactionUpdateType) async {
-        guard var group, let transaction else {
+        guard var group, let transaction, let transactionId = transaction.id else {
             LogE("GroupPaymentViewModel: \(#function) Transaction information not found.")
             showLoader = false
             return
@@ -230,8 +242,10 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
             group.balances = memberBalance
             try await groupRepository.updateGroup(group: group, type: .none)
+            LogD("GroupPaymentViewModel: \(#function) Member balance updated successfully.")
         } catch {
             showLoader = false
+            LogE("GroupPaymentViewModel: \(#function) Failed to update member balance for payment \(transactionId): \(error).")
             showToastForError()
         }
     }

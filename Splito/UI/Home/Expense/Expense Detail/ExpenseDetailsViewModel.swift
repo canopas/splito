@@ -54,7 +54,9 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 self.groupImageUrl = imageUrl
             }
             viewState = .initial
+            LogD("ExpenseDetailsViewModel: \(#function) Group fetched successfully.")
         } catch {
+            LogE("ExpenseDetailsViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             handleServiceError()
         }
     }
@@ -65,7 +67,9 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
             await processExpense(expense: expense)
             viewState = .initial
+            LogD("ExpenseDetailsViewModel: \(#function) Expense fetched successfully.")
         } catch {
+            LogE("ExpenseDetailsViewModel: \(#function) Failed to fetch expense \(expenseId): \(error).")
             handleServiceError()
         }
     }
@@ -91,9 +95,12 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     func fetchUserData(for userId: String) async -> AppUser? {
         do {
-            return try await userRepository.fetchUserBy(userID: userId)
+            let member = try await userRepository.fetchUserBy(userID: userId)
+            LogD("ExpenseDetailsViewModel: \(#function) Member fetched successfully.")
+            return member
         } catch {
             viewState = .initial
+            LogE("ExpenseDetailsViewModel: \(#function) Failed to fetch member \(userId): \(error).")
             showToastForError()
             return nil
         }
@@ -145,8 +152,10 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 await self.updateGroupMemberBalance(updateType: .Add)
 
                 self.viewState = .initial
+                LogD("ExpenseDetailsViewModel: \(#function) Expense restored successfully.")
                 self.router.pop()
             } catch {
+                LogE("ExpenseDetailsViewModel: \(#function) Failed to restore expense \(expenseId): \(error).")
                 self.handleServiceError()
             }
         }
@@ -174,9 +183,11 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 await self.updateGroupMemberBalance(updateType: .Delete)
 
                 viewState = .initial
+                LogD("ExpenseDetailsViewModel: \(#function) Expense deleted successfully.")
                 router.pop()
             } catch {
                 viewState = .initial
+                LogE("ExpenseDetailsViewModel: \(#function) Failed to delete expense \(expenseId): \(error).")
                 showToastForError()
             }
         }
@@ -184,7 +195,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     private func validateGroupMembers(action: String) -> Bool {
         guard let group, let expense else {
-            LogE("ExpenseDetailsViewModel: Missing required group or expense.")
+            LogE("ExpenseDetailsViewModel: \(#function) Missing required group or expense.")
             return false
         }
 
@@ -221,8 +232,10 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
             group.balances = memberBalance
             try await groupRepository.updateGroup(group: group, type: .none)
+            LogD("ExpenseDetailsViewModel: \(#function) Member balance updated successfully.")
         } catch {
             viewState = .initial
+            LogE("ExpenseDetailsViewModel: \(#function) Failed to update member balance for expense \(expenseId): \(error).")
             showToastForError()
         }
     }

@@ -30,7 +30,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         let options: UNAuthorizationOptions = [.alert, .badge, .sound, .provisional]
         UNUserNotificationCenter.current().requestAuthorization(options: options) { (granted, error) in
             if let error {
-                LogE("Failed to request notification authorization: \(error)")
+                LogE("AppDelegate: \(#function) Failed to request notification authorization: \(error).")
                 return
             }
             guard granted else { return }
@@ -53,7 +53,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
                 NotificationCenter.default.post(name: .showActivityLog, object: self, userInfo: ["activityId": activityId])
             }
         } else {
-            LogE("Activity id not found in notification data.")
+            LogE("AppDelegate: \(#function) Activity id not found in notification data.")
         }
         completionHandler()
     }
@@ -69,12 +69,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        LogE("Fail to register for remote notifications with error: \(error)")
+        LogE("AppDelegate: \(#function) Failed to register for remote notifications: \(error).")
     }
 
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         guard let fcmToken else {
-            LogE("Device fcm token not found")
+            LogE("AppDelegate: \(#function) Device fcm token not found.")
             return
         }
 
@@ -88,14 +88,14 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
             "device_fcm_token": fcmToken
         ], merge: true) { error in
             if let error {
-                LogE("Error updating device FCM token: \(error)")
+                LogE("AppDelegate: \(#function) Failed to update device fcm token: \(error).")
                 if retryCount > 0 {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
                         self?.updateDeviceFcmToken(userId: userId, fcmToken: fcmToken, retryCount: retryCount - 1)
                     }
                 }
             } else {
-                LogI("Device fcm token successfully updated in Firestore")
+                LogI("AppDelegate: \(#function) Device fcm token updated successfully.")
             }
         }
     }
