@@ -174,7 +174,9 @@ public class GroupRepository: ObservableObject {
         if let activity = createActivityLogForGroup(context: context), let memberId = context.memberId {
             do {
                 try await activityLogRepository.addActivityLog(userId: memberId, activity: activity)
+                LogD("GroupRepository: \(#function) Activity log added successfully for \(memberId).")
             } catch {
+                LogE("GroupRepository: \(#function) Failed to add activity log for \(memberId): \(error).")
                 return error
             }
         }

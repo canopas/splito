@@ -55,7 +55,9 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
             groupMemberData = try await groupRepository.fetchMembersBy(memberIds: group.members)
             calculateExpensesSimplified()
             viewState = .initial
+            LogD("GroupBalancesViewModel: \(#function) Group with members fetched successfully.")
         } catch {
+            LogE("GroupBalancesViewModel: \(#function) Failed to fetch group with members: \(error).")
             handleServiceError()
         }
     }

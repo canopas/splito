@@ -44,7 +44,9 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
             }
             self.members = try await groupRepository.fetchMembersBy(memberIds: group.members)
             currentViewState = .initial
+            LogD("GroupWhoIsPayingViewModel: \(#function) Group with members fetched successfully.")
         } catch {
+            LogE("GroupWhoIsPayingViewModel: \(#function) Failed to fetch group with members: \(error).")
             handleServiceError()
         }
     }

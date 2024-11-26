@@ -46,7 +46,7 @@ public class SplitoPreference {
                     return user
                 }
             } catch let error {
-                LogE("AppPreferences \(#function) json decode error: \(error.localizedDescription)")
+                LogE("AppPreferences \(#function) json decode error: \(error).")
             }
             return nil
         } set {
@@ -54,7 +54,7 @@ public class SplitoPreference {
                 let data = try JSONEncoder().encode(newValue)
                 userDefaults.set(data, forKey: Key.user.rawValue)
             } catch let error {
-                LogE("AppPreferences \(#function) json encode error: \(error.localizedDescription)")
+                LogE("AppPreferences \(#function) json encode error: \(error).")
             }
         }
     }

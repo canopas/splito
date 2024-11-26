@@ -101,7 +101,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }
 
             self.group = group
+            LogD("GroupHomeViewModel: \(#function) Group fetched successfully.")
         } catch {
+            LogE("GroupHomeViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             handleServiceError()
         }
     }
@@ -120,7 +122,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
             await combineMemberWithExpense(expenses: result.expenses.uniqued())
             hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
+            LogD("GroupHomeViewModel: \(#function) Expenses fetched successfully.")
         } catch {
+            LogE("GroupHomeViewModel: \(#function) Failed to fetch expenses: \(error).")
             handleServiceError()
         }
     }
@@ -154,7 +158,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
             await combineMemberWithExpense(expenses: result.expenses.uniqued())
             hasMoreExpenses = !(result.expenses.count < EXPENSES_LIMIT)
+            LogD("GroupHomeViewModel: \(#function) Expenses fetched successfully.")
         } catch {
+            LogE("GroupHomeViewModel: \(#function) Failed to fetch more expenses: \(error).")
             showToastForError()
         }
     }
@@ -192,9 +198,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             if let member {
                 addMemberIfNotExist(member)
             }
+            LogD("GroupHomeViewModel: \(#function) Member fetched successfully.")
             return member
         } catch {
             groupState = .noMember
+            LogE("GroupHomeViewModel: \(#function) Failed to fetch member \(memberId): \(error).")
             showToastForError()
             return nil
         }

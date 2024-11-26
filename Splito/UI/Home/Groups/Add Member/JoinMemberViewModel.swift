@@ -40,11 +40,13 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
             }
             await addMemberIfCodeExists(code: code)
             showLoader = false
+            LogD("JoinMemberViewModel: \(#function) Member joined successfully.")
             completion(true)
         } catch {
             showLoader = false
-            completion(false)
+            LogE("JoinMemberViewModel: \(#function) Failed to join member: \(error).")
             showToastForError()
+            completion(false)
         }
     }
 
@@ -72,8 +74,10 @@ class JoinMemberViewModel: BaseViewModel, ObservableObject {
             try await groupRepository.addMemberToGroup(groupId: code.groupId, memberId: userId)
             NotificationCenter.default.post(name: .joinGroup, object: code.groupId)
             try await codeRepository.deleteSharedCode(documentId: code.code)
+            LogD("JoinMemberViewModel: \(#function) Member added successfully.")
         } catch {
             showLoader = false
+            LogE("JoinMemberViewModel: \(#function) Failed to add member: \(error).")
             showToastForError()
         }
     }

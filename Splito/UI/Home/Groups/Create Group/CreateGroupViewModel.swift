@@ -110,17 +110,20 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             showLoader = true
             let group = try await groupRepository.createGroup(group: group, imageData: imageData)
             NotificationCenter.default.post(name: .addGroup, object: group)
+
             showLoader = false
+            LogD("CreateGroupViewModel: \(#function) Group created successfully.")
             return true
         } catch {
             showLoader = false
+            LogE("CreateGroupViewModel: \(#function) Failed to create group: \(error).")
             showToastForError()
             return false
         }
     }
 
     private func updateGroup(group: Groups) async -> Bool {
-        guard let userId = preference.user?.id else { return false }
+        guard let userId = preference.user?.id, let groupId = group.id else { return false }
 
         var newGroup = group
         newGroup.name = groupName.trimming(spaces: .leadingAndTrailing)
@@ -135,10 +138,13 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             let updatedGroup = try await groupRepository.updateGroupWithImage(imageData: imageData, newImageUrl: profileImageUrl,
                                                                               group: newGroup, oldGroupName: group.name)
             NotificationCenter.default.post(name: .updateGroup, object: updatedGroup)
+
             showLoader = false
+            LogD("CreateGroupViewModel: \(#function) Group updated successfully.")
             return true
         } catch {
             showLoader = false
+            LogE("CreateGroupViewModel: \(#function) Failed to update group \(groupId): \(error).")
             showToastForError()
             return false
         }

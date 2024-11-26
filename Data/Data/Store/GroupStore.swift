@@ -35,9 +35,9 @@ class GroupStore: ObservableObject {
 
     func updateGroup(group: Groups) async throws {
         if let groupId = group.id {
-            try groupReference.document(groupId).setData(from: group, merge: false)
+            try groupReference.document(groupId).setData(from: group, merge: true)
         } else {
-            LogE("GroupStore :: \(#function) Group not found.")
+            LogE("GroupStore: \(#function) Group not found.")
             throw ServiceError.dataNotFound
         }
     }

@@ -82,7 +82,7 @@ public class VerifyOtpViewModel: BaseViewModel, ObservableObject {
                 } else if (error! as NSError).code == FirebaseAuth.AuthErrorCode.missingPhoneNumber.rawValue || (error! as NSError).code == FirebaseAuth.AuthErrorCode.invalidPhoneNumber.rawValue {
                     self.showAlertFor(message: "Enter a valid phone number")
                 } else {
-                    LogE("Firebase: Phone login fail with error: \(error.debugDescription)")
+                    LogE("VerifyOtpViewModel: \(#function) Phone login fail with error: \(error.debugDescription)")
                     self.showAlertFor(title: "Authentication failed",
                                       message: "Apologies, we were not able to complete the authentication process. Please try again later.")
                 }
@@ -128,7 +128,9 @@ extension VerifyOtpViewModel {
             self.preference.isVerifiedUser = true
             self.preference.user = user
             self.onVerificationSuccess()
+            LogD("VerifyOtpViewModel: \(#function) User stored successfully.")
         } catch {
+            LogE("VerifyOtpViewModel: \(#function) Failed to store user: \(error).")
             self.alert = .init(message: error.localizedDescription)
             self.showAlert = true
         }

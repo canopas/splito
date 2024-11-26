@@ -44,7 +44,9 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             self.group = group
             viewState = .initial
+            LogD("InviteMemberViewModel: \(#function) Group fetched successfully.")
         } catch {
+            LogE("InviteMemberViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             handleServiceError()
         }
     }
@@ -58,7 +60,9 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
                 await generateInviteCode()
             }
             viewState = .initial
+            LogD("InviteMemberViewModel: \(#function) Invite code generated successfully.")
         } catch {
+            LogE("InviteMemberViewModel: \(#function) Failed to generate invite code: \(error).")
             handleServiceError()
         }
     }
@@ -76,11 +80,13 @@ class InviteMemberViewModel: BaseViewModel, ObservableObject {
             showLoader = true
             try await codeRepository.addSharedCode(sharedCode: shareCode)
             showLoader = false
+            LogD("InviteMemberViewModel: \(#function) Shared code stored successfully.")
             completion(true)
         } catch {
             showLoader = false
-            completion(false)
+            LogE("InviteMemberViewModel: \(#function) Failed to store shared code: \(error).")
             showToastForError()
+            completion(false)
         }
     }
 

@@ -33,9 +33,9 @@ public class TransactionStore: ObservableObject {
 
     func updateTransaction(groupId: String, transaction: Transactions) async throws {
         if let transactionId = transaction.id {
-            try transactionReference(groupId: groupId).document(transactionId).setData(from: transaction, merge: false)
+            try transactionReference(groupId: groupId).document(transactionId).setData(from: transaction, merge: true)
         } else {
-            LogE("TransactionStore :: \(#function) Transaction not found.")
+            LogE("TransactionStore: \(#function) Payment not found.")
             throw ServiceError.dataNotFound
         }
     }

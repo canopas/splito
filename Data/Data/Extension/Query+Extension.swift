@@ -25,13 +25,13 @@ extension Query {
         /// includeMetadataChanges: false: This option ensures that your listener will only be triggered by actual data changes, not by metadata changes (like network acknowledgment or pending writes).
         let listener = self.addSnapshotListener(includeMetadataChanges: false) { querySnapshot, error in
             if let error {
-                LogE("SnapshotPublisher :: error: \(error.localizedDescription)")
+                LogE("SnapshotPublisher: \(#function) error: \(error).")
                 publisher.send(completion: .failure(.databaseError(error: error)))
                 return
             }
 
             guard let documents = querySnapshot?.documents else {
-                LogE("SnapshotPublisher :: The document is not available.")
+                LogE("SnapshotPublisher: \(#function) The document is not available.")
                 publisher.send(completion: .finished)
                 return
             }
@@ -42,7 +42,7 @@ extension Query {
                 }
                 publisher.send(decodedDocuments)
             } catch {
-                LogE("SnapshotPublisher :: Decode error: \(error.localizedDescription)")
+                LogE("SnapshotPublisher: \(#function) Decode error: \(error).")
                 publisher.send(completion: .failure(.decodingError))
             }
         }

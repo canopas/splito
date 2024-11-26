@@ -41,22 +41,23 @@ class UserStore: ObservableObject {
         listener?.remove()
         listener = usersCollection.document(id).addSnapshotListener { snapshot, error in
             if let error {
-                LogE("UserStore :: \(#function) Error fetching document: \(error.localizedDescription)")
+                LogE("UserStore: \(#function) Error fetching document: \(error).")
                 completion(nil)
                 return
             }
 
             guard let snapshot else {
-                LogE("UserStore :: \(#function) snapshot is nil for requested user.")
+                LogE("UserStore: \(#function) snapshot is nil for requested user.")
                 completion(nil)
                 return
             }
 
             do {
                 let user = try snapshot.data(as: AppUser.self)
+                LogD("UserStore: \(#function) Latest user fetched successfully.")
                 completion(user)
             } catch {
-                LogE("UserStore :: \(#function) Error decoding user data: \(error.localizedDescription)")
+                LogE("UserStore: \(#function) Error decoding user data: \(error).")
                 completion(nil)
             }
         }

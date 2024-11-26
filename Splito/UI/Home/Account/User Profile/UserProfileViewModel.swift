@@ -140,6 +140,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             preference.user = user
             isSaveInProgress = false
 
+            LogD("UserProfileViewModel: \(#function) User updated successfully.")
             if isOpenFromOnboard {
                 onDismiss?()
             } else {
@@ -147,6 +148,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             }
         } catch {
             isSaveInProgress = false
+            LogE("UserProfileViewModel: \(#function) Failed to update user: \(error).")
             showToastForError()
         }
     }
@@ -167,7 +169,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
     private func deleteUser() async {
         guard let user = preference.user else {
-            LogD("UserProfileViewModel :: User does not exist.")
+            LogD("UserProfileViewModel: \(#function) User does not exist.")
             return
         }
 
@@ -178,9 +180,10 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             preference.clearPreferenceSession()
             isDeleteInProgress = false
             goToOnboardScreen()
-            LogD("UserProfileViewModel :: user deleted.")
+            LogD("UserProfileViewModel: \(#function) User deleted successfully.")
         } catch {
             isDeleteInProgress = false
+            LogE("UserProfileViewModel: \(#function) Failed to delete user: \(error).")
             if error.localizedDescription.contains(REQUIRE_AGAIN_LOGIN_TEXT) {
                 alert = .init(title: "", message: error.localizedDescription,
                               positiveBtnTitle: "Reauthenticate", positiveBtnAction: {
@@ -204,7 +207,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 extension UserProfileViewModel {
     private func reAuthenticateUser() {
         guard let user = FirebaseProvider.auth.currentUser else {
-            LogE("UserProfileViewModel: User not found for delete.")
+            LogE("UserProfileViewModel: \(#function) User not found for delete.")
             return
         }
 
@@ -213,7 +216,7 @@ extension UserProfileViewModel {
             if let error {
                 self?.isDeleteInProgress = false
                 self?.showAlertFor(message: error.localizedDescription)
-                LogE("UserProfileViewModel: Error reloading user: \(error.localizedDescription)")
+                LogE("UserProfileViewModel: \(#function) Error reloading user: \(error).")
             } else {
                 self?.promptForReAuthentication(user)
             }
@@ -224,7 +227,7 @@ extension UserProfileViewModel {
         getAuthCredential(user) { [weak self] credential in
             guard let credential else {
                 self?.isDeleteInProgress = false
-                LogE("UserProfileViewModel: Credential are - \(String(describing: credential))")
+                LogE("UserProfileViewModel: \(#function) Credential are - \(String(describing: credential))")
                 return
             }
 
@@ -233,7 +236,7 @@ extension UserProfileViewModel {
                 if let error {
                     self.isDeleteInProgress = false
                     self.showAlertFor(message: error.localizedDescription)
-                    LogE("UserProfileViewModel: Error re-authenticating user: \(error.localizedDescription)")
+                    LogE("UserProfileViewModel: \(#function) Error re-authenticating user: \(error).")
                 } else {
                     Task {
                         await self.deleteUser()
@@ -288,14 +291,14 @@ extension UserProfileViewModel {
 
         guard let controller = TopViewController.shared.topViewController() else {
             isDeleteInProgress = false
-            LogE("UserProfileViewModel: Top Controller not found.")
+            LogE("UserProfileViewModel: \(#function) Top Controller not found.")
             return
         }
 
         GIDSignIn.sharedInstance.signIn(withPresenting: controller) { result, error in
             guard error == nil else {
                 self.isDeleteInProgress = false
-                LogE("UserProfileViewModel: Google Login Error: \(String(describing: error))")
+                LogE("UserProfileViewModel: \(#function) Google Login Error: \(String(describing: error)).")
                 return
             }
 
@@ -308,7 +311,7 @@ extension UserProfileViewModel {
     private func handlePhoneLogin(completion: @escaping (AuthCredential?) -> Void) {
         guard let phoneNumber = preference.user?.phoneNumber else {
             self.isDeleteInProgress = false
-            LogE("UserProfileViewModel No phone number found for phone login.")
+            LogE("UserProfileViewModel: \(#function) No phone number found for phone login.")
             return
         }
 
@@ -347,7 +350,7 @@ extension UserProfileViewModel {
         } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.invalidPhoneNumber.rawValue {
             showAlertFor(message: "Enter a valid phone number.")
         } else {
-            LogE("Firebase: Phone login fail with error: \(error.localizedDescription)")
+            LogE("UserProfileViewModel: \(#function) Phone login fail with error: \(error).")
             showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
         }
     }

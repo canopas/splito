@@ -61,7 +61,9 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             }
             self.group = group
             currentViewState = .initial
+            LogD("GroupTransactionListViewModel: \(#function) Group fetched successfully.")
         } catch {
+            LogE("GroupTransactionListViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             handleServiceError()
         }
     }
@@ -78,7 +80,9 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             await combinedTransactionsWithUser(transactions: result.transactions)
             hasMoreTransactions = !(result.transactions.count < TRANSACTIONS_LIMIT)
             currentViewState = .initial
+            LogD("GroupTransactionListViewModel: \(#function) Payments fetched successfully.")
         } catch {
+            LogE("GroupTransactionListViewModel: \(#function) Failed to fetch payments: \(error).")
             handleServiceError()
         }
     }
@@ -98,7 +102,9 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
             await combinedTransactionsWithUser(transactions: result.transactions.uniqued())
             hasMoreTransactions = !(result.transactions.count < TRANSACTIONS_LIMIT)
+            LogD("GroupTransactionListViewModel: \(#function) Payments fetched successfully.")
         } catch {
+            LogE("GroupTransactionListViewModel: \(#function) Failed to fetch more payments: \(error).")
             showToastForError()
         }
     }
@@ -128,9 +134,11 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                 if let user {
                     groupMembers.append(user)
                 }
+                LogD("GroupTransactionListViewModel: \(#function) Member fetched successfully.")
                 return user
             } catch {
                 currentViewState = .initial
+                LogE("GroupTransactionListViewModel: \(#function) Failed to fetch member \(userId): \(error).")
                 showToastForError()
                 return nil
             }
@@ -153,7 +161,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteTransaction(transaction: Transactions) async {
-        guard let group, validateGroupMembers(transaction: transaction),
+        guard let group, let transactionId = transaction.id,
+              validateGroupMembers(transaction: transaction),
               let payer = await fetchUserData(for: transaction.payerId),
               let receiver = await fetchUserData(for: transaction.receiverId) else { return }
 
@@ -161,14 +170,16 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             let updatedTransaction = try await transactionRepository.deleteTransaction(group: group, transaction: transaction,
                                                                                        payer: payer, receiver: receiver)
             await updateGroupMemberBalance(transaction: updatedTransaction, updateType: .Delete)
+            LogD("GroupTransactionListViewModel: \(#function) Payment deleted successfully.")
         } catch {
+            LogE("GroupTransactionListViewModel: \(#function) Failed to delete payment \(transactionId): \(error).")
             showToastForError()
         }
     }
 
     private func validateGroupMembers(transaction: Transactions) -> Bool {
         guard let group else {
-            LogE("GroupTransactionListViewModel: Missing required group.")
+            LogE("GroupTransactionListViewModel: \(#function) Missing required group.")
             return false
         }
 
@@ -183,13 +194,16 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) async {
-        guard var group else { return }
+        guard var group, let transactionId = transaction.id else { return }
+
         do {
             let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
             group.balances = memberBalance
             try await groupRepository.updateGroup(group: group, type: .none)
             NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
+            LogD("GroupTransactionListViewModel: \(#function) Member balance updated successfully.")
         } catch {
+            LogE("GroupTransactionListViewModel: \(#function) Failed to update member balance for payment \(transactionId): \(error).")
             showToastForError()
         }
     }
