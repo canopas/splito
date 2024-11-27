@@ -17,6 +17,7 @@ public struct Expense: Codable, Hashable, Identifiable {
     public var paidBy: [String: Double]
     public let addedBy: String
     public var updatedBy: String
+    public var note: String?
     public var imageUrl: String?
     public var splitTo: [String] // Reference to user ids involved in the split
     public var splitType: SplitType
@@ -24,14 +25,15 @@ public struct Expense: Codable, Hashable, Identifiable {
     public var isActive: Bool
 
     public init(name: String, amount: Double, date: Timestamp, paidBy: [String: Double], addedBy: String,
-                updatedBy: String, imageUrl: String? = nil, splitTo: [String], splitType: SplitType = .equally,
-                splitData: [String: Double]? = [:], isActive: Bool = true) {
+                updatedBy: String, note: String? = nil, imageUrl: String? = nil, splitTo: [String],
+                splitType: SplitType = .equally, splitData: [String: Double]? = [:], isActive: Bool = true) {
         self.name = name
         self.amount = amount
         self.date = date
         self.paidBy = paidBy
         self.addedBy = addedBy
         self.updatedBy = updatedBy
+        self.note = note
         self.imageUrl = imageUrl
         self.splitTo = splitTo
         self.splitType = splitType
@@ -47,6 +49,7 @@ public struct Expense: Codable, Hashable, Identifiable {
         case paidBy = "paid_by"
         case addedBy = "added_by"
         case updatedBy = "updated_by"
+        case note = "note"
         case imageUrl = "image_url"
         case splitTo = "split_to"
         case splitType = "split_type"
