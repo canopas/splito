@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		0BF8F99614F85846D78DE106 /* Pods_Splito_SplitoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2B9BBF3F71277A6AA5329CB /* Pods_Splito_SplitoUITests.framework */; };
+		210CC0382CF6DA7A0035682E /* ExpenseAddNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 210CC0372CF6DA7A0035682E /* ExpenseAddNoteView.swift */; };
+		210CC03B2CF6DA920035682E /* ExpenseAddNoteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 210CC03A2CF6DA920035682E /* ExpenseAddNoteViewModel.swift */; };
 		213BA0602C0F465000116130 /* GroupSettleUpRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213BA05F2C0F465000116130 /* GroupSettleUpRouteView.swift */; };
 		213BA0662C11B70F00116130 /* HomeRouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */; };
 		214CF8492C2977E10044C188 /* CalculateExpensesFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 214CF8482C2977E10044C188 /* CalculateExpensesFunctions.swift */; };
@@ -153,6 +155,8 @@
 
 /* Begin PBXFileReference section */
 		038CCD15E82A4E16A4AD213C /* Pods-Splito-SplitoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito-SplitoUITests.release.xcconfig"; path = "Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests.release.xcconfig"; sourceTree = "<group>"; };
+		210CC0372CF6DA7A0035682E /* ExpenseAddNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseAddNoteView.swift; sourceTree = "<group>"; };
+		210CC03A2CF6DA920035682E /* ExpenseAddNoteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseAddNoteViewModel.swift; sourceTree = "<group>"; };
 		213BA05F2C0F465000116130 /* GroupSettleUpRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSettleUpRouteView.swift; sourceTree = "<group>"; };
 		213BA0652C11B70F00116130 /* HomeRouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRouteViewModel.swift; sourceTree = "<group>"; };
 		214CF8482C2977E10044C188 /* CalculateExpensesFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculateExpensesFunctions.swift; sourceTree = "<group>"; };
@@ -309,6 +313,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		210CC0392CF6DA7F0035682E /* Notes */ = {
+			isa = PBXGroup;
+			children = (
+				210CC0372CF6DA7A0035682E /* ExpenseAddNoteView.swift */,
+				210CC03A2CF6DA920035682E /* ExpenseAddNoteViewModel.swift */,
+			);
+			path = Notes;
+			sourceTree = "<group>";
+		};
 		21559CAA2CBD21850039F127 /* ActivityLog */ = {
 			isa = PBXGroup;
 			children = (
@@ -495,6 +508,7 @@
 				D85E86F02BB41CBA002EDF76 /* Detail Selection */,
 				D856C7302BCFD2080008A341 /* Expense Detail */,
 				D8CD952A2BD65E6400407B47 /* Expense Split Option */,
+				210CC0392CF6DA7F0035682E /* Notes */,
 			);
 			path = Expense;
 			sourceTree = "<group>";
@@ -1060,6 +1074,7 @@
 				2177692D2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift in Sources */,
 				D83344732C0F2D9500CD9F05 /* GroupPaymentView.swift in Sources */,
 				D83344582C0DD06F00CD9F05 /* GroupSettleUpView.swift in Sources */,
+				210CC03B2CF6DA920035682E /* ExpenseAddNoteViewModel.swift in Sources */,
 				D8E244BF2B98592C00C6C82A /* GroupHomeViewModel.swift in Sources */,
 				D833446C2C0F2D4200CD9F05 /* GroupWhoGettingPaidView.swift in Sources */,
 				D8D14A562BA189EC00F45FF2 /* JoinMemberView.swift in Sources */,
@@ -1089,6 +1104,7 @@
 				214CF8492C2977E10044C188 /* CalculateExpensesFunctions.swift in Sources */,
 				213BA0602C0F465000116130 /* GroupSettleUpRouteView.swift in Sources */,
 				D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */,
+				210CC0382CF6DA7A0035682E /* ExpenseAddNoteView.swift in Sources */,
 				D8CD952E2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift in Sources */,
 				D85E86E32BAB06D9002EDF76 /* AddExpenseViewModel.swift in Sources */,
 				D8A7CA702BA484370014EC67 /* GroupSettingView.swift in Sources */,

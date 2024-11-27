@@ -35,9 +35,9 @@ struct AddExpenseView: View {
                 .scrollBounceBehavior(.basedOnSize)
 
                 AddExpenseFooterView(date: $viewModel.expenseDate, showImagePickerOptions: $viewModel.showImagePickerOptions,
-                               expenseImage: viewModel.expenseImage, expenseImageUrl: viewModel.expenseImageUrl,
-                               handleExpenseImageTap: viewModel.handleExpenseImageTap,
-                               handleActionSelection: viewModel.handleActionSelection(_:))
+                                     expenseImage: viewModel.expenseImage, expenseImageUrl: viewModel.expenseImageUrl,
+                                     handleNoteBtnTap: viewModel.handleNoteBtnTap, handleExpenseImageTap: viewModel.handleExpenseImageTap,
+                                     handleActionSelection: viewModel.handleActionSelection(_:))
             }
         }
         .background(surfaceColor)
@@ -74,6 +74,13 @@ struct AddExpenseView: View {
                 )
             }
         }
+        .sheet(isPresented: $viewModel.showAddNoteEditor) {
+            NavigationStack {
+                ExpenseAddNoteView(viewModel: ExpenseAddNoteViewModel(group: viewModel.selectedGroup, expense: viewModel.expense,
+                                                                      expenseNote: viewModel.expenseNote,
+                                                                      handleSaveNoteTap: viewModel.handleNoteSaveBtnTap(note:)))
+            }
+        }
         .sheet(isPresented: $viewModel.showImagePicker) {
             ImagePickerView(cropOption: .square,
                             sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
@@ -81,10 +88,7 @@ struct AddExpenseView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button("Cancel") {
-                    dismiss()
-                }
-                .foregroundStyle(.blue)
+                CancelButton()
             }
             ToolbarItem(placement: .topBarTrailing) {
                 CheckmarkButton(showLoader: viewModel.showLoader) {
@@ -208,6 +212,7 @@ private struct AddExpenseFooterView: View {
     let expenseImage: UIImage?
     let expenseImageUrl: String?
 
+    let handleNoteBtnTap: (() -> Void)
     let handleExpenseImageTap: (() -> Void)
     let handleActionSelection: ((ActionsOfSheet) -> Void)
 
@@ -222,6 +227,8 @@ private struct AddExpenseFooterView: View {
             DatePickerView(date: $date, isForAddExpense: true)
 
             ExpenseImagePickerView(image: expenseImage, imageUrl: expenseImageUrl, handleImageBtnTap: handleExpenseImageTap)
+
+            NoteButtonView(handleNoteBtnTap: handleNoteBtnTap)
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
@@ -262,6 +269,26 @@ private struct ExpenseImagePickerView: View {
         .cornerRadius(8)
         .navigationDestination(isPresented: $showImageDisplayView) {
             ExpenseImageZoomView(image: image, imageUrl: imageUrl, animationNamespace: Namespace())
+        }
+    }
+}
+
+private struct NoteButtonView: View {
+
+    let handleNoteBtnTap: (() -> Void)
+
+    var body: some View {
+        Button {
+            UIApplication.shared.endEditing()
+            handleNoteBtnTap()
+        } label: {
+            Image(.noteIcon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .padding(4)
+                .background(container2Color)
+                .cornerRadius(8)
         }
     }
 }

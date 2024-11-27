@@ -20,7 +20,10 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var expenseUsersData: [AppUser] = []
     @Published private(set) var viewState: ViewState = .loading
 
+    @Published var expenseNote: String = ""
     @Published private(set) var groupImageUrl: String = ""
+
+    @Published var showAddNoteEditor = false
     @Published var showEditExpenseSheet = false
 
     var group: Groups?
@@ -90,6 +93,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         }
 
         self.expense = expense
+        self.expenseNote = expense.note ?? ""
         self.expenseUsersData = userData
     }
 
@@ -107,8 +111,14 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
-   func getMemberDataBy(id: String) -> AppUser? {
+    func getMemberDataBy(id: String) -> AppUser? {
         return expenseUsersData.first(where: { $0.id == id })
+    }
+
+    func handleNoteTap() {
+        guard let expense, expense.isActive, let userId = preference.user?.id,
+              let group, group.members.contains(userId) else { return }
+        showAddNoteEditor = true
     }
 
     func handleEditBtnAction() {

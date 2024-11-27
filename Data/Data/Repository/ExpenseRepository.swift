@@ -71,9 +71,10 @@ public class ExpenseRepository: ObservableObject {
     private func hasExpenseChanged(_ expense: Expense, oldExpense: Expense) -> Bool {
         return oldExpense.name != expense.name || oldExpense.amount != expense.amount ||
         oldExpense.date.dateValue() != expense.date.dateValue() || oldExpense.paidBy != expense.paidBy ||
-        oldExpense.updatedBy != expense.updatedBy || oldExpense.imageUrl != expense.imageUrl ||
-        oldExpense.splitTo != expense.splitTo || oldExpense.splitType != expense.splitType ||
-        oldExpense.splitData != expense.splitData || oldExpense.isActive != expense.isActive
+        oldExpense.updatedBy != expense.updatedBy || oldExpense.note != expense.note ||
+        oldExpense.imageUrl != expense.imageUrl || oldExpense.splitTo != expense.splitTo ||
+        oldExpense.splitType != expense.splitType || oldExpense.splitData != expense.splitData ||
+        oldExpense.isActive != expense.isActive
     }
 
     public func updateExpense(group: Groups, expense: Expense, oldExpense: Expense, type: ActivityType) async throws {

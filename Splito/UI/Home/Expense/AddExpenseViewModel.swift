@@ -19,6 +19,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Inject private var expenseRepository: ExpenseRepository
 
     @Published var expenseName = ""
+    @Published var expenseNote: String = ""
     @Published private(set) var expenseImageUrl: String?
     @Published private(set) var payerName = "You"
 
@@ -27,6 +28,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published var expenseAmount: Double = 0
 
     @Published var showImagePicker = false
+    @Published var showAddNoteEditor = false
     @Published var showGroupSelection = false
     @Published var showPayerSelection = false
     @Published var showImagePickerOptions = false
@@ -50,15 +52,14 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    var expenseId: String?
-    private var groupId: String?
+    let expenseId: String?
+    private let groupId: String?
     private let router: Router<AppRoute>
 
     init(router: Router<AppRoute>, groupId: String? = nil, expenseId: String? = nil) {
         self.router = router
         self.groupId = groupId
         self.expenseId = expenseId
-        self.groupId = groupId
 
         super.init()
 
@@ -72,7 +73,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    // MARK: - Data Loading
+// MARK: - Data Loading
     private func fetchGroup(groupId: String) async {
         do {
             viewState = .loading
@@ -134,6 +135,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         splitType = expense.splitType
         selectedPayers = expense.paidBy
         expenseImageUrl = expense.imageUrl
+        expenseNote = expense.note ?? ""
 
         if let splitData = expense.splitData {
             self.splitData = splitData
@@ -177,7 +179,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
 // MARK: - User Actions
 extension AddExpenseViewModel {
-
     private func updatePayerName() {
         Task {
             if selectedPayers.count == 1 {
@@ -211,6 +212,15 @@ extension AddExpenseViewModel {
     func handleExpenseImageTap() {
         UIApplication.shared.endEditing()
         showImagePickerOptions = true
+    }
+
+    func handleNoteBtnTap() {
+        showAddNoteEditor = true
+    }
+
+    func handleNoteSaveBtnTap(note: String) {
+        showAddNoteEditor = false
+        self.expenseNote = note
     }
 
     func handleActionSelection(_ action: ActionsOfSheet) {
@@ -365,7 +375,7 @@ extension AddExpenseViewModel {
     private func handleAddExpenseAction(userId: String, group: Groups) async -> Bool {
         let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
                               date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: userId, updatedBy: userId,
-                              splitTo: (splitType == .equally) ? selectedMembers : splitData.map({ $0.key }),
+                              note: expenseNote, splitTo: (splitType == .equally) ? selectedMembers : splitData.map({ $0.key }),
                               splitType: splitType, splitData: splitData)
 
         return await addExpense(group: group, expense: expense)
@@ -405,6 +415,7 @@ extension AddExpenseViewModel {
         newExpense.amount = expenseAmount
         newExpense.date = Timestamp(date: expenseDate)
         newExpense.updatedBy = userId
+        newExpense.note = expenseNote
 
         if selectedPayers.count == 1, let payerId = selectedPayers.keys.first {
             newExpense.paidBy = [payerId: expenseAmount]
@@ -451,9 +462,9 @@ extension AddExpenseViewModel {
     private func hasExpenseChanged(_ expense: Expense, oldExpense: Expense) -> Bool {
         return oldExpense.name != expense.name || oldExpense.amount != expense.amount ||
         oldExpense.date.dateValue() != expense.date.dateValue() || oldExpense.paidBy != expense.paidBy ||
-        oldExpense.imageUrl != expense.imageUrl || oldExpense.splitTo != expense.splitTo ||
-        oldExpense.splitType != expense.splitType || oldExpense.splitData != expense.splitData ||
-        oldExpense.isActive != expense.isActive
+        oldExpense.note != expense.note || oldExpense.imageUrl != expense.imageUrl ||
+        oldExpense.splitTo != expense.splitTo || oldExpense.splitType != expense.splitType ||
+        oldExpense.splitData != expense.splitData || oldExpense.isActive != expense.isActive
     }
 
     private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {
