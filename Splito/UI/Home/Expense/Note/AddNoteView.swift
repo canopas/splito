@@ -1,5 +1,5 @@
 //
-//  ExpenseAddNoteView.swift
+//  AddNoteView.swift
 //  Splito
 //
 //  Created by Nirali Sonani on 27/11/24.
@@ -8,10 +8,10 @@
 import SwiftUI
 import BaseStyle
 
-struct ExpenseAddNoteView: View {
+struct AddNoteView: View {
     @Environment(\.dismiss) var dismiss
 
-    @StateObject var viewModel: ExpenseAddNoteViewModel
+    @StateObject var viewModel: AddNoteViewModel
 
     @State private var tempNote: String = ""
     @FocusState private var isFocused: Bool
@@ -42,7 +42,7 @@ struct ExpenseAddNoteView: View {
         .toastView(toast: $viewModel.toast)
         .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .onAppear {
-            tempNote = viewModel.expenseNote
+            tempNote = viewModel.note
             isFocused = true
         }
         .toolbar {
@@ -51,7 +51,7 @@ struct ExpenseAddNoteView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 CheckmarkButton(showLoader: viewModel.showLoader) {
-                    viewModel.expenseNote = tempNote.trimming(spaces: .leadingAndTrailing)
+                    viewModel.note = tempNote.trimming(spaces: .leadingAndTrailing)
                     Task {
                         let isActionSucceed = await viewModel.handleSaveNoteAction()
                         if isActionSucceed {

@@ -8,9 +8,9 @@
 import SwiftUI
 import Kingfisher
 
-// MARK: - ExpenseImageView
+// MARK: - AttachmentContainerView
 
-public struct ExpenseImageView: View {
+public struct AttachmentContainerView: View {
 
     @Binding var showImageDisplayView: Bool
 
@@ -18,6 +18,12 @@ public struct ExpenseImageView: View {
     var imageUrl: String?
 
     @Namespace private var animationNamespace
+
+    public init(showImageDisplayView: Binding<Bool>, image: UIImage? = nil, imageUrl: String? = nil) {
+        self._showImageDisplayView = showImageDisplayView
+        self.image = image
+        self.imageUrl = imageUrl
+    }
 
     public var body: some View {
         ZStack {
@@ -43,15 +49,20 @@ public struct ExpenseImageView: View {
     }
 }
 
-// MARK: - ExpenseImageZoomView
+// MARK: - AttachmentZoomView
 
-public struct ExpenseImageZoomView: View {
+public struct AttachmentZoomView: View {
     @Environment(\.dismiss) var dismiss
 
     var image: UIImage?
     var imageUrl: String?
 
     @Namespace var animationNamespace
+
+    public init(image: UIImage? = nil, imageUrl: String? = nil) {
+        self.image = image
+        self.imageUrl = imageUrl
+    }
 
     public var body: some View {
         GeometryReader { geometry in

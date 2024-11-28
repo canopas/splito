@@ -13,6 +13,7 @@ public class StorageManager: ObservableObject {
         case user
         case group
         case expense
+        case payment
 
         var pathName: String {
             switch self {
@@ -22,6 +23,8 @@ public class StorageManager: ObservableObject {
                 "group_images"
             case .expense:
                 "expense_images"
+            case .payment:
+                "payment_images"
             }
         }
     }

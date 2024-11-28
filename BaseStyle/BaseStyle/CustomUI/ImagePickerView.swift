@@ -8,7 +8,6 @@
 import SwiftUI
 
 public struct ImagePickerView: UIViewControllerRepresentable {
-    @Environment(\.colorScheme) var colorScheme
 
     @Binding var image: UIImage?
     @Binding var isPresented: Bool
@@ -16,7 +15,8 @@ public struct ImagePickerView: UIViewControllerRepresentable {
     var cropOption: CropOption
     var sourceType: UIImagePickerController.SourceType = .photoLibrary
 
-    public init(cropOption: CropOption, sourceType: UIImagePickerController.SourceType, image: Binding<UIImage?>, isPresented: Binding<Bool>) {
+    public init(cropOption: CropOption, sourceType: UIImagePickerController.SourceType,
+                image: Binding<UIImage?>, isPresented: Binding<Bool>) {
         self._image = image
         self.sourceType = sourceType
         self._isPresented = isPresented
@@ -24,7 +24,7 @@ public struct ImagePickerView: UIViewControllerRepresentable {
     }
 
     public func makeCoordinator() -> ImagePickerViewCoordinator {
-        return ImagePickerViewCoordinator(image: $image, isPresented: $isPresented, cropOption: cropOption, isDarkMode: colorScheme == .dark)
+        return ImagePickerViewCoordinator(image: $image, isPresented: $isPresented, cropOption: cropOption)
     }
 
     public func makeUIViewController(context: Context) -> UIImagePickerController {
@@ -55,13 +55,11 @@ public class ImagePickerViewCoordinator: NSObject, UINavigationControllerDelegat
     @Binding var isPresented: Bool
 
     var cropOption: ImagePickerView.CropOption
-    var isDarkMode: Bool
 
-    init(image: Binding<UIImage?>, isPresented: Binding<Bool>, cropOption: ImagePickerView.CropOption, isDarkMode: Bool) {
+    init(image: Binding<UIImage?>, isPresented: Binding<Bool>, cropOption: ImagePickerView.CropOption) {
         self._image = image
         self._isPresented = isPresented
         self.cropOption = cropOption
-        self.isDarkMode = isDarkMode
     }
 
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {

@@ -103,12 +103,9 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId, updatedBy: userId, imageUrl: nil,
                            members: [userId], balances: [memberBalance], createdAt: Timestamp(), updatedAt: Timestamp())
 
-        let resizedImage = profileImage?.aspectFittedToHeight(200)
-        let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
-
         do {
             showLoader = true
-            let group = try await groupRepository.createGroup(group: group, imageData: imageData)
+            let group = try await groupRepository.createGroup(group: group, imageData: getImageData())
             NotificationCenter.default.post(name: .addGroup, object: group)
 
             showLoader = false
@@ -130,13 +127,9 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         newGroup.updatedBy = userId
         newGroup.updatedAt = Timestamp()
 
-        let resizedImage = profileImage?.aspectFittedToHeight(200)
-        let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
-
         do {
             self.showLoader = true
-            let updatedGroup = try await groupRepository.updateGroupWithImage(imageData: imageData, newImageUrl: profileImageUrl,
-                                                                              group: newGroup, oldGroupName: group.name)
+            let updatedGroup = try await groupRepository.updateGroupWithImage(imageData: getImageData(), newImageUrl: profileImageUrl, group: newGroup, oldGroupName: group.name)
             NotificationCenter.default.post(name: .updateGroup, object: updatedGroup)
 
             showLoader = false
@@ -148,6 +141,12 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             showToastForError()
             return false
         }
+    }
+
+    private func getImageData() -> Data? {
+        let resizedImage = profileImage?.aspectFittedToHeight(200)
+        let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
+        return imageData
     }
 }
 

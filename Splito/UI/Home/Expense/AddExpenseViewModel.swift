@@ -60,9 +60,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         self.expenseId = expenseId
-
         super.init()
-
         Task {
             if let expenseId {
                 await fetchExpenseDetailsWithMembers(expenseId: expenseId)
@@ -73,7 +71,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-// MARK: - Data Loading
+    // MARK: - Data Loading
     private func fetchGroup(groupId: String) async {
         do {
             viewState = .loading
@@ -192,7 +190,6 @@ extension AddExpenseViewModel {
                 let payerIds = Array(selectedPayers.keys.prefix(2))
                 let user1 = await fetchUserData(for: payerIds[0])
                 let user2 = await fetchUserData(for: payerIds[1])
-
                 if let user1, let user2 {
                     if selectedPayers.count == 2 {
                         payerName = "\(user1.nameWithLastInitial) and \(user2.nameWithLastInitial)"
@@ -246,9 +243,7 @@ extension AddExpenseViewModel {
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
-                    if granted {
-                        authorized()
-                    }
+                    if granted { authorized() }
                 }
             }
             return
@@ -374,8 +369,9 @@ extension AddExpenseViewModel {
 
     private func handleAddExpenseAction(userId: String, group: Groups) async -> Bool {
         let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
-                              date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: userId, updatedBy: userId,
-                              note: expenseNote, splitTo: (splitType == .equally) ? selectedMembers : splitData.map({ $0.key }),
+                              date: Timestamp(date: expenseDate), paidBy: selectedPayers,
+                              addedBy: userId, updatedBy: userId, note: expenseNote,
+                              splitTo: (splitType == .equally) ? selectedMembers : splitData.map({ $0.key }),
                               splitType: splitType, splitData: splitData)
 
         return await addExpense(group: group, expense: expense)
@@ -384,12 +380,9 @@ extension AddExpenseViewModel {
     private func addExpense(group: Groups, expense: Expense) async -> Bool {
         guard let groupId = group.id else { return false }
 
-        let resizedImage = expenseImage?.aspectFittedToHeight(200)
-        let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
-
         do {
             showLoader = true
-            let newExpense = try await expenseRepository.addExpense(group: group, expense: expense, imageData: imageData)
+            let newExpense = try await expenseRepository.addExpense(group: group, expense: expense, imageData: getImageData())
             let expenseInfo: [String: Any] = ["groupId": groupId, "expense": newExpense]
             NotificationCenter.default.post(name: .addExpense, object: nil, userInfo: expenseInfo)
 
@@ -414,6 +407,7 @@ extension AddExpenseViewModel {
         newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing)
         newExpense.amount = expenseAmount
         newExpense.date = Timestamp(date: expenseDate)
+        newExpense.updatedAt = Timestamp()
         newExpense.updatedBy = userId
         newExpense.note = expenseNote
 
@@ -431,18 +425,14 @@ extension AddExpenseViewModel {
     }
 
     private func updateExpense(group: Groups, expense: Expense, oldExpense: Expense) async -> Bool {
-        guard validateMembersInGroup(group: group, expense: expense), let expenseId else {
-            return false
-        }
-
-        let resizedImage = expenseImage?.aspectFittedToHeight(200)
-        let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
+        guard validateMembersInGroup(group: group, expense: expense), let expenseId else { return false }
 
         do {
             showLoader = true
-
-            let updatedExpense = try await expenseRepository.updateExpenseWithImage(imageData: imageData, newImageUrl: expenseImageUrl,
-                                                                                    group: group, expense: (expense, oldExpense), type: .expenseUpdated)
+            let updatedExpense = try await expenseRepository.updateExpenseWithImage(imageData: getImageData(),
+                                                                                    newImageUrl: expenseImageUrl,
+                                                                                    group: group, expense: (expense, oldExpense),
+                                                                                    type: .expenseUpdated)
             NotificationCenter.default.post(name: .updateExpense, object: updatedExpense)
 
             guard hasExpenseChanged(updatedExpense, oldExpense: oldExpense) else { return true }
@@ -459,10 +449,14 @@ extension AddExpenseViewModel {
         }
     }
 
+    private func getImageData() -> Data? {
+        let resizedImage = expenseImage?.aspectFittedToHeight(200)
+        let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
+        return imageData
+    }
+
     private func hasExpenseChanged(_ expense: Expense, oldExpense: Expense) -> Bool {
-        return oldExpense.name != expense.name || oldExpense.amount != expense.amount ||
-        oldExpense.date.dateValue() != expense.date.dateValue() || oldExpense.paidBy != expense.paidBy ||
-        oldExpense.note != expense.note || oldExpense.imageUrl != expense.imageUrl ||
+        return oldExpense.amount != expense.amount || oldExpense.paidBy != expense.paidBy ||
         oldExpense.splitTo != expense.splitTo || oldExpense.splitType != expense.splitType ||
         oldExpense.splitData != expense.splitData || oldExpense.isActive != expense.isActive
     }

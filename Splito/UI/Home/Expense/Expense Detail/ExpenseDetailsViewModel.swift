@@ -8,6 +8,7 @@
 import Data
 import SwiftUI
 import BaseStyle
+import FirebaseFirestore
 
 class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
@@ -146,8 +147,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        guard var expense, let userId = preference.user?.id,
-              validateUserPermission(operationText: "restored", action: "restored"),
+        guard var expense, let userId = preference.user?.id, validateUserPermission(operationText: "restored", action: "restored"),
               validateGroupMembers(action: "restored") else { return }
 
         Task { [weak self] in
@@ -156,9 +156,10 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 self.viewState = .loading
                 expense.isActive = true
                 expense.updatedBy = userId
+                expense.updatedAt = Timestamp()
 
-                try await self.expenseRepository.updateExpense(group: group, expense: expense,
-                                                               oldExpense: expense, type: .expenseRestored)
+                self.expense = try await self.expenseRepository.updateExpense(group: group, expense: expense,
+                                                                              oldExpense: expense, type: .expenseRestored)
                 await self.updateGroupMemberBalance(updateType: .Add)
 
                 self.viewState = .initial
@@ -188,8 +189,8 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         Task {
             do {
                 viewState = .loading
-                try await expenseRepository.deleteExpense(group: group, expense: expense)
-                NotificationCenter.default.post(name: .deleteExpense, object: expense)
+                self.expense = try await expenseRepository.deleteExpense(group: group, expense: expense)
+                NotificationCenter.default.post(name: .deleteExpense, object: self.expense)
                 await self.updateGroupMemberBalance(updateType: .Delete)
 
                 viewState = .initial

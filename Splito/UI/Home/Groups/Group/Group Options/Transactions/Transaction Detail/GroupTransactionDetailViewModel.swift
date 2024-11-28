@@ -6,7 +6,7 @@
 //
 
 import Data
-import Foundation
+import FirebaseFirestore
 
 class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
@@ -15,10 +15,13 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
 
+    @Published var paymentNote: String = ""
     @Published private(set) var transaction: Transactions?
     @Published private(set) var transactionUsersData: [AppUser] = []
+
     @Published private(set) var viewState: ViewState = .loading
 
+    @Published var showAddNoteEditor = false
     @Published var showEditTransactionSheet = false
 
     var group: Groups?
@@ -88,6 +91,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         }
 
         self.transactionUsersData = userData
+        self.paymentNote = transaction.note ?? ""
     }
 
     private func fetchUserData(for userId: String) async -> AppUser? {
@@ -112,6 +116,12 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
+    func handleNoteTap() {
+        guard let transaction, transaction.isActive, let userId = preference.user?.id,
+              let group, group.members.contains(userId) else { return }
+        showAddNoteEditor = true
+    }
+
     func handleEditBtnAction() {
         guard validateUserPermission(operationText: "edited", action: "edit"), validateGroupMembers(action: "edited") else { return }
         showEditTransactionSheet = true
@@ -144,12 +154,13 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         }
 
         Task { [weak self] in
-            guard let self, let payer = getMemberDataBy(id: transaction.payerId),
+            guard let self, let userId = preference.user?.id, let payer = getMemberDataBy(id: transaction.payerId),
                   let receiver = getMemberDataBy(id: transaction.receiverId) else { return }
             do {
                 self.viewState = .loading
                 transaction.isActive = true
-                transaction.updatedBy = preference.user?.id ?? ""
+                transaction.updatedBy = userId
+                transaction.updatedAt = Timestamp()
 
                 self.transaction = try await self.transactionRepository.updateTransaction(group: group, transaction: transaction, oldTransaction: transaction, members: (payer, receiver), type: .transactionRestored)
                 await self.updateGroupMemberBalance(updateType: .Add)
@@ -249,6 +260,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     @objc private func getUpdatedTransaction(notification: Notification) {
         guard let updatedTransaction = notification.object as? Transactions else { return }
         transaction = updatedTransaction
+        paymentNote = updatedTransaction.note ?? ""
     }
 
     // MARK: - Error Handling

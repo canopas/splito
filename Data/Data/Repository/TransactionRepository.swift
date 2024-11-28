@@ -11,32 +11,82 @@ public class TransactionRepository: ObservableObject {
 
     @Inject private var store: TransactionStore
     @Inject private var preference: SplitoPreference
+    @Inject private var storageManager: StorageManager
     @Inject private var activityLogRepository: ActivityLogRepository
 
-    public func addTransaction(group: Groups, transaction: Transactions, payer: AppUser, receiver: AppUser) async throws -> Transactions {
-        let newTransaction = try await store.addTransaction(groupId: group.id ?? "", transaction: transaction)
+    public func addTransaction(group: Groups, transaction: Transactions,
+                               members: (payer: AppUser, receiver: AppUser),
+                               imageData: Data?) async throws -> Transactions {
+        // Generate a new document ID for the payment
+        let groupId = group.id ?? ""
+        let transactionDocument = try await store.getNewTransactionDocument(groupId: groupId)
 
+        var newTransaction = transaction
+        newTransaction.id = transactionDocument.documentID
+
+        // If image data is provided, upload the image and update the payment's imageUrl
+        if let imageData {
+            let imageUrl = try await uploadImage(imageData: imageData, transaction: newTransaction)
+            newTransaction.imageUrl = imageUrl
+        }
+
+        try await store.addTransaction(document: transactionDocument, transaction: newTransaction)
         try await addActivityLogForTransaction(group: group, transaction: newTransaction, oldTransaction: transaction,
-                                               type: .transactionAdded, members: (payer, receiver))
-
+                                               type: .transactionAdded, members: members)
         return newTransaction
     }
 
-    public func deleteTransaction(group: Groups, transaction: Transactions, payer: AppUser, receiver: AppUser) async throws -> Transactions {
+    public func deleteTransaction(group: Groups, transaction: Transactions,
+                                  payer: AppUser, receiver: AppUser) async throws -> Transactions {
         var updatedTransaction = transaction
         updatedTransaction.isActive = false  // Make transaction inactive
         updatedTransaction.updatedBy = preference.user?.id ?? ""
-        return try await updateTransaction(group: group, transaction: updatedTransaction, oldTransaction: transaction,
-                                           members: (payer, receiver), type: .transactionDeleted)
+        updatedTransaction.updatedAt = Timestamp()
+        return try await updateTransaction(group: group, transaction: updatedTransaction,
+                                           oldTransaction: transaction, members: (payer, receiver),
+                                           type: .transactionDeleted)
+    }
+
+    public func updateTransactionWithImage(imageData: Data?, newImageUrl: String?, group: Groups, transaction: (new: Transactions, old: Transactions), members: (payer: AppUser, receiver: AppUser)) async throws -> Transactions {
+        var updatedTransaction = transaction.new
+
+        // If image data is provided, upload the new image and update the imageUrl
+        if let imageData {
+            let uploadedImageUrl = try await uploadImage(imageData: imageData, transaction: updatedTransaction)
+            updatedTransaction.imageUrl = uploadedImageUrl
+        } else if let currentUrl = updatedTransaction.imageUrl, newImageUrl == nil {
+            // If there's a current image URL and we want to remove it, delete the image and set imageUrl empty
+            try await storageManager.deleteImage(imageUrl: currentUrl)
+            updatedTransaction.imageUrl = ""
+        } else if let newImageUrl {
+            // If a new image URL is explicitly passed, update it
+            updatedTransaction.imageUrl = newImageUrl
+        }
+
+        guard hasTransactionChanged(updatedTransaction, oldTransaction: transaction.old) else { return updatedTransaction }
+        return try await updateTransaction(group: group, transaction: updatedTransaction,
+                                           oldTransaction: transaction.old, members: members,
+                                           type: .transactionUpdated)
+    }
+
+    private func uploadImage(imageData: Data, transaction: Transactions) async throws -> String {
+        guard let transactionId = transaction.id else { return "" }
+        return try await storageManager.uploadImage(for: .payment, id: transactionId, imageData: imageData) ?? ""
+    }
+
+    private func hasTransactionChanged(_ transaction: Transactions, oldTransaction: Transactions) -> Bool {
+        return oldTransaction.payerId != transaction.payerId || oldTransaction.receiverId != transaction.receiverId ||
+        oldTransaction.updatedBy != transaction.updatedBy || oldTransaction.note != transaction.note ||
+        oldTransaction.imageUrl != transaction.imageUrl || oldTransaction.amount != transaction.amount ||
+        oldTransaction.date.dateValue() != transaction.date.dateValue() ||
+        oldTransaction.updatedAt.dateValue() != transaction.updatedAt.dateValue() || oldTransaction.isActive != transaction.isActive
     }
 
     public func updateTransaction(group: Groups, transaction: Transactions, oldTransaction: Transactions,
                                   members: (payer: AppUser, receiver: AppUser), type: ActivityType) async throws -> Transactions {
         try await store.updateTransaction(groupId: group.id ?? "", transaction: transaction)
-
-        try await addActivityLogForTransaction(group: group, transaction: transaction, oldTransaction: oldTransaction,
-                                               type: type, members: members)
-
+        try await addActivityLogForTransaction(group: group, transaction: transaction,
+                                               oldTransaction: oldTransaction, type: type, members: members)
         return transaction
     }
 
@@ -75,14 +125,15 @@ public class TransactionRepository: ObservableObject {
     }
 
     private func createActivityLogForTransaction(context: ActivityLogContext) -> ActivityLog? {
-        guard let groupId = context.group?.id, let transaction = context.transaction, let transactionId = transaction.id,
-              let currentUser = context.currentUser else { return nil }
+        guard let groupId = context.group?.id, let transaction = context.transaction,
+              let transactionId = transaction.id, let currentUser = context.currentUser else { return nil }
 
         let actionUserName = (context.memberId == currentUser.id) ? "You" : currentUser.nameWithLastInitial
         let amount: Double = (context.memberId == transaction.payerId) ? transaction.amount : (context.memberId == transaction.receiverId) ? -transaction.amount : 0
 
-        return ActivityLog(type: context.type, groupId: groupId, activityId: transactionId, groupName: context.group?.name ?? "",
-                           actionUserName: actionUserName, recordedOn: Timestamp(date: Date()), payerName: context.payerName,
+        return ActivityLog(type: context.type, groupId: groupId, activityId: transactionId,
+                           groupName: context.group?.name ?? "", actionUserName: actionUserName,
+                           recordedOn: Timestamp(date: Date()), payerName: context.payerName,
                            receiverName: context.receiverName, amount: amount)
     }
 

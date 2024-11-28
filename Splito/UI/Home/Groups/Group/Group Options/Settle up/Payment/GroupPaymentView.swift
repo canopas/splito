@@ -44,7 +44,7 @@ struct GroupPaymentView: View {
 
                                 Divider()
                                     .frame(height: 1)
-                                    .background(outlineColor)
+                                    .background(dividerColor)
 
                                 Text("\(viewModel.payerName.localized) paid \(viewModel.payableName.localized)")
                                     .font(.body3())
@@ -61,10 +61,6 @@ struct GroupPaymentView: View {
 
                             AmountRowView(amount: $viewModel.amount, subtitle: "Enter amount")
 
-                            VSpacer(16)
-
-                            PaymentDateRow(date: $viewModel.paymentDate, subtitle: "Date")
-
                             Spacer(minLength: 40)
                         }
                         .padding(.horizontal, 16)
@@ -72,17 +68,11 @@ struct GroupPaymentView: View {
                     .scrollIndicators(.hidden)
                     .scrollBounceBehavior(.basedOnSize)
 
-                    PrimaryButton(text: "Done", showLoader: viewModel.showLoader, onClick: {
-                        Task {
-                            let isSucceed = await viewModel.handleSaveAction()
-                            if isSucceed {
-                                dismiss()
-                            } else {
-                                viewModel.showSaveFailedError()
-                            }
-                        }
-                    })
-                    .padding([.horizontal, .bottom], 16)
+                    AddNoteImageFooterView(date: $viewModel.paymentDate, showImagePickerOptions: $viewModel.showImagePickerOptions,
+                                           image: viewModel.paymentImage, imageUrl: viewModel.paymentImageUrl,
+                                           isNoteEmpty: viewModel.paymentNote.isEmpty, handleNoteBtnTap: viewModel.handleNoteBtnTap,
+                                           handleImageTap: viewModel.handlePaymentImageTap,
+                                           handleActionSelection: viewModel.handleActionSelection(_:))
                 }
             }
         }
@@ -98,6 +88,28 @@ struct GroupPaymentView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 NavigationTitleTextView(text: viewModel.transactionId != nil ? "Edit payment" : "Record a payment")
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                CheckmarkButton(showLoader: viewModel.showLoader) {
+                    Task {
+                        let isSucceed = await viewModel.handleSaveAction()
+                        if isSucceed {
+                            dismiss()
+                        } else {
+                            viewModel.showSaveFailedError()
+                        }
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $viewModel.showImagePicker) {
+            ImagePickerView(cropOption: .square, sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
+                            image: $viewModel.paymentImage, isPresented: $viewModel.showImagePicker)
+        }
+        .sheet(isPresented: $viewModel.showAddNoteEditor) {
+            NavigationStack {
+                AddNoteView(viewModel: AddNoteViewModel(group: viewModel.group, payment: viewModel.transaction, note: viewModel.paymentNote,
+                                                        handleSaveNoteTap: viewModel.handleNoteSaveBtnTap(note:)))
             }
         }
     }
@@ -156,58 +168,35 @@ struct AmountRowView: View {
     }
 }
 
-private struct PaymentDateRow: View {
-
-    @Binding var date: Date
-
-    let subtitle: String
-
-    @State private var showDatePicker: Bool = false
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(subtitle.localized)
-                .font(.body3())
-                .foregroundStyle(disableText)
-
-            DatePickerView(date: $date)
-                .padding(16)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(outlineColor, lineWidth: 1)
-                }
-        }
-    }
-}
-
 struct DatePickerView: View {
 
     @Binding var date: Date
-
-    var isForAddExpense: Bool
 
     private let maximumDate = Calendar.current.date(byAdding: .year, value: 0, to: Date()) ?? Date()
 
     @State private var tempDate: Date
     @State private var showDatePicker = false
 
-    init(date: Binding<Date>, isForAddExpense: Bool = false) {
+    init(date: Binding<Date>) {
         self._date = date
-        self.isForAddExpense = isForAddExpense
         self._tempDate = State(initialValue: date.wrappedValue)
     }
 
     var body: some View {
-        HStack {
-            if !isForAddExpense {
-                Text(date.longDate)
-                    .font(.subTitle2())
-                    .foregroundStyle(primaryText)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            } else {
-                DateDisplayView(date: $date)
-            }
+        HStack(spacing: 8) {
+            Text(date.isToday() ? "Today" : date.shortDate)
+                .font(.subTitle2())
+                .foregroundStyle(primaryText)
+
+            Image(.calendarIcon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
         }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(container2Color)
+        .cornerRadius(8)
         .onTapGestureForced {
             tempDate = date
             showDatePicker = true
@@ -216,10 +205,10 @@ struct DatePickerView: View {
         .sheet(isPresented: $showDatePicker) {
             VStack(spacing: 0) {
                 NavigationBarTopView(title: "Choose date", leadingButton: EmptyView(),
-                    trailingButton: DismissButton(padding: (16, 0), foregroundColor: primaryText, onDismissAction: {
-                        showDatePicker = false
-                    })
-                    .fontWeight(.regular)
+                                     trailingButton: DismissButton(padding: (16, 0), foregroundColor: primaryText, onDismissAction: {
+                                        showDatePicker = false
+                                     })
+                                     .fontWeight(.regular)
                 )
                 .padding(.leading, 16)
 
@@ -242,27 +231,5 @@ struct DatePickerView: View {
             }
             .background(surfaceColor)
         }
-    }
-}
-
-private struct DateDisplayView: View {
-
-    @Binding var date: Date
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Text(date.isToday() ? "Today" : date.shortDate)
-                .font(.subTitle2())
-                .foregroundStyle(primaryText)
-
-            Image(.calendarIcon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 24, height: 24)
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(container2Color)
-        .cornerRadius(8)
     }
 }
