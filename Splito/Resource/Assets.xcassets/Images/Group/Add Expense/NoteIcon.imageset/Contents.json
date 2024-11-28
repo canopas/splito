@@ -1,0 +1,22 @@
+{
+  "images" : [
+    {
+      "filename" : "note-1_svgrepo.com.svg",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "note-1_svgrepo.com (1).svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

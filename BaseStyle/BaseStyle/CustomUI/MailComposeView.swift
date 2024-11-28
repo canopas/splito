@@ -21,7 +21,7 @@ public struct MailComposeView: UIViewControllerRepresentable {
 
     public func makeUIViewController(context: Context) -> MFMailComposeViewController {
         guard MFMailComposeViewController.canSendMail() else {
-            print("MailComposeView: Device cannot send email.")
+            print("MailComposeView: \(#function) Device cannot send email.")
             return MFMailComposeViewController()
         }
 
@@ -35,7 +35,7 @@ public struct MailComposeView: UIViewControllerRepresentable {
                 let attachmentData = try Data(contentsOf: logFilePath)
                 mailComposeViewController.addAttachmentData(attachmentData, mimeType: "application/zip", fileName: "logs.zip")
             } catch {
-                print("MailComposeView: Failed to load attachment data: \(error.localizedDescription)")
+                print("MailComposeView: \(#function) Failed to load attachment data: \(error).")
             }
         }
 

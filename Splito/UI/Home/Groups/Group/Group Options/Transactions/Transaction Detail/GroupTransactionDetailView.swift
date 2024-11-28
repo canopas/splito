@@ -13,6 +13,8 @@ struct GroupTransactionDetailView: View {
 
     @StateObject var viewModel: GroupTransactionDetailViewModel
 
+    @State private var showImageDisplayView = false
+
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
@@ -33,7 +35,27 @@ struct GroupTransactionDetailView: View {
                                 .multilineTextAlignment(.center)
                                 .padding(.top, 24)
 
-                            Spacer()
+                            if let imageUrl = viewModel.transaction?.imageUrl, !imageUrl.isEmpty {
+                                VStack(spacing: 8) {
+                                    Text("Attachment:")
+                                        .font(.subTitle3())
+                                        .foregroundStyle(disableText)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                                    AttachmentContainerView(showImageDisplayView: $showImageDisplayView, imageUrl: imageUrl)
+                                        .frame(height: 140)
+                                        .frame(maxWidth: .infinity)
+                                        .cornerRadius(12)
+                                }
+                                .padding(.top, 16)
+                            }
+
+                            if let note = viewModel.transaction?.note, !note.isEmpty {
+                                NoteContainerView(note: note, handleNoteTap: viewModel.handleNoteTap)
+                                    .padding(.top, 16)
+                            }
+
+                            VSpacer(24)
                         }
                         .padding(.horizontal, 16)
                     }
@@ -77,6 +99,16 @@ struct GroupTransactionDetailView: View {
                         RestoreButton(onClick: viewModel.handleRestoreButtonAction)
                     }
                 }
+            }
+        }
+        .fullScreenCover(isPresented: $viewModel.showAddNoteEditor) {
+            NavigationStack {
+                AddNoteView(viewModel: AddNoteViewModel(group: viewModel.group, payment: viewModel.transaction, note: viewModel.paymentNote))
+            }
+        }
+        .navigationDestination(isPresented: $showImageDisplayView) {
+            if let imageUrl = viewModel.transaction?.imageUrl, !imageUrl.isEmpty {
+                AttachmentZoomView(imageUrl: imageUrl)
             }
         }
     }
@@ -183,7 +215,7 @@ private struct TransactionSummaryView: View {
 
             Divider()
                 .frame(height: 1)
-                .background(outlineColor)
+                .background(dividerColor)
                 .padding(.vertical, 16)
 
             Text("Added by \(addedUserName.localized) on \(date?.longDate ?? "Today")")

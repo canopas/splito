@@ -94,8 +94,11 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
 
     func fetchMemberData(for memberId: String) async -> AppUser? {
         do {
-            return try await userRepository.fetchUserBy(userID: memberId)
+            let member = try await userRepository.fetchUserBy(userID: memberId)
+            LogD("ExpenseSplitOptionsViewModel: \(#function) Member fetched successfully.")
+            return member
         } catch {
+            LogE("ExpenseSplitOptionsViewModel: \(#function) Failed to fetch member \(memberId): \(error).")
             handleServiceError()
             return nil
         }

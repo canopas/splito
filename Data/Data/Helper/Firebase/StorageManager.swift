@@ -13,6 +13,7 @@ public class StorageManager: ObservableObject {
         case user
         case group
         case expense
+        case payment
 
         var pathName: String {
             switch self {
@@ -22,6 +23,8 @@ public class StorageManager: ObservableObject {
                 "group_images"
             case .expense:
                 "expense_images"
+            case .payment:
+                "payment_images"
             }
         }
     }
@@ -40,10 +43,10 @@ public class StorageManager: ObservableObject {
 
             // Retrieve the download URL asynchronously
             let imageUrl = try await storageRef.downloadURL().absoluteString
-            LogD("StorageManager: Image successfully uploaded to Firebase!")
+            LogD("StorageManager: \(#function) Image successfully uploaded to Firebase.")
             return imageUrl
         } catch {
-            LogE("StorageManager: \(#function) Failed: \(error.localizedDescription)")
+            LogE("StorageManager: \(#function) Failed to upload image: \(error).")
             throw error
         }
     }
@@ -59,8 +62,9 @@ public class StorageManager: ObservableObject {
         do {
             let storageRef = storage.reference(forURL: imageUrl)
             try await storageRef.delete()
+            LogD("StorageManager: \(#function) Image deleted successfully.")
         } catch {
-            LogE("StorageManager: \(#function) Failed: \(error)")
+            LogE("StorageManager: \(#function) Failed to delete image: \(error).")
             throw error
         }
     }

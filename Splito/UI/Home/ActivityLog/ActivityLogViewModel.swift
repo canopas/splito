@@ -64,7 +64,9 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
             filterActivityLogs()
             viewState = .initial
             activityLogState = activityLogs.isEmpty ? .noActivity : .hasActivity
+            LogD("ActivityLogViewModel: \(#function) Activity logs fetched successfully.")
         } catch {
+            LogE("ActivityLogViewModel: \(#function) Failed to fetch activity logs: \(error).")
             handleServiceError()
         }
     }
@@ -88,8 +90,10 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
             filterActivityLogs()
             viewState = .initial
             activityLogState = activityLogs.isEmpty ? .noActivity : .hasActivity
+            LogD("ActivityLogViewModel: \(#function) Activity logs fetched successfully.")
         } catch {
             viewState = .initial
+            LogE("ActivityLogViewModel: \(#function) Failed to fetch more activity logs: \(error).")
             showToastForError()
         }
     }

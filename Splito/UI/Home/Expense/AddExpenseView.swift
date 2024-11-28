@@ -34,10 +34,11 @@ struct AddExpenseView: View {
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
 
-                AddExpenseFooterView(date: $viewModel.expenseDate, showImagePickerOptions: $viewModel.showImagePickerOptions,
-                               expenseImage: viewModel.expenseImage, expenseImageUrl: viewModel.expenseImageUrl,
-                               handleExpenseImageTap: viewModel.handleExpenseImageTap,
-                               handleActionSelection: viewModel.handleActionSelection(_:))
+                AddNoteImageFooterView(date: $viewModel.expenseDate, showImagePickerOptions: $viewModel.showImagePickerOptions,
+                                       image: viewModel.expenseImage, imageUrl: viewModel.expenseImageUrl,
+                                       isNoteEmpty: viewModel.expenseNote.isEmpty, handleNoteBtnTap: viewModel.handleNoteBtnTap,
+                                       handleImageTap: viewModel.handleExpenseImageTap,
+                                       handleActionSelection: viewModel.handleActionSelection(_:))
             }
         }
         .background(surfaceColor)
@@ -54,12 +55,13 @@ struct AddExpenseView: View {
         }
         .sheet(isPresented: $viewModel.showPayerSelection) {
             NavigationStack {
-                ChoosePayerRouteView(appRoute: .init(root: .ChoosePayerView(groupId: viewModel.selectedGroup?.id ?? "",
-                                                                            amount: viewModel.expenseAmount,
-                                                                            selectedPayer: viewModel.selectedPayers,
-                                                                            onPayerSelection: viewModel.handlePayerSelection(payers:)))) {
-                    viewModel.showPayerSelection = false
-                }
+                ChoosePayerRouteView(appRoute: .init(
+                    root: .ChoosePayerView(groupId: viewModel.selectedGroup?.id ?? "",
+                                           amount: viewModel.expenseAmount,
+                                           selectedPayer: viewModel.selectedPayers,
+                                           onPayerSelection: viewModel.handlePayerSelection(payers:)))) {
+                                               viewModel.showPayerSelection = false
+                                           }
             }
         }
         .sheet(isPresented: $viewModel.showSplitTypeSelection) {
@@ -74,17 +76,19 @@ struct AddExpenseView: View {
                 )
             }
         }
+        .sheet(isPresented: $viewModel.showAddNoteEditor) {
+            NavigationStack {
+                AddNoteView(viewModel: AddNoteViewModel(group: viewModel.selectedGroup, expense: viewModel.expense, note: viewModel.expenseNote,
+                                                        handleSaveNoteTap: viewModel.handleNoteSaveBtnTap(note:)))
+            }
+        }
         .sheet(isPresented: $viewModel.showImagePicker) {
-            ImagePickerView(cropOption: .square,
-                            sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
+            ImagePickerView(cropOption: .square, sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
                             image: $viewModel.expenseImage, isPresented: $viewModel.showImagePicker)
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button("Cancel") {
-                    dismiss()
-                }
-                .foregroundStyle(.blue)
+                CancelButton()
             }
             ToolbarItem(placement: .topBarTrailing) {
                 CheckmarkButton(showLoader: viewModel.showLoader) {
@@ -200,15 +204,17 @@ private struct ExpenseDetailRow: View {
     }
 }
 
-private struct AddExpenseFooterView: View {
+struct AddNoteImageFooterView: View {
 
     @Binding var date: Date
     @Binding var showImagePickerOptions: Bool
 
-    let expenseImage: UIImage?
-    let expenseImageUrl: String?
+    let image: UIImage?
+    let imageUrl: String?
+    let isNoteEmpty: Bool
 
-    let handleExpenseImageTap: (() -> Void)
+    let handleNoteBtnTap: (() -> Void)
+    let handleImageTap: (() -> Void)
     let handleActionSelection: ((ActionsOfSheet) -> Void)
 
     var body: some View {
@@ -219,19 +225,21 @@ private struct AddExpenseFooterView: View {
         HStack(spacing: 16) {
             Spacer()
 
-            DatePickerView(date: $date, isForAddExpense: true)
+            DatePickerView(date: $date)
 
-            ExpenseImagePickerView(image: expenseImage, imageUrl: expenseImageUrl, handleImageBtnTap: handleExpenseImageTap)
+            ImageAttachmentView(image: image, imageUrl: imageUrl, handleImageBtnTap: handleImageTap)
+
+            NoteButtonView(isNoteEmpty: isNoteEmpty, handleNoteBtnTap: handleNoteBtnTap)
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
         .confirmationDialog("", isPresented: $showImagePickerOptions, titleVisibility: .hidden) {
-            ImagePickerOptionsView(image: expenseImage, imageUrl: expenseImageUrl, handleActionSelection: handleActionSelection)
+            ImagePickerOptionsView(image: image, imageUrl: imageUrl, handleActionSelection: handleActionSelection)
         }
     }
 }
 
-private struct ExpenseImagePickerView: View {
+private struct ImageAttachmentView: View {
 
     let image: UIImage?
     let imageUrl: String?
@@ -242,8 +250,8 @@ private struct ExpenseImagePickerView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            if image != nil || imageUrl != nil {
-                ExpenseImageView(showImageDisplayView: $showImageDisplayView, image: image, imageUrl: imageUrl)
+            if image != nil || (imageUrl != nil && !(imageUrl?.isEmpty ?? false)) {
+                AttachmentContainerView(showImageDisplayView: $showImageDisplayView, image: image, imageUrl: imageUrl)
                     .frame(width: 24, height: 24)
                     .cornerRadius(4)
                     .padding(.leading, 8)
@@ -261,7 +269,37 @@ private struct ExpenseImagePickerView: View {
         .background(container2Color)
         .cornerRadius(8)
         .navigationDestination(isPresented: $showImageDisplayView) {
-            ExpenseImageZoomView(image: image, imageUrl: imageUrl, animationNamespace: Namespace())
+            AttachmentZoomView(image: image, imageUrl: imageUrl)
+        }
+    }
+}
+
+private struct NoteButtonView: View {
+
+    let isNoteEmpty: Bool
+
+    let handleNoteBtnTap: (() -> Void)
+
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            Button {
+                UIApplication.shared.endEditing()
+                handleNoteBtnTap()
+            } label: {
+                Image(.noteIcon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                    .padding(4)
+                    .background(container2Color)
+                    .cornerRadius(8)
+            }
+
+            if !isNoteEmpty {
+                Circle()
+                    .fill(primaryColor)
+                    .frame(width: 6, height: 6)
+            }
         }
     }
 }

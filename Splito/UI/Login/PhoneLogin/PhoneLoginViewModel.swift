@@ -88,7 +88,7 @@ extension PhoneLoginViewModel {
         } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.invalidPhoneNumber.rawValue {
             showAlertFor(message: "Enter a valid phone number.")
         } else {
-            LogE("Firebase: Phone login fail with error: \(error.localizedDescription)")
+            LogE("PhoneLoginViewModel: \(#function) Phone login fail with error: \(error).")
             showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
         }
     }

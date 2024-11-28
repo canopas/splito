@@ -8,6 +8,7 @@
 import Data
 import SwiftUI
 import BaseStyle
+import FirebaseFirestore
 
 class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
@@ -20,7 +21,10 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var expenseUsersData: [AppUser] = []
     @Published private(set) var viewState: ViewState = .loading
 
+    @Published var expenseNote: String = ""
     @Published private(set) var groupImageUrl: String = ""
+
+    @Published var showAddNoteEditor = false
     @Published var showEditExpenseSheet = false
 
     var group: Groups?
@@ -54,7 +58,9 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 self.groupImageUrl = imageUrl
             }
             viewState = .initial
+            LogD("ExpenseDetailsViewModel: \(#function) Group fetched successfully.")
         } catch {
+            LogE("ExpenseDetailsViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             handleServiceError()
         }
     }
@@ -65,7 +71,9 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
             await processExpense(expense: expense)
             viewState = .initial
+            LogD("ExpenseDetailsViewModel: \(#function) Expense fetched successfully.")
         } catch {
+            LogE("ExpenseDetailsViewModel: \(#function) Failed to fetch expense \(expenseId): \(error).")
             handleServiceError()
         }
     }
@@ -86,22 +94,32 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         }
 
         self.expense = expense
+        self.expenseNote = expense.note ?? ""
         self.expenseUsersData = userData
     }
 
     func fetchUserData(for userId: String) async -> AppUser? {
         do {
-            return try await userRepository.fetchUserBy(userID: userId)
+            let member = try await userRepository.fetchUserBy(userID: userId)
+            LogD("ExpenseDetailsViewModel: \(#function) Member fetched successfully.")
+            return member
         } catch {
             viewState = .initial
+            LogE("ExpenseDetailsViewModel: \(#function) Failed to fetch member \(userId): \(error).")
             showToastForError()
             return nil
         }
     }
 
     // MARK: - User Actions
-   func getMemberDataBy(id: String) -> AppUser? {
+    func getMemberDataBy(id: String) -> AppUser? {
         return expenseUsersData.first(where: { $0.id == id })
+    }
+
+    func handleNoteTap() {
+        guard let expense, expense.isActive, let userId = preference.user?.id,
+              let group, group.members.contains(userId) else { return }
+        showAddNoteEditor = true
     }
 
     func handleEditBtnAction() {
@@ -129,8 +147,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        guard var expense, let userId = preference.user?.id,
-              validateUserPermission(operationText: "restored", action: "restored"),
+        guard var expense, let userId = preference.user?.id, validateUserPermission(operationText: "restored", action: "restored"),
               validateGroupMembers(action: "restored") else { return }
 
         Task { [weak self] in
@@ -139,14 +156,17 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 self.viewState = .loading
                 expense.isActive = true
                 expense.updatedBy = userId
+                expense.updatedAt = Timestamp()
 
-                try await self.expenseRepository.updateExpense(group: group, expense: expense,
-                                                               oldExpense: expense, type: .expenseRestored)
+                self.expense = try await self.expenseRepository.updateExpense(group: group, expense: expense,
+                                                                              oldExpense: expense, type: .expenseRestored)
                 await self.updateGroupMemberBalance(updateType: .Add)
 
                 self.viewState = .initial
+                LogD("ExpenseDetailsViewModel: \(#function) Expense restored successfully.")
                 self.router.pop()
             } catch {
+                LogE("ExpenseDetailsViewModel: \(#function) Failed to restore expense \(expenseId): \(error).")
                 self.handleServiceError()
             }
         }
@@ -169,14 +189,16 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         Task {
             do {
                 viewState = .loading
-                try await expenseRepository.deleteExpense(group: group, expense: expense)
-                NotificationCenter.default.post(name: .deleteExpense, object: expense)
+                self.expense = try await expenseRepository.deleteExpense(group: group, expense: expense)
+                NotificationCenter.default.post(name: .deleteExpense, object: self.expense)
                 await self.updateGroupMemberBalance(updateType: .Delete)
 
                 viewState = .initial
+                LogD("ExpenseDetailsViewModel: \(#function) Expense deleted successfully.")
                 router.pop()
             } catch {
                 viewState = .initial
+                LogE("ExpenseDetailsViewModel: \(#function) Failed to delete expense \(expenseId): \(error).")
                 showToastForError()
             }
         }
@@ -184,7 +206,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     private func validateGroupMembers(action: String) -> Bool {
         guard let group, let expense else {
-            LogE("ExpenseDetailsViewModel: Missing required group or expense.")
+            LogE("ExpenseDetailsViewModel: \(#function) Missing required group or expense.")
             return false
         }
 
@@ -221,8 +243,10 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
             group.balances = memberBalance
             try await groupRepository.updateGroup(group: group, type: .none)
+            LogD("ExpenseDetailsViewModel: \(#function) Member balance updated successfully.")
         } catch {
             viewState = .initial
+            LogE("ExpenseDetailsViewModel: \(#function) Failed to update member balance for expense \(expenseId): \(error).")
             showToastForError()
         }
     }

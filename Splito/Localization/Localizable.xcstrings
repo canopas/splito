@@ -157,6 +157,9 @@
     "Add expense" : {
 
     },
+    "Add note" : {
+
+    },
     "added" : {
       "extractionState" : "manual"
     },
@@ -218,6 +221,9 @@
     "Are you sure you want to sign out?" : {
       "extractionState" : "manual"
     },
+    "Attachment:" : {
+
+    },
     "Authentication failed" : {
       "extractionState" : "manual"
     },
@@ -267,9 +273,6 @@
 
     },
     "created" : {
-      "extractionState" : "manual"
-    },
-    "Date" : {
       "extractionState" : "manual"
     },
     "Delete Account" : {
@@ -332,6 +335,9 @@
     "Enter your last name" : {
       "extractionState" : "manual"
     },
+    "Enter your note here..." : {
+
+    },
     "Enter your phone number" : {
       "extractionState" : "manual"
     },
@@ -351,6 +357,9 @@
 
     },
     "Expense deleted successfully" : {
+      "extractionState" : "manual"
+    },
+    "Failed to save note." : {
       "extractionState" : "manual"
     },
     "First Name" : {
@@ -501,6 +510,9 @@
 
     },
     "not involved" : {
+
+    },
+    "Note:" : {
 
     },
     "Ok" : {

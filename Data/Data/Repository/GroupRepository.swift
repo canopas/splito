@@ -48,7 +48,8 @@ public class GroupRepository: ObservableObject {
         }
     }
 
-    public func updateGroupWithImage(imageData: Data?, newImageUrl: String?, group: Groups, oldGroupName: String) async throws -> Groups {
+    public func updateGroupWithImage(imageData: Data?, newImageUrl: String?,
+                                     group: Groups, oldGroupName: String) async throws -> Groups {
         var updatedGroup = group
         olderGroupName = oldGroupName
 
@@ -58,9 +59,9 @@ public class GroupRepository: ObservableObject {
             let uploadedImageUrl = try await uploadImage(imageData: imageData, group: updatedGroup)
             updatedGroup.imageUrl = uploadedImageUrl
         } else if let currentUrl = group.imageUrl, newImageUrl == nil {
-            // If there's a current image URL and we want to remove it, delete the image and set imageUrl to nil
+            // If there's a current image URL and we want to remove it, delete the image and set imageUrl empty
             try await storageManager.deleteImage(imageUrl: currentUrl)
-            updatedGroup.imageUrl = nil
+            updatedGroup.imageUrl = ""
         } else if let newImageUrl = newImageUrl {
             // If a new image URL is explicitly passed, update it
             updatedGroup.imageUrl = newImageUrl
@@ -165,16 +166,19 @@ public class GroupRepository: ObservableObject {
 
         let actionUserName = memberId == currentUser.id ? "You" : currentUser.nameWithLastInitial
 
-        return ActivityLog(type: context.type, groupId: groupId, activityId: groupId, groupName: context.group?.name ?? "",
-                           actionUserName: actionUserName, recordedOn: Timestamp(date: Date()),
-                           previousGroupName: context.previousGroupName, removedMemberName: context.removedMemberName)
+        return ActivityLog(type: context.type, groupId: groupId, activityId: groupId,
+                           groupName: context.group?.name ?? "", actionUserName: actionUserName,
+                           recordedOn: Timestamp(date: Date()), previousGroupName: context.previousGroupName,
+                           removedMemberName: context.removedMemberName)
     }
 
     private func addActivityLog(context: ActivityLogContext) async -> Error? {
         if let activity = createActivityLogForGroup(context: context), let memberId = context.memberId {
             do {
                 try await activityLogRepository.addActivityLog(userId: memberId, activity: activity)
+                LogD("GroupRepository: \(#function) Activity log added successfully for \(memberId).")
             } catch {
+                LogE("GroupRepository: \(#function) Failed to add activity log for \(memberId): \(error).")
                 return error
             }
         }

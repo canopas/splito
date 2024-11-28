@@ -12,6 +12,7 @@ import Data
 struct ExpenseDetailsView: View {
 
     @StateObject var viewModel: ExpenseDetailsViewModel
+
     @State private var showImageDisplayView = false
 
     var body: some View {
@@ -22,15 +23,29 @@ struct ExpenseDetailsView: View {
                 LoaderView()
             } else {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 32) {
+                    VStack(alignment: .leading, spacing: 0) {
                         ExpenseHeaderView(viewModel: viewModel)
 
                         ExpenseInfoView(viewModel: viewModel)
 
                         if let imageUrl = viewModel.expense?.imageUrl {
-                            ExpenseImageView(showImageDisplayView: $showImageDisplayView, imageUrl: imageUrl)
-                                .aspectRatio(16/9, contentMode: .fit)
-                                .cornerRadius(12)
+                            VStack(spacing: 8) {
+                                Text("Attachment:")
+                                    .font(.subTitle3())
+                                    .foregroundStyle(disableText)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                                AttachmentContainerView(showImageDisplayView: $showImageDisplayView, imageUrl: imageUrl)
+                                    .frame(height: 140)
+                                    .frame(maxWidth: .infinity)
+                                    .cornerRadius(12)
+                            }
+                            .padding(.top, 4)
+                        }
+
+                        if let note = viewModel.expense?.note, !note.isEmpty {
+                            NoteContainerView(note: note, handleNoteTap: viewModel.handleNoteTap)
+                                .padding(.top, 16)
                         }
 
                         VSpacer(24)
@@ -49,6 +64,11 @@ struct ExpenseDetailsView: View {
         .fullScreenCover(isPresented: $viewModel.showEditExpenseSheet) {
             NavigationStack {
                 AddExpenseView(viewModel: AddExpenseViewModel(router: viewModel.router, groupId: viewModel.groupId, expenseId: viewModel.expenseId))
+            }
+        }
+        .fullScreenCover(isPresented: $viewModel.showAddNoteEditor) {
+            NavigationStack {
+                AddNoteView(viewModel: AddNoteViewModel(group: viewModel.group, expense: viewModel.expense, note: viewModel.expenseNote))
             }
         }
         .toolbarRole(.editor)
@@ -72,8 +92,8 @@ struct ExpenseDetailsView: View {
             }
         }
         .navigationDestination(isPresented: $showImageDisplayView) {
-            if let imageUrl = viewModel.expense?.imageUrl {
-                ExpenseImageZoomView(imageUrl: imageUrl, animationNamespace: Namespace())
+            if let imageUrl = viewModel.expense?.imageUrl, !imageUrl.isEmpty {
+                AttachmentZoomView(imageUrl: imageUrl)
             }
         }
     }
@@ -184,6 +204,33 @@ private struct ExpenseInfoView: View {
             }
             .font(.body3())
             .foregroundStyle(disableText)
+        }
+        .padding(.top, 24)
+    }
+}
+
+struct NoteContainerView: View {
+
+    let note: String
+
+    let handleNoteTap: (() -> Void)
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Text("Note:")
+                .font(.subTitle3())
+                .foregroundStyle(disableText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Text(note)
+                .font(.subTitle2())
+                .foregroundStyle(primaryText)
+                .lineSpacing(3)
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(containerColor)
+                .cornerRadius(12)
+                .onTapGestureForced(perform: handleNoteTap)
         }
     }
 }

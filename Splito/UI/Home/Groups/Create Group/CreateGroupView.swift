@@ -69,8 +69,7 @@ struct CreateGroupView: View {
             }
         }
         .sheet(isPresented: $viewModel.showImagePicker) {
-            ImagePickerView(cropOption: .square,
-                            sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
+            ImagePickerView(cropOption: .square, sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
                             image: $viewModel.profileImage, isPresented: $viewModel.showImagePicker)
         }
     }
@@ -140,7 +139,7 @@ struct ImagePickerOptionsView: View {
         Button("Choose from Library") {
             handleActionSelection(.gallery)
         }
-        if image != nil || imageUrl != nil {
+        if image != nil || (imageUrl != nil && !(imageUrl?.isEmpty ?? false)) {
             Button("Remove", role: .destructive) {
                 handleActionSelection(.remove)
             }

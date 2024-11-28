@@ -66,8 +66,9 @@ public extension DDFileLogger {
         if !FileManager.default.fileExists(atPath: path) {
             do {
                 try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true, attributes: nil)
+                LogD("DDFileLogger: \(#function) Zip directory created successfully.")
             } catch {
-                LogE("DDFileLogger: Unable to create directory at:\(path), error:\(error)")
+                LogE("DDFileLogger: \(#function) Unable to create directory at:\(path), error:\(error).")
             }
         }
     }
@@ -83,8 +84,9 @@ public extension DDFileLogger {
             for fileURL in fileURLs where fileURL.pathExtension == "zip" {
                 try FileManager.default.removeItem(at: fileURL)
             }
+            LogD("DDFileLogger: \(#function) All zip logs removed successfully.")
         } catch {
-            LogE("DDFileLogger: remove all zip error \(error)")
+            LogE("DDFileLogger: \(#function) Failed to remove all zip logs: \(error).")
         }
     }
 }

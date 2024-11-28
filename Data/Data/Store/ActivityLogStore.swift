@@ -31,13 +31,13 @@ class ActivityLogStore: ObservableObject {
         listener?.remove()
         listener = activityReference(userId: userId).addSnapshotListener { snapshot, error in
             if let error {
-                LogE("ActivityLogStore :: \(#function) Error fetching document: \(error.localizedDescription)")
+                LogE("ActivityLogStore: \(#function) Error fetching document: \(error).")
                 completion(nil)
                 return
             }
 
             guard let snapshot else {
-                LogE("ActivityLogStore :: \(#function) snapshot is nil for requested user.")
+                LogE("ActivityLogStore: \(#function) snapshot is nil for requested user.")
                 completion(nil)
                 return
             }
@@ -46,11 +46,12 @@ class ActivityLogStore: ObservableObject {
                 do {
                     return try document.data(as: ActivityLog.self)
                 } catch {
-                    LogE("ActivityLogStore :: \(#function) Error decoding document data: \(error.localizedDescription)")
+                    LogE("ActivityLogStore: \(#function) Error decoding document data: \(error).")
                     return nil
                 }
             }
 
+            LogD("ActivityLogStore: \(#function) Latest activity logs fetched successfully.")
             completion(activityLogs)
         }
     }

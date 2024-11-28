@@ -6,7 +6,7 @@
 //
 
 import Data
-import Foundation
+import FirebaseFirestore
 
 class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
@@ -15,10 +15,13 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
     @Inject private var transactionRepository: TransactionRepository
 
+    @Published var paymentNote: String = ""
     @Published private(set) var transaction: Transactions?
     @Published private(set) var transactionUsersData: [AppUser] = []
+
     @Published private(set) var viewState: ViewState = .loading
 
+    @Published var showAddNoteEditor = false
     @Published var showEditTransactionSheet = false
 
     var group: Groups?
@@ -50,7 +53,9 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             self.group = group
             viewState = .initial
+            LogD("GroupTransactionDetailViewModel: \(#function) Group fetched successfully.")
         } catch {
+            LogE("GroupTransactionDetailViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             handleServiceError()
         }
     }
@@ -62,7 +67,9 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             self.transaction = transaction
             await setTransactionUsersData()
             self.viewState = .initial
+            LogD("GroupTransactionDetailViewModel: \(#function) Payment fetched successfully.")
         } catch {
+            LogE("GroupTransactionDetailViewModel: \(#function) Failed to fetch payment \(transactionId): \(error).")
             handleServiceError()
         }
     }
@@ -84,6 +91,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         }
 
         self.transactionUsersData = userData
+        self.paymentNote = transaction.note ?? ""
     }
 
     private func fetchUserData(for userId: String) async -> AppUser? {
@@ -93,9 +101,11 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                 viewState = .initial
                 return nil
             }
+            LogD("GroupTransactionDetailViewModel: \(#function) Member fetched successfully.")
             return user
         } catch {
             viewState = .initial
+            LogE("GroupTransactionDetailViewModel: \(#function) Failed to fetch member \(userId): \(error).")
             showToastForError()
             return nil
         }
@@ -106,6 +116,12 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
+    func handleNoteTap() {
+        guard let transaction, transaction.isActive, let userId = preference.user?.id,
+              let group, group.members.contains(userId) else { return }
+        showAddNoteEditor = true
+    }
+
     func handleEditBtnAction() {
         guard validateUserPermission(operationText: "edited", action: "edit"), validateGroupMembers(action: "edited") else { return }
         showEditTransactionSheet = true
@@ -138,20 +154,23 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         }
 
         Task { [weak self] in
-            guard let self, let payer = getMemberDataBy(id: transaction.payerId),
+            guard let self, let userId = preference.user?.id, let payer = getMemberDataBy(id: transaction.payerId),
                   let receiver = getMemberDataBy(id: transaction.receiverId) else { return }
             do {
                 self.viewState = .loading
                 transaction.isActive = true
-                transaction.updatedBy = preference.user?.id ?? ""
+                transaction.updatedBy = userId
+                transaction.updatedAt = Timestamp()
 
                 self.transaction = try await self.transactionRepository.updateTransaction(group: group, transaction: transaction, oldTransaction: transaction, members: (payer, receiver), type: .transactionRestored)
                 await self.updateGroupMemberBalance(updateType: .Add)
 
                 self.viewState = .initial
+                LogD("GroupTransactionDetailViewModel: \(#function) Payment restored successfully.")
                 self.router.pop()
             } catch {
                 self.viewState = .initial
+                LogE("GroupTransactionDetailViewModel: \(#function) Failed to restore payment \(transactionId): \(error).")
                 self.showToastForError()
             }
         }
@@ -168,7 +187,8 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     private func deleteTransaction() {
-        guard let transaction, validateUserPermission(operationText: "deleted", action: "delete"), validateGroupMembers(action: "deleted") else { return }
+        guard let transaction, validateUserPermission(operationText: "deleted", action: "delete"),
+              validateGroupMembers(action: "deleted") else { return }
 
         Task { [weak self] in
             guard let self, let group, let payer = getMemberDataBy(id: transaction.payerId),
@@ -182,9 +202,11 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                 self.showToastFor(toast: .init(type: .success, title: "Success", message: "Payment deleted successfully."))
 
                 viewState = .initial
+                LogD("GroupTransactionDetailViewModel: \(#function) Payment deleted successfully.")
                 router.pop()
             } catch {
                 viewState = .initial
+                LogE("GroupTransactionDetailViewModel: \(#function) Failed to delete payment \(transactionId): \(error).")
                 showToastForError()
             }
         }
@@ -192,7 +214,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     private func validateGroupMembers(action: String) -> Bool {
         guard let group, let transaction else {
-            LogE("GroupTransactionDetailViewModel: Missing required group or transaction.")
+            LogE("GroupTransactionDetailViewModel: \(#function) Missing required group or transaction.")
             return false
         }
 
@@ -218,7 +240,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateGroupMemberBalance(updateType: TransactionUpdateType) async {
-        guard var group, let transaction else {
+        guard var group, let transaction, let transactionId = transaction.id else {
             viewState = .initial
             return
         }
@@ -227,8 +249,10 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
             group.balances = memberBalance
             try await groupRepository.updateGroup(group: group, type: .none)
+            LogD("GroupTransactionDetailViewModel: \(#function) Member balance updated successfully.")
         } catch {
             viewState = .initial
+            LogE("GroupTransactionDetailViewModel: \(#function) Failed to update member balance for payment \(transactionId): \(error).")
             showToastForError()
         }
     }
@@ -236,6 +260,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     @objc private func getUpdatedTransaction(notification: Notification) {
         guard let updatedTransaction = notification.object as? Transactions else { return }
         transaction = updatedTransaction
+        paymentNote = updatedTransaction.note ?? ""
     }
 
     // MARK: - Error Handling

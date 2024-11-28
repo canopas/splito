@@ -21,21 +21,19 @@ public class TransactionStore: ObservableObject {
             .collection(SUB_COLLECTION_NAME)
     }
 
-    func addTransaction(groupId: String, transaction: Transactions) async throws -> Transactions {
-        let documentRef = self.transactionReference(groupId: groupId).document()
+    func getNewTransactionDocument(groupId: String) async throws -> DocumentReference {
+        return transactionReference(groupId: groupId).document()
+    }
 
-        var newTransaction = transaction
-        newTransaction.id = documentRef.documentID
-
-        try documentRef.setData(from: newTransaction)
-        return newTransaction
+    func addTransaction(document: DocumentReference, transaction: Transactions) async throws {
+        try document.setData(from: transaction)
     }
 
     func updateTransaction(groupId: String, transaction: Transactions) async throws {
         if let transactionId = transaction.id {
-            try transactionReference(groupId: groupId).document(transactionId).setData(from: transaction, merge: false)
+            try transactionReference(groupId: groupId).document(transactionId).setData(from: transaction, merge: true)
         } else {
-            LogE("TransactionStore :: \(#function) Transaction not found.")
+            LogE("TransactionStore: \(#function) Payment not found.")
             throw ServiceError.dataNotFound
         }
     }

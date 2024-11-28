@@ -100,7 +100,7 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
         } catch let signOutError as NSError {
             currentState = .initial
             showToastFor(toast: ToastPrompt(type: .error, title: "Error", message: "Something went wrong."))
-            LogE("AccountHomeViewModel: Error signing out: \(signOutError)")
+            LogE("AccountHomeViewModel: \(#function) Error signing out: \(signOutError)")
         }
     }
 }

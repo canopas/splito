@@ -50,7 +50,9 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             self.checkForGroupAdmin()
             await fetchGroupMembers()
             currentViewState = .initial
+            LogD("GroupSettingViewModel: \(#function) Group fetched successfully.")
         } catch {
+            LogE("GroupSettingViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             handleServiceError()
         }
     }
@@ -64,7 +66,9 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         do {
             let members = try await groupRepository.fetchMembersBy(memberIds: group.members)
             sortGroupMembers(members: members)
+            LogD("GroupSettingViewModel: \(#function) Group members fetched successfully.")
         } catch {
+            LogE("GroupSettingViewModel: \(#function) Failed to fetch group members: \(error).")
             handleServiceError()
         }
     }
@@ -214,8 +218,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                     showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed."))
                 }
                 currentViewState = .initial
+                LogD("GroupSettingViewModel: \(#function) Member removed successfully.")
             } catch {
                 currentViewState = .initial
+                LogE("GroupSettingViewModel: \(#function) Failed to remove member \(member.id): \(error).")
                 showToastForError()
             }
         }
@@ -242,8 +248,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
                 currentViewState = .initial
                 goBackToGroupList()
+                LogD("GroupSettingViewModel: \(#function) Group deleted successfully.")
             } catch {
                 currentViewState = .initial
+                LogE("GroupSettingViewModel: \(#function) Failed to delete group \(groupId): \(error).")
                 showToastForError()
             }
         }

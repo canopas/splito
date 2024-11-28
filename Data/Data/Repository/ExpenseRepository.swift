@@ -33,13 +33,12 @@ public class ExpenseRepository: ObservableObject {
         return newExpense
     }
 
-    public func deleteExpense(group: Groups, expense: Expense) async throws {
-        guard let userId = preference.user?.id else { return }
-
+    public func deleteExpense(group: Groups, expense: Expense) async throws -> Expense {
         var updatedExpense = expense
         updatedExpense.isActive = false  // Make expense inactive
-        updatedExpense.updatedBy = userId
-        try await updateExpense(group: group, expense: updatedExpense, oldExpense: expense, type: .expenseDeleted)
+        updatedExpense.updatedBy = preference.user?.id ?? ""
+        updatedExpense.updatedAt = Timestamp()
+        return try await updateExpense(group: group, expense: updatedExpense, oldExpense: expense, type: .expenseDeleted)
     }
 
     public func updateExpenseWithImage(imageData: Data?, newImageUrl: String?, group: Groups, expense: (new: Expense, old: Expense), type: ActivityType) async throws -> Expense {
@@ -50,17 +49,16 @@ public class ExpenseRepository: ObservableObject {
             let uploadedImageUrl = try await uploadImage(imageData: imageData, expense: updatedExpense)
             updatedExpense.imageUrl = uploadedImageUrl
         } else if let currentUrl = updatedExpense.imageUrl, newImageUrl == nil {
-            // If there's a current image URL and we want to remove it, delete the image and set imageUrl to nil
+            // If there's a current image URL and we want to remove it, delete the image and set imageUrl empty
             try await storageManager.deleteImage(imageUrl: currentUrl)
-            updatedExpense.imageUrl = nil
+            updatedExpense.imageUrl = ""
         } else if let newImageUrl {
             // If a new image URL is explicitly passed, update it
             updatedExpense.imageUrl = newImageUrl
         }
 
         guard hasExpenseChanged(updatedExpense, oldExpense: expense.old) else { return updatedExpense }
-        try await updateExpense(group: group, expense: updatedExpense, oldExpense: expense.old, type: type)
-        return updatedExpense
+        return try await updateExpense(group: group, expense: updatedExpense, oldExpense: expense.old, type: type)
     }
 
     private func uploadImage(imageData: Data, expense: Expense) async throws -> String {
@@ -70,16 +68,18 @@ public class ExpenseRepository: ObservableObject {
 
     private func hasExpenseChanged(_ expense: Expense, oldExpense: Expense) -> Bool {
         return oldExpense.name != expense.name || oldExpense.amount != expense.amount ||
-        oldExpense.date.dateValue() != expense.date.dateValue() || oldExpense.paidBy != expense.paidBy ||
-        oldExpense.updatedBy != expense.updatedBy || oldExpense.imageUrl != expense.imageUrl ||
+        oldExpense.date.dateValue() != expense.date.dateValue() ||
+        oldExpense.updatedAt.dateValue() != expense.updatedAt.dateValue() ||
+        oldExpense.paidBy != expense.paidBy || oldExpense.updatedBy != expense.updatedBy ||
+        oldExpense.note != expense.note || oldExpense.imageUrl != expense.imageUrl ||
         oldExpense.splitTo != expense.splitTo || oldExpense.splitType != expense.splitType ||
         oldExpense.splitData != expense.splitData || oldExpense.isActive != expense.isActive
     }
 
-    public func updateExpense(group: Groups, expense: Expense, oldExpense: Expense, type: ActivityType) async throws {
-        guard let groupId = group.id else { return }
-        try await store.updateExpense(groupId: groupId, expense: expense)
+    public func updateExpense(group: Groups, expense: Expense, oldExpense: Expense, type: ActivityType) async throws -> Expense {
+        try await store.updateExpense(groupId: group.id ?? "", expense: expense)
         try await addActivityLogForExpense(group: group, expense: expense, oldExpense: oldExpense, type: type)
+        return expense
     }
 
     private func addActivityLogForExpense(group: Groups, expense: Expense, oldExpense: Expense, type: ActivityType) async throws {
@@ -139,7 +139,9 @@ public class ExpenseRepository: ObservableObject {
         if let activity = createActivityLogForExpense(context: context), let memberId = context.memberId {
             do {
                 try await activityLogRepository.addActivityLog(userId: memberId, activity: activity)
+                LogD("ExpenseRepository: \(#function) Activity log added successfully for \(memberId).")
             } catch {
+                LogE("ExpenseRepository: \(#function) Failed to add activity log for \(memberId): \(error).")
                 return error
             }
         }

@@ -37,7 +37,9 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
         do {
             let (groups, _) = try await groupRepository.fetchGroupsBy(userId: preference.user?.id ?? "")
             currentViewState = groups.isEmpty ? .noGroups : .hasGroups(groups: groups)
+            LogD("SelectGroupViewModel: \(#function) Groups fetched successfully.")
         } catch {
+            LogE("SelectGroupViewModel: \(#function) Failed to fetch groups: \(error).")
             handleServiceError()
         }
     }

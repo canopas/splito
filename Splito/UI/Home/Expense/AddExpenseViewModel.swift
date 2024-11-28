@@ -19,6 +19,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Inject private var expenseRepository: ExpenseRepository
 
     @Published var expenseName = ""
+    @Published var expenseNote: String = ""
     @Published private(set) var expenseImageUrl: String?
     @Published private(set) var payerName = "You"
 
@@ -27,6 +28,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published var expenseAmount: Double = 0
 
     @Published var showImagePicker = false
+    @Published var showAddNoteEditor = false
     @Published var showGroupSelection = false
     @Published var showPayerSelection = false
     @Published var showImagePickerOptions = false
@@ -50,18 +52,15 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    var expenseId: String?
-    private var groupId: String?
+    let expenseId: String?
+    private let groupId: String?
     private let router: Router<AppRoute>
 
     init(router: Router<AppRoute>, groupId: String? = nil, expenseId: String? = nil) {
         self.router = router
         self.groupId = groupId
         self.expenseId = expenseId
-        self.groupId = groupId
-
         super.init()
-
         Task {
             if let expenseId {
                 await fetchExpenseDetailsWithMembers(expenseId: expenseId)
@@ -83,8 +82,10 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 selectedMembers = group.members
             }
             viewState = .initial
+            LogD("AddExpenseViewModel: \(#function) Group fetched successfully.")
         } catch {
             viewState = .initial
+            LogE("AddExpenseViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             showToastForError()
         }
     }
@@ -100,8 +101,10 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             }
             selectedPayers = [user.id: expenseAmount]
             viewState = .initial
+            LogD("AddExpenseViewModel: \(#function) Default user fetched successfully.")
         } catch {
             viewState = .initial
+            LogE("AddExpenseViewModel: \(#function) Failed to fetch default user: \(error).")
             showToastForError()
         }
     }
@@ -114,8 +117,10 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
             await updateViewModelFieldsWithExpense(expense: expense)
             await fetchAndUpdateGroupData(groupId: groupId)
             viewState = .initial
+            LogD("AddExpenseViewModel: \(#function) Expense details with members fetched successfully.")
         } catch {
             viewState = .initial
+            LogE("AddExpenseViewModel: \(#function) Failed to fetch expense details with members: \(error).")
             showToastForError()
         }
     }
@@ -128,6 +133,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         splitType = expense.splitType
         selectedPayers = expense.paidBy
         expenseImageUrl = expense.imageUrl
+        expenseNote = expense.note ?? ""
 
         if let splitData = expense.splitData {
             self.splitData = splitData
@@ -145,9 +151,11 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     private func fetchGroupData(for groupId: String) async -> Groups? {
         do {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
+            LogD("AddExpenseViewModel: \(#function) Group fetched successfully.")
             return group
         } catch {
             viewState = .initial
+            LogE("AddExpenseViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             showToastForError()
             return nil
         }
@@ -156,9 +164,11 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     private func fetchUserData(for userId: String) async -> AppUser? {
         do {
             let user = try await groupRepository.fetchMemberBy(userId: userId)
+            LogD("AddExpenseViewModel: \(#function) Member fetched successfully.")
             return user
         } catch {
             viewState = .initial
+            LogE("AddExpenseViewModel: \(#function) Failed to fetch member \(userId): \(error).")
             showToastForError()
             return nil
         }
@@ -167,7 +177,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
 // MARK: - User Actions
 extension AddExpenseViewModel {
-
     private func updatePayerName() {
         Task {
             if selectedPayers.count == 1 {
@@ -181,7 +190,6 @@ extension AddExpenseViewModel {
                 let payerIds = Array(selectedPayers.keys.prefix(2))
                 let user1 = await fetchUserData(for: payerIds[0])
                 let user2 = await fetchUserData(for: payerIds[1])
-
                 if let user1, let user2 {
                     if selectedPayers.count == 2 {
                         payerName = "\(user1.nameWithLastInitial) and \(user2.nameWithLastInitial)"
@@ -201,6 +209,15 @@ extension AddExpenseViewModel {
     func handleExpenseImageTap() {
         UIApplication.shared.endEditing()
         showImagePickerOptions = true
+    }
+
+    func handleNoteBtnTap() {
+        showAddNoteEditor = true
+    }
+
+    func handleNoteSaveBtnTap(note: String) {
+        showAddNoteEditor = false
+        self.expenseNote = note
     }
 
     func handleActionSelection(_ action: ActionsOfSheet) {
@@ -226,9 +243,7 @@ extension AddExpenseViewModel {
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
-                    if granted {
-                        authorized()
-                    }
+                    if granted { authorized() }
                 }
             }
             return
@@ -354,7 +369,8 @@ extension AddExpenseViewModel {
 
     private func handleAddExpenseAction(userId: String, group: Groups) async -> Bool {
         let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
-                              date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: userId, updatedBy: userId,
+                              date: Timestamp(date: expenseDate), paidBy: selectedPayers,
+                              addedBy: userId, updatedBy: userId, note: expenseNote,
                               splitTo: (splitType == .equally) ? selectedMembers : splitData.map({ $0.key }),
                               splitType: splitType, splitData: splitData)
 
@@ -364,12 +380,9 @@ extension AddExpenseViewModel {
     private func addExpense(group: Groups, expense: Expense) async -> Bool {
         guard let groupId = group.id else { return false }
 
-        let resizedImage = expenseImage?.aspectFittedToHeight(200)
-        let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
-
         do {
             showLoader = true
-            let newExpense = try await expenseRepository.addExpense(group: group, expense: expense, imageData: imageData)
+            let newExpense = try await expenseRepository.addExpense(group: group, expense: expense, imageData: getImageData())
             let expenseInfo: [String: Any] = ["groupId": groupId, "expense": newExpense]
             NotificationCenter.default.post(name: .addExpense, object: nil, userInfo: expenseInfo)
 
@@ -379,9 +392,11 @@ extension AddExpenseViewModel {
             await updateGroupMemberBalance(expense: expense, updateType: .Add)
 
             showLoader = false
+            LogD("AddExpenseViewModel: \(#function) Expense added successfully.")
             return true
         } catch {
             showLoader = false
+            LogE("AddExpenseViewModel: \(#function) Failed to add expense: \(error).")
             showToastForError()
             return false
         }
@@ -392,7 +407,9 @@ extension AddExpenseViewModel {
         newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing)
         newExpense.amount = expenseAmount
         newExpense.date = Timestamp(date: expenseDate)
+        newExpense.updatedAt = Timestamp()
         newExpense.updatedBy = userId
+        newExpense.note = expenseNote
 
         if selectedPayers.count == 1, let payerId = selectedPayers.keys.first {
             newExpense.paidBy = [payerId: expenseAmount]
@@ -408,50 +425,56 @@ extension AddExpenseViewModel {
     }
 
     private func updateExpense(group: Groups, expense: Expense, oldExpense: Expense) async -> Bool {
-        guard validateMembersInGroup(group: group, expense: expense) else {
-            return false
-        }
-
-        let resizedImage = expenseImage?.aspectFittedToHeight(200)
-        let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
+        guard validateMembersInGroup(group: group, expense: expense), let expenseId else { return false }
 
         do {
             showLoader = true
-
-            let updatedExpense = try await expenseRepository.updateExpenseWithImage(imageData: imageData, newImageUrl: expenseImageUrl,
-                                                                                    group: group, expense: (expense, oldExpense), type: .expenseUpdated)
+            let updatedExpense = try await expenseRepository.updateExpenseWithImage(imageData: getImageData(),
+                                                                                    newImageUrl: expenseImageUrl,
+                                                                                    group: group, expense: (expense, oldExpense),
+                                                                                    type: .expenseUpdated)
             NotificationCenter.default.post(name: .updateExpense, object: updatedExpense)
 
             guard hasExpenseChanged(updatedExpense, oldExpense: oldExpense) else { return true }
             await updateGroupMemberBalance(expense: updatedExpense, updateType: .Update(oldExpense: oldExpense))
+
             showLoader = false
+            LogD("AddExpenseViewModel: \(#function) Expense updated successfully.")
             return true
         } catch {
             showLoader = false
+            LogE("AddExpenseViewModel: \(#function) Failed to update expense \(expenseId): \(error).")
             showToastForError()
             return false
         }
     }
 
+    private func getImageData() -> Data? {
+        let resizedImage = expenseImage?.aspectFittedToHeight(200)
+        let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
+        return imageData
+    }
+
     private func hasExpenseChanged(_ expense: Expense, oldExpense: Expense) -> Bool {
-        return oldExpense.name != expense.name || oldExpense.amount != expense.amount ||
-        oldExpense.date.dateValue() != expense.date.dateValue() || oldExpense.paidBy != expense.paidBy ||
-        oldExpense.imageUrl != expense.imageUrl || oldExpense.splitTo != expense.splitTo ||
-        oldExpense.splitType != expense.splitType || oldExpense.splitData != expense.splitData ||
-        oldExpense.isActive != expense.isActive
+        return oldExpense.amount != expense.amount || oldExpense.paidBy != expense.paidBy ||
+        oldExpense.splitTo != expense.splitTo || oldExpense.splitType != expense.splitType ||
+        oldExpense.splitData != expense.splitData || oldExpense.isActive != expense.isActive
     }
 
     private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {
-        guard var group = selectedGroup else {
+        guard var group = selectedGroup, let expenseId = expense.id else {
             showLoader = false
             return
         }
+
         do {
             let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
             group.balances = memberBalance
             try await groupRepository.updateGroup(group: group, type: .none)
+            LogD("AddExpenseViewModel: \(#function) Member balances updated successfully.")
         } catch {
             showLoader = false
+            LogE("AddExpenseViewModel: \(#function) Failed to update member balance for expense \(expenseId): \(error).")
             showToastForError()
         }
     }

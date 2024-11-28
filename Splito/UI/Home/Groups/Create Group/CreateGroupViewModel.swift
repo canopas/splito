@@ -103,45 +103,50 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId, updatedBy: userId, imageUrl: nil,
                            members: [userId], balances: [memberBalance], createdAt: Timestamp(), updatedAt: Timestamp())
 
-        let resizedImage = profileImage?.aspectFittedToHeight(200)
-        let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
-
         do {
             showLoader = true
-            let group = try await groupRepository.createGroup(group: group, imageData: imageData)
+            let group = try await groupRepository.createGroup(group: group, imageData: getImageData())
             NotificationCenter.default.post(name: .addGroup, object: group)
+
             showLoader = false
+            LogD("CreateGroupViewModel: \(#function) Group created successfully.")
             return true
         } catch {
             showLoader = false
+            LogE("CreateGroupViewModel: \(#function) Failed to create group: \(error).")
             showToastForError()
             return false
         }
     }
 
     private func updateGroup(group: Groups) async -> Bool {
-        guard let userId = preference.user?.id else { return false }
+        guard let userId = preference.user?.id, let groupId = group.id else { return false }
 
         var newGroup = group
         newGroup.name = groupName.trimming(spaces: .leadingAndTrailing)
         newGroup.updatedBy = userId
         newGroup.updatedAt = Timestamp()
 
-        let resizedImage = profileImage?.aspectFittedToHeight(200)
-        let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
-
         do {
             self.showLoader = true
-            let updatedGroup = try await groupRepository.updateGroupWithImage(imageData: imageData, newImageUrl: profileImageUrl,
-                                                                              group: newGroup, oldGroupName: group.name)
+            let updatedGroup = try await groupRepository.updateGroupWithImage(imageData: getImageData(), newImageUrl: profileImageUrl, group: newGroup, oldGroupName: group.name)
             NotificationCenter.default.post(name: .updateGroup, object: updatedGroup)
+
             showLoader = false
+            LogD("CreateGroupViewModel: \(#function) Group updated successfully.")
             return true
         } catch {
             showLoader = false
+            LogE("CreateGroupViewModel: \(#function) Failed to update group \(groupId): \(error).")
             showToastForError()
             return false
         }
+    }
+
+    private func getImageData() -> Data? {
+        let resizedImage = profileImage?.aspectFittedToHeight(200)
+        let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
+        return imageData
     }
 }
 
