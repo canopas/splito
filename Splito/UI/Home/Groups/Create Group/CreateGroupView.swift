@@ -55,7 +55,7 @@ struct CreateGroupView: View {
             isFocused = true
         }
         .toastView(toast: $viewModel.toast)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)

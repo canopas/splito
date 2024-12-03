@@ -16,6 +16,8 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     @Inject private var transactionRepository: TransactionRepository
 
     @Published var paymentNote: String = ""
+    @Published var paymentReason: String?
+
     @Published private(set) var transaction: Transactions?
     @Published private(set) var transactionUsersData: [AppUser] = []
 
@@ -63,8 +65,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     func fetchTransaction() async {
         do {
             viewState = .loading
-            let transaction = try await transactionRepository.fetchTransactionBy(groupId: groupId, transactionId: transactionId)
-            self.transaction = transaction
+            self.transaction = try await transactionRepository.fetchTransactionBy(groupId: groupId, transactionId: transactionId)
             await setTransactionUsersData()
             self.viewState = .initial
             LogD("GroupTransactionDetailViewModel: \(#function) Payment fetched successfully.")
@@ -92,6 +93,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
         self.transactionUsersData = userData
         self.paymentNote = transaction.note ?? ""
+        self.paymentReason = transaction.reason ?? ""
     }
 
     private func fetchUserData(for userId: String) async -> AppUser? {
@@ -261,6 +263,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         guard let updatedTransaction = notification.object as? Transactions else { return }
         transaction = updatedTransaction
         paymentNote = updatedTransaction.note ?? ""
+        paymentReason = updatedTransaction.reason ?? ""
     }
 
     // MARK: - Error Handling

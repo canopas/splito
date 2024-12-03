@@ -46,7 +46,7 @@ struct GroupBalancesView: View {
         .background(surfaceColor)
         .interactiveDismissDisabled()
         .toastView(toast: $viewModel.toast)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .fullScreenCover(isPresented: $viewModel.showSettleUpSheet) {
             NavigationStack {
                 GroupPaymentView(

@@ -35,6 +35,7 @@ struct ActivityLogContext {
     var currentUser: AppUser?
     var payerName: String?
     var receiverName: String?
+    var paymentReason: String?
     var previousGroupName: String?
     var removedMemberName: String?
 }
