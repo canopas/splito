@@ -25,14 +25,14 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
         self.router = router
     }
 
-    func onEmailSignUp(email: String, password: String) {
+    func onEmailSignUp() {
         FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password) { [weak self] authResult, error in
             guard let self = self else { return }
-            if let error = error {
-                LogE("Error during sign up: \(error.localizedDescription)")
-                self.alert = .init(message: "Sign-up failed: \(error.localizedDescription)")
+            if let error {
+                LogE("EmailLoginViewModel: Error during sign up: \(error)")
+                self.alert = .init(message: "Sign-up failed: \(error)")
                 self.showAlert = true
-            } else if let authResult = authResult {
+            } else if let authResult {
                 let user = AppUser(id: authResult.user.uid, firstName: "", lastName: "",
                                    emailId: email, phoneNumber: nil, loginType: .Email)
                 Task {
@@ -45,12 +45,12 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
     func onEmailLoginClick() {
         FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password) { [weak self] _, error in
             guard let self = self else { return }
-            if let error = error {
-                LogE("Error during login: \(error.localizedDescription)")
-                self.alert = .init(message: "Login failed: \(error.localizedDescription)")
+            if let error {
+                LogE("EmailLoginViewModel: Error during login: \(error)")
+                self.alert = .init(message: "Login failed: \(error)")
                 self.showAlert = true
             } else {
-                LogD("User logged in successfully.")
+                LogD("EmailLoginViewModel: User logged in successfully.")
                 self.onLoginSuccess()
             }
         }
@@ -62,9 +62,9 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
             self.preference.isVerifiedUser = true
             self.preference.user = user
             self.onLoginSuccess()
-            LogD("VerifyOtpViewModel: \(#function) User stored successfully.")
+            LogD("EmailLoginViewModel: \(#function) User stored successfully.")
         } catch {
-            LogE("VerifyOtpViewModel: \(#function) Failed to store user: \(error).")
+            LogE("EmailLoginViewModel: \(#function) Failed to store user: \(error).")
             self.alert = .init(message: error.localizedDescription)
             self.showAlert = true
         }

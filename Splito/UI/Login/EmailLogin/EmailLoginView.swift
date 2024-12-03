@@ -9,31 +9,31 @@ import SwiftUI
 import BaseStyle
 
 struct EmailLoginView: View {
-    
+
     @StateObject var viewModel: EmailLoginViewModel
-    
+
     @FocusState private var focusedField: EmailLoginViewModel.EmailLoginField?
-    
+
     var body: some View {
         GeometryReader { proxy in
             VStack(alignment: .leading, spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
                         AppLogoView(geometry: .constant(proxy))
-                        
+
                         Group {
                             EmailFieldView(email: $viewModel.email, focusedField: $focusedField)
-                            
+
                             PasswordFieldView(password: $viewModel.password, focusedField: $focusedField,
                                               isPasswordVisible: viewModel.isPasswordVisible,
                                               handlePasswordEyeTap: viewModel.handlePasswordEyeTap,
                                               onEditingChanged: viewModel.onEditingChanged(abc:))
-                            
+
                             Spacer()
-                            
+
                             PrimaryButton(text: "Sign in", isEnabled: !viewModel.email.isEmpty && !viewModel.password.isEmpty,
                                           showLoader: viewModel.showLoader, onClick: viewModel.onEmailLoginClick)
-                            
+
                             Button("Forgot your password?") {}
                                 .padding()
                                 .underline()
@@ -58,15 +58,15 @@ struct EmailLoginView: View {
 }
 
 private struct EmailFieldView: View {
-    
+
     @Binding var email: String
     var focusedField: FocusState<EmailLoginViewModel.EmailLoginField?>.Binding
-    
+
     var body: some View {
         Text("Email address")
             .font(.subTitle1())
             .foregroundStyle(secondaryText)
-        
+
         TextField("Your email address", text: $email)
             .autocapitalization(.none)
             .keyboardType(.emailAddress)
@@ -85,19 +85,19 @@ private struct EmailFieldView: View {
 }
 
 private struct PasswordFieldView: View {
-    
+
     @Binding var password: String
     var focusedField: FocusState<EmailLoginViewModel.EmailLoginField?>.Binding
-    
+
     let isPasswordVisible: Bool
     var handlePasswordEyeTap: () -> Void
     var onEditingChanged: (Bool) -> Void
-    
+
     var body: some View {
         Text("Password")
             .font(.subTitle1())
             .foregroundStyle(secondaryText)
-        
+
         HStack {
             if isPasswordVisible {
                 TextField("Your password", text: $password, onEditingChanged: onEditingChanged)
