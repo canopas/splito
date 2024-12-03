@@ -40,7 +40,8 @@ struct LoginView: View {
                                  showAppleLoading: viewModel.showAppleLoading,
                                  onGoogleLoginClick: viewModel.onGoogleLoginClick,
                                  onAppleLoginClick: viewModel.onAppleLoginClick,
-                                 onPhoneLoginClick: viewModel.onPhoneLoginClick)
+                                 onPhoneLoginClick: viewModel.onPhoneLoginClick,
+                                 onEmailLoginClick: viewModel.onEmailLoginClick)
 
                 VSpacer(24)
             }
@@ -60,12 +61,14 @@ private struct LoginOptionsView: View {
     let onGoogleLoginClick: () -> Void
     let onAppleLoginClick: () -> Void
     let onPhoneLoginClick: () -> Void
+    let onEmailLoginClick: () -> Void
 
     var body: some View {
         VStack(spacing: 8) {
             LoginOptionsButtonView(image: .googleIcon, buttonName: "Sign in with Google", showLoader: showGoogleLoading, onClick: onGoogleLoginClick)
             LoginOptionsButtonView(systemImage: ("apple.logo", primaryText, (14, 16)), buttonName: "Sign in with Apple", showLoader: showAppleLoading, onClick: onAppleLoginClick)
             LoginOptionsButtonView(systemImage: ("phone.fill", primaryLightText, (12, 12)), buttonName: "Sign in with Phone Number", bgColor: primaryColor, buttonTextColor: primaryLightText, showLoader: false, onClick: onPhoneLoginClick)
+            LoginOptionsButtonView(systemImage: ("envelope.fill", primaryLightText, (12, 12)), buttonName: "Sign in with E-mail", bgColor: primaryColor, buttonTextColor: primaryLightText, showLoader: false, onClick: onEmailLoginClick)
         }
         .padding(.horizontal, 16)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)

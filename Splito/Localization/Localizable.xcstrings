@@ -305,6 +305,9 @@
     "Email" : {
       "extractionState" : "manual"
     },
+    "Email address" : {
+
+    },
     "Email sent successfully!" : {
       "extractionState" : "manual"
     },
@@ -364,6 +367,9 @@
     },
     "First Name" : {
       "extractionState" : "manual"
+    },
+    "Forgot your password?" : {
+
     },
     "get back" : {
       "extractionState" : "manual"
@@ -541,6 +547,9 @@
     },
     "paid" : {
       "extractionState" : "manual"
+    },
+    "Password" : {
+
     },
     "Payment deleted successfully." : {
       "extractionState" : "manual"
@@ -974,6 +983,12 @@
     },
     "Your device cannot send email." : {
       "extractionState" : "manual"
+    },
+    "Your email address" : {
+
+    },
+    "Your password" : {
+
     },
     "Your requested data not found." : {
       "extractionState" : "manual"

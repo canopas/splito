@@ -261,6 +261,9 @@ extension UserProfileViewModel {
 
         case .Phone:
             handlePhoneLogin(completion: completion)
+
+        case .Email:
+            break
         }
     }
 

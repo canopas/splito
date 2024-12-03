@@ -18,6 +18,7 @@ public enum AppRoute: Hashable {
     case LoginView
     case PhoneLoginView
     case VerifyOTPView(phoneNumber: String, dialCode: String, verificationId: String)
+    case EmailLoginView
     case ProfileView
     case HomeView
 
@@ -60,6 +61,8 @@ public enum AppRoute: Hashable {
             "phoneLoginView"
         case .VerifyOTPView:
             "verifyOTPView"
+        case .EmailLoginView:
+            "EmailLoginView"
         case .ProfileView:
             "userProfileView"
         case .HomeView:

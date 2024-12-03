@@ -127,6 +127,10 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
+    func onEmailLoginClick() {
+        router.push(.EmailLoginView)
+    }
+
     func onPhoneLoginClick() {
         router.push(.PhoneLoginView)
     }
