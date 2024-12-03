@@ -58,7 +58,7 @@ public struct VerifyOtpView: View {
             }
         }
         .background(surfaceColor)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toastView(toast: $viewModel.toast)
         .onTapGesture {
             UIApplication.shared.endEditing()

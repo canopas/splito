@@ -46,7 +46,7 @@ struct LoginView: View {
             }
         }
         .background(surfaceColor)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .ignoresSafeArea(edges: .top)
         .toolbar(.hidden, for: .navigationBar)
     }
@@ -63,9 +63,14 @@ private struct LoginOptionsView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            LoginOptionsButtonView(image: .googleIcon, buttonName: "Sign in with Google", showLoader: showGoogleLoading, onClick: onGoogleLoginClick)
-            LoginOptionsButtonView(systemImage: ("apple.logo", primaryText, (14, 16)), buttonName: "Sign in with Apple", showLoader: showAppleLoading, onClick: onAppleLoginClick)
-            LoginOptionsButtonView(systemImage: ("phone.fill", primaryLightText, (12, 12)), buttonName: "Sign in with Phone Number", bgColor: primaryColor, buttonTextColor: primaryLightText, showLoader: false, onClick: onPhoneLoginClick)
+            LoginOptionsButtonView(image: .googleIcon, buttonName: "Sign in with Google",
+                                   showLoader: showGoogleLoading, onClick: onGoogleLoginClick)
+            LoginOptionsButtonView(systemImage: ("apple.logo", primaryText, (14, 16)),
+                                   buttonName: "Sign in with Apple", showLoader: showAppleLoading,
+                                   onClick: onAppleLoginClick)
+            LoginOptionsButtonView(systemImage: ("phone.fill", primaryLightText, (12, 12)),
+                                   buttonName: "Sign in with Phone Number", bgColor: primaryColor,
+                                   buttonTextColor: primaryLightText, showLoader: false, onClick: onPhoneLoginClick)
         }
         .padding(.horizontal, 16)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
@@ -83,7 +88,10 @@ private struct LoginOptionsButtonView: View {
     let showLoader: Bool
     let onClick: () -> Void
 
-    init(image: ImageResource? = nil, systemImage: (name: String, color: Color, size: (width: CGFloat, height: CGFloat))? = nil, buttonName: String, bgColor: Color = container2Color, buttonTextColor: Color = primaryDarkColor, showLoader: Bool, onClick: @escaping () -> Void) {
+    init(image: ImageResource? = nil,
+         systemImage: (name: String, color: Color, size: (width: CGFloat, height: CGFloat))? = nil,
+         buttonName: String, bgColor: Color = container2Color, buttonTextColor: Color = primaryDarkColor,
+         showLoader: Bool, onClick: @escaping () -> Void) {
         self.image = image
         self.systemImage = systemImage
         self.buttonName = buttonName

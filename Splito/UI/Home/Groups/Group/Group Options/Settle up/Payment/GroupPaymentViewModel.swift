@@ -24,6 +24,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     @Published var paymentImage: UIImage?
 
     @Published var paymentNote: String = ""
+    @Published var paymentReason: String = ""
     @Published private(set) var paymentImageUrl: String?
 
     @Published var showImagePicker = false
@@ -110,6 +111,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             paymentDate = transaction?.date.dateValue() ?? Date.now
             paymentNote = transaction?.note ?? ""
             paymentImageUrl = transaction?.imageUrl
+            paymentReason = transaction?.reason ?? ""
 
             viewState = .initial
             LogD("GroupPaymentViewModel: \(#function) Payment fetched successfully.")
@@ -150,9 +152,10 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         showAddNoteEditor = true
     }
 
-    func handleNoteSaveBtnTap(note: String) {
+    func handleNoteSaveBtnTap(note: String, reason: String?) {
         showAddNoteEditor = false
         self.paymentNote = note
+        self.paymentReason = reason ?? ""
     }
 
     func handlePaymentImageTap() {
@@ -239,12 +242,13 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             newTransaction.updatedAt = Timestamp()
             newTransaction.updatedBy = userId
             newTransaction.note = paymentNote
+            newTransaction.reason = paymentReason
 
             return await updateTransaction(transaction: newTransaction, oldTransaction: transaction)
         } else {
             let transaction = Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
-                                           updatedBy: userId, note: paymentNote, amount: amount,
-                                           date: .init(date: paymentDate))
+                                           updatedBy: userId, note: paymentNote, reason: paymentReason,
+                                           amount: amount, date: .init(date: paymentDate))
             return await addTransaction(transaction: transaction)
         }
     }

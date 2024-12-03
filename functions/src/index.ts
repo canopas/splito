@@ -16,7 +16,7 @@ if (admin.apps.length === 0) {
   }
 } else {
   logger.debug('Firebase app already initialized');
-}
+}    
 
 exports.onGroupWrite = onGroupWrite;
 exports.onActivityCreate = onActivityCreate;

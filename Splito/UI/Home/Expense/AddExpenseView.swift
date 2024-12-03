@@ -46,7 +46,7 @@ struct AddExpenseView: View {
         .navigationTitle(viewModel.expenseId == nil ? "Add expense" : "Edit expense")
         .navigationBarTitleDisplayMode(.inline)
         .toastView(toast: $viewModel.toast)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showGroupSelection) {
             NavigationStack {
                 SelectGroupView(viewModel: SelectGroupViewModel(selectedGroup: viewModel.selectedGroup,
@@ -78,8 +78,12 @@ struct AddExpenseView: View {
         }
         .sheet(isPresented: $viewModel.showAddNoteEditor) {
             NavigationStack {
-                AddNoteView(viewModel: AddNoteViewModel(group: viewModel.selectedGroup, expense: viewModel.expense, note: viewModel.expenseNote,
-                                                        handleSaveNoteTap: viewModel.handleNoteSaveBtnTap(note:)))
+                AddNoteView(viewModel: AddNoteViewModel(
+                    group: viewModel.selectedGroup, expense: viewModel.expense, note: viewModel.expenseNote,
+                    handleSaveNoteTap: { note, _ in
+                        viewModel.handleNoteSaveBtnTap(note: note)
+                    }
+                ))
             }
         }
         .sheet(isPresented: $viewModel.showImagePicker) {

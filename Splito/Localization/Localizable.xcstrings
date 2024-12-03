@@ -88,6 +88,16 @@
         }
       }
     },
+    "%@ paid %@ for '%@'" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ paid %2$@ for '%3$@'"
+          }
+        }
+      }
+    },
     "%@ people" : {
       "extractionState" : "manual"
     },
@@ -311,6 +321,9 @@
     "Enter a description" : {
       "extractionState" : "manual"
     },
+    "Enter a reason for this payment" : {
+      "extractionState" : "manual"
+    },
     "Enter a valid phone number." : {
       "extractionState" : "manual"
     },
@@ -336,7 +349,7 @@
       "extractionState" : "manual"
     },
     "Enter your note here..." : {
-
+      "extractionState" : "manual"
     },
     "Enter your phone number" : {
       "extractionState" : "manual"

@@ -28,7 +28,7 @@ struct ExpenseDetailsView: View {
 
                         ExpenseInfoView(viewModel: viewModel)
 
-                        if let imageUrl = viewModel.expense?.imageUrl {
+                        if let imageUrl = viewModel.expense?.imageUrl, !imageUrl.isEmpty {
                             VStack(spacing: 8) {
                                 Text("Attachment:")
                                     .font(.subTitle3())
@@ -60,7 +60,7 @@ struct ExpenseDetailsView: View {
         }
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .fullScreenCover(isPresented: $viewModel.showEditExpenseSheet) {
             NavigationStack {
                 AddExpenseView(viewModel: AddExpenseViewModel(router: viewModel.router, groupId: viewModel.groupId, expenseId: viewModel.expenseId))
