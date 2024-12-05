@@ -45,7 +45,7 @@ struct ChooseMultiplePayerView: View {
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
 
-                BottomInfoCardView(title: "₹ \(String(format: "%.2f", viewModel.totalAmount)) of \(viewModel.expenseAmount.formattedCurrency)",
+                BottomInfoCardView(title: "\(viewModel.totalAmount.formattedCurrency) of \(viewModel.expenseAmount.formattedCurrency)",
                                    value: "\((viewModel.expenseAmount - viewModel.totalAmount).formattedCurrencyWithSign) left")
             }
         }
@@ -53,7 +53,7 @@ struct ChooseMultiplePayerView: View {
         .interactiveDismissDisabled()
         .toolbar(.hidden, for: .navigationBar)
         .toastView(toast: $viewModel.toast)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .onTapGesture {
             UIApplication.shared.endEditing()
         }

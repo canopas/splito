@@ -16,19 +16,21 @@ class AddNoteViewModel: BaseViewModel, ObservableObject {
     @Inject private var transactionRepository: TransactionRepository
 
     @Published var note: String
+    @Published var paymentReason: String?
     @Published private(set) var showLoader: Bool = false
 
     private let group: Groups?
     private let expense: Expense?
     private let payment: Transactions?
-    private let handleSaveNoteTap: ((String) -> Void)?
+    private let handleSaveNoteTap: ((_ note: String, _ reason: String?) -> Void)?
 
-    init(group: Groups?, expense: Expense? = nil, payment: Transactions? = nil,
-         note: String, handleSaveNoteTap: ((String) -> Void)? = nil) {
+    init(group: Groups?, expense: Expense? = nil, payment: Transactions? = nil, note: String,
+         paymentReason: String? = nil, handleSaveNoteTap: ((_ note: String, _ reason: String?) -> Void)? = nil) {
         self.group = group
         self.expense = expense
         self.payment = payment
         self.note = note
+        self.paymentReason = paymentReason
         self.handleSaveNoteTap = handleSaveNoteTap
         super.init()
     }
@@ -38,15 +40,18 @@ class AddNoteViewModel: BaseViewModel, ObservableObject {
         self.showToastFor(toast: ToastPrompt(type: .error, title: "Oops", message: "Failed to save note."))
     }
 
-    func handleSaveNoteAction() async -> Bool {
+    func handleSaveNoteAction(tempPaymentReason: String) async -> Bool {
+        note = note.trimming(spaces: .leadingAndTrailing)
+        paymentReason = (tempPaymentReason == "Payment") ? nil : tempPaymentReason.trimming(spaces: .leadingAndTrailing)
+
         if let handleSaveNoteTap {
-            handleSaveNoteTap(note)
+            handleSaveNoteTap(note, paymentReason)
             return true
         }
 
         if let expense, expense.note != note {
             return await updateExpenseNote()
-        } else if let payment, payment.note != note {
+        } else if let payment, payment.note != note || (payment.reason ?? "") != (paymentReason ?? "") {
             return await updatePaymentNote()
         }
 
@@ -88,6 +93,7 @@ class AddNoteViewModel: BaseViewModel, ObservableObject {
 
             var updatedPayment = payment
             updatedPayment.note = note
+            updatedPayment.reason = paymentReason
             updatedPayment = try await transactionRepository.updateTransaction(group: group, transaction: updatedPayment,
                                                                                oldTransaction: payment, members: members,
                                                                                type: .transactionUpdated)
@@ -112,5 +118,12 @@ class AddNoteViewModel: BaseViewModel, ObservableObject {
             return (payer, receiver)
         }
         return nil
+    }
+}
+
+extension AddNoteViewModel {
+    enum AddNoteField {
+        case note
+        case reason
     }
 }

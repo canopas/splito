@@ -163,7 +163,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     private func fetchUserData(for userId: String) async -> AppUser? {
         do {
-            let user = try await groupRepository.fetchMemberBy(userId: userId)
+            let user = try await groupRepository.fetchMemberBy(memberId: userId)
             LogD("AddExpenseViewModel: \(#function) Member fetched successfully.")
             return user
         } catch {
@@ -389,7 +389,7 @@ extension AddExpenseViewModel {
             if !group.hasExpenses {
                 selectedGroup?.hasExpenses = true
             }
-            await updateGroupMemberBalance(expense: expense, updateType: .Add)
+            await updateGroupMemberBalance(expense: newExpense, updateType: .Add)
 
             showLoader = false
             LogD("AddExpenseViewModel: \(#function) Expense added successfully.")
@@ -458,7 +458,8 @@ extension AddExpenseViewModel {
     private func hasExpenseChanged(_ expense: Expense, oldExpense: Expense) -> Bool {
         return oldExpense.amount != expense.amount || oldExpense.paidBy != expense.paidBy ||
         oldExpense.splitTo != expense.splitTo || oldExpense.splitType != expense.splitType ||
-        oldExpense.splitData != expense.splitData || oldExpense.isActive != expense.isActive
+        oldExpense.splitData != expense.splitData || oldExpense.isActive != expense.isActive ||
+        oldExpense.date != expense.date
     }
 
     private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {

@@ -31,7 +31,7 @@ public class ExpenseStore: ObservableObject {
 
     func updateExpense(groupId: String, expense: Expense) async throws {
         if let expenseId = expense.id {
-            try expenseReference(groupId: groupId).document(expenseId).setData(from: expense, merge: true)
+            try expenseReference(groupId: groupId).document(expenseId).setData(from: expense, merge: false)
         } else {
             LogE("ExpenseStore: \(#function) Expense not found.")
             throw ServiceError.dataNotFound

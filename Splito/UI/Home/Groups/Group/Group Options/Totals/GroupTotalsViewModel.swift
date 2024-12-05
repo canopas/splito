@@ -35,8 +35,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroup() async {
         do {
-            let latestGroup = try await groupRepository.fetchGroupBy(id: groupId)
-            group = latestGroup
+            group = try await groupRepository.fetchGroupBy(id: groupId)
             filterDataForSelectedTab()
             viewState = .initial
             LogD("GroupTotalsViewModel: \(#function) Group fetched successfully.")

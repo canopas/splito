@@ -60,7 +60,7 @@ struct JoinMemberView: View {
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .onTapGesture {
             isFocused = false
         }

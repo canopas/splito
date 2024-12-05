@@ -7,7 +7,13 @@ import * as _ from 'lodash';
 
 // Initialize Firebase app if not already initialized
 if (admin.apps.length === 0) {
-  admin.initializeApp();
+  try {
+    admin.initializeApp();
+    logger.info('Firebase app initialized in users_service');
+  } catch (error) {
+    logger.error('Failed to initialize Firebase app in users_service:', error);
+    throw error;  // Prevent further function execution
+  }
 }
 
 const db = admin.firestore();

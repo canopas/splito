@@ -46,6 +46,16 @@
     "%@" : {
 
     },
+    "%@ %@ " : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@ "
+          }
+        }
+      }
+    },
     "%@ %@ %@" : {
       "localizations" : {
         "en" : {
@@ -61,9 +71,6 @@
     },
     "%@ and %@" : {
       "extractionState" : "manual"
-    },
-    "%@ owes " : {
-
     },
     "%@ owes you " : {
 
@@ -84,6 +91,16 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@ paid %2$@ and %3$@ %4$@"
+          }
+        }
+      }
+    },
+    "%@ paid %@ for '%@'" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ paid %2$@ for '%3$@'"
           }
         }
       }
@@ -311,6 +328,9 @@
     "Enter a description" : {
       "extractionState" : "manual"
     },
+    "Enter a reason for this payment" : {
+      "extractionState" : "manual"
+    },
     "Enter a valid phone number." : {
       "extractionState" : "manual"
     },
@@ -336,7 +356,7 @@
       "extractionState" : "manual"
     },
     "Enter your note here..." : {
-
+      "extractionState" : "manual"
     },
     "Enter your phone number" : {
       "extractionState" : "manual"

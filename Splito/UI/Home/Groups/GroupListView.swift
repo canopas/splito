@@ -70,7 +70,7 @@ struct GroupListView: View {
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -127,6 +127,7 @@ struct GroupListView: View {
                 JoinMemberView(viewModel: JoinMemberViewModel(router: viewModel.router))
             }
         }
+        .onAppear(perform: viewModel.fetchCurrentUser)
     }
 }
 

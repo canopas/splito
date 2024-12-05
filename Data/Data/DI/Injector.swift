@@ -19,7 +19,7 @@ public class Injector {
         appAssembler = Assembler([AppAssembly()])
     }
 
-    public func setTestAassembler(assemblies: [Assembly]) {
+    public func setTestAssembler(assemblies: [Assembly]) {
         appAssembler = Assembler(assemblies)
     }
 }
