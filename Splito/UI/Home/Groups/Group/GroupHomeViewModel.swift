@@ -194,7 +194,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     func fetchMemberData(for memberId: String) async -> AppUser? {
         do {
-            let member = try await groupRepository.fetchMemberBy(userId: memberId)
+            let member = try await groupRepository.fetchMemberBy(memberId: memberId)
             if let member {
                 addMemberIfNotExist(member)
             }

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BaseStyle
+import Data
 
 struct GroupBalancesView: View {
 
@@ -71,6 +72,8 @@ struct GroupBalancesView: View {
 @MainActor
 private struct GroupBalanceItemView: View {
 
+    @Inject private var preference: SplitoPreference
+
     let memberBalance: MembersCombinedBalance
     let viewModel: GroupBalancesViewModel
 
@@ -88,7 +91,7 @@ private struct GroupBalanceItemView: View {
 
                     let hasDue = memberBalance.totalOwedAmount < 0
                     let name = viewModel.getMemberName(id: memberBalance.id, needFullName: true)
-                    let owesOrGetsBack = hasDue ? "owes" : "gets back"
+                    let owesOrGetsBack = hasDue ? (memberBalance.id == preference.user?.id ? "owe" : "owes") : (memberBalance.id == preference.user?.id ? "get back" : "gets back")
 
                     if memberBalance.totalOwedAmount == 0 {
                         Group {
@@ -142,6 +145,8 @@ private struct GroupBalanceItemView: View {
 private struct GroupBalanceItemMemberView: View {
     let SUB_IMAGE_HEIGHT: CGFloat = 24
 
+    @Inject private var preference: SplitoPreference
+
     let id: String
     let balances: [String: Double]
     let viewModel: GroupBalancesViewModel
@@ -156,13 +161,14 @@ private struct GroupBalanceItemMemberView: View {
                     let imageUrl = viewModel.getMemberImage(id: memberId)
                     let owesMemberName = viewModel.getMemberName(id: hasDue ? memberId : id)
                     let owedMemberName = viewModel.getMemberName(id: hasDue ? id : memberId)
+                    let owesText = ((hasDue ? id : memberId) == preference.user?.id) ? "owe" : "owes"
 
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(alignment: .center, spacing: 16) {
                             MemberProfileImageView(imageUrl: imageUrl, height: SUB_IMAGE_HEIGHT, scaleEffect: 0.6)
 
                             Group {
-                                Text("\(owedMemberName) owes ")
+                                Text("\(owedMemberName.capitalized) \(owesText.localized) ")
 
                                 + Text(amount.formattedCurrency)
                                     .foregroundColor(hasDue ? errorColor : successColor)

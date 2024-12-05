@@ -39,13 +39,8 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     func fetchGroupDetails() async {
         do {
-            let group = try await groupRepository.fetchGroupBy(id: groupId)
-            guard let group else {
-                viewState = .initial
-                return
-            }
-            self.group = group
-            calculateMemberPayableAmount(group: group)
+            self.group = try await groupRepository.fetchGroupBy(id: groupId)
+            calculateMemberPayableAmount()
             viewState = .initial
             LogD("GroupSettleUpViewModel: \(#function) Group fetched successfully.")
         } catch {
@@ -54,8 +49,8 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func calculateMemberPayableAmount(group: Groups) {
-        guard let userId = preference.user?.id else {
+    func calculateMemberPayableAmount() {
+        guard let group, let userId = preference.user?.id else {
             viewState = .initial
             return
         }

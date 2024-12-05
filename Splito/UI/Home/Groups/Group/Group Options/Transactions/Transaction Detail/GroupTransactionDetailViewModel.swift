@@ -52,8 +52,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroup() async {
         do {
-            let group = try await groupRepository.fetchGroupBy(id: groupId)
-            self.group = group
+            self.group = try await groupRepository.fetchGroupBy(id: groupId)
             viewState = .initial
             LogD("GroupTransactionDetailViewModel: \(#function) Group fetched successfully.")
         } catch {
@@ -76,7 +75,10 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     private func setTransactionUsersData() async {
-        guard let transaction else { return }
+        guard let transaction else {
+            viewState = .initial
+            return
+        }
 
         var userData: [AppUser] = []
         var members: [String] = []
@@ -201,7 +203,6 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                                                                                      payer: payer, receiver: receiver)
                 NotificationCenter.default.post(name: .deleteTransaction, object: self.transaction)
                 await updateGroupMemberBalance(updateType: .Delete)
-                self.showToastFor(toast: .init(type: .success, title: "Success", message: "Payment deleted successfully."))
 
                 viewState = .initial
                 LogD("GroupTransactionDetailViewModel: \(#function) Payment deleted successfully.")

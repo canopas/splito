@@ -45,8 +45,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroupDetails() async {
         do {
-            let group = try await groupRepository.fetchGroupBy(id: groupId)
-            self.group = group
+            self.group = try await groupRepository.fetchGroupBy(id: groupId)
             self.checkForGroupAdmin()
             await fetchGroupMembers()
             currentViewState = .initial

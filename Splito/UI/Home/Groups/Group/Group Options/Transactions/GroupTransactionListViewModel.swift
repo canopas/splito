@@ -130,7 +130,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             return existingUser // Return the available user from groupMembers
         } else {
             do {
-                let user = try await groupRepository.fetchMemberBy(userId: userId)
+                let user = try await groupRepository.fetchMemberBy(memberId: userId)
                 if let user {
                     groupMembers.append(user)
                 }

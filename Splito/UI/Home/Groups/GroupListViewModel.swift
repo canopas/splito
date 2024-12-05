@@ -165,7 +165,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             if let user {
                 self?.totalOweAmount = user.totalOweAmount
             } else {
-                self?.handleServiceError()
+                self?.showToastForError()
             }
         }
     }
@@ -179,6 +179,22 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             showToastForError()
             LogE("GroupListViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             return nil
+        }
+    }
+
+    func fetchCurrentUser() {
+        guard let userId = preference.user?.id else { return }
+
+        Task.detached { [weak self] in
+            do {
+                guard let self else { return }
+                let user = try await self.userRepository.fetchUserBy(userID: userId)
+                await MainActor.run {
+                    self.preference.user = user
+                }
+            } catch {
+                LogE("GroupListViewModel: \(#function) Failed to fetch current user: \(error).")
+            }
         }
     }
 }

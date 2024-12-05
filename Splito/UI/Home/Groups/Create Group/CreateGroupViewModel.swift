@@ -38,6 +38,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         super.init()
     }
 
+// MARK: - User Actions
     private func checkCameraPermission(authorized: @escaping (() -> Void)) {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .notDetermined:
@@ -100,8 +101,8 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         guard let userId = preference.user?.id else { return false }
 
         let memberBalance = GroupMemberBalance(id: userId, balance: 0, totalSummary: [])
-        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId, updatedBy: userId, imageUrl: nil,
-                           members: [userId], balances: [memberBalance], createdAt: Timestamp(), updatedAt: Timestamp())
+        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId,
+                           updatedBy: userId, members: [userId], balances: [memberBalance])
 
         do {
             showLoader = true

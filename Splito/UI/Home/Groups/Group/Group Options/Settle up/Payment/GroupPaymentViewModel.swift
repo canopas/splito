@@ -124,8 +124,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     private func getPayerUserDetail() async {
         do {
             viewState = .loading
-            let user = try await userRepository.fetchUserBy(userID: payerId)
-            if let user { payer = user }
+            payer = try await userRepository.fetchUserBy(userID: payerId)
             viewState = .initial
             LogD("GroupPaymentViewModel: \(#function) Payer fetched successfully.")
         } catch {
@@ -137,8 +136,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     private func getPayableUserDetail() async {
         do {
             viewState = .loading
-            let user = try await userRepository.fetchUserBy(userID: receiverId)
-            if let user { receiver = user }
+            receiver = try await userRepository.fetchUserBy(userID: receiverId)
             viewState = .initial
             LogD("GroupPaymentViewModel: \(#function) Payable fetched successfully.")
         } catch {
@@ -294,6 +292,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                 NotificationCenter.default.post(name: .updateTransaction, object: self.transaction)
             }
 
+            guard let transaction = self.transaction else { return false }
             guard hasTransactionChanged(transaction, oldTransaction: oldTransaction) else { return true }
             await updateGroupMemberBalance(updateType: .Update(oldTransaction: oldTransaction))
 
@@ -316,7 +315,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     private func hasTransactionChanged(_ transaction: Transactions, oldTransaction: Transactions) -> Bool {
         return oldTransaction.payerId != transaction.payerId || oldTransaction.receiverId != transaction.receiverId ||
-        oldTransaction.amount != transaction.amount || oldTransaction.isActive != transaction.isActive
+        oldTransaction.amount != transaction.amount || oldTransaction.isActive != transaction.isActive ||
+        oldTransaction.date != transaction.date
     }
 
     private func updateGroupMemberBalance(updateType: TransactionUpdateType) async {

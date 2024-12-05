@@ -57,14 +57,12 @@ private struct TransactionListWithDetailView: View {
                             EmptyTransactionView(geometry: geometry)
                         } else {
                             let firstMonth = viewModel.filteredTransactions.keys.sorted(by: sortMonthYearStrings).first
-                            let lastMonth = viewModel.filteredTransactions.keys.sorted(by: sortMonthYearStrings).last
 
                             ForEach(viewModel.filteredTransactions.keys.sorted(by: sortMonthYearStrings), id: \.self) { month in
                                 Section(header: sectionHeader(month: month)) {
                                     ForEach(viewModel.filteredTransactions[month] ?? [], id: \.transaction.id) { transaction in
                                         TransactionItemView(transactionWithUser: transaction,
                                                             isLastCell: transaction.transaction.id == (viewModel.filteredTransactions[month] ?? []).last?.transaction.id)
-                                        .padding(.bottom, (month == lastMonth && viewModel.filteredTransactions[month]?.last?.transaction.id == transaction.transaction.id) ? 50 : 0)
                                         .onTouchGesture {
                                             viewModel.handleTransactionItemTap(transaction.transaction.id)
                                         }
@@ -129,7 +127,7 @@ private struct TransactionListWithDetailView: View {
         return Text(month)
             .font(.Header4())
             .foregroundStyle(primaryText)
-            .padding(.vertical, 8)
+            .padding(.vertical, 5)
             .padding(.horizontal, 16)
     }
 }
@@ -154,7 +152,7 @@ private struct TransactionItemView: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 0) {
             HStack(alignment: .center, spacing: 0) {
                 let dateComponents = transactionWithUser.transaction.date.dateValue().dayAndMonthText
                 VStack(spacing: 0) {
@@ -195,6 +193,7 @@ private struct TransactionItemView: View {
                 }
             }
             .padding(.top, 20)
+            .padding(.bottom, isLastCell ? 13 : 20)
             .padding(.horizontal, 16)
 
             if !isLastCell {

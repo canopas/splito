@@ -53,14 +53,12 @@ struct GroupExpenseListView: View {
                                                onClick: viewModel.openAddExpenseSheet)
                             } else if !viewModel.groupExpenses.isEmpty {
                                 let firstMonth = viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings).first
-                                let lastMonth = viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings).last
 
                                 ForEach(viewModel.groupExpenses.keys.sorted(by: sortMonthYearStrings), id: \.self) { month in
                                     Section(header: sectionHeader(month: month)) {
                                         ForEach(viewModel.groupExpenses[month] ?? [], id: \.expense.id) { expense in
                                             GroupExpenseItemView(expenseWithUser: expense,
                                                                  isLastItem: expense.expense == (viewModel.groupExpenses[month] ?? []).last?.expense)
-                                            .padding(.bottom, (month == lastMonth && viewModel.groupExpenses[month]?.last?.expense.id == expense.expense.id) ? 50 : 0)
                                             .onTouchGesture {
                                                 viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
                                             }
@@ -127,7 +125,7 @@ struct GroupExpenseListView: View {
                 .font(.Header4())
                 .foregroundStyle(primaryText)
                 .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.vertical, 5)
             Spacer()
         }
         .onTapGestureForced {
@@ -175,7 +173,7 @@ private struct GroupExpenseItemView: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 0) {
             HStack(alignment: .center, spacing: 0) {
                 let dateComponents = expense.date.dateValue().dayAndMonthText
                 VStack(spacing: 0) {
@@ -243,6 +241,7 @@ private struct GroupExpenseItemView: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 20)
+            .padding(.bottom, isLastItem ? 13 : 20)
 
             if !isLastItem {
                 Divider()

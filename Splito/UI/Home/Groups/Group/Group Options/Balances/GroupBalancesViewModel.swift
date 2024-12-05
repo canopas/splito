@@ -130,8 +130,8 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     }
 
     func getMemberName(id: String, needFullName: Bool = false) -> String {
-        guard let member = getMemberDataBy(id: id) else { return "" }
-        return needFullName ? member.fullName : member.nameWithLastInitial
+        guard let userId = preference.user?.id, let member = getMemberDataBy(id: id) else { return "" }
+        return needFullName ? (id == userId ? "You" : member.fullName) : (id == userId ? "you" : member.nameWithLastInitial)
     }
 
     // MARK: - User Actions

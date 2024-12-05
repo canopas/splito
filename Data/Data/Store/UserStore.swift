@@ -28,7 +28,7 @@ class UserStore: ObservableObject {
     }
 
     func updateUser(user: AppUser) async throws -> AppUser? {
-        try usersCollection.document(user.id).setData(from: user, merge: true)
+        try usersCollection.document(user.id).setData(from: user, merge: false)
         return user
     }
 
