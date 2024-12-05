@@ -34,11 +34,7 @@ struct EmailLoginView: View {
 
                             VSpacer(16)
 
-                            PasswordFieldView(password: $viewModel.password, focusedField: $focusedField,
-                                              isPasswordVisible: viewModel.isPasswordVisible,
-                                              handlePasswordEyeTap: viewModel.handlePasswordEyeTap,
-                                              onEditingChanged: viewModel.onEditingChanged(abc:))
-
+                            PasswordFieldView(password: $viewModel.password, focusedField: $focusedField)
                             VSpacer(8)
 
                             HStack {
@@ -54,13 +50,13 @@ struct EmailLoginView: View {
                             Spacer()
 
                             PrimaryButton(text: "Login", isEnabled: !viewModel.email.isEmpty && !viewModel.password.isEmpty,
-                                          showLoader: viewModel.showLoader, onClick: viewModel.onEmailLoginClick)
+                                          showLoader: viewModel.isLoginInProgress, onClick: viewModel.onEmailLoginClick)
                             .padding(.top, 8)
 
                             VSpacer(16)
 
-                            PrimaryButton(text: "Create account", isEnabled: !viewModel.email.isEmpty && !viewModel.password.isEmpty,
-                                          showLoader: viewModel.showCreateAccountLoading, onClick: viewModel.onCreateAccountClick)
+                            PrimaryButton(text: "Create account", textColor: primaryDarkColor, bgColor: container2Color,
+                                          showLoader: viewModel.isSignupInProgress, onClick: viewModel.onCreateAccountClick)
 
                             VSpacer(40)
                         }
@@ -123,9 +119,7 @@ private struct PasswordFieldView: View {
     @Binding var password: String
     var focusedField: FocusState<EmailLoginViewModel.EmailLoginField?>.Binding
 
-    let isPasswordVisible: Bool
-    var handlePasswordEyeTap: () -> Void
-    var onEditingChanged: (Bool) -> Void
+    @State private var isSecured: Bool = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -133,31 +127,34 @@ private struct PasswordFieldView: View {
                 .font(.body3())
                 .foregroundStyle(secondaryText)
 
-            HStack {
-                if isPasswordVisible {
-                    TextField("Enter your password", text: $password, onEditingChanged: onEditingChanged)
-                } else {
-                    SecureField("Enter your password", text: $password)
+            ZStack(alignment: .trailing) {
+                Group {
+                    if isSecured {
+                        SecureField("Enter your password", text: $password)
+                    } else {
+                        TextField("Enter your password", text: $password)
+                    }
+                }
+                .font(.subTitle3())
+                .foregroundStyle(primaryText)
+                .tint(primaryColor)
+                .autocapitalization(.none)
+                .focused(focusedField, equals: .password)
+                .submitLabel(.done)
+
+                Button {
+                    isSecured.toggle()
+                } label: {
+                    Image(systemName: self.isSecured ? "eye.slash" : "eye")
+                        .accentColor(.gray)
                 }
             }
-            .font(.subTitle3())
-            .foregroundStyle(primaryText)
-            .tint(primaryColor)
-            .autocapitalization(.none)
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
             .overlay {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(outlineColor, lineWidth: 1)
             }
-            .overlay(alignment: .trailing) {
-                Image(systemName: isPasswordVisible  ? "eye.fill" : "eye.slash.fill")
-                    .font(.system(size: 14))
-                    .padding()
-                    .onTapGesture(perform: handlePasswordEyeTap)
-            }
-            .focused(focusedField, equals: .password)
-            .submitLabel(.done)
         }
     }
 }

@@ -14,9 +14,8 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
 
-    @Published private(set) var showLoader = false
-    @Published private(set) var showCreateAccountLoading = false
-    @Published private(set) var isPasswordVisible = false
+    @Published private(set) var isLoginInProgress = false
+    @Published private(set) var isSignupInProgress = false
 
     @Published var email = ""
     @Published var password = ""
@@ -27,50 +26,55 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
         self.router = router
     }
 
+    // MARK: - User Actions
     func onCreateAccountClick() {
-        showCreateAccountLoading = true
+        guard validateEmailAndPassword() else { return }
 
+        isSignupInProgress = true
         FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
             guard let self else { return }
-            showCreateAccountLoading = false
-            if let error {
-                LogE("EmailLoginViewModel: Error during sign up: \(error)")
-                handleFirebaseAuthErrors(error)
-            } else if let result {
-                let user = AppUser(id: result.user.uid, firstName: "", lastName: "",
-                                   emailId: email, phoneNumber: nil, loginType: .Email)
-                Task {
-                    await self.storeUser(user: user)
-                }
-                LogD("EmailLoginViewModel: \(#function) Logged in User: \(result.user)")
-            } else {
-                self.alert = .init(message: "Contact Support")
-                self.showAlert = true
-            }
+            isSignupInProgress = false
+            self.handleAuthResponse(result: result, error: error, isLogin: false)
         }
     }
 
     func onEmailLoginClick() {
-        showLoader = true
+        guard validateEmailAndPassword() else { return }
 
+        isLoginInProgress = true
         FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
             guard let self else { return }
-            showLoader = false
-            if let error {
-                LogE("EmailLoginViewModel: Error during login: \(error)")
-                handleFirebaseAuthErrors(error)
-            } else if let result {
-                let user = AppUser(id: result.user.uid, firstName: "", lastName: "",
-                                   emailId: email, phoneNumber: nil, loginType: .Email)
-                Task {
-                    await self.storeUser(user: user)
-                }
-                LogD("EmailLoginViewModel: \(#function) Logged in User: \(result.user)")
-            } else {
-                self.alert = .init(message: "Contact Support")
-                self.showAlert = true
-            }
+            isLoginInProgress = false
+            self.handleAuthResponse(result: result, error: error, isLogin: true)
         }
+    }
+
+    private func handleAuthResponse(result: AuthDataResult?, error: Error?, isLogin: Bool) {
+        if let error {
+            LogE("EmailLoginViewModel: \(#function) Error during \(isLogin ? "login" : "sign up"): \(error)")
+            handleFirebaseAuthErrors(error)
+        } else if let result {
+            let user = AppUser(id: result.user.uid, firstName: "", lastName: "",
+                               emailId: email, phoneNumber: nil, loginType: .Email)
+            Task { await storeUser(user: user) }
+            LogD("EmailLoginViewModel: \(#function) User \(isLogin ? "logged in" : "signed up") successfully.")
+        } else {
+            self.alert = .init(message: "Contact Support")
+            self.showAlert = true
+        }
+    }
+
+    private func validateEmailAndPassword() -> Bool {
+        if !email.isValidEmail {
+            showAlertFor(title: "Error", message: "Please enter a valid email address.")
+            return false
+        }
+        if password.count < 4 {
+            showAlertFor(title: "Error", message: "Password must be at least 4 characters long.")
+            return false
+        }
+
+        return true
     }
 
     private func storeUser(user: AppUser) async {
@@ -95,14 +99,7 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
         router.pop()
     }
 
-    func handlePasswordEyeTap() {
-        isPasswordVisible.toggle()  // Toggle password visibility
-    }
-
-    func onEditingChanged(abc: Bool) {
-
-    }
-
+    // MARK: - Error handling 
     private func handleFirebaseAuthErrors(_ error: Error) {
         let errorCode = (error as NSError).code
 

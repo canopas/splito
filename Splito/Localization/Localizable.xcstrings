@@ -340,6 +340,9 @@
     "Enter mobile number" : {
       "extractionState" : "manual"
     },
+    "Enter note" : {
+
+    },
     "Enter the invite code" : {
       "extractionState" : "manual"
     },
@@ -541,6 +544,9 @@
     "not involved" : {
 
     },
+    "Note" : {
+
+    },
     "Note:" : {
 
     },
@@ -626,6 +632,9 @@
       "extractionState" : "manual"
     },
     "Reach out to your friends to get the code of the group they created." : {
+
+    },
+    "Reason" : {
 
     },
     "Reauthenticate" : {
