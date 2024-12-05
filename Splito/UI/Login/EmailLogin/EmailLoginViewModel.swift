@@ -14,8 +14,10 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
 
-    @Published var isPasswordVisible = false
     @Published private(set) var showLoader = false
+    @Published private(set) var showCreateAccountLoading = false
+    @Published private(set) var isPasswordVisible = false
+
     @Published var email = ""
     @Published var password = ""
 
@@ -25,33 +27,48 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
         self.router = router
     }
 
-    func onEmailSignUp() {
-        FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password) { [weak self] authResult, error in
-            guard let self = self else { return }
+    func onCreateAccountClick() {
+        showCreateAccountLoading = true
+
+        FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
+            guard let self else { return }
+            showCreateAccountLoading = false
             if let error {
                 LogE("EmailLoginViewModel: Error during sign up: \(error)")
-                self.alert = .init(message: "Sign-up failed: \(error)")
-                self.showAlert = true
-            } else if let authResult {
-                let user = AppUser(id: authResult.user.uid, firstName: "", lastName: "",
+                handleFirebaseAuthErrors(error)
+            } else if let result {
+                let user = AppUser(id: result.user.uid, firstName: "", lastName: "",
                                    emailId: email, phoneNumber: nil, loginType: .Email)
                 Task {
                     await self.storeUser(user: user)
                 }
+                LogD("EmailLoginViewModel: \(#function) Logged in User: \(result.user)")
+            } else {
+                self.alert = .init(message: "Contact Support")
+                self.showAlert = true
             }
         }
     }
 
     func onEmailLoginClick() {
-        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password) { [weak self] _, error in
-            guard let self = self else { return }
+        showLoader = true
+
+        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
+            guard let self else { return }
+            showLoader = false
             if let error {
                 LogE("EmailLoginViewModel: Error during login: \(error)")
-                self.alert = .init(message: "Login failed: \(error)")
-                self.showAlert = true
+                handleFirebaseAuthErrors(error)
+            } else if let result {
+                let user = AppUser(id: result.user.uid, firstName: "", lastName: "",
+                                   emailId: email, phoneNumber: nil, loginType: .Email)
+                Task {
+                    await self.storeUser(user: user)
+                }
+                LogD("EmailLoginViewModel: \(#function) Logged in User: \(result.user)")
             } else {
-                LogD("EmailLoginViewModel: User logged in successfully.")
-                self.onLoginSuccess()
+                self.alert = .init(message: "Contact Support")
+                self.showAlert = true
             }
         }
     }
@@ -61,7 +78,7 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
             let user = try await userRepository.storeUser(user: user)
             self.preference.isVerifiedUser = true
             self.preference.user = user
-            self.onLoginSuccess()
+            self.router.popToRoot()
             LogD("EmailLoginViewModel: \(#function) User stored successfully.")
         } catch {
             LogE("EmailLoginViewModel: \(#function) Failed to store user: \(error).")
@@ -70,12 +87,8 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func onLoginSuccess() {
-        //        if onLoginSuccess == nil {
-        //            router?.popToRoot()
-        //        } else {
-        //            onLoginSuccess?(otp)
-        //        }
+    func onForgotPasswordClick() {
+
     }
 
     func handleBackBtnTap() {
@@ -88,6 +101,30 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
 
     func onEditingChanged(abc: Bool) {
 
+    }
+
+    private func handleFirebaseAuthErrors(_ error: Error) {
+        let errorCode = (error as NSError).code
+
+        switch FirebaseAuth.AuthErrorCode(rawValue: errorCode) {
+        case .webContextCancelled:
+            showAlertFor(message: "Something went wrong! Please try after some time.")
+        case .tooManyRequests:
+            showAlertFor(message: "Too many attempts, please try after some time.")
+        case .invalidEmail:
+            showAlertFor(title: "Invalid Email", message: "The email address is not valid. Please check and try again.")
+        case .wrongPassword:
+            showAlertFor(title: "Incorrect Password", message: "The password you entered is incorrect. Please try again.")
+        case .userNotFound:
+            showAlertFor(title: "Account Not Found", message: "No account found with the provided email address. Please sign up.")
+        case .userDisabled:
+            showAlertFor(title: "Account Disabled", message: "This account has been disabled. Please contact support.")
+        case .invalidCredential:
+            showAlertFor(title: "Incorrect email or password", message: "The email or password you entered is incorrect. Please try again.")
+        default:
+            LogE("EmailLoginViewModel: \(#function) Phone login fail with error: \(error).")
+            showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
+        }
     }
 }
 

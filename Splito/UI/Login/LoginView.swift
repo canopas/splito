@@ -73,6 +73,8 @@ private struct LoginOptionsView: View {
             LoginOptionsButtonView(systemImage: ("phone.fill", primaryLightText, (12, 12)),
                                    buttonName: "Sign in with Phone Number", bgColor: primaryColor,
                                    buttonTextColor: primaryLightText, showLoader: false, onClick: onPhoneLoginClick)
+            LoginOptionsButtonView(image: .emailIcon, buttonName: "Sign in with Email", bgColor: primaryColor,
+                                   buttonTextColor: primaryLightText, showLoader: false, onClick: onEmailLoginClick)
         }
         .padding(.horizontal, 16)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)

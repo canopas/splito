@@ -22,21 +22,47 @@ struct EmailLoginView: View {
                         AppLogoView(geometry: .constant(proxy))
 
                         Group {
+                            LoginTitleView(titleText: "Continue your journey")
+
+                            VSpacer(16)
+
+                            LoginSubtitleView(subtitleText: "Sign in to access your account and enjoy all its features.")
+
+                            VSpacer(24)
+
                             EmailFieldView(email: $viewModel.email, focusedField: $focusedField)
+
+                            VSpacer(16)
 
                             PasswordFieldView(password: $viewModel.password, focusedField: $focusedField,
                                               isPasswordVisible: viewModel.isPasswordVisible,
                                               handlePasswordEyeTap: viewModel.handlePasswordEyeTap,
                                               onEditingChanged: viewModel.onEditingChanged(abc:))
 
+                            VSpacer(8)
+
+                            HStack {
+                                Spacer()
+
+                                Button(action: viewModel.onForgotPasswordClick) {
+                                    Text("Forgot password?")
+                                        .font(.caption1())
+                                        .foregroundStyle(disableText)
+                                }
+                            }
+
                             Spacer()
 
-                            PrimaryButton(text: "Sign in", isEnabled: !viewModel.email.isEmpty && !viewModel.password.isEmpty,
+                            PrimaryButton(text: "Login", isEnabled: !viewModel.email.isEmpty && !viewModel.password.isEmpty,
                                           showLoader: viewModel.showLoader, onClick: viewModel.onEmailLoginClick)
+                            .padding(.top, 8)
 
-                            Button("Forgot your password?") {}
-                                .padding()
-                                .underline()
+                            VSpacer(16)
+
+                            PrimaryButton(text: "Create account", isEnabled: !viewModel.email.isEmpty && !viewModel.password.isEmpty,
+                                          showLoader: viewModel.showCreateAccountLoading, onClick: viewModel.onCreateAccountClick)
+
+                            VSpacer(40)
                         }
                         .padding(.horizontal, 16)
                         .frame(maxWidth: isIpad ? 600 : nil, alignment: .leading)
@@ -48,11 +74,14 @@ struct EmailLoginView: View {
             }
         }
         .background(surfaceColor)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .ignoresSafeArea(edges: .top)
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .topLeading) {
             BackButton(onClick: viewModel.handleBackBtnTap)
+        }
+        .onTapGesture {
+            UIApplication.shared.endEditing()
         }
     }
 }
@@ -63,24 +92,29 @@ private struct EmailFieldView: View {
     var focusedField: FocusState<EmailLoginViewModel.EmailLoginField?>.Binding
 
     var body: some View {
-        Text("Email address")
-            .font(.subTitle1())
-            .foregroundStyle(secondaryText)
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Email")
+                .font(.body3())
+                .foregroundStyle(secondaryText)
 
-        TextField("Your email address", text: $email)
-            .autocapitalization(.none)
-            .keyboardType(.emailAddress)
-            .padding(16)
-            .overlay {
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(outlineColor, lineWidth: 1)
-            }
-            .onSubmit {
-                focusedField.wrappedValue = .password
-            }
-            .focused(focusedField, equals: .email)
-            .submitLabel(.next)
-            .padding(.top, 16)
+            TextField("Enter your email", text: $email)
+                .font(.subTitle3())
+                .foregroundStyle(primaryText)
+                .tint(primaryColor)
+                .autocapitalization(.none)
+                .keyboardType(.emailAddress)
+                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(outlineColor, lineWidth: 1)
+                }
+                .onSubmit {
+                    focusedField.wrappedValue = .password
+                }
+                .focused(focusedField, equals: .email)
+                .submitLabel(.next)
+        }
     }
 }
 
@@ -94,30 +128,36 @@ private struct PasswordFieldView: View {
     var onEditingChanged: (Bool) -> Void
 
     var body: some View {
-        Text("Password")
-            .font(.subTitle1())
-            .foregroundStyle(secondaryText)
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Password")
+                .font(.body3())
+                .foregroundStyle(secondaryText)
 
-        HStack {
-            if isPasswordVisible {
-                TextField("Your password", text: $password, onEditingChanged: onEditingChanged)
-            } else {
-                SecureField("Your password", text: $password)
+            HStack {
+                if isPasswordVisible {
+                    TextField("Enter your password", text: $password, onEditingChanged: onEditingChanged)
+                } else {
+                    SecureField("Enter your password", text: $password)
+                }
             }
+            .font(.subTitle3())
+            .foregroundStyle(primaryText)
+            .tint(primaryColor)
+            .autocapitalization(.none)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
+            .overlay {
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(outlineColor, lineWidth: 1)
+            }
+            .overlay(alignment: .trailing) {
+                Image(systemName: isPasswordVisible  ? "eye.fill" : "eye.slash.fill")
+                    .font(.system(size: 14))
+                    .padding()
+                    .onTapGesture(perform: handlePasswordEyeTap)
+            }
+            .focused(focusedField, equals: .password)
+            .submitLabel(.done)
         }
-        .padding(16)
-        .overlay {
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(outlineColor, lineWidth: 1)
-        }
-        .overlay(alignment: .trailing) {
-            Image(systemName: isPasswordVisible  ? "eye.fill" : "eye.slash.fill")
-                .font(.system(size: 14))
-                .padding()
-                .onTapGesture(perform: handlePasswordEyeTap)
-        }
-        .focused(focusedField, equals: .password) // Bind focus to password field
-        .submitLabel(.done)
-        .padding(.top, 16)
     }
 }

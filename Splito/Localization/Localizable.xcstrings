@@ -315,9 +315,6 @@
     "Email" : {
       "extractionState" : "manual"
     },
-    "Email address" : {
-
-    },
     "Email sent successfully!" : {
       "extractionState" : "manual"
     },
@@ -342,6 +339,9 @@
     "Enter the percentage split that's fair for your situation." : {
       "extractionState" : "manual"
     },
+    "Enter your email" : {
+
+    },
     "Enter your email address" : {
       "extractionState" : "manual"
     },
@@ -353,6 +353,9 @@
     },
     "Enter your note here..." : {
       "extractionState" : "manual"
+    },
+    "Enter your password" : {
+
     },
     "Enter your phone number" : {
       "extractionState" : "manual"
@@ -381,7 +384,7 @@
     "First Name" : {
       "extractionState" : "manual"
     },
-    "Forgot your password?" : {
+    "Forgot password?" : {
 
     },
     "get back" : {
@@ -724,6 +727,9 @@
     "Sign in with Apple" : {
       "extractionState" : "manual"
     },
+    "Sign in with Email" : {
+      "extractionState" : "manual"
+    },
     "Sign in with Google" : {
       "extractionState" : "manual"
     },
@@ -996,12 +1002,6 @@
     },
     "Your device cannot send email." : {
       "extractionState" : "manual"
-    },
-    "Your email address" : {
-
-    },
-    "Your password" : {
-
     },
     "Your requested data not found." : {
       "extractionState" : "manual"

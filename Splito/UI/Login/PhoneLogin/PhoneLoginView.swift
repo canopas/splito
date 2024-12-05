@@ -101,10 +101,6 @@ private struct GetOtpBtnView: View {
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
     }
-
-    func abc() -> some View {
-        return HStack {}
-    }
 }
 
 private struct PhoneLoginContentView: View {
