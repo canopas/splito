@@ -162,7 +162,7 @@ struct AppLogoView: View {
                 .scaledToFit()
                 .frame(width: width * 0.2 + 200, height: geometry.size.height * 0.1 + 120, alignment: .center)
                 .padding(.top, 88)
-                .padding(.bottom, 40)
+                .padding(.bottom, 16)
 
             Spacer()
         }
@@ -179,7 +179,7 @@ struct LoginTitleView: View {
 
     var body: some View {
         HStack {
-            Text(titleText)
+            Text(titleText.localized)
                 .font(.Header1())
                 .foregroundStyle(primaryText)
 
@@ -194,7 +194,7 @@ struct LoginSubtitleView: View {
 
     var body: some View {
         HStack {
-            Text(subtitleText)
+            Text(subtitleText.localized)
                 .font(.subTitle1())
                 .foregroundStyle(disableText)
                 .tracking(-0.2)

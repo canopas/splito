@@ -283,8 +283,14 @@
     "Contact Us" : {
       "extractionState" : "manual"
     },
+    "Continue your journey" : {
+      "extractionState" : "manual"
+    },
     "Countries" : {
 
+    },
+    "Create account" : {
+      "extractionState" : "manual"
     },
     "Create group" : {
 
@@ -340,16 +346,13 @@
     "Enter mobile number" : {
       "extractionState" : "manual"
     },
-    "Enter note" : {
-
-    },
     "Enter the invite code" : {
       "extractionState" : "manual"
     },
     "Enter the percentage split that's fair for your situation." : {
       "extractionState" : "manual"
     },
-    "Enter your email" : {
+    "Enter your %@" : {
 
     },
     "Enter your email address" : {
@@ -363,9 +366,6 @@
     },
     "Enter your note here..." : {
       "extractionState" : "manual"
-    },
-    "Enter your password" : {
-
     },
     "Enter your phone number" : {
       "extractionState" : "manual"
@@ -490,6 +490,9 @@
     "Let's split the expense! Use invite code %@ to join the %@ group, don't have an app then please download it." : {
       "extractionState" : "manual"
     },
+    "Login" : {
+      "extractionState" : "manual"
+    },
     "Looks like there are no outstanding settlements in any of your groups yet." : {
 
     },
@@ -544,9 +547,6 @@
     "not involved" : {
 
     },
-    "Note" : {
-
-    },
     "Note:" : {
 
     },
@@ -576,9 +576,6 @@
     },
     "paid" : {
       "extractionState" : "manual"
-    },
-    "Password" : {
-
     },
     "Payment deleted successfully." : {
       "extractionState" : "manual"
@@ -632,9 +629,6 @@
       "extractionState" : "manual"
     },
     "Reach out to your friends to get the code of the group they created." : {
-
-    },
-    "Reason" : {
 
     },
     "Reauthenticate" : {
@@ -738,6 +732,9 @@
       "extractionState" : "manual"
     },
     "short" : {
+      "extractionState" : "manual"
+    },
+    "Sign in to access your account and enjoy all its features." : {
       "extractionState" : "manual"
     },
     "Sign in with Apple" : {

@@ -35,30 +35,10 @@ struct EmailLoginView: View {
                             VSpacer(16)
 
                             PasswordFieldView(password: $viewModel.password, focusedField: $focusedField)
-                            VSpacer(8)
 
-                            HStack {
-                                Spacer()
-
-                                Button(action: viewModel.onForgotPasswordClick) {
-                                    Text("Forgot password?")
-                                        .font(.caption1())
-                                        .foregroundStyle(disableText)
-                                }
-                            }
+                            ForgotPasswordView(onForgotPasswordClick: viewModel.onForgotPasswordClick)
 
                             Spacer()
-
-                            PrimaryButton(text: "Login", isEnabled: !viewModel.email.isEmpty && !viewModel.password.isEmpty,
-                                          showLoader: viewModel.isLoginInProgress, onClick: viewModel.onEmailLoginClick)
-                            .padding(.top, 8)
-
-                            VSpacer(16)
-
-                            PrimaryButton(text: "Create account", textColor: primaryDarkColor, bgColor: container2Color,
-                                          showLoader: viewModel.isSignupInProgress, onClick: viewModel.onCreateAccountClick)
-
-                            VSpacer(40)
                         }
                         .padding(.horizontal, 16)
                         .frame(maxWidth: isIpad ? 600 : nil, alignment: .leading)
@@ -67,6 +47,17 @@ struct EmailLoginView: View {
                 }
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
+
+                VStack(spacing: 0) {
+                    PrimaryFloatingButton(text: "Login", bottomPadding: 6,
+                                          isEnabled: !viewModel.email.isEmpty && !viewModel.password.isEmpty,
+                                          showLoader: viewModel.isLoginInProgress, onClick: viewModel.onEmailLoginClick)
+
+                    PrimaryFloatingButton(text: "Create account", textColor: primaryDarkColor, bgColor: container2Color,
+                                          showLoader: viewModel.isSignupInProgress, onClick: viewModel.onCreateAccountClick)
+                }
+                .frame(maxWidth: isIpad ? 600 : nil, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .center)
             }
         }
         .background(surfaceColor)
@@ -88,28 +79,8 @@ private struct EmailFieldView: View {
     var focusedField: FocusState<EmailLoginViewModel.EmailLoginField?>.Binding
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Email")
-                .font(.body3())
-                .foregroundStyle(secondaryText)
-
-            TextField("Enter your email", text: $email)
-                .font(.subTitle3())
-                .foregroundStyle(primaryText)
-                .tint(primaryColor)
-                .autocapitalization(.none)
-                .keyboardType(.emailAddress)
-                .padding(.vertical, 12)
-                .padding(.horizontal, 16)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(outlineColor, lineWidth: 1)
-                }
-                .onSubmit {
-                    focusedField.wrappedValue = .password
-                }
-                .focused(focusedField, equals: .email)
-                .submitLabel(.next)
+        EmailLoginInputFieldView(text: $email, focusedField: focusedField, placeholder: "Email") {
+            focusedField.wrappedValue = .password
         }
     }
 }
@@ -119,34 +90,60 @@ private struct PasswordFieldView: View {
     @Binding var password: String
     var focusedField: FocusState<EmailLoginViewModel.EmailLoginField?>.Binding
 
+    var body: some View {
+        EmailLoginInputFieldView(text: $password, focusedField: focusedField, placeholder: "Password", isPasswordField: true)
+    }
+}
+
+private struct EmailLoginInputFieldView: View {
+
+    @Binding var text: String
+    var focusedField: FocusState<EmailLoginViewModel.EmailLoginField?>.Binding
+
+    var placeholder: String
+    var isPasswordField: Bool = false
+
+    var onSubmit: (() -> Void)?
+
     @State private var isSecured: Bool = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Password")
+            Text(placeholder)
                 .font(.body3())
                 .foregroundStyle(secondaryText)
 
             ZStack(alignment: .trailing) {
                 Group {
-                    if isSecured {
-                        SecureField("Enter your password", text: $password)
+                    if isPasswordField && isSecured {
+                        SecureField("Enter your \(placeholder.lowercased().localized)", text: $text)
                     } else {
-                        TextField("Enter your password", text: $password)
+                        TextField("Enter your \(placeholder.lowercased().localized)", text: $text)
+                            .keyboardType(isPasswordField ? .default : .emailAddress)
                     }
                 }
                 .font(.subTitle3())
                 .foregroundStyle(primaryText)
                 .tint(primaryColor)
                 .autocapitalization(.none)
-                .focused(focusedField, equals: .password)
-                .submitLabel(.done)
+                .focused(focusedField, equals: isPasswordField ? .password : .email)
+                .submitLabel(isPasswordField ? .done : .next)
+                .onSubmit {
+                    onSubmit?()
+                }
 
-                Button {
-                    isSecured.toggle()
-                } label: {
-                    Image(systemName: self.isSecured ? "eye.slash" : "eye")
-                        .accentColor(.gray)
+                if isPasswordField {
+                    Button {
+                        isSecured.toggle()
+                    } label: {
+                        Image(systemName: isSecured ? "eye.slash" : "eye")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 15, height: 15)
+                            .foregroundStyle(lowestText)
+                            .fontWeight(.bold)
+                            .padding(3)
+                    }
                 }
             }
             .padding(.vertical, 12)
@@ -156,5 +153,23 @@ private struct PasswordFieldView: View {
                     .stroke(outlineColor, lineWidth: 1)
             }
         }
+    }
+}
+
+private struct ForgotPasswordView: View {
+
+    let onForgotPasswordClick: () -> Void
+
+    var body: some View {
+        HStack {
+            Spacer()
+
+            Button(action: onForgotPasswordClick) {
+                Text("Forgot password?")
+                    .font(.caption1())
+                    .foregroundStyle(disableText)
+            }
+        }
+        .padding(.top, 8)
     }
 }
