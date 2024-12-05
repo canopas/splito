@@ -53,6 +53,8 @@ struct GroupWhoIsPayingView: View {
 
 struct GroupPayingMemberView: View {
 
+    @Inject private var preference: SplitoPreference
+
     let member: AppUser
 
     let isSelected: Bool
@@ -60,6 +62,14 @@ struct GroupPayingMemberView: View {
     let disableMemberTap: Bool
 
     let onMemberTap: (String) -> Void
+
+    private var memberName: String {
+        if let user = preference.user, user.id == member.id {
+            return "You"
+        } else {
+            return member.fullName
+        }
+    }
 
     init(member: AppUser, isSelected: Bool = false, isLastMember: Bool, disableMemberTap: Bool = false, onMemberTap: @escaping (String) -> Void) {
         self.member = member
@@ -73,7 +83,7 @@ struct GroupPayingMemberView: View {
         HStack(alignment: .center, spacing: 16) {
             MemberProfileImageView(imageUrl: member.imageUrl)
 
-            Text(member.fullName.localized)
+            Text(memberName.localized)
                 .font(.subTitle2())
                 .foregroundStyle(primaryText)
                 .lineLimit(1)

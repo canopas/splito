@@ -45,7 +45,7 @@ struct ChooseMultiplePayerView: View {
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
 
-                BottomInfoCardView(title: "₹ \(String(format: "%.2f", viewModel.totalAmount)) of \(viewModel.expenseAmount.formattedCurrency)",
+                BottomInfoCardView(title: "\(viewModel.totalAmount.formattedCurrency) of \(viewModel.expenseAmount.formattedCurrency)",
                                    value: "\((viewModel.expenseAmount - viewModel.totalAmount).formattedCurrencyWithSign) left")
             }
         }

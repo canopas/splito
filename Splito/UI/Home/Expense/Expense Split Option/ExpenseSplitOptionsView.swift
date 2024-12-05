@@ -75,7 +75,7 @@ private struct SplitOptionsBottomView: View {
                                memberCount: viewModel.selectedMembers.count, isAllSelected: viewModel.isAllSelected,
                                isForEqualSplit: true, onAllBtnTap: viewModel.handleAllBtnAction)
         case .fixedAmount:
-            BottomInfoCardView(title: "₹ \(String(format: "%.2f", viewModel.totalFixedAmount)) of \(viewModel.expenseAmount.formattedCurrency)",
+            BottomInfoCardView(title: "\(viewModel.totalFixedAmount.formattedCurrency) of \(viewModel.expenseAmount.formattedCurrency)",
                                value: "\((viewModel.expenseAmount - viewModel.totalFixedAmount).formattedCurrencyWithSign) left")
         case .percentage:
             BottomInfoCardView(title: "\(String(format: "%.0f", viewModel.totalPercentage))% of 100%",

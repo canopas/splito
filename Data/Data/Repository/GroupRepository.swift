@@ -114,10 +114,12 @@ public class GroupRepository: ObservableObject {
     }
 
     public func deleteGroup(group: Groups) async throws {
-        var group = group
+        guard let userId = preference.user?.id else { return }
 
-        // Make group inactive
-        group.isActive = false
+        var group = group
+        group.isActive = false  // Make group inactive
+        group.updatedBy = userId
+        group.updatedAt = Timestamp()
 
         try await updateGroup(group: group, type: .groupDeleted)
     }
@@ -193,17 +195,19 @@ public class GroupRepository: ObservableObject {
         try await store.fetchGroupsBy(userId: userId, limit: limit, lastDocument: lastDocument)
     }
 
-    public func fetchMemberBy(userId: String) async throws -> AppUser? {
+    public func fetchMemberBy(memberId: String) async throws -> AppUser? {
         // Use a synchronous read to check if the member already exists in groupMembers
-        let existingMember = groupMembersQueue.sync { groupMembers.first(where: { $0.id == userId }) }
-
-        if let existingMember {
-            return existingMember  // Return the available member from groupMembers
+        if let existingMember = groupMembersQueue.sync(execute: {
+            groupMembers.first(where: { $0.id == memberId })
+        }) {
+            await updateCurrentUserImageUrl(for: [memberId])
+            return existingMember  // Return the cached member
         }
 
-        let member = try await userRepository.fetchUserBy(userID: userId)
+        // Fetch the member from the repository if not found locally
+        let member = try await userRepository.fetchUserBy(userID: memberId)
 
-        // Append to groupMembers safely with a barrier, ensuring thread safety
+        // Append the newly fetched member to groupMembers in a thread-safe manner
         if let member {
             try await withCheckedThrowingContinuation { continuation in
                 groupMembersQueue.async(flags: .barrier) {
@@ -218,23 +222,26 @@ public class GroupRepository: ObservableObject {
     public func fetchMembersBy(memberIds: [String]) async throws -> [AppUser] {
         var members: [AppUser] = []
 
-        // Filter out memberIds that already exist in groupMembers to minimise API calls
+        // Filter out memberIds that already exist in groupMembers to minimize API calls
         let missingMemberIds = memberIds.filter { memberId in
             let cachedMember = self.groupMembersQueue.sync { self.groupMembers.first { $0.id == memberId } }
             return cachedMember == nil
         }
 
         if missingMemberIds.isEmpty {
+            await updateCurrentUserImageUrl(for: memberIds)
             return groupMembersQueue.sync { self.groupMembers.filter { memberIds.contains($0.id) } }
         }
 
+        // Fetch missing members concurrently using a TaskGroup
         try await withThrowingTaskGroup(of: AppUser?.self) { groupTask in
             for memberId in missingMemberIds {
                 groupTask.addTask {
-                    try await self.fetchMemberBy(userId: memberId)
+                    try await self.fetchMemberBy(memberId: memberId)
                 }
             }
 
+            // Collect results from the task group & add to the groupMembers array
             for try await member in groupTask {
                 if let member {
                     members.append(member)
@@ -248,5 +255,17 @@ public class GroupRepository: ObservableObject {
         }
 
         return members
+    }
+
+    // Updates the current user's image url in groupMembers if applicable
+    private func updateCurrentUserImageUrl(for memberIds: [String]) async {
+        guard let currentUser = preference.user, memberIds.contains(currentUser.id) else { return }
+
+        groupMembersQueue.async(flags: .barrier) {
+            if let index = self.groupMembers.firstIndex(where: { $0.id == currentUser.id }),
+               self.groupMembers[index].imageUrl != currentUser.imageUrl {
+                self.groupMembers[index].imageUrl = currentUser.imageUrl
+            }
+        }
     }
 }

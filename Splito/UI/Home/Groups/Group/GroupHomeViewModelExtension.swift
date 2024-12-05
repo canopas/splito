@@ -137,7 +137,7 @@ extension GroupHomeViewModel {
                 await updateGroupMemberBalance(expense: deletedExpense, updateType: .Delete)
                 LogD("GroupHomeViewModel: \(#function) Expense deleted successfully.")
             } catch {
-                LogE("GroupHomeViewModel: \(#function) Failed to delete expense \(expenseId): \(error)")
+                LogE("GroupHomeViewModel: \(#function) Failed to delete expense \(expenseId): \(error).")
                 showToastForError()
             }
         }
