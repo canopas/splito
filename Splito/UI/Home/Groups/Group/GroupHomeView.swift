@@ -49,7 +49,7 @@ struct GroupHomeView: View {
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .onDisappear {
             if viewModel.showSearchBar {
                 isFocused = false

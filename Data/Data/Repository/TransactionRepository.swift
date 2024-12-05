@@ -77,8 +77,8 @@ public class TransactionRepository: ObservableObject {
     private func hasTransactionChanged(_ transaction: Transactions, oldTransaction: Transactions) -> Bool {
         return oldTransaction.payerId != transaction.payerId || oldTransaction.receiverId != transaction.receiverId ||
         oldTransaction.updatedBy != transaction.updatedBy || oldTransaction.note != transaction.note ||
-        oldTransaction.imageUrl != transaction.imageUrl || oldTransaction.amount != transaction.amount ||
-        oldTransaction.date.dateValue() != transaction.date.dateValue() ||
+        oldTransaction.imageUrl != transaction.imageUrl || oldTransaction.reason != transaction.reason ||
+        oldTransaction.amount != transaction.amount || oldTransaction.date.dateValue() != transaction.date.dateValue() ||
         oldTransaction.updatedAt.dateValue() != transaction.updatedAt.dateValue() || oldTransaction.isActive != transaction.isActive
     }
 
@@ -103,8 +103,9 @@ public class TransactionRepository: ObservableObject {
                     guard let self else { return nil }
                     let payerName = (user.id == transaction.payerId && memberId == transaction.payerId) ? (user.id == transaction.addedBy ? "You" : "you") : (memberId == transaction.payerId) ? "you" : members.payer.nameWithLastInitial
                     let receiverName = (memberId == transaction.receiverId) ? "you" : (memberId == transaction.receiverId) ? "you" : members.receiver.nameWithLastInitial
-                    let context = ActivityLogContext(group: group, transaction: transaction, type: type, memberId: memberId,
-                                                     currentUser: user, payerName: payerName, receiverName: receiverName)
+                    let context = ActivityLogContext(group: group, transaction: transaction, type: type,
+                                                     memberId: memberId, currentUser: user, payerName: payerName,
+                                                     receiverName: receiverName, paymentReason: transaction.reason)
 
                     return await self.addActivityLog(context: context)
                 }
@@ -131,10 +132,9 @@ public class TransactionRepository: ObservableObject {
         let actionUserName = (context.memberId == currentUser.id) ? "You" : currentUser.nameWithLastInitial
         let amount: Double = (context.memberId == transaction.payerId) ? transaction.amount : (context.memberId == transaction.receiverId) ? -transaction.amount : 0
 
-        return ActivityLog(type: context.type, groupId: groupId, activityId: transactionId,
-                           groupName: context.group?.name ?? "", actionUserName: actionUserName,
-                           recordedOn: Timestamp(date: Date()), payerName: context.payerName,
-                           receiverName: context.receiverName, amount: amount)
+        return ActivityLog(type: context.type, groupId: groupId, activityId: transactionId, groupName: context.group?.name ?? "",
+                           actionUserName: actionUserName, recordedOn: Timestamp(date: Date()), payerName: context.payerName,
+                           receiverName: context.receiverName, paymentReason: context.paymentReason, amount: amount)
     }
 
     private func addActivityLog(context: ActivityLogContext) async -> Error? {

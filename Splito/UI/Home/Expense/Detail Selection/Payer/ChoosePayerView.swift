@@ -71,7 +71,7 @@ struct ChoosePayerView: View {
         .interactiveDismissDisabled()
         .toolbar(.hidden, for: .navigationBar)
         .toastView(toast: $viewModel.toast)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
     }
 }
 

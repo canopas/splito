@@ -5,7 +5,6 @@
 //  Created by Amisha Italiya on 22/02/24.
 //
 
-import Foundation
 import SwiftUI
 
 public struct AlertPrompt {
@@ -28,7 +27,7 @@ public struct AlertPrompt {
     }
 }
 
-public struct Backport<Content> {
+public struct AlertView<Content> {
     public let content: Content
 
     public init(content: Content) {
@@ -37,10 +36,10 @@ public struct Backport<Content> {
 }
 
 public extension View {
-    var backport: Backport<Self> { Backport(content: self) }
+    var alertView: AlertView<Self> { AlertView(content: self) }
 }
 
-public extension Backport where Content: View {
+public extension AlertView where Content: View {
     @ViewBuilder func alert(isPresented: Binding<Bool>, alertStruct: AlertPrompt) -> some View {
         content
             .alert(alertStruct.title.localized, isPresented: isPresented) {
@@ -55,7 +54,7 @@ public extension Backport where Content: View {
                     })
                 }
                 if alertStruct.positiveBtnTitle == nil && alertStruct.negativeBtnTitle == nil {
-                    Button("Ok".localized, role: .cancel, action: {
+                    Button("Ok", role: .cancel, action: {
                         isPresented.wrappedValue = false
                     })
                 }

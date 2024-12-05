@@ -32,7 +32,7 @@ struct ActivityLogView: View {
         }
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Text("Activity")
@@ -192,6 +192,7 @@ private struct ActivityLogDescriptionView: View {
     let type: ActivityType
     let payerName: String
     var receiverName: String
+    var paymentReason: String?
     let groupName: String
     var oldGroupName: String
     let actionUserName: String
@@ -202,6 +203,7 @@ private struct ActivityLogDescriptionView: View {
         self.type = activityLog.type
         self.payerName = activityLog.payerName ?? "Someone"
         self.receiverName = activityLog.receiverName ?? "Someone"
+        self.paymentReason = activityLog.paymentReason
         self.groupName = activityLog.groupName
         self.oldGroupName = activityLog.previousGroupName ?? ""
         self.actionUserName = activityLog.actionUserName
@@ -276,18 +278,35 @@ private struct ActivityLogDescriptionView: View {
         if actionUserName != payerName && actionUserName != receiverName {
             transactionDescription()
         } else if actionUserName != payerName {
-            highlightedText(actionUserName) + disabledText(" recorded a payment from ") +
-            highlightedText(payerName) + disabledText(" in") + highlightedText(" \"\(groupName)\".")
+            if let paymentReason, !paymentReason.isEmpty {
+                highlightedText(actionUserName) + disabledText(" recorded a payment from ") +
+                highlightedText(payerName) + disabledText(" for") + highlightedText(" \"\(paymentReason)\"") +
+                disabledText(" in") + highlightedText(" \"\(groupName)\".")
+            } else {
+                highlightedText(actionUserName) + disabledText(" recorded a payment from ") +
+                highlightedText(payerName) + disabledText(" in") + highlightedText(" \"\(groupName)\".")
+            }
         } else {
-            highlightedText(payerName) + disabledText(" paid ") + highlightedText(receiverName) +
-            disabledText(" in") + highlightedText(" \"\(groupName)\".")
+            if let paymentReason, !paymentReason.isEmpty {
+                highlightedText(payerName) + disabledText(" paid ") + highlightedText(receiverName) + disabledText(" for") +
+                highlightedText(" \"\(paymentReason)\"") + disabledText(" in") + highlightedText(" \"\(groupName)\".")
+            } else {
+                highlightedText(payerName) + disabledText(" paid ") + highlightedText(receiverName) +
+                disabledText(" in") + highlightedText(" \"\(groupName)\".")
+            }
         }
     }
 
     @ViewBuilder
     private func transactionDescription(action: String = "added") -> some View {
-        highlightedText(actionUserName) + disabledText(" \(action) a payment from ") + highlightedText(payerName) +
-        disabledText(" to ") + highlightedText(receiverName) + disabledText(" in") + highlightedText(" \"\(groupName)\".")
+        if let paymentReason, !paymentReason.isEmpty {
+            highlightedText(actionUserName) + disabledText(" \(action) a payment from ") + highlightedText(payerName) +
+            disabledText(" to ") + highlightedText(receiverName) + disabledText(" for") +
+            highlightedText(" \"\(paymentReason)\"") + disabledText(" in") + highlightedText(" \"\(groupName)\".")
+        } else {
+            highlightedText(actionUserName) + disabledText(" \(action) a payment from ") + highlightedText(payerName) +
+            disabledText(" to ") + highlightedText(receiverName) + disabledText(" in") + highlightedText(" \"\(groupName)\".")
+        }
     }
 
     private func highlightedText(_ text: String) -> Text {

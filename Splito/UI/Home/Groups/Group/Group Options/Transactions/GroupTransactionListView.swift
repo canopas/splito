@@ -34,7 +34,7 @@ struct GroupTransactionListView: View {
         }
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -177,9 +177,15 @@ private struct TransactionItemView: View {
                     .padding(.trailing, 16)
 
                 HStack(spacing: 0) {
-                    Text("\(payerName.localized) paid \(receiverName.localized)")
-                        .font(.subTitle2())
-                        .foregroundStyle(primaryText)
+                    if let reason = transactionWithUser.transaction.reason, !reason.isEmpty {
+                        Text("\(payerName.localized) paid \(receiverName.localized) for '\(reason.localized)'")
+                            .font(.subTitle2())
+                            .foregroundStyle(primaryText)
+                    } else {
+                        Text("\(payerName.localized) paid \(receiverName.localized)")
+                            .font(.subTitle2())
+                            .foregroundStyle(primaryText)
+                    }
 
                     Spacer()
 

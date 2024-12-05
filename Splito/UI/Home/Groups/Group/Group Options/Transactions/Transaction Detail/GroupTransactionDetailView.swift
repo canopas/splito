@@ -68,7 +68,7 @@ struct GroupTransactionDetailView: View {
         }
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .fullScreenCover(isPresented: $viewModel.showEditTransactionSheet) {
             NavigationStack {
                 GroupPaymentView(
@@ -103,7 +103,8 @@ struct GroupTransactionDetailView: View {
         }
         .fullScreenCover(isPresented: $viewModel.showAddNoteEditor) {
             NavigationStack {
-                AddNoteView(viewModel: AddNoteViewModel(group: viewModel.group, payment: viewModel.transaction, note: viewModel.paymentNote))
+                AddNoteView(viewModel: AddNoteViewModel(group: viewModel.group, payment: viewModel.transaction,
+                                                        note: viewModel.paymentNote, paymentReason: viewModel.paymentReason))
             }
         }
         .navigationDestination(isPresented: $showImageDisplayView) {
@@ -164,7 +165,9 @@ private struct TransactionInfoView: View {
             .background(container2Color)
             .cornerRadius(16)
 
-            TransactionSummaryView(date: viewModel.transaction?.date.dateValue(), amount: viewModel.transaction?.amount, payerName: payerName, receiverName: receiverName, addedUserName: addedUserName)
+            TransactionSummaryView(date: viewModel.transaction?.date.dateValue(), amount: viewModel.transaction?.amount,
+                                   reason: viewModel.paymentReason, payerName: payerName,
+                                   receiverName: receiverName, addedUserName: addedUserName)
         }
         .multilineTextAlignment(.center)
     }
@@ -197,17 +200,26 @@ private struct TransactionSummaryView: View {
 
     let date: Date?
     let amount: Double?
+    let reason: String?
     let payerName: String
     let receiverName: String
     let addedUserName: String
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("\(payerName.localized) paid \(receiverName.localized)")
-                .font(.subTitle2())
-                .foregroundStyle(primaryText)
-                .lineSpacing(2)
-                .padding(.bottom, 8)
+            if let reason, !reason.isEmpty {
+                Text("\(payerName.localized) paid \(receiverName.localized) for '\(reason.localized)'")
+                    .font(.subTitle2())
+                    .foregroundStyle(primaryText)
+                    .lineSpacing(2)
+                    .padding(.bottom, 8)
+            } else {
+                Text("\(payerName.localized) paid \(receiverName.localized)")
+                    .font(.subTitle2())
+                    .foregroundStyle(primaryText)
+                    .lineSpacing(2)
+                    .padding(.bottom, 8)
+            }
 
             Text(amount?.formattedCurrency ?? "₹ 0")
                 .font(.Header2())

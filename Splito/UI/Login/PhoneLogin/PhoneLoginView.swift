@@ -48,7 +48,7 @@ public struct PhoneLoginView: View {
             }
         }
         .background(surfaceColor)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .ignoresSafeArea(edges: .top)
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .topLeading) {

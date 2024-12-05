@@ -68,9 +68,12 @@ struct GroupPaymentView: View {
                     .scrollIndicators(.hidden)
                     .scrollBounceBehavior(.basedOnSize)
 
-                    AddNoteImageFooterView(date: $viewModel.paymentDate, showImagePickerOptions: $viewModel.showImagePickerOptions,
+                    AddNoteImageFooterView(date: $viewModel.paymentDate,
+                                           showImagePickerOptions: $viewModel.showImagePickerOptions,
                                            image: viewModel.paymentImage, imageUrl: viewModel.paymentImageUrl,
-                                           isNoteEmpty: viewModel.paymentNote.isEmpty, handleNoteBtnTap: viewModel.handleNoteBtnTap,
+                                           isNoteEmpty: (viewModel.paymentNote.isEmpty &&
+                                                         viewModel.paymentReason.isEmpty),
+                                           handleNoteBtnTap: viewModel.handleNoteBtnTap,
                                            handleImageTap: viewModel.handlePaymentImageTap,
                                            handleActionSelection: viewModel.handleActionSelection(_:))
                 }
@@ -80,7 +83,7 @@ struct GroupPaymentView: View {
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
-        .backport.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .onTapGesture {
             UIApplication.shared.endEditing()
         }
@@ -108,8 +111,10 @@ struct GroupPaymentView: View {
         }
         .sheet(isPresented: $viewModel.showAddNoteEditor) {
             NavigationStack {
-                AddNoteView(viewModel: AddNoteViewModel(group: viewModel.group, payment: viewModel.transaction, note: viewModel.paymentNote,
-                                                        handleSaveNoteTap: viewModel.handleNoteSaveBtnTap(note:)))
+                AddNoteView(viewModel: AddNoteViewModel(group: viewModel.group, payment: viewModel.transaction,
+                                                        note: viewModel.paymentNote,
+                                                        paymentReason: viewModel.paymentReason,
+                                                        handleSaveNoteTap: viewModel.handleNoteSaveBtnTap(note:reason:)))
             }
         }
     }
@@ -205,7 +210,9 @@ struct DatePickerView: View {
         .sheet(isPresented: $showDatePicker) {
             VStack(spacing: 0) {
                 NavigationBarTopView(title: "Choose date", leadingButton: EmptyView(),
-                                     trailingButton: DismissButton(padding: (16, 0), foregroundColor: primaryText, onDismissAction: {
+                                     trailingButton: DismissButton(padding: (16, 0),
+                                                                   foregroundColor: primaryText,
+                                                                   onDismissAction: {
                                         showDatePicker = false
                                      })
                                      .fontWeight(.regular)

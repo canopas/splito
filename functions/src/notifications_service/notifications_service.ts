@@ -8,7 +8,13 @@ import messages from '../locales/en.json';
 
 // Initialize Firebase app if not already initialized
 if (admin.apps.length === 0) {
-  admin.initializeApp();
+  try {
+    admin.initializeApp();
+    logger.info('Firebase app initialized in notifications_service');
+  } catch (error) {
+    logger.error('Failed to initialize Firebase app in notifications_service:', error);
+    throw error;
+  }
 }
 
 const db: Firestore = getFirestore();
@@ -39,6 +45,7 @@ interface ActivityData {
   expense_name?: string;
   payer_name?: string;
   receiver_name?: string
+  payment_reason?: string
   amount?: number;
 }
 
@@ -79,8 +86,9 @@ function generateNotificationMessage(activityData: ActivityData) {
   const amountMessage = generateAmountMessage(amount);
   const expenseName = activityData.expense_name ?? messages.unknown;
   const actionUserName = activityData.action_user_name;
-  const payerName = activityData.payer_name ?? messages.someone;
+  const payerName = capitalizeFirstLetter(activityData.payer_name ?? messages.someone);
   const receiverName = activityData.receiver_name ?? messages.someone;
+  const paymentReason = activityData.payment_reason;
   const groupName = activityData.group_name;
   const previousGroupName = activityData.previous_group_name ?? messages.unknown;
 
@@ -122,16 +130,16 @@ function generateNotificationMessage(activityData: ActivityData) {
       return messages.expense_restored.replace("{expenseName}", expenseName).replace("{amountMessage}", amountMessage);
 
     case 'transaction_added':
-      return messages.transaction_added.replace("{payerName}", payerName).replace("{receiverName}", receiverName).replace("{amountMessage}", formatCurrency(Math.abs(amount)));
+      return getTransactionMessage("transaction_added_with_reason", "transaction_added", payerName, receiverName, amount, paymentReason);
 
     case 'transaction_updated':
-      return messages.transaction_updated.replace("{payerName}", payerName).replace("{receiverName}", receiverName).replace("{amountMessage}", formatCurrency(Math.abs(amount)));
+      return getTransactionMessage("transaction_updated_with_reason", "transaction_updated", payerName, receiverName, amount, paymentReason);
 
     case 'transaction_deleted':
-      return messages.transaction_deleted.replace("{payerName}", payerName).replace("{receiverName}", receiverName).replace("{amountMessage}", formatCurrency(Math.abs(amount)));
+      return getTransactionMessage("transaction_deleted_with_reason", "transaction_deleted", payerName, receiverName, amount, paymentReason);
 
     case 'transaction_restored':
-      return messages.transaction_restored.replace("{payerName}", payerName).replace("{receiverName}", receiverName).replace("{amountMessage}", formatCurrency(Math.abs(amount)));
+      return getTransactionMessage("transaction_restored_with_reason", "transaction_restored", payerName, receiverName, amount, paymentReason);
 
     default:
       return messages.new_activity;
@@ -147,6 +155,30 @@ function generateAmountMessage(owedAmount: number): string {
   } else {
     return `- ${messages.oweNothing}`;
   }
+}
+
+// Generates a transaction message with dynamic values based on the payment reason
+type MessageKeys = keyof typeof messages;
+function getTransactionMessage(
+  messageKeyWithReason: MessageKeys,
+  messageKeyWithoutReason: MessageKeys,
+  payerName: string, 
+  receiverName: string,
+  amount: number, 
+  paymentReason?: string,
+): string {
+  const messageKey = paymentReason?.trim() ? messageKeyWithReason : messageKeyWithoutReason;
+    return messages[messageKey]
+      .replace("{payerName}", payerName)
+      .replace("{receiverName}", receiverName)
+      .replace("{amountMessage}", formatCurrency(Math.abs(amount)))
+      .replace("{paymentReason}", paymentReason || "");
+};
+
+// Capitalizes the first letter and lowers the rest for consistent formatting
+function capitalizeFirstLetter(name: string): string {
+  if (!name) return '';
+  return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 }
 
 // Function to send notification using FCM with retry mechanism
