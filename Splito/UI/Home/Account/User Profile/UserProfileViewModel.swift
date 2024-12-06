@@ -312,62 +312,27 @@ extension UserProfileViewModel {
     }
 
     private func handleEmailLogin(completion: @escaping (AuthCredential?) -> Void) {
-        guard let email = preference.user?.emailId else {
-            isDeleteInProgress = false
-            LogE("UserProfileViewModel: \(#function) No email found for email login.")
-            return
-        }
+        let alert = UIAlertController(title: "Re-authenticate", message: "Please enter your password", preferredStyle: .alert)
 
-        alert = .init(
-            title: "Enter Password",
-            message: "Please enter your password to continue.",
-            positiveBtnTitle: "Ok",
-            positiveBtnAction: { [weak self] in
-                // Prompt the user for password input
-                self?.promptForPassword { enteredPassword in
-                    guard let password = enteredPassword, !password.isEmpty else {
-                        self?.showAlertFor(message: "Password cannot be empty.")
-                        return
-                    }
-
-                    let credential = EmailAuthProvider.credential(withEmail: email, password: password)
-                    completion(credential)
-                }
-            },
-            negativeBtnTitle: "Cancel",
-            negativeBtnAction: { self.showAlert = false }
-        )
-
-        showAlert = true
-    }
-
-    private func promptForPassword(completion: @escaping (String?) -> Void) {
-        let passwordAlert = UIAlertController(title: "Enter Password", message: nil, preferredStyle: .alert)
-
-        passwordAlert.addTextField { textField in
+        alert.addTextField { textField in
             textField.placeholder = "Password"
             textField.isSecureTextEntry = true
         }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            self.isDeleteInProgress = false
+        })
+        alert.addAction(UIAlertAction(title: "Confirm", style: .default) { _ in
+            guard let password = alert.textFields?.first?.text,
+                  let email = self.preference.user?.emailId else {
+                      self.isDeleteInProgress = false
+                      LogE("UserProfileViewModel: \(#function) No email found for email login.")
+                      return
+                  }
+            let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+            completion(credential)
+        })
 
-        let submitAction = UIAlertAction(title: "Submit", style: .default) { _ in
-            let enteredPassword = passwordAlert.textFields?.first?.text
-            completion(enteredPassword)
-        }
-
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
-            completion(nil)
-        }
-
-        passwordAlert.addAction(submitAction)
-        passwordAlert.addAction(cancelAction)
-
-        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootViewController = scene.windows.first?.rootViewController {
-            rootViewController.present(passwordAlert, animated: true, completion: nil)
-        } else {
-            print("No active window scene found.")
-            completion(nil)
-        }
+        TopViewController.shared.topViewController()?.present(alert, animated: true)
     }
 
     private func handlePhoneLogin(completion: @escaping (AuthCredential?) -> Void) {
