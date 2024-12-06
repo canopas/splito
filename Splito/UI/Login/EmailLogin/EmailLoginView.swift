@@ -30,11 +30,14 @@ struct EmailLoginView: View {
 
                             VSpacer(24)
 
-                            EmailFieldView(email: $viewModel.email, focusedField: $focusedField)
+                            EmailLoginInputFieldView(text: $viewModel.email, focusedField: $focusedField, title: "email") {
+                                focusedField = .password
+                            }
 
                             VSpacer(16)
 
-                            PasswordFieldView(password: $viewModel.password, focusedField: $focusedField)
+                            EmailLoginInputFieldView(text: $viewModel.password, focusedField: $focusedField,
+                                                     title: "password", isPasswordField: true)
 
                             ForgotPasswordView(onForgotPasswordClick: viewModel.onForgotPasswordClick)
 
@@ -51,7 +54,7 @@ struct EmailLoginView: View {
                 VStack(spacing: 0) {
                     PrimaryFloatingButton(text: "Login", bottomPadding: 6,
                                           isEnabled: !viewModel.email.isEmpty && !viewModel.password.isEmpty,
-                                          showLoader: viewModel.isLoginInProgress, onClick: viewModel.onEmailLoginClick)
+                                          showLoader: viewModel.isLoginInProgress, onClick: viewModel.onLoginClick)
 
                     PrimaryFloatingButton(text: "Create account", textColor: primaryDarkColor, bgColor: container2Color,
                                           showLoader: viewModel.isSignupInProgress, onClick: viewModel.onCreateAccountClick)
@@ -65,33 +68,11 @@ struct EmailLoginView: View {
         .ignoresSafeArea(edges: .top)
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .topLeading) {
-            BackButton(onClick: viewModel.handleBackBtnTap)
+            BackButton(onClick: viewModel.navigateToRoot)
         }
         .onTapGesture {
             UIApplication.shared.endEditing()
         }
-    }
-}
-
-private struct EmailFieldView: View {
-
-    @Binding var email: String
-    var focusedField: FocusState<EmailLoginViewModel.EmailLoginField?>.Binding
-
-    var body: some View {
-        EmailLoginInputFieldView(text: $email, focusedField: focusedField, placeholder: "Email") {
-            focusedField.wrappedValue = .password
-        }
-    }
-}
-
-private struct PasswordFieldView: View {
-
-    @Binding var password: String
-    var focusedField: FocusState<EmailLoginViewModel.EmailLoginField?>.Binding
-
-    var body: some View {
-        EmailLoginInputFieldView(text: $password, focusedField: focusedField, placeholder: "Password", isPasswordField: true)
     }
 }
 
@@ -100,7 +81,7 @@ private struct EmailLoginInputFieldView: View {
     @Binding var text: String
     var focusedField: FocusState<EmailLoginViewModel.EmailLoginField?>.Binding
 
-    var placeholder: String
+    let title: String
     var isPasswordField: Bool = false
 
     var onSubmit: (() -> Void)?
@@ -109,16 +90,16 @@ private struct EmailLoginInputFieldView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(placeholder)
+            Text(title.capitalized.localized)
                 .font(.body3())
                 .foregroundStyle(secondaryText)
 
             ZStack(alignment: .trailing) {
                 Group {
                     if isPasswordField && isSecured {
-                        SecureField("Enter your \(placeholder.lowercased().localized)", text: $text)
+                        SecureField("Enter your \(title.localized)", text: $text)
                     } else {
-                        TextField("Enter your \(placeholder.lowercased().localized)", text: $text)
+                        TextField("Enter your \(title.localized)", text: $text)
                             .keyboardType(isPasswordField ? .default : .emailAddress)
                     }
                 }

@@ -38,7 +38,7 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func onEmailLoginClick() {
+    func onLoginClick() {
         guard validateEmailAndPassword() else { return }
 
         isLoginInProgress = true
@@ -57,7 +57,7 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
             let user = AppUser(id: result.user.uid, firstName: "", lastName: "",
                                emailId: email, phoneNumber: nil, loginType: .Email)
             Task { await storeUser(user: user) }
-            LogD("EmailLoginViewModel: \(#function) User \(isLogin ? "logged in" : "signed up") successfully.")
+            LogD("EmailLoginViewModel: \(#function) User \(isLogin ? "logged in" : "signed up") successfully with email \(email).")
         } else {
             self.alert = .init(message: "Contact Support")
             self.showAlert = true
@@ -69,8 +69,8 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
             showAlertFor(title: "Error", message: "Please enter a valid email address.")
             return false
         }
-        if password.count < 4 {
-            showAlertFor(title: "Error", message: "Password must be at least 4 characters long.")
+        if password.count < 6 {
+            showAlertFor(title: "Error", message: "Password must be at least 6 characters long.")
             return false
         }
 
@@ -80,27 +80,40 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
     private func storeUser(user: AppUser) async {
         do {
             let user = try await userRepository.storeUser(user: user)
-            self.preference.isVerifiedUser = true
-            self.preference.user = user
-            self.router.popToRoot()
+            preference.isVerifiedUser = true
+            preference.user = user
+            navigateToRoot()
             LogD("EmailLoginViewModel: \(#function) User stored successfully.")
         } catch {
             LogE("EmailLoginViewModel: \(#function) Failed to store user: \(error).")
-            self.alert = .init(message: error.localizedDescription)
-            self.showAlert = true
+            alert = .init(message: error.localizedDescription)
+            showAlert = true
         }
     }
 
     func onForgotPasswordClick() {
+        guard email.isValidEmail else {
+            showAlertFor(title: "Invalid Email", message: "Please enter a valid email address.")
+            return
+        }
 
+        FirebaseAuth.Auth.auth().sendPasswordReset(withEmail: email) { [weak self] error in
+            guard let self else { return }
+            if let error {
+                LogE("EmailLoginViewModel: \(#function) Failed to send password reset email: \(error)")
+                self.handleFirebaseAuthErrors(error, isPasswordReset: true)
+            } else {
+                self.showAlertFor(title: "Email sent", message: "An email has been sent to \(email) with instructions to reset your password.")
+            }
+        }
     }
 
-    func handleBackBtnTap() {
-        router.pop()
+    func navigateToRoot() {
+        router.popToRoot()
     }
 
-    // MARK: - Error handling 
-    private func handleFirebaseAuthErrors(_ error: Error) {
+    // MARK: - Error handling
+    private func handleFirebaseAuthErrors(_ error: Error, isPasswordReset: Bool = false) {
         let errorCode = (error as NSError).code
 
         switch FirebaseAuth.AuthErrorCode(rawValue: errorCode) {
@@ -110,8 +123,8 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
             showAlertFor(message: "Too many attempts, please try after some time.")
         case .invalidEmail:
             showAlertFor(title: "Invalid Email", message: "The email address is not valid. Please check and try again.")
-        case .wrongPassword:
-            showAlertFor(title: "Incorrect Password", message: "The password you entered is incorrect. Please try again.")
+        case .emailAlreadyInUse:
+            showAlertFor(title: "Email Already in Use", message: "The email address is already associated with an existing account. Please use a different email or log in to your existing account.")
         case .userNotFound:
             showAlertFor(title: "Account Not Found", message: "No account found with the provided email address. Please sign up.")
         case .userDisabled:
@@ -119,8 +132,8 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
         case .invalidCredential:
             showAlertFor(title: "Incorrect email or password", message: "The email or password you entered is incorrect. Please try again.")
         default:
-            LogE("EmailLoginViewModel: \(#function) Phone login fail with error: \(error).")
-            showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
+            LogE("EmailLoginViewModel: \(#function) \((isPasswordReset) ? "Password reset" : "Email login") fail with error: \(error).")
+            isPasswordReset ? showAlertFor(title: "Error", message: "Unable to send a password reset email. Please try again later.") : showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
         }
     }
 }

@@ -150,6 +150,12 @@
     "Account" : {
 
     },
+    "Account Disabled" : {
+      "extractionState" : "manual"
+    },
+    "Account Not Found" : {
+      "extractionState" : "manual"
+    },
     "Acknowledgements" : {
       "extractionState" : "manual"
     },
@@ -203,6 +209,9 @@
       "extractionState" : "manual"
     },
     "Amount" : {
+      "extractionState" : "manual"
+    },
+    "An email has been sent to %@ with instructions to reset your password." : {
       "extractionState" : "manual"
     },
     "Ana borrows $10 from Bob" : {
@@ -325,7 +334,16 @@
     "Edit expense" : {
 
     },
+    "email" : {
+      "extractionState" : "manual"
+    },
     "Email" : {
+      "extractionState" : "manual"
+    },
+    "Email Already in Use" : {
+      "extractionState" : "manual"
+    },
+    "Email sent" : {
       "extractionState" : "manual"
     },
     "Email sent successfully!" : {
@@ -448,6 +466,12 @@
     "In a group with \"simplify debts\" enabled, Splito will tell Ana to repay Charlie $10. Bob does nothing. This is the most efficient way for the group to settle up. With simplify debts enabled, it's normal to owe someone who didn't directly loan you money." : {
 
     },
+    "Incorrect email or password" : {
+      "extractionState" : "manual"
+    },
+    "Invalid Email" : {
+      "extractionState" : "manual"
+    },
     "Invalid OTP" : {
       "extractionState" : "manual"
     },
@@ -456,6 +480,9 @@
     },
     "Join group" : {
 
+    },
+    "Key" : {
+      "extractionState" : "manual"
     },
     "Last Name" : {
       "extractionState" : "manual"
@@ -507,6 +534,9 @@
     },
     "Multiple people" : {
 
+    },
+    "No account found with the provided email address. Please sign up." : {
+      "extractionState" : "manual"
     },
     "No activity yet!" : {
 
@@ -577,6 +607,12 @@
     "paid" : {
       "extractionState" : "manual"
     },
+    "password" : {
+      "extractionState" : "manual"
+    },
+    "Password must be at least 6 characters long." : {
+      "extractionState" : "manual"
+    },
     "Payment deleted successfully." : {
       "extractionState" : "manual"
     },
@@ -599,6 +635,9 @@
       "extractionState" : "manual"
     },
     "Please enter a cost for your expense first!" : {
+      "extractionState" : "manual"
+    },
+    "Please enter a valid email address." : {
       "extractionState" : "manual"
     },
     "Please enter valid email" : {
@@ -746,9 +785,6 @@
     "Sign in with Google" : {
       "extractionState" : "manual"
     },
-    "Sign in with Phone Number" : {
-      "extractionState" : "manual"
-    },
     "Sign Out" : {
       "extractionState" : "manual"
     },
@@ -812,6 +848,15 @@
     "The code you've entered is not exists." : {
       "extractionState" : "manual"
     },
+    "The email address is already associated with an existing account. Please use a different email or log in to your existing account." : {
+      "extractionState" : "manual"
+    },
+    "The email address is not valid. Please check and try again." : {
+      "extractionState" : "manual"
+    },
+    "The email or password you entered is incorrect. Please try again." : {
+      "extractionState" : "manual"
+    },
     "The group associated with this expense has been deleted, so it cannot be restored." : {
       "extractionState" : "manual"
     },
@@ -828,6 +873,9 @@
       "extractionState" : "manual"
     },
     "There are no groups available to search." : {
+      "extractionState" : "manual"
+    },
+    "This account has been disabled. Please contact support." : {
       "extractionState" : "manual"
     },
     "This code will be active for 2 days." : {
@@ -894,6 +942,9 @@
       "extractionState" : "manual"
     },
     "Totals" : {
+      "extractionState" : "manual"
+    },
+    "Unable to send a password reset email. Please try again later." : {
       "extractionState" : "manual"
     },
     "Unequally" : {
