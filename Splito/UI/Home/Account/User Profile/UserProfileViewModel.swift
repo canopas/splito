@@ -263,7 +263,7 @@ extension UserProfileViewModel {
             handlePhoneLogin(completion: completion)
 
         case .Email:
-            break
+            handleEmailLogin(completion: completion)
         }
     }
 
@@ -308,6 +308,65 @@ extension UserProfileViewModel {
             guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
             completion(credential)
+        }
+    }
+
+    private func handleEmailLogin(completion: @escaping (AuthCredential?) -> Void) {
+        guard let email = preference.user?.emailId else {
+            isDeleteInProgress = false
+            LogE("UserProfileViewModel: \(#function) No email found for email login.")
+            return
+        }
+
+        alert = .init(
+            title: "Enter Password",
+            message: "Please enter your password to continue.",
+            positiveBtnTitle: "Ok",
+            positiveBtnAction: { [weak self] in
+                // Prompt the user for password input
+                self?.promptForPassword { enteredPassword in
+                    guard let password = enteredPassword, !password.isEmpty else {
+                        self?.showAlertFor(message: "Password cannot be empty.")
+                        return
+                    }
+
+                    let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+                    completion(credential)
+                }
+            },
+            negativeBtnTitle: "Cancel",
+            negativeBtnAction: { self.showAlert = false }
+        )
+
+        showAlert = true
+    }
+
+    private func promptForPassword(completion: @escaping (String?) -> Void) {
+        let passwordAlert = UIAlertController(title: "Enter Password", message: nil, preferredStyle: .alert)
+
+        passwordAlert.addTextField { textField in
+            textField.placeholder = "Password"
+            textField.isSecureTextEntry = true
+        }
+
+        let submitAction = UIAlertAction(title: "Submit", style: .default) { _ in
+            let enteredPassword = passwordAlert.textFields?.first?.text
+            completion(enteredPassword)
+        }
+
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            completion(nil)
+        }
+
+        passwordAlert.addAction(submitAction)
+        passwordAlert.addAction(cancelAction)
+
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootViewController = scene.windows.first?.rootViewController {
+            rootViewController.present(passwordAlert, animated: true, completion: nil)
+        } else {
+            print("No active window scene found.")
+            completion(nil)
         }
     }
 
