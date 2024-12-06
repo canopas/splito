@@ -40,7 +40,6 @@ struct LoginView: View {
                                  showAppleLoading: viewModel.showAppleLoading,
                                  onGoogleLoginClick: viewModel.onGoogleLoginClick,
                                  onAppleLoginClick: viewModel.onAppleLoginClick,
-                                 onPhoneLoginClick: viewModel.onPhoneLoginClick,
                                  onEmailLoginClick: viewModel.onEmailLoginClick)
 
                 VSpacer(24)
@@ -60,7 +59,6 @@ private struct LoginOptionsView: View {
 
     let onGoogleLoginClick: () -> Void
     let onAppleLoginClick: () -> Void
-    let onPhoneLoginClick: () -> Void
     let onEmailLoginClick: () -> Void
 
     var body: some View {
@@ -70,9 +68,6 @@ private struct LoginOptionsView: View {
             LoginOptionsButtonView(systemImage: ("apple.logo", primaryText, (14, 16)),
                                    buttonName: "Sign in with Apple", showLoader: showAppleLoading,
                                    onClick: onAppleLoginClick)
-            LoginOptionsButtonView(systemImage: ("phone.fill", primaryLightText, (12, 12)),
-                                   buttonName: "Sign in with Phone Number", bgColor: primaryColor,
-                                   buttonTextColor: primaryLightText, showLoader: false, onClick: onPhoneLoginClick)
             LoginOptionsButtonView(image: .emailIcon, buttonName: "Sign in with Email", bgColor: primaryColor,
                                    buttonTextColor: primaryLightText, showLoader: false, onClick: onEmailLoginClick)
         }

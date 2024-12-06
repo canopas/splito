@@ -13,12 +13,6 @@
     " ₹ 0.00" : {
 
     },
-    " and " : {
-
-    },
-    " Enter mobile number" : {
-
-    },
     " from the group" : {
       "extractionState" : "manual"
     },
@@ -135,14 +129,8 @@
     "0" : {
 
     },
-    "00:%@" : {
-
-    },
     "1.23" : {
       "extractionState" : "manual"
-    },
-    "6 digits" : {
-
     },
     "About" : {
 
@@ -262,9 +250,6 @@
     "Bob borrows $10 from Charlie" : {
 
     },
-    "By entering your number, you’re agreeing to our " : {
-
-    },
     "Camera access is required to take picture for expenses" : {
       "extractionState" : "manual"
     },
@@ -294,9 +279,6 @@
     },
     "Continue your journey" : {
       "extractionState" : "manual"
-    },
-    "Countries" : {
-
     },
     "Create account" : {
       "extractionState" : "manual"
@@ -661,9 +643,6 @@
     "Privacy policy cannot be accessed." : {
       "extractionState" : "manual"
     },
-    "privacy policy." : {
-
-    },
     "Rate Splito" : {
       "extractionState" : "manual"
     },
@@ -694,10 +673,8 @@
     "requires recent authentication" : {
       "extractionState" : "manual"
     },
-    "Resend code" : {
-
-    },
     "Resend code " : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -834,9 +811,6 @@
       "extractionState" : "manual"
     },
     "Take a picture" : {
-
-    },
-    "terms of service" : {
 
     },
     "The amounts do not add up to the total cost of %@. You are %@ by %@." : {

@@ -27,7 +27,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
     @Published var lastName: String = ""
     @Published var email: String = ""
     @Published var phoneNumber: String = ""
-    @Published var userLoginType: LoginType = .Phone
+    @Published var userLoginType: LoginType = .Email
 
     @Published var profileImage: UIImage?
     @Published var profileImageUrl: String?
@@ -39,16 +39,12 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
     @Published var isOpenFromOnboard: Bool
     @Published var isSaveInProgress = false
     @Published var isDeleteInProgress = false
-    @Published var showOTPView = false
 
-    var verificationId = ""
     private var currentNonce: String = ""
     private lazy var appleSignInDelegates: SignInWithAppleDelegates! = nil
 
     private let router: Router<AppRoute>?
     private var onDismiss: (() -> Void)?
-
-    var otpPublisher = PassthroughSubject<String, Never>()
 
     init(router: Router<AppRoute>?, isOpenFromOnboard: Bool, onDismiss: (() -> Void)?) {
         self.router = router
@@ -259,9 +255,6 @@ extension UserProfileViewModel {
         case .Google:
             handleGoogleLogin(completion: completion)
 
-        case .Phone:
-            handlePhoneLogin(completion: completion)
-
         case .Email:
             handleEmailLogin(completion: completion)
         }
@@ -333,38 +326,6 @@ extension UserProfileViewModel {
         })
 
         TopViewController.shared.topViewController()?.present(alert, animated: true)
-    }
-
-    private func handlePhoneLogin(completion: @escaping (AuthCredential?) -> Void) {
-        guard let phoneNumber = preference.user?.phoneNumber else {
-            self.isDeleteInProgress = false
-            LogE("UserProfileViewModel: \(#function) No phone number found for phone login.")
-            return
-        }
-
-        FirebaseProvider.phoneAuthProvider
-            .verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
-                guard let self = self else { return }
-                self.isDeleteInProgress = false
-                if let error {
-                    self.handleFirebaseAuthErrors(error)
-                } else {
-                    self.phoneNumber = phoneNumber
-                    self.verificationId = verificationID ?? ""
-                    self.showOTPView = true
-
-                    self.otpPublisher
-                        .sink { otp in
-                            guard !otp.isEmpty else { return }
-                            self.showOTPView = false
-
-                            let credential = FirebaseProvider.phoneAuthProvider
-                                .credential(withVerificationID: self.verificationId, verificationCode: otp)
-                            completion(credential)
-                        }
-                        .store(in: &self.cancelable)
-                }
-            }
     }
 
     private func handleFirebaseAuthErrors(_ error: Error) {

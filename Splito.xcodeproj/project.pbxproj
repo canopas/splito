@@ -70,10 +70,6 @@
 		D89C933B2BC0204100FACD16 /* AccountHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89C933A2BC0204100FACD16 /* AccountHomeView.swift */; };
 		D89C933D2BC020B200FACD16 /* AccountHomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89C933C2BC020B200FACD16 /* AccountHomeViewModel.swift */; };
 		D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */; };
-		D89DBE232B875C2200E5F1BD /* PhoneLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE222B875C2200E5F1BD /* PhoneLoginView.swift */; };
-		D89DBE252B875C3000E5F1BD /* PhoneLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE242B875C3000E5F1BD /* PhoneLoginViewModel.swift */; };
-		D89DBE382B88A6A800E5F1BD /* VerifyOtpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE372B88A6A800E5F1BD /* VerifyOtpView.swift */; };
-		D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE392B88A6B400E5F1BD /* VerifyOtpViewModel.swift */; };
 		D89DBE422B8CA72700E5F1BD /* HomeRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */; };
 		D89DBE5B2B8DE97000E5F1BD /* GroupRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE5A2B8DE97000E5F1BD /* GroupRouteView.swift */; };
 		D89DBE5F2B8DE98600E5F1BD /* AccountRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE5E2B8DE98600E5F1BD /* AccountRouteView.swift */; };
@@ -233,10 +229,6 @@
 		D89C933C2BC020B200FACD16 /* AccountHomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountHomeViewModel.swift; sourceTree = "<group>"; };
 		D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInWithAppleDelegate.swift; sourceTree = "<group>"; };
 		D89DBE202B87433B00E5F1BD /* Splito.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Splito.entitlements; sourceTree = "<group>"; };
-		D89DBE222B875C2200E5F1BD /* PhoneLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneLoginView.swift; sourceTree = "<group>"; };
-		D89DBE242B875C3000E5F1BD /* PhoneLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneLoginViewModel.swift; sourceTree = "<group>"; };
-		D89DBE372B88A6A800E5F1BD /* VerifyOtpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyOtpView.swift; sourceTree = "<group>"; };
-		D89DBE392B88A6B400E5F1BD /* VerifyOtpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyOtpViewModel.swift; sourceTree = "<group>"; };
 		D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRouteView.swift; sourceTree = "<group>"; };
 		D89DBE5A2B8DE97000E5F1BD /* GroupRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupRouteView.swift; sourceTree = "<group>"; };
 		D89DBE5E2B8DE98600E5F1BD /* AccountRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRouteView.swift; sourceTree = "<group>"; };
@@ -628,25 +620,6 @@
 			path = Resource;
 			sourceTree = "<group>";
 		};
-		D89DBE212B875C1000E5F1BD /* PhoneLogin */ = {
-			isa = PBXGroup;
-			children = (
-				D89DBE222B875C2200E5F1BD /* PhoneLoginView.swift */,
-				D89DBE242B875C3000E5F1BD /* PhoneLoginViewModel.swift */,
-				D89DBE362B88A69E00E5F1BD /* VerifyOtp */,
-			);
-			path = PhoneLogin;
-			sourceTree = "<group>";
-		};
-		D89DBE362B88A69E00E5F1BD /* VerifyOtp */ = {
-			isa = PBXGroup;
-			children = (
-				D89DBE372B88A6A800E5F1BD /* VerifyOtpView.swift */,
-				D89DBE392B88A6B400E5F1BD /* VerifyOtpViewModel.swift */,
-			);
-			path = VerifyOtp;
-			sourceTree = "<group>";
-		};
 		D89DBE552B8DE8C600E5F1BD /* Groups */ = {
 			isa = PBXGroup;
 			children = (
@@ -750,7 +723,6 @@
 				D8AC26EC2B84B12800CEAAD3 /* LoginViewModel.swift */,
 				D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */,
 				21D8CF3D2CFF07E800463E4D /* EmailLogin */,
-				D89DBE212B875C1000E5F1BD /* PhoneLogin */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -1097,7 +1069,6 @@
 				D8D6C3A02B79F8110023CF08 /* AppDelegate.swift in Sources */,
 				D8AC26F42B84B12800CEAAD3 /* OnboardViewModel.swift in Sources */,
 				D826C0E42BDBD66300AAA449 /* GroupBalancesViewModel.swift in Sources */,
-				D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */,
 				D89DBE5F2B8DE98600E5F1BD /* AccountRouteView.swift in Sources */,
 				D8CD952C2BD65F1900407B47 /* ExpenseSplitOptionsView.swift in Sources */,
 				21559CAC2CBD25B30039F127 /* ActivityLogRouteView.swift in Sources */,
@@ -1127,10 +1098,8 @@
 				D89DBE5B2B8DE97000E5F1BD /* GroupRouteView.swift in Sources */,
 				D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */,
 				D8E244BB2B9843A100C6C82A /* CreateGroupView.swift in Sources */,
-				D89DBE382B88A6A800E5F1BD /* VerifyOtpView.swift in Sources */,
 				D89DBE422B8CA72700E5F1BD /* HomeRouteView.swift in Sources */,
 				21B1C09E2C1C5AA30098B4FD /* GroupExpenseListView.swift in Sources */,
-				D89DBE252B875C3000E5F1BD /* PhoneLoginViewModel.swift in Sources */,
 				D8D14A602BA2DCDB00F45FF2 /* UserProfileView.swift in Sources */,
 				21D8CF3F2CFF080300463E4D /* EmailLoginView.swift in Sources */,
 				D88721452B9B2C78009DC5BE /* GroupListView.swift in Sources */,
@@ -1138,7 +1107,6 @@
 				D8D14A582BA189F800F45FF2 /* JoinMemberViewModel.swift in Sources */,
 				D8EB0ED52CAD884A00AC6A44 /* AppRoute.swift in Sources */,
 				D8EB0ED62CAD884A00AC6A44 /* RouterView.swift in Sources */,
-				D89DBE232B875C2200E5F1BD /* PhoneLoginView.swift in Sources */,
 				21F27BDE2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift in Sources */,
 				D85E86E92BB3FD49002EDF76 /* ChoosePayerView.swift in Sources */,
 				D833446E2C0F2D4C00CD9F05 /* GroupWhoGettingPaidViewModel.swift in Sources */,

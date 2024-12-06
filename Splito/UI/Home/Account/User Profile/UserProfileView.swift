@@ -72,11 +72,6 @@ struct UserProfileView: View {
             ImagePickerView(cropOption: .square, sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
                             image: $viewModel.profileImage, isPresented: $viewModel.showImagePicker)
         }
-        .sheet(isPresented: $viewModel.showOTPView) {
-            VerifyOtpView(viewModel: VerifyOtpViewModel(phoneNumber: viewModel.phoneNumber,
-                                                        verificationId: viewModel.verificationId,
-                                                        onLoginSuccess: viewModel.otpPublisher.send(_:)))
-        }
     }
 }
 
@@ -137,10 +132,10 @@ private struct UserDetailList: View {
         VStack(spacing: 24) {
             ForEach(profileOptions.indices, id: \.self) { index in
                 UserDetailCell(titleText: titles[index], focused: $focusedField,
-                               isDisabled: userLoginType == .Phone ? profileOptions[index].isDisabled : (profileOptions[index] == .email ? isEmailDisable : false),
+                               isDisabled: (profileOptions[index] == .email ? isEmailDisable : false),
                                placeholder: profileOptions[index].placeholder,
                                subtitleText: profileOptions[index].subtitle,
-                               validationEnabled: profileOptions[index].validationType == .email || profileOptions[index].validationType == .phone || profileOptions[index].validationType == .firstName,
+                               validationEnabled: profileOptions[index].validationType == .email || profileOptions[index].validationType == .firstName,
                                fieldType: profileOptions[index].fieldTypes,
                                keyboardType: profileOptions[index].keyboardType,
                                validationType: profileOptions[index].validationType,
