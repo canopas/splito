@@ -5,9 +5,7 @@
 //  Created by Amisha Italiya on 14/03/24.
 //
 
-import SwiftUI
 import Data
-import Combine
 import BaseStyle
 import AVFoundation
 import FirebaseAuth
@@ -326,20 +324,5 @@ extension UserProfileViewModel {
         })
 
         TopViewController.shared.topViewController()?.present(alert, animated: true)
-    }
-
-    private func handleFirebaseAuthErrors(_ error: Error) {
-        if (error as NSError).code == FirebaseAuth.AuthErrorCode.webContextCancelled.rawValue {
-            showAlertFor(message: "Something went wrong! Please try after some time.")
-        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.tooManyRequests.rawValue {
-            showAlertFor(message: "Too many attempts, please try after some time.")
-        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.missingPhoneNumber.rawValue {
-            showAlertFor(message: "Enter a valid phone number.")
-        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.invalidPhoneNumber.rawValue {
-            showAlertFor(message: "Enter a valid phone number.")
-        } else {
-            LogE("UserProfileViewModel: \(#function) Phone login fail with error: \(error).")
-            showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
-        }
     }
 }

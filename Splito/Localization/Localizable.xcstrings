@@ -337,9 +337,6 @@
     "Enter a reason for this payment" : {
       "extractionState" : "manual"
     },
-    "Enter a valid phone number." : {
-      "extractionState" : "manual"
-    },
     "Enter code" : {
       "extractionState" : "manual"
     },
@@ -370,9 +367,6 @@
     "Enter your phone number" : {
       "extractionState" : "manual"
     },
-    "Entered number is too long, Please check the phone number." : {
-      "extractionState" : "manual"
-    },
     "equally" : {
       "extractionState" : "manual"
     },
@@ -398,9 +392,6 @@
 
     },
     "get back" : {
-      "extractionState" : "manual"
-    },
-    "Get OTP" : {
       "extractionState" : "manual"
     },
     "Get Started" : {
@@ -452,9 +443,6 @@
       "extractionState" : "manual"
     },
     "Invalid Email" : {
-      "extractionState" : "manual"
-    },
-    "Invalid OTP" : {
       "extractionState" : "manual"
     },
     "It seems that everything has settled down in all groups." : {
@@ -634,9 +622,6 @@
     "Please select group to get payer list." : {
       "extractionState" : "manual"
     },
-    "Please, enter a valid OTP code." : {
-      "extractionState" : "manual"
-    },
     "Privacy Policy" : {
       "extractionState" : "manual"
     },
@@ -673,17 +658,6 @@
     "requires recent authentication" : {
       "extractionState" : "manual"
     },
-    "Resend code " : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Resend code "
-          }
-        }
-      }
-    },
     "Restore expense" : {
       "extractionState" : "manual"
     },
@@ -703,9 +677,6 @@
       "extractionState" : "manual"
     },
     "Retry" : {
-      "extractionState" : "manual"
-    },
-    "Search" : {
       "extractionState" : "manual"
     },
     "Search expenses" : {
@@ -933,22 +904,7 @@
     "Use settle up to divide costs with your friends or colleagues. It's easy and ensures everyone pays or receives their fair share.\\n\\nLet's get started splitting bills easily with friends." : {
       "extractionState" : "manual"
     },
-    "Verification code" : {
-      "extractionState" : "manual"
-    },
-    "Verify" : {
-      "extractionState" : "manual"
-    },
     "Warning" : {
-      "extractionState" : "manual"
-    },
-    "We’ll verify your phone number with a verification code." : {
-      "extractionState" : "manual"
-    },
-    "We’ve sent a verification code to your phone %@." : {
-      "extractionState" : "manual"
-    },
-    "What’s your phone number?" : {
       "extractionState" : "manual"
     },
     "Whoops!" : {
