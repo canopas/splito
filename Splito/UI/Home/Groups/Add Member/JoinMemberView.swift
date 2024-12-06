@@ -95,9 +95,17 @@ public struct JoinMemberTextInputView: View {
             .textContentType(.oneTimeCode)
             .autocorrectionDisabled()
             .onChange(of: text) { newValue in
+                // Restrict the length of text
+                if newValue.count > CODE_TOTAL_CHARACTERS {
+                    text = String(newValue.prefix(CODE_TOTAL_CHARACTERS))
+                    return
+                }
+
+                text = newValue.filter { $0.isLetter || $0.isNumber } // Validate input characters by allowing only alphanumeric
+
                 if newValue.count == CODE_TOTAL_CHARACTERS {
                     onCodeChange()
-                    UIApplication.shared.endEditing()
+                    isFocused.wrappedValue = false
                 }
             }
             .textInputAutocapitalization(.never)

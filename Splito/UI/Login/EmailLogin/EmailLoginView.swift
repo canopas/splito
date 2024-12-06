@@ -112,23 +112,24 @@ private struct EmailLoginInputFieldView: View {
                 .onSubmit {
                     onSubmit?()
                 }
+                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
 
                 if isPasswordField {
-                    Button {
-                        isSecured.toggle()
-                    } label: {
-                        Image(systemName: isSecured ? "eye.slash" : "eye")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 15, height: 15)
-                            .foregroundStyle(lowestText)
-                            .fontWeight(.bold)
-                            .padding(3)
-                    }
+                    Image(systemName: isSecured ? "eye" : "eye.slash")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 15, height: 15)
+                        .foregroundStyle(lowestText)
+                        .fontWeight(.black)
+                        .padding(3)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                        .onTapGestureForced {
+                            isSecured.toggle()
+                        }
                 }
             }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
             .overlay {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(outlineColor, lineWidth: 1)
