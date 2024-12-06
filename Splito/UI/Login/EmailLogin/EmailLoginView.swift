@@ -46,21 +46,23 @@ struct EmailLoginView: View {
                         .padding(.horizontal, 16)
                         .frame(maxWidth: isIpad ? 600 : nil, alignment: .leading)
                         .frame(maxWidth: .infinity, alignment: .center)
+
+                        VStack(spacing: 0) {
+                            PrimaryFloatingButton(text: "Login", bottomPadding: 6,
+                                                  isEnabled: !viewModel.email.isEmpty && !viewModel.password.isEmpty,
+                                                  showLoader: viewModel.isLoginInProgress, onClick: viewModel.onLoginClick)
+
+                            PrimaryFloatingButton(text: "Create account", textColor: primaryDarkColor, bgColor: container2Color,
+                                                  showLoader: viewModel.isSignupInProgress, onClick: viewModel.onCreateAccountClick)
+                        }
+                        .frame(maxWidth: isIpad ? 600 : nil, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .center)
                     }
+                    .frame(minHeight: proxy.size.height, maxHeight: .infinity, alignment: .center)
+                    .ignoresSafeArea(.keyboard)
                 }
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
-
-                VStack(spacing: 0) {
-                    PrimaryFloatingButton(text: "Login", bottomPadding: 6,
-                                          isEnabled: !viewModel.email.isEmpty && !viewModel.password.isEmpty,
-                                          showLoader: viewModel.isLoginInProgress, onClick: viewModel.onLoginClick)
-
-                    PrimaryFloatingButton(text: "Create account", textColor: primaryDarkColor, bgColor: container2Color,
-                                          showLoader: viewModel.isSignupInProgress, onClick: viewModel.onCreateAccountClick)
-                }
-                .frame(maxWidth: isIpad ? 600 : nil, alignment: .leading)
-                .frame(maxWidth: .infinity, alignment: .center)
             }
         }
         .background(surfaceColor)
@@ -72,6 +74,9 @@ struct EmailLoginView: View {
         }
         .onTapGesture {
             UIApplication.shared.endEditing()
+        }
+        .onAppear {
+            focusedField = .email
         }
     }
 }
@@ -153,5 +158,6 @@ private struct ForgotPasswordView: View {
             }
         }
         .padding(.top, 8)
+        .padding(.bottom, 24)
     }
 }
