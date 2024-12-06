@@ -66,5 +66,5 @@ public struct AppUser: Identifiable, Codable, Hashable {
 public enum LoginType: String, Codable {
     case Apple = "apple"
     case Google = "google"
-    case Phone = "phone"
+    case Email = "email"
 }

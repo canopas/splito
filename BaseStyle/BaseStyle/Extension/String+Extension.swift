@@ -21,10 +21,6 @@ extension String {
         return emailPred.evaluate(with: self)
     }
 
-    public func getNumbersOnly() -> String {
-        self.filter("0123456789".contains)
-    }
-
     public func randomString(length: Int) -> String {
         let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         return String((0..<length).compactMap { _ in letters.randomElement() })
