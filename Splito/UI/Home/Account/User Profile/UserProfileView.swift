@@ -125,7 +125,7 @@ private struct UserDetailList: View {
     }
 
     var isEmailDisable: Bool {
-        userLoginType == .Google
+        userLoginType == .Google || userLoginType == .Email
     }
 
     var body: some View {
