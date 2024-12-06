@@ -114,9 +114,12 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Error handling
     private func handleFirebaseAuthErrors(_ error: Error, isPasswordReset: Bool = false) {
-        let errorCode = (error as NSError).code
+        guard let authErrorCode = FirebaseAuth.AuthErrorCode(rawValue: (error as NSError).code) else {
+            showAlertFor(title: "Error", message: "Something went wrong! Please try after some time.")
+            return
+        }
 
-        switch FirebaseAuth.AuthErrorCode(rawValue: errorCode) {
+        switch authErrorCode {
         case .webContextCancelled:
             showAlertFor(message: "Something went wrong! Please try after some time.")
         case .tooManyRequests:

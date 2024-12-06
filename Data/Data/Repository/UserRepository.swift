@@ -15,9 +15,11 @@ public class UserRepository: ObservableObject {
 
     public func storeUser(user: AppUser) async throws -> AppUser {
         if let storedUser = try await store.fetchUserBy(id: user.id) {
+            LogD("User already exists in Firestore: \(storedUser)")
             return storedUser
         } else {
-            _ = try await store.addUser(user: user)
+            LogD("User does not exist. Adding new user: \(user)")
+            try await store.addUser(user: user)
             return user
         }
     }
