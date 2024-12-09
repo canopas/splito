@@ -34,7 +34,8 @@ public struct PrimaryFloatingButton: View {
             VSpacer(10)
 
             PrimaryButton(text: text, textColor: textColor, bgColor: bgColor,
-                          isEnabled: !showLoader && isEnabled, showLoader: showLoader, onClick: onClick)
+                          isEnabled: !showLoader && isEnabled,
+                          showLoader: showLoader, onClick: onClick)
         }
         .padding(.horizontal, 16)
         .padding(.bottom, bottomPadding)

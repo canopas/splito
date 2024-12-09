@@ -67,4 +67,5 @@ public enum LoginType: String, Codable {
     case Apple = "apple"
     case Google = "google"
     case Email = "email"
+    case phone = "phone"
 }

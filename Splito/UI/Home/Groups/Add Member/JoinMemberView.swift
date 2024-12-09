@@ -101,7 +101,8 @@ public struct JoinMemberTextInputView: View {
                     return
                 }
 
-                text = newValue.filter { $0.isLetter || $0.isNumber } // Validate input characters by allowing only alphanumeric
+                // Validate input characters by allowing only alphanumeric
+                text = newValue.filter { $0.isLetter || $0.isNumber }
 
                 if newValue.count == CODE_TOTAL_CHARACTERS {
                     onCodeChange()
@@ -110,12 +111,7 @@ public struct JoinMemberTextInputView: View {
             }
             .textInputAutocapitalization(.never)
             .onAppear {
-                if text.isEmpty {
-                    isFocused.wrappedValue = true
-                } else {
-                    isFocused.wrappedValue = false
-                    UIApplication.shared.endEditing()
-                }
+                isFocused.wrappedValue = true
             }
     }
 }

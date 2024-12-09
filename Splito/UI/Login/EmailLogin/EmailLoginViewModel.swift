@@ -56,8 +56,10 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
         } else if let result {
             let user = AppUser(id: result.user.uid, firstName: "", lastName: "",
                                emailId: email, phoneNumber: nil, loginType: .Email)
-            Task { await storeUser(user: user) }
-            LogD("EmailLoginViewModel: \(#function) User \(isLogin ? "logged in" : "signed up") successfully with email \(email).")
+            Task {
+                await storeUser(user: user)
+            }
+            LogD("EmailLoginViewModel: \(#function) User \(isLogin ? "logged in" : "signed up") successfully.")
         } else {
             self.alert = .init(message: "Contact Support")
             self.showAlert = true
@@ -86,7 +88,7 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
             LogD("EmailLoginViewModel: \(#function) User stored successfully.")
         } catch {
             LogE("EmailLoginViewModel: \(#function) Failed to store user: \(error).")
-            alert = .init(message: error.localizedDescription)
+            alert = .init(message: "Something went wrong! Please try after some time.")
             showAlert = true
         }
     }

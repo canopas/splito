@@ -127,9 +127,8 @@ private struct EmailLoginInputFieldView: View {
                         .frame(width: 15, height: 15)
                         .foregroundStyle(lowestText)
                         .fontWeight(.black)
-                        .padding(3)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 16)
+                        .padding(.vertical, 15)
+                        .padding(.horizontal, 19)
                         .onTapGestureForced {
                             isSecured.toggle()
                         }

@@ -36,10 +36,11 @@ class UserStore: ObservableObject {
         let snapshot = try await usersCollection.document(id).getDocument(source: .server)
 
         if snapshot.exists {
-            LogD("UserStore: \(#function) Fetched document data: \(snapshot.data() ?? [:])")
-            return try snapshot.data(as: AppUser.self)
+            let fetchedUser = try snapshot.data(as: AppUser.self)
+            LogD("UserStore: \(#function) User fetched successfully.")
+            return fetchedUser
         } else {
-            LogE("UserStore: \(#function) Document with id \(id) does not exist.")
+            LogE("UserStore: \(#function) snapshot is nil for requested user.")
             return nil
         }
     }
