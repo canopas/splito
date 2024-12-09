@@ -16,7 +16,7 @@ public enum AppRoute: Hashable {
 
     case OnboardView
     case LoginView
-    case EmailLoginView
+    case EmailLoginView(onDismiss: (() -> Void)? = nil)
     case ProfileView
     case HomeView
 

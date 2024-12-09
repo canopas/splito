@@ -21,9 +21,11 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
     @Published var password = ""
 
     private let router: Router<AppRoute>
+    private var onDismiss: (() -> Void)?
 
-    init(router: Router<AppRoute>) {
+    init(router: Router<AppRoute>, onDismiss: (() -> Void)? = nil) {
         self.router = router
+        self.onDismiss = onDismiss
     }
 
     // MARK: - User Actions
@@ -84,7 +86,11 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
             let user = try await userRepository.storeUser(user: user)
             preference.isVerifiedUser = true
             preference.user = user
-            navigateToRoot()
+            if onDismiss != nil {
+                onDismiss?()
+            } else {
+                navigateToRoot()
+            }
             LogD("EmailLoginViewModel: \(#function) User stored successfully.")
         } catch {
             LogE("EmailLoginViewModel: \(#function) Failed to store user: \(error).")

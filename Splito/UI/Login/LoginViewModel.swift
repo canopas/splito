@@ -23,9 +23,11 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
     private var currentNonce: String = ""
     private var appleSignInDelegates: SignInWithAppleDelegates?
     private let router: Router<AppRoute>
+    private var onDismiss: (() -> Void)?
 
-    init(router: Router<AppRoute>) {
+    init(router: Router<AppRoute>, onDismiss: (() -> Void)? = nil) {
         self.router = router
+        self.onDismiss = onDismiss
     }
 
     // MARK: - Data Loading
@@ -124,11 +126,14 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 
     private func onLoginSuccess() {
         preference.isVerifiedUser = true
+        if onDismiss != nil {
+            onDismiss?()
+        }
     }
 
     // MARK: - User Actions
     func onEmailLoginClick() {
-        router.push(.EmailLoginView)
+        router.push(.EmailLoginView(onDismiss: onDismiss))
     }
 }
 
