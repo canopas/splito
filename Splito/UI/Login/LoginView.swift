@@ -194,6 +194,7 @@ struct LoginSubtitleView: View {
                 .foregroundStyle(disableText)
                 .tracking(-0.2)
                 .lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
 
             Spacer()
         }

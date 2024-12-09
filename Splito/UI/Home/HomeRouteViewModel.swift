@@ -22,10 +22,8 @@ class HomeRouteViewModel: ObservableObject {
     func openProfileOrOnboardFlow() {
         if preference.user == nil {
             openOnboardFlow = true
-        } else if preference.isVerifiedUser {
-            if preference.user == nil || (preference.user?.firstName == nil) || (preference.user?.firstName == "") {
-                openProfileView = true
-            }
+        } else if preference.isVerifiedUser && (preference.user?.firstName == nil || preference.user?.firstName == "") {
+            openProfileView = true
         }
     }
 

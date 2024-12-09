@@ -126,9 +126,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 
     private func onLoginSuccess() {
         preference.isVerifiedUser = true
-        if onDismiss != nil {
-            onDismiss?()
-        }
+        onDismiss?()
     }
 
     // MARK: - User Actions

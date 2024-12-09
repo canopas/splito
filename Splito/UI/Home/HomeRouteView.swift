@@ -12,8 +12,6 @@ struct HomeRouteView: View {
 
     @StateObject private var viewModel = HomeRouteViewModel()
 
-    @StateObject var router = Router(root: AppRoute.OnboardView)
-
     var body: some View {
         VStack {
             TabView(selection: $viewModel.selectedTab) {
