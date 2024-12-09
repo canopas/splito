@@ -349,7 +349,7 @@
     "Enter the percentage split that's fair for your situation." : {
       "extractionState" : "manual"
     },
-    "Enter your %@" : {
+    "Enter your email" : {
 
     },
     "Enter your email address" : {
@@ -363,6 +363,9 @@
     },
     "Enter your note here..." : {
       "extractionState" : "manual"
+    },
+    "Enter your password" : {
+
     },
     "Enter your phone number" : {
       "extractionState" : "manual"
@@ -579,6 +582,9 @@
     },
     "password" : {
       "extractionState" : "manual"
+    },
+    "Password" : {
+
     },
     "Password must be at least 6 characters long." : {
       "extractionState" : "manual"

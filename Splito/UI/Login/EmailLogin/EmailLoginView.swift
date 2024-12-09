@@ -30,14 +30,11 @@ struct EmailLoginView: View {
 
                             VSpacer(24)
 
-                            EmailLoginInputFieldView(text: $viewModel.email, focusedField: $focusedField, title: "email") {
-                                focusedField = .password
-                            }
+                            EmailInputFieldView(email: $viewModel.email, focusedField: $focusedField)
 
                             VSpacer(16)
 
-                            EmailLoginInputFieldView(text: $viewModel.password, focusedField: $focusedField,
-                                                     title: "password", isPasswordField: true)
+                            PasswordInputFieldView(password: $viewModel.password, focusedField: $focusedField)
 
                             ForgotPasswordView(onForgotPasswordClick: viewModel.onForgotPasswordClick)
 
@@ -81,59 +78,86 @@ struct EmailLoginView: View {
     }
 }
 
-private struct EmailLoginInputFieldView: View {
+private struct EmailInputFieldView: View {
 
-    @Binding var text: String
+    @Binding var email: String
     var focusedField: FocusState<EmailLoginViewModel.EmailLoginField?>.Binding
-
-    let title: String
-    var isPasswordField: Bool = false
-
-    var onSubmit: (() -> Void)?
-
-    @State private var isSecured: Bool = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(title.capitalized.localized)
+            Text("Email")
                 .font(.body3())
                 .foregroundStyle(secondaryText)
 
-            ZStack(alignment: .trailing) {
-                Group {
-                    if isPasswordField && isSecured {
-                        SecureField("Enter your \(title.localized)", text: $text)
-                    } else {
-                        TextField("Enter your \(title.localized)", text: $text)
-                            .keyboardType(isPasswordField ? .default : .emailAddress)
-                    }
-                }
+            TextField("Enter your email", text: $email)
+                .keyboardType(.emailAddress)
                 .font(.subTitle3())
                 .foregroundStyle(primaryText)
                 .tint(primaryColor)
                 .autocapitalization(.none)
-                .focused(focusedField, equals: isPasswordField ? .password : .email)
-                .submitLabel(isPasswordField ? .done : .next)
+                .focused(focusedField, equals: .email)
+                .submitLabel(.next)
                 .onSubmit {
-                    onSubmit?()
+                    focusedField.wrappedValue = .password
                 }
                 .padding(.vertical, 12)
                 .padding(.horizontal, 16)
-
-                if isPasswordField {
-                    Image(systemName: isSecured ? "eye" : "eye.slash")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 15, height: 15)
-                        .foregroundStyle(lowestText)
-                        .fontWeight(.black)
-                        .padding(.vertical, 15)
-                        .padding(.horizontal, 19)
-                        .onTapGestureForced {
-                            isSecured.toggle()
-                        }
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(outlineColor, lineWidth: 1)
                 }
+        }
+    }
+}
+
+private struct PasswordInputFieldView: View {
+
+    @Binding var password: String
+    var focusedField: FocusState<EmailLoginViewModel.EmailLoginField?>.Binding
+
+    @State private var isSecured = true
+    @State private var visibleInput: String = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Password")
+                .font(.body3())
+                .foregroundStyle(secondaryText)
+
+            ZStack(alignment: .trailing) {
+                TextField("Enter your password", text: $visibleInput)
+                    .onChange(of: visibleInput) { newValue in
+                        guard isSecured else { password = newValue; return }
+                        if newValue.count >= password.count {
+                            let newItem = newValue.filter { $0 != Character("•") }
+                            password.append(newItem)
+                        } else {
+                            password.removeLast()
+                        }
+                        visibleInput = String(newValue.map { _ in Character("•") })
+                    }
+                    .font(.subTitle3())
+                    .foregroundStyle(primaryText)
+                    .tint(primaryColor)
+                    .autocapitalization(.none)
+                    .submitLabel(.done)
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 16)
+
+                Image(systemName: isSecured ? "eye" : "eye.slash")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 15, height: 15)
+                    .foregroundStyle(lowestText)
+                    .fontWeight(.black)
+                    .padding(.vertical, 15)
+                    .padding(.horizontal, 19)
+                    .onTapGestureForced {
+                        isSecured.toggle()
+                        visibleInput = isSecured ? String(password.map { _ in Character("•") }) : password
+                    }
             }
+            .focused(focusedField, equals: .password)
             .overlay {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(outlineColor, lineWidth: 1)
