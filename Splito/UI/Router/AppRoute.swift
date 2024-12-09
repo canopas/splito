@@ -16,8 +16,7 @@ public enum AppRoute: Hashable {
 
     case OnboardView
     case LoginView
-    case PhoneLoginView
-    case VerifyOTPView(phoneNumber: String, dialCode: String, verificationId: String)
+    case EmailLoginView(onDismiss: (() -> Void)? = nil)
     case ProfileView
     case HomeView
 
@@ -56,10 +55,8 @@ public enum AppRoute: Hashable {
             "onboardView"
         case .LoginView:
             "loginView"
-        case .PhoneLoginView:
-            "phoneLoginView"
-        case .VerifyOTPView:
-            "verifyOTPView"
+        case .EmailLoginView:
+            "EmailLoginView"
         case .ProfileView:
             "userProfileView"
         case .HomeView:

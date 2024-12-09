@@ -18,7 +18,7 @@ public struct AppUser: Identifiable, Codable, Hashable {
     public var deviceFcmToken: String?
     public let loginType: LoginType
     public var totalOweAmount: Double
-    public let isActive: Bool
+    public var isActive: Bool
 
     public var fullName: String {
         if let firstName, let lastName {
@@ -66,5 +66,5 @@ public struct AppUser: Identifiable, Codable, Hashable {
 public enum LoginType: String, Codable {
     case Apple = "apple"
     case Google = "google"
-    case Phone = "phone"
+    case Email = "email"
 }

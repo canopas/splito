@@ -232,14 +232,14 @@ struct AddNoteImageFooterView: View {
             DatePickerView(date: $date)
 
             ImageAttachmentView(image: image, imageUrl: imageUrl, handleImageBtnTap: handleImageTap)
+                .confirmationDialog("", isPresented: $showImagePickerOptions, titleVisibility: .hidden) {
+                    ImagePickerOptionsView(image: image, imageUrl: imageUrl, handleActionSelection: handleActionSelection)
+                }
 
             NoteButtonView(isNoteEmpty: isNoteEmpty, handleNoteBtnTap: handleNoteBtnTap)
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
-        .confirmationDialog("", isPresented: $showImagePickerOptions, titleVisibility: .hidden) {
-            ImagePickerOptionsView(image: image, imageUrl: imageUrl, handleActionSelection: handleActionSelection)
-        }
     }
 }
 

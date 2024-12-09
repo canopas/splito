@@ -40,7 +40,7 @@ struct LoginView: View {
                                  showAppleLoading: viewModel.showAppleLoading,
                                  onGoogleLoginClick: viewModel.onGoogleLoginClick,
                                  onAppleLoginClick: viewModel.onAppleLoginClick,
-                                 onPhoneLoginClick: viewModel.onPhoneLoginClick)
+                                 onEmailLoginClick: viewModel.onEmailLoginClick)
 
                 VSpacer(24)
             }
@@ -59,7 +59,7 @@ private struct LoginOptionsView: View {
 
     let onGoogleLoginClick: () -> Void
     let onAppleLoginClick: () -> Void
-    let onPhoneLoginClick: () -> Void
+    let onEmailLoginClick: () -> Void
 
     var body: some View {
         VStack(spacing: 8) {
@@ -68,9 +68,8 @@ private struct LoginOptionsView: View {
             LoginOptionsButtonView(systemImage: ("apple.logo", primaryText, (14, 16)),
                                    buttonName: "Sign in with Apple", showLoader: showAppleLoading,
                                    onClick: onAppleLoginClick)
-            LoginOptionsButtonView(systemImage: ("phone.fill", primaryLightText, (12, 12)),
-                                   buttonName: "Sign in with Phone Number", bgColor: primaryColor,
-                                   buttonTextColor: primaryLightText, showLoader: false, onClick: onPhoneLoginClick)
+            LoginOptionsButtonView(image: .emailIcon, buttonName: "Sign in with Email", bgColor: primaryColor,
+                                   buttonTextColor: primaryLightText, showLoader: false, onClick: onEmailLoginClick)
         }
         .padding(.horizontal, 16)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
@@ -158,7 +157,7 @@ struct AppLogoView: View {
                 .scaledToFit()
                 .frame(width: width * 0.2 + 200, height: geometry.size.height * 0.1 + 120, alignment: .center)
                 .padding(.top, 88)
-                .padding(.bottom, 40)
+                .padding(.bottom, 16)
 
             Spacer()
         }
@@ -175,7 +174,7 @@ struct LoginTitleView: View {
 
     var body: some View {
         HStack {
-            Text(titleText)
+            Text(titleText.localized)
                 .font(.Header1())
                 .foregroundStyle(primaryText)
 
@@ -190,11 +189,12 @@ struct LoginSubtitleView: View {
 
     var body: some View {
         HStack {
-            Text(subtitleText)
+            Text(subtitleText.localized)
                 .font(.subTitle1())
                 .foregroundStyle(disableText)
                 .tracking(-0.2)
                 .lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
 
             Spacer()
         }

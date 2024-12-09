@@ -15,23 +15,23 @@ struct OnboardRouteView: View {
 
     @Inject var preference: SplitoPreference
 
+    var onDismiss: (() -> Void)?
+
     var body: some View {
         RouterView(router: router) { route in
             switch route {
             case .OnboardView:
                 OnboardView(viewModel: OnboardViewModel(router: router))
             case .LoginView:
-                LoginView(viewModel: LoginViewModel(router: router))
-            case .PhoneLoginView:
-                PhoneLoginView(viewModel: PhoneLoginViewModel(router: router))
-            case .VerifyOTPView(let phoneNumber, let dialCode, let verificationId):
-                VerifyOtpView(viewModel: VerifyOtpViewModel(router: router, phoneNumber: phoneNumber, dialCode: dialCode, verificationId: verificationId))
+                LoginView(viewModel: LoginViewModel(router: router, onDismiss: onDismiss))
+            case .EmailLoginView(let onDismiss):
+                EmailLoginView(viewModel: EmailLoginViewModel(router: router, onDismiss: onDismiss))
             default:
                 EmptyRouteView(routeName: self)
             }
         }
         .onAppear {
-            if preference.isOnboardShown, !preference.isVerifiedUser {
+            if preference.isOnboardShown && (!preference.isVerifiedUser || preference.user == nil) {
                 router.updateRoot(root: .LoginView)
             }
         }

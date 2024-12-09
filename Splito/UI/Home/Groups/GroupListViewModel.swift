@@ -231,7 +231,9 @@ extension GroupListViewModel {
     }
 
     func handleSearchBarTap() {
-        if combinedGroups.isEmpty {
+        if (combinedGroups.isEmpty) ||
+            (selectedTab == .unsettled && combinedGroups.filter({ $0.userBalance != 0 }).isEmpty) ||
+            (selectedTab == .settled && combinedGroups.filter({ $0.userBalance == 0 }).isEmpty) {
             showToastFor(toast: .init(type: .info, title: "No groups yet", message: "There are no groups available to search."))
         } else {
             withAnimation {

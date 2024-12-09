@@ -27,8 +27,7 @@ struct JoinMemberView: View {
                             .foregroundStyle(primaryText)
                             .multilineTextAlignment(.center)
 
-                        OtpTextInputView(text: $viewModel.code, placeholder: "AF0R00", isFocused: $isFocused,
-                                         keyboardType: .alphabet) {
+                        JoinMemberTextInputView(text: $viewModel.code, placeholder: "AF0R00", isFocused: $isFocused) {
                             viewModel.handleJoinMemberAction { isSucceed in
                                 if isSucceed { dismiss() }
                             }
@@ -70,5 +69,49 @@ struct JoinMemberView: View {
                 NavigationTitleTextView(text: "Join Group")
             }
         }
+    }
+}
+
+public struct JoinMemberTextInputView: View {
+
+    private let CODE_TOTAL_CHARACTERS = 6
+
+    @Binding var text: String
+
+    let placeholder: String
+    let isFocused: FocusState<Bool>.Binding
+
+    var onCodeChange: (() -> Void)
+
+    public var body: some View {
+        TextField(placeholder.localized, text: $text)
+            .kerning(16)
+            .focused(isFocused)
+            .tint(primaryColor)
+            .font(.Header2())
+            .keyboardType(.alphabet)
+            .foregroundStyle(primaryText)
+            .multilineTextAlignment(.center)
+            .textContentType(.oneTimeCode)
+            .autocorrectionDisabled()
+            .onChange(of: text) { newValue in
+                // Restrict the length of text
+                if newValue.count > CODE_TOTAL_CHARACTERS {
+                    text = String(newValue.prefix(CODE_TOTAL_CHARACTERS))
+                    return
+                }
+
+                // Validate input characters by allowing only alphanumeric
+                text = newValue.filter { $0.isLetter || $0.isNumber }
+
+                if newValue.count == CODE_TOTAL_CHARACTERS {
+                    onCodeChange()
+                    isFocused.wrappedValue = false
+                }
+            }
+            .textInputAutocapitalization(.never)
+            .onAppear {
+                isFocused.wrappedValue = true
+            }
     }
 }

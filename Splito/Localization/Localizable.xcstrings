@@ -13,12 +13,6 @@
     " ₹ 0.00" : {
 
     },
-    " and " : {
-
-    },
-    " Enter mobile number" : {
-
-    },
     " from the group" : {
       "extractionState" : "manual"
     },
@@ -135,20 +129,20 @@
     "0" : {
 
     },
-    "00:%@" : {
-
-    },
     "1.23" : {
       "extractionState" : "manual"
-    },
-    "6 digits" : {
-
     },
     "About" : {
 
     },
     "Account" : {
 
+    },
+    "Account Disabled" : {
+      "extractionState" : "manual"
+    },
+    "Account Not Found" : {
+      "extractionState" : "manual"
     },
     "Acknowledgements" : {
       "extractionState" : "manual"
@@ -205,6 +199,9 @@
     "Amount" : {
       "extractionState" : "manual"
     },
+    "An email has been sent to %@ with instructions to reset your password." : {
+      "extractionState" : "manual"
+    },
     "Ana borrows $10 from Bob" : {
 
     },
@@ -253,9 +250,6 @@
     "Bob borrows $10 from Charlie" : {
 
     },
-    "By entering your number, you’re agreeing to our " : {
-
-    },
     "Camera access is required to take picture for expenses" : {
       "extractionState" : "manual"
     },
@@ -283,8 +277,11 @@
     "Contact Us" : {
       "extractionState" : "manual"
     },
-    "Countries" : {
-
+    "Continue your journey" : {
+      "extractionState" : "manual"
+    },
+    "Create account" : {
+      "extractionState" : "manual"
     },
     "Create group" : {
 
@@ -319,7 +316,16 @@
     "Edit expense" : {
 
     },
+    "email" : {
+      "extractionState" : "manual"
+    },
     "Email" : {
+      "extractionState" : "manual"
+    },
+    "Email Already in Use" : {
+      "extractionState" : "manual"
+    },
+    "Email sent" : {
       "extractionState" : "manual"
     },
     "Email sent successfully!" : {
@@ -329,9 +335,6 @@
       "extractionState" : "manual"
     },
     "Enter a reason for this payment" : {
-      "extractionState" : "manual"
-    },
-    "Enter a valid phone number." : {
       "extractionState" : "manual"
     },
     "Enter code" : {
@@ -346,6 +349,9 @@
     "Enter the percentage split that's fair for your situation." : {
       "extractionState" : "manual"
     },
+    "Enter your email" : {
+
+    },
     "Enter your email address" : {
       "extractionState" : "manual"
     },
@@ -358,10 +364,10 @@
     "Enter your note here..." : {
       "extractionState" : "manual"
     },
-    "Enter your phone number" : {
-      "extractionState" : "manual"
+    "Enter your password" : {
+
     },
-    "Entered number is too long, Please check the phone number." : {
+    "Enter your phone number" : {
       "extractionState" : "manual"
     },
     "equally" : {
@@ -385,10 +391,10 @@
     "First Name" : {
       "extractionState" : "manual"
     },
-    "get back" : {
-      "extractionState" : "manual"
+    "Forgot password?" : {
+
     },
-    "Get OTP" : {
+    "get back" : {
       "extractionState" : "manual"
     },
     "Get Started" : {
@@ -436,7 +442,10 @@
     "In a group with \"simplify debts\" enabled, Splito will tell Ana to repay Charlie $10. Bob does nothing. This is the most efficient way for the group to settle up. With simplify debts enabled, it's normal to owe someone who didn't directly loan you money." : {
 
     },
-    "Invalid OTP" : {
+    "Incorrect email or password" : {
+      "extractionState" : "manual"
+    },
+    "Invalid Email" : {
       "extractionState" : "manual"
     },
     "It seems that everything has settled down in all groups." : {
@@ -444,6 +453,9 @@
     },
     "Join group" : {
 
+    },
+    "Key" : {
+      "extractionState" : "manual"
     },
     "Last Name" : {
       "extractionState" : "manual"
@@ -478,6 +490,9 @@
     "Let's split the expense! Use invite code %@ to join the %@ group, don't have an app then please download it." : {
       "extractionState" : "manual"
     },
+    "Login" : {
+      "extractionState" : "manual"
+    },
     "Looks like there are no outstanding settlements in any of your groups yet." : {
 
     },
@@ -492,6 +507,9 @@
     },
     "Multiple people" : {
 
+    },
+    "No account found with the provided email address. Please sign up." : {
+      "extractionState" : "manual"
     },
     "No activity yet!" : {
 
@@ -562,6 +580,15 @@
     "paid" : {
       "extractionState" : "manual"
     },
+    "password" : {
+      "extractionState" : "manual"
+    },
+    "Password" : {
+
+    },
+    "Password must be at least 6 characters long." : {
+      "extractionState" : "manual"
+    },
     "Payment deleted successfully." : {
       "extractionState" : "manual"
     },
@@ -586,6 +613,9 @@
     "Please enter a cost for your expense first!" : {
       "extractionState" : "manual"
     },
+    "Please enter a valid email address." : {
+      "extractionState" : "manual"
+    },
     "Please enter valid email" : {
       "extractionState" : "manual"
     },
@@ -598,17 +628,11 @@
     "Please select group to get payer list." : {
       "extractionState" : "manual"
     },
-    "Please, enter a valid OTP code." : {
-      "extractionState" : "manual"
-    },
     "Privacy Policy" : {
       "extractionState" : "manual"
     },
     "Privacy policy cannot be accessed." : {
       "extractionState" : "manual"
-    },
-    "privacy policy." : {
-
     },
     "Rate Splito" : {
       "extractionState" : "manual"
@@ -640,19 +664,6 @@
     "requires recent authentication" : {
       "extractionState" : "manual"
     },
-    "Resend code" : {
-
-    },
-    "Resend code " : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Resend code "
-          }
-        }
-      }
-    },
     "Restore expense" : {
       "extractionState" : "manual"
     },
@@ -672,9 +683,6 @@
       "extractionState" : "manual"
     },
     "Retry" : {
-      "extractionState" : "manual"
-    },
-    "Search" : {
       "extractionState" : "manual"
     },
     "Search expenses" : {
@@ -719,13 +727,16 @@
     "short" : {
       "extractionState" : "manual"
     },
+    "Sign in to access your account and enjoy all its features." : {
+      "extractionState" : "manual"
+    },
     "Sign in with Apple" : {
       "extractionState" : "manual"
     },
-    "Sign in with Google" : {
+    "Sign in with Email" : {
       "extractionState" : "manual"
     },
-    "Sign in with Phone Number" : {
+    "Sign in with Google" : {
       "extractionState" : "manual"
     },
     "Sign Out" : {
@@ -779,9 +790,6 @@
     "Take a picture" : {
 
     },
-    "terms of service" : {
-
-    },
     "The amounts do not add up to the total cost of %@. You are %@ by %@." : {
       "extractionState" : "manual"
     },
@@ -789,6 +797,15 @@
       "extractionState" : "manual"
     },
     "The code you've entered is not exists." : {
+      "extractionState" : "manual"
+    },
+    "The email address is already associated with an existing account. Please use a different email or log in to your existing account." : {
+      "extractionState" : "manual"
+    },
+    "The email address is not valid. Please check and try again." : {
+      "extractionState" : "manual"
+    },
+    "The email or password you entered is incorrect. Please try again." : {
       "extractionState" : "manual"
     },
     "The group associated with this expense has been deleted, so it cannot be restored." : {
@@ -807,6 +824,9 @@
       "extractionState" : "manual"
     },
     "There are no groups available to search." : {
+      "extractionState" : "manual"
+    },
+    "This account has been disabled. Please contact support." : {
       "extractionState" : "manual"
     },
     "This code will be active for 2 days." : {
@@ -875,6 +895,9 @@
     "Totals" : {
       "extractionState" : "manual"
     },
+    "Unable to send a password reset email. Please try again later." : {
+      "extractionState" : "manual"
+    },
     "Unequally" : {
       "extractionState" : "manual"
     },
@@ -887,22 +910,7 @@
     "Use settle up to divide costs with your friends or colleagues. It's easy and ensures everyone pays or receives their fair share.\\n\\nLet's get started splitting bills easily with friends." : {
       "extractionState" : "manual"
     },
-    "Verification code" : {
-      "extractionState" : "manual"
-    },
-    "Verify" : {
-      "extractionState" : "manual"
-    },
     "Warning" : {
-      "extractionState" : "manual"
-    },
-    "We’ll verify your phone number with a verification code." : {
-      "extractionState" : "manual"
-    },
-    "We’ve sent a verification code to your phone %@." : {
-      "extractionState" : "manual"
-    },
-    "What’s your phone number?" : {
       "extractionState" : "manual"
     },
     "Whoops!" : {
