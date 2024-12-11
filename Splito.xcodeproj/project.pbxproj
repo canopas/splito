@@ -86,18 +86,18 @@
 		D8B4A8A82C9AF3A500E734AE /* banner.png in Resources */ = {isa = PBXBuildFile; fileRef = D8B4A8972C9AF3A500E734AE /* banner.png */; };
 		D8B4A8A92C9AF3A500E734AE /* AppStore.png in Resources */ = {isa = PBXBuildFile; fileRef = D8B4A8962C9AF3A500E734AE /* AppStore.png */; };
 		D8B4A8AE2C9AF3A500E734AE /* SplitoCover.png in Resources */ = {isa = PBXBuildFile; fileRef = D8B4A89F2C9AF3A500E734AE /* SplitoCover.png */; };
-		D8BDB8322D0999AC00E46119 /* TransactionDetail.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8302D0999AC00E46119 /* TransactionDetail.png */; };
-		D8BDB8332D0999AC00E46119 /* ExpenseDetail.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8282D0999AC00E46119 /* ExpenseDetail.png */; };
-		D8BDB8342D0999AC00E46119 /* SplitOptions.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB82F2D0999AC00E46119 /* SplitOptions.png */; };
-		D8BDB8352D0999AC00E46119 /* GroupHome.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB82A2D0999AC00E46119 /* GroupHome.png */; };
-		D8BDB8362D0999AC00E46119 /* InviteMember.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB82E2D0999AC00E46119 /* InviteMember.png */; };
-		D8BDB8372D0999AC00E46119 /* Transactions.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8312D0999AC00E46119 /* Transactions.png */; };
-		D8BDB8382D0999AC00E46119 /* ActivityLogs.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8262D0999AC00E46119 /* ActivityLogs.png */; };
-		D8BDB8392D0999AC00E46119 /* AddExpense.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8272D0999AC00E46119 /* AddExpense.png */; };
-		D8BDB83A2D0999AC00E46119 /* GroupBalance.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8292D0999AC00E46119 /* GroupBalance.png */; };
-		D8BDB83B2D0999AC00E46119 /* GroupList.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB82B2D0999AC00E46119 /* GroupList.png */; };
-		D8BDB83C2D0999AC00E46119 /* GroupSummary.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB82D2D0999AC00E46119 /* GroupSummary.png */; };
-		D8BDB83D2D0999AC00E46119 /* GroupPayment.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB82C2D0999AC00E46119 /* GroupPayment.png */; };
+		D8BDB84A2D099DB400E46119 /* InviteMember.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8462D099DB400E46119 /* InviteMember.png */; };
+		D8BDB84B2D099DB400E46119 /* AddExpense.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB83F2D099DB400E46119 /* AddExpense.png */; };
+		D8BDB84C2D099DB400E46119 /* ActivityLogs.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB83E2D099DB400E46119 /* ActivityLogs.png */; };
+		D8BDB84D2D099DB400E46119 /* ExpenseDetail.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8402D099DB400E46119 /* ExpenseDetail.png */; };
+		D8BDB84E2D099DB400E46119 /* GroupList.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8432D099DB400E46119 /* GroupList.png */; };
+		D8BDB84F2D099DB400E46119 /* GroupPayment.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8442D099DB400E46119 /* GroupPayment.png */; };
+		D8BDB8502D099DB400E46119 /* GroupSummary.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8452D099DB400E46119 /* GroupSummary.png */; };
+		D8BDB8512D099DB400E46119 /* SplitOptions.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8472D099DB400E46119 /* SplitOptions.png */; };
+		D8BDB8522D099DB400E46119 /* Transactions.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8492D099DB400E46119 /* Transactions.png */; };
+		D8BDB8532D099DB400E46119 /* GroupHome.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8422D099DB400E46119 /* GroupHome.png */; };
+		D8BDB8542D099DB400E46119 /* GroupBalance.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8412D099DB400E46119 /* GroupBalance.png */; };
+		D8BDB8552D099DB400E46119 /* TransactionDetail.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8482D099DB400E46119 /* TransactionDetail.png */; };
 		D8CD952C2BD65F1900407B47 /* ExpenseSplitOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8CD952B2BD65F1900407B47 /* ExpenseSplitOptionsView.swift */; };
 		D8CD952E2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8CD952D2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift */; };
 		D8D14A562BA189EC00F45FF2 /* JoinMemberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D14A552BA189EC00F45FF2 /* JoinMemberView.swift */; };
@@ -250,18 +250,18 @@
 		D8B4A8972C9AF3A500E734AE /* banner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = banner.png; sourceTree = "<group>"; };
 		D8B4A8982C9AF3A500E734AE /* cta.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cta.png; sourceTree = "<group>"; };
 		D8B4A89F2C9AF3A500E734AE /* SplitoCover.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SplitoCover.png; sourceTree = "<group>"; };
-		D8BDB8262D0999AC00E46119 /* ActivityLogs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ActivityLogs.png; sourceTree = "<group>"; };
-		D8BDB8272D0999AC00E46119 /* AddExpense.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AddExpense.png; sourceTree = "<group>"; };
-		D8BDB8282D0999AC00E46119 /* ExpenseDetail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ExpenseDetail.png; sourceTree = "<group>"; };
-		D8BDB8292D0999AC00E46119 /* GroupBalance.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GroupBalance.png; sourceTree = "<group>"; };
-		D8BDB82A2D0999AC00E46119 /* GroupHome.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GroupHome.png; sourceTree = "<group>"; };
-		D8BDB82B2D0999AC00E46119 /* GroupList.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GroupList.png; sourceTree = "<group>"; };
-		D8BDB82C2D0999AC00E46119 /* GroupPayment.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GroupPayment.png; sourceTree = "<group>"; };
-		D8BDB82D2D0999AC00E46119 /* GroupSummary.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GroupSummary.png; sourceTree = "<group>"; };
-		D8BDB82E2D0999AC00E46119 /* InviteMember.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = InviteMember.png; sourceTree = "<group>"; };
-		D8BDB82F2D0999AC00E46119 /* SplitOptions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SplitOptions.png; sourceTree = "<group>"; };
-		D8BDB8302D0999AC00E46119 /* TransactionDetail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TransactionDetail.png; sourceTree = "<group>"; };
-		D8BDB8312D0999AC00E46119 /* Transactions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Transactions.png; sourceTree = "<group>"; };
+		D8BDB83E2D099DB400E46119 /* ActivityLogs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ActivityLogs.png; sourceTree = "<group>"; };
+		D8BDB83F2D099DB400E46119 /* AddExpense.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AddExpense.png; sourceTree = "<group>"; };
+		D8BDB8402D099DB400E46119 /* ExpenseDetail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ExpenseDetail.png; sourceTree = "<group>"; };
+		D8BDB8412D099DB400E46119 /* GroupBalance.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GroupBalance.png; sourceTree = "<group>"; };
+		D8BDB8422D099DB400E46119 /* GroupHome.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GroupHome.png; sourceTree = "<group>"; };
+		D8BDB8432D099DB400E46119 /* GroupList.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GroupList.png; sourceTree = "<group>"; };
+		D8BDB8442D099DB400E46119 /* GroupPayment.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GroupPayment.png; sourceTree = "<group>"; };
+		D8BDB8452D099DB400E46119 /* GroupSummary.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GroupSummary.png; sourceTree = "<group>"; };
+		D8BDB8462D099DB400E46119 /* InviteMember.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = InviteMember.png; sourceTree = "<group>"; };
+		D8BDB8472D099DB400E46119 /* SplitOptions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SplitOptions.png; sourceTree = "<group>"; };
+		D8BDB8482D099DB400E46119 /* TransactionDetail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TransactionDetail.png; sourceTree = "<group>"; };
+		D8BDB8492D099DB400E46119 /* Transactions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Transactions.png; sourceTree = "<group>"; };
 		D8CD952B2BD65F1900407B47 /* ExpenseSplitOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseSplitOptionsView.swift; sourceTree = "<group>"; };
 		D8CD952D2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseSplitOptionsViewModel.swift; sourceTree = "<group>"; };
 		D8D14A552BA189EC00F45FF2 /* JoinMemberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinMemberView.swift; sourceTree = "<group>"; };
@@ -536,18 +536,18 @@
 				D8B4A8972C9AF3A500E734AE /* banner.png */,
 				D8B4A8982C9AF3A500E734AE /* cta.png */,
 				D8B4A89F2C9AF3A500E734AE /* SplitoCover.png */,
-				D8BDB8262D0999AC00E46119 /* ActivityLogs.png */,
-				D8BDB8272D0999AC00E46119 /* AddExpense.png */,
-				D8BDB8282D0999AC00E46119 /* ExpenseDetail.png */,
-				D8BDB8292D0999AC00E46119 /* GroupBalance.png */,
-				D8BDB82A2D0999AC00E46119 /* GroupHome.png */,
-				D8BDB82B2D0999AC00E46119 /* GroupList.png */,
-				D8BDB82C2D0999AC00E46119 /* GroupPayment.png */,
-				D8BDB82D2D0999AC00E46119 /* GroupSummary.png */,
-				D8BDB82E2D0999AC00E46119 /* InviteMember.png */,
-				D8BDB82F2D0999AC00E46119 /* SplitOptions.png */,
-				D8BDB8302D0999AC00E46119 /* TransactionDetail.png */,
-				D8BDB8312D0999AC00E46119 /* Transactions.png */,
+				D8BDB83E2D099DB400E46119 /* ActivityLogs.png */,
+				D8BDB83F2D099DB400E46119 /* AddExpense.png */,
+				D8BDB8402D099DB400E46119 /* ExpenseDetail.png */,
+				D8BDB8412D099DB400E46119 /* GroupBalance.png */,
+				D8BDB8422D099DB400E46119 /* GroupHome.png */,
+				D8BDB8432D099DB400E46119 /* GroupList.png */,
+				D8BDB8442D099DB400E46119 /* GroupPayment.png */,
+				D8BDB8452D099DB400E46119 /* GroupSummary.png */,
+				D8BDB8462D099DB400E46119 /* InviteMember.png */,
+				D8BDB8472D099DB400E46119 /* SplitOptions.png */,
+				D8BDB8482D099DB400E46119 /* TransactionDetail.png */,
+				D8BDB8492D099DB400E46119 /* Transactions.png */,
 			);
 			path = Screenshots;
 			sourceTree = "<group>";
@@ -878,23 +878,23 @@
 				D89684492B722D3700D5F721 /* Assets.xcassets in Resources */,
 				D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */,
 				D8682DF92BED0C1C00BB7273 /* Localizable.xcstrings in Resources */,
-				D8BDB8322D0999AC00E46119 /* TransactionDetail.png in Resources */,
-				D8BDB8332D0999AC00E46119 /* ExpenseDetail.png in Resources */,
-				D8BDB8342D0999AC00E46119 /* SplitOptions.png in Resources */,
-				D8BDB8352D0999AC00E46119 /* GroupHome.png in Resources */,
-				D8BDB8362D0999AC00E46119 /* InviteMember.png in Resources */,
-				D8BDB8372D0999AC00E46119 /* Transactions.png in Resources */,
-				D8BDB8382D0999AC00E46119 /* ActivityLogs.png in Resources */,
-				D8BDB8392D0999AC00E46119 /* AddExpense.png in Resources */,
-				D8BDB83A2D0999AC00E46119 /* GroupBalance.png in Resources */,
-				D8BDB83B2D0999AC00E46119 /* GroupList.png in Resources */,
-				D8BDB83C2D0999AC00E46119 /* GroupSummary.png in Resources */,
-				D8BDB83D2D0999AC00E46119 /* GroupPayment.png in Resources */,
 				D8B4A8A52C9AF3A500E734AE /* cta.png in Resources */,
 				D8B4A8A82C9AF3A500E734AE /* banner.png in Resources */,
 				D8B4A8A92C9AF3A500E734AE /* AppStore.png in Resources */,
 				D8619A832CA28417006618D6 /* GoogleService-Info.plist in Resources */,
 				D8B4A8AE2C9AF3A500E734AE /* SplitoCover.png in Resources */,
+				D8BDB84A2D099DB400E46119 /* InviteMember.png in Resources */,
+				D8BDB84B2D099DB400E46119 /* AddExpense.png in Resources */,
+				D8BDB84C2D099DB400E46119 /* ActivityLogs.png in Resources */,
+				D8BDB84D2D099DB400E46119 /* ExpenseDetail.png in Resources */,
+				D8BDB84E2D099DB400E46119 /* GroupList.png in Resources */,
+				D8BDB84F2D099DB400E46119 /* GroupPayment.png in Resources */,
+				D8BDB8502D099DB400E46119 /* GroupSummary.png in Resources */,
+				D8BDB8512D099DB400E46119 /* SplitOptions.png in Resources */,
+				D8BDB8522D099DB400E46119 /* Transactions.png in Resources */,
+				D8BDB8532D099DB400E46119 /* GroupHome.png in Resources */,
+				D8BDB8542D099DB400E46119 /* GroupBalance.png in Resources */,
+				D8BDB8552D099DB400E46119 /* TransactionDetail.png in Resources */,
 				D863857B2B908AB600A8C6EB /* VERSION in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
