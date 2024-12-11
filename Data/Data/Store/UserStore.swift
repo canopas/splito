@@ -34,7 +34,15 @@ class UserStore: ObservableObject {
 
     func fetchUserBy(id: String) async throws -> AppUser? {
         let snapshot = try await usersCollection.document(id).getDocument(source: .server)
-        return try snapshot.data(as: AppUser.self)
+
+        if snapshot.exists {
+            let fetchedUser = try snapshot.data(as: AppUser.self)
+            LogD("UserStore: \(#function) User fetched successfully.")
+            return fetchedUser
+        } else {
+            LogE("UserStore: \(#function) snapshot is nil for requested user.")
+            return nil
+        }
     }
 
     func fetchLatestUserBy(id: String, completion: @escaping (AppUser?) -> Void) {

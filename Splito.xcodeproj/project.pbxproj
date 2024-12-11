@@ -27,6 +27,8 @@
 		21BA6D4A2C3BB63B0020ED04 /* ChooseMultiplePayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D492C3BB63B0020ED04 /* ChooseMultiplePayerView.swift */; };
 		21BA6D4D2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D4C2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift */; };
 		21BA6D4F2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D4E2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift */; };
+		21D8CF3F2CFF080300463E4D /* EmailLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8CF3E2CFF080300463E4D /* EmailLoginView.swift */; };
+		21D8CF412CFF080F00463E4D /* EmailLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8CF402CFF080F00463E4D /* EmailLoginViewModel.swift */; };
 		21F27BDE2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F27BDD2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift */; };
 		741540F86E36400CE27B1FAD /* Pods_SplitoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 701193A10871F36C3EDB356C /* Pods_SplitoTests.framework */; };
 		D826C0E22BDBD65600AAA449 /* GroupBalancesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826C0E12BDBD65600AAA449 /* GroupBalancesView.swift */; };
@@ -68,10 +70,6 @@
 		D89C933B2BC0204100FACD16 /* AccountHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89C933A2BC0204100FACD16 /* AccountHomeView.swift */; };
 		D89C933D2BC020B200FACD16 /* AccountHomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89C933C2BC020B200FACD16 /* AccountHomeViewModel.swift */; };
 		D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */; };
-		D89DBE232B875C2200E5F1BD /* PhoneLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE222B875C2200E5F1BD /* PhoneLoginView.swift */; };
-		D89DBE252B875C3000E5F1BD /* PhoneLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE242B875C3000E5F1BD /* PhoneLoginViewModel.swift */; };
-		D89DBE382B88A6A800E5F1BD /* VerifyOtpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE372B88A6A800E5F1BD /* VerifyOtpView.swift */; };
-		D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE392B88A6B400E5F1BD /* VerifyOtpViewModel.swift */; };
 		D89DBE422B8CA72700E5F1BD /* HomeRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */; };
 		D89DBE5B2B8DE97000E5F1BD /* GroupRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE5A2B8DE97000E5F1BD /* GroupRouteView.swift */; };
 		D89DBE5F2B8DE98600E5F1BD /* AccountRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE5E2B8DE98600E5F1BD /* AccountRouteView.swift */; };
@@ -115,7 +113,6 @@
 		D8E244BB2B9843A100C6C82A /* CreateGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244BA2B9843A100C6C82A /* CreateGroupView.swift */; };
 		D8E244BD2B98444900C6C82A /* CreateGroupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244BC2B98444900C6C82A /* CreateGroupViewModel.swift */; };
 		D8E244BF2B98592C00C6C82A /* GroupHomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E244BE2B98592C00C6C82A /* GroupHomeViewModel.swift */; };
-		D8EB0ED52CAD884A00AC6A44 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EB0ED32CAD884A00AC6A44 /* AppRoute.swift */; };
 		D8EB0ED62CAD884A00AC6A44 /* RouterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EB0ED22CAD884A00AC6A44 /* RouterView.swift */; };
 		E2D6A34174334B81314FAF12 /* Pods_Splito.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43FFDB1561C565EE6E3DC86A /* Pods_Splito.framework */; };
 /* End PBXBuildFile section */
@@ -174,6 +171,8 @@
 		21BA6D492C3BB63B0020ED04 /* ChooseMultiplePayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseMultiplePayerView.swift; sourceTree = "<group>"; };
 		21BA6D4C2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseMultiplePayerViewModel.swift; sourceTree = "<group>"; };
 		21BA6D4E2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoosePayerRouteView.swift; sourceTree = "<group>"; };
+		21D8CF3E2CFF080300463E4D /* EmailLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLoginView.swift; sourceTree = "<group>"; };
+		21D8CF402CFF080F00463E4D /* EmailLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLoginViewModel.swift; sourceTree = "<group>"; };
 		21F27BDD2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseSplitOptionsTabView.swift; sourceTree = "<group>"; };
 		43FFDB1561C565EE6E3DC86A /* Pods_Splito.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splito.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		44312D517F674E980CBAE838 /* Pods-Splito.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito.debug.xcconfig"; path = "Target Support Files/Pods-Splito/Pods-Splito.debug.xcconfig"; sourceTree = "<group>"; };
@@ -229,10 +228,6 @@
 		D89C933C2BC020B200FACD16 /* AccountHomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountHomeViewModel.swift; sourceTree = "<group>"; };
 		D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInWithAppleDelegate.swift; sourceTree = "<group>"; };
 		D89DBE202B87433B00E5F1BD /* Splito.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Splito.entitlements; sourceTree = "<group>"; };
-		D89DBE222B875C2200E5F1BD /* PhoneLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneLoginView.swift; sourceTree = "<group>"; };
-		D89DBE242B875C3000E5F1BD /* PhoneLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneLoginViewModel.swift; sourceTree = "<group>"; };
-		D89DBE372B88A6A800E5F1BD /* VerifyOtpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyOtpView.swift; sourceTree = "<group>"; };
-		D89DBE392B88A6B400E5F1BD /* VerifyOtpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyOtpViewModel.swift; sourceTree = "<group>"; };
 		D89DBE412B8CA72700E5F1BD /* HomeRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRouteView.swift; sourceTree = "<group>"; };
 		D89DBE5A2B8DE97000E5F1BD /* GroupRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupRouteView.swift; sourceTree = "<group>"; };
 		D89DBE5E2B8DE98600E5F1BD /* AccountRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRouteView.swift; sourceTree = "<group>"; };
@@ -276,7 +271,6 @@
 		D8E244BC2B98444900C6C82A /* CreateGroupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGroupViewModel.swift; sourceTree = "<group>"; };
 		D8E244BE2B98592C00C6C82A /* GroupHomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupHomeViewModel.swift; sourceTree = "<group>"; };
 		D8EB0ED22CAD884A00AC6A44 /* RouterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterView.swift; sourceTree = "<group>"; };
-		D8EB0ED32CAD884A00AC6A44 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
 		DFDBE222145831CBD9B686FF /* Pods-SplitoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SplitoTests.release.xcconfig"; path = "Target Support Files/Pods-SplitoTests/Pods-SplitoTests.release.xcconfig"; sourceTree = "<group>"; };
 		F76BDF4C42A2EF9A9F45B069 /* Pods-Splito-SplitoUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splito-SplitoUITests.debug.xcconfig"; path = "Target Support Files/Pods-Splito-SplitoUITests/Pods-Splito-SplitoUITests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -360,6 +354,15 @@
 				21BA6D4C2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift */,
 			);
 			path = Payer;
+			sourceTree = "<group>";
+		};
+		21D8CF3D2CFF07E800463E4D /* EmailLogin */ = {
+			isa = PBXGroup;
+			children = (
+				21D8CF3E2CFF080300463E4D /* EmailLoginView.swift */,
+				21D8CF402CFF080F00463E4D /* EmailLoginViewModel.swift */,
+			);
+			path = EmailLogin;
 			sourceTree = "<group>";
 		};
 		7530D0A01F0D8D2C363B2A6E /* Frameworks */ = {
@@ -615,25 +618,6 @@
 			path = Resource;
 			sourceTree = "<group>";
 		};
-		D89DBE212B875C1000E5F1BD /* PhoneLogin */ = {
-			isa = PBXGroup;
-			children = (
-				D89DBE222B875C2200E5F1BD /* PhoneLoginView.swift */,
-				D89DBE242B875C3000E5F1BD /* PhoneLoginViewModel.swift */,
-				D89DBE362B88A69E00E5F1BD /* VerifyOtp */,
-			);
-			path = PhoneLogin;
-			sourceTree = "<group>";
-		};
-		D89DBE362B88A69E00E5F1BD /* VerifyOtp */ = {
-			isa = PBXGroup;
-			children = (
-				D89DBE372B88A6A800E5F1BD /* VerifyOtpView.swift */,
-				D89DBE392B88A6B400E5F1BD /* VerifyOtpViewModel.swift */,
-			);
-			path = VerifyOtp;
-			sourceTree = "<group>";
-		};
 		D89DBE552B8DE8C600E5F1BD /* Groups */ = {
 			isa = PBXGroup;
 			children = (
@@ -736,7 +720,7 @@
 				D8AC26ED2B84B12800CEAAD3 /* LoginView.swift */,
 				D8AC26EC2B84B12800CEAAD3 /* LoginViewModel.swift */,
 				D89DBE1E2B87327400E5F1BD /* SignInWithAppleDelegate.swift */,
-				D89DBE212B875C1000E5F1BD /* PhoneLogin */,
+				21D8CF3D2CFF07E800463E4D /* EmailLogin */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -766,7 +750,6 @@
 			isa = PBXGroup;
 			children = (
 				D8EB0ED22CAD884A00AC6A44 /* RouterView.swift */,
-				D8EB0ED32CAD884A00AC6A44 /* AppRoute.swift */,
 			);
 			path = Router;
 			sourceTree = "<group>";
@@ -1064,6 +1047,7 @@
 				D83344612C0EF1F100CD9F05 /* GroupTotalsView.swift in Sources */,
 				D88721472B9B2C97009DC5BE /* GroupListViewModel.swift in Sources */,
 				D8D14A622BA2DCE700F45FF2 /* UserProfileViewModel.swift in Sources */,
+				21D8CF412CFF080F00463E4D /* EmailLoginViewModel.swift in Sources */,
 				2177692B2C203160009B3B37 /* GroupTransactionDetailView.swift in Sources */,
 				D8A7CA6E2BA483F60014EC67 /* GroupHomeView.swift in Sources */,
 				D85E86ED2BB41B87002EDF76 /* SelectGroupView.swift in Sources */,
@@ -1082,7 +1066,6 @@
 				D8D6C3A02B79F8110023CF08 /* AppDelegate.swift in Sources */,
 				D8AC26F42B84B12800CEAAD3 /* OnboardViewModel.swift in Sources */,
 				D826C0E42BDBD66300AAA449 /* GroupBalancesViewModel.swift in Sources */,
-				D89DBE3A2B88A6B400E5F1BD /* VerifyOtpViewModel.swift in Sources */,
 				D89DBE5F2B8DE98600E5F1BD /* AccountRouteView.swift in Sources */,
 				D8CD952C2BD65F1900407B47 /* ExpenseSplitOptionsView.swift in Sources */,
 				21559CAC2CBD25B30039F127 /* ActivityLogRouteView.swift in Sources */,
@@ -1112,17 +1095,14 @@
 				D89DBE5B2B8DE97000E5F1BD /* GroupRouteView.swift in Sources */,
 				D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */,
 				D8E244BB2B9843A100C6C82A /* CreateGroupView.swift in Sources */,
-				D89DBE382B88A6A800E5F1BD /* VerifyOtpView.swift in Sources */,
 				D89DBE422B8CA72700E5F1BD /* HomeRouteView.swift in Sources */,
 				21B1C09E2C1C5AA30098B4FD /* GroupExpenseListView.swift in Sources */,
-				D89DBE252B875C3000E5F1BD /* PhoneLoginViewModel.swift in Sources */,
 				D8D14A602BA2DCDB00F45FF2 /* UserProfileView.swift in Sources */,
+				21D8CF3F2CFF080300463E4D /* EmailLoginView.swift in Sources */,
 				D88721452B9B2C78009DC5BE /* GroupListView.swift in Sources */,
 				D86BB33F2C05ED9D00463E6C /* MainRouteViewModel.swift in Sources */,
 				D8D14A582BA189F800F45FF2 /* JoinMemberViewModel.swift in Sources */,
-				D8EB0ED52CAD884A00AC6A44 /* AppRoute.swift in Sources */,
 				D8EB0ED62CAD884A00AC6A44 /* RouterView.swift in Sources */,
-				D89DBE232B875C2200E5F1BD /* PhoneLoginView.swift in Sources */,
 				21F27BDE2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift in Sources */,
 				D85E86E92BB3FD49002EDF76 /* ChoosePayerView.swift in Sources */,
 				D833446E2C0F2D4C00CD9F05 /* GroupWhoGettingPaidViewModel.swift in Sources */,

@@ -5,9 +5,7 @@
 //  Created by Amisha Italiya on 14/03/24.
 //
 
-import SwiftUI
 import Data
-import Combine
 import BaseStyle
 import AVFoundation
 import FirebaseAuth
@@ -27,7 +25,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
     @Published var lastName: String = ""
     @Published var email: String = ""
     @Published var phoneNumber: String = ""
-    @Published var userLoginType: LoginType = .Phone
+    @Published var userLoginType: LoginType = .Email
 
     @Published var profileImage: UIImage?
     @Published var profileImageUrl: String?
@@ -39,16 +37,12 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
     @Published var isOpenFromOnboard: Bool
     @Published var isSaveInProgress = false
     @Published var isDeleteInProgress = false
-    @Published var showOTPView = false
 
-    var verificationId = ""
     private var currentNonce: String = ""
     private lazy var appleSignInDelegates: SignInWithAppleDelegates! = nil
 
     private let router: Router<AppRoute>?
     private var onDismiss: (() -> Void)?
-
-    var otpPublisher = PassthroughSubject<String, Never>()
 
     init(router: Router<AppRoute>?, isOpenFromOnboard: Bool, onDismiss: (() -> Void)?) {
         self.router = router
@@ -259,8 +253,8 @@ extension UserProfileViewModel {
         case .Google:
             handleGoogleLogin(completion: completion)
 
-        case .Phone:
-            handlePhoneLogin(completion: completion)
+        case .Email:
+            handleEmailLogin(completion: completion)
         }
     }
 
@@ -308,50 +302,27 @@ extension UserProfileViewModel {
         }
     }
 
-    private func handlePhoneLogin(completion: @escaping (AuthCredential?) -> Void) {
-        guard let phoneNumber = preference.user?.phoneNumber else {
+    private func handleEmailLogin(completion: @escaping (AuthCredential?) -> Void) {
+        let alert = UIAlertController(title: "Re-authenticate", message: "Please enter your password", preferredStyle: .alert)
+
+        alert.addTextField { textField in
+            textField.placeholder = "Password"
+            textField.isSecureTextEntry = true
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
             self.isDeleteInProgress = false
-            LogE("UserProfileViewModel: \(#function) No phone number found for phone login.")
-            return
-        }
+        })
+        alert.addAction(UIAlertAction(title: "Confirm", style: .default) { _ in
+            guard let password = alert.textFields?.first?.text,
+                  let email = self.preference.user?.emailId else {
+                      self.isDeleteInProgress = false
+                      LogE("UserProfileViewModel: \(#function) No email found for email login.")
+                      return
+                  }
+            let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+            completion(credential)
+        })
 
-        FirebaseProvider.phoneAuthProvider
-            .verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
-                guard let self = self else { return }
-                self.isDeleteInProgress = false
-                if let error {
-                    self.handleFirebaseAuthErrors(error)
-                } else {
-                    self.phoneNumber = phoneNumber
-                    self.verificationId = verificationID ?? ""
-                    self.showOTPView = true
-
-                    self.otpPublisher
-                        .sink { otp in
-                            guard !otp.isEmpty else { return }
-                            self.showOTPView = false
-
-                            let credential = FirebaseProvider.phoneAuthProvider
-                                .credential(withVerificationID: self.verificationId, verificationCode: otp)
-                            completion(credential)
-                        }
-                        .store(in: &self.cancelable)
-                }
-            }
-    }
-
-    private func handleFirebaseAuthErrors(_ error: Error) {
-        if (error as NSError).code == FirebaseAuth.AuthErrorCode.webContextCancelled.rawValue {
-            showAlertFor(message: "Something went wrong! Please try after some time.")
-        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.tooManyRequests.rawValue {
-            showAlertFor(message: "Too many attempts, please try after some time.")
-        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.missingPhoneNumber.rawValue {
-            showAlertFor(message: "Enter a valid phone number.")
-        } else if (error as NSError).code == FirebaseAuth.AuthErrorCode.invalidPhoneNumber.rawValue {
-            showAlertFor(message: "Enter a valid phone number.")
-        } else {
-            LogE("UserProfileViewModel: \(#function) Phone login fail with error: \(error).")
-            showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
-        }
+        TopViewController.shared.topViewController()?.present(alert, animated: true)
     }
 }

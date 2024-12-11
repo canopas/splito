@@ -25,11 +25,9 @@
 		D82C65552C46886E009947DC /* Roboto-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D82C65502C46886E009947DC /* Roboto-Bold.ttf */; };
 		D82C65562C46886E009947DC /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D82C65512C46886E009947DC /* Roboto-Medium.ttf */; };
 		D8302D9C2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8302D9B2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift */; };
-		D86632962C2410BB009D3EF5 /* OtpTextInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86632952C2410BB009D3EF5 /* OtpTextInputView.swift */; };
 		D887213F2B99992A009DC5BE /* LoaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D887213E2B99992A009DC5BE /* LoaderViewModel.swift */; };
 		D89C933F2BC3C0F800FACD16 /* ForwardIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89C933E2BC3C0F800FACD16 /* ForwardIcon.swift */; };
 		D89C93462BC42DE500FACD16 /* MailComposeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89C93452BC42DE500FACD16 /* MailComposeView.swift */; };
-		D89DBE2D2B88828300E5F1BD /* Countries.json in Resources */ = {isa = PBXBuildFile; fileRef = D89DBE2C2B88828300E5F1BD /* Countries.json */; };
 		D89DBE332B888F2D00E5F1BD /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE322B888F2D00E5F1BD /* SearchBar.swift */; };
 		D89DBE352B88A05F00E5F1BD /* UIApplication+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE342B88A05F00E5F1BD /* UIApplication+Extension.swift */; };
 		D89DBE3E2B8C67CE00E5F1BD /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE3D2B8C67CE00E5F1BD /* String+Extension.swift */; };
@@ -90,11 +88,9 @@
 		D82C65502C46886E009947DC /* Roboto-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Bold.ttf"; sourceTree = "<group>"; };
 		D82C65512C46886E009947DC /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Medium.ttf"; sourceTree = "<group>"; };
 		D8302D9B2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryFloatingButton.swift; sourceTree = "<group>"; };
-		D86632952C2410BB009D3EF5 /* OtpTextInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtpTextInputView.swift; sourceTree = "<group>"; };
 		D887213E2B99992A009DC5BE /* LoaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoaderViewModel.swift; path = BaseStyle/Views/LoaderViewModel.swift; sourceTree = SOURCE_ROOT; };
 		D89C933E2BC3C0F800FACD16 /* ForwardIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForwardIcon.swift; sourceTree = "<group>"; };
 		D89C93452BC42DE500FACD16 /* MailComposeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailComposeView.swift; sourceTree = "<group>"; };
-		D89DBE2C2B88828300E5F1BD /* Countries.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Countries.json; sourceTree = "<group>"; };
 		D89DBE322B888F2D00E5F1BD /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		D89DBE342B88A05F00E5F1BD /* UIApplication+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+Extension.swift"; sourceTree = "<group>"; };
 		D89DBE3D2B8C67CE00E5F1BD /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
@@ -233,7 +229,6 @@
 			children = (
 				D8D42A562B85CD42009B345D /* BaseAssets.xcassets */,
 				D8D42A892B85D525009B345D /* AppColors.swift */,
-				D89DBE2C2B88828300E5F1BD /* Countries.json */,
 				D8D42A582B85CDB2009B345D /* Fonts */,
 			);
 			path = Resource;
@@ -309,7 +304,6 @@
 				D8D42AAF2B872E44009B345D /* LoaderView.swift */,
 				D8D14A4F2BA090F000F45FF2 /* ShareSheetView.swift */,
 				D89C93452BC42DE500FACD16 /* MailComposeView.swift */,
-				D86632952C2410BB009D3EF5 /* OtpTextInputView.swift */,
 				D82174BD2BBAD86D00DB42C3 /* ProfileImageView.swift */,
 				D8E244C02B986CD800C6C82A /* ImagePickerView.swift */,
 			);
@@ -412,7 +406,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D89DBE2D2B88828300E5F1BD /* Countries.json in Resources */,
 				D82C65532C46886E009947DC /* Lato-Medium.ttf in Resources */,
 				D82C65552C46886E009947DC /* Roboto-Bold.ttf in Resources */,
 				D82C65562C46886E009947DC /* Roboto-Medium.ttf in Resources */,
@@ -526,7 +519,6 @@
 				21D26E232CA199630090488B /* CapsuleButton.swift in Sources */,
 				D89C93462BC42DE500FACD16 /* MailComposeView.swift in Sources */,
 				213A1F2A2C52335D00BF9800 /* CheckmarkButton.swift in Sources */,
-				D86632962C2410BB009D3EF5 /* OtpTextInputView.swift in Sources */,
 				D8E244C12B986CD800C6C82A /* ImagePickerView.swift in Sources */,
 				D8D42A862B85D08F009B345D /* Font+Extension.swift in Sources */,
 				D8EB0ED82CAD8C9F00AC6A44 /* ErrorView.swift in Sources */,
