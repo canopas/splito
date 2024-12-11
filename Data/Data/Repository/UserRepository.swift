@@ -14,10 +14,16 @@ public class UserRepository: ObservableObject {
     @Inject private var storageManager: StorageManager
 
     public func storeUser(user: AppUser) async throws -> AppUser {
-        if let storedUser = try await store.fetchUserBy(id: user.id) {
-            return storedUser
+        if var fetchedUser = try await store.fetchUserBy(id: user.id) {
+            LogD("UserRepository: \(#function) User already exists in Firestore.")
+            if !fetchedUser.isActive {
+                fetchedUser.isActive = true
+                return try await updateUser(user: fetchedUser)
+            }
+            return fetchedUser
         } else {
-            _ = try await store.addUser(user: user)
+            LogD("UserRepository: \(#function) User does not exist. Adding new user.")
+            try await store.addUser(user: user)
             return user
         }
     }

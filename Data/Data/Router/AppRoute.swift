@@ -15,8 +15,7 @@ public enum AppRoute: Hashable {
 
     case OnboardView
     case LoginView
-    case PhoneLoginView
-    case VerifyOTPView(phoneNumber: String, dialCode: String, verificationId: String)
+    case EmailLoginView(onDismiss: (() -> Void)? = nil)
     case ProfileView
     case HomeView
 
@@ -44,7 +43,7 @@ public enum AppRoute: Hashable {
     case ChooseMultiplePayerView(groupId: String, selectedPayers: [String: Double], amount: Double, onPayerSelection: (([String: Double]) -> Void))
 
     // MARK: - Activity Tab
-    case ActivityLogView
+    case ActivityHomeView
 
     // MARK: - Account Tab
     case AccountHomeView
@@ -55,10 +54,8 @@ public enum AppRoute: Hashable {
             "onboardView"
         case .LoginView:
             "loginView"
-        case .PhoneLoginView:
-            "phoneLoginView"
-        case .VerifyOTPView:
-            "verifyOTPView"
+        case .EmailLoginView:
+            "EmailLoginView"
         case .ProfileView:
             "userProfileView"
         case .HomeView:
@@ -67,8 +64,8 @@ public enum AppRoute: Hashable {
         case .FriendsHomeView:
             "friendsHomeView"
 
-        case .ActivityLogView:
-            "activityLogView"
+        case .ActivityHomeView:
+            "activityHomeView"
         case .ExpenseDetailView:
             "expenseDetailView"
 

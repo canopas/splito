@@ -48,9 +48,13 @@ struct HomeRouteView: View {
             }
         }
         .tint(primaryText)
-        .onAppear(perform: viewModel.openUserProfileIfNeeded)
+        .onAppear(perform: viewModel.openProfileOrOnboardFlow)
         .sheet(isPresented: $viewModel.openProfileView) {
             UserProfileView(viewModel: UserProfileViewModel(router: nil, isOpenFromOnboard: true, onDismiss: viewModel.dismissProfileView))
+                .interactiveDismissDisabled()
+        }
+        .fullScreenCover(isPresented: $viewModel.openOnboardFlow) {
+            OnboardRouteView(onDismiss: viewModel.dismissOnboardFlow)
                 .interactiveDismissDisabled()
         }
         .onReceive(NotificationCenter.default.publisher(for: .showActivityLog)) { notification in

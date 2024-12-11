@@ -14,15 +14,16 @@ class HomeRouteViewModel: ObservableObject {
 
     @Published var isTabBarVisible: Bool = true
     @Published var openProfileView: Bool = false
+    @Published var openOnboardFlow: Bool = false
 
     @Published var selectedTab: Int = 0
     @Published var activityLogId: String?
 
-    func openUserProfileIfNeeded() {
-        if preference.isVerifiedUser {
-            if preference.user == nil || (preference.user?.firstName == nil) || (preference.user?.firstName == "") {
-                openProfileView = true
-            }
+    func openProfileOrOnboardFlow() {
+        if preference.user == nil {
+            openOnboardFlow = true
+        } else if preference.isVerifiedUser && (preference.user?.firstName == nil || preference.user?.firstName == "") {
+            openProfileView = true
         }
     }
 
@@ -32,6 +33,10 @@ class HomeRouteViewModel: ObservableObject {
 
     func dismissProfileView() {
         openProfileView = false
+    }
+
+    func dismissOnboardFlow() {
+        openOnboardFlow = false
     }
 
     func switchToActivityLog(activityId: String) {
