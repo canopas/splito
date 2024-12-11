@@ -50,35 +50,44 @@ Splito is currently in active development 🚧, with plans to incorporate additi
   </tr>
   <tr>
     <td> <img src="./Screenshots/GroupList.png" /> </td>
-    <td> <img src="./Screenshots/ExpenseList.png"/> </td>
+    <td> <img src="./Screenshots/GroupHome.png"/> </td>
     <td> <img src="./Screenshots/InviteMember.png"/> </td>
   </tr>  
 </table>
 <table>
   <tr>
-    <th width="32%"> Expense Edit </th>
+    <th width="32%"> Expense Add/Edit </th>
     <th width="32%"> Expense Split Option </th>
-    <th width="32%"> Group Payments </th>
+    <th width="32%"> Expense Detail </th>
   </tr>
   <tr>
     <td> <img src="./Screenshots/AddExpense.png"/> </td>
     <td> <img src="./Screenshots/SplitOptions.png"/> </td>
-    <td> <img src="./Screenshots/GroupPayment.png"/> </td>
+    <td> <img src="./Screenshots/ExpenseDetail.png"/> </td>
   </tr>  
 </table>
 <table>
   <tr>
     <th width="32%"> Group Balance </th>
-    <th width="32%"> Group Total Summary </th>
-    <th width="32%"> Transactions </th>
+    <th width="32%"> Group Summary </th>
+    <th width="32%"> Activity Log History </th>
   </tr>
   <tr>
     <td> <img src="./Screenshots/GroupBalance.png"/> </td>
     <td> <img src="./Screenshots/GroupSummary.png"/> </td>
-    <td> <img src="./Screenshots/Transactions.png"/> </td>
+    <td> <img src="./Screenshots/ActivityLogs.png"/> </td>
+  </tr>
+</table>
+<table>
+  <tr>
+    <th width="32%"> Payment List </th>
+    <th width="32%"> Payment Add/Edit </th>
+    <th width="32%"> Payment Detail </th>
   </tr>
   <tr>
-    <td> <img src="./Screenshots/ActivityLogs.png"/> </td>
+    <td> <img src="./Screenshots/Transactions.png"/> </td>
+    <td> <img src="./Screenshots/GroupPayment.png"/> </td>
+    <td> <img src="./Screenshots/TransactionDetail.png"/> </td>
   </tr>
 </table>
 
