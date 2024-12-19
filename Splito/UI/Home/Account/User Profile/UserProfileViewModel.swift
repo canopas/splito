@@ -97,9 +97,9 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
     func handleActionSelection(_ action: ActionsOfSheet) {
         switch action {
         case .camera:
-            checkCameraPermission {
-                self.sourceTypeIsCamera = true
-                self.showImagePicker = true
+            checkCameraPermission { [weak self] in
+                self?.sourceTypeIsCamera = true
+                self?.showImagePicker = true
             }
         case .gallery:
             sourceTypeIsCamera = false
@@ -117,6 +117,11 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateUserProfile() async {
+        if let validationError = validateInputs() {
+            showAlertFor(title: "Whoops!", message: validationError)
+            return
+        }
+
         guard let user = preference.user else { return }
 
         var newUser = user
@@ -147,13 +152,36 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    private func validateInputs() -> String? {
+        var errorMessages: [String] = []
+
+        if firstName.trimming(spaces: .leadingAndTrailing).count < 3 {
+            errorMessages.append("Your first name must be at least 3 characters long.")
+        }
+        if !email.isValidEmail {
+            errorMessages.append("Please enter a valid email address.")
+        }
+        if (phoneNumber.count > 0 && phoneNumber.count < 8) || phoneNumber.count > 20 {
+            errorMessages.append("Please enter a valid phone number.")
+        }
+
+        if !errorMessages.isEmpty {
+            if errorMessages.count == 1 {
+                return errorMessages.first ?? ""
+            } else {
+                return "Your profile cannot be updated. Please check the missing or incorrect information."
+            }
+        }
+        return nil
+    }
+
     func showDeleteAccountConfirmation() {
         alert = .init(title: "Delete your account",
                       message: "Are you ABSOLUTELY sure you want to close your splito account? You will no longer be able to log into your account or access your account history from your splito app.",
                       positiveBtnTitle: "Delete",
-                      positiveBtnAction: {
+                      positiveBtnAction: { [weak self] in
                         Task {
-                            await self.deleteUser()
+                            await self?.deleteUser()
                         }
                       },
                       negativeBtnTitle: "Cancel",
@@ -179,12 +207,16 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             isDeleteInProgress = false
             LogE("UserProfileViewModel: \(#function) Failed to delete user: \(error).")
             if error.localizedDescription.contains(REQUIRE_AGAIN_LOGIN_TEXT) {
-                alert = .init(title: "", message: error.localizedDescription,
-                              positiveBtnTitle: "Reauthenticate", positiveBtnAction: {
-                    self.reAuthenticateUser()
-                }, negativeBtnTitle: "Cancel", negativeBtnAction: {
-                    self.showAlert = false
-                })
+                alert = .init(
+                    title: "", message: error.localizedDescription,
+                    positiveBtnTitle: "Reauthenticate",
+                    positiveBtnAction: { [weak self] in
+                        self?.reAuthenticateUser()
+                    }, negativeBtnTitle: "Cancel",
+                    negativeBtnAction: { [weak self] in
+                        self?.showAlert = false
+                    }
+                )
                 showAlert = true
             } else {
                 showToastForError()
@@ -225,7 +257,7 @@ extension UserProfileViewModel {
                 return
             }
 
-            user.reauthenticate(with: credential) { _, error in
+            user.reauthenticate(with: credential) { [weak self] _, error in
                 guard let self else { return }
                 if let error {
                     self.isDeleteInProgress = false
@@ -264,12 +296,13 @@ extension UserProfileViewModel {
         request.requestedScopes = [.fullName, .email]
         request.nonce = NonceGenerator.sha256(currentNonce)
 
-        isDeleteInProgress = false
-
-        appleSignInDelegates = SignInWithAppleDelegates { (token, _, _, _) in
-            self.isDeleteInProgress = true
-            let credential = OAuthProvider.credential(providerID: AuthProviderID(rawValue: "apple.com")!, idToken: token, rawNonce: self.currentNonce)
+        appleSignInDelegates = SignInWithAppleDelegates { [weak self] (token, _, _, _) in
+            guard let self else { return }
+            let credential = OAuthProvider.credential(providerID: AuthProviderID.apple,
+                                                      idToken: token, rawNonce: self.currentNonce)
             completion(credential)
+        } onError: { [weak self] in
+            self?.isDeleteInProgress = false
         }
 
         let authorizationController = ASAuthorizationController(authorizationRequests: [request])
@@ -278,7 +311,10 @@ extension UserProfileViewModel {
     }
 
     private func handleGoogleLogin(completion: @escaping (AuthCredential?) -> Void) {
-        let clientID = FirebaseApp.app()?.options.clientID ?? ""
+        guard let clientID = FirebaseApp.app()?.options.clientID else {
+            isDeleteInProgress = false
+            return
+        }
 
         let config = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.configuration = config
@@ -289,14 +325,17 @@ extension UserProfileViewModel {
             return
         }
 
-        GIDSignIn.sharedInstance.signIn(withPresenting: controller) { result, error in
+        GIDSignIn.sharedInstance.signIn(withPresenting: controller) { [weak self] result, error in
             guard error == nil else {
-                self.isDeleteInProgress = false
+                self?.isDeleteInProgress = false
                 LogE("UserProfileViewModel: \(#function) Google Login Error: \(String(describing: error)).")
                 return
             }
 
-            guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
+            guard let user = result?.user, let idToken = user.idToken?.tokenString else {
+                self?.isDeleteInProgress = false
+                return
+            }
             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
             completion(credential)
         }
@@ -309,16 +348,16 @@ extension UserProfileViewModel {
             textField.placeholder = "Password"
             textField.isSecureTextEntry = true
         }
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
-            self.isDeleteInProgress = false
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { [weak self] _ in
+            self?.isDeleteInProgress = false
         })
-        alert.addAction(UIAlertAction(title: "Confirm", style: .default) { _ in
+        alert.addAction(UIAlertAction(title: "Confirm", style: .default) { [weak self] _ in
             guard let password = alert.textFields?.first?.text,
-                  let email = self.preference.user?.emailId else {
-                      self.isDeleteInProgress = false
-                      LogE("UserProfileViewModel: \(#function) No email found for email login.")
-                      return
-                  }
+                  let email = self?.preference.user?.emailId else {
+                self?.isDeleteInProgress = false
+                LogE("UserProfileViewModel: \(#function) No email found for email login.")
+                return
+            }
             let credential = EmailAuthProvider.credential(withEmail: email, password: password)
             completion(credential)
         })

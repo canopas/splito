@@ -94,7 +94,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     }
 
     func showSaveFailedToast() {
-        self.showToastFor(toast: ToastPrompt(type: .error, title: "Oops", message: "Failed to save group."))
+        self.showToastFor(toast: ToastPrompt(type: .error, title: "Whoops!", message: "Failed to save group."))
     }
 
     private func createGroup() async -> Bool {

@@ -213,7 +213,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        showToastFor(toast: ToastPrompt(type: .error, title: "Oops", message: "Failed to save payment transaction."))
+        showToastFor(toast: ToastPrompt(type: .error, title: "Whoops!", message: "Failed to save payment transaction."))
     }
 
     private func validateGroupMembers() -> Bool {

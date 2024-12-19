@@ -95,7 +95,7 @@ private struct NoteInputFieldView: View {
                 .font(.subTitle2())
                 .foregroundStyle(primaryText)
                 .tint(primaryColor)
-                .autocorrectionDisabled()
+                .textInputAutocapitalization(.sentences)
                 .padding(16)
                 .overlay {
                     RoundedRectangle(cornerRadius: 12)

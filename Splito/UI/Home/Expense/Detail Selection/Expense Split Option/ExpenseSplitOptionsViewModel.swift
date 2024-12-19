@@ -146,8 +146,10 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleAllBtnAction() {
+        guard let userId = preference.user?.id else { return }
+
         if isAllSelected {
-            selectedMembers = [preference.user?.id ?? ""]
+            selectedMembers = [userId]
         } else {
             selectedMembers = members
         }

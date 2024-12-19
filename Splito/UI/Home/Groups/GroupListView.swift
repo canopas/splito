@@ -127,7 +127,6 @@ struct GroupListView: View {
                 JoinMemberView(viewModel: JoinMemberViewModel(router: viewModel.router))
             }
         }
-        .onAppear(perform: viewModel.fetchCurrentUser)
     }
 }
 

@@ -47,6 +47,9 @@ struct AddExpenseView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toastView(toast: $viewModel.toast)
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .onAppear {
+            focusedField = .expenseName
+        }
         .sheet(isPresented: $viewModel.showGroupSelection) {
             NavigationStack {
                 SelectGroupView(viewModel: SelectGroupViewModel(selectedGroup: viewModel.selectedGroup,
@@ -100,8 +103,6 @@ struct AddExpenseView: View {
                         let isActionSucceed = await viewModel.handleSaveAction()
                         if isActionSucceed {
                             dismiss()
-                        } else {
-                            viewModel.showSaveFailedError()
                         }
                     }
                 }
@@ -119,6 +120,8 @@ private struct ExpenseInfoView: View {
 
     var focusedField: FocusState<AddExpenseViewModel.AddExpenseField?>.Binding
 
+    @FocusState var isAmountFocused: Bool
+
     var body: some View {
         VStack(spacing: 16) {
             ExpenseDetailRow(name: $viewModel.expenseName, focusedField: focusedField, subtitle: "With you and:",
@@ -128,10 +131,7 @@ private struct ExpenseInfoView: View {
             ExpenseDetailRow(name: $viewModel.expenseName, focusedField: focusedField,
                              subtitle: "Description", field: .expenseName)
 
-            AmountRowView(amount: $viewModel.expenseAmount, subtitle: "Amount")
-                .onTapGesture {
-                    focusedField.wrappedValue = .amount
-                }
+            AmountRowView(amount: $viewModel.expenseAmount, isAmountFocused: $isAmountFocused, subtitle: "Amount")
                 .focused(focusedField, equals: .amount)
 
             HStack(alignment: .top, spacing: 16) {
@@ -171,12 +171,9 @@ private struct ExpenseDetailRow: View {
                         .font(.subTitle2())
                         .foregroundStyle(primaryText)
                         .keyboardType(.default)
-                        .onTapGesture {
-                            focusedField.wrappedValue = .expenseName
-                        }
                         .tint(primaryColor)
                         .focused(focusedField, equals: field)
-                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.sentences)
                         .submitLabel(.next)
                         .onSubmit {
                             focusedField.wrappedValue = .amount

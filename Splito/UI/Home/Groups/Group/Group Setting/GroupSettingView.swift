@@ -211,9 +211,9 @@ private struct GroupMemberCellView: View {
     }
 
     private var subInfo: String {
-        if let emailId = member.emailId {
+        if let emailId = member.emailId, !emailId.isEmpty {
             return emailId
-        } else if let phoneNumber = member.phoneNumber {
+        } else if let phoneNumber = member.phoneNumber, !phoneNumber.isEmpty {
             return phoneNumber
         } else {
             return "No email address"

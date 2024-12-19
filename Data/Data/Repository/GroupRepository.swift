@@ -19,8 +19,6 @@ public class GroupRepository: ObservableObject {
     @Inject private var activityLogRepository: ActivityLogRepository
 
     private var olderGroupName: String = ""
-    private var groupMembers: [AppUser] = []
-    private let groupMembersQueue = DispatchQueue(label: "groupMembers.queue", attributes: .concurrent)
 
     public func createGroup(group: Groups, imageData: Data?) async throws -> Groups {
         let groupDocument = try await store.getNewGroupDocument()
@@ -196,76 +194,26 @@ public class GroupRepository: ObservableObject {
     }
 
     public func fetchMemberBy(memberId: String) async throws -> AppUser? {
-        // Use a synchronous read to check if the member already exists in groupMembers
-        if let existingMember = groupMembersQueue.sync(execute: {
-            groupMembers.first(where: { $0.id == memberId })
-        }) {
-            await updateCurrentUserImageUrl(for: [memberId])
-            return existingMember  // Return the cached member
-        }
-
-        // Fetch the member from the repository if not found locally
-        let member = try await userRepository.fetchUserBy(userID: memberId)
-
-        // Append the newly fetched member to groupMembers in a thread-safe manner
-        if let member {
-            try await withCheckedThrowingContinuation { continuation in
-                groupMembersQueue.async(flags: .barrier) {
-                    self.groupMembers.append(member)
-                    continuation.resume() // Resume after append is complete
-                }
-            }
-        }
-        return member
+        try await userRepository.fetchUserBy(userID: memberId)
     }
 
     public func fetchMembersBy(memberIds: [String]) async throws -> [AppUser] {
         var members: [AppUser] = []
 
-        // Filter out memberIds that already exist in groupMembers to minimize API calls
-        let missingMemberIds = memberIds.filter { memberId in
-            let cachedMember = self.groupMembersQueue.sync { self.groupMembers.first { $0.id == memberId } }
-            return cachedMember == nil
-        }
-
-        if missingMemberIds.isEmpty {
-            await updateCurrentUserImageUrl(for: memberIds)
-            return groupMembersQueue.sync { self.groupMembers.filter { memberIds.contains($0.id) } }
-        }
-
-        // Fetch missing members concurrently using a TaskGroup
-        try await withThrowingTaskGroup(of: AppUser?.self) { groupTask in
-            for memberId in missingMemberIds {
+        try await withThrowingTaskGroup(of: AppUser?.self) { [weak self] groupTask in
+            for memberId in memberIds {
                 groupTask.addTask {
-                    try await self.fetchMemberBy(memberId: memberId)
+                    try await self?.fetchMemberBy(memberId: memberId)
                 }
             }
 
-            // Collect results from the task group & add to the groupMembers array
             for try await member in groupTask {
                 if let member {
                     members.append(member)
-                    groupMembersQueue.async(flags: .barrier) {
-                        if !self.groupMembers.contains(where: { $0.id == member.id }) {
-                            self.groupMembers.append(member)
-                        }
-                    }
                 }
             }
         }
 
         return members
-    }
-
-    // Updates the current user's image url in groupMembers if applicable
-    private func updateCurrentUserImageUrl(for memberIds: [String]) async {
-        guard let currentUser = preference.user, memberIds.contains(currentUser.id) else { return }
-
-        groupMembersQueue.async(flags: .barrier) {
-            if let index = self.groupMembers.firstIndex(where: { $0.id == currentUser.id }),
-               self.groupMembers[index].imageUrl != currentUser.imageUrl {
-                self.groupMembers[index].imageUrl = currentUser.imageUrl
-            }
-        }
     }
 }

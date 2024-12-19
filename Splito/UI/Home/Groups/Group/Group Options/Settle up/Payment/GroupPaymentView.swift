@@ -14,6 +14,8 @@ struct GroupPaymentView: View {
 
     @StateObject var viewModel: GroupPaymentViewModel
 
+    @FocusState var isAmountFocused: Bool
+
     var body: some View {
         GeometryReader { geometry in
             VStack(alignment: .center, spacing: 0) {
@@ -59,7 +61,7 @@ struct GroupPaymentView: View {
 
                             VSpacer(16)
 
-                            AmountRowView(amount: $viewModel.amount, subtitle: "Enter amount")
+                            AmountRowView(amount: $viewModel.amount, isAmountFocused: $isAmountFocused, subtitle: "Enter amount")
 
                             Spacer(minLength: 40)
                         }
@@ -84,8 +86,11 @@ struct GroupPaymentView: View {
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
+        .onAppear {
+            isAmountFocused = true
+        }
         .onTapGesture {
-            UIApplication.shared.endEditing()
+            isAmountFocused = false
         }
         .toolbarRole(.editor)
         .toolbar {
@@ -123,10 +128,10 @@ struct GroupPaymentView: View {
 struct AmountRowView: View {
 
     @Binding var amount: Double
+    var isAmountFocused: FocusState<Bool>.Binding
 
     let subtitle: String
 
-    @FocusState var isAmountFocused: Bool
     @State private var amountString: String = ""
 
     var body: some View {
@@ -141,7 +146,7 @@ struct AmountRowView: View {
                 .font(.Header1())
                 .tint(primaryColor)
                 .foregroundStyle(amountString.isEmpty ? outlineColor : primaryText)
-                .focused($isAmountFocused)
+                .focused(isAmountFocused)
                 .multilineTextAlignment(.center)
                 .autocorrectionDisabled()
                 .onChange(of: amountString) { newValue in
@@ -149,7 +154,6 @@ struct AmountRowView: View {
                 }
                 .onAppear {
                     amountString = amount == 0 ? "" : String(format: "₹ %.2f", amount)
-                    isAmountFocused = true
                 }
         }
         .padding(16)
@@ -208,10 +212,9 @@ struct DatePickerView: View {
             UIApplication.shared.endEditing()
         }
         .sheet(isPresented: $showDatePicker) {
-            VStack(spacing: 0) {
+            VStack(spacing: 20) {
                 NavigationBarTopView(title: "Choose date", leadingButton: EmptyView(),
-                                     trailingButton: DismissButton(padding: (16, 0),
-                                                                   foregroundColor: primaryText,
+                                     trailingButton: DismissButton(padding: (16, 0), foregroundColor: primaryText,
                                                                    onDismissAction: {
                                         showDatePicker = false
                                      })
@@ -220,11 +223,11 @@ struct DatePickerView: View {
                 .padding(.leading, 16)
 
                 ScrollView {
-                    DatePicker("", selection: $tempDate, in: ...maximumDate, displayedComponents: .date)
-                        .datePickerStyle(GraphicalDatePickerStyle())
+                    DatePicker("", selection: $tempDate, in: ...maximumDate, displayedComponents: [.date])
                         .labelsHidden()
-                        .padding(24)
+                        .datePickerStyle(.graphical)
                         .id(tempDate)
+                        .padding(10)
                 }
                 .scrollIndicators(.hidden)
 

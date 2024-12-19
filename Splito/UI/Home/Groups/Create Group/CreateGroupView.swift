@@ -163,11 +163,11 @@ private struct AddGroupNameView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .tint(primaryColor)
+                .textInputAutocapitalization(.sentences)
                 .overlay {
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(outlineColor, lineWidth: 1)
                 }
-                .autocorrectionDisabled()
         }
     }
 }

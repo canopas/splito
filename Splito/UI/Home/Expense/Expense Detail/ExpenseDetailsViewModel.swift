@@ -160,6 +160,8 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
                 self.expense = try await self.expenseRepository.updateExpense(group: group, expense: expense,
                                                                               oldExpense: expense, type: .expenseRestored)
+                let expenseInfo: [String: Any] = ["groupId": groupId, "expense": expense]
+                NotificationCenter.default.post(name: .addExpense, object: nil, userInfo: expenseInfo)
                 await self.updateGroupMemberBalance(updateType: .Add)
 
                 self.viewState = .initial

@@ -11,9 +11,11 @@ import AuthenticationServices
 class SignInWithAppleDelegates: NSObject {
 
     private let signInSucceeded: (String, String, String, String) -> Void
+    private let onError: (() -> Void)
 
-    init(signInSucceeded: @escaping (String, String, String, String) -> Void) {
+    init(signInSucceeded: @escaping (String, String, String, String) -> Void, onError: @escaping () -> Void) {
         self.signInSucceeded = signInSucceeded
+        self.onError = onError
     }
 }
 
@@ -23,11 +25,13 @@ extension SignInWithAppleDelegates: ASAuthorizationControllerDelegate {
 
             guard let appleIDToken = appleIDCredential.identityToken else {
                 LogE("SignInWithAppleDelegates: \(#function) Unable to fetch identity token.")
+                onError()
                 return
             }
 
             guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
                 LogE("SignInWithAppleDelegates: \(#function) Unable to serialize token string from data: \(appleIDToken.debugDescription).")
+                onError()
                 return
             }
 
@@ -41,5 +45,6 @@ extension SignInWithAppleDelegates: ASAuthorizationControllerDelegate {
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         LogE("SignInWithAppleDelegates: \(#function) Apple login complete with error: \(error).")
+        onError()
     }
 }

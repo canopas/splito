@@ -35,6 +35,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     let router: Router<AppRoute>
     var hasMoreGroups: Bool = true
+    private var users: [AppUser] = []
     private var lastDocument: DocumentSnapshot?
 
     var filteredGroups: [GroupInformation] {
@@ -138,14 +139,39 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func fetchGroupInformation(group: Groups) async throws -> GroupInformation {
-        let members = try await groupRepository.fetchMembersBy(memberIds: group.members)
-
         let userId = preference.user?.id ?? ""
         let memberBalance = getMembersBalance(group: group, memberId: userId)
         let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
+        let members = try await fetchMembersDataBy(memberIds: group.members)
 
         return GroupInformation(group: group, userBalance: memberBalance, memberOweAmount: memberOwingAmount,
                                 members: members, hasExpenses: true)
+    }
+
+    private func fetchMembersDataBy(memberIds: [String]) async throws -> [AppUser] {
+        let missingMemberIds = memberIds.filter { memberId in
+            !users.contains(where: { $0.id == memberId })
+        }
+
+        var fetchedMembers: [AppUser] = []
+        try await withThrowingTaskGroup(of: AppUser?.self) { [weak self] groupTask in
+            guard let self else { return }
+            for memberId in missingMemberIds {
+                groupTask.addTask {
+                    try await self.groupRepository.fetchMemberBy(memberId: memberId)
+                }
+            }
+
+            for try await fetchedMember in groupTask {
+                if let member = fetchedMember {
+                    fetchedMembers.append(member)
+                }
+            }
+        }
+
+        users.append(contentsOf: fetchedMembers)
+        let groupMembers = users.filter { memberIds.contains($0.id) }
+        return groupMembers
     }
 
     private func getMembersBalance(group: Groups, memberId: String) -> Double {
@@ -161,11 +187,16 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        userRepository.fetchLatestUserBy(userID: userId) { [weak self] user in
-            if let user {
-                self?.totalOweAmount = user.totalOweAmount
-            } else {
-                self?.showToastForError()
+        Task { [weak self] in
+            guard let self else { return }
+            let userStream = self.userRepository.fetchLatestUserBy(userID: userId)
+            for await user in userStream {
+                if let user {
+                    self.preference.user = user
+                    self.totalOweAmount = user.totalOweAmount
+                } else {
+                    self.showToastForError()
+                }
             }
         }
     }
@@ -179,22 +210,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             showToastForError()
             LogE("GroupListViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             return nil
-        }
-    }
-
-    func fetchCurrentUser() {
-        guard let userId = preference.user?.id else { return }
-
-        Task.detached { [weak self] in
-            do {
-                guard let self else { return }
-                let user = try await self.userRepository.fetchUserBy(userID: userId)
-                await MainActor.run {
-                    self.preference.user = user
-                }
-            } catch {
-                LogE("GroupListViewModel: \(#function) Failed to fetch current user: \(error).")
-            }
         }
     }
 }
@@ -379,23 +394,17 @@ extension GroupListViewModel {
     }
 
     private func processGroup(group: Groups, isNewGroup: Bool) async {
-        let userId = preference.user?.id ?? ""
+        guard let userId = preference.user?.id else { return }
+
         let memberBalance = getMembersBalance(group: group, memberId: userId)
         let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
 
         do {
-            let groupMembers = try await groupRepository.fetchMembersBy(memberIds: group.members)
-
-            let groupInfo = GroupInformation(
-                group: group,
-                userBalance: memberBalance,
-                memberOweAmount: memberOwingAmount,
-                members: groupMembers,
-                hasExpenses: group.hasExpenses
-            )
-
+            let groupMembers = try await fetchMembersDataBy(memberIds: group.members)
+            let groupInfo = GroupInformation(group: group, userBalance: memberBalance, memberOweAmount: memberOwingAmount,
+                                             members: groupMembers, hasExpenses: group.hasExpenses)
             if isNewGroup {
-                combinedGroups.insert(groupInfo, at: 0)
+                combinedGroups.append(groupInfo)
                 if combinedGroups.count == 1 {
                     groupListState = .hasGroup
                 }
@@ -403,6 +412,11 @@ extension GroupListViewModel {
                 if let index = combinedGroups.firstIndex(where: { $0.group.id == group.id }) {
                     combinedGroups[index] = groupInfo
                 }
+            }
+
+            // Sort the combinedGroups array based on the 'updatedAt' field
+            combinedGroups.sort { (group1, group2) in
+                return group1.group.updatedAt > group2.group.updatedAt
             }
             LogD("GroupListViewModel: \(#function) Members fetched successfully.")
         } catch {

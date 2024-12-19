@@ -29,6 +29,8 @@ class GroupStore: ObservableObject {
     func addMemberToGroup(groupId: String, memberId: String) async throws {
         // Wrap the updateData in a Task for async handling
         try await groupReference.document(groupId).updateData([
+            "updated_at": Timestamp(),
+            "updated_by": memberId,
             "members": FieldValue.arrayUnion([memberId])
         ])
     }
@@ -46,7 +48,7 @@ class GroupStore: ObservableObject {
         var query = groupReference
             .whereField("is_active", isEqualTo: true)
             .whereField("members", arrayContains: userId)
-            .order(by: "created_at", descending: true)
+            .order(by: "updated_at", descending: true)
             .limit(to: limit)
 
         if let lastDocument {

@@ -82,16 +82,15 @@ struct GroupExpenseListView: View {
                                                     viewModel.manageScrollToTopBtnVisibility(true)
                                                 }
                                             }
-
-                                            if expense.expense.id == viewModel.groupExpenses[month]?.last?.expense.id && viewModel.hasMoreExpenses {
-                                                ProgressView()
-                                                    .frame(maxWidth: .infinity, alignment: .center)
-                                                    .onAppear {
-                                                        viewModel.loadMoreExpenses()
-                                                    }.padding(.vertical, 8)
-                                            }
                                         }
                                     }
+                                }
+
+                                if viewModel.hasMoreExpenses {
+                                    ProgressView()
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                        .onAppear(perform: viewModel.loadMoreExpenses)
+                                        .padding(.vertical, 8)
                                 }
                             } else if viewModel.groupExpenses.isEmpty && viewModel.showSearchBar {
                                 ExpenseNotFoundView(geometry: geometry, searchedExpense: viewModel.searchedExpense)
@@ -110,9 +109,7 @@ struct GroupExpenseListView: View {
                         }
                     }
                     .refreshable {
-                        Task {
-                            await viewModel.fetchExpenses()
-                        }
+                        viewModel.fetchGroupAndExpenses()
                     }
                 }
             }

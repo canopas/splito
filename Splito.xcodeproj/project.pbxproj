@@ -513,7 +513,6 @@
 				D85E86E22BAB06D9002EDF76 /* AddExpenseViewModel.swift */,
 				D85E86F02BB41CBA002EDF76 /* Detail Selection */,
 				D856C7302BCFD2080008A341 /* Expense Detail */,
-				D8CD952A2BD65E6400407B47 /* Expense Split Option */,
 				210CC0392CF6DA7F0035682E /* Note */,
 			);
 			path = Expense;
@@ -525,6 +524,7 @@
 				D85E86EC2BB41B87002EDF76 /* SelectGroupView.swift */,
 				D85E86EE2BB41B9F002EDF76 /* SelectGroupViewModel.swift */,
 				21BA6D4B2C3BB64B0020ED04 /* Payer */,
+				D8CD952A2BD65E6400407B47 /* Expense Split Option */,
 			);
 			path = "Detail Selection";
 			sourceTree = "<group>";

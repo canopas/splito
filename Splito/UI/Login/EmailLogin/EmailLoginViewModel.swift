@@ -43,21 +43,39 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
     func onLoginClick() {
         guard validateEmailAndPassword() else { return }
 
-        isLoginInProgress = true
-        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
-            guard let self else { return }
-            isLoginInProgress = false
-            self.handleAuthResponse(result: result, error: error, isLogin: true)
+        Task {
+            do {
+                isLoginInProgress = true
+
+                if let user = try await userRepository.fetchUserBy(email: email) {
+                    if user.loginType != .Email {
+                        isLoginInProgress = false
+                        showAlertFor(title: "Email Already in Use", message: "The email address is already associated with an existing account. Please use a different email or log in to your existing account.")
+                        return
+                    }
+                } else {
+                    LogE("EmailLoginViewModel: \(#function) No user found with this email.")
+                }
+
+                FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
+                    self?.isLoginInProgress = false
+                    self?.handleAuthResponse(result: result, error: error, isLogin: true)
+                }
+            } catch {
+                isLoginInProgress = false
+                LogE("EmailLoginViewModel: \(#function) Error fetching user: \(error).")
+                showToastForError()
+            }
         }
     }
 
     private func handleAuthResponse(result: AuthDataResult?, error: Error?, isLogin: Bool) {
         if let error {
-            LogE("EmailLoginViewModel: \(#function) Error during \(isLogin ? "login" : "sign up"): \(error)")
+            LogE("EmailLoginViewModel: \(#function) Error during \(isLogin ? "login" : "sign up"): \(error).")
             handleFirebaseAuthErrors(error)
         } else if let result {
             let user = AppUser(id: result.user.uid, firstName: "", lastName: "",
-                               emailId: email, phoneNumber: nil, loginType: .Email)
+                               emailId: email, loginType: .Email)
             Task {
                 await storeUser(user: user)
             }
@@ -70,11 +88,11 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
 
     private func validateEmailAndPassword() -> Bool {
         if !email.isValidEmail {
-            showAlertFor(title: "Error", message: "Please enter a valid email address.")
+            showAlertFor(title: "Whoops!", message: "Please enter a valid email address.")
             return false
         }
         if password.count < 6 {
-            showAlertFor(title: "Error", message: "Password must be at least 6 characters long.")
+            showAlertFor(title: "Whoops!", message: "Password must be at least 6 characters long.")
             return false
         }
 
@@ -101,7 +119,7 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
 
     func onForgotPasswordClick() {
         guard email.isValidEmail else {
-            showAlertFor(title: "Invalid Email", message: "Please enter a valid email address.")
+            showAlertFor(title: "Whoops!", message: "Please enter a valid email address.")
             return
         }
 

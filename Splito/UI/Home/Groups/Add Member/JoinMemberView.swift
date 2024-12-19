@@ -109,7 +109,7 @@ public struct JoinMemberTextInputView: View {
                     isFocused.wrappedValue = false
                 }
             }
-            .textInputAutocapitalization(.never)
+            .textInputAutocapitalization(.characters)
             .onAppear {
                 isFocused.wrappedValue = true
             }
