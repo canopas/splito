@@ -37,7 +37,7 @@ class AddNoteViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - User Actions
     func showSaveFailedError() {
-        self.showToastFor(toast: ToastPrompt(type: .error, title: "Oops", message: "Failed to save note."))
+        self.showToastFor(toast: ToastPrompt(type: .error, title: "Whoops!", message: "Failed to save note."))
     }
 
     func handleSaveNoteAction(tempPaymentReason: String) async -> Bool {

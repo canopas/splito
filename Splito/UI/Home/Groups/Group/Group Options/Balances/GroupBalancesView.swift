@@ -97,7 +97,7 @@ private struct GroupBalanceItemView: View {
                         Group {
                             Text(name)
                                 .font(.subTitle2())
-                            + Text(" is settled up")
+                            + Text(" \(name == "You" ? "are" : "is") settled up")
                                 .font(.body1())
                         }
                         .foregroundStyle(primaryText)

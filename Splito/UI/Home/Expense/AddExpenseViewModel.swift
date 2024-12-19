@@ -66,13 +66,14 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 await fetchExpenseDetailsWithMembers(expenseId: expenseId)
             } else if let groupId {
                 await fetchGroup(groupId: groupId)
-                await fetchDefaultUser()
             }
         }
     }
 
     // MARK: - Data Loading
     private func fetchGroup(groupId: String) async {
+        guard let userId = preference.user?.id else { return }
+
         do {
             viewState = .loading
             let group = try await groupRepository.fetchGroupBy(id: groupId)
@@ -81,30 +82,12 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 groupMembers = group.members
                 selectedMembers = group.members
             }
+            selectedPayers = [userId: expenseAmount]
             viewState = .initial
             LogD("AddExpenseViewModel: \(#function) Group fetched successfully.")
         } catch {
             viewState = .initial
             LogE("AddExpenseViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
-            showToastForError()
-        }
-    }
-
-    private func fetchDefaultUser() async {
-        guard let id = preference.user?.id else { return }
-        do {
-            viewState = .loading
-            let user = try await userRepository.fetchUserBy(userID: id)
-            guard let user else {
-                viewState = .initial
-                return
-            }
-            selectedPayers = [user.id: expenseAmount]
-            viewState = .initial
-            LogD("AddExpenseViewModel: \(#function) Default user fetched successfully.")
-        } catch {
-            viewState = .initial
-            LogE("AddExpenseViewModel: \(#function) Failed to fetch default user: \(error).")
             showToastForError()
         }
     }
@@ -276,13 +259,24 @@ extension AddExpenseViewModel {
 
     func handlePayerBtnAction() {
         guard selectedGroup != nil else {
-            self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "Please select group to get payer list."))
+            self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "Please select a group to get payer list."))
             return
         }
-        if let user = preference.user, selectedPayers == [:] || selectedPayers[user.id] == 0 {
-            selectedPayers = [user.id: expenseAmount]
-        }
+
+        updateSelectedPayers()
         showPayerSelection = true
+    }
+
+    private func updateSelectedPayers() {
+        // Check if no payers are selected or current user's paid amount is 0 then set current user as payer with expense amount
+        if let userId = preference.user?.id, selectedPayers == [:] || (selectedPayers[userId]) == 0 {
+            selectedPayers = [userId: expenseAmount]
+        }
+
+        // If there is only one payer, update their amount to match the expense amount
+        if selectedPayers.count == 1, let firstPayer = selectedPayers.keys.first {
+            selectedPayers[firstPayer] = expenseAmount
+        }
     }
 
     func handlePayerSelection(payers: [String: Double]) {
@@ -292,7 +286,7 @@ extension AddExpenseViewModel {
     func handleSplitTypeBtnAction() {
         guard selectedGroup != nil else {
             showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!",
-                                            message: "Please select group to get payer list."))
+                                            message: "Please select a group before choosing the split option."))
             return
         }
 
@@ -322,7 +316,7 @@ extension AddExpenseViewModel {
             showAlertFor(message: "This expense involves a person who has left the group, and thus it can no longer be edited. If you wish to change this expense, you must first add that person back to your group.")
             return
         }
-        self.showToastFor(toast: ToastPrompt(type: .error, title: "Oops", message: "Failed to save expense."))
+        self.showToastFor(toast: ToastPrompt(type: .error, title: "Whoops!", message: "Failed to save expense."))
     }
 
     private func validateMembersInGroup(group: Groups, expense: Expense) -> Bool {
@@ -337,9 +331,7 @@ extension AddExpenseViewModel {
     }
 
     func handleSaveAction() async -> Bool {
-        if let user = preference.user, selectedPayers == [:] || selectedPayers[user.id] == 0 {
-            selectedPayers = [user.id: expenseAmount]
-        }
+        updateSelectedPayers()
 
         if expenseName == "" || expenseAmount == 0 || selectedGroup == nil || selectedPayers == [:] {
             showToastFor(toast: ToastPrompt(type: .warning, title: "Warning",
@@ -350,11 +342,19 @@ extension AddExpenseViewModel {
         let totalPaidAmount = selectedPayers.map { $0.value }.reduce(0, +)
         let totalSharedAmount = splitData.map { $0.value }.reduce(0, +)
 
-        if (splitType == .fixedAmount && totalSharedAmount != expenseAmount) || (selectedPayers.count > 1 && totalPaidAmount != expenseAmount) {
-            let differenceAmount = (splitType == .fixedAmount && totalSharedAmount != expenseAmount) ? totalSharedAmount : totalPaidAmount
+        if splitType == .fixedAmount && totalSharedAmount != expenseAmount {
+            let amountDescription = totalSharedAmount < expenseAmount ? "short" : "over"
+            let differenceAmount = totalSharedAmount < expenseAmount ? (expenseAmount - totalSharedAmount) : (totalSharedAmount - expenseAmount)
 
+            showAlertFor(title: "Error!", message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
+            return false
+        } else if selectedPayers.count > 1 && totalPaidAmount != expenseAmount {
             showAlertFor(title: "Error",
-                         message: "The total of everyone's paid shares (\(differenceAmount.formattedCurrency)) is different than the total cost (\(expenseAmount.formattedCurrency))")
+                         message: "The total of everyone's paid shares (\(totalPaidAmount.formattedCurrency)) is different than the total cost (\(expenseAmount.formattedCurrency))")
+            return false
+        } else if selectedPayers.count == 1 && selectedPayers.values.reduce(0, +) != expenseAmount {
+            showAlertFor(title: "Error",
+                         message: "The total amount paid by the selected payer does not match the expense amount. Please adjust the payment distribution.")
             return false
         }
 

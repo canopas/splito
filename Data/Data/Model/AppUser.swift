@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AppUser: Identifiable, Codable, Hashable {
+public struct AppUser: Identifiable, Codable, Hashable, Sendable {
 
     public var id: String
     public var firstName: String?
@@ -16,7 +16,7 @@ public struct AppUser: Identifiable, Codable, Hashable {
     public var phoneNumber: String?
     public var imageUrl: String?
     public var deviceFcmToken: String?
-    public let loginType: LoginType
+    public var loginType: LoginType
     public var totalOweAmount: Double
     public var isActive: Bool
 
@@ -35,7 +35,7 @@ public struct AppUser: Identifiable, Codable, Hashable {
     }
 
     public init(id: String, firstName: String?, lastName: String?, emailId: String?,
-                phoneNumber: String?, imageUrl: String? = nil, deviceFcmToken: String? = nil,
+                phoneNumber: String? = nil, imageUrl: String? = nil, deviceFcmToken: String? = nil,
                 loginType: LoginType, totalOweAmount: Double = 0, isActive: Bool = true) {
         self.id = id
         self.firstName = firstName
@@ -63,7 +63,7 @@ public struct AppUser: Identifiable, Codable, Hashable {
     }
 }
 
-public enum LoginType: String, Codable {
+public enum LoginType: String, Codable, Sendable {
     case Apple = "apple"
     case Google = "google"
     case Email = "email"

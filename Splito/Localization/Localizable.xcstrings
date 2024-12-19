@@ -10,6 +10,9 @@
     " %@ " : {
 
     },
+    " %@ settled up" : {
+
+    },
     " ₹ 0.00" : {
 
     },
@@ -20,9 +23,6 @@
       "extractionState" : "manual"
     },
     " in total" : {
-
-    },
-    " is settled up" : {
 
     },
     " removed " : {
@@ -556,12 +556,6 @@
     "Ok" : {
       "extractionState" : "manual"
     },
-    "Oops" : {
-      "extractionState" : "manual"
-    },
-    "Oops!" : {
-      "extractionState" : "manual"
-    },
     "over" : {
       "extractionState" : "manual"
     },
@@ -613,19 +607,22 @@
     "Please enter a cost for your expense first!" : {
       "extractionState" : "manual"
     },
+    "Please enter a valid email" : {
+      "extractionState" : "manual"
+    },
     "Please enter a valid email address." : {
       "extractionState" : "manual"
     },
-    "Please enter valid email" : {
-      "extractionState" : "manual"
-    },
-    "Please enter valid phone number" : {
+    "Please enter a valid phone number." : {
       "extractionState" : "manual"
     },
     "Please fill all data to add expense." : {
       "extractionState" : "manual"
     },
-    "Please select group to get payer list." : {
+    "Please select a group before choosing the split option." : {
+      "extractionState" : "manual"
+    },
+    "Please select a group to get payer list." : {
       "extractionState" : "manual"
     },
     "Privacy Policy" : {
@@ -820,6 +817,9 @@
     "The shares do not add up to 100%. You are %@ by %@%" : {
       "extractionState" : "manual"
     },
+    "The total amount paid by the selected payer does not match the expense amount. Please adjust the payment distribution." : {
+      "extractionState" : "manual"
+    },
     "The total of everyone's paid shares (₹%@) is different than the total cost (₹%@)" : {
       "extractionState" : "manual"
     },
@@ -1001,6 +1001,12 @@
 
     },
     "Your device cannot send email." : {
+      "extractionState" : "manual"
+    },
+    "Your first name must be at least 3 characters long." : {
+      "extractionState" : "manual"
+    },
+    "Your profile cannot be updated. Please check the missing or incorrect information." : {
       "extractionState" : "manual"
     },
     "Your requested data not found." : {

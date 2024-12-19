@@ -26,6 +26,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var groupState: GroupState = .loading
 
     @Published var expenses: [Expense] = []
+    @Published var expensesWithUser: [ExpenseWithUser] = []
     @Published private(set) var memberOwingAmount: [String: Double] = [:]
     @Published private(set) var groupExpenses: [String: [ExpenseWithUser]] = [:]
 
@@ -39,12 +40,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     @Published var showSearchBar = false
     @Published var showScrollToTopBtn = false
-
-    @Published var expensesWithUser: [ExpenseWithUser] = [] {
-        didSet {
-            updateGroupExpenses()
-        }
-    }
 
     @Published var searchedExpense: String = "" {
         didSet {
@@ -69,6 +64,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleAddTransaction(notification:)), name: .addTransaction, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleTransaction(notification:)), name: .updateTransaction, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleTransaction(notification:)), name: .deleteTransaction, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleTransaction(notification:)), name: .restoreTransaction, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateGroup(notification:)), name: .updateGroup, object: nil)
 
         fetchGroupAndExpenses()
@@ -89,18 +85,19 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 groupState = .noMember
                 return
             }
+
+            self.group = group
             let groupTotalSummary = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
             currentMonthSpending = groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }
 
-            if self.group?.members != group.members {
-                for member in group.members where member != self.preference.user?.id {
-                    if let memberData = await fetchMemberData(for: member) {
-                        addMemberIfNotExist(memberData)
+            await withTaskGroup(of: Void.self) { groupTask in
+                for member in group.members where member != preference.user?.id {
+                    groupTask.addTask { [weak self] in
+                        _ = await self?.fetchMemberData(for: member)
                     }
                 }
             }
 
-            self.group = group
             LogD("GroupHomeViewModel: \(#function) Group fetched successfully.")
         } catch {
             LogE("GroupHomeViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
@@ -108,7 +105,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func fetchExpenses() async {
+    private func fetchExpenses() async {
         if let state = validateGroupState() {
             groupState = state
             return
@@ -188,17 +185,23 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         withAnimation(.easeOut) {
             expensesWithUser.append(contentsOf: combinedData.uniqued())
+            updateGroupExpenses()
             fetchGroupBalance()
         }
     }
 
     func fetchMemberData(for memberId: String) async -> AppUser? {
         do {
+            let fetchedMember = getMemberDataBy(id: memberId)
+            guard fetchedMember == nil else {
+                LogD("GroupHomeViewModel: \(#function) Fetched Member is already exists.")
+                return fetchedMember
+            }
             let member = try await groupRepository.fetchMemberBy(memberId: memberId)
             if let member {
-                addMemberIfNotExist(member)
+                groupMembers.append(member)
+                LogD("GroupHomeViewModel: \(#function) Member fetched successfully.")
             }
-            LogD("GroupHomeViewModel: \(#function) Member fetched successfully.")
             return member
         } catch {
             groupState = .noMember
@@ -208,9 +211,14 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func addMemberIfNotExist(_ member: AppUser) {
-        if !groupMembers.contains(where: { $0.id == member.id }) {
-            groupMembers.append(member)
+    func updateGroupExpenses() {
+        let filteredExpenses = expensesWithUser.uniqued().filter { expense in
+            searchedExpense.isEmpty ||
+            expense.expense.name.lowercased().contains(searchedExpense.lowercased()) ||
+            expense.expense.amount == Double(searchedExpense)
+        }
+        self.groupExpenses = Dictionary(grouping: filteredExpenses.uniqued().sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
+            return expense.expense.date.dateValue().monthWithYear
         }
     }
 
@@ -220,9 +228,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        self.memberOwingAmount = Splito.calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
+        memberOwingAmount = Splito.calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
         withAnimation(.easeOut) {
-            overallOwingAmount = self.memberOwingAmount.values.reduce(0, +)
+            overallOwingAmount = group.balances.first(where: { $0.id == userId })?.balance ?? 0.0
             setGroupViewState()
         }
     }
@@ -235,17 +243,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         groupState = group.members.count > 1 ?
         ((expenses.isEmpty && group.balances.allSatisfy({ $0.balance == 0 })) ? .noExpense : .hasExpense) : (expenses.isEmpty ? .noMember : .hasExpense)
-    }
-
-    private func updateGroupExpenses() {
-        let filteredExpenses = expensesWithUser.uniqued().filter { expense in
-            searchedExpense.isEmpty ||
-            expense.expense.name.lowercased().contains(searchedExpense.lowercased()) ||
-            expense.expense.amount == Double(searchedExpense)
-        }
-        self.groupExpenses = Dictionary(grouping: filteredExpenses.uniqued().sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
-            return expense.expense.date.dateValue().monthWithYear
-        }
     }
 
     // MARK: - Error Handling

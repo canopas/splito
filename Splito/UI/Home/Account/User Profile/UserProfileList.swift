@@ -117,9 +117,9 @@ enum TextFieldValidationType {
         case .firstName:
             return "Minimum 3 characters are required"
         case .phone:
-            return "Please enter valid phone number"
+            return "Please enter a valid phone number"
         case .email:
-            return "Please enter valid email"
+            return "Please enter a valid email address"
         default:
             return ""
         }

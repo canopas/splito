@@ -14,10 +14,12 @@ public class UserRepository: ObservableObject {
     @Inject private var storageManager: StorageManager
 
     public func storeUser(user: AppUser) async throws -> AppUser {
-        if var fetchedUser = try await store.fetchUserBy(id: user.id) {
+        if var fetchedUser = try await fetchUserBy(userID: user.id) {
             LogD("UserRepository: \(#function) User already exists in Firestore.")
-            if !fetchedUser.isActive {
+            if !fetchedUser.isActive || user.loginType != fetchedUser.loginType || user.emailId != fetchedUser.emailId {
                 fetchedUser.isActive = true
+                fetchedUser.loginType = user.loginType
+                fetchedUser.emailId = (user.emailId == nil || user.emailId == "") ? fetchedUser.emailId : user.emailId
                 return try await updateUser(user: fetchedUser)
             }
             return fetchedUser
@@ -29,13 +31,15 @@ public class UserRepository: ObservableObject {
     }
 
     public func fetchUserBy(userID: String) async throws -> AppUser? {
-        return try await store.fetchUserBy(id: userID)
+        try await store.fetchUserBy(id: userID)
     }
 
-    public func fetchLatestUserBy(userID: String, completion: @escaping (AppUser?) -> Void) {
-        store.fetchLatestUserBy(id: userID) { user in
-            completion(user)
-        }
+    public func fetchUserBy(email: String) async throws -> AppUser? {
+        try await store.fetchUserBy(email: email)
+    }
+
+    public func fetchLatestUserBy(userID: String) -> AsyncStream<AppUser?> {
+        store.fetchLatestUserBy(id: userID)
     }
 
     private func uploadImage(imageData: Data, user: AppUser) async throws -> AppUser {

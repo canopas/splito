@@ -95,7 +95,7 @@ private struct EmailInputFieldView: View {
                 .foregroundStyle(primaryText)
                 .tint(primaryColor)
                 .autocorrectionDisabled()
-                .autocapitalization(.none)
+                .textInputAutocapitalization(.never)
                 .focused(focusedField, equals: .email)
                 .submitLabel(.next)
                 .onSubmit {
@@ -141,7 +141,7 @@ private struct PasswordInputFieldView: View {
                     .foregroundStyle(primaryText)
                     .tint(primaryColor)
                     .autocorrectionDisabled()
-                    .autocapitalization(.none)
+                    .textInputAutocapitalization(.never)
                     .submitLabel(.done)
                     .padding(.vertical, 12)
                     .padding(.horizontal, 16)

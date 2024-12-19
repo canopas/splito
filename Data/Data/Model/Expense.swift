@@ -109,7 +109,7 @@ public enum SplitType: String, Codable, CaseIterable {
 
 /// Struct to hold combined expense and user information
 public struct ExpenseWithUser: Hashable {
-    public let expense: Expense
+    public var expense: Expense
     public let user: AppUser
 
     public init(expense: Expense, user: AppUser) {

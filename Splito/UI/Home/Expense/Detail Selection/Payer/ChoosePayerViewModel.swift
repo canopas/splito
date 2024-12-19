@@ -56,8 +56,8 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
-    func handlePayerSelection(user: AppUser) {
-        selectedPayers = [user.id: amount]
+    func handlePayerSelection(userId: String) {
+        selectedPayers = [userId: amount]
     }
 
     func handleMultiplePayerTap() {

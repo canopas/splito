@@ -167,6 +167,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                 transaction.updatedAt = Timestamp()
 
                 self.transaction = try await self.transactionRepository.updateTransaction(group: group, transaction: transaction, oldTransaction: transaction, members: (payer, receiver), type: .transactionRestored)
+                NotificationCenter.default.post(name: .restoreTransaction, object: self.transaction)
                 await self.updateGroupMemberBalance(updateType: .Add)
 
                 self.viewState = .initial

@@ -15,6 +15,7 @@ public extension Notification.Name {
     static let addTransaction = Notification.Name("addTransaction")
     static let updateTransaction = Notification.Name("updateTransaction")
     static let deleteTransaction = Notification.Name("deleteTransaction")
+    static let restoreTransaction = Notification.Name("restoreTransaction")
 
     static let joinGroup = Notification.Name("joinGroup")
 

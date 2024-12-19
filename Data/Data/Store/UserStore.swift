@@ -33,10 +33,10 @@ class UserStore: ObservableObject {
     }
 
     func fetchUserBy(id: String) async throws -> AppUser? {
-        let snapshot = try await usersCollection.document(id).getDocument(source: .server)
+        let document = try await usersCollection.document(id).getDocument(source: .server)
 
-        if snapshot.exists {
-            let fetchedUser = try snapshot.data(as: AppUser.self)
+        if document.exists {
+            let fetchedUser = try document.data(as: AppUser.self)
             LogD("UserStore: \(#function) User fetched successfully.")
             return fetchedUser
         } else {
@@ -45,28 +45,46 @@ class UserStore: ObservableObject {
         }
     }
 
-    func fetchLatestUserBy(id: String, completion: @escaping (AppUser?) -> Void) {
-        listener?.remove()
-        listener = usersCollection.document(id).addSnapshotListener { snapshot, error in
-            if let error {
-                LogE("UserStore: \(#function) Error fetching document: \(error).")
-                completion(nil)
-                return
+    func fetchUserBy(email: String) async throws -> AppUser? {
+        let snapshot = try await usersCollection.whereField("email_id", isEqualTo: email).getDocuments()
+
+        if let document = snapshot.documents.first {
+            let fetchedUser = try document.data(as: AppUser.self)
+            LogD("UserStore: \(#function) User fetched successfully by email.")
+            return fetchedUser
+        } else {
+            LogE("UserStore: \(#function) No user found for the provided email.")
+            return nil
+        }
+    }
+
+    func fetchLatestUserBy(id: String) -> AsyncStream<AppUser?> {
+        AsyncStream { continuation in
+            let listener = usersCollection.document(id).addSnapshotListener { snapshot, error in
+                if let error {
+                    LogE("UserStore: \(#function) Error fetching document: \(error).")
+                    continuation.finish()
+                    return
+                }
+
+                guard let snapshot else {
+                    LogE("UserStore: \(#function) Snapshot is nil for requested user.")
+                    continuation.finish()
+                    return
+                }
+
+                do {
+                    let user = try snapshot.data(as: AppUser.self)
+                    continuation.yield(user)
+                } catch {
+                    LogE("UserStore: \(#function) Error decoding user data: \(error).")
+                    continuation.finish()
+                }
             }
 
-            guard let snapshot else {
-                LogE("UserStore: \(#function) snapshot is nil for requested user.")
-                completion(nil)
-                return
-            }
-
-            do {
-                let user = try snapshot.data(as: AppUser.self)
-                LogD("UserStore: \(#function) Latest user fetched successfully.")
-                completion(user)
-            } catch {
-                LogE("UserStore: \(#function) Error decoding user data: \(error).")
-                completion(nil)
+            // Clean up: Remove listener when the stream is cancelled
+            continuation.onTermination = { _ in
+                listener.remove()
             }
         }
     }

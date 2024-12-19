@@ -32,37 +32,46 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Data Loading
     func onGoogleLoginClick() {
-        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        showGoogleLoading = true
+        guard let clientID = FirebaseApp.app()?.options.clientID else {
+            showGoogleLoading = false
+            return
+        }
 
         // Create Google Sign In configuration object.
         let config = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.configuration = config
 
         guard let controller = TopViewController.shared.topViewController() else {
+            showGoogleLoading = false
             LogE("LoginViewModel: \(#function) Top Controller not found.")
             return
         }
 
         GIDSignIn.sharedInstance.signIn(withPresenting: controller) { [unowned self] result, error in
             guard error == nil else {
+                showGoogleLoading = false
                 LogE("LoginViewModel: \(#function) Google Login Error: \(String(describing: error)).")
                 return
             }
 
-            guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
+            guard let user = result?.user, let idToken = user.idToken?.tokenString else {
+                showGoogleLoading = false
+                return
+            }
 
             let firstName = user.profile?.givenName ?? ""
             let lastName = user.profile?.familyName ?? ""
             let email = user.profile?.email ?? ""
 
             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-            self.showGoogleLoading = true
             self.performFirebaseLogin(showGoogleLoading: showGoogleLoading, credential: credential,
                                       loginType: .Google, userData: (firstName, lastName, email))
         }
     }
 
     func onAppleLoginClick() {
+        self.showAppleLoading = true
         self.currentNonce = NonceGenerator.randomNonceString()
         let request = ASAuthorizationAppleIDProvider().createRequest()
         request.requestedScopes = [.fullName, .email]
@@ -71,9 +80,10 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         appleSignInDelegates = SignInWithAppleDelegates { (token, fName, lName, email)  in
             let credential = OAuthProvider.credential(providerID: AuthProviderID.apple,
                                                       idToken: token, rawNonce: self.currentNonce)
-            self.showAppleLoading = true
             self.performFirebaseLogin(showAppleLoading: self.showAppleLoading, credential: credential,
                                       loginType: .Apple, userData: (fName, lName, email))
+        } onError: {
+            self.showAppleLoading = false
         }
 
         let authorizationController = ASAuthorizationController(authorizationRequests: [request])
@@ -96,14 +106,12 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
                     self.alert = .init(message: "Server error")
                     self.showAlert = true
                 } else if let result {
-                    self.showGoogleLoading = false
-                    self.showAppleLoading = false
                     let user = AppUser(id: result.user.uid, firstName: userData.0, lastName: userData.1,
                                        emailId: userData.2, phoneNumber: nil, loginType: loginType)
                     Task {
                         await self.storeUser(user: user)
                     }
-                    LogD("LoginViewModel: \(#function) Logged in User: \(result.user)")
+                    LogD("LoginViewModel: \(#function) User logged in successfully.")
                 } else {
                     self.alert = .init(message: "Contact Support")
                     self.showAlert = true
@@ -114,13 +122,17 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
     private func storeUser(user: AppUser) async {
         do {
             let user = try await userRepository.storeUser(user: user)
-            self.preference.user = user
-            self.onLoginSuccess()
+            preference.user = user
+            showGoogleLoading = false
+            showAppleLoading = false
+            onLoginSuccess()
             LogD("LoginViewModel: \(#function) User stored successfully.")
         } catch {
             LogE("LoginViewModel: \(#function) Failed to store user: \(error).")
-            self.alert = .init(message: "Something went wrong! Please try after some time.")
-            self.showAlert = true
+            showGoogleLoading = false
+            showAppleLoading = false
+            alert = .init(message: "Something went wrong! Please try after some time.")
+            showAlert = true
         }
     }
 

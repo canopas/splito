@@ -44,7 +44,7 @@ struct ChoosePayerView: View {
                                 isSelected: (viewModel.selectedPayers.count > 1) ? false : viewModel.selectedPayers.keys.contains(user.id)
                             )
                             .onTapGestureForced {
-                                viewModel.handlePayerSelection(user: user)
+                                viewModel.handlePayerSelection(userId: user.id)
                             }
                         }
 

@@ -34,8 +34,13 @@ class SelectGroupViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Data Loading
     private func fetchGroups() async {
+        guard let userId = preference.user?.id else {
+            currentViewState = .noGroups
+            return
+        }
+
         do {
-            let (groups, _) = try await groupRepository.fetchGroupsBy(userId: preference.user?.id ?? "")
+            let (groups, _) = try await groupRepository.fetchGroupsBy(userId: userId)
             currentViewState = groups.isEmpty ? .noGroups : .hasGroups(groups: groups)
             LogD("SelectGroupViewModel: \(#function) Groups fetched successfully.")
         } catch {

@@ -60,7 +60,6 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
                 return
             }
             self.group = group
-            currentViewState = .initial
             LogD("GroupTransactionListViewModel: \(#function) Group fetched successfully.")
         } catch {
             LogE("GroupTransactionListViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
@@ -70,7 +69,6 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
     func fetchTransactions() async {
         do {
-            currentViewState = .loading
             transactionsWithUser = []
 
             let result = try await transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT)

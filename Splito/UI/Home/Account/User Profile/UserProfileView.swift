@@ -59,11 +59,10 @@ struct UserProfileView: View {
             ToolbarItem(placement: .topBarLeading) {
                 NavigationTitleTextView(text: "Profile")
             }
-            ToolbarItem(placement: .topBarTrailing, content: {
-                CheckmarkButton(showLoader: viewModel.isSaveInProgress, iconSize: (24, 32), padding: (.leading, 16), onClick: viewModel.updateUsersProfileData)
-                    .disabled(!viewModel.email.isValidEmail || viewModel.firstName.trimming(spaces: .leadingAndTrailing).count < 3)
-                    .opacity((viewModel.email.isValidEmail && viewModel.firstName.trimming(spaces: .leadingAndTrailing).count >= 3) ? 1 : 0.6)
-            })
+            ToolbarItem(placement: .topBarTrailing) {
+                CheckmarkButton(showLoader: viewModel.isSaveInProgress, iconSize: (24, 32),
+                                padding: (.leading, 16), onClick: viewModel.updateUsersProfileData)
+            }
         }
         .onTapGesture {
             UIApplication.shared.endEditing()
@@ -135,7 +134,7 @@ private struct UserDetailList: View {
                                isDisabled: (profileOptions[index] == .email ? isEmailDisable : false),
                                placeholder: profileOptions[index].placeholder,
                                subtitleText: profileOptions[index].subtitle,
-                               validationEnabled: profileOptions[index].validationType == .email || profileOptions[index].validationType == .firstName,
+                               validationEnabled: profileOptions[index].validationType == .email || profileOptions[index].validationType == .firstName || profileOptions[index].validationType == .phone,
                                fieldType: profileOptions[index].fieldTypes,
                                keyboardType: profileOptions[index].keyboardType,
                                validationType: profileOptions[index].validationType,
@@ -172,14 +171,14 @@ private struct UserDetailCell: View {
             VSpacer(8)
 
             UserProfileDataEditableTextField(titleText: $titleText,
-                                             showError: (validationEnabled && !isValidInput && focused.wrappedValue == fieldType),
+                                             showError: (validationEnabled && !isValidInput),
                                              isDisabled: isDisabled, placeholder: placeholder, fieldType: fieldType,
                                              keyboardType: keyboardType, focused: focused, autoCapitalizationType: autoCapitalizationType)
 
             VSpacer(8)
 
             VStack(spacing: 0) {
-                if validationEnabled && !isValidInput && focused.wrappedValue == fieldType {
+                if validationEnabled && !isValidInput {
                     Text(validationType.errorText.localized)
                         .font(.body1(12))
                         .foregroundStyle(errorColor)
@@ -246,6 +245,7 @@ private struct UserProfileDataEditableTextField: View {
             .overlay {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(showError ? errorColor : outlineColor, lineWidth: 1)
+                    .animation(.easeInOut, value: showError)
             }
     }
 }
