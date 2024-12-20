@@ -33,4 +33,4 @@ Labels on issues are managed by contributors; you don't have to worry about them
 
 ## License
 
-By contributing to GroupTrack, you agree that your contributions will be licensed under its Apache License, Version 2.0. See the LICENSE file for details.
+By contributing to Splito, you agree that your contributions will be licensed under its Apache License, Version 2.0. See the LICENSE file for details.
