@@ -73,7 +73,7 @@ extension Expense {
 
         switch self.splitType {
         case .equally:
-            return self.amount / Double(self.splitTo.count)
+            return calculateEqualSplitAmount(for: member)
         case .fixedAmount:
             return self.splitData?[member] ?? 0
         case .percentage:
@@ -83,6 +83,30 @@ extension Expense {
             let totalShares = self.splitData?.values.reduce(0, +) ?? 0
             return self.amount * ((self.splitData?[member] ?? 0) / totalShares)
         }
+    }
+
+    /// Returns the equal split amount for the member
+    private func calculateEqualSplitAmount(for member: String) -> Double {
+        let totalMembers = Double(self.splitTo.count)
+        let baseAmount = (self.amount / totalMembers).rounded(to: 2)    // Base amount each member owes
+        let totalSplitAmount = baseAmount * totalMembers    // The total split amount after rounding all members base amounts
+        let remainder = self.amount - totalSplitAmount      // The leftover amount due to rounding
+
+        // Sort members deterministically to ensure consistent assignment of the remainder.
+        let sortedMembers = self.splitTo.sorted()
+
+        // Assign base amount to each member
+        var splitAmounts: [String: Double] = [:]
+        for splitMember in sortedMembers {
+            splitAmounts[splitMember] = baseAmount
+        }
+
+        // Distribute remainder to the first member in the sorted list
+        if remainder > 0, let firstMember = sortedMembers.first {
+            splitAmounts[firstMember]! += remainder
+        }
+
+        return splitAmounts[member] ?? 0
     }
 
     /// It will return the owing amount to the member for that expense that he have to get or pay back
