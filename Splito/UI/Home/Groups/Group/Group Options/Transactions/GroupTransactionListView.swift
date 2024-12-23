@@ -189,7 +189,7 @@ private struct TransactionItemView: View {
 
                     Text("\(transactionWithUser.transaction.amount.formattedCurrency)")
                         .font(.subTitle2())
-                        .foregroundStyle(transactionWithUser.payer?.id == preference.user?.id ? errorColor : successColor)
+                        .foregroundStyle(transactionWithUser.payer?.id == preference.user?.id ? successColor : transactionWithUser.receiver?.id == preference.user?.id ? errorColor : primaryText)
                 }
             }
             .padding(.top, 20)

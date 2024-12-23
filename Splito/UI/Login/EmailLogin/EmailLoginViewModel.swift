@@ -147,9 +147,9 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
 
         switch authErrorCode {
         case .webContextCancelled:
-            showAlertFor(message: "Something went wrong! Please try after some time.")
+            showAlertFor(title: "Error", message: "Something went wrong! Please try after some time.")
         case .tooManyRequests:
-            showAlertFor(message: "Too many attempts, please try after some time.")
+            showAlertFor(title: "Error", message: "Too many attempts, please try after some time.")
         case .invalidEmail:
             showAlertFor(title: "Invalid Email", message: "The email address is not valid. Please check and try again.")
         case .emailAlreadyInUse:
@@ -160,10 +160,13 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
             showAlertFor(title: "Account Disabled", message: "This account has been disabled. Please contact support.")
         case .invalidCredential:
             showAlertFor(title: "Incorrect email or password", message: "The email or password you entered is incorrect. Please try again.")
+        case .networkError:
+            showAlertFor(title: "Error", message: "No internet connection!")
         default:
-            LogE("EmailLoginViewModel: \(#function) \((isPasswordReset) ? "Password reset" : "Email login") fail with error: \(error).")
             isPasswordReset ? showAlertFor(title: "Error", message: "Unable to send a password reset email. Please try again later.") : showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
         }
+
+        LogE("EmailLoginViewModel: \(#function) \((isPasswordReset) ? "Password reset" : "Email login") fail with error: \(error).")
     }
 }
 

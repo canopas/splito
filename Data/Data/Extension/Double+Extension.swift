@@ -31,4 +31,10 @@ public extension Double {
             return String(format: "%.2f", self.rounded())  // Fallback to a basic decimal format
         }
     }
+
+    /// Rounds the `Double` value to the specified number of decimal places
+    func rounded(to decimals: Int) -> Double {
+        let multiplier = pow(10.0, Double(decimals))
+        return (self * multiplier).rounded() / multiplier
+    }
 }

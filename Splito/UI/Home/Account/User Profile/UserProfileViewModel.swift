@@ -241,8 +241,7 @@ extension UserProfileViewModel {
         user.reload { [weak self] error in
             if let error {
                 self?.isDeleteInProgress = false
-                self?.showAlertFor(message: error.localizedDescription)
-                LogE("UserProfileViewModel: \(#function) Error reloading user: \(error).")
+                self?.handleFirebaseAuthErrors(error)
             } else {
                 self?.promptForReAuthentication(user)
             }
@@ -253,7 +252,7 @@ extension UserProfileViewModel {
         getAuthCredential(user) { [weak self] credential in
             guard let credential else {
                 self?.isDeleteInProgress = false
-                LogE("UserProfileViewModel: \(#function) Credential are - \(String(describing: credential))")
+                LogE("UserProfileViewModel: \(#function) Failed to retrieve valid credential.")
                 return
             }
 
@@ -261,8 +260,7 @@ extension UserProfileViewModel {
                 guard let self else { return }
                 if let error {
                     self.isDeleteInProgress = false
-                    self.showAlertFor(message: error.localizedDescription)
-                    LogE("UserProfileViewModel: \(#function) Error re-authenticating user: \(error).")
+                    self.handleFirebaseAuthErrors(error)
                 } else {
                     Task {
                         await self.deleteUser()
@@ -355,7 +353,7 @@ extension UserProfileViewModel {
             guard let password = alert.textFields?.first?.text,
                   let email = self?.preference.user?.emailId else {
                 self?.isDeleteInProgress = false
-                LogE("UserProfileViewModel: \(#function) No email found for email login.")
+                LogE("UserProfileViewModel: \(#function) Missing email or password for email login.")
                 return
             }
             let credential = EmailAuthProvider.credential(withEmail: email, password: password)
@@ -363,5 +361,35 @@ extension UserProfileViewModel {
         })
 
         TopViewController.shared.topViewController()?.present(alert, animated: true)
+    }
+
+    private func handleFirebaseAuthErrors(_ error: Error) {
+        guard let authErrorCode = FirebaseAuth.AuthErrorCode(rawValue: (error as NSError).code) else {
+            showAlertFor(title: "Error", message: "Something went wrong! Please try after some time.")
+            return
+        }
+
+        switch authErrorCode {
+        case .webContextCancelled:
+            showAlertFor(title: "Error", message: "Something went wrong! Please try after some time.")
+        case .tooManyRequests:
+            showAlertFor(title: "Error", message: "Too many attempts, please try after some time.")
+        case .invalidEmail:
+            showAlertFor(title: "Invalid Email", message: "The email address is not valid. Please check and try again.")
+        case .userNotFound:
+            showAlertFor(title: "Error", message: "User account not found. Please verify your credentials.")
+        case .userDisabled:
+            showAlertFor(title: "Account Disabled", message: "This account has been disabled. Please contact support.")
+        case .invalidCredential:
+            showAlertFor(title: "Invalid Credentials", message: "The credentials provided are invalid. Please try again.")
+        case .networkError:
+            showAlertFor(title: "Error", message: "No internet connection!")
+        case .userTokenExpired:
+            showAlertFor(title: "Error", message: "Your session has expired. Please log in again.")
+        default:
+            showAlertFor(title: "Error", message: "An unexpected error occurred. Please try again later.")
+        }
+
+        LogE("UserProfileViewModel: \(#function) Error re-authenticating user: \(error).")
     }
 }

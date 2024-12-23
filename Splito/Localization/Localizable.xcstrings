@@ -202,6 +202,9 @@
     "An email has been sent to %@ with instructions to reset your password." : {
       "extractionState" : "manual"
     },
+    "An unexpected error occurred. Please try again later." : {
+      "extractionState" : "manual"
+    },
     "Ana borrows $10 from Bob" : {
 
     },
@@ -445,6 +448,9 @@
     "Incorrect email or password" : {
       "extractionState" : "manual"
     },
+    "Invalid Credentials" : {
+      "extractionState" : "manual"
+    },
     "Invalid Email" : {
       "extractionState" : "manual"
     },
@@ -605,9 +611,6 @@
       "extractionState" : "manual"
     },
     "Please enter a cost for your expense first!" : {
-      "extractionState" : "manual"
-    },
-    "Please enter a valid email" : {
       "extractionState" : "manual"
     },
     "Please enter a valid email address." : {
@@ -796,6 +799,9 @@
     "The code you've entered is not exists." : {
       "extractionState" : "manual"
     },
+    "The credentials provided are invalid. Please try again." : {
+      "extractionState" : "manual"
+    },
     "The email address is already associated with an existing account. Please use a different email or log in to your existing account." : {
       "extractionState" : "manual"
     },
@@ -910,6 +916,9 @@
     "Use settle up to divide costs with your friends or colleagues. It's easy and ensures everyone pays or receives their fair share.\\n\\nLet's get started splitting bills easily with friends." : {
       "extractionState" : "manual"
     },
+    "User account not found. Please verify your credentials." : {
+      "extractionState" : "manual"
+    },
     "Warning" : {
       "extractionState" : "manual"
     },
@@ -1010,6 +1019,9 @@
       "extractionState" : "manual"
     },
     "Your requested data not found." : {
+      "extractionState" : "manual"
+    },
+    "Your session has expired. Please log in again." : {
       "extractionState" : "manual"
     },
     "Your total share" : {
