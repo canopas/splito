@@ -13,10 +13,12 @@ import FirebaseFirestore
 class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     private let EXPENSES_LIMIT = 10
+    private let TRANSACTIONS_LIMIT = 5
 
     @Inject var preference: SplitoPreference
     @Inject var groupRepository: GroupRepository
     @Inject var expenseRepository: ExpenseRepository
+    @Inject private var transactionRepository: TransactionRepository
 
     @Published private(set) var groupId: String
     @Published private(set) var overallOwingAmount: Double = 0.0
@@ -26,6 +28,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var groupState: GroupState = .loading
 
     @Published var expenses: [Expense] = []
+    @Published var transactions: [Transactions] = []
     @Published var expensesWithUser: [ExpenseWithUser] = []
     @Published private(set) var memberOwingAmount: [String: Double] = [:]
     @Published private(set) var groupExpenses: [String: [ExpenseWithUser]] = [:]
@@ -73,6 +76,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     func fetchGroupAndExpenses() {
         Task {
             await fetchGroup()
+            await fetchTransactions()
             await fetchExpenses()
         }
     }
@@ -101,6 +105,22 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             LogD("GroupHomeViewModel: \(#function) Group fetched successfully.")
         } catch {
             LogE("GroupHomeViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
+            handleServiceError()
+        }
+    }
+
+    private func fetchTransactions() async {
+        if let state = validateGroupState() {
+            groupState = state
+            return
+        }
+
+        do {
+            let result = try await transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT)
+            transactions = result.transactions.uniqued()
+            LogD("GroupHomeViewModel: \(#function) Payments fetched successfully.")
+        } catch {
+            LogE("GroupHomeViewModel: \(#function) Failed to fetch payments: \(error).")
             handleServiceError()
         }
     }
@@ -242,7 +262,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         groupState = group.members.count > 1 ?
-        ((expenses.isEmpty && group.balances.allSatisfy({ $0.balance == 0 })) ? .noExpense : .hasExpense) : (expenses.isEmpty ? .noMember : .hasExpense)
+        ((expenses.isEmpty && transactions.isEmpty) ? .noExpense : .hasExpense) : ((expenses.isEmpty && transactions.isEmpty) ? .noMember : .hasExpense)
     }
 
     // MARK: - Error Handling

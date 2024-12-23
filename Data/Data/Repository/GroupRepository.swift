@@ -91,7 +91,7 @@ public class GroupRepository: ObservableObject {
     }
 
     public func removeMemberFrom(group: Groups, removedMember: AppUser) async throws {
-        guard let user = preference.user else { return }
+        guard let userId = preference.user?.id else { return }
         var group = group
 
         // make group inactive if there are no members
@@ -107,7 +107,7 @@ public class GroupRepository: ObservableObject {
             }
         }
 
-        let activityType: ActivityType = user.id == removedMember.id ? .groupMemberLeft : .groupMemberRemoved
+        let activityType: ActivityType = userId == removedMember.id ? .groupMemberLeft : .groupMemberRemoved
         try await updateGroup(group: group, type: activityType, removedMember: removedMember)
     }
 

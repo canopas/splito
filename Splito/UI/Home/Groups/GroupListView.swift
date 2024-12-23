@@ -31,34 +31,38 @@ struct GroupListView: View {
                     } else if case .hasGroup = viewModel.groupListState {
                         VSpacer(16)
 
-                        VStack(spacing: 16) {
-                            GroupListTabBarView(selectedTab: viewModel.selectedTab,
-                                                onSelect: viewModel.handleTabItemSelection(_:))
+                        Group {
+                            VStack(spacing: 16) {
+                                GroupListTabBarView(selectedTab: viewModel.selectedTab,
+                                                    onSelect: viewModel.handleTabItemSelection(_:))
 
-                            if viewModel.selectedTab == .all {
-                                GroupListHeaderView(totalOweAmount: viewModel.totalOweAmount)
-                                    .padding(.bottom, viewModel.showSearchBar ? 0 : 2)
+                                if viewModel.selectedTab == .all {
+                                    GroupListHeaderView(totalOweAmount: viewModel.totalOweAmount)
+                                        .padding(.bottom, viewModel.showSearchBar ? 0 : 2)
+                                }
+                            }
+                            .onTapGestureForced {
+                                isFocused = false
+                            }
+
+                            if viewModel.showSearchBar {
+                                SearchBar(text: $viewModel.searchedGroup, isFocused: $isFocused, placeholder: "Search groups")
+                                    .padding(.vertical, -7)
+                                    .padding(.horizontal, 3)
+                                    .overlay(content: {
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(outlineColor, lineWidth: 1)
+                                    })
+                                    .focused($isFocused)
+                                    .onAppear {
+                                        isFocused = true
+                                    }
+                                    .padding([.horizontal, .top], 16)
+                                    .padding(.bottom, 8)
                             }
                         }
-                        .onTapGestureForced {
-                            UIApplication.shared.endEditing()
-                        }
-
-                        if viewModel.showSearchBar {
-                            SearchBar(text: $viewModel.searchedGroup, isFocused: $isFocused, placeholder: "Search groups")
-                                .padding(.vertical, -7)
-                                .padding(.horizontal, 3)
-                                .overlay(content: {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(outlineColor, lineWidth: 1)
-                                })
-                                .focused($isFocused)
-                                .onAppear {
-                                    isFocused = true
-                                }
-                                .padding([.horizontal, .top], 16)
-                                .padding(.bottom, 8)
-                        }
+                        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+                        .frame(maxWidth: .infinity, alignment: .center)
 
                         GroupListWithDetailView(isFocused: $isFocused, viewModel: viewModel) {
                             isFocused = false
@@ -67,8 +71,6 @@ struct GroupListView: View {
                 }
             }
         }
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationTitle("")
@@ -97,7 +99,7 @@ struct GroupListView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            if !viewModel.showScrollToTopBtn {
+            if !viewModel.showScrollToTopBtn && viewModel.groupListState != .noGroup {
                 VStack(spacing: 0) {
                     Spacer()
                     AddExpenseButtonView(onClick: viewModel.openAddExpenseSheet)
@@ -217,6 +219,7 @@ private struct NoGroupsState: View {
                 }
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
+                .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .frame(minHeight: geometry.size.height - 100, maxHeight: .infinity, alignment: .center)
             }

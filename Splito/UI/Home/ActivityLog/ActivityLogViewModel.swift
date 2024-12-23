@@ -37,27 +37,48 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         self.router = router
         super.init()
 
-        self.fetchActivityLogsInitialData()
+        self.fetchInitialActivityLogs()
         self.fetchLatestActivityLogs()
     }
 
-    func fetchActivityLogsInitialData() {
+    // Listens for real-time updates and returns the latest activity logs for the current user
+    private func fetchLatestActivityLogs() {
+        guard let userId = preference.user?.id else { return }
+
+        activityLogRepository.fetchLatestActivityLogs(userId: userId) { [weak self] activityLogs in
+            if let activityLogs {
+                for activityLog in activityLogs where !(self?.activityLogs.contains(where: { $0.id == activityLog.id }) ?? false) {
+                    self?.activityLogs.append(activityLog)
+                }
+                self?.filterActivityLogs()
+                if self?.activityLogs.count == 1 {
+                    self?.activityLogState = .hasActivity
+                }
+            } else {
+                self?.showToastForError()
+            }
+        }
+    }
+
+    func fetchInitialActivityLogs() {
         Task {
+            lastDocument = nil
             await fetchActivityLogs()
         }
     }
 
     // MARK: - Data Loading
     private func fetchActivityLogs() async {
-        guard let userId = preference.user?.id else {
+        guard let userId = preference.user?.id, hasMoreLogs else {
             viewState = .initial
             return
         }
 
         do {
-            let result = try await activityLogRepository.fetchActivitiesBy(userId: userId, limit: ACTIVITY_LOG_LIMIT)
-
-            activityLogs = result.data
+            let result = try await activityLogRepository.fetchActivitiesBy(userId: userId,
+                                                                           limit: ACTIVITY_LOG_LIMIT,
+                                                                           lastDocument: lastDocument)
+            activityLogs = lastDocument == nil ? result.data : (activityLogs + result.data)
             lastDocument = result.lastDocument
             hasMoreLogs = !(result.data.count < ACTIVITY_LOG_LIMIT)
 
@@ -67,33 +88,20 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
             LogD("ActivityLogViewModel: \(#function) Activity logs fetched successfully.")
         } catch {
             LogE("ActivityLogViewModel: \(#function) Failed to fetch activity logs: \(error).")
-            handleServiceError()
+            handleErrorState()
         }
     }
 
     func loadMoreActivityLogs() {
         Task {
-            await fetchMoreActivityLogs()
+            await fetchActivityLogs()
         }
     }
 
-    private func fetchMoreActivityLogs() async {
-        guard hasMoreLogs, let userId = preference.user?.id else { return }
-
-        do {
-            let result = try await activityLogRepository.fetchActivitiesBy(userId: userId, limit: ACTIVITY_LOG_LIMIT, lastDocument: lastDocument)
-
-            activityLogs.append(contentsOf: result.data)
-            lastDocument = result.lastDocument
-            hasMoreLogs = !(result.data.count < ACTIVITY_LOG_LIMIT)
-
-            filterActivityLogs()
-            viewState = .initial
-            activityLogState = activityLogs.isEmpty ? .noActivity : .hasActivity
-            LogD("ActivityLogViewModel: \(#function) Activity logs fetched successfully.")
-        } catch {
-            viewState = .initial
-            LogE("ActivityLogViewModel: \(#function) Failed to fetch more activity logs: \(error).")
+    private func handleErrorState() {
+        if lastDocument == nil {
+            handleServiceError()
+        } else {
             showToastForError()
         }
     }
@@ -105,25 +113,6 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
                 return ActivityLogViewModel.dateFormatter.string(from: log.recordedOn.dateValue()) // day-wise format
             } else {
                 return log.recordedOn.dateValue().monthWithYear // month-year format
-            }
-        }
-    }
-
-    // Listens for real-time updates and returns the latest activity logs for the current user
-    private func fetchLatestActivityLogs() {
-        guard let userId = preference.user?.id else {
-            viewState = .initial
-            return
-        }
-
-        activityLogRepository.fetchLatestActivityLogs(userId: userId) { [weak self] activityLogs in
-            if let activityLogs {
-                for activityLog in activityLogs where !(self?.activityLogs.contains(where: { $0.id == activityLog.id }) ?? false) {
-                    self?.activityLogs.append(activityLog)
-                }
-                self?.filterActivityLogs()
-            } else {
-                self?.showToastForError()
             }
         }
     }

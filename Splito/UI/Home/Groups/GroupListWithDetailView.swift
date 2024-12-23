@@ -153,6 +153,8 @@ private struct GroupListCellView: View {
             }
         }
         .padding(.vertical, 24)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+        .frame(maxWidth: .infinity, alignment: .center)
 
         if !isLastGroup {
             Divider()
@@ -237,7 +239,7 @@ private struct GroupNotFoundView: View {
         }
         .multilineTextAlignment(.center)
         .padding(.horizontal, 16)
-        .frame(maxWidth: .infinity, alignment: .center)
+        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(minHeight: viewModel.showSearchBar ? geometry.size.height - 20 : geometry.size.height - 70, maxHeight: .infinity, alignment: .center)
     }
 }
