@@ -201,8 +201,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
         Task {
             do {
-                currentViewState = .loading
-                try await groupRepository.removeMemberFrom(group: group, removedMember: member)
+               try await groupRepository.removeMemberFrom(group: group, removedMember: member)
 
                 if userId == member.id {
                     NotificationCenter.default.post(name: .leaveGroup, object: group)
@@ -214,9 +213,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                             members.remove(at: index)
                         }
                     }
+                    self.group?.members = members.map { $0.id }
+                    NotificationCenter.default.post(name: .updateGroup, object: self.group)
                     showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed."))
                 }
-                currentViewState = .initial
                 LogD("GroupSettingViewModel: \(#function) Member removed successfully.")
             } catch {
                 currentViewState = .initial
