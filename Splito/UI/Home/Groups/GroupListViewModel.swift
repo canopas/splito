@@ -416,7 +416,7 @@ extension GroupListViewModel {
 
             // Sort the combinedGroups array based on the 'updatedAt' field
             combinedGroups.sort { (group1, group2) in
-                return group1.group.updatedAt > group2.group.updatedAt
+                return (group1.group.updatedAt ?? Timestamp() > group2.group.updatedAt ?? Timestamp())
             }
             LogD("GroupListViewModel: \(#function) Members fetched successfully.")
         } catch {

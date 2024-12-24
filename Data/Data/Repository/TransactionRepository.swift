@@ -79,7 +79,8 @@ public class TransactionRepository: ObservableObject {
         oldTransaction.updatedBy != transaction.updatedBy || oldTransaction.note != transaction.note ||
         oldTransaction.imageUrl != transaction.imageUrl || oldTransaction.reason != transaction.reason ||
         oldTransaction.amount != transaction.amount || oldTransaction.date.dateValue() != transaction.date.dateValue() ||
-        oldTransaction.updatedAt.dateValue() != transaction.updatedAt.dateValue() || oldTransaction.isActive != transaction.isActive
+        oldTransaction.updatedAt?.dateValue() != transaction.updatedAt?.dateValue() ||
+        oldTransaction.isActive != transaction.isActive
     }
 
     public func updateTransaction(group: Groups, transaction: Transactions, oldTransaction: Transactions,

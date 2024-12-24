@@ -298,14 +298,14 @@ extension AddExpenseViewModel {
         showSplitTypeSelection = true
     }
 
-    func handleSplitTypeSelectionAction(members: [String], splitData: [String: Double], splitType: SplitType) {
+    func handleSplitTypeSelectionAction(splitData: [String: Double], splitType: SplitType) {
         Task {
-            await handleSplitTypeSelection(members: members, splitData: splitData, splitType: splitType)
+            await handleSplitTypeSelection(splitData: splitData, splitType: splitType)
         }
     }
 
-    private func handleSplitTypeSelection(members: [String], splitData: [String: Double], splitType: SplitType) async {
-        selectedMembers = splitType == .equally ? members : splitData.map({ $0.key })
+    private func handleSplitTypeSelection(splitData: [String: Double], splitType: SplitType) async {
+        selectedMembers = splitData.map({ $0.key })
         self.splitData = splitData
         self.splitType = splitType
     }
@@ -339,10 +339,17 @@ extension AddExpenseViewModel {
             return false
         }
 
-        let totalPaidAmount = selectedPayers.map { $0.value }.reduce(0, +)
-        let totalSharedAmount = splitData.map { $0.value }.reduce(0, +)
+        var totalSharedAmount = splitData.mapValues { $0.rounded(to: 2) }.values.reduce(0, +)
+        if splitType == .equally && (splitData.isEmpty || totalSharedAmount != expenseAmount) {
+            for memberId in selectedMembers {
+                splitData[memberId] = calculateEqualSplitAmount(memberId: memberId, amount: expenseAmount, splitTo: selectedMembers)
+            }
+        }
 
-        if splitType == .fixedAmount && totalSharedAmount != expenseAmount {
+        let totalPaidAmount = selectedPayers.map { $0.value }.reduce(0, +)
+        totalSharedAmount = splitData.map { $0.value }.reduce(0, +)
+
+        if (splitType == .fixedAmount || splitType == .equally) && totalSharedAmount != expenseAmount {
             let amountDescription = totalSharedAmount < expenseAmount ? "short" : "over"
             let differenceAmount = totalSharedAmount < expenseAmount ? (expenseAmount - totalSharedAmount) : (totalSharedAmount - expenseAmount)
 
@@ -369,10 +376,9 @@ extension AddExpenseViewModel {
 
     private func handleAddExpenseAction(userId: String, group: Groups) async -> Bool {
         let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
-                              date: Timestamp(date: expenseDate), paidBy: selectedPayers,
-                              addedBy: userId, updatedBy: userId, note: expenseNote,
-                              splitTo: (splitType == .equally) ? selectedMembers : splitData.map({ $0.key }),
-                              splitType: splitType, splitData: splitData)
+                              date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: userId,
+                              note: expenseNote, splitTo: splitData.map({ $0.key }), splitType: splitType,
+                              splitData: splitData)
 
         return await addExpense(group: group, expense: expense)
     }
@@ -418,7 +424,7 @@ extension AddExpenseViewModel {
         }
 
         newExpense.splitType = splitType
-        newExpense.splitTo = (splitType == .equally) ? selectedMembers : splitData.map({ $0.key })
+        newExpense.splitTo = splitData.map({ $0.key })
         newExpense.splitData = splitData
 
         return await updateExpense(group: group, expense: newExpense, oldExpense: expense)

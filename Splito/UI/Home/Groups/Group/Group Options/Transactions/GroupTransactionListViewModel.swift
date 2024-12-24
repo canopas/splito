@@ -253,17 +253,22 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
 
     @objc private func handleUpdateTransaction(notification: Notification) {
         guard let updatedTransaction = notification.object as? Transactions else { return }
-
-        // Update transactionsWithUser
-        if let index = transactionsWithUser.firstIndex(where: { $0.transaction.id == updatedTransaction.id }) {
-            self.transactionsWithUser[index].transaction = updatedTransaction
-            withAnimation {
-                filteredTransactionsForSelectedTab()
+        
+        Task {
+            if let index = transactionsWithUser.firstIndex(where: { $0.transaction.id == updatedTransaction.id }) {
+                if let payer = await fetchUserData(for: updatedTransaction.payerId) {
+                    if let receiver = await fetchUserData(for: updatedTransaction.receiverId) {
+                        self.transactionsWithUser[index] = TransactionWithUser(transaction: updatedTransaction,
+                                                                               payer: payer, receiver: receiver)
+                    }
+                }
+                withAnimation {
+                    filteredTransactionsForSelectedTab()
+                }
             }
-        }
-
-        if let index = transactions.firstIndex(where: { $0.id == updatedTransaction.id }) {
-            transactions[index] = updatedTransaction
+            if let index = transactions.firstIndex(where: { $0.id == updatedTransaction.id }) {
+                transactions[index] = updatedTransaction
+            }
         }
     }
 

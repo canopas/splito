@@ -40,11 +40,11 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     }
 
     private var members: [String] = []
-    private var handleSplitTypeSelection: ((_ members: [String], _ splitData: [String: Double], _ splitType: SplitType) -> Void)
+    private var handleSplitTypeSelection: ((_ splitData: [String: Double], _ splitType: SplitType) -> Void)
 
     init(amount: Double, splitType: SplitType = .equally,
          splitData: [String: Double], members: [String], selectedMembers: [String],
-         handleSplitTypeSelection: @escaping ((_ members: [String], _ splitData: [String: Double], _ splitType: SplitType) -> Void)) {
+         handleSplitTypeSelection: @escaping ((_ splitData: [String: Double], _ splitType: SplitType) -> Void)) {
         self.expenseAmount = amount
         self.selectedTab = splitType
         self.members = members
@@ -56,8 +56,8 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             percentages = splitData
             totalPercentage = splitData.values.reduce(0, +)
         } else if splitType == .fixedAmount {
-            fixedAmounts = splitData
-            totalFixedAmount = splitData.values.reduce(0, +)
+            fixedAmounts = splitData.mapValues { $0.rounded(to: 2) }
+            totalFixedAmount = fixedAmounts.values.reduce(0, +)
         } else if splitType == .shares {
             shares = splitData
             totalShares = splitData.values.reduce(0, +)
@@ -108,16 +108,16 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         switch selectedTab {
         case .equally:
             if selectedMembers.contains(memberId) {
-                fixedAmounts[memberId] = splitAmount
+                fixedAmounts[memberId] = calculateEqualSplitAmount(memberId: memberId, amount: expenseAmount, splitTo: selectedMembers)
             }
         case .fixedAmount:
             break
         case .percentage:
-            let calculatedAmount = totalPercentage == 0 ? 0 : (expenseAmount * (Double(percentages[memberId] ?? 0) / totalPercentage))
-            fixedAmounts[memberId] = calculatedAmount
+            fixedAmounts[memberId] = calculatePercentageSplitAmount(memberId: memberId, amount: expenseAmount,
+                                                                    splitTo: selectedMembers, splitData: percentages)
         case .shares:
-            let calculatedAmount = totalShares == 0 ? 0 : (expenseAmount * (Double(shares[memberId] ?? 0) / totalShares))
-            fixedAmounts[memberId] = calculatedAmount
+            fixedAmounts[memberId] = calculateSharesSplitAmount(memberId: memberId, amount: expenseAmount,
+                                                                splitTo: selectedMembers, splitData: shares)
         }
     }
 
@@ -131,7 +131,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     }
 
     func updateFixedAmount(for memberId: String, amount: Double) {
-        fixedAmounts[memberId] = amount
+        fixedAmounts[memberId] = amount.rounded(to: 2)
         totalFixedAmount = fixedAmounts.values.reduce(0, +)
     }
 
@@ -163,12 +163,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func handleDoneAction(completion: @escaping (Bool) -> Void) {
-        isValidateSplitOption(completion: completion)
-        handleSplitTypeSelection(selectedMembers, getSplitData(), selectedTab)
-    }
-
-    private func isValidateSplitOption(completion: (Bool) -> Void) {
+    func handleDoneAction(completion: (Bool) -> Void) {
         switch selectedTab {
         case .equally:
             if selectedMembers.isEmpty {
@@ -198,6 +193,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             }
         }
 
+        handleSplitTypeSelection(getSplitData(), selectedTab)
         completion(true)
     }
 
@@ -210,7 +206,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         case .shares:
             return shares.filter { $0.value != 0 }
         case .equally:
-            return [:]
+            return fixedAmounts.filter { $0.value != 0 }
         }
     }
 
