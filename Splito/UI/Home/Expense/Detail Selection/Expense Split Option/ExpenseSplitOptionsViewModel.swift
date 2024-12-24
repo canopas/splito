@@ -163,12 +163,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func handleDoneAction(completion: @escaping (Bool) -> Void) {
-        isValidateSplitOption(completion: completion)
-        handleSplitTypeSelection(getSplitData(), selectedTab)
-    }
-
-    private func isValidateSplitOption(completion: (Bool) -> Void) {
+    func handleDoneAction(completion: (Bool) -> Void) {
         switch selectedTab {
         case .equally:
             if selectedMembers.isEmpty {
@@ -198,6 +193,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             }
         }
 
+        handleSplitTypeSelection(getSplitData(), selectedTab)
         completion(true)
     }
 
