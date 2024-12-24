@@ -177,7 +177,7 @@ private struct PercentageView: View {
                     ),
                     member: member, suffixText: "%",
                     isLastCell: member == viewModel.groupMembers.last,
-                    totalValue: viewModel.totalPercentage,
+                    splitAmount: viewModel.calculatePercentageSplitAmount(for: member.id),
                     expenseAmount: viewModel.expenseAmount,
                     onChange: { percentage in
                         viewModel.updatePercentage(for: member.id, percentage: percentage)
@@ -203,7 +203,7 @@ private struct ShareView: View {
                     ),
                     member: member, suffixText: "shares",
                     isLastCell: member == viewModel.groupMembers.last,
-                    totalValue: viewModel.totalShares,
+                    splitAmount: viewModel.calculateSharesSplitAmount(for: member.id),
                     expenseAmount: viewModel.expenseAmount,
                     onChange: { share in
                         viewModel.updateShare(for: member.id, share: share)
@@ -226,7 +226,7 @@ struct MemberCellView: View {
     let formatString: String
     let isLastCell: Bool
 
-    var totalValue: Double?
+    var splitAmount: Double?
     var expenseAmount: Double
     var inputFieldWidth: Double
 
@@ -234,13 +234,13 @@ struct MemberCellView: View {
 
     @State private var textValue: String
 
-    init(value: Binding<Double>, member: AppUser, suffixText: String, formatString: String = "%.0f", isLastCell: Bool, totalValue: Double? = nil, expenseAmount: Double, inputFieldWidth: Double = 40, onChange: @escaping (Double) -> Void) {
+    init(value: Binding<Double>, member: AppUser, suffixText: String, formatString: String = "%.0f", isLastCell: Bool, splitAmount: Double? = nil, expenseAmount: Double, inputFieldWidth: Double = 40, onChange: @escaping (Double) -> Void) {
         self._value = value
         self.member = member
         self.suffixText = suffixText
         self.formatString = formatString
         self.isLastCell = isLastCell
-        self.totalValue = totalValue
+        self.splitAmount = splitAmount
         self.expenseAmount = expenseAmount
         self.inputFieldWidth = inputFieldWidth
         self.onChange = onChange
@@ -257,9 +257,8 @@ struct MemberCellView: View {
                         .font(.subTitle2())
                         .foregroundStyle(primaryText)
 
-                    if totalValue != nil {
-                        let calculatedValue = totalValue == 0 ? 0 : ((expenseAmount) * (Double(value)) / (totalValue!))
-                        Text((calculatedValue).formattedCurrency)
+                    if splitAmount != nil {
+                        Text(splitAmount!.formattedCurrency)
                             .font(.body3(12))
                             .foregroundStyle(disableText)
                     }
