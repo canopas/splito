@@ -177,7 +177,8 @@ private struct PercentageView: View {
                     ),
                     member: member, suffixText: "%",
                     isLastCell: member == viewModel.groupMembers.last,
-                    splitAmount: viewModel.calculatePercentageSplitAmount(for: member.id),
+                    splitAmount: calculatePercentageSplitAmount(memberId: member.id, amount: viewModel.expenseAmount,
+                                                                splitTo: viewModel.selectedMembers, splitData: viewModel.percentages),
                     expenseAmount: viewModel.expenseAmount,
                     onChange: { percentage in
                         viewModel.updatePercentage(for: member.id, percentage: percentage)
@@ -203,7 +204,8 @@ private struct ShareView: View {
                     ),
                     member: member, suffixText: "shares",
                     isLastCell: member == viewModel.groupMembers.last,
-                    splitAmount: viewModel.calculateSharesSplitAmount(for: member.id),
+                    splitAmount: calculateSharesSplitAmount(memberId: member.id, amount: viewModel.expenseAmount,
+                                                            splitTo: viewModel.selectedMembers, splitData: viewModel.shares),
                     expenseAmount: viewModel.expenseAmount,
                     onChange: { share in
                         viewModel.updateShare(for: member.id, share: share)
@@ -257,8 +259,8 @@ struct MemberCellView: View {
                         .font(.subTitle2())
                         .foregroundStyle(primaryText)
 
-                    if splitAmount != nil {
-                        Text(splitAmount!.formattedCurrency)
+                    if let splitAmount {
+                        Text(splitAmount.formattedCurrency)
                             .font(.body3(12))
                             .foregroundStyle(disableText)
                     }
