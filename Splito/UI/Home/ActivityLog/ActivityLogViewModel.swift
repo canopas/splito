@@ -41,25 +41,6 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         self.fetchLatestActivityLogs()
     }
 
-    // Listens for real-time updates and returns the latest activity logs for the current user
-    private func fetchLatestActivityLogs() {
-        guard let userId = preference.user?.id else { return }
-
-        activityLogRepository.fetchLatestActivityLogs(userId: userId) { [weak self] activityLogs in
-            if let activityLogs {
-                for activityLog in activityLogs where !(self?.activityLogs.contains(where: { $0.id == activityLog.id }) ?? false) {
-                    self?.activityLogs.append(activityLog)
-                }
-                self?.filterActivityLogs()
-                if self?.activityLogs.count == 1 {
-                    self?.activityLogState = .hasActivity
-                }
-            } else {
-                self?.showToastForError()
-            }
-        }
-    }
-
     func fetchInitialActivityLogs() {
         Task {
             lastDocument = nil
@@ -75,12 +56,11 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         }
 
         do {
-            let result = try await activityLogRepository.fetchActivitiesBy(userId: userId,
-                                                                           limit: ACTIVITY_LOG_LIMIT,
+            let result = try await activityLogRepository.fetchActivitiesBy(userId: userId, limit: ACTIVITY_LOG_LIMIT,
                                                                            lastDocument: lastDocument)
-            activityLogs = lastDocument == nil ? result.data : (activityLogs + result.data)
             lastDocument = result.lastDocument
             hasMoreLogs = !(result.data.count < ACTIVITY_LOG_LIMIT)
+            activityLogs = lastDocument == nil ? result.data : (activityLogs + result.data)
 
             filterActivityLogs()
             viewState = .initial
@@ -95,6 +75,28 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
     func loadMoreActivityLogs() {
         Task {
             await fetchActivityLogs()
+        }
+    }
+
+    // Listens real-time updates and returns the latest activity logs for the current user
+    private func fetchLatestActivityLogs() {
+        guard let userId = preference.user?.id else { return }
+
+        activityLogRepository.fetchLatestActivityLogs(userId: userId) { [weak self] activityLogs in
+            guard let self else { return }
+            if let activityLogs {
+                for activityLog in activityLogs where !(self.activityLogs.contains(where: { $0.id == activityLog.id })) {
+                    self.activityLogs.append(activityLog)
+                }
+                self.filterActivityLogs()
+                if self.activityLogs.count == 1 {
+                    self.activityLogState = .hasActivity
+                } else if self.activityLogs.count < 1 {
+                    self.activityLogState = .noActivity
+                }
+            } else {
+                self.showToastForError()
+            }
         }
     }
 

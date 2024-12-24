@@ -11,8 +11,8 @@ public struct Transactions: Codable, Hashable, Identifiable {
 
     public var id: String? // Automatically generated ID by Firestore
 
-    public let payerId: String
-    public let receiverId: String
+    public var payerId: String
+    public var receiverId: String
     public let addedBy: String
     public var updatedBy: String
     public var note: String?

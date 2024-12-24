@@ -237,6 +237,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             var newTransaction = transaction
             newTransaction.amount = amount
             newTransaction.date = .init(date: paymentDate)
+            newTransaction.payerId = payerId
+            newTransaction.receiverId = receiverId
             newTransaction.updatedAt = Timestamp()
             newTransaction.updatedBy = userId
             newTransaction.note = paymentNote
