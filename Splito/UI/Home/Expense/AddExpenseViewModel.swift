@@ -339,14 +339,15 @@ extension AddExpenseViewModel {
             return false
         }
 
-        if splitType == .equally && splitData.isEmpty {
+        var totalSharedAmount = splitData.mapValues { $0.rounded(to: 2) }.values.reduce(0, +)
+        if splitType == .equally && (splitData.isEmpty || totalSharedAmount != expenseAmount) {
             for memberId in selectedMembers {
                 splitData[memberId] = calculateEqualSplitAmount(memberId: memberId, amount: expenseAmount, splitTo: selectedMembers)
             }
         }
 
         let totalPaidAmount = selectedPayers.map { $0.value }.reduce(0, +)
-        let totalSharedAmount = splitData.mapValues { $0.rounded(to: 2) }.values.reduce(0, +)
+        totalSharedAmount = splitData.map { $0.value }.reduce(0, +)
 
         if (splitType == .fixedAmount || splitType == .equally) && totalSharedAmount != expenseAmount {
             let amountDescription = totalSharedAmount < expenseAmount ? "short" : "over"
