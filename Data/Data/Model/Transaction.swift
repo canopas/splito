@@ -14,18 +14,18 @@ public struct Transactions: Codable, Hashable, Identifiable {
     public var payerId: String
     public var receiverId: String
     public let addedBy: String
-    public var updatedBy: String
+    public var updatedBy: String?
     public var note: String?
     public var imageUrl: String?
     public var reason: String?
     public var amount: Double
     public var date: Timestamp
-    public var updatedAt: Timestamp
+    public var updatedAt: Timestamp?
     public var isActive: Bool
 
-    public init(payerId: String, receiverId: String, addedBy: String, updatedBy: String,
+    public init(payerId: String, receiverId: String, addedBy: String, updatedBy: String? = nil,
                 note: String? = nil, imageUrl: String? = nil, reason: String? = nil, amount: Double,
-                date: Timestamp, updatedAt: Timestamp = Timestamp(), isActive: Bool = true) {
+                date: Timestamp, updatedAt: Timestamp? = nil, isActive: Bool = true) {
         self.payerId = payerId
         self.receiverId = receiverId
         self.addedBy = addedBy

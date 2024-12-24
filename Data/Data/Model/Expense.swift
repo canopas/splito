@@ -14,10 +14,10 @@ public struct Expense: Codable, Hashable, Identifiable {
     public var name: String
     public var amount: Double
     public var date: Timestamp
-    public var updatedAt: Timestamp
+    public var updatedAt: Timestamp?
     public var paidBy: [String: Double]
     public let addedBy: String
-    public var updatedBy: String
+    public var updatedBy: String?
     public var note: String?
     public var imageUrl: String?
     public var splitTo: [String] // Reference to user ids involved in the split
@@ -25,8 +25,8 @@ public struct Expense: Codable, Hashable, Identifiable {
     public var splitData: [String: Double]? // Use this to store percentage or share data
     public var isActive: Bool
 
-    public init(name: String, amount: Double, date: Timestamp, updatedAt: Timestamp = Timestamp(), paidBy: [String: Double],
-                addedBy: String, updatedBy: String, note: String? = nil, imageUrl: String? = nil, splitTo: [String],
+    public init(name: String, amount: Double, date: Timestamp, updatedAt: Timestamp? = nil, paidBy: [String: Double],
+                addedBy: String, updatedBy: String? = nil, note: String? = nil, imageUrl: String? = nil, splitTo: [String],
                 splitType: SplitType = .equally, splitData: [String: Double]? = [:], isActive: Bool = true) {
         self.name = name
         self.amount = amount

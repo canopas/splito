@@ -377,8 +377,8 @@ extension AddExpenseViewModel {
     private func handleAddExpenseAction(userId: String, group: Groups) async -> Bool {
         let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
                               date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: userId,
-                              updatedBy: userId, note: expenseNote, splitTo: splitData.map({ $0.key }),
-                              splitType: splitType, splitData: splitData)
+                              note: expenseNote, splitTo: splitData.map({ $0.key }), splitType: splitType,
+                              splitData: splitData)
 
         return await addExpense(group: group, expense: expense)
     }
