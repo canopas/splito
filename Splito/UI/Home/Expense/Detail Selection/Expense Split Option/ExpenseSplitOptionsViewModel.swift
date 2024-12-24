@@ -40,11 +40,11 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     }
 
     private var members: [String] = []
-    private var handleSplitTypeSelection: ((_ members: [String], _ splitData: [String: Double], _ splitType: SplitType) -> Void)
+    private var handleSplitTypeSelection: ((_ splitData: [String: Double], _ splitType: SplitType) -> Void)
 
     init(amount: Double, splitType: SplitType = .equally,
          splitData: [String: Double], members: [String], selectedMembers: [String],
-         handleSplitTypeSelection: @escaping ((_ members: [String], _ splitData: [String: Double], _ splitType: SplitType) -> Void)) {
+         handleSplitTypeSelection: @escaping ((_ splitData: [String: Double], _ splitType: SplitType) -> Void)) {
         self.expenseAmount = amount
         self.selectedTab = splitType
         self.members = members
@@ -56,7 +56,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
             percentages = splitData
             totalPercentage = splitData.values.reduce(0, +)
         } else if splitType == .fixedAmount {
-            fixedAmounts = splitData
+            fixedAmounts = splitData.mapValues { $0.rounded(to: 2) }
             totalFixedAmount = splitData.values.reduce(0, +)
         } else if splitType == .shares {
             shares = splitData
@@ -64,6 +64,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
         splitAmount = expenseAmount / Double(selectedMembers.count)
 
+        print("xxx splitData \(splitData)")
         fetchInitialMembersData()
     }
 
@@ -90,6 +91,8 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         self.groupMembers = users
         self.totalFixedAmount = fixedAmounts.values.reduce(0, +)
         self.viewState = .initial
+
+        print("xxx fixedAmounts - \(fixedAmounts)")
     }
 
     func fetchMemberData(for memberId: String) async -> AppUser? {
@@ -108,17 +111,44 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         switch selectedTab {
         case .equally:
             if selectedMembers.contains(memberId) {
-                fixedAmounts[memberId] = splitAmount
+                fixedAmounts[memberId] = calculateEqualSplitAmount(for: memberId)
             }
         case .fixedAmount:
             break
         case .percentage:
             let calculatedAmount = totalPercentage == 0 ? 0 : (expenseAmount * (Double(percentages[memberId] ?? 0) / totalPercentage))
-            fixedAmounts[memberId] = calculatedAmount
+            fixedAmounts[memberId] = calculatedAmount.rounded(to: 2)
         case .shares:
             let calculatedAmount = totalShares == 0 ? 0 : (expenseAmount * (Double(shares[memberId] ?? 0) / totalShares))
-            fixedAmounts[memberId] = calculatedAmount
+            fixedAmounts[memberId] = calculatedAmount.rounded(to: 2)
         }
+    }
+
+    private func calculateEqualSplitAmount(for member: String) -> Double {
+        let totalMembers = Double(self.selectedMembers.count)
+        let baseAmount = (self.expenseAmount / totalMembers).rounded(to: 2)    // Base amount each member owes
+        let totalSplitAmount = baseAmount * totalMembers    // The total split amount after rounding all members base amounts
+        let remainder = self.expenseAmount - totalSplitAmount      // The leftover amount due to rounding
+
+        // Sort members deterministically to ensure consistent assignment of the remainder
+        let sortedMembers = self.selectedMembers.sorted()
+
+        // Assign base amount to each member
+        var splitAmounts: [String: Double] = [:]
+        for splitMember in sortedMembers {
+            splitAmounts[splitMember] = baseAmount
+        }
+
+        // Distribute remainder, if there is any, to the first member in the sorted list
+        if let firstMember = sortedMembers.first, member == firstMember {
+            if remainder > 0 {
+                splitAmounts[firstMember]! += remainder
+            } else if remainder < 0 {
+                splitAmounts[firstMember]! -= abs(remainder)
+            }
+        }
+
+        return splitAmounts[member] ?? 0
     }
 
     // MARK: - User Actions
@@ -131,7 +161,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     }
 
     func updateFixedAmount(for memberId: String, amount: Double) {
-        fixedAmounts[memberId] = amount
+        fixedAmounts[memberId] = amount.rounded(to: 2)
         totalFixedAmount = fixedAmounts.values.reduce(0, +)
     }
 
@@ -165,7 +195,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
 
     func handleDoneAction(completion: @escaping (Bool) -> Void) {
         isValidateSplitOption(completion: completion)
-        handleSplitTypeSelection(selectedMembers, getSplitData(), selectedTab)
+        handleSplitTypeSelection(getSplitData(), selectedTab)
     }
 
     private func isValidateSplitOption(completion: (Bool) -> Void) {
@@ -210,7 +240,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         case .shares:
             return shares.filter { $0.value != 0 }
         case .equally:
-            return [:]
+            return fixedAmounts.filter { $0.value != 0 }
         }
     }
 
