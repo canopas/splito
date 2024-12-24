@@ -92,7 +92,7 @@ extension Expense {
         let totalSplitAmount = baseAmount * totalMembers    // The total split amount after rounding all members base amounts
         let remainder = self.amount - totalSplitAmount      // The leftover amount due to rounding
 
-        // Sort members deterministically to ensure consistent assignment of the remainder.
+        // Sort members deterministically to ensure consistent assignment of the remainder
         let sortedMembers = self.splitTo.sorted()
 
         // Assign base amount to each member
@@ -101,9 +101,13 @@ extension Expense {
             splitAmounts[splitMember] = baseAmount
         }
 
-        // Distribute remainder to the first member in the sorted list
-        if remainder > 0, let firstMember = sortedMembers.first {
-            splitAmounts[firstMember]! += remainder
+        // Distribute remainder, if there is any, to the first member in the sorted list
+        if let firstMember = sortedMembers.first, member == firstMember {
+            if remainder > 0 {
+                splitAmounts[firstMember]! += remainder
+            } else if remainder < 0 {
+                splitAmounts[firstMember]! -= abs(remainder)
+            }
         }
 
         return splitAmounts[member] ?? 0
