@@ -14,10 +14,10 @@ public struct Expense: Codable, Hashable, Identifiable {
     public var name: String
     public var amount: Double
     public var date: Timestamp
-    public var updatedAt: Timestamp
+    public var updatedAt: Timestamp?
     public var paidBy: [String: Double]
     public let addedBy: String
-    public var updatedBy: String
+    public var updatedBy: String?
     public var note: String?
     public var imageUrl: String?
     public var splitTo: [String] // Reference to user ids involved in the split
@@ -25,8 +25,8 @@ public struct Expense: Codable, Hashable, Identifiable {
     public var splitData: [String: Double]? // Use this to store percentage or share data
     public var isActive: Bool
 
-    public init(name: String, amount: Double, date: Timestamp, updatedAt: Timestamp = Timestamp(), paidBy: [String: Double],
-                addedBy: String, updatedBy: String, note: String? = nil, imageUrl: String? = nil, splitTo: [String],
+    public init(name: String, amount: Double, date: Timestamp, updatedAt: Timestamp? = nil, paidBy: [String: Double],
+                addedBy: String, updatedBy: String? = nil, note: String? = nil, imageUrl: String? = nil, splitTo: [String],
                 splitType: SplitType = .equally, splitData: [String: Double]? = [:], isActive: Bool = true) {
         self.name = name
         self.amount = amount
@@ -73,40 +73,16 @@ extension Expense {
 
         switch self.splitType {
         case .equally:
-            return calculateEqualSplitAmount(for: member)
+            return calculateEqualSplitAmount(memberId: member, amount: self.amount, splitTo: self.splitTo)
         case .fixedAmount:
             return self.splitData?[member] ?? 0
         case .percentage:
-            let totalPercentage = self.splitData?.values.reduce(0, +) ?? 0
-            return self.amount * (self.splitData?[member] ?? 0) / totalPercentage
+            return calculatePercentageSplitAmount(memberId: member, amount: self.amount,
+                                                  splitTo: self.splitTo, splitData: self.splitData ?? [:])
         case .shares:
-            let totalShares = self.splitData?.values.reduce(0, +) ?? 0
-            return self.amount * ((self.splitData?[member] ?? 0) / totalShares)
+            return calculateSharesSplitAmount(memberId: member, amount: self.amount,
+                                              splitTo: self.splitTo, splitData: self.splitData ?? [:])
         }
-    }
-
-    /// Returns the equal split amount for the member
-    private func calculateEqualSplitAmount(for member: String) -> Double {
-        let totalMembers = Double(self.splitTo.count)
-        let baseAmount = (self.amount / totalMembers).rounded(to: 2)    // Base amount each member owes
-        let totalSplitAmount = baseAmount * totalMembers    // The total split amount after rounding all members base amounts
-        let remainder = self.amount - totalSplitAmount      // The leftover amount due to rounding
-
-        // Sort members deterministically to ensure consistent assignment of the remainder.
-        let sortedMembers = self.splitTo.sorted()
-
-        // Assign base amount to each member
-        var splitAmounts: [String: Double] = [:]
-        for splitMember in sortedMembers {
-            splitAmounts[splitMember] = baseAmount
-        }
-
-        // Distribute remainder to the first member in the sorted list
-        if remainder > 0, let firstMember = sortedMembers.first {
-            splitAmounts[firstMember]! += remainder
-        }
-
-        return splitAmounts[member] ?? 0
     }
 
     /// It will return the owing amount to the member for that expense that he have to get or pay back
@@ -140,4 +116,83 @@ public struct ExpenseWithUser: Hashable {
         self.expense = expense
         self.user = user
     }
+}
+
+public func calculateEqualSplitAmount(memberId: String, amount: Double, splitTo: [String]) -> Double {
+    let totalMembers = Double(splitTo.count)
+    let baseAmount = (amount / totalMembers).rounded(to: 2)    // Base amount each member owes
+    let remainder = amount - (baseAmount * totalMembers)      // The leftover amount due to rounding
+    let sortedMembers = splitTo.sorted() // Sort members deterministically for consistent assignment of remainder
+
+    // Assign base amount to each member
+    var splitAmounts: [String: Double] = [:]
+    for splitMember in sortedMembers {
+        splitAmounts[splitMember] = baseAmount
+    }
+
+    // Distribute remainder, if there is any, to the first member in the sorted list
+    if let firstMember = sortedMembers.first, memberId == firstMember {
+        splitAmounts[firstMember]! += remainder
+    }
+
+    return splitAmounts[memberId] ?? 0
+}
+
+public func calculatePercentageSplitAmount(memberId: String, amount: Double, splitTo: [String], splitData: [String: Double]) -> Double {
+    let totalPercentage = splitData.values.reduce(0, +)
+    if totalPercentage == 0 { return 0 }
+
+    var splitAmounts: [String: Double] = [:]
+    var totalUnroundedAmount = 0.0
+    var totalRoundedAmount = 0.0
+    var roundedSplitAmounts: [String: Double] = [:]
+    let sortedMembers = splitTo.sorted()
+
+    // Calculate unrounded amounts based on percentages
+    for splitMember in splitTo {
+        let percentage = Double(splitData[splitMember] ?? 0)
+        let unroundedAmount = totalPercentage == 0 ? 0 : (amount * (percentage / totalPercentage))
+        splitAmounts[splitMember] = unroundedAmount
+        totalUnroundedAmount += unroundedAmount
+    }
+
+    // Round the unrounded amounts to 2 decimal places
+    for (splitMember, unroundedAmount) in splitAmounts {
+        let roundedAmount = unroundedAmount.rounded(to: 2)
+        roundedSplitAmounts[splitMember] = roundedAmount
+        totalRoundedAmount += roundedAmount
+    }
+
+    // Distribute remainder, if there is any, to the first member in the sorted list
+    if let firstMember = sortedMembers.first, memberId == firstMember {
+        let remainder = amount - totalRoundedAmount
+        roundedSplitAmounts[firstMember]! += remainder
+    }
+
+    return roundedSplitAmounts[memberId] ?? 0
+}
+
+public func calculateSharesSplitAmount(memberId: String, amount: Double, splitTo: [String], splitData: [String: Double]) -> Double {
+    let totalShares = splitData.values.reduce(0, +)
+    if totalShares == 0 { return 0 }
+
+    var totalRoundedAmount = 0.0
+    var splitAmounts: [String: Double] = [:]
+    let sortedMembers = splitTo.sorted()
+
+    // Assign rounded share amounts to each member
+    for splitMember in splitTo {
+        let unroundedAmount = amount * (Double(splitData[splitMember] ?? 0) / totalShares)
+        let roundedAmount = unroundedAmount.rounded(to: 2)
+        splitAmounts[splitMember] = roundedAmount
+        totalRoundedAmount += roundedAmount
+    }
+
+    // Distribute remainder, if there is any, to the first member in the sorted list
+    if let firstMember = sortedMembers.first, memberId == firstMember {
+        let remainder = amount - totalRoundedAmount
+        splitAmounts[firstMember]! += remainder
+    }
+
+    return splitAmounts[memberId] ?? 0
 }

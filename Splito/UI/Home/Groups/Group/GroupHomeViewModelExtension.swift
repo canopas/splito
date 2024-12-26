@@ -8,6 +8,7 @@
 import Data
 import SwiftUI
 import BaseStyle
+import FirebaseFirestore
 
 // MARK: - User Actions
 extension GroupHomeViewModel {
@@ -165,11 +166,16 @@ extension GroupHomeViewModel {
     }
 
     private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {
-        guard var group, let expenseId = expense.id else { return }
-        let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
-        group.balances = memberBalance
+        guard var group, let userId = preference.user?.id, let expenseId = expense.id else {
+            LogE("GroupHomeViewModel: \(#function) Group or expense information not found.")
+            return
+        }
 
         do {
+            let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
+            group.balances = memberBalance
+            group.updatedAt = Timestamp()
+            group.updatedBy = userId
             try await groupRepository.updateGroup(group: group, type: .none)
             NotificationCenter.default.post(name: .deleteExpense, object: expense)
             LogD("GroupHomeViewModel: \(#function) Member balance updated successfully.")

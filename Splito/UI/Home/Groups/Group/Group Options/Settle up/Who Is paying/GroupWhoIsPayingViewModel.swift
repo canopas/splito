@@ -42,7 +42,7 @@ class GroupWhoIsPayingViewModel: BaseViewModel, ObservableObject {
                 currentViewState = .initial
                 return
             }
-            self.members = try await groupRepository.fetchMembersBy(memberIds: group.members)
+            members = try await groupRepository.fetchMembersBy(memberIds: group.members)
             currentViewState = .initial
             LogD("GroupWhoIsPayingViewModel: \(#function) Group with members fetched successfully.")
         } catch {

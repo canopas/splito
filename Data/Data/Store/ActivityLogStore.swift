@@ -14,8 +14,6 @@ class ActivityLogStore: ObservableObject {
 
     @Inject private var database: Firestore
 
-    private var listener: ListenerRegistration?
-
     private func activityReference(userId: String) -> CollectionReference {
         database
             .collection(COLLECTION_NAME)
@@ -23,36 +21,41 @@ class ActivityLogStore: ObservableObject {
             .collection(SUB_COLLECTION_NAME)
     }
 
-    deinit {
-        listener?.remove()
-    }
+    func fetchLatestActivityLogs(userId: String) -> AsyncStream<[ActivityLog]?> {
+        AsyncStream { continuation in
+            let query = activityReference(userId: userId)
+                .order(by: "recorded_on", descending: true)
+                .limit(to: 10)
 
-    func fetchLatestActivityLogs(userId: String, completion: @escaping ([ActivityLog]?) -> Void) {
-        listener?.remove()
-        listener = activityReference(userId: userId).addSnapshotListener { snapshot, error in
-            if let error {
-                LogE("ActivityLogStore: \(#function) Error fetching document: \(error).")
-                completion(nil)
-                return
-            }
+            let listener = query.addSnapshotListener { snapshot, error in
+                if let error {
+                    LogE("ActivityLogStore: \(#function) Error fetching document: \(error).")
+                    continuation.finish()
+                    return
+                }
 
-            guard let snapshot else {
-                LogE("ActivityLogStore: \(#function) snapshot is nil for requested user.")
-                completion(nil)
-                return
-            }
+                guard let snapshot else {
+                    LogE("ActivityLogStore: \(#function) snapshot is nil for requested user.")
+                    continuation.finish()
+                    return
+                }
 
-            let activityLogs: [ActivityLog] = snapshot.documents.compactMap { document in
                 do {
-                    return try document.data(as: ActivityLog.self)
+                    let activityLogs: [ActivityLog] = try snapshot.documents.compactMap { document in
+                        try document.data(as: ActivityLog.self)
+                    }
+                    continuation.yield(activityLogs)
+                    LogD("ActivityLogStore: \(#function) Latest activity logs fetched successfully.")
                 } catch {
                     LogE("ActivityLogStore: \(#function) Error decoding document data: \(error).")
-                    return nil
+                    continuation.finish()
                 }
             }
 
-            LogD("ActivityLogStore: \(#function) Latest activity logs fetched successfully.")
-            completion(activityLogs)
+            // Clean up: Remove listener when the stream is cancelled
+            continuation.onTermination = { _ in
+                listener.remove()
+            }
         }
     }
 

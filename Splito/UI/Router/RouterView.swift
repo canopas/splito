@@ -12,11 +12,13 @@ import BaseStyle
 public struct RouterView<T: Hashable, Content: View>: View {
 
     @StateObject var router: Router<T>
+    private let tint: Color
 
     @ViewBuilder var buildView: (T) -> Content
 
-    public init(router: Router<T>, @ViewBuilder buildView: @escaping (T) -> Content) {
+    public init(router: Router<T>, tint: Color = primaryText, @ViewBuilder buildView: @escaping (T) -> Content) {
         self._router = .init(wrappedValue: router)
+        self.tint = tint
         self.buildView = buildView
     }
 
@@ -27,7 +29,7 @@ public struct RouterView<T: Hashable, Content: View>: View {
                     buildView(path)
                 }
         }
-        .tint(primaryText)
+        .tint(tint)
         .environmentObject(router)
     }
 }

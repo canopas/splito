@@ -67,43 +67,34 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func fetchTransactions() async {
-        do {
+    func fetchTransactions(needToReload: Bool = false) async {
+        guard hasMoreTransactions || needToReload else {
+            currentViewState = .initial
+            return
+        }
+        if lastDocument == nil {
             transactionsWithUser = []
+        }
 
-            let result = try await transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT)
+        do {
+            let result = try await transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT, lastDocument: lastDocument)
+            transactions = lastDocument == nil ? result.transactions.uniqued() : (transactions + result.transactions.uniqued())
             lastDocument = result.lastDocument
-            transactions = result.transactions.uniqued()
 
-            await combinedTransactionsWithUser(transactions: result.transactions)
+            await combinedTransactionsWithUser(transactions: result.transactions.uniqued())
             hasMoreTransactions = !(result.transactions.count < TRANSACTIONS_LIMIT)
             currentViewState = .initial
             LogD("GroupTransactionListViewModel: \(#function) Payments fetched successfully.")
         } catch {
             LogE("GroupTransactionListViewModel: \(#function) Failed to fetch payments: \(error).")
-            handleServiceError()
+            handleErrorState()
         }
     }
 
-    func loadMoreTransactions() {
+    func processTransactionsLoad(needToReload: Bool = false) {
+        if needToReload { lastDocument = nil }
         Task {
-            await fetchMoreTransactions()
-        }
-    }
-
-    private func fetchMoreTransactions() async {
-        do {
-            let result = try await transactionRepository.fetchTransactionsBy(groupId: groupId,
-                                                                             limit: TRANSACTIONS_LIMIT, lastDocument: lastDocument)
-            lastDocument = result.lastDocument
-            transactions.append(contentsOf: result.transactions.uniqued())
-
-            await combinedTransactionsWithUser(transactions: result.transactions.uniqued())
-            hasMoreTransactions = !(result.transactions.count < TRANSACTIONS_LIMIT)
-            LogD("GroupTransactionListViewModel: \(#function) Payments fetched successfully.")
-        } catch {
-            LogE("GroupTransactionListViewModel: \(#function) Failed to fetch more payments: \(error).")
-            showToastForError()
+            await fetchTransactions(needToReload: needToReload)
         }
     }
 
@@ -119,8 +110,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             }
         }
 
-        self.transactionsWithUser.append(contentsOf: combinedData)
-        self.filteredTransactionsForSelectedTab()
+        transactionsWithUser.append(contentsOf: combinedData)
+        filteredTransactionsForSelectedTab()
     }
 
     private func fetchUserData(for userId: String) async -> AppUser? {
@@ -192,11 +183,16 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateGroupMemberBalance(transaction: Transactions, updateType: TransactionUpdateType) async {
-        guard var group, let transactionId = transaction.id else { return }
+        guard var group, let userId = preference.user?.id, let transactionId = transaction.id else {
+            LogE("GroupTransactionListViewModel: \(#function) Group or payment information not found.")
+            return
+        }
 
         do {
             let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
             group.balances = memberBalance
+            group.updatedAt = Timestamp()
+            group.updatedBy = userId
             try await groupRepository.updateGroup(group: group, type: .none)
             NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
             LogD("GroupTransactionListViewModel: \(#function) Member balance updated successfully.")
@@ -254,16 +250,21 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
     @objc private func handleUpdateTransaction(notification: Notification) {
         guard let updatedTransaction = notification.object as? Transactions else { return }
 
-        // Update transactionsWithUser
-        if let index = transactionsWithUser.firstIndex(where: { $0.transaction.id == updatedTransaction.id }) {
-            self.transactionsWithUser[index].transaction = updatedTransaction
-            withAnimation {
-                filteredTransactionsForSelectedTab()
+        Task {
+            if let index = transactionsWithUser.firstIndex(where: { $0.transaction.id == updatedTransaction.id }) {
+                if let payer = await fetchUserData(for: updatedTransaction.payerId) {
+                    if let receiver = await fetchUserData(for: updatedTransaction.receiverId) {
+                        self.transactionsWithUser[index] = TransactionWithUser(transaction: updatedTransaction,
+                                                                               payer: payer, receiver: receiver)
+                    }
+                }
+                withAnimation {
+                    filteredTransactionsForSelectedTab()
+                }
             }
-        }
-
-        if let index = transactions.firstIndex(where: { $0.id == updatedTransaction.id }) {
-            transactions[index] = updatedTransaction
+            if let index = transactions.firstIndex(where: { $0.id == updatedTransaction.id }) {
+                transactions[index] = updatedTransaction
+            }
         }
     }
 
@@ -295,6 +296,15 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             currentViewState = .somethingWentWrong
         }
     }
+
+    private func handleErrorState() {
+        if lastDocument == nil {
+            handleServiceError()
+        } else {
+            currentViewState = .initial
+            showToastForError()
+        }
+    }
 }
 
 // MARK: - View States
@@ -312,26 +322,4 @@ struct TransactionWithUser: Hashable {
     var transaction: Transactions
     let payer: AppUser?
     let receiver: AppUser?
-}
-
-func sortMonthYearStrings(_ s1: String, _ s2: String) -> Bool {
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "MMMM yyyy"
-
-    guard let date1 = dateFormatter.date(from: s1),
-          let date2 = dateFormatter.date(from: s2) else {
-        return false
-    }
-
-    let components1 = Calendar.current.dateComponents([.year, .month], from: date1)
-    let components2 = Calendar.current.dateComponents([.year, .month], from: date2)
-
-    // Compare years first
-    if components1.year != components2.year {
-        return (components1.year ?? 0) > (components2.year ?? 0)
-    }
-    // If years are the same, compare months
-    else {
-        return (components1.month ?? 0) > (components2.month ?? 0)
-    }
 }

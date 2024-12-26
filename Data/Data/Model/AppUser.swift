@@ -50,7 +50,7 @@ public struct AppUser: Identifiable, Codable, Hashable, Sendable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id
+        case id = "id"
         case firstName = "first_name"
         case lastName = "last_name"
         case emailId = "email_id"
@@ -67,4 +67,5 @@ public enum LoginType: String, Codable, Sendable {
     case Apple = "apple"
     case Google = "google"
     case Email = "email"
+    case None = ""
 }

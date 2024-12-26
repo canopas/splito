@@ -45,12 +45,6 @@ struct GroupSettingView: View {
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .confirmationDialog("", isPresented: $viewModel.showLeaveGroupDialog, titleVisibility: .hidden) {
-            Button("Leave Group", action: viewModel.onRemoveAndLeaveFromGroupTap)
-        }
-        .confirmationDialog("", isPresented: $viewModel.showRemoveMemberDialog, titleVisibility: .hidden) {
-            Button("Remove from group", action: viewModel.onRemoveAndLeaveFromGroupTap)
-        }
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -147,6 +141,12 @@ private struct GroupMembersView: View {
             Divider()
                 .frame(height: 1)
                 .background(dividerColor)
+        }
+        .confirmationDialog("", isPresented: $viewModel.showLeaveGroupDialog, titleVisibility: .hidden) {
+            Button("Leave Group", action: viewModel.onRemoveAndLeaveFromGroupTap)
+        }
+        .confirmationDialog("", isPresented: $viewModel.showRemoveMemberDialog, titleVisibility: .hidden) {
+            Button("Remove from group", action: viewModel.onRemoveAndLeaveFromGroupTap)
         }
     }
 }

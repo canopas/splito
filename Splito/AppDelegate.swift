@@ -79,24 +79,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         }
 
         @Inject var preference: SplitoPreference
-        guard let userId = preference.user?.id else { return }
-        updateDeviceFcmToken(userId: userId, fcmToken: fcmToken)
-    }
-
-    func updateDeviceFcmToken(userId: String, fcmToken: String, retryCount: Int = 3) {
-        Firestore.firestore().collection("users").document(userId).setData([
-            "device_fcm_token": fcmToken
-        ], merge: true) { error in
-            if let error {
-                LogE("AppDelegate: \(#function) Failed to update device fcm token: \(error).")
-                if retryCount > 0 {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-                        self?.updateDeviceFcmToken(userId: userId, fcmToken: fcmToken, retryCount: retryCount - 1)
-                    }
-                }
-            } else {
-                LogI("AppDelegate: \(#function) Device fcm token updated successfully.")
-            }
-        }
+        preference.fcmToken = fcmToken
     }
 }

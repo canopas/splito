@@ -2,7 +2,7 @@
 //  AddNoteViewModel.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 27/11/24.
+//  Created by Amisha Italiya on 27/11/24.
 //
 
 import Data

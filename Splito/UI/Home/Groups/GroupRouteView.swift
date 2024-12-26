@@ -13,6 +13,8 @@ struct GroupRouteView: View {
 
     @StateObject var appRoute = Router(root: AppRoute.GroupListView)
 
+    @StateObject private var viewModel = GroupRouteViewModel()
+
     @Binding var isTabBarVisible: Bool
 
     var body: some View {
@@ -42,5 +44,18 @@ struct GroupRouteView: View {
                 EmptyRouteView(routeName: self)
             }
         }
+    }
+}
+
+class GroupRouteViewModel: ObservableObject {
+
+    @Inject var userRepository: UserRepository
+
+    init() {
+        setUserDeviceFcmToken()
+    }
+
+    func setUserDeviceFcmToken() {
+        userRepository.updateDeviceFcmToken()
     }
 }

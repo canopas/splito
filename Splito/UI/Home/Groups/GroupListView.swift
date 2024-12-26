@@ -20,7 +20,9 @@ struct GroupListView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if .noInternet == viewModel.currentViewState || .somethingWentWrong == viewModel.currentViewState {
-                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: viewModel.fetchGroupsInitialData)
+                ErrorView(isForNoInternet: viewModel.currentViewState == .noInternet, onClick: {
+                    viewModel.fetchGroupsInitialData()
+                })
             } else if case .loading = viewModel.currentViewState {
                 LoaderView()
                 Spacer(minLength: 60)
@@ -54,7 +56,7 @@ struct GroupListView: View {
                                             .stroke(outlineColor, lineWidth: 1)
                                     })
                                     .focused($isFocused)
-                                    .onAppear {
+                                    .task {
                                         isFocused = true
                                     }
                                     .padding([.horizontal, .top], 16)
@@ -64,9 +66,7 @@ struct GroupListView: View {
                         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
                         .frame(maxWidth: .infinity, alignment: .center)
 
-                        GroupListWithDetailView(isFocused: $isFocused, viewModel: viewModel) {
-                            isFocused = false
-                        }
+                        GroupListWithDetailView(isFocused: $isFocused, viewModel: viewModel)
                     }
                 }
             }

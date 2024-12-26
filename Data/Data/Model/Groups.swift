@@ -13,7 +13,7 @@ public struct Groups: Codable, Identifiable {
 
     public var name: String
     public var createdBy: String
-    public var updatedBy: String
+    public var updatedBy: String?
     public var imageUrl: String?
     public var members: [String]
     public var balances: [GroupMemberBalance]
@@ -22,7 +22,7 @@ public struct Groups: Codable, Identifiable {
     public var hasExpenses: Bool
     public var isActive: Bool
 
-    public init(name: String, createdBy: String, updatedBy: String, imageUrl: String? = nil,
+    public init(name: String, createdBy: String, updatedBy: String? = nil, imageUrl: String? = nil,
                 members: [String], balances: [GroupMemberBalance], createdAt: Timestamp = Timestamp(),
                 updatedAt: Timestamp = Timestamp(), hasExpenses: Bool = false, isActive: Bool = true) {
         self.name = name

@@ -36,10 +36,8 @@ struct GroupExpenseListView: View {
                             .focused(isFocused)
                             .padding(.bottom, 8)
                             .padding(.horizontal, 16)
-                            .onAppear {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                    isFocused.wrappedValue = true
-                                }
+                            .task {
+                                isFocused.wrappedValue = true
                             }
                     }
 
@@ -102,14 +100,14 @@ struct GroupExpenseListView: View {
                     }
                     .listStyle(.plain)
                     .overlay(alignment: .bottomTrailing) {
-                        if viewModel.showScrollToTopBtn {
+                        if viewModel.showScrollToTopBtn && !viewModel.groupExpenses.isEmpty {
                             ScrollToTopButton {
                                 withAnimation { scrollProxy.scrollTo("expense_list", anchor: .top) }
                             }.padding([.trailing, .bottom], 16)
                         }
                     }
                     .refreshable {
-                        viewModel.fetchGroupAndExpenses()
+                        viewModel.fetchGroupAndExpenses(needToReload: true)
                     }
                 }
             }

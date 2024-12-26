@@ -69,7 +69,7 @@ public class ExpenseRepository: ObservableObject {
     private func hasExpenseChanged(_ expense: Expense, oldExpense: Expense) -> Bool {
         return oldExpense.name != expense.name || oldExpense.amount != expense.amount ||
         oldExpense.date.dateValue() != expense.date.dateValue() ||
-        oldExpense.updatedAt.dateValue() != expense.updatedAt.dateValue() ||
+        oldExpense.updatedAt?.dateValue() != expense.updatedAt?.dateValue() ||
         oldExpense.paidBy != expense.paidBy || oldExpense.updatedBy != expense.updatedBy ||
         oldExpense.note != expense.note || oldExpense.imageUrl != expense.imageUrl ||
         oldExpense.splitTo != expense.splitTo || oldExpense.splitType != expense.splitType ||
@@ -91,8 +91,17 @@ public class ExpenseRepository: ObservableObject {
     }
 
     private func getInvolvedUserIds(oldExpense: Expense, expense: Expense, user: AppUser) -> Set<String> {
-        Set(oldExpense.splitTo + Array(oldExpense.paidBy.keys) + expense.splitTo + Array(expense.paidBy.keys) +
-            [user.id, expense.addedBy, expense.updatedBy])
+        var memberIds = Set<String>()
+        memberIds.formUnion(oldExpense.splitTo)
+        memberIds.formUnion(oldExpense.paidBy.keys)
+        memberIds.formUnion(expense.splitTo)
+        memberIds.formUnion(expense.paidBy.keys)
+        memberIds.insert(user.id)
+        memberIds.insert(expense.addedBy)
+        if let updatedBy = expense.updatedBy {
+            memberIds.insert(updatedBy)
+        }
+        return memberIds
     }
 
     private func addActivityLogsInParallel(for userIds: Set<String>, context: ActivityLogContext) async throws {
