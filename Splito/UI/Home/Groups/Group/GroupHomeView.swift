@@ -19,8 +19,9 @@ struct GroupHomeView: View {
         GeometryReader { geometry in
             VStack(alignment: .leading, spacing: 0) {
                 if .noInternet == viewModel.groupState || .somethingWentWrong == viewModel.groupState {
-                    ErrorView(isForNoInternet: viewModel.groupState == .noInternet,
-                              onClick: viewModel.fetchGroupAndExpenses)
+                    ErrorView(isForNoInternet: viewModel.groupState == .noInternet, onClick: {
+                        viewModel.fetchGroupAndExpenses()
+                    })
                 } else {
                     if case .loading = viewModel.groupState {
                         LoaderView()

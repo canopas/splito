@@ -26,6 +26,7 @@ public class UserRepository: ObservableObject {
         } else {
             LogD("UserRepository: \(#function) User does not exist. Adding new user.")
             try await store.addUser(user: user)
+            LogD("UserRepository: \(#function) User stored successfully.")
             return user
         }
     }
@@ -75,17 +76,35 @@ public class UserRepository: ObservableObject {
         }
     }
 
-    public func deleteUser(id: String) async throws {
-        try await store.deactivateUserAfterDelete(userId: id)
+    public func deleteUser(user: AppUser) async throws {
+        do {
+            try await store.deactivateUserAfterDelete(userId: user.id)
+            try await deleteUserFromAuth()
+        } catch {
+            // Rollback deactivation if auth deletion fails
+            _ = try await store.updateUser(user: user)
+            throw error
+        }
     }
 
     private func deleteUserFromAuth() async throws {
+        guard let user = FirebaseProvider.auth.currentUser else {
+            throw NSError(domain: "AuthError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No logged-in user found"])
+        }
+        try await user.delete()
+    }
+
+    public func updateDeviceFcmToken(retryCount: Int = 3) {
         Task {
-            FirebaseProvider.auth.currentUser?.delete { error in
-                if let error {
-                    LogE("UserRepository: \(#function) Deleting user from Auth failed with error: \(error).")
-                } else {
-                    LogD("UserRepository: \(#function) User deactivated.")
+            guard let userId = preference.user?.id, let fcmToken = preference.fcmToken else { return }
+
+            do {
+                try await store.updateUserDeviceFcmToken(userId: userId, fcmToken: fcmToken)
+                LogI("AppDelegate: \(#function) Device fcm token updated successfully.")
+            } catch {
+                LogE("AppDelegate: \(#function) Failed to update device fcm token: \(error).")
+                if retryCount > 0 {
+                    updateDeviceFcmToken(retryCount: retryCount - 1)
                 }
             }
         }

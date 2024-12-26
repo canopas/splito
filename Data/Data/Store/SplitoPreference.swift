@@ -13,6 +13,7 @@ public class SplitoPreference {
         case isOnboardShown = "is_onboard_shown"
         case isVerifiedUser = "is_verified_user"
         case user           = "user"
+        case fcmToken       = "device_fcm_token"
     }
 
     private let userDefaults: UserDefaults
@@ -56,6 +57,15 @@ public class SplitoPreference {
             } catch let error {
                 LogE("AppPreferences \(#function) json encode error: \(error).")
             }
+        }
+    }
+
+    public var fcmToken: String? {
+        get {
+            return userDefaults.string(forKey: Key.fcmToken.rawValue)
+        } set {
+            userDefaults.set(newValue, forKey: Key.fcmToken.rawValue)
+            userDefaults.synchronize()
         }
     }
 

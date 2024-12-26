@@ -135,7 +135,8 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
         do {
             isSaveInProgress = true
-            let user = try await userRepository.updateUserWithImage(imageData: imageData, newImageUrl: profileImageUrl, user: newUser)
+            let user = try await userRepository.updateUserWithImage(imageData: imageData,
+                                                                    newImageUrl: profileImageUrl, user: newUser)
             preference.user = user
             isSaveInProgress = false
 
@@ -197,9 +198,8 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
 
         do {
             isDeleteInProgress = true
-            try await userRepository.deleteUser(id: user.id)
-            preference.isOnboardShown = false
-            preference.clearPreferenceSession()
+            try await userRepository.deleteUser(user: user)
+            resetOnboardingState()
             isDeleteInProgress = false
             goToOnboardScreen()
             LogD("UserProfileViewModel: \(#function) User deleted successfully.")
@@ -220,11 +220,18 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                 showAlert = true
             } else {
                 showToastForError()
+                goToOnboardScreen()
             }
         }
     }
 
+    private func resetOnboardingState() {
+        preference.isOnboardShown = false
+        preference.clearPreferenceSession()
+    }
+
     private func goToOnboardScreen() {
+        resetOnboardingState()
         router?.popToRoot()
     }
 }
@@ -285,6 +292,8 @@ extension UserProfileViewModel {
 
         case .Email:
             handleEmailLogin(completion: completion)
+
+        default: break
         }
     }
 

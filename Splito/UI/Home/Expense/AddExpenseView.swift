@@ -74,7 +74,7 @@ struct AddExpenseView: View {
                         ExpenseSplitOptionsViewModel(
                             amount: viewModel.expenseAmount, splitType: viewModel.splitType, splitData: viewModel.splitData,
                             members: viewModel.groupMembers, selectedMembers: viewModel.selectedMembers,
-                            handleSplitTypeSelection: viewModel.handleSplitTypeSelectionAction(members:splitData:splitType:)
+                            handleSplitTypeSelection: viewModel.handleSplitTypeSelectionAction(splitData:splitType:)
                         )
                 )
             }

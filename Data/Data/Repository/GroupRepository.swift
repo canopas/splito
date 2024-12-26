@@ -102,7 +102,7 @@ public class GroupRepository: ObservableObject {
         // Change new admin if the old admin leaves the group
         if removedMember.id == group.createdBy {
             // Create another top member as a new admin
-            if let newAdmin = group.members.first {
+            if let newAdmin = group.members.first(where: { $0 != removedMember.id }) {
                 group.createdBy = newAdmin
             }
         }

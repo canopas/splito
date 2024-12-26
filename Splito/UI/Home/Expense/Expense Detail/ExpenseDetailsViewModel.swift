@@ -147,7 +147,8 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        guard var expense, let userId = preference.user?.id, validateUserPermission(operationText: "restored", action: "restored"),
+        guard var expense, let userId = preference.user?.id,
+              validateUserPermission(operationText: "restored", action: "restored"),
               validateGroupMembers(action: "restored") else { return }
 
         Task { [weak self] in
@@ -226,7 +227,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     private func validateUserPermission(operationText: String, action: String) -> Bool {
         guard let userId = preference.user?.id, let group, group.members.contains(userId) else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            DispatchQueue.main.async {
                 self.showAlertFor(title: "Error",
                                   message: "This expense could not be \(operationText). You do not have permission to \(action) this expense, Sorry!")
             }
@@ -236,7 +237,8 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateGroupMemberBalance(updateType: ExpenseUpdateType) async {
-        guard var group, let expense else {
+        guard var group, let userId = preference.user?.id, let expense else {
+            LogE("ExpenseDetailsViewModel: \(#function) Group or expense information not found.")
             viewState = .initial
             return
         }
@@ -244,6 +246,8 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         do {
             let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
             group.balances = memberBalance
+            group.updatedAt = Timestamp()
+            group.updatedBy = userId
             try await groupRepository.updateGroup(group: group, type: .none)
             LogD("ExpenseDetailsViewModel: \(#function) Member balance updated successfully.")
         } catch {

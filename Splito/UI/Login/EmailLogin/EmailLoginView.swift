@@ -65,10 +65,7 @@ struct EmailLoginView: View {
         .background(surfaceColor)
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .ignoresSafeArea(edges: .top)
-        .toolbar(.hidden, for: .navigationBar)
-        .overlay(alignment: .topLeading) {
-            BackButton(onClick: viewModel.navigateToRoot)
-        }
+        .toolbarRole(.editor)
         .onTapGesture {
             UIApplication.shared.endEditing()
         }

@@ -91,7 +91,7 @@ private struct TransactionListWithDetailView: View {
                                             ProgressView()
                                                 .frame(maxWidth: .infinity, alignment: .center)
                                                 .onAppear {
-                                                    viewModel.loadMoreTransactions()
+                                                    viewModel.processTransactionsLoad()
                                                 }
                                                 .padding(.vertical, 8)
                                         }
@@ -107,9 +107,7 @@ private struct TransactionListWithDetailView: View {
                 }
                 .listStyle(.plain)
                 .refreshable {
-                    Task {
-                        await viewModel.fetchTransactions()
-                    }
+                    viewModel.processTransactionsLoad(needToReload: true)
                 }
                 .overlay(alignment: .bottomTrailing) {
                     if viewModel.showScrollToTopBtn {

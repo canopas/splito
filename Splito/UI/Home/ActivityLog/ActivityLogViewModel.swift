@@ -26,6 +26,7 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
 
     private let router: Router<AppRoute>
     private var lastDocument: DocumentSnapshot?
+    private var task: Task<Void, Never>?  // Reference to the current asynchronous task that fetches logs
 
     static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -41,46 +42,30 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         self.fetchLatestActivityLogs()
     }
 
-    // Listens for real-time updates and returns the latest activity logs for the current user
-    private func fetchLatestActivityLogs() {
-        guard let userId = preference.user?.id else { return }
-
-        activityLogRepository.fetchLatestActivityLogs(userId: userId) { [weak self] activityLogs in
-            if let activityLogs {
-                for activityLog in activityLogs where !(self?.activityLogs.contains(where: { $0.id == activityLog.id }) ?? false) {
-                    self?.activityLogs.append(activityLog)
-                }
-                self?.filterActivityLogs()
-                if self?.activityLogs.count == 1 {
-                    self?.activityLogState = .hasActivity
-                }
-            } else {
-                self?.showToastForError()
-            }
-        }
+    deinit {
+        task?.cancel()
     }
 
-    func fetchInitialActivityLogs() {
+    func fetchInitialActivityLogs(needToReload: Bool = false) {
+        lastDocument = nil
         Task {
-            lastDocument = nil
-            await fetchActivityLogs()
+            await fetchActivityLogs(needToReload: needToReload)
         }
     }
 
     // MARK: - Data Loading
-    private func fetchActivityLogs() async {
-        guard let userId = preference.user?.id, hasMoreLogs else {
+    private func fetchActivityLogs(needToReload: Bool = false) async {
+        guard let userId = preference.user?.id, hasMoreLogs || needToReload else {
             viewState = .initial
             return
         }
 
         do {
-            let result = try await activityLogRepository.fetchActivitiesBy(userId: userId,
-                                                                           limit: ACTIVITY_LOG_LIMIT,
+            let result = try await activityLogRepository.fetchActivitiesBy(userId: userId, limit: ACTIVITY_LOG_LIMIT,
                                                                            lastDocument: lastDocument)
             activityLogs = lastDocument == nil ? result.data : (activityLogs + result.data)
-            lastDocument = result.lastDocument
             hasMoreLogs = !(result.data.count < ACTIVITY_LOG_LIMIT)
+            lastDocument = result.lastDocument
 
             filterActivityLogs()
             viewState = .initial
@@ -88,7 +73,7 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
             LogD("ActivityLogViewModel: \(#function) Activity logs fetched successfully.")
         } catch {
             LogE("ActivityLogViewModel: \(#function) Failed to fetch activity logs: \(error).")
-            handleErrorState()
+            handleServiceError()
         }
     }
 
@@ -98,11 +83,31 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func handleErrorState() {
-        if lastDocument == nil {
-            handleServiceError()
-        } else {
-            showToastForError()
+    // Listens real-time updates and returns the latest activity logs for the current user
+    private func fetchLatestActivityLogs() {
+        guard let userId = preference.user?.id else { return }
+
+        task?.cancel()  // Cancel the existing task if it's running
+        task = Task { [weak self] in
+            guard let self else { return }
+            let activityLogStream = self.activityLogRepository.fetchLatestActivityLogs(userId: userId)
+            for await activityLogs in activityLogStream {
+                guard !Task.isCancelled else { return } // Exit early if the task is cancelled
+
+                if let activityLogs {
+                    for activityLog in activityLogs where !(self.activityLogs.contains(where: { $0.id == activityLog.id })) {
+                        self.activityLogs.append(activityLog)
+                    }
+                    self.filterActivityLogs()
+                    if self.activityLogs.count == 1 {
+                        self.activityLogState = .hasActivity
+                    } else if self.activityLogs.count < 1 {
+                        self.activityLogState = .noActivity
+                    }
+                } else {
+                    self.showToastForError()
+                }
+            }
         }
     }
 
@@ -133,10 +138,15 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Error Handling
     private func handleServiceError() {
-        if !networkMonitor.isConnected {
-            viewState = .noInternet
+        if lastDocument == nil {
+            if !networkMonitor.isConnected {
+                viewState = .noInternet
+            } else {
+                viewState = .somethingWentWrong
+            }
         } else {
-            viewState = .somethingWentWrong
+            viewState = .initial
+            showToastForError()
         }
     }
 

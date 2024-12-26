@@ -33,6 +33,7 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     func onGoogleLoginClick() {
         showGoogleLoading = true
+
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             showGoogleLoading = false
             return
@@ -48,25 +49,28 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        GIDSignIn.sharedInstance.signIn(withPresenting: controller) { [unowned self] result, error in
-            guard error == nil else {
+        Task {
+            await handleGoogleLoginAction(controller: controller)
+        }
+    }
+
+    private func handleGoogleLoginAction(controller: UIViewController) async {
+        do {
+            let authUser = try await GIDSignIn.sharedInstance.signIn(withPresenting: controller).user
+            guard let idToken = authUser.idToken?.tokenString else {
                 showGoogleLoading = false
-                LogE("LoginViewModel: \(#function) Google Login Error: \(String(describing: error)).")
                 return
             }
 
-            guard let user = result?.user, let idToken = user.idToken?.tokenString else {
-                showGoogleLoading = false
-                return
-            }
+            let firstName = authUser.profile?.givenName ?? ""
+            let lastName = authUser.profile?.familyName ?? ""
+            let email = authUser.profile?.email ?? ""
 
-            let firstName = user.profile?.givenName ?? ""
-            let lastName = user.profile?.familyName ?? ""
-            let email = user.profile?.email ?? ""
-
-            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-            self.performFirebaseLogin(showGoogleLoading: showGoogleLoading, credential: credential,
-                                      loginType: .Google, userData: (firstName, lastName, email))
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: authUser.accessToken.tokenString)
+            await self.performFirebaseLogin(credential: credential, loginType: .Google, userData: (firstName, lastName, email))
+        } catch {
+            showGoogleLoading = false
+            LogE("LoginViewModel: \(#function) Google Login Error: \(String(describing: error)).")
         }
     }
 
@@ -77,11 +81,13 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         request.requestedScopes = [.fullName, .email]
         request.nonce = NonceGenerator.sha256(currentNonce)
 
-        appleSignInDelegates = SignInWithAppleDelegates { (token, fName, lName, email)  in
+        appleSignInDelegates = SignInWithAppleDelegates { [weak self] (token, fName, lName, email)  in
+            guard let self else { return }
             let credential = OAuthProvider.credential(providerID: AuthProviderID.apple,
                                                       idToken: token, rawNonce: self.currentNonce)
-            self.performFirebaseLogin(showAppleLoading: self.showAppleLoading, credential: credential,
-                                      loginType: .Apple, userData: (fName, lName, email))
+            Task {
+                await self.performFirebaseLogin(credential: credential, loginType: .Apple, userData: (fName, lName, email))
+            }
         } onError: {
             self.showAppleLoading = false
         }
@@ -91,59 +97,85 @@ public class LoginViewModel: BaseViewModel, ObservableObject {
         authorizationController.performRequests()
     }
 
-    private func performFirebaseLogin(showGoogleLoading: Bool = false, showAppleLoading: Bool = false,
-                                      credential: AuthCredential, loginType: LoginType, userData: (String, String, String)) {
-        self.showGoogleLoading = showGoogleLoading
-        self.showAppleLoading = showAppleLoading
+    private func performFirebaseLogin(credential: AuthCredential, loginType: LoginType, userData: (String, String, String)) async {
+        do {
+            showAppleLoading = loginType == .Apple
+            showGoogleLoading = loginType == .Google
 
-        FirebaseProvider.auth
-            .signIn(with: credential) { [weak self] result, error in
-                guard let self = self else { return }
-                if let error {
-                    self.showGoogleLoading = false
-                    self.showAppleLoading = false
-                    LogE("LoginViewModel: \(#function) Firebase Error: \(error), with type Apple login.")
-                    self.alert = .init(message: "Server error")
-                    self.showAlert = true
-                } else if let result {
-                    let user = AppUser(id: result.user.uid, firstName: userData.0, lastName: userData.1,
-                                       emailId: userData.2, phoneNumber: nil, loginType: loginType)
-                    Task {
-                        await self.storeUser(user: user)
-                    }
-                    LogD("LoginViewModel: \(#function) User logged in successfully.")
-                } else {
-                    self.alert = .init(message: "Contact Support")
-                    self.showAlert = true
-                }
-            }
+            let authUser = try await FirebaseProvider.auth.signIn(with: credential).user
+            let user = AppUser(id: authUser.uid, firstName: userData.0, lastName: userData.1,
+                               emailId: userData.2, phoneNumber: nil, loginType: loginType)
+            await self.storeUser(user: user)
+        } catch {
+            showAppleLoading = false
+            showGoogleLoading = false
+            handleFirebaseAuthErrors(error, loginType: loginType)
+            LogE("LoginViewModel: \(#function) Failed to perform Firebase login with \(loginType): \(error.localizedDescription).")
+        }
     }
 
     private func storeUser(user: AppUser) async {
         do {
             let user = try await userRepository.storeUser(user: user)
-            preference.user = user
-            showGoogleLoading = false
-            showAppleLoading = false
-            onLoginSuccess()
+            manageLoginSuccess(user: user)
             LogD("LoginViewModel: \(#function) User stored successfully.")
         } catch {
-            LogE("LoginViewModel: \(#function) Failed to store user: \(error).")
-            showGoogleLoading = false
             showAppleLoading = false
+            showGoogleLoading = false
+            LogE("LoginViewModel: \(#function) Failed to store user: \(error).")
             alert = .init(message: "Something went wrong! Please try after some time.")
             showAlert = true
         }
     }
 
-    private func onLoginSuccess() {
+    private func manageLoginSuccess(user: AppUser) {
+        preference.user = user
         preference.isVerifiedUser = true
+        showAppleLoading = false
+        showGoogleLoading = false
         onDismiss?()
     }
 
     // MARK: - User Actions
     func onEmailLoginClick() {
         router.push(.EmailLoginView(onDismiss: onDismiss))
+    }
+
+    // MARK: - Error handling
+    private func handleFirebaseAuthErrors(_ error: Error, loginType: LoginType) {
+        guard let authErrorCode = FirebaseAuth.AuthErrorCode(rawValue: (error as NSError).code) else {
+            showAlertFor(title: "Error", message: "Something went wrong! Please try after some time.")
+            return
+        }
+
+        switch authErrorCode {
+        case .networkError:
+            showAlertFor(title: "Network Error", message: "No internet connection!")
+        case .invalidCredential:
+            showAlertFor(title: "Credential Error", message: "Invalid credentials. Please try again.")
+        case .userDisabled:
+            showAlertFor(title: "Account Disabled", message: "This account has been disabled. Please contact support.")
+        case .tooManyRequests:
+            showAlertFor(title: "Error", message: "Too many attempts, please try again later.")
+        case .credentialAlreadyInUse:
+            showAlertFor(title: "Credential In Use", message: "This credential is already associated with another account. Please use a different method to log in.")
+        case .accountExistsWithDifferentCredential:
+            showAlertFor(title: "Error", message: "This email is already associated with a different sign-in method. Please use that method to log in.")
+        case .requiresRecentLogin:
+            showAlertFor(title: "Re-authentication Required", message: "Please log in again to perform this action.")
+        case .webContextCancelled:
+            showAlertFor(title: "Cancelled", message: "The login process was cancelled.")
+        case .invalidUserToken:
+            showAlertFor(title: "Invalid Session", message: "Your session has expired. Please log in again.")
+        case .sessionExpired:
+            showAlertFor(title: "Session Expired", message: "Your session has expired. Please try again.")
+        case .webNetworkRequestFailed:
+            showAlertFor(title: "Network Error", message: "There was an issue with the network request. Please try again.")
+        default:
+            showAlertFor(title: "Authentication failed", message: "We couldn't complete the authentication process. Please try again later.")
+        }
+
+        LogE("LoginViewModel: \(#function) \(loginType) Login fail with error: \(error).")
     }
 }
 

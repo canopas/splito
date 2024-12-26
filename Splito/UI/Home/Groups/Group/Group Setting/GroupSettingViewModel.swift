@@ -33,7 +33,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
         super.init()
 
-        NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateGroup(notification:)), name: .updateGroup, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateGroup(notification:)),
+                                               name: .updateGroup, object: nil)
     }
 
     func fetchInitialGroupData() {
@@ -45,8 +46,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroupDetails() async {
         do {
-            self.group = try await groupRepository.fetchGroupBy(id: groupId)
-            self.checkForGroupAdmin()
+            group = try await groupRepository.fetchGroupBy(id: groupId)
+            checkForGroupAdmin()
             await fetchGroupMembers()
             currentViewState = .initial
             LogD("GroupSettingViewModel: \(#function) Group fetched successfully.")

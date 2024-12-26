@@ -65,8 +65,8 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
 
         do {
             viewState = .loading
-            self.members = try await groupRepository.fetchMembersBy(memberIds: group.members)
-            self.members.removeAll(where: { $0.id == userId })
+            members = try await groupRepository.fetchMembersBy(memberIds: group.members)
+            members.removeAll(where: { $0.id == userId })
             viewState = .initial
             LogD("GroupSettleUpViewModel: \(#function) Group members fetched successfully.")
         } catch {
@@ -90,7 +90,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     }
 
     func getMemberDataBy(id: String) -> AppUser? {
-        return members.first(where: { $0.id == id })
+        members.first(where: { $0.id == id })
     }
 
     // MARK: - User Actions

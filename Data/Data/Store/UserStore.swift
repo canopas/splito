@@ -13,12 +13,6 @@ class UserStore: ObservableObject {
 
     @Inject private var database: Firestore
 
-    private var listener: ListenerRegistration?
-
-    deinit {
-        listener?.remove()
-    }
-
     private var usersCollection: CollectionReference {
         database.collection(COLLECTION_NAME)
     }
@@ -89,7 +83,18 @@ class UserStore: ObservableObject {
         }
     }
 
+    func updateUserDeviceFcmToken(userId: String, fcmToken: String) async throws {
+        try await usersCollection.document(userId).setData(["device_fcm_token": fcmToken], merge: true)
+    }
+
     func deactivateUserAfterDelete(userId: String) async throws {
-        try await usersCollection.document(userId).updateData(["is_active": false])
+        try await usersCollection.document(userId)
+            .updateData([
+                "is_active": false,
+                "email_id": "",
+                "login_type": "",
+                "phone_number": "",
+                "device_fcm_token": ""
+            ])
     }
 }

@@ -101,8 +101,8 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         guard let userId = preference.user?.id else { return false }
 
         let memberBalance = GroupMemberBalance(id: userId, balance: 0, totalSummary: [])
-        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId,
-                           updatedBy: userId, members: [userId], balances: [memberBalance])
+        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing),
+                           createdBy: userId, members: [userId], balances: [memberBalance])
 
         do {
             showLoader = true

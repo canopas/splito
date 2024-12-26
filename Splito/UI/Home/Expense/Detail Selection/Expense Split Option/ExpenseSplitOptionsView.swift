@@ -132,11 +132,7 @@ struct BottomInfoCardView: View {
                         .padding(.trailing, 8)
                         .padding(.leading, 16)
 
-                    if isAllSelected {
-                        CheckmarkButton(iconSize: (20, 28), padding: (.all, 2))
-                            .background(primaryColor)
-                            .clipShape(.circle)
-                    }
+                    CircularSelectionView(isSelected: isAllSelected, borderColor: inverseOutlineColor, onClick: onAllBtnTap)
                 }
                 .onTouchGesture {
                     onAllBtnTap?()
@@ -148,5 +144,25 @@ struct BottomInfoCardView: View {
         .frame(maxWidth: .infinity, alignment: .bottom)
         .background(primaryDarkColor)
         .shadow(color: primaryText.opacity(0.1), radius: 5, x: 0, y: -5)
+    }
+}
+
+struct CircularSelectionView: View {
+
+    var isSelected: Bool
+    var borderColor: Color = outlineColor
+
+    var onClick: (() -> Void)?
+
+    var body: some View {
+        if isSelected {
+            CheckmarkButton(iconSize: (20, 28), padding: (.all, 2), onClick: onClick)
+                .background(primaryColor)
+                .clipShape(.circle)
+        } else {
+            Circle()
+                .stroke(borderColor, lineWidth: 1)
+                .frame(width: 24, height: 32)
+        }
     }
 }

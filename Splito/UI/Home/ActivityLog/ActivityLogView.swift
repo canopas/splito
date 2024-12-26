@@ -16,7 +16,9 @@ struct ActivityLogView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
-                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchInitialActivityLogs)
+                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: {
+                    viewModel.fetchInitialActivityLogs()
+                })
             } else if case .loading = viewModel.viewState {
                 LoaderView()
                 Spacer(minLength: 60)
@@ -76,7 +78,7 @@ private struct ActivityLogListView: View {
                 .padding(.bottom, 62)
             }
             .refreshable {
-                viewModel.fetchInitialActivityLogs()
+                viewModel.fetchInitialActivityLogs(needToReload: true)
             }
             .onAppear {
                 scrollToActivityLog(proxy)

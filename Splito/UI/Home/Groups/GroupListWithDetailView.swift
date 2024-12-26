@@ -14,8 +14,6 @@ struct GroupListWithDetailView: View {
 
     @ObservedObject var viewModel: GroupListViewModel
 
-    let onLongPressGesture: () -> Void
-
     var body: some View {
         GeometryReader { geometry in
             ScrollViewReader { scrollProxy in
@@ -36,7 +34,7 @@ struct GroupListWithDetailView: View {
                                 }
                                 .onLongPressGesture {
                                     addHapticEffect()
-                                    onLongPressGesture()
+                                    isFocused.wrappedValue = false
                                     viewModel.handleGroupItemTap(group.group, isTapped: false)
                                 }
                                 .id(group.group.id)
@@ -69,13 +67,13 @@ struct GroupListWithDetailView: View {
                 }
                 .scrollBounceBehavior(.automatic)
                 .refreshable {
-                    Task {
-                        await viewModel.fetchGroups()
-                    }
+                    viewModel.fetchGroupsInitialData(needToReload: true)
                 }
             }
         }
-        .onTapGesture(perform: onLongPressGesture)
+        .onTapGesture {
+            isFocused.wrappedValue = false
+        }
     }
 }
 

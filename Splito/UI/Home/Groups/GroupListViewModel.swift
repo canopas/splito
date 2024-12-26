@@ -17,7 +17,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
     @Inject private var userRepository: UserRepository
 
-    @Published private(set) var currentViewState: ViewState = .initial
+    @Published private(set) var currentViewState: ViewState = .loading
     @Published private(set) var groupListState: GroupListState = .noGroup
     @Published private(set) var selectedTab: GroupListTabType = .all
 
@@ -37,6 +37,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     var hasMoreGroups: Bool = true
     private var users: [AppUser] = []
     private var lastDocument: DocumentSnapshot?
+    private var task: Task<Void, Never>?  // Reference to the current asynchronous task that fetches users
 
     var filteredGroups: [GroupInformation] {
         guard case .hasGroup = groupListState else { return [] }
@@ -65,63 +66,46 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleAddExpense(notification:)), name: .addExpense, object: nil)
 
         fetchGroupsInitialData()
+        fetchLatestUser()
     }
 
-    func fetchGroupsInitialData() {
+    deinit {
+        task?.cancel()
+    }
+
+    func fetchGroupsInitialData(needToReload: Bool = false) {
+        lastDocument = nil
         Task {
-            await fetchGroups()
-            fetchLatestUser()
+            await fetchGroups(needToReload: needToReload)
         }
     }
 
     // MARK: - Data Loading
-    func fetchGroups() async {
-        guard let userId = preference.user?.id else { return }
+    private func fetchGroups(needToReload: Bool = false) async {
+        guard let userId = preference.user?.id, hasMoreGroups || needToReload else {
+            currentViewState = .initial
+            return
+        }
 
         do {
-            currentViewState = combinedGroups.isEmpty ? .loading : .initial
-            let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT)
-
+            let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT, lastDocument: lastDocument)
+            let sortedGroups = try await self.processNewGroups(newGroups: result.data)
+            combinedGroups = lastDocument == nil ? sortedGroups : (combinedGroups + sortedGroups)
             lastDocument = result.lastDocument
             hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
 
-            let sortedGroups = try await self.processNewGroups(newGroups: result.data)
-
             currentViewState = .initial
-            combinedGroups = sortedGroups
-            groupListState = sortedGroups.isEmpty ? .noGroup : .hasGroup
+            groupListState = combinedGroups.isEmpty ? .noGroup : .hasGroup
             LogD("GroupListViewModel: \(#function) Groups fetched successfully.")
         } catch {
             LogE("GroupListViewModel: \(#function) Failed to fetch groups: \(error).")
-            handleServiceError()
+            handleErrorState()
         }
     }
 
     func loadMoreGroups() {
         Task {
-            await fetchMoreGroups()
-        }
-    }
-
-    private func fetchMoreGroups() async {
-        guard hasMoreGroups, let userId = preference.user?.id else { return }
-
-        do {
-            let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: GROUPS_LIMIT, lastDocument: lastDocument)
-
-            lastDocument = result.lastDocument
-            hasMoreGroups = !(result.data.count < self.GROUPS_LIMIT)
-
-            let sortedGroups = try await self.processNewGroups(newGroups: result.data)
-
-            currentViewState = .initial
-            combinedGroups.append(contentsOf: sortedGroups)
-            groupListState = combinedGroups.isEmpty ? .noGroup : .hasGroup
-            LogD("GroupListViewModel: \(#function) Groups fetched successfully.")
-        } catch {
-            currentViewState = .initial
-            LogE("GroupListViewModel: \(#function) Failed to fetch more groups: \(error).")
-            showToastForError()
+            await fetchGroups()
         }
     }
 
@@ -187,10 +171,15 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        Task { [weak self] in
+        task?.cancel() // Cancel the existing task if it's running
+        task = Task { [weak self] in
             guard let self else { return }
+            self.totalOweAmount = self.preference.user?.totalOweAmount ?? 0
+            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds wait
             let userStream = self.userRepository.fetchLatestUserBy(userID: userId)
+
             for await user in userStream {
+                guard !Task.isCancelled else { return } // Exit early if the task is cancelled
                 if let user {
                     self.preference.user = user
                     self.totalOweAmount = user.totalOweAmount
@@ -416,7 +405,7 @@ extension GroupListViewModel {
 
             // Sort the combinedGroups array based on the 'updatedAt' field
             combinedGroups.sort { (group1, group2) in
-                return group1.group.updatedAt > group2.group.updatedAt
+                return (group1.group.updatedAt > group2.group.updatedAt)
             }
             LogD("GroupListViewModel: \(#function) Members fetched successfully.")
         } catch {
@@ -431,6 +420,15 @@ extension GroupListViewModel {
             currentViewState = .noInternet
         } else {
             currentViewState = .somethingWentWrong
+        }
+    }
+
+    private func handleErrorState() {
+        if lastDocument == nil {
+            handleServiceError()
+        } else {
+            currentViewState = .initial
+            showToastForError()
         }
     }
 }

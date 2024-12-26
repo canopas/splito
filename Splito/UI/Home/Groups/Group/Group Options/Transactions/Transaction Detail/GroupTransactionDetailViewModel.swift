@@ -234,7 +234,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     private func validateUserPermission(operationText: String, action: String) -> Bool {
         guard let userId = preference.user?.id, let group, group.members.contains(userId) else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            DispatchQueue.main.async {
                 self.showAlertFor(title: "Error",
                                   message: "This payment could not be \(operationText). You do not have permission to \(action) this payment, Sorry!")
             }
@@ -244,7 +244,8 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     private func updateGroupMemberBalance(updateType: TransactionUpdateType) async {
-        guard var group, let transaction, let transactionId = transaction.id else {
+        guard var group, let userId = preference.user?.id, let transaction, let transactionId = transaction.id else {
+            LogE("GroupTransactionDetailViewModel: \(#function) Group or payment information not found.")
             viewState = .initial
             return
         }
@@ -252,6 +253,8 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         do {
             let memberBalance = getUpdatedMemberBalanceFor(transaction: transaction, group: group, updateType: updateType)
             group.balances = memberBalance
+            group.updatedAt = Timestamp()
+            group.updatedBy = userId
             try await groupRepository.updateGroup(group: group, type: .none)
             LogD("GroupTransactionDetailViewModel: \(#function) Member balance updated successfully.")
         } catch {

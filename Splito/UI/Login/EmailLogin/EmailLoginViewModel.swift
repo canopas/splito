@@ -29,64 +29,8 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
-    func onCreateAccountClick() {
-        guard validateEmailAndPassword() else { return }
-
-        isSignupInProgress = true
-        FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
-            guard let self else { return }
-            isSignupInProgress = false
-            self.handleAuthResponse(result: result, error: error, isLogin: false)
-        }
-    }
-
-    func onLoginClick() {
-        guard validateEmailAndPassword() else { return }
-
-        Task {
-            do {
-                isLoginInProgress = true
-
-                if let user = try await userRepository.fetchUserBy(email: email) {
-                    if user.loginType != .Email {
-                        isLoginInProgress = false
-                        showAlertFor(title: "Email Already in Use", message: "The email address is already associated with an existing account. Please use a different email or log in to your existing account.")
-                        return
-                    }
-                } else {
-                    LogE("EmailLoginViewModel: \(#function) No user found with this email.")
-                }
-
-                FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
-                    self?.isLoginInProgress = false
-                    self?.handleAuthResponse(result: result, error: error, isLogin: true)
-                }
-            } catch {
-                isLoginInProgress = false
-                LogE("EmailLoginViewModel: \(#function) Error fetching user: \(error).")
-                showToastForError()
-            }
-        }
-    }
-
-    private func handleAuthResponse(result: AuthDataResult?, error: Error?, isLogin: Bool) {
-        if let error {
-            LogE("EmailLoginViewModel: \(#function) Error during \(isLogin ? "login" : "sign up"): \(error).")
-            handleFirebaseAuthErrors(error)
-        } else if let result {
-            let user = AppUser(id: result.user.uid, firstName: "", lastName: "",
-                               emailId: email, loginType: .Email)
-            Task {
-                await storeUser(user: user)
-            }
-            LogD("EmailLoginViewModel: \(#function) User \(isLogin ? "logged in" : "signed up") successfully.")
-        } else {
-            self.alert = .init(message: "Contact Support")
-            self.showAlert = true
-        }
-    }
-
     private func validateEmailAndPassword() -> Bool {
+        email = email.trimmingCharacters(in: .whitespacesAndNewlines)
         if !email.isValidEmail {
             showAlertFor(title: "Whoops!", message: "Please enter a valid email address.")
             return false
@@ -95,47 +39,97 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
             showAlertFor(title: "Whoops!", message: "Password must be at least 6 characters long.")
             return false
         }
-
         return true
+    }
+
+    func onCreateAccountClick() {
+        guard validateEmailAndPassword() else { return }
+        Task {
+            isSignupInProgress = true
+            await handleFirebaseLogin(email: email, password: password, isForLogin: false)
+        }
+    }
+
+    func onLoginClick() {
+        guard validateEmailAndPassword() else { return }
+        Task {
+            isLoginInProgress = true
+            await handleFirebaseLogin(email: email, password: password, isForLogin: true)
+        }
+    }
+
+    private func handleFirebaseLogin(email: String, password: String, isForLogin: Bool) async {
+        do {
+            let authUser: User
+            if isForLogin {
+                authUser = try await FirebaseProvider.auth.signIn(withEmail: email, password: password).user
+            } else {
+                authUser = try await FirebaseProvider.auth.createUser(withEmail: email, password: password).user
+            }
+
+            let user = AppUser(id: authUser.uid, firstName: "", lastName: "", emailId: email, loginType: .Email)
+            await storeUser(user: user)
+        } catch {
+            hideProgressLoaders()
+            handleFirebaseAuthErrors(error)
+            LogE("EmailLoginViewModel: \(#function) Error during \(isForLogin ? "login" : "sign up"): \(error).")
+        }
     }
 
     private func storeUser(user: AppUser) async {
         do {
             let user = try await userRepository.storeUser(user: user)
-            preference.isVerifiedUser = true
             preference.user = user
-            if onDismiss != nil {
-                onDismiss?()
-            } else {
-                navigateToRoot()
-            }
-            LogD("EmailLoginViewModel: \(#function) User stored successfully.")
+            handleLoginSuccessState()
         } catch {
             LogE("EmailLoginViewModel: \(#function) Failed to store user: \(error).")
+            hideProgressLoaders()
             alert = .init(message: "Something went wrong! Please try after some time.")
             showAlert = true
         }
     }
 
+    private func hideProgressLoaders() {
+        isLoginInProgress = false
+        isSignupInProgress = false
+    }
+
+    private func handleLoginSuccessState() {
+        preference.isVerifiedUser = true
+        hideProgressLoaders()
+        dismissLoginFlow()
+    }
+
+    private func dismissLoginFlow() {
+        if onDismiss != nil {
+            onDismiss?()
+        } else {
+            router.popToRoot()
+        }
+    }
+
     func onForgotPasswordClick() {
+        email = email.trimmingCharacters(in: .whitespacesAndNewlines)
         guard email.isValidEmail else {
             showAlertFor(title: "Whoops!", message: "Please enter a valid email address.")
             return
         }
 
-        FirebaseAuth.Auth.auth().sendPasswordReset(withEmail: email) { [weak self] error in
-            guard let self else { return }
-            if let error {
-                LogE("EmailLoginViewModel: \(#function) Failed to send password reset email: \(error)")
-                self.handleFirebaseAuthErrors(error, isPasswordReset: true)
-            } else {
+        Task {
+            do {
+                if let user = try await userRepository.fetchUserBy(email: email) {
+                    if user.loginType != .Email {
+                        showAlertFor(title: "Email Already in Use", message: "The email address is already associated with an existing account. Please use a different email or log in to your existing account.")
+                        return
+                    }
+                }
+                try await FirebaseProvider.auth.sendPasswordReset(withEmail: email)
                 self.showAlertFor(title: "Email sent", message: "An email has been sent to \(email) with instructions to reset your password.")
+            } catch {
+                LogE("EmailLoginViewModel: \(#function) Failed to send password reset email: \(error)")
+                handleFirebaseAuthErrors(error, isPasswordReset: true)
             }
         }
-    }
-
-    func navigateToRoot() {
-        router.popToRoot()
     }
 
     // MARK: - Error handling
@@ -146,6 +140,8 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
         }
 
         switch authErrorCode {
+        case .networkError:
+            showAlertFor(title: "Network Error", message: "No internet connection!")
         case .webContextCancelled:
             showAlertFor(title: "Error", message: "Something went wrong! Please try after some time.")
         case .tooManyRequests:
@@ -160,8 +156,6 @@ public class EmailLoginViewModel: BaseViewModel, ObservableObject {
             showAlertFor(title: "Account Disabled", message: "This account has been disabled. Please contact support.")
         case .invalidCredential:
             showAlertFor(title: "Incorrect email or password", message: "The email or password you entered is incorrect. Please try again.")
-        case .networkError:
-            showAlertFor(title: "Error", message: "No internet connection!")
         default:
             isPasswordReset ? showAlertFor(title: "Error", message: "Unable to send a password reset email. Please try again later.") : showAlertFor(title: "Authentication failed", message: "Apologies, we were not able to complete the authentication process. Please try again later.")
         }

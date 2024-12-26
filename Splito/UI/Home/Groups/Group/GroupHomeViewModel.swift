@@ -73,11 +73,12 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         fetchGroupAndExpenses()
     }
 
-    func fetchGroupAndExpenses() {
+    func fetchGroupAndExpenses(needToReload: Bool = false) {
+        lastDocument = nil
         Task {
             await fetchGroup()
             await fetchTransactions()
-            await fetchExpenses()
+            await fetchExpenses(needToReload: needToReload)
         }
     }
 
@@ -125,24 +126,30 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func fetchExpenses() async {
+    private func fetchExpenses(needToReload: Bool = false) async {
         if let state = validateGroupState() {
             groupState = state
             return
         }
+        guard hasMoreExpenses || needToReload else {
+            groupState = .noMember
+            return
+        }
+        if lastDocument == nil {
+            expensesWithUser = []
+        }
 
-        expensesWithUser = []
         do {
-            let result = try await expenseRepository.fetchExpensesBy(groupId: groupId, limit: EXPENSES_LIMIT)
+            let result = try await expenseRepository.fetchExpensesBy(groupId: groupId, limit: EXPENSES_LIMIT, lastDocument: lastDocument)
+            expenses = lastDocument == nil ? result.expenses.uniqued() : (expenses + result.expenses.uniqued())
             lastDocument = result.lastDocument
-            expenses = result.expenses.uniqued()
 
             await combineMemberWithExpense(expenses: result.expenses.uniqued())
             hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
             LogD("GroupHomeViewModel: \(#function) Expenses fetched successfully.")
         } catch {
             LogE("GroupHomeViewModel: \(#function) Failed to fetch expenses: \(error).")
-            handleServiceError()
+            handleErrorState()
         }
     }
 
@@ -161,24 +168,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     func loadMoreExpenses() {
         Task {
-            await fetchMoreExpenses()
-        }
-    }
-
-    private func fetchMoreExpenses() async {
-        guard hasMoreExpenses else { return }
-
-        do {
-            let result = try await expenseRepository.fetchExpensesBy(groupId: groupId, limit: EXPENSES_LIMIT, lastDocument: lastDocument)
-            lastDocument = result.lastDocument
-            expenses.append(contentsOf: result.expenses.uniqued())
-
-            await combineMemberWithExpense(expenses: result.expenses.uniqued())
-            hasMoreExpenses = !(result.expenses.count < EXPENSES_LIMIT)
-            LogD("GroupHomeViewModel: \(#function) Expenses fetched successfully.")
-        } catch {
-            LogE("GroupHomeViewModel: \(#function) Failed to fetch more expenses: \(error).")
-            showToastForError()
+            await fetchExpenses()
         }
     }
 
@@ -237,7 +227,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             expense.expense.name.lowercased().contains(searchedExpense.lowercased()) ||
             expense.expense.amount == Double(searchedExpense)
         }
-        self.groupExpenses = Dictionary(grouping: filteredExpenses.uniqued().sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
+        groupExpenses = Dictionary(grouping: filteredExpenses.uniqued().sorted { $0.expense.date.dateValue() > $1.expense.date.dateValue() }) { expense in
             return expense.expense.date.dateValue().monthWithYear
         }
     }
@@ -262,7 +252,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         groupState = group.members.count > 1 ?
-        ((expenses.isEmpty && transactions.isEmpty) ? .noExpense : .hasExpense) : ((expenses.isEmpty && transactions.isEmpty) ? .noMember : .hasExpense)
+        ((expenses.isEmpty && transactions.isEmpty) ? .noExpense : .hasExpense) :
+        ((expenses.isEmpty && transactions.isEmpty) ? .noMember : .hasExpense)
     }
 
     // MARK: - Error Handling
@@ -271,6 +262,15 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             groupState = .noInternet
         } else {
             groupState = .somethingWentWrong
+        }
+    }
+
+    private func handleErrorState() {
+        if lastDocument == nil {
+            handleServiceError()
+        } else {
+            groupState = .noMember
+            showToastForError()
         }
     }
 }
