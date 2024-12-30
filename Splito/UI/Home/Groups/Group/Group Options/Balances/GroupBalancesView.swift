@@ -121,11 +121,13 @@ private struct GroupBalanceItemView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 if memberBalance.totalOwedAmount != 0 {
-                    ScrollToTopButton(icon: "chevron.down", iconColor: primaryText,
-                                      bgColor: container2Color, showWithAnimation: true, size: (10, 7),
-                                      isFirstGroupCell: memberBalance.isExpanded) {
-                        toggleExpandBtn(memberBalance.id)
-                    }
+                    ScrollToTopButton(
+                        icon: "chevron.down", iconColor: primaryText, bgColor: container2Color,
+                        showWithAnimation: true, size: (10, 7), isFirstGroupCell: memberBalance.isExpanded,
+                        onClick: {
+                            toggleExpandBtn(memberBalance.id)
+                        }
+                    )
                     .onAppear {
                         if memberBalance.isExpanded {
                             toggleExpandBtn(memberBalance.id)
@@ -145,11 +147,16 @@ private struct GroupBalanceItemView: View {
 private struct GroupBalanceItemMemberView: View {
     let SUB_IMAGE_HEIGHT: CGFloat = 24
 
+    @Environment(\.dismiss) var dismiss
+
     @Inject private var preference: SplitoPreference
 
     let id: String
     let balances: [String: Double]
     let viewModel: GroupBalancesViewModel
+
+    @State private var showShareReminderSheet = false
+    @State private var reminderText: String?
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -179,24 +186,72 @@ private struct GroupBalanceItemMemberView: View {
                             .foregroundStyle(disableText)
                         }
 
-                        HStack(alignment: .center, spacing: 16) {
-                            HSpacer(SUB_IMAGE_HEIGHT)
-
-                            Button {
-                                viewModel.handleSettleUpTap(payerId: hasDue ? id : memberId, receiverId: hasDue ? memberId : id, amount: amount)
-                            } label: {
-                                Text("Settle up")
-                                    .font(.caption1())
-                                    .foregroundStyle(primaryText)
-                                    .padding(.vertical, 8)
-                                    .padding(.horizontal, 24)
-                                    .background(container2Color)
-                                    .cornerRadius(30)
+                        RemindAndSettleBtnView(
+                            handleRemindTap: {
+                                let oweText = ((hasDue ? id : memberId) == preference.user?.id) ? "owe" :
+                                              (memberId == preference.user?.id || id == preference.user?.id) ? "owes" : ""
+                                reminderText = generateReminderText(owedMemberName: owedMemberName, owesText: oweText,
+                                                                    amount: amount, owesMemberName: owesMemberName)
+                                showShareReminderSheet = true
+                            }, handleSettleUpTap: {
+                                viewModel.handleSettleUpTap(payerId: hasDue ? id : memberId,
+                                                            receiverId: hasDue ? memberId : id, amount: amount)
                             }
-                        }
+                        )
                     }
                 }
             }
+        }
+        .sheet(isPresented: $showShareReminderSheet) {
+            if let reminderText {
+                ShareSheetView(activityItems: [reminderText]) { isCompleted in
+                    if isCompleted {
+                        showShareReminderSheet = false
+                    }
+                }
+            }
+        }
+    }
+
+    private func generateReminderText(owedMemberName: String, owesText: String, amount: Double, owesMemberName: String) -> String {
+        let formattedAmount = amount.formattedCurrency
+        let groupName = viewModel.group?.name ?? ""
+        let deepLink = "\(Constants.groupBaseUrl)\(viewModel.groupId)"
+
+        if owesText == "owe" {
+            return "Hello \(owesMemberName), This is a reminder that I owe you \(formattedAmount) for expenses in the Splito group \"\(groupName)\". Please follow this link to review our activity: \(deepLink)"
+        } else if owesText == "owes" {
+            return "Hello \(owedMemberName), This is a reminder that you owe me \(formattedAmount) for expenses in the Splito group \"\(groupName)\". Please follow this link to review our activity and settle up: \(deepLink)"
+        } else {
+            return "This is a reminder that \(owedMemberName) owes \(owesMemberName) \(formattedAmount) for expenses in the Splito group \"\(groupName)\". Please follow this link to review your activity and settle up: \(deepLink)"
+        }
+    }
+}
+
+private struct RemindAndSettleBtnView: View {
+    let SUB_IMAGE_HEIGHT: CGFloat = 24
+
+    let handleRemindTap: () -> Void
+    let handleSettleUpTap: () -> Void
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 16) {
+            HSpacer(SUB_IMAGE_HEIGHT)
+
+            balancesButton(title: "Remind", onClick: handleRemindTap)
+            balancesButton(title: "Settle up", onClick: handleSettleUpTap)
+        }
+    }
+
+    func balancesButton(title: String, onClick: @escaping () -> Void) -> some View {
+        Button(action: onClick) {
+            Text(title.localized)
+                .font(.caption1())
+                .foregroundStyle(primaryText)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 24)
+                .background(container2Color)
+                .cornerRadius(30)
         }
     }
 }
