@@ -7,10 +7,12 @@
 
 import SwiftUI
 import Data
+import Combine
 
 class HomeRouteViewModel: ObservableObject {
 
     @Inject private var preference: SplitoPreference
+    @Inject private var deepLinkManager: DeepLinkManager
 
     @Published var isTabBarVisible: Bool = true
     @Published var openProfileView: Bool = false
@@ -18,6 +20,25 @@ class HomeRouteViewModel: ObservableObject {
 
     @Published var selectedTab: Int = 0
     @Published var activityLogId: String?
+
+    private var cancelable = Set<AnyCancellable>()
+
+    init() {
+        deepLinkObserver()
+    }
+
+    func deepLinkObserver() {
+        deepLinkManager.$type.sink { [weak self] type in
+            guard let self else { return }
+            switch type {
+            case .group:
+                self.selectedTab = 0
+            default:
+                break
+            }
+        }
+        .store(in: &cancelable)
+    }
 
     func openProfileOrOnboardFlow() {
         if preference.user == nil {
@@ -43,5 +64,9 @@ class HomeRouteViewModel: ObservableObject {
     func switchToActivityLog(activityId: String) {
         activityLogId = activityId
         selectedTab = 1
+    }
+
+    func handleDeepLink(url: URL) {
+        deepLinkManager.handleDeepLink(url)
     }
 }

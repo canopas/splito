@@ -16,6 +16,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var userRepository: UserRepository
+    @Inject private var deepLinkManager: DeepLinkManager
 
     @Published private(set) var currentViewState: ViewState = .loading
     @Published private(set) var groupListState: GroupListState = .noGroup
@@ -67,6 +68,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
         fetchGroupsInitialData()
         fetchLatestUser()
+        deepLinkObserver()
     }
 
     deinit {
@@ -77,6 +79,27 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         lastDocument = nil
         Task {
             await fetchGroups(needToReload: needToReload)
+        }
+    }
+
+    func deepLinkObserver() {
+        deepLinkManager.$type.sink { [weak self] type in
+            if case .group(let groupId) = type {
+                self?.removeExistingGroupPathIfNeeded(for: groupId)
+                self?.router.push(.GroupHomeView(groupId: groupId))
+            }
+        }
+        .store(in: &cancelable)
+    }
+
+    private func removeExistingGroupPathIfNeeded(for groupId: String) {
+        if let index = router.paths.firstIndex(where: { path in
+            if case .GroupHomeView(let id) = path, id == groupId {
+                return true
+            }
+            return false
+        }) {
+            router.paths.remove(at: index)
         }
     }
 
