@@ -86,5 +86,9 @@ public class AppAssembly: Assembly {
         container.register(TransactionRepository.self) { _ in
             TransactionRepository.init()
         }.inObjectScope(.container)
+
+        container.register(DeepLinkManager.self) { _ in
+            DeepLinkManager()
+        }.inObjectScope(.container)
     }
 }
