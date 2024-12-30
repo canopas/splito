@@ -103,20 +103,20 @@ extension GroupHomeViewModel {
     func restoreGroup() {
         guard var group, let groupId = group.id, let userId = preference.user?.id else { return }
 
-        Task { [unowned self] in
+        Task { [weak self] in
             do {
-                self.groupState = .loading
+                self?.groupState = .loading
                 group.isActive = true
                 group.updatedBy = userId
 
-                try await self.groupRepository.updateGroup(group: group, type: .groupRestored)
+                try await self?.groupRepository.updateGroup(group: group, type: .groupRestored)
                 NotificationCenter.default.post(name: .addGroup, object: group)
 
-                self.fetchGroupAndExpenses()
+                self?.fetchGroupAndExpenses()
                 LogD("GroupHomeViewModel: \(#function) Group restored successfully.")
             } catch {
                 LogE("GroupHomeViewModel: \(#function) Failed to restore group \(groupId): \(error).")
-                self.handleServiceError()
+                self?.handleServiceError()
             }
         }
     }
@@ -194,13 +194,13 @@ extension GroupHomeViewModel {
               let notificationGroupId = expenseInfo["groupId"] as? String,
               notificationGroupId == groupId else { return }
 
-        Task { [unowned self] in
-            self.expenses.append(newExpense)
-            if let user = await self.fetchMemberData(for: newExpense.paidBy.keys.first ?? "") {
+        Task { [weak self] in
+            self?.expenses.append(newExpense)
+            if let user = await self?.fetchMemberData(for: newExpense.paidBy.keys.first ?? "") {
                 let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
                 withAnimation {
-                    self.expensesWithUser.append(newExpenseWithUser)
-                    self.updateGroupExpenses()
+                    self?.expensesWithUser.append(newExpenseWithUser)
+                    self?.updateGroupExpenses()
                 }
             }
         }

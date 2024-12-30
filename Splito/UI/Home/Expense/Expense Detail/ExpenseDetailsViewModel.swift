@@ -151,9 +151,10 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
               validateUserPermission(operationText: "restored", action: "restored"),
               validateGroupMembers(action: "restored") else { return }
 
-        Task { [unowned self] in
+        Task { [weak self] in
+            guard let self else { return }
             do {
-                viewState = .loading
+                self.viewState = .loading
                 expense.isActive = true
                 expense.updatedBy = userId
                 expense.updatedAt = Timestamp()
@@ -164,12 +165,12 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 NotificationCenter.default.post(name: .addExpense, object: nil, userInfo: expenseInfo)
                 await self.updateGroupMemberBalance(updateType: .Add)
 
-                viewState = .initial
+                self.viewState = .initial
                 LogD("ExpenseDetailsViewModel: \(#function) Expense restored successfully.")
                 self.router.pop()
             } catch {
                 LogE("ExpenseDetailsViewModel: \(#function) Failed to restore expense \(expenseId): \(error).")
-                handleServiceError()
+                self.handleServiceError()
             }
         }
     }

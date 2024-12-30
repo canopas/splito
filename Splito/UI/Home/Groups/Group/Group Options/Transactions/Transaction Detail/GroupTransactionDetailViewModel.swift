@@ -157,11 +157,11 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        Task { [unowned self] in
-            guard let userId = preference.user?.id, let payer = getMemberDataBy(id: transaction.payerId),
+        Task { [weak self] in
+            guard let self, let userId = preference.user?.id, let payer = getMemberDataBy(id: transaction.payerId),
                   let receiver = getMemberDataBy(id: transaction.receiverId) else { return }
             do {
-                viewState = .loading
+                self.viewState = .loading
                 transaction.isActive = true
                 transaction.updatedBy = userId
                 transaction.updatedAt = Timestamp()
@@ -170,13 +170,13 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                 NotificationCenter.default.post(name: .restoreTransaction, object: self.transaction)
                 await self.updateGroupMemberBalance(updateType: .Add)
 
-                viewState = .initial
+                self.viewState = .initial
                 LogD("GroupTransactionDetailViewModel: \(#function) Payment restored successfully.")
                 self.router.pop()
             } catch {
-                viewState = .initial
+                self.viewState = .initial
                 LogE("GroupTransactionDetailViewModel: \(#function) Failed to restore payment \(transactionId): \(error).")
-                showToastForError()
+                self.showToastForError()
             }
         }
     }
@@ -195,23 +195,23 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         guard let transaction, validateUserPermission(operationText: "deleted", action: "delete"),
               validateGroupMembers(action: "deleted") else { return }
 
-        Task { [unowned self] in
-            guard let group, let payer = getMemberDataBy(id: transaction.payerId),
+        Task { [weak self] in
+            guard let self, let group, let payer = getMemberDataBy(id: transaction.payerId),
                   let receiver = getMemberDataBy(id: transaction.receiverId) else { return }
             do {
-                viewState = .loading
-                self.transaction = try await transactionRepository.deleteTransaction(group: group, transaction: transaction,
+                self.viewState = .loading
+                self.transaction = try await self.transactionRepository.deleteTransaction(group: group, transaction: transaction,
                                                                                      payer: payer, receiver: receiver)
                 NotificationCenter.default.post(name: .deleteTransaction, object: self.transaction)
-                await updateGroupMemberBalance(updateType: .Delete)
+                await self.updateGroupMemberBalance(updateType: .Delete)
 
-                viewState = .initial
+                self.viewState = .initial
                 LogD("GroupTransactionDetailViewModel: \(#function) Payment deleted successfully.")
-                router.pop()
+                self.router.pop()
             } catch {
-                viewState = .initial
+                self.viewState = .initial
                 LogE("GroupTransactionDetailViewModel: \(#function) Failed to delete payment \(transactionId): \(error).")
-                showToastForError()
+                self.showToastForError()
             }
         }
     }

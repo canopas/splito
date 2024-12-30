@@ -145,9 +145,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     func refetchTransactionsCount() {
-        Task { [unowned self] in
-            await getTransactionsCount()
-            self.setGroupViewState()
+        Task { [weak self] in
+            await self?.getTransactionsCount()
+            self?.setGroupViewState()
         }
     }
 
@@ -217,8 +217,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         await withTaskGroup(of: ExpenseWithUser?.self) { taskGroup in
             for expense in expenses.uniqued() {
-                taskGroup.addTask { [unowned self] in
-                    if let user = await fetchMemberData(for: expense.paidBy.keys.first ?? "") {
+                taskGroup.addTask { [weak self] in
+                    if let user = await self?.fetchMemberData(for: expense.paidBy.keys.first ?? "") {
                         return ExpenseWithUser(expense: expense, user: user)
                     }
                     return nil

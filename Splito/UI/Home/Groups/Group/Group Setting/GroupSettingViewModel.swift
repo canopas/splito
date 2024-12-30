@@ -206,29 +206,30 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        Task { [unowned self] in
+        Task { [weak self] in
+            guard let self else { return }
             do {
-               try await groupRepository.removeMemberFrom(group: group, removedMember: member)
+                try await self.groupRepository.removeMemberFrom(group: group, removedMember: member)
 
                 if userId == member.id {
                     NotificationCenter.default.post(name: .leaveGroup, object: group)
-                    goBackToGroupList()
+                    self.goBackToGroupList()
                 } else {
-                    showAlert = false
+                    self.showAlert = false
                     withAnimation {
                         if let index = self.members.firstIndex(where: { $0.id == member.id }) {
-                            members.remove(at: index)
+                            self.members.remove(at: index)
                         }
                     }
-                    self.group?.members = members.map { $0.id }
+                    self.group?.members = self.members.map { $0.id }
                     NotificationCenter.default.post(name: .updateGroup, object: self.group)
-                    showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed."))
+                    self.showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Group member removed."))
                 }
                 LogD("GroupSettingViewModel: \(#function) Member removed successfully.")
             } catch {
-                currentViewState = .initial
+                self.currentViewState = .initial
                 LogE("GroupSettingViewModel: \(#function) Failed to remove member \(member.id): \(error).")
-                showToastForError()
+                self.showToastForError()
             }
         }
     }
@@ -246,18 +247,18 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     private func deleteGroup() {
         guard let group else { return }
-        Task { [unowned self] in
+        Task { [weak self] in
             do {
-                currentViewState = .loading
-                try await groupRepository.deleteGroup(group: group)
+                self?.currentViewState = .loading
+                try await self?.groupRepository.deleteGroup(group: group)
                 NotificationCenter.default.post(name: .deleteGroup, object: group)
-                currentViewState = .initial
-                goBackToGroupList()
+                self?.currentViewState = .initial
+                self?.goBackToGroupList()
                 LogD("GroupSettingViewModel: \(#function) Group deleted successfully.")
             } catch {
-                currentViewState = .initial
-                LogE("GroupSettingViewModel: \(#function) Failed to delete group \(groupId): \(error).")
-                showToastForError()
+                self?.currentViewState = .initial
+                LogE("GroupSettingViewModel: \(#function) Failed to delete group \(self?.groupId ?? "nil"): \(error).")
+                self?.showToastForError()
             }
         }
     }

@@ -173,15 +173,15 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
         task?.cancel() // Cancel the existing task if it's running
         task = Task { [unowned self] in
-            self.totalOweAmount = self.preference.user?.totalOweAmount ?? 0
+            totalOweAmount = preference.user?.totalOweAmount ?? 0
             try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds wait
 
-            for await user in self.userRepository.fetchLatestUserBy(userID: userId) {
+            for await user in userRepository.fetchLatestUserBy(userID: userId) {
                 if let user {
-                    self.preference.user = user
-                    self.totalOweAmount = user.totalOweAmount
+                    preference.user = user
+                    totalOweAmount = user.totalOweAmount
                 } else {
-                    self.showToastForError()
+                    showToastForError()
                 }
             }
         }
