@@ -204,9 +204,9 @@ extension AddExpenseViewModel {
     func handleActionSelection(_ action: ActionsOfSheet) {
         switch action {
         case .camera:
-            self.checkCameraPermission {
-                self.sourceTypeIsCamera = true
-                self.showImagePicker = true
+            self.checkCameraPermission { [weak self] in
+                self?.sourceTypeIsCamera = true
+                self?.showImagePicker = true
             }
         case .gallery:
             sourceTypeIsCamera = false

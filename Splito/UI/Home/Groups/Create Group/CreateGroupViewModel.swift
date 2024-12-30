@@ -69,9 +69,9 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     func handleActionSelection(_ action: ActionsOfSheet) {
         switch action {
         case .camera:
-            checkCameraPermission {
-                self.sourceTypeIsCamera = true
-                self.showImagePicker = true
+            checkCameraPermission { [weak self] in
+                self?.sourceTypeIsCamera = true
+                self?.showImagePicker = true
             }
         case .gallery:
             sourceTypeIsCamera = false
