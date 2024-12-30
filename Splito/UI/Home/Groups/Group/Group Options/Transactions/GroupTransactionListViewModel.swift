@@ -140,13 +140,13 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Delete payment",
                       message: "Are you sure you want to delete this payment?",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: {
+                      positiveBtnAction: { [weak self] in
                         Task {
-                            await self.deleteTransaction(transaction: transaction)
+                            await self?.deleteTransaction(transaction: transaction)
                         }
                       },
                       negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false })
+                      negativeBtnAction: { [weak self] in self?.showAlert = false })
     }
 
     private func deleteTransaction(transaction: Transactions) async {

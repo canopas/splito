@@ -186,7 +186,8 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                         }
                       },
                       negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
+                      negativeBtnAction: { [weak self] in self?.showAlert = false },
+                      isPositiveBtnDestructive: true)
         showAlert = true
     }
 
@@ -210,13 +211,9 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
                 alert = .init(
                     title: "", message: error.localizedDescription,
                     positiveBtnTitle: "Reauthenticate",
-                    positiveBtnAction: { [weak self] in
-                        self?.reAuthenticateUser()
-                    }, negativeBtnTitle: "Cancel",
-                    negativeBtnAction: { [weak self] in
-                        self?.showAlert = false
-                    }
-                )
+                    positiveBtnAction: { [weak self] in self?.reAuthenticateUser() },
+                    negativeBtnTitle: "Cancel",
+                    negativeBtnAction: { [weak self] in self?.showAlert = false })
                 showAlert = true
             } else {
                 showToastForError()

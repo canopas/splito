@@ -136,9 +136,9 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Restore payment",
                       message: "Are you sure you want to restore this payment?",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: self.restoreTransaction,
+                      positiveBtnAction: { [weak self] in self?.restoreTransaction() },
                       negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false })
+                      negativeBtnAction: { [weak self] in self?.showAlert = false })
     }
 
     func restoreTransaction() {
@@ -186,9 +186,9 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Delete payment",
                       message: "Are you sure you want to delete this payment?",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: self.deleteTransaction,
+                      positiveBtnAction: { [weak self] in self?.deleteTransaction() },
                       negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false })
+                      negativeBtnAction: { [weak self] in self?.showAlert = false })
     }
 
     private func deleteTransaction() {

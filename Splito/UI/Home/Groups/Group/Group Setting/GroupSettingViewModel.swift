@@ -42,7 +42,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     }
 
     func fetchInitialGroupData() {
-        Task { [unowned self] in
+        Task {
             await fetchGroupDetails()
         }
     }
@@ -51,8 +51,8 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
     private func fetchGroupDetails() async {
         do {
             group = try await groupRepository.fetchGroupBy(id: groupId)
-            checkForGroupAdmin()
             await fetchGroupMembers()
+            checkForGroupAdmin()
             currentViewState = .initial
             LogD("GroupSettingViewModel: \(#function) Group fetched successfully.")
         } catch {
@@ -184,8 +184,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
         alert = .init(title: "Leave Group?",
                       message: "Are you absolutely sure you want to leave this group?",
-                      positiveBtnTitle: "Leave", positiveBtnAction: { self.removeMemberFromGroup(member: member) },
-                      negativeBtnTitle: "Cancel", negativeBtnAction: { self.showAlert = false })
+                      positiveBtnTitle: "Leave",
+                      positiveBtnAction: { [weak self] in self?.removeMemberFromGroup(member: member) },
+                      negativeBtnTitle: "Cancel",
+                      negativeBtnAction: { [weak self] in self?.showAlert = false })
     }
 
     private func showDebtOutstandingAlert(memberId: String) {
@@ -195,7 +197,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         let removeText = "You can't remove \(memberName) from this group because they have outstanding debts with other group members. Please make sure all of \(memberName)'s debts have been settle up, and try again."
 
         alert = .init(title: "Whoops!", message: memberRemoveType == .leave ? leaveText : removeText,
-                      negativeBtnTitle: "Ok", negativeBtnAction: { self.showAlert = false })
+                      negativeBtnTitle: "Ok", negativeBtnAction: { [weak self] in self?.showAlert = false })
     }
 
     private func removeMemberFromGroup(member: AppUser) {
@@ -235,9 +237,10 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Delete Group",
                       message: "Are you ABSOLUTELY sure you want to delete this group? This will remove this group for ALL users involved, not just yourself.",
                       positiveBtnTitle: "Delete",
-                      positiveBtnAction: self.deleteGroup,
+                      positiveBtnAction: { [weak self] in self?.deleteGroup() },
                       negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
+                      negativeBtnAction: { [weak self] in self?.showAlert = false },
+                      isPositiveBtnDestructive: true)
         showAlert = true
     }
 

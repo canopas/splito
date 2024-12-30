@@ -33,7 +33,7 @@ struct GroupSettingView: View {
                         GroupAdvanceSettingsView(onLeaveGroupTap: viewModel.handleLeaveGroupTap,
                                                  onDeleteGroupTap: viewModel.handleDeleteGroupTap)
 
-                        Spacer(minLength: 50)
+                        Spacer(minLength: 40)
                     }
                 }
                 .scrollIndicators(.hidden)
@@ -58,7 +58,8 @@ struct GroupSettingView: View {
         }
         .fullScreenCover(isPresented: $viewModel.showAddMemberSheet) {
             NavigationStack {
-                InviteMemberView(viewModel: InviteMemberViewModel(router: viewModel.router, groupId: viewModel.group?.id ?? ""))
+                InviteMemberView(viewModel: InviteMemberViewModel(router: viewModel.router,
+                                                                  groupId: viewModel.group?.id ?? ""))
             }
         }
         .onAppear(perform: viewModel.fetchInitialGroupData)

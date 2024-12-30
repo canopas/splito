@@ -51,7 +51,8 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
             }
             return
         case .restricted, .denied:
-            showAlertFor(alert: .init(title: "Important!", message: "Camera access is required to take picture for your group profile",
+            showAlertFor(alert: .init(title: "Important!",
+                                      message: "Camera access is required to take picture for your group profile",
                                       positiveBtnTitle: "Allow", positiveBtnAction: { [weak self] in
                 if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(settingsURL)
@@ -68,7 +69,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     func handleActionSelection(_ action: ActionsOfSheet) {
         switch action {
         case .camera:
-            self.checkCameraPermission {
+            checkCameraPermission {
                 self.sourceTypeIsCamera = true
                 self.showImagePicker = true
             }

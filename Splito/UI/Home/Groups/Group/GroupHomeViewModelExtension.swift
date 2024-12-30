@@ -95,7 +95,7 @@ extension GroupHomeViewModel {
         alert = .init(title: "Restore group",
                       message: "This will restore all activities, expenses and payments for this group.",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: self.restoreGroup,
+                      positiveBtnAction: { [weak self] in self?.restoreGroup() },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { [weak self] in self?.showAlert = false })
     }
@@ -213,13 +213,13 @@ extension GroupHomeViewModel {
             expenses[index] = updatedExpense
         }
 
-        Task { [unowned self] in
-            if let user = await self.fetchMemberData(for: updatedExpense.paidBy.keys.first ?? "") {
-                if let index = self.expensesWithUser.firstIndex(where: { $0.expense.id == updatedExpense.id }) {
+        Task { [weak self] in
+            if let user = await self?.fetchMemberData(for: updatedExpense.paidBy.keys.first ?? "") {
+                if let index = self?.expensesWithUser.firstIndex(where: { $0.expense.id == updatedExpense.id }) {
                     let updatedExpenseWithUser = ExpenseWithUser(expense: updatedExpense, user: user)
                     withAnimation {
-                        self.expensesWithUser[index] = updatedExpenseWithUser
-                        self.updateGroupExpenses()
+                        self?.expensesWithUser[index] = updatedExpenseWithUser
+                        self?.updateGroupExpenses()
                     }
                 }
             }
