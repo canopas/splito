@@ -33,6 +33,8 @@ struct ActivityLogRouteView: View {
             case .TransactionDetailView(let transactionId, let groupId):
                 GroupTransactionDetailView(viewModel: GroupTransactionDetailViewModel(router: appRoute, groupId: groupId, transactionId: transactionId))
                     .onAppear { isTabBarVisible = false }
+            case .SearchExpensesView:
+                SearchExpensesView(viewModel: SearchExpensesViewModel(router: appRoute))
             default:
                 EmptyRouteView(routeName: self)
             }

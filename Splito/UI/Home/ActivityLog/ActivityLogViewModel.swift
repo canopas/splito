@@ -136,6 +136,10 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    func handleSearchButtonTap() {
+        router.push(.SearchExpensesView)
+    }
+
     // MARK: - Error Handling
     private func handleServiceError() {
         if lastDocument == nil {

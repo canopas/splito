@@ -14,6 +14,10 @@ public class ExpenseStore: ObservableObject {
     private let COLLECTION_NAME: String = "groups"
     private let SUB_COLLECTION_NAME: String = "expenses"
 
+    private var groupReference: CollectionReference {
+        database.collection(COLLECTION_NAME)
+    }
+
     private func expenseReference(groupId: String) -> CollectionReference {
         database
             .collection(COLLECTION_NAME)
@@ -58,5 +62,45 @@ public class ExpenseStore: ObservableObject {
         }
 
         return (expenses, snapshot.documents.last)
+    }
+
+    func fetchAllUserExpenses(userId: String, limit: Int) async throws -> [Expense] {
+        var allExpenses: [Expense] = []
+        var lastGroupDocument: DocumentSnapshot?
+
+        repeat {
+            let (groups, lastDoc) = try await fetchGroupsBy(userId: userId, limit: limit, lastDocument: lastGroupDocument)
+            lastGroupDocument = lastDoc
+
+            for group in groups {
+                var lastExpenseDocument: DocumentSnapshot?
+                repeat {
+                    let (expenses, lastDoc) = try await fetchExpensesBy(groupId: group.id ?? "", limit: limit, lastDocument: lastExpenseDocument)
+                    lastExpenseDocument = lastDoc
+                    allExpenses.append(contentsOf: expenses)
+                } while lastExpenseDocument != nil
+            }
+        } while lastGroupDocument != nil
+
+        return allExpenses
+    }
+
+    func fetchGroupsBy(userId: String, limit: Int, lastDocument: DocumentSnapshot?) async throws -> (data: [Groups], lastDocument: DocumentSnapshot?) {
+        var query = groupReference
+            .whereField("is_active", isEqualTo: true)
+            .whereField("members", arrayContains: userId)
+            .order(by: "updated_at", descending: true)
+            .limit(to: limit)
+
+        if let lastDocument {
+            query = query.start(afterDocument: lastDocument)
+        }
+
+        let snapshot = try await query.getDocuments()
+        let groups = try snapshot.documents.compactMap { document in
+            try document.data(as: Groups.self)
+        }
+
+        return (groups, snapshot.documents.last)
     }
 }

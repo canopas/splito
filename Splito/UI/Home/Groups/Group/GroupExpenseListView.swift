@@ -129,7 +129,7 @@ struct GroupExpenseListView: View {
     }
 }
 
-private struct GroupExpenseItemView: View {
+struct GroupExpenseItemView: View {
 
     @Inject var preference: SplitoPreference
 
@@ -367,7 +367,7 @@ private struct GroupExpenseMemberOweView: View {
     }
 }
 
-private struct ExpenseNotFoundView: View {
+struct ExpenseNotFoundView: View {
 
     let geometry: GeometryProxy
     let searchedExpense: String

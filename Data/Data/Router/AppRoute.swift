@@ -44,6 +44,7 @@ public enum AppRoute: Hashable {
 
     // MARK: - Activity Tab
     case ActivityHomeView
+    case SearchExpensesView
 
     // MARK: - Account Tab
     case AccountHomeView
@@ -66,6 +67,8 @@ public enum AppRoute: Hashable {
 
         case .ActivityHomeView:
             "activityHomeView"
+        case .SearchExpensesView:
+            "searchExpensesView"
         case .ExpenseDetailView:
             "expenseDetailView"
 
