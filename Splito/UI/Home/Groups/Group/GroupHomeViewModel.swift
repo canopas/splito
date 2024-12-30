@@ -13,7 +13,6 @@ import FirebaseFirestore
 class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     private let EXPENSES_LIMIT = 10
-    private let TRANSACTIONS_LIMIT = 5
 
     @Inject var preference: SplitoPreference
     @Inject var groupRepository: GroupRepository

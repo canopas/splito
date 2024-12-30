@@ -97,11 +97,11 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
                     for activityLog in activityLogs where !(self.activityLogs.contains(where: { $0.id == activityLog.id })) {
                         self.activityLogs.append(activityLog)
                     }
-                    self.filterActivityLogs()
+                    filterActivityLogs()
                     if self.activityLogs.count == 1 {
-                        self.activityLogState = .hasActivity
+                        activityLogState = .hasActivity
                     } else if self.activityLogs.count < 1 {
-                        self.activityLogState = .noActivity
+                        activityLogState = .noActivity
                     }
                 } else {
                     self.showToastForError()
