@@ -167,17 +167,15 @@ private struct ExpenseDetailRow: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 if field == .expenseName {
-                    TextField("Enter a description", text: $name)
-                        .font(.subTitle2())
-                        .foregroundStyle(primaryText)
-                        .keyboardType(.default)
-                        .tint(primaryColor)
-                        .focused(focusedField, equals: field)
-                        .textInputAutocapitalization(.sentences)
-                        .submitLabel(.next)
-                        .onSubmit {
-                            focusedField.wrappedValue = .amount
-                        }
+                    TextField("Enter a description", text: $name, onCommit: {
+                        focusedField.wrappedValue = .amount
+                    })
+                    .font(.subTitle2())
+                    .tint(primaryColor)
+                    .foregroundStyle(primaryText)
+                    .focused(focusedField, equals: field)
+                    .textInputAutocapitalization(.sentences)
+                    .submitLabel(.next)
                 } else {
                     HStack(spacing: 16) {
                         Text(inputValue.localized)

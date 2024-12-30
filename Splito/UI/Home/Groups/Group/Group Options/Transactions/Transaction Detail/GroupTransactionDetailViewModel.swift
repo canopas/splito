@@ -52,7 +52,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroup() async {
         do {
-            self.group = try await groupRepository.fetchGroupBy(id: groupId)
+            group = try await groupRepository.fetchGroupBy(id: groupId)
             viewState = .initial
             LogD("GroupTransactionDetailViewModel: \(#function) Group fetched successfully.")
         } catch {
@@ -157,11 +157,11 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        Task { [weak self] in
-            guard let self, let userId = preference.user?.id, let payer = getMemberDataBy(id: transaction.payerId),
+        Task { [unowned self] in
+            guard let userId = preference.user?.id, let payer = getMemberDataBy(id: transaction.payerId),
                   let receiver = getMemberDataBy(id: transaction.receiverId) else { return }
             do {
-                self.viewState = .loading
+                viewState = .loading
                 transaction.isActive = true
                 transaction.updatedBy = userId
                 transaction.updatedAt = Timestamp()
@@ -170,13 +170,13 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                 NotificationCenter.default.post(name: .restoreTransaction, object: self.transaction)
                 await self.updateGroupMemberBalance(updateType: .Add)
 
-                self.viewState = .initial
+                viewState = .initial
                 LogD("GroupTransactionDetailViewModel: \(#function) Payment restored successfully.")
                 self.router.pop()
             } catch {
-                self.viewState = .initial
+                viewState = .initial
                 LogE("GroupTransactionDetailViewModel: \(#function) Failed to restore payment \(transactionId): \(error).")
-                self.showToastForError()
+                showToastForError()
             }
         }
     }
@@ -195,8 +195,8 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         guard let transaction, validateUserPermission(operationText: "deleted", action: "delete"),
               validateGroupMembers(action: "deleted") else { return }
 
-        Task { [weak self] in
-            guard let self, let group, let payer = getMemberDataBy(id: transaction.payerId),
+        Task { [unowned self] in
+            guard let group, let payer = getMemberDataBy(id: transaction.payerId),
                   let receiver = getMemberDataBy(id: transaction.receiverId) else { return }
             do {
                 viewState = .loading

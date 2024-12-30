@@ -63,7 +63,7 @@ class UserStore: ObservableObject {
 
                 guard let snapshot else {
                     LogE("UserStore: \(#function) Snapshot is nil for requested user.")
-                    continuation.finish()
+                    continuation.yield(nil)
                     return
                 }
 

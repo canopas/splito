@@ -37,8 +37,12 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                                                name: .updateGroup, object: nil)
     }
 
+    deinit {
+        print("XXX --- GroupSettingViewModel: Deinit called.")
+    }
+
     func fetchInitialGroupData() {
-        Task {
+        Task { [unowned self] in
             await fetchGroupDetails()
         }
     }
@@ -200,7 +204,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        Task {
+        Task { [unowned self] in
             do {
                try await groupRepository.removeMemberFrom(group: group, removedMember: member)
 
@@ -239,13 +243,11 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     private func deleteGroup() {
         guard let group else { return }
-
-        Task {
+        Task { [unowned self] in
             do {
                 currentViewState = .loading
                 try await groupRepository.deleteGroup(group: group)
                 NotificationCenter.default.post(name: .deleteGroup, object: group)
-
                 currentViewState = .initial
                 goBackToGroupList()
                 LogD("GroupSettingViewModel: \(#function) Group deleted successfully.")

@@ -28,8 +28,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var groupState: GroupState = .loading
 
     @Published var expenses: [Expense] = []
-    @Published var transactions: [Transactions] = []
     @Published var expensesWithUser: [ExpenseWithUser] = []
+    @Published var transactionsCount: Int = 0
     @Published private(set) var memberOwingAmount: [String: Double] = [:]
     @Published private(set) var groupExpenses: [String: [ExpenseWithUser]] = [:]
 
@@ -52,9 +52,11 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     let router: Router<AppRoute>
     var hasMoreExpenses: Bool = true
+    private var isInitialDataLoaded = false
 
     var groupMembers: [AppUser] = []
     private var lastDocument: DocumentSnapshot?
+    private var groupTask: Task<Void, Never>? // To manage the lifecycle of the async stream
 
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
@@ -65,25 +67,28 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateExpense(notification:)), name: .updateExpense, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleDeleteExpense(notification:)), name: .deleteExpense, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleAddTransaction(notification:)), name: .addTransaction, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleTransaction(notification:)), name: .updateTransaction, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleTransaction(notification:)), name: .deleteTransaction, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleTransaction(notification:)), name: .restoreTransaction, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateGroup(notification:)), name: .updateGroup, object: nil)
 
         fetchGroupAndExpenses()
+        observeGroupLatestData()
+    }
+
+    deinit {
+        groupTask?.cancel()
     }
 
     func fetchGroupAndExpenses(needToReload: Bool = false) {
         lastDocument = nil
-        Task {
-            await fetchGroup()
-            await fetchTransactions()
-            await fetchExpenses(needToReload: needToReload)
+        Task { [weak self] in
+            guard let self else { return }
+            await self.fetchGroup()
+            await self.getTransactionsCount()
+            await self.fetchExpenses(needToReload: needToReload)
         }
     }
 
     // MARK: - Data Loading
-    func fetchGroup() async {
+    private func fetchGroup() async {
         do {
             let group = try await groupRepository.fetchGroupBy(id: groupId)
             guard let group else {
@@ -110,18 +115,53 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func fetchTransactions() async {
+    private func observeGroupLatestData() {
+        groupTask = Task { [unowned self] in
+            for await group in groupRepository.fetchLatestGroupDataBy(id: self.groupId) {
+                guard let group else {
+                    self.groupState = .noMember
+                    return
+                }
+
+                self.group = group
+                let groupTotalSummary = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
+                self.currentMonthSpending = groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }
+
+                await withTaskGroup(of: Void.self) { taskGroup in
+                    for member in group.members where member != self.preference.user?.id {
+                        taskGroup.addTask { [weak self] in
+                            guard let self else { return }
+                            _ = await self.fetchMemberData(for: member)
+                        }
+                    }
+                }
+
+                if self.isInitialDataLoaded {
+                    self.setGroupBalanceWithState()
+                }
+                self.isInitialDataLoaded = true
+            }
+        }
+    }
+
+    func refetchTransactionsCount() {
+        Task { [unowned self] in
+            await getTransactionsCount()
+            self.setGroupViewState()
+        }
+    }
+
+    private func getTransactionsCount() async {
         if let state = validateGroupState() {
             groupState = state
             return
         }
 
         do {
-            let result = try await transactionRepository.fetchTransactionsBy(groupId: groupId, limit: TRANSACTIONS_LIMIT)
-            transactions = result.transactions.uniqued()
-            LogD("GroupHomeViewModel: \(#function) Payments fetched successfully.")
+            let count = try await transactionRepository.getTransactionsCount(groupId: groupId)
+            transactionsCount = count
         } catch {
-            LogE("GroupHomeViewModel: \(#function) Failed to fetch payments: \(error).")
+            LogE("GroupHomeViewModel: \(#function) Failed to fetch payment count: \(error).")
             handleServiceError()
         }
     }
@@ -177,9 +217,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         await withTaskGroup(of: ExpenseWithUser?.self) { taskGroup in
             for expense in expenses.uniqued() {
-                taskGroup.addTask { [weak self] in
-                    guard let self else { return nil }
-                    if let user = await self.fetchMemberData(for: expense.paidBy.keys.first ?? "") {
+                taskGroup.addTask { [unowned self] in
+                    if let user = await fetchMemberData(for: expense.paidBy.keys.first ?? "") {
                         return ExpenseWithUser(expense: expense, user: user)
                     }
                     return nil
@@ -196,7 +235,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         withAnimation(.easeOut) {
             expensesWithUser.append(contentsOf: combinedData.uniqued())
             updateGroupExpenses()
-            fetchGroupBalance()
+            setGroupBalanceWithState()
         }
     }
 
@@ -232,7 +271,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func fetchGroupBalance() {
+    func setGroupBalanceWithState() {
         guard let userId = preference.user?.id, let group else {
             groupState = .noMember
             return
@@ -252,8 +291,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         }
 
         groupState = group.members.count > 1 ?
-        ((expenses.isEmpty && transactions.isEmpty) ? .noExpense : .hasExpense) :
-        ((expenses.isEmpty && transactions.isEmpty) ? .noMember : .hasExpense)
+        ((expenses.isEmpty && transactionsCount <= 0) ? .noExpense : .hasExpense) :
+        ((expenses.isEmpty && transactionsCount <= 0) ? .noMember : .hasExpense)
     }
 
     // MARK: - Error Handling

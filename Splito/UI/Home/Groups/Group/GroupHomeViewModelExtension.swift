@@ -103,8 +103,7 @@ extension GroupHomeViewModel {
     func restoreGroup() {
         guard var group, let groupId = group.id, let userId = preference.user?.id else { return }
 
-        Task { [weak self] in
-            guard let self else { return }
+        Task { [unowned self] in
             do {
                 self.groupState = .loading
                 group.isActive = true
@@ -195,17 +194,16 @@ extension GroupHomeViewModel {
               let notificationGroupId = expenseInfo["groupId"] as? String,
               notificationGroupId == groupId else { return }
 
-        Task { [weak self] in
-            self?.expenses.append(newExpense)
-            if let user = await self?.fetchMemberData(for: newExpense.paidBy.keys.first ?? "") {
+        Task { [unowned self] in
+            self.expenses.append(newExpense)
+            if let user = await self.fetchMemberData(for: newExpense.paidBy.keys.first ?? "") {
                 let newExpenseWithUser = ExpenseWithUser(expense: newExpense, user: user)
                 withAnimation {
-                    self?.expensesWithUser.append(newExpenseWithUser)
-                    self?.updateGroupExpenses()
+                    self.expensesWithUser.append(newExpenseWithUser)
+                    self.updateGroupExpenses()
                 }
             }
         }
-        refreshGroupData()
     }
 
     @objc func handleUpdateExpense(notification: Notification) {
@@ -215,18 +213,17 @@ extension GroupHomeViewModel {
             expenses[index] = updatedExpense
         }
 
-        Task { [weak self] in
-            if let user = await self?.fetchMemberData(for: updatedExpense.paidBy.keys.first ?? "") {
-                if let index = self?.expensesWithUser.firstIndex(where: { $0.expense.id == updatedExpense.id }) {
+        Task { [unowned self] in
+            if let user = await self.fetchMemberData(for: updatedExpense.paidBy.keys.first ?? "") {
+                if let index = self.expensesWithUser.firstIndex(where: { $0.expense.id == updatedExpense.id }) {
                     let updatedExpenseWithUser = ExpenseWithUser(expense: updatedExpense, user: user)
                     withAnimation {
-                        self?.expensesWithUser[index] = updatedExpenseWithUser
-                        self?.updateGroupExpenses()
+                        self.expensesWithUser[index] = updatedExpenseWithUser
+                        self.updateGroupExpenses()
                     }
                 }
             }
         }
-        refreshGroupData()
     }
 
     @objc func handleDeleteExpense(notification: Notification) {
@@ -239,29 +236,15 @@ extension GroupHomeViewModel {
                 showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully."))
             }
         }
-        refreshGroupData()
-    }
-
-    @objc func handleTransaction(notification: Notification) {
-        refreshGroupData()
     }
 
     @objc func handleAddTransaction(notification: Notification) {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully."))
         showSettleUpSheet = false
-        refreshGroupData()
     }
 
     @objc func handleUpdateGroup(notification: Notification) {
         guard let updatedGroup = notification.object as? Groups else { return }
         group?.name = updatedGroup.name
-    }
-
-    private func refreshGroupData() {
-        Task { [weak self] in
-            await self?.fetchGroup()
-            self?.fetchGroupBalance()
-            NotificationCenter.default.post(name: .updateGroup, object: self?.group)
-        }
     }
 }

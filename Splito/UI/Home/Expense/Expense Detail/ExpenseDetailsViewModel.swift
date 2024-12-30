@@ -55,7 +55,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         do {
             group = try await groupRepository.fetchGroupBy(id: groupId)
             if let imageUrl = group?.imageUrl {
-                self.groupImageUrl = imageUrl
+                groupImageUrl = imageUrl
             }
             viewState = .initial
             LogD("ExpenseDetailsViewModel: \(#function) Group fetched successfully.")
@@ -151,10 +151,9 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
               validateUserPermission(operationText: "restored", action: "restored"),
               validateGroupMembers(action: "restored") else { return }
 
-        Task { [weak self] in
-            guard let self else { return }
+        Task { [unowned self] in
             do {
-                self.viewState = .loading
+                viewState = .loading
                 expense.isActive = true
                 expense.updatedBy = userId
                 expense.updatedAt = Timestamp()
@@ -165,12 +164,12 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                 NotificationCenter.default.post(name: .addExpense, object: nil, userInfo: expenseInfo)
                 await self.updateGroupMemberBalance(updateType: .Add)
 
-                self.viewState = .initial
+                viewState = .initial
                 LogD("ExpenseDetailsViewModel: \(#function) Expense restored successfully.")
                 self.router.pop()
             } catch {
                 LogE("ExpenseDetailsViewModel: \(#function) Failed to restore expense \(expenseId): \(error).")
-                self.handleServiceError()
+                handleServiceError()
             }
         }
     }

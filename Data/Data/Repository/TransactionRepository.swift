@@ -152,10 +152,14 @@ public class TransactionRepository: ObservableObject {
     }
 
     public func fetchTransactionsBy(groupId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) async throws -> (transactions: [Transactions], lastDocument: DocumentSnapshot?) {
-        return try await store.fetchTransactionsBy(groupId: groupId, limit: limit, lastDocument: lastDocument)
+        try await store.fetchTransactionsBy(groupId: groupId, limit: limit, lastDocument: lastDocument)
     }
 
     public func fetchTransactionBy(groupId: String, transactionId: String) async throws -> Transactions {
-        return try await store.fetchTransactionsBy(groupId: groupId, transactionId: transactionId)
+        try await store.fetchTransactionsBy(groupId: groupId, transactionId: transactionId)
+    }
+
+    public func getTransactionsCount(groupId: String) async throws -> Int {
+        try await store.getTransactionsCount(groupId: groupId)
     }
 }

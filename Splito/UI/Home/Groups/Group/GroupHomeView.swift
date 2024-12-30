@@ -81,6 +81,9 @@ struct GroupHomeView: View {
         }
         .fullScreenCover(isPresented: $viewModel.showTransactionsSheet) {
             GroupTransactionsRouteView(appRoute: .init(root: .TransactionListView(groupId: viewModel.groupId)))
+                .onDisappear {
+                    viewModel.refetchTransactionsCount()
+                }
         }
         .fullScreenCover(isPresented: $viewModel.showBalancesSheet) {
             NavigationStack {

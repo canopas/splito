@@ -88,9 +88,8 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         guard let userId = preference.user?.id else { return }
 
         task?.cancel()  // Cancel the existing task if it's running
-        task = Task { [weak self] in
-            guard let self else { return }
-            let activityLogStream = self.activityLogRepository.fetchLatestActivityLogs(userId: userId)
+        task = Task { [unowned self] in
+            let activityLogStream = activityLogRepository.fetchLatestActivityLogs(userId: userId)
             for await activityLogs in activityLogStream {
                 guard !Task.isCancelled else { return } // Exit early if the task is cancelled
 

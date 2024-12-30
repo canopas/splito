@@ -73,7 +73,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroup(groupId: String) async {
         guard let userId = preference.user?.id else { return }
-
         do {
             viewState = .loading
             let group = try await groupRepository.fetchGroupBy(id: groupId)
@@ -261,7 +260,6 @@ extension AddExpenseViewModel {
             self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "Please select a group to get payer list."))
             return
         }
-
         updateSelectedPayers()
         showPayerSelection = true
     }
@@ -288,7 +286,6 @@ extension AddExpenseViewModel {
                                             message: "Please select a group before choosing the split option."))
             return
         }
-
         guard expenseAmount > 0 else {
             showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!",
                                             message: "Please enter a cost for your expense first!"))
@@ -376,13 +373,11 @@ extension AddExpenseViewModel {
                               date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: userId,
                               note: expenseNote, splitTo: splitData.map({ $0.key }), splitType: splitType,
                               splitData: splitData)
-
         return await addExpense(group: group, expense: expense)
     }
 
     private func addExpense(group: Groups, expense: Expense) async -> Bool {
         guard let groupId = group.id else { return false }
-
         do {
             showLoader = true
             let newExpense = try await expenseRepository.addExpense(group: group, expense: expense, imageData: getImageData())
