@@ -14,10 +14,6 @@ public class ExpenseStore: ObservableObject {
     private let COLLECTION_NAME: String = "groups"
     private let SUB_COLLECTION_NAME: String = "expenses"
 
-    private var groupReference: CollectionReference {
-        database.collection(COLLECTION_NAME)
-    }
-
     private func expenseReference(groupId: String) -> CollectionReference {
         database
             .collection(COLLECTION_NAME)
@@ -64,43 +60,53 @@ public class ExpenseStore: ObservableObject {
         return (expenses, snapshot.documents.last)
     }
 
-    func fetchAllUserExpenses(userId: String, limit: Int) async throws -> [Expense] {
-        var allExpenses: [Expense] = []
-        var lastGroupDocument: DocumentSnapshot?
+    func fetchExpensesForUser(userId: String, limit: Int, lastDocument: DocumentSnapshot?) async throws -> (expenses: [Expense], lastDocument: DocumentSnapshot?) {
+        var userExpenses: [Expense] = []
 
-        repeat {
-            let (groups, lastDoc) = try await fetchGroupsBy(userId: userId, limit: limit, lastDocument: lastGroupDocument)
-            lastGroupDocument = lastDoc
-
-            for group in groups {
-                var lastExpenseDocument: DocumentSnapshot?
-                repeat {
-                    let (expenses, lastDoc) = try await fetchExpensesBy(groupId: group.id ?? "", limit: limit, lastDocument: lastExpenseDocument)
-                    lastExpenseDocument = lastDoc
-                    allExpenses.append(contentsOf: expenses)
-                } while lastExpenseDocument != nil
-            }
-        } while lastGroupDocument != nil
-
-        return allExpenses
-    }
-
-    func fetchGroupsBy(userId: String, limit: Int, lastDocument: DocumentSnapshot?) async throws -> (data: [Groups], lastDocument: DocumentSnapshot?) {
-        var query = groupReference
+        // Step 1: Fetch groups where the user is a member
+        let groupSnapshot = try await database.collection("groups")
             .whereField("is_active", isEqualTo: true)
             .whereField("members", arrayContains: userId)
-            .order(by: "updated_at", descending: true)
-            .limit(to: limit)
+            .getDocuments()
 
-        if let lastDocument {
-            query = query.start(afterDocument: lastDocument)
+        let groupDocuments = groupSnapshot.documents
+        var lastFetchedDocument: DocumentSnapshot?
+
+        // Step 2: Fetch expenses from each group with pagination
+        for groupDoc in groupDocuments {
+            let groupId = groupDoc.documentID
+
+            var query = database.collection("groups")
+                .document(groupId)
+                .collection("expenses")
+                .whereField("is_active", isEqualTo: true)
+                .order(by: "date", descending: true)
+                .limit(to: limit)
+
+            // Apply pagination
+            if let lastDocument = lastDocument {
+                query = query.start(afterDocument: lastDocument)
+            }
+
+            let expenseSnapshot = try await query.getDocuments()
+
+            let fetchedExpenses = expenseSnapshot.documents.compactMap { doc -> Expense? in
+                do {
+                    return try doc.data(as: Expense.self)
+                } catch {
+                    LogE("ExpenseStore: \(#function) Error decoding expense: \(error.localizedDescription)")
+                    return nil
+                }
+            }
+
+            userExpenses.append(contentsOf: fetchedExpenses)
+
+            // Track the last document for pagination
+            if let lastDoc = expenseSnapshot.documents.last {
+                lastFetchedDocument = lastDoc
+            }
         }
 
-        let snapshot = try await query.getDocuments()
-        let groups = try snapshot.documents.compactMap { document in
-            try document.data(as: Groups.self)
-        }
-
-        return (groups, snapshot.documents.last)
+        return (userExpenses, lastFetchedDocument)
     }
 }

@@ -91,7 +91,7 @@ struct GroupExpenseListView: View {
                                         .padding(.vertical, 8)
                                 }
                             } else if viewModel.groupExpenses.isEmpty && viewModel.showSearchBar {
-                                ExpenseNotFoundView(geometry: geometry, searchedExpense: viewModel.searchedExpense)
+                                ExpenseNotFoundView(minHeight: geometry.size.height - 280, searchedExpense: viewModel.searchedExpense)
                             }
                         }
                         .listRowSeparator(.hidden)
@@ -369,7 +369,7 @@ private struct GroupExpenseMemberOweView: View {
 
 struct ExpenseNotFoundView: View {
 
-    let geometry: GeometryProxy
+    let minHeight: CGFloat
     let searchedExpense: String
 
     var body: some View {
@@ -387,7 +387,7 @@ struct ExpenseNotFoundView: View {
         .multilineTextAlignment(.center)
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, alignment: .center)
-        .frame(minHeight: geometry.size.height - 280, maxHeight: .infinity, alignment: .center)
+        .frame(minHeight: minHeight, maxHeight: .infinity, alignment: .center)
         .onTapGestureForced { UIApplication.shared.endEditing() }
     }
 }

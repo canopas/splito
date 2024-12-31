@@ -43,29 +43,31 @@ class SearchExpensesViewModel: BaseViewModel, ObservableObject {
         fetchInitialExpenses()
     }
 
-    func fetchInitialExpenses(needToReload: Bool = false) {
+    func fetchInitialExpenses() {
         lastDocument = nil
         Task {
-            await fetchAllUserExpenses(needToReload: needToReload)
+            await fetchAllUserExpenses()
         }
     }
 
     // MARK: - Data Loading
-    private func fetchAllUserExpenses(needToReload: Bool = false) async {
-        guard let userId = preference.user?.id, hasMoreExpenses || needToReload else {
+    private func fetchAllUserExpenses() async {
+        guard let userId = preference.user?.id, hasMoreExpenses else {
             viewState = .noExpense
             return
         }
+
         if lastDocument == nil {
             expensesWithUser = []
         }
 
         do {
-            let result = try await expenseRepository.fetchAllUserExpenses(userId: userId, limit: EXPENSES_LIMIT)
-            expenses = lastDocument == nil ? result.uniqued() : (expenses + result.uniqued())
-            
-            await combineMemberWithExpense(expenses: result.uniqued())
-            hasMoreExpenses = !(result.count < self.EXPENSES_LIMIT)
+            let result = try await expenseRepository.fetchExpensesForUser(userId: userId, limit: EXPENSES_LIMIT, lastDocument: lastDocument)
+            self.expenses = lastDocument == nil ? result.expenses.uniqued() : (expenses + result.expenses.uniqued())
+            lastDocument = result.lastDocument
+
+            await combineMemberWithExpense(expenses: result.expenses.uniqued())
+            hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
             LogD("SearchExpensesViewModel: \(#function) Expenses fetched successfully.")
         } catch {
             LogE("SearchExpensesViewModel: \(#function) Failed to fetch expenses: \(error).")
