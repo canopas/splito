@@ -33,7 +33,7 @@ struct GroupSettingView: View {
                         GroupAdvanceSettingsView(onLeaveGroupTap: viewModel.handleLeaveGroupTap,
                                                  onDeleteGroupTap: viewModel.handleDeleteGroupTap)
 
-                        Spacer(minLength: 50)
+                        Spacer(minLength: 40)
                     }
                 }
                 .scrollIndicators(.hidden)
@@ -58,7 +58,8 @@ struct GroupSettingView: View {
         }
         .fullScreenCover(isPresented: $viewModel.showAddMemberSheet) {
             NavigationStack {
-                InviteMemberView(viewModel: InviteMemberViewModel(router: viewModel.router, groupId: viewModel.group?.id ?? ""))
+                InviteMemberView(viewModel: InviteMemberViewModel(router: viewModel.router,
+                                                                  groupId: viewModel.group?.id ?? ""))
             }
         }
         .onAppear(perform: viewModel.fetchInitialGroupData)
@@ -158,7 +159,7 @@ private struct GroupListEditCellView: View {
     var fontColor: Color = primaryText
 
     var showArrowBtn: Bool = false
-    var isDistructive: Bool = false
+    var isDestructive: Bool = false
 
     var onTap: () -> Void
 
@@ -185,11 +186,12 @@ private struct GroupListEditCellView: View {
             Spacer()
 
             if showArrowBtn {
-                ScrollToTopButton(icon: "chevron.right", iconColor: primaryText, bgColor: .clear, size: (7, 14), padding: 3, onClick: onTap)
+                ScrollToTopButton(icon: "chevron.right", iconColor: primaryText,
+                                  bgColor: .clear, size: (7, 14), padding: 3, onClick: onTap)
                     .fontWeight(.regular)
             }
         }
-        .foregroundStyle(isDistructive ? errorColor : primaryText)
+        .foregroundStyle(isDestructive ? errorColor : primaryText)
         .onTouchGesture(onTap)
     }
 }
@@ -299,9 +301,11 @@ private struct GroupAdvanceSettingsView: View {
                     .padding(.horizontal, 16)
                 }
 
-                GroupListEditCellView(text: "Leave group", showArrowBtn: true, isDistructive: false, onTap: onLeaveGroupTap)
+                GroupListEditCellView(text: "Leave group", showArrowBtn: true,
+                                      isDestructive: false, onTap: onLeaveGroupTap)
 
-                GroupListEditCellView(text: "Delete group", fontColor: errorColor, isDistructive: true, onTap: onDeleteGroupTap)
+                GroupListEditCellView(text: "Delete group", fontColor: errorColor,
+                                      isDestructive: true, onTap: onDeleteGroupTap)
             }
             .padding(.horizontal, 8)
         }

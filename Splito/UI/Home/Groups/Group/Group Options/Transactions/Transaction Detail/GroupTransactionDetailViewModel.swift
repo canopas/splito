@@ -52,7 +52,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroup() async {
         do {
-            self.group = try await groupRepository.fetchGroupBy(id: groupId)
+            group = try await groupRepository.fetchGroupBy(id: groupId)
             viewState = .initial
             LogD("GroupTransactionDetailViewModel: \(#function) Group fetched successfully.")
         } catch {
@@ -136,9 +136,9 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Restore payment",
                       message: "Are you sure you want to restore this payment?",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: self.restoreTransaction,
+                      positiveBtnAction: { [weak self] in self?.restoreTransaction() },
                       negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false })
+                      negativeBtnAction: { [weak self] in self?.showAlert = false })
     }
 
     func restoreTransaction() {
@@ -167,7 +167,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                 transaction.updatedAt = Timestamp()
 
                 self.transaction = try await self.transactionRepository.updateTransaction(group: group, transaction: transaction, oldTransaction: transaction, members: (payer, receiver), type: .transactionRestored)
-                NotificationCenter.default.post(name: .restoreTransaction, object: self.transaction)
+                NotificationCenter.default.post(name: .addTransaction, object: self.transaction)
                 await self.updateGroupMemberBalance(updateType: .Add)
 
                 self.viewState = .initial
@@ -186,9 +186,9 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Delete payment",
                       message: "Are you sure you want to delete this payment?",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: self.deleteTransaction,
+                      positiveBtnAction: { [weak self] in self?.deleteTransaction() },
                       negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false })
+                      negativeBtnAction: { [weak self] in self?.showAlert = false })
     }
 
     private func deleteTransaction() {
@@ -199,19 +199,19 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             guard let self, let group, let payer = getMemberDataBy(id: transaction.payerId),
                   let receiver = getMemberDataBy(id: transaction.receiverId) else { return }
             do {
-                viewState = .loading
-                self.transaction = try await transactionRepository.deleteTransaction(group: group, transaction: transaction,
+                self.viewState = .loading
+                self.transaction = try await self.transactionRepository.deleteTransaction(group: group, transaction: transaction,
                                                                                      payer: payer, receiver: receiver)
                 NotificationCenter.default.post(name: .deleteTransaction, object: self.transaction)
-                await updateGroupMemberBalance(updateType: .Delete)
+                await self.updateGroupMemberBalance(updateType: .Delete)
 
-                viewState = .initial
+                self.viewState = .initial
                 LogD("GroupTransactionDetailViewModel: \(#function) Payment deleted successfully.")
-                router.pop()
+                self.router.pop()
             } catch {
-                viewState = .initial
+                self.viewState = .initial
                 LogE("GroupTransactionDetailViewModel: \(#function) Failed to delete payment \(transactionId): \(error).")
-                showToastForError()
+                self.showToastForError()
             }
         }
     }
@@ -256,6 +256,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             group.updatedAt = Timestamp()
             group.updatedBy = userId
             try await groupRepository.updateGroup(group: group, type: .none)
+            NotificationCenter.default.post(name: .updateGroup, object: group)
             LogD("GroupTransactionDetailViewModel: \(#function) Member balance updated successfully.")
         } catch {
             viewState = .initial

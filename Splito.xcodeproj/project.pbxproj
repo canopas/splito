@@ -511,8 +511,8 @@
 				D85E86E62BB2E189002EDF76 /* ExpenseRouteView.swift */,
 				D85E86DF2BAB06A3002EDF76 /* AddExpenseView.swift */,
 				D85E86E22BAB06D9002EDF76 /* AddExpenseViewModel.swift */,
-				D85E86F02BB41CBA002EDF76 /* Detail Selection */,
 				D856C7302BCFD2080008A341 /* Expense Detail */,
+				D85E86F02BB41CBA002EDF76 /* Detail Selection */,
 				210CC0392CF6DA7F0035682E /* Note */,
 			);
 			path = Expense;

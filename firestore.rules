@@ -3,9 +3,9 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
   
-  	function isAuthorized() {
+    function isAuthorized() {
     	return request.auth != null ;
-  	}
+    }
     
     function isCurrentUser(userId) {
     	return request.auth != null && request.auth.uid == userId;
@@ -13,13 +13,24 @@ service cloud.firestore {
     
     // For Users Collection
     match /users/{userId} {
-    	allow read: if isAuthorized();
+      allow read: if true;
       
       allow create: if isCurrentUser(userId);
       
       allow update: if isCurrentUser(userId);
                     
       allow delete: if isCurrentUser(userId);
+    }
+    
+    // For Activity Log Collection
+    match /users/{userId}/activity/{activityId} {
+      	allow read: if isAuthorized() && isCurrentUser(userId);
+        
+      	allow create: if isAuthorized();
+                              
+        allow update: if isAuthorized() && isCurrentUser(userId);
+                      
+      	allow delete: if isAuthorized() && isCurrentUser(userId);
     }
     
     // For Share Codes Collection
@@ -33,29 +44,26 @@ service cloud.firestore {
     
     // For Groups Collection
     match /groups/{groupId} {
-    	allow read: if isAuthorized() &&
-      				   resource.data.members.hasAny([request.auth.uid]);
-      
-      allow create: if isAuthorized() &&
-      				   isCurrentUser(request.resource.data.created_by);
-      
-      allow update: if isAuthorized() &&
-      				   (resource.data.members.hasAny([request.auth.uid]) ||
-                       (!resource.data.members.hasAny([request.auth.uid]) &&
-                            request.resource.data.diff(resource.data).affectedKeys().hasOnly(["members"])
-                       )
+    	allow read: if isAuthorized();
+
+        allow create: if isAuthorized() && isCurrentUser(request.resource.data.created_by);
+
+        allow update: if isAuthorized() && (resource.data.members.hasAny([request.auth.uid]) ||
+                    	(!resource.data.members.hasAny([request.auth.uid]) &&
+request.resource.data.diff(resource.data).affectedKeys().hasOnly(["members"]))) 
+                        || request.resource.data.keys().hasAny(["updated_at", "updated_by"]
                     );
       
       allow delete: if isAuthorized() &&
-      				   resource.data.members.hasAny([request.auth.uid]);
+   		resource.data.members.hasAny([request.auth.uid]);
     }
     
     // For Expenses Collection
     match /groups/{groupId}/expenses/{expenseId} {
-      	allow read: if isUserPartOfGroup(groupId);
+      	allow read: if isAuthorized();
         
       	allow create: if isCurrentUser(request.resource.data.added_by) &&
-        				 isUserPartOfGroup(groupId);
+          				 		isUserPartOfGroup(groupId);
                               
         allow update: if isUserPartOfGroup(groupId);
                       
@@ -64,7 +72,7 @@ service cloud.firestore {
     
     // For Transactions Collection
     match /groups/{groupId}/transactions/{transactionId} {
-      	allow read: if isUserPartOfGroup(groupId);
+      	allow read: if isAuthorized();
         
       	allow create: if isUserPartOfGroup(groupId) &&
                       isMemberPartOfGroup(groupId, request.resource.data.payer_id) &&
@@ -80,12 +88,12 @@ service cloud.firestore {
     // Use for sub-collection as it'll not have parent's data
     function isUserPartOfGroup(groupId) {
     	let memberIds = get(/databases/$(database)/documents/groups/$(groupId)).data.members;
-        return isAuthorized() && memberIds.hasAny([request.auth.uid]);
-	}
+      return isAuthorized() && memberIds.hasAny([request.auth.uid]);
+    }
     
     function isMemberPartOfGroup(groupId, memberId) {
     	let memberIds = get(/databases/$(database)/documents/groups/$(groupId)).data.members;
     	return isAuthorized() && memberIds.hasAny([memberId]);
-	}
+    }
   }
 }

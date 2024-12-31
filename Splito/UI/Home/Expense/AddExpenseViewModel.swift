@@ -38,7 +38,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     @Published var selectedGroup: Groups?
     @Published private(set) var expense: Expense?
-    @Published private(set) var splitData: [String: Double] = [:]
 
     @Published private(set) var groupMembers: [String] = []
     @Published private(set) var selectedMembers: [String] = []
@@ -46,6 +45,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var viewState: ViewState = .initial
     @Published private(set) var splitType: SplitType = .equally
 
+    @Published private(set) var splitData: [String: Double] = [:]
     @Published private(set) var selectedPayers: [String: Double] = [:] {
         didSet {
             updatePayerName()
@@ -61,11 +61,12 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         self.groupId = groupId
         self.expenseId = expenseId
         super.init()
-        Task {
+
+        Task { [weak self] in
             if let expenseId {
-                await fetchExpenseDetailsWithMembers(expenseId: expenseId)
+                await self?.fetchExpenseDetailsWithMembers(expenseId: expenseId)
             } else if let groupId {
-                await fetchGroup(groupId: groupId)
+                await self?.fetchGroup(groupId: groupId)
             }
         }
     }
@@ -73,7 +74,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroup(groupId: String) async {
         guard let userId = preference.user?.id else { return }
-
         do {
             viewState = .loading
             let group = try await groupRepository.fetchGroupBy(id: groupId)
@@ -125,8 +125,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 
     private func fetchAndUpdateGroupData(groupId: String) async {
         if let group = await fetchGroupData(for: groupId) {
-            self.selectedGroup = group
-            self.groupMembers = group.members
+            selectedGroup = group
+            groupMembers = group.members
         }
     }
 
@@ -160,24 +160,24 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
 // MARK: - User Actions
 extension AddExpenseViewModel {
     private func updatePayerName() {
-        Task {
-            if selectedPayers.count == 1 {
-                if let user = preference.user, selectedPayers.keys.first == user.id {
-                    payerName = "You"
-                } else if let payerId = selectedPayers.keys.first,
-                          let user = await fetchUserData(for: payerId) {
-                    payerName = user.nameWithLastInitial
+        Task { [weak self] in
+            guard let self else { return }
+            if self.selectedPayers.count == 1 {
+                if let user = preference.user, self.selectedPayers.keys.first == user.id {
+                    self.payerName = "You"
+                } else if let payerId = self.selectedPayers.keys.first, let user = await self.fetchUserData(for: payerId) {
+                    self.payerName = user.nameWithLastInitial
                 }
             } else {
-                let payerIds = Array(selectedPayers.keys.prefix(2))
-                let user1 = await fetchUserData(for: payerIds[0])
-                let user2 = await fetchUserData(for: payerIds[1])
+                let payerIds = Array(self.selectedPayers.keys.prefix(2))
+                let user1 = await self.fetchUserData(for: payerIds[0])
+                let user2 = await self.fetchUserData(for: payerIds[1])
                 if let user1, let user2 {
-                    if selectedPayers.count == 2 {
-                        payerName = "\(user1.nameWithLastInitial) and \(user2.nameWithLastInitial)"
+                    if self.selectedPayers.count == 2 {
+                        self.payerName = "\(user1.nameWithLastInitial) and \(user2.nameWithLastInitial)"
                     } else {
-                        let remainingCount = selectedPayers.count - 2
-                        payerName = "\(user1.nameWithLastInitial), \(user2.nameWithLastInitial) and +\(remainingCount)"
+                        let remainingCount = self.selectedPayers.count - 2
+                        self.payerName = "\(user1.nameWithLastInitial), \(user2.nameWithLastInitial) and +\(remainingCount)"
                     }
                 }
             }
@@ -199,15 +199,15 @@ extension AddExpenseViewModel {
 
     func handleNoteSaveBtnTap(note: String) {
         showAddNoteEditor = false
-        self.expenseNote = note
+        expenseNote = note
     }
 
     func handleActionSelection(_ action: ActionsOfSheet) {
         switch action {
         case .camera:
-            self.checkCameraPermission {
-                self.sourceTypeIsCamera = true
-                self.showImagePicker = true
+            self.checkCameraPermission { [weak self] in
+                self?.sourceTypeIsCamera = true
+                self?.showImagePicker = true
             }
         case .gallery:
             sourceTypeIsCamera = false
@@ -230,7 +230,8 @@ extension AddExpenseViewModel {
             }
             return
         case .restricted, .denied:
-            showAlertFor(alert: .init(title: "Important!", message: "Camera access is required to take picture for expenses",
+            showAlertFor(alert: .init(title: "Important!",
+                                      message: "Camera access is required to take picture for expenses",
                                       positiveBtnTitle: "Allow", positiveBtnAction: { [weak self] in
                 if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(settingsURL)
@@ -245,8 +246,8 @@ extension AddExpenseViewModel {
     }
 
     func handleGroupSelectionAction(group: Groups) {
-        Task {
-            await handleGroupSelection(group: group)
+        Task { [weak self] in
+            await self?.handleGroupSelection(group: group)
         }
     }
 
@@ -258,10 +259,9 @@ extension AddExpenseViewModel {
 
     func handlePayerBtnAction() {
         guard selectedGroup != nil else {
-            self.showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "Please select a group to get payer list."))
+            showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!", message: "Please select a group to get payer list."))
             return
         }
-
         updateSelectedPayers()
         showPayerSelection = true
     }
@@ -288,7 +288,6 @@ extension AddExpenseViewModel {
                                             message: "Please select a group before choosing the split option."))
             return
         }
-
         guard expenseAmount > 0 else {
             showToastFor(toast: ToastPrompt(type: .warning, title: "Whoops!",
                                             message: "Please enter a cost for your expense first!"))
@@ -349,8 +348,8 @@ extension AddExpenseViewModel {
         if (splitType == .fixedAmount || splitType == .equally) && totalSharedAmount != expenseAmount {
             let amountDescription = totalSharedAmount < expenseAmount ? "short" : "over"
             let differenceAmount = totalSharedAmount < expenseAmount ? (expenseAmount - totalSharedAmount) : (totalSharedAmount - expenseAmount)
-
-            showAlertFor(title: "Error!", message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
+            showAlertFor(title: "Error!",
+                         message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
             return false
         } else if selectedPayers.count > 1 && totalPaidAmount != expenseAmount {
             showAlertFor(title: "Error",
@@ -376,13 +375,11 @@ extension AddExpenseViewModel {
                               date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: userId,
                               note: expenseNote, splitTo: splitData.map({ $0.key }), splitType: splitType,
                               splitData: splitData)
-
         return await addExpense(group: group, expense: expense)
     }
 
     private func addExpense(group: Groups, expense: Expense) async -> Bool {
         guard let groupId = group.id else { return false }
-
         do {
             showLoader = true
             let newExpense = try await expenseRepository.addExpense(group: group, expense: expense, imageData: getImageData())
@@ -471,13 +468,13 @@ extension AddExpenseViewModel {
             showLoader = false
             return
         }
-
         do {
             let memberBalance = getUpdatedMemberBalanceFor(expense: expense, group: group, updateType: updateType)
             group.balances = memberBalance
             group.updatedAt = Timestamp()
             group.updatedBy = userId
             try await groupRepository.updateGroup(group: group, type: .none)
+            NotificationCenter.default.post(name: .updateGroup, object: group)
             LogD("AddExpenseViewModel: \(#function) Member balances updated successfully.")
         } catch {
             showLoader = false

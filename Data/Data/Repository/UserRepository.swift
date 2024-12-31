@@ -39,8 +39,8 @@ public class UserRepository: ObservableObject {
         try await store.fetchUserBy(email: email)
     }
 
-    public func fetchLatestUserBy(userID: String) -> AsyncStream<AppUser?> {
-        store.fetchLatestUserBy(id: userID)
+    public func streamLatestUserBy(userID: String) -> AsyncStream<AppUser?> {
+        store.streamLatestUserBy(id: userID)
     }
 
     private func uploadImage(imageData: Data, user: AppUser) async throws -> AppUser {
@@ -94,18 +94,16 @@ public class UserRepository: ObservableObject {
         try await user.delete()
     }
 
-    public func updateDeviceFcmToken(retryCount: Int = 3) {
-        Task {
-            guard let userId = preference.user?.id, let fcmToken = preference.fcmToken else { return }
+    public func updateDeviceFcmToken(retryCount: Int = 3) async {
+        guard let userId = preference.user?.id, let fcmToken = preference.fcmToken else { return }
 
-            do {
-                try await store.updateUserDeviceFcmToken(userId: userId, fcmToken: fcmToken)
-                LogI("AppDelegate: \(#function) Device fcm token updated successfully.")
-            } catch {
-                LogE("AppDelegate: \(#function) Failed to update device fcm token: \(error).")
-                if retryCount > 0 {
-                    updateDeviceFcmToken(retryCount: retryCount - 1)
-                }
+        do {
+            try await store.updateUserDeviceFcmToken(userId: userId, fcmToken: fcmToken)
+            LogI("UserRepository: \(#function) Device fcm token updated successfully.")
+        } catch {
+            LogE("UserRepository: \(#function) Failed to update device fcm token: \(error).")
+            if retryCount > 0 {
+                await updateDeviceFcmToken(retryCount: retryCount - 1)
             }
         }
     }

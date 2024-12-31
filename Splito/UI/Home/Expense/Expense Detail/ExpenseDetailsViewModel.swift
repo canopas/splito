@@ -55,7 +55,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         do {
             group = try await groupRepository.fetchGroupBy(id: groupId)
             if let imageUrl = group?.imageUrl {
-                self.groupImageUrl = imageUrl
+                groupImageUrl = imageUrl
             }
             viewState = .initial
             LogD("ExpenseDetailsViewModel: \(#function) Group fetched successfully.")
@@ -133,9 +133,9 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Restore expense",
                       message: "Are you sure you want to restore this expense?",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: self.restoreExpense,
+                      positiveBtnAction: { [weak self] in self?.restoreExpense() },
                       negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false })
+                      negativeBtnAction: { [weak self] in self?.showAlert = false })
     }
 
     func restoreExpense() {
@@ -180,9 +180,9 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Delete Expense",
                       message: "Are you sure you want to delete this expense? This will remove this expense for ALL people involved, not just you.",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: self.deleteExpense,
+                      positiveBtnAction: { [weak self] in self?.deleteExpense() },
                       negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false })
+                      negativeBtnAction: { [weak self] in self?.showAlert = false })
     }
 
     private func deleteExpense() {
@@ -249,6 +249,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             group.updatedAt = Timestamp()
             group.updatedBy = userId
             try await groupRepository.updateGroup(group: group, type: .none)
+            NotificationCenter.default.post(name: .updateGroup, object: group)
             LogD("ExpenseDetailsViewModel: \(#function) Member balance updated successfully.")
         } catch {
             viewState = .initial

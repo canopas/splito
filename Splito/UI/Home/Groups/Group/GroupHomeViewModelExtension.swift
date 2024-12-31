@@ -95,7 +95,7 @@ extension GroupHomeViewModel {
         alert = .init(title: "Restore group",
                       message: "This will restore all activities, expenses and payments for this group.",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: self.restoreGroup,
+                      positiveBtnAction: { [weak self] in self?.restoreGroup() },
                       negativeBtnTitle: "Cancel",
                       negativeBtnAction: { [weak self] in self?.showAlert = false })
     }
@@ -104,20 +104,19 @@ extension GroupHomeViewModel {
         guard var group, let groupId = group.id, let userId = preference.user?.id else { return }
 
         Task { [weak self] in
-            guard let self else { return }
             do {
-                self.groupState = .loading
+                self?.groupState = .loading
                 group.isActive = true
                 group.updatedBy = userId
 
-                try await self.groupRepository.updateGroup(group: group, type: .groupRestored)
+                try await self?.groupRepository.updateGroup(group: group, type: .groupRestored)
                 NotificationCenter.default.post(name: .addGroup, object: group)
 
-                self.fetchGroupAndExpenses()
+                self?.fetchGroupAndExpenses()
                 LogD("GroupHomeViewModel: \(#function) Group restored successfully.")
             } catch {
                 LogE("GroupHomeViewModel: \(#function) Failed to restore group \(groupId): \(error).")
-                self.handleServiceError()
+                self?.handleServiceError()
             }
         }
     }
@@ -135,14 +134,16 @@ extension GroupHomeViewModel {
     private func deleteExpense(expense: Expense) {
         guard let group, let expenseId = expense.id, validateGroupMembers(expense: expense) else { return }
 
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
-                let deletedExpense = try await expenseRepository.deleteExpense(group: group, expense: expense)
-                await updateGroupMemberBalance(expense: deletedExpense, updateType: .Delete)
+                let deletedExpense = try await self.expenseRepository.deleteExpense(group: group, expense: expense)
+                NotificationCenter.default.post(name: .deleteExpense, object: deletedExpense)
+                await self.updateGroupMemberBalance(expense: deletedExpense, updateType: .Delete)
                 LogD("GroupHomeViewModel: \(#function) Expense deleted successfully.")
             } catch {
                 LogE("GroupHomeViewModel: \(#function) Failed to delete expense \(expenseId): \(error).")
-                showToastForError()
+                self.showToastForError()
             }
         }
     }
@@ -177,7 +178,7 @@ extension GroupHomeViewModel {
             group.updatedAt = Timestamp()
             group.updatedBy = userId
             try await groupRepository.updateGroup(group: group, type: .none)
-            NotificationCenter.default.post(name: .deleteExpense, object: expense)
+            NotificationCenter.default.post(name: .updateGroup, object: group)
             LogD("GroupHomeViewModel: \(#function) Member balance updated successfully.")
         } catch {
             LogE("GroupHomeViewModel: \(#function) Failed to update member balance for expense \(expenseId): \(error).")
@@ -205,7 +206,6 @@ extension GroupHomeViewModel {
                 }
             }
         }
-        refreshGroupData()
     }
 
     @objc func handleUpdateExpense(notification: Notification) {
@@ -226,7 +226,6 @@ extension GroupHomeViewModel {
                 }
             }
         }
-        refreshGroupData()
     }
 
     @objc func handleDeleteExpense(notification: Notification) {
@@ -239,29 +238,15 @@ extension GroupHomeViewModel {
                 showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully."))
             }
         }
-        refreshGroupData()
-    }
-
-    @objc func handleTransaction(notification: Notification) {
-        refreshGroupData()
     }
 
     @objc func handleAddTransaction(notification: Notification) {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully."))
         showSettleUpSheet = false
-        refreshGroupData()
     }
 
     @objc func handleUpdateGroup(notification: Notification) {
         guard let updatedGroup = notification.object as? Groups else { return }
         group?.name = updatedGroup.name
-    }
-
-    private func refreshGroupData() {
-        Task { [weak self] in
-            await self?.fetchGroup()
-            self?.fetchGroupBalance()
-            NotificationCenter.default.post(name: .updateGroup, object: self?.group)
-        }
     }
 }

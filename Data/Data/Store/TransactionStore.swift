@@ -57,6 +57,15 @@ public class TransactionStore: ObservableObject {
     }
 
     func fetchTransactionsBy(groupId: String, transactionId: String) async throws -> Transactions {
-        return try await transactionReference(groupId: groupId).document(transactionId).getDocument(as: Transactions.self, source: .server)
+        try await transactionReference(groupId: groupId)
+            .document(transactionId)
+            .getDocument(as: Transactions.self, source: .server)
+    }
+
+    func getTransactionsCount(groupId: String) async throws -> Int {
+        let count = try await transactionReference(groupId: groupId)
+            .whereField("is_active", isEqualTo: true)
+            .count.getAggregation(source: .server).count
+        return Int(truncating: count)
     }
 }
