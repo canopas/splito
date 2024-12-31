@@ -138,6 +138,7 @@ extension GroupHomeViewModel {
             guard let self else { return }
             do {
                 let deletedExpense = try await self.expenseRepository.deleteExpense(group: group, expense: expense)
+                NotificationCenter.default.post(name: .deleteExpense, object: deletedExpense)
                 await self.updateGroupMemberBalance(expense: deletedExpense, updateType: .Delete)
                 LogD("GroupHomeViewModel: \(#function) Expense deleted successfully.")
             } catch {
@@ -177,7 +178,7 @@ extension GroupHomeViewModel {
             group.updatedAt = Timestamp()
             group.updatedBy = userId
             try await groupRepository.updateGroup(group: group, type: .none)
-            NotificationCenter.default.post(name: .deleteExpense, object: expense)
+            NotificationCenter.default.post(name: .updateGroup, object: group)
             LogD("GroupHomeViewModel: \(#function) Member balance updated successfully.")
         } catch {
             LogE("GroupHomeViewModel: \(#function) Failed to update member balance for expense \(expenseId): \(error).")

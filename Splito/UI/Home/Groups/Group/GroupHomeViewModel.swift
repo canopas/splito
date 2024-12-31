@@ -139,7 +139,6 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
                 if self.isInitialDataLoaded {
                     self.setGroupBalanceWithState()
-                    NotificationCenter.default.post(name: .updateGroup, object: self.group)
                 }
                 self.isInitialDataLoaded = true
             }

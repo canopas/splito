@@ -158,6 +158,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         do {
             let updatedTransaction = try await transactionRepository.deleteTransaction(group: group, transaction: transaction,
                                                                                        payer: payer, receiver: receiver)
+            NotificationCenter.default.post(name: .deleteTransaction, object: updatedTransaction)
             await updateGroupMemberBalance(transaction: updatedTransaction, updateType: .Delete)
             LogD("GroupTransactionListViewModel: \(#function) Payment deleted successfully.")
         } catch {
@@ -194,7 +195,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             group.updatedAt = Timestamp()
             group.updatedBy = userId
             try await groupRepository.updateGroup(group: group, type: .none)
-            NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
+            NotificationCenter.default.post(name: .updateGroup, object: group)
             LogD("GroupTransactionListViewModel: \(#function) Member balance updated successfully.")
         } catch {
             LogE("GroupTransactionListViewModel: \(#function) Failed to update member balance for payment \(transactionId): \(error).")
