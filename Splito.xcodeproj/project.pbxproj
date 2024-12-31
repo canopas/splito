@@ -330,8 +330,7 @@
 				21559CAB2CBD25B30039F127 /* ActivityLogRouteView.swift */,
 				21559CA52CBD20FB0039F127 /* ActivityLogView.swift */,
 				21559CA82CBD211F0039F127 /* ActivityLogViewModel.swift */,
-				21D4A2052D22CDD000C11322 /* SearchExpensesView.swift */,
-				21D4A2072D22CDF900C11322 /* SearchExpensesViewModel.swift */,
+				217E2F792D23D19F0085EB20 /* Search */,
 			);
 			path = ActivityLog;
 			sourceTree = "<group>";
@@ -354,6 +353,15 @@
 				2177692C2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift */,
 			);
 			path = "Transaction Detail";
+			sourceTree = "<group>";
+		};
+		217E2F792D23D19F0085EB20 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				21D4A2052D22CDD000C11322 /* SearchExpensesView.swift */,
+				21D4A2072D22CDF900C11322 /* SearchExpensesViewModel.swift */,
+			);
+			path = Search;
 			sourceTree = "<group>";
 		};
 		21BA6D4B2C3BB64B0020ED04 /* Payer */ = {

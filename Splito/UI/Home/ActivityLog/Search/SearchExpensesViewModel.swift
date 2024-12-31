@@ -63,13 +63,12 @@ class SearchExpensesViewModel: BaseViewModel, ObservableObject {
         do {
             let result = try await expenseRepository.fetchAllUserExpenses(userId: userId, limit: EXPENSES_LIMIT)
             expenses = lastDocument == nil ? result.uniqued() : (expenses + result.uniqued())
-//            lastDocument = result.lastDocument
-
+            
             await combineMemberWithExpense(expenses: result.uniqued())
             hasMoreExpenses = !(result.count < self.EXPENSES_LIMIT)
-            LogD("GroupHomeViewModel: \(#function) Expenses fetched successfully.")
+            LogD("SearchExpensesViewModel: \(#function) Expenses fetched successfully.")
         } catch {
-            LogE("GroupHomeViewModel: \(#function) Failed to fetch expenses: \(error).")
+            LogE("SearchExpensesViewModel: \(#function) Failed to fetch expenses: \(error).")
             handleServiceError()
         }
     }
@@ -112,18 +111,18 @@ class SearchExpensesViewModel: BaseViewModel, ObservableObject {
         do {
             let fetchedMember = getMemberDataBy(id: memberId)
             guard fetchedMember == nil else {
-                LogD("GroupHomeViewModel: \(#function) Fetched Member is already exists.")
+                LogD("SearchExpensesViewModel: \(#function) Fetched Member is already exists.")
                 return fetchedMember
             }
             let member = try await groupRepository.fetchMemberBy(memberId: memberId)
             if let member {
                 groupMembers.append(member)
-                LogD("GroupHomeViewModel: \(#function) Member fetched successfully.")
+                LogD("SearchExpensesViewModel: \(#function) Member fetched successfully.")
             }
             return member
         } catch {
             viewState = .noExpense
-            LogE("GroupHomeViewModel: \(#function) Failed to fetch member \(memberId): \(error).")
+            LogE("SearchExpensesViewModel: \(#function) Failed to fetch member \(memberId): \(error).")
             showToastForError()
             return nil
         }
@@ -152,7 +151,7 @@ class SearchExpensesViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - User Actions
     func handleExpenseItemTap(expenseId: String) {
-//        router.push(.ExpenseDetailView(groupId: groupId, expenseId: expenseId))
+        //        router.push(.ExpenseDetailView(groupId: groupId, expenseId: expenseId))
     }
 
     // MARK: - Error Handling
