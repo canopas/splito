@@ -83,6 +83,7 @@ struct GroupPaymentView: View {
         }
         .task { isAmountFocused = true }
         .onTapGesture { isAmountFocused = false }
+        .onDisappear { isAmountFocused = false }
         .background(surfaceColor)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)

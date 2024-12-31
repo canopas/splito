@@ -139,6 +139,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
                 if self.isInitialDataLoaded {
                     self.setGroupBalanceWithState()
+                    NotificationCenter.default.post(name: .updateGroup, object: self.group)
                 }
                 self.isInitialDataLoaded = true
             }
@@ -161,6 +162,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         do {
             let count = try await transactionRepository.getTransactionsCount(groupId: groupId)
             transactionsCount = count
+            LogD("GroupHomeViewModel: \(#function) Transactions count fetched successfully.")
         } catch {
             LogE("GroupHomeViewModel: \(#function) Failed to fetch payment count: \(error).")
             handleServiceError()
