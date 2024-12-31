@@ -66,8 +66,8 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleJoinGroup(notification:)), name: .joinGroup, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleAddExpense(notification:)), name: .addExpense, object: nil)
 
+        setDeviceTokenAndUserStream()
         fetchGroupsInitialData()
-        fetchLatestUser()
         deepLinkObserver()
     }
 
@@ -75,10 +75,37 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         task?.cancel()
     }
 
+    private func setDeviceTokenAndUserStream() {
+        task = Task {
+            await userRepository.updateDeviceFcmToken()
+            try? await Task.sleep(nanoseconds: 1_000_000_000) // Sleep for 1 second
+            await streamLatestUserData()
+        }
+    }
+
+    private func streamLatestUserData() async {
+        guard let userId = preference.user?.id else {
+            currentViewState = .initial
+            return
+        }
+
+        totalOweAmount = preference.user?.totalOweAmount ?? 0
+        let userStream = userRepository.streamLatestUserBy(userID: userId)
+
+        for await user in userStream {
+            if let user {
+                preference.user = user
+                totalOweAmount = user.totalOweAmount
+            } else {
+                showToastForError()
+            }
+        }
+    }
+
     func fetchGroupsInitialData(needToReload: Bool = false) {
         lastDocument = nil
-        Task {
-            await fetchGroups(needToReload: needToReload)
+        Task { [weak self] in
+            await self?.fetchGroups(needToReload: needToReload)
         }
     }
 
@@ -186,30 +213,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             return group.balances[index].balance
         }
         return 0
-    }
-
-    private func fetchLatestUser() {
-        guard let userId = preference.user?.id else {
-            currentViewState = .initial
-            return
-        }
-
-        let userStream = userRepository.streamLatestUserBy(userID: userId)
-
-        task = Task { [weak self] in
-            self?.totalOweAmount = self?.preference.user?.totalOweAmount ?? 0
-            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds wait
-
-            for await user in userStream {
-                guard let self else { return }
-                if let user {
-                    self.preference.user = user
-                    self.totalOweAmount = user.totalOweAmount
-                } else {
-                    self.showToastForError()
-                }
-            }
-        }
     }
 
     private func fetchGroup(groupId: String) async -> Groups? {

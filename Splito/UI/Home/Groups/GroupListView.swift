@@ -56,9 +56,7 @@ struct GroupListView: View {
                                             .stroke(outlineColor, lineWidth: 1)
                                     })
                                     .focused($isFocused)
-                                    .task {
-                                        isFocused = true
-                                    }
+                                    .task { isFocused = true }
                                     .padding([.horizontal, .top], 16)
                                     .padding(.bottom, 8)
                             }
