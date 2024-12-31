@@ -41,15 +41,14 @@ struct AddExpenseView: View {
                                        handleActionSelection: viewModel.handleActionSelection(_:))
             }
         }
+        .task { focusedField = .expenseName }
+        .onDisappear { focusedField = nil }
         .background(surfaceColor)
         .scrollDismissesKeyboard(.immediately)
         .navigationTitle(viewModel.expenseId == nil ? "Add expense" : "Edit expense")
         .navigationBarTitleDisplayMode(.inline)
         .toastView(toast: $viewModel.toast)
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .onAppear {
-            focusedField = .expenseName
-        }
         .sheet(isPresented: $viewModel.showGroupSelection) {
             NavigationStack {
                 SelectGroupView(viewModel: SelectGroupViewModel(selectedGroup: viewModel.selectedGroup,

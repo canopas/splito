@@ -44,7 +44,7 @@ class GroupStore: ObservableObject {
         }
     }
 
-    func fetchLatestGroupBy(id: String) -> AsyncStream<Groups?> {
+    func streamLatestGroupBy(id: String) -> AsyncStream<Groups?> {
         AsyncStream { continuation in
             let listener = groupReference.document(id).addSnapshotListener { snapshot, error in
                 if let error {

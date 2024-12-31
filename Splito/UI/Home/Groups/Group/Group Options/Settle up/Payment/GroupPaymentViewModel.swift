@@ -37,6 +37,15 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var receiver: AppUser?
     @Published private(set) var viewState: ViewState = .loading
 
+    let transactionId: String?
+    private let groupId: String
+    private var payerId: String
+    private var receiverId: String
+
+    var group: Groups?
+    var transaction: Transactions?
+    private let router: Router<AppRoute>?
+
     var payerName: String {
         guard let user = preference.user else { return "" }
         return user.id == payerId ? "You" : payer?.nameWithLastInitial ?? "Unknown"
@@ -46,15 +55,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         guard let user = preference.user else { return "" }
         return user.id == receiverId ? "you" : receiver?.nameWithLastInitial ?? "unknown"
     }
-
-    var group: Groups?
-    private let groupId: String
-
-    let transactionId: String?
-    private var payerId: String
-    private var receiverId: String
-    var transaction: Transactions?
-    private let router: Router<AppRoute>?
 
     init(router: Router<AppRoute>, transactionId: String?, groupId: String,
          payerId: String, receiverId: String, amount: Double) {
@@ -71,11 +71,11 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     }
 
     func fetchInitialViewData() {
-        Task {
-            await fetchGroup()
-            await fetchTransaction()
-            await getPayerUserDetail()
-            await getPayableUserDetail()
+        Task { [weak self] in
+            await self?.fetchGroup()
+            await self?.fetchTransaction()
+            await self?.getPayerUserDetail()
+            await self?.getPayableUserDetail()
         }
     }
 
@@ -105,9 +105,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
         do {
             viewState = .loading
-            self.transaction = try await transactionRepository.fetchTransactionBy(groupId: groupId,
+            transaction = try await transactionRepository.fetchTransactionBy(groupId: groupId,
                                                                                   transactionId: transactionId)
-
             paymentDate = transaction?.date.dateValue() ?? Date.now
             paymentNote = transaction?.note ?? ""
             paymentImageUrl = transaction?.imageUrl
@@ -164,17 +163,17 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     func handleActionSelection(_ action: ActionsOfSheet) {
         switch action {
         case .camera:
-            self.checkCameraPermission {
-                self.sourceTypeIsCamera = true
-                self.showImagePicker = true
+            self.checkCameraPermission { [weak self] in
+                self?.sourceTypeIsCamera = true
+                self?.showImagePicker = true
             }
         case .gallery:
             sourceTypeIsCamera = false
             showImagePicker = true
         case .remove:
-            withAnimation {
-                paymentImage = nil
-                paymentImageUrl = nil
+            withAnimation { [weak self] in
+                self?.paymentImage = nil
+                self?.paymentImageUrl = nil
             }
         }
     }
@@ -261,7 +260,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
         do {
             showLoader = true
-
             self.transaction = try await transactionRepository.addTransaction(group: group, transaction: transaction,
                                                                               members: (payer, receiver), imageData: getImageData())
             NotificationCenter.default.post(name: .addTransaction, object: self.transaction)

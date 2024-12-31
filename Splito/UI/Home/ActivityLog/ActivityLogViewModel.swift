@@ -86,22 +86,20 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
     // Listens real-time updates and returns the latest activity logs for the current user
     private func fetchLatestActivityLogs() {
         guard let userId = preference.user?.id else { return }
+        let activityLogStream = activityLogRepository.streamLatestActivityLogs(userId: userId)
 
-        task?.cancel()  // Cancel the existing task if it's running
-        task = Task { [unowned self] in
-            let activityLogStream = activityLogRepository.fetchLatestActivityLogs(userId: userId)
+        task = Task { [weak self] in
             for await activityLogs in activityLogStream {
-                guard !Task.isCancelled else { return } // Exit early if the task is cancelled
-
+                guard let self else { return }
                 if let activityLogs {
                     for activityLog in activityLogs where !(self.activityLogs.contains(where: { $0.id == activityLog.id })) {
                         self.activityLogs.append(activityLog)
                     }
-                    filterActivityLogs()
+                    self.filterActivityLogs()
                     if self.activityLogs.count == 1 {
-                        activityLogState = .hasActivity
+                        self.activityLogState = .hasActivity
                     } else if self.activityLogs.count < 1 {
-                        activityLogState = .noActivity
+                        self.activityLogState = .noActivity
                     }
                 } else {
                     self.showToastForError()

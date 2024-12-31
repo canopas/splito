@@ -81,17 +81,11 @@ struct GroupPaymentView: View {
                 }
             }
         }
+        .task { isAmountFocused = true }
+        .onTapGesture { isAmountFocused = false }
+        .background(surfaceColor)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
-        .background(surfaceColor)
-        .toastView(toast: $viewModel.toast)
-        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .onAppear {
-            isAmountFocused = true
-        }
-        .onTapGesture {
-            isAmountFocused = false
-        }
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -110,6 +104,8 @@ struct GroupPaymentView: View {
                 }
             }
         }
+        .toastView(toast: $viewModel.toast)
+        .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .sheet(isPresented: $viewModel.showImagePicker) {
             ImagePickerView(cropOption: .square, sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
                             image: $viewModel.paymentImage, isPresented: $viewModel.showImagePicker)

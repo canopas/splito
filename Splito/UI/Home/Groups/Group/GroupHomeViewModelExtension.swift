@@ -134,14 +134,15 @@ extension GroupHomeViewModel {
     private func deleteExpense(expense: Expense) {
         guard let group, let expenseId = expense.id, validateGroupMembers(expense: expense) else { return }
 
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
-                let deletedExpense = try await expenseRepository.deleteExpense(group: group, expense: expense)
-                await updateGroupMemberBalance(expense: deletedExpense, updateType: .Delete)
+                let deletedExpense = try await self.expenseRepository.deleteExpense(group: group, expense: expense)
+                await self.updateGroupMemberBalance(expense: deletedExpense, updateType: .Delete)
                 LogD("GroupHomeViewModel: \(#function) Expense deleted successfully.")
             } catch {
                 LogE("GroupHomeViewModel: \(#function) Failed to delete expense \(expenseId): \(error).")
-                showToastForError()
+                self.showToastForError()
             }
         }
     }

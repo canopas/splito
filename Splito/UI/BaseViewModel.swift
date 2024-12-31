@@ -24,7 +24,6 @@ open class BaseViewModel {
     public init() {}
 
     deinit {
-        print("XXX --- Deinit BaseViewModel")
         NotificationCenter.default.removeObserver(self)
     }
 

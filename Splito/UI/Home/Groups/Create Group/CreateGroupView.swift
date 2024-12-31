@@ -22,8 +22,9 @@ struct CreateGroupView: View {
                 VStack(spacing: 0) {
                     VSpacer(40)
 
-                    AddGroupImageView(showImagePickerOptions: $viewModel.showImagePickerOptions, image: viewModel.profileImage,
-                                      imageUrl: viewModel.profileImageUrl, handleProfileTap: viewModel.handleProfileTap,
+                    AddGroupImageView(showImagePickerOptions: $viewModel.showImagePickerOptions,
+                                      image: viewModel.profileImage, imageUrl: viewModel.profileImageUrl,
+                                      handleProfileTap: viewModel.handleProfileTap,
                                       handleActionSelection: viewModel.handleActionSelection(_:))
 
                     VSpacer(30)
@@ -51,18 +52,15 @@ struct CreateGroupView: View {
             .padding(.bottom, 20)
             .padding(.horizontal, 16)
         }
-        .onAppear {
-            isFocused = true
-        }
+        .task { isFocused = true }
+        .onDisappear { isFocused = false }
+        .onTapGesture { isFocused = false }
+        .toolbarRole(.editor)
+        .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
-        .background(surfaceColor)
-        .onTapGesture {
-            isFocused = false
-        }
-        .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 NavigationTitleTextView(text: viewModel.group == nil ? "Create a group" : "Edit group")

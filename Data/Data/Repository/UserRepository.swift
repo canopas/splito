@@ -39,8 +39,8 @@ public class UserRepository: ObservableObject {
         try await store.fetchUserBy(email: email)
     }
 
-    public func fetchLatestUserBy(userID: String) -> AsyncStream<AppUser?> {
-        store.fetchLatestUserBy(id: userID)
+    public func streamLatestUserBy(userID: String) -> AsyncStream<AppUser?> {
+        store.streamLatestUserBy(id: userID)
     }
 
     private func uploadImage(imageData: Data, user: AppUser) async throws -> AppUser {

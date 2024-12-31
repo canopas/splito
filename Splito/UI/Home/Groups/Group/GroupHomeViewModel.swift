@@ -55,7 +55,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     var groupMembers: [AppUser] = []
     private var lastDocument: DocumentSnapshot?
-    private var groupTask: Task<Void, Never>? // To manage the lifecycle of the async stream
+    var groupTask: Task<Void, Never>? // To manage the lifecycle of the async stream
 
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
@@ -115,8 +115,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     private func observeGroupLatestData() {
-        groupTask = Task { [unowned self] in
-            for await group in groupRepository.fetchLatestGroupDataBy(id: self.groupId) {
+        let groupStream = groupRepository.streamLatestGroupDataBy(id: groupId)
+        Task { [weak self] in
+            for await group in groupStream {
+                guard let self else { return }
                 guard let group else {
                     self.groupState = .noMember
                     return
@@ -193,10 +195,9 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     private func validateGroupState() -> GroupState? {
-        guard let userId = preference.user?.id, let group = group else {
+        guard let userId = preference.user?.id, let group else {
             return .noMember
         }
-
         if !group.isActive && group.members.contains(userId) {
             return .deactivateGroup
         } else if !group.members.contains(userId) {
@@ -206,8 +207,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     func loadMoreExpenses() {
-        Task {
-            await fetchExpenses()
+        Task { [weak self] in
+            await self?.fetchExpenses()
         }
     }
 

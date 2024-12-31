@@ -37,10 +37,6 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
                                                name: .updateGroup, object: nil)
     }
 
-    deinit {
-        print("XXX --- GroupSettingViewModel: Deinit called.")
-    }
-
     func fetchInitialGroupData() {
         Task {
             await fetchGroupDetails()

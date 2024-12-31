@@ -52,7 +52,7 @@ class UserStore: ObservableObject {
         }
     }
 
-    func fetchLatestUserBy(id: String) -> AsyncStream<AppUser?> {
+    func streamLatestUserBy(id: String) -> AsyncStream<AppUser?> {
         AsyncStream { continuation in
             let listener = usersCollection.document(id).addSnapshotListener { snapshot, error in
                 if let error {
