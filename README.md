@@ -14,14 +14,28 @@ Whether it's a group trip 🌍, shared household bills 🏠, or any other collec
 ## Download App 
 <a href="https://apps.apple.com/in/app/splito-split-enjoy-together/id6477442217"> <img src="./Screenshots/AppStore.png" width="200"></img> </a>
 
-## Features🌟
-
-Splito is currently in active development 🚧, with plans to incorporate additional features shortly.
-
+## Features 🌟
 - **Group Management:** Create and manage multiple expense groups 👥 for different purposes (e.g., games, trips, shared bills).
-- **Expense Tracking:** Add expenses 💰 with details such as description, amount, payer, and date.
-- **Expense Splitting:** Split expenses equally⚖️ or based on customizable ratios among group members.
-- **Payment Settlement:** Easily settle 💳 the payments with other group members to clear outstanding balances.
+- **Expense Tracking:** Add expenses 💰 with relevant details such as description, amount, payer, date, attachments, and notes.
+- **Expense Splitting:** Split expenses fairly⚖️ among group members or use customizable ratios for precise cost-sharing.
+- **Payment Settlement:** Simplify 💳 payment settlements to clear outstanding balances with group members.
+- **Log History:** For complete transparency, Keep track of all past transactions, expenses, and activities within the group.
+- **Data Restoration:** Recover accidentally deleted data 🔄 with the restoration feature, ensuring nothing important is lost.
+- **Due Payments Reminders:** Get timely notifications 🔔 for unpaid balances to help you stay on top of your financial commitments.
+
+### Upcoming Features 🚧
+
+Splito is currently in active development, with exciting new features planned:
+
+- **Expense Comments:** Add comments 🗨️ to individual expenses for additional context or notes.
+- **Custom Filters for Groups:** Apply filters 🔍 to sort and view groups based on specific criteria.
+- **Multiple Currency Support:** Handle expenses and payments with multiple currencies 🌍 for seamless international group usage.
+- **Expense Categories:** Organize expenses into predefined categories 📂 such as food, travel, or utilities for better clarity.
+- **Group Expense Report:** Generate detailed reports 📄 for groups, summarizing spending patterns and balances.
+- **Friends List:** Add and manage a list of friends 👯‍♂️ to streamline group creation and expense tracking.
+- **Spending Charts:** Visualize spending habits 📊 with intuitive charts for better financial insights.
+- **Group Wallet Support:** Introduce a shared group wallet 💼 for easy contribution and expense deduction.
+- **Public Contribution Poll:** Allow group members to vote 🗳️ on contributions for events or shared purchases.
 
 <details>
   <summary> How to Use Splito </summary>
