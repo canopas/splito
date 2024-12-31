@@ -64,7 +64,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleDeleteGroup(notification:)), name: .deleteGroup, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleLeaveGroup(notification:)), name: .leaveGroup, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleJoinGroup(notification:)), name: .joinGroup, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleAddExpense(notification:)), name: .addExpense, object: nil)
 
         setDeviceTokenAndUserStream()
         fetchGroupsInitialData()
@@ -386,26 +385,6 @@ extension GroupListViewModel {
 
         showToastFor(toast: .init(type: .success, title: "Success",
                                   message: action == .deleteGroup ? "Group deleted successfully." : "Group left successfully."))
-    }
-
-    @objc private func handleAddExpense(notification: Notification) {
-        guard let expenseInfo = notification.userInfo,
-              let notificationGroupId = expenseInfo["groupId"] as? String else { return }
-
-        Task {
-            if let existingIndex = combinedGroups.firstIndex(where: { $0.group.id == notificationGroupId }) {
-                if let updatedGroup = await fetchGroup(groupId: notificationGroupId) {
-                    do {
-                        let groupInformation = try await fetchGroupInformation(group: updatedGroup)
-                        combinedGroups[existingIndex] = groupInformation
-                        LogD("GroupListViewModel: \(#function) Group information fetched Successfully.")
-                    } catch {
-                        LogE("GroupListViewModel: \(#function) Failed to fetch group information: \(error).")
-                        showToastForError()
-                    }
-                }
-            }
-        }
     }
 
     private func processGroup(group: Groups, isNewGroup: Bool) async {

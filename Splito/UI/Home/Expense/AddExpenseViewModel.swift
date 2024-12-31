@@ -474,6 +474,7 @@ extension AddExpenseViewModel {
             group.updatedAt = Timestamp()
             group.updatedBy = userId
             try await groupRepository.updateGroup(group: group, type: .none)
+            NotificationCenter.default.post(name: .updateGroup, object: group)
             LogD("AddExpenseViewModel: \(#function) Member balances updated successfully.")
         } catch {
             showLoader = false

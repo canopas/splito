@@ -167,7 +167,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                 transaction.updatedAt = Timestamp()
 
                 self.transaction = try await self.transactionRepository.updateTransaction(group: group, transaction: transaction, oldTransaction: transaction, members: (payer, receiver), type: .transactionRestored)
-                NotificationCenter.default.post(name: .restoreTransaction, object: self.transaction)
+                NotificationCenter.default.post(name: .addTransaction, object: self.transaction)
                 await self.updateGroupMemberBalance(updateType: .Add)
 
                 self.viewState = .initial
@@ -256,6 +256,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             group.updatedAt = Timestamp()
             group.updatedBy = userId
             try await groupRepository.updateGroup(group: group, type: .none)
+            NotificationCenter.default.post(name: .updateGroup, object: group)
             LogD("GroupTransactionDetailViewModel: \(#function) Member balance updated successfully.")
         } catch {
             viewState = .initial

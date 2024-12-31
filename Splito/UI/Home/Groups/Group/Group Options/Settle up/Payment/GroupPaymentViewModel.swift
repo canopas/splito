@@ -332,6 +332,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             group.updatedAt = Timestamp()
             group.updatedBy = userId
             try await groupRepository.updateGroup(group: group, type: .none)
+            NotificationCenter.default.post(name: .updateGroup, object: group)
             LogD("GroupPaymentViewModel: \(#function) Member balance updated successfully.")
         } catch {
             showLoader = false
