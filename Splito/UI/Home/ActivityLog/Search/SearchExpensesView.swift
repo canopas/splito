@@ -71,7 +71,7 @@ private struct ExpenseListView: View {
                                 GroupExpenseItemView(expenseWithUser: expense,
                                                      isLastItem: expense.expense == (viewModel.groupExpenses[month] ?? []).last?.expense)
                                 .onTouchGesture {
-                                    viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
+                                    viewModel.handleExpenseItemTap(expense: expense.expense)
                                 }
                                 .id(expense.expense.id)
                             }

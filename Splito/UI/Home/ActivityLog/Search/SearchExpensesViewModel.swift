@@ -40,6 +40,9 @@ class SearchExpensesViewModel: BaseViewModel, ObservableObject {
         self.router = router
         super.init()
 
+        NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateExpense(notification:)), name: .updateExpense, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleDeleteExpense(notification:)), name: .deleteExpense, object: nil)
+
         fetchInitialExpenses()
     }
 
@@ -152,8 +155,42 @@ class SearchExpensesViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
-    func handleExpenseItemTap(expenseId: String) {
-        //        router.push(.ExpenseDetailView(groupId: groupId, expenseId: expenseId))
+    func handleExpenseItemTap(expense: Expense) {
+        if let groupId = expense.groupId, let expenseId = expense.id {
+            router.push(.ExpenseDetailView(groupId: groupId, expenseId: expenseId))
+        }
+    }
+
+    @objc func handleUpdateExpense(notification: Notification) {
+        guard var updatedExpense = notification.object as? Expense else { return }
+
+        if let index = expenses.firstIndex(where: { $0.id == updatedExpense.id }) {
+            expenses[index] = updatedExpense
+        }
+
+        Task { [weak self] in
+            if let user = await self?.fetchMemberData(for: updatedExpense.paidBy.keys.first ?? "") {
+                if let index = self?.expensesWithUser.firstIndex(where: { $0.expense.id == updatedExpense.id }) {
+                    let updatedExpenseWithUser = ExpenseWithUser(expense: updatedExpense, user: user)
+                    withAnimation {
+                        self?.expensesWithUser[index] = updatedExpenseWithUser
+                        self?.updateGroupExpenses()
+                    }
+                }
+            }
+        }
+    }
+
+    @objc func handleDeleteExpense(notification: Notification) {
+        guard let deletedExpense = notification.object as? Expense else { return }
+        expenses.removeAll { $0.id == deletedExpense.id }
+        if let index = expensesWithUser.firstIndex(where: { $0.expense.id == deletedExpense.id }) {
+            withAnimation {
+                expensesWithUser.remove(at: index)
+                updateGroupExpenses()
+                showToastFor(toast: .init(type: .success, title: "Success", message: "Expense deleted successfully."))
+            }
+        }
     }
 
     // MARK: - Error Handling
