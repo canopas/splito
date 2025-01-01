@@ -45,6 +45,11 @@ struct ActivityLogView: View {
                 ToolbarButtonView(systemImageName: "magnifyingglass", onClick: viewModel.handleSearchButtonTap)
             }
         }
+        .fullScreenCover(isPresented: $viewModel.showSearchSheet) {
+            NavigationStack {
+                SearchExpensesView(viewModel: SearchExpensesViewModel(router: viewModel.router))
+            }
+        }
     }
 }
 

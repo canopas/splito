@@ -22,9 +22,10 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var activityLogs: [ActivityLog] = []
     @Published private(set) var filteredLogs: [String: [ActivityLog]] = [:]
 
+    @Published var showSearchSheet: Bool = false
     @Published private(set) var hasMoreLogs: Bool = true
 
-    private let router: Router<AppRoute>
+    let router: Router<AppRoute>
     private var lastDocument: DocumentSnapshot?
     private var task: Task<Void, Never>?  // Reference to the current asynchronous task that fetches logs
 
@@ -137,7 +138,7 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
     }
 
     func handleSearchButtonTap() {
-        router.push(.SearchExpensesView)
+        showSearchSheet = true
     }
 
     // MARK: - Error Handling

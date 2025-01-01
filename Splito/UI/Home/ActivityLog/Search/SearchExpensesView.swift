@@ -14,7 +14,7 @@ struct SearchExpensesView: View {
     @StateObject var viewModel: SearchExpensesViewModel
 
     @FocusState private var isFocused: Bool
-
+    @Environment(\.dismiss) var dismiss
     var body: some View {
         GeometryReader { geometry in
             VStack(alignment: .center, spacing: 0) {
@@ -48,7 +48,14 @@ struct SearchExpensesView: View {
             }
         }
         .background(surfaceColor)
-        .toolbarRole(.editor)
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                DismissButton(iconSize: (22, .regular), foregroundColor: primaryText, onDismissAction: {
+                    dismiss()
+                })
+            }
+        }
         .toastView(toast: $viewModel.toast)
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
     }
