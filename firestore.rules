@@ -52,7 +52,7 @@ service cloud.firestore {
     
     // For Expenses Collection
     match /groups/{groupId}/expenses/{expenseId} {
-      	allow read: if isUserPartOfGroup(groupId);
+      	allow read: if isAuthorized();
         
       	allow create: if isCurrentUser(request.resource.data.added_by) &&
         				 isUserPartOfGroup(groupId);
