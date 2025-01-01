@@ -79,7 +79,7 @@ class SearchExpensesViewModel: BaseViewModel, ObservableObject {
 
     func loadMoreExpenses() {
         Task {
-            await fetchAllUserExpenses()
+            await fetchExpensesOfAllGroups()
         }
     }
 
