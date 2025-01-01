@@ -60,7 +60,7 @@ Splito is currently in active development, with exciting new features planned:
   <tr>
     <th width="32%"> Group List </th>
     <th width="32%"> Group Expense List </th>
-    <th width="32%"> Expense Add/Edit </th>
+    <th width="32%"> Expense Add/Update </th>
   </tr>
   <tr>
     <td> <img src="./Screenshots/GroupList.png" /> </td>
@@ -70,7 +70,7 @@ Splito is currently in active development, with exciting new features planned:
 </table>
 <table>
   <tr>
-    <th width="32%"> Expense Split Option </th>
+    <th width="32%"> Expense Split Options </th>
     <th width="32%"> Expense Detail </th>
     <th width="32%"> Group Balance </th>
   </tr>
@@ -83,24 +83,24 @@ Splito is currently in active development, with exciting new features planned:
 <table>
   <tr>
     <th width="32%"> Group Summary </th>
-    <th width="32%"> Activity Log History </th>
-    <th width="32%"> Payment List </th>
+    <th width="32%"> Payment Add/Edit </th>
+    <th width="32%"> Payment Details </th>
   </tr>
   <tr>
     <td> <img src="./Screenshots/GroupSummary.png"/> </td>
-    <td> <img src="./Screenshots/ActivityLogs.png"/> </td>
-    <td> <img src="./Screenshots/Transactions.png"/> </td>
+    <td> <img src="./Screenshots/GroupPayment.png"/> </td>
+    <td> <img src="./Screenshots/TransactionDetail.png"/> </td>
   </tr>
 </table>
 <table>
   <tr>
-    <th width="32%"> Payment Add/Edit </th>
-    <th width="32%"> Payment Detail </th>
+    <th width="32%"> Payment List </th>
+    <th width="32%"> Activity Log History </th>
     <th> </th>
   </tr>
   <tr>
-    <td> <img src="./Screenshots/GroupPayment.png"/> </td>
-    <td> <img src="./Screenshots/TransactionDetail.png"/> </td>
+    <td> <img src="./Screenshots/Transactions.png"/> </td>
+    <td> <img src="./Screenshots/ActivityLogs.png"/> </td>
     <td> </td>
   </tr>
 </table>
