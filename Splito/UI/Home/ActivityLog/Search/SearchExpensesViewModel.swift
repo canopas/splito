@@ -46,13 +46,13 @@ class SearchExpensesViewModel: BaseViewModel, ObservableObject {
     func fetchInitialExpenses() {
         lastDocument = nil
         Task {
-            await fetchAllUserExpenses()
+            await fetchExpensesOfAllGroups()
         }
     }
 
     // MARK: - Data Loading
-    private func fetchAllUserExpenses() async {
-        guard let userId = preference.user?.id, hasMoreExpenses else {
+    private func fetchExpensesOfAllGroups() async {
+        guard hasMoreExpenses else {
             viewState = .noExpense
             return
         }
@@ -62,13 +62,15 @@ class SearchExpensesViewModel: BaseViewModel, ObservableObject {
         }
 
         do {
-            let result = try await expenseRepository.fetchExpensesForUser(userId: userId, limit: EXPENSES_LIMIT, lastDocument: lastDocument)
+            let result = try await expenseRepository.fetchExpensesOfAllGroups(limit: EXPENSES_LIMIT, lastDocument: lastDocument)
             self.expenses = lastDocument == nil ? result.expenses.uniqued() : (expenses + result.expenses.uniqued())
             lastDocument = result.lastDocument
 
             await combineMemberWithExpense(expenses: result.expenses.uniqued())
             hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
             LogD("SearchExpensesViewModel: \(#function) Expenses fetched successfully.")
+
+            print("xxx \(expenses.count)")
         } catch {
             LogE("SearchExpensesViewModel: \(#function) Failed to fetch expenses: \(error).")
             handleServiceError()

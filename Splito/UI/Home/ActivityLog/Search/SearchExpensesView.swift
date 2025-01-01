@@ -42,14 +42,14 @@ struct SearchExpensesView: View {
                     if case .noExpense = viewModel.viewState {
                         EmptyStateView(geometry: geometry)
                     } else if case .hasExpense = viewModel.viewState {
-                        ExpenseListView(viewModel: viewModel, geometry: geometry)
+                        ExpenseListView(viewModel: viewModel, geometry: geometry, isFocused: $isFocused)
                     }
                 }
             }
         }
         .background(surfaceColor)
-        .toastView(toast: $viewModel.toast)
         .toolbarRole(.editor)
+        .toastView(toast: $viewModel.toast)
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
     }
 }
@@ -59,6 +59,7 @@ private struct ExpenseListView: View {
     @ObservedObject var viewModel: SearchExpensesViewModel
 
     let geometry: GeometryProxy
+    var isFocused: FocusState<Bool>.Binding
 
     var body: some View {
         List {
@@ -104,7 +105,7 @@ private struct ExpenseListView: View {
             Spacer()
         }
         .onTapGestureForced {
-            UIApplication.shared.endEditing()
+            isFocused.wrappedValue = false
         }
     }
 }
