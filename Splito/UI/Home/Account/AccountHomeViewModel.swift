@@ -86,9 +86,10 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
     func handleLogoutBtnTap() {
         alert = .init(title: "See you soon!", message: "Are you sure you want to sign out?",
                       positiveBtnTitle: "Sign out",
-                      positiveBtnAction: { self.performLogoutAction() },
+                      positiveBtnAction: { [weak self] in self?.performLogoutAction() },
                       negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
+                      negativeBtnAction: { [weak self] in self?.showAlert = false },
+                      isPositiveBtnDestructive: true)
         showAlert = true
     }
 

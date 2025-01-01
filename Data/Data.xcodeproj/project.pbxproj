@@ -11,6 +11,7 @@
 		21559CA42CBD05570039F127 /* ActivityLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CA32CBD05570039F127 /* ActivityLog.swift */; };
 		21559CAE2CBD2AED0039F127 /* ActivityLogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CAD2CBD2AED0039F127 /* ActivityLogStore.swift */; };
 		21559CB02CBD2B400039F127 /* ActivityLogRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CAF2CBD2B400039F127 /* ActivityLogRepository.swift */; };
+		21CF56512D1E804000B47A6D /* DeepLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21CF56502D1E804000B47A6D /* DeepLinkManager.swift */; };
 		21D8D0832C0857F10061B365 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8D0822C0857F10061B365 /* Constants.swift */; };
 		64E499C5CFAEA368EC21313F /* Pods_DataTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */; };
 		7EF3A291581F7EA20CB1042D /* Pods_Data.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E91B3E23688435064A60C0C4 /* Pods_Data.framework */; };
@@ -70,6 +71,7 @@
 		21559CA32CBD05570039F127 /* ActivityLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLog.swift; sourceTree = "<group>"; };
 		21559CAD2CBD2AED0039F127 /* ActivityLogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLogStore.swift; sourceTree = "<group>"; };
 		21559CAF2CBD2B400039F127 /* ActivityLogRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLogRepository.swift; sourceTree = "<group>"; };
+		21CF56502D1E804000B47A6D /* DeepLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkManager.swift; sourceTree = "<group>"; };
 		21D8D0822C0857F10061B365 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		5B14CF1A2EEF27479BF50566 /* Pods-DataTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DataTests.debug.xcconfig"; path = "Target Support Files/Pods-DataTests/Pods-DataTests.debug.xcconfig"; sourceTree = "<group>"; };
 		803094012FE4C155F2A347B6 /* Pods-DataTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DataTests.release.xcconfig"; path = "Target Support Files/Pods-DataTests/Pods-DataTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -139,6 +141,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		21CF564F2D1E802E00B47A6D /* Deeplink */ = {
+			isa = PBXGroup;
+			children = (
+				21CF56502D1E804000B47A6D /* DeepLinkManager.swift */,
+			);
+			path = Deeplink;
+			sourceTree = "<group>";
+		};
 		9E4388A4C8057257EE82C256 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -312,6 +322,7 @@
 				D83B15072B99976F004A5F4F /* Repository */,
 				D8A7CA7E2BA867C80014EC67 /* Extension */,
 				D89DBE4B2B8CBEB500E5F1BD /* Services */,
+				21CF564F2D1E802E00B47A6D /* Deeplink */,
 				D8AC25BC2B7F357A00CEAAD3 /* Helper */,
 			);
 			path = Data;
@@ -519,6 +530,7 @@
 				D8AC25C12B7F38D300CEAAD3 /* Injector.swift in Sources */,
 				D8D14A542BA092F500F45FF2 /* ShareCodeRepository.swift in Sources */,
 				D8A7CA7B2BA5B6AC0014EC67 /* ShareCodeStore.swift in Sources */,
+				21CF56512D1E804000B47A6D /* DeepLinkManager.swift in Sources */,
 				D865F8AE2BD7CB0B0084BD36 /* Array+Extension.swift in Sources */,
 				21559CB02CBD2B400039F127 /* ActivityLogRepository.swift in Sources */,
 				D89DBE2B2B88817E00E5F1BD /* JSONUtils.swift in Sources */,

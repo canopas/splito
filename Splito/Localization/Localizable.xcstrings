@@ -433,6 +433,12 @@
     "Groups help you stay organized by tracking and splitting expenses for various activities." : {
 
     },
+    "Hello %@, This is a reminder that I owe you %@ for expenses in the Splito group \\\"%@\\\". Please follow this link to review our activity: %@" : {
+      "extractionState" : "manual"
+    },
+    "Hello %@, This is a reminder that you owe me %@ for expenses in the Splito group \\\"%@\\\". Please follow this link to review our activity and settle up: %@" : {
+      "extractionState" : "manual"
+    },
     "hour ago" : {
       "extractionState" : "manual"
     },
@@ -707,7 +713,7 @@
       "extractionState" : "manual"
     },
     "Settle up" : {
-
+      "extractionState" : "manual"
     },
     "Settle up bills together!" : {
       "extractionState" : "manual"
@@ -848,6 +854,9 @@
       "extractionState" : "manual"
     },
     "This group has been deleted." : {
+      "extractionState" : "manual"
+    },
+    "This is a reminder that %@ owes %@ %@ for expenses in the Splito group \\\"%@\\\". Please follow this link to review your activity and settle up: %@" : {
       "extractionState" : "manual"
     },
     "This month" : {

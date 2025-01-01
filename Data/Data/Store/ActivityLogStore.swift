@@ -21,7 +21,7 @@ class ActivityLogStore: ObservableObject {
             .collection(SUB_COLLECTION_NAME)
     }
 
-    func fetchLatestActivityLogs(userId: String) -> AsyncStream<[ActivityLog]?> {
+    func streamLatestActivityLogs(userId: String) -> AsyncStream<[ActivityLog]?> {
         AsyncStream { continuation in
             let query = activityReference(userId: userId)
                 .order(by: "recorded_on", descending: true)

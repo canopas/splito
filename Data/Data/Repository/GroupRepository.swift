@@ -189,6 +189,10 @@ public class GroupRepository: ObservableObject {
         try await store.fetchGroupBy(id: id)
     }
 
+    public func streamLatestGroupDataBy(id: String) -> AsyncStream<Groups?> {
+        store.streamLatestGroupBy(id: id)
+    }
+
     public func fetchGroupsBy(userId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) async throws -> (data: [Groups], lastDocument: DocumentSnapshot?) {
         try await store.fetchGroupsBy(userId: userId, limit: limit, lastDocument: lastDocument)
     }

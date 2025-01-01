@@ -16,6 +16,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
     @Inject private var preference: SplitoPreference
     @Inject private var groupRepository: GroupRepository
     @Inject private var userRepository: UserRepository
+    @Inject private var deepLinkManager: DeepLinkManager
 
     @Published private(set) var currentViewState: ViewState = .loading
     @Published private(set) var groupListState: GroupListState = .noGroup
@@ -63,20 +64,68 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleDeleteGroup(notification:)), name: .deleteGroup, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleLeaveGroup(notification:)), name: .leaveGroup, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleJoinGroup(notification:)), name: .joinGroup, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleAddExpense(notification:)), name: .addExpense, object: nil)
 
+        setDeviceTokenAndUserStream()
         fetchGroupsInitialData()
-        fetchLatestUser()
+        deepLinkObserver()
     }
 
     deinit {
         task?.cancel()
     }
 
+    private func setDeviceTokenAndUserStream() {
+        task = Task {
+            await userRepository.updateDeviceFcmToken()
+            try? await Task.sleep(nanoseconds: 1_000_000_000) // Sleep for 1 second
+            await streamLatestUserData()
+        }
+    }
+
+    private func streamLatestUserData() async {
+        guard let userId = preference.user?.id else {
+            currentViewState = .initial
+            return
+        }
+
+        totalOweAmount = preference.user?.totalOweAmount ?? 0
+        let userStream = userRepository.streamLatestUserBy(userID: userId)
+
+        for await user in userStream {
+            if let user {
+                preference.user = user
+                totalOweAmount = user.totalOweAmount
+            } else {
+                showToastForError()
+            }
+        }
+    }
+
     func fetchGroupsInitialData(needToReload: Bool = false) {
         lastDocument = nil
-        Task {
-            await fetchGroups(needToReload: needToReload)
+        Task { [weak self] in
+            await self?.fetchGroups(needToReload: needToReload)
+        }
+    }
+
+    func deepLinkObserver() {
+        deepLinkManager.$type.sink { [weak self] type in
+            if case .group(let groupId) = type {
+                self?.removeExistingGroupPathIfNeeded(for: groupId)
+                self?.router.push(.GroupHomeView(groupId: groupId))
+            }
+        }
+        .store(in: &cancelable)
+    }
+
+    private func removeExistingGroupPathIfNeeded(for groupId: String) {
+        if let index = router.paths.firstIndex(where: { path in
+            if case .GroupHomeView(let id) = path, id == groupId {
+                return true
+            }
+            return false
+        }) {
+            router.paths.remove(at: index)
         }
     }
 
@@ -163,31 +212,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             return group.balances[index].balance
         }
         return 0
-    }
-
-    private func fetchLatestUser() {
-        guard let userId = preference.user?.id else {
-            currentViewState = .initial
-            return
-        }
-
-        task?.cancel() // Cancel the existing task if it's running
-        task = Task { [weak self] in
-            guard let self else { return }
-            self.totalOweAmount = self.preference.user?.totalOweAmount ?? 0
-            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds wait
-            let userStream = self.userRepository.fetchLatestUserBy(userID: userId)
-
-            for await user in userStream {
-                guard !Task.isCancelled else { return } // Exit early if the task is cancelled
-                if let user {
-                    self.preference.user = user
-                    self.totalOweAmount = user.totalOweAmount
-                } else {
-                    self.showToastForError()
-                }
-            }
-        }
     }
 
     private func fetchGroup(groupId: String) async -> Groups? {
@@ -294,13 +318,14 @@ extension GroupListViewModel {
         alert = .init(title: "Delete Group",
                       message: "Are you ABSOLUTELY sure you want to delete this group? This will remove this group for ALL users involved, not just yourself.",
                       positiveBtnTitle: "Delete",
-                      positiveBtnAction: {
+                      positiveBtnAction: { [weak self] in
                         Task {
-                            await self.deleteGroup(group: group)
+                            await self?.deleteGroup(group: group)
                         }
                       },
                       negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false }, isPositiveBtnDestructive: true)
+                      negativeBtnAction: { [weak self] in self?.showAlert = false },
+                      isPositiveBtnDestructive: true)
         showAlert = true
     }
 
@@ -360,26 +385,6 @@ extension GroupListViewModel {
 
         showToastFor(toast: .init(type: .success, title: "Success",
                                   message: action == .deleteGroup ? "Group deleted successfully." : "Group left successfully."))
-    }
-
-    @objc private func handleAddExpense(notification: Notification) {
-        guard let expenseInfo = notification.userInfo,
-              let notificationGroupId = expenseInfo["groupId"] as? String else { return }
-
-        Task {
-            if let existingIndex = combinedGroups.firstIndex(where: { $0.group.id == notificationGroupId }) {
-                if let updatedGroup = await fetchGroup(groupId: notificationGroupId) {
-                    do {
-                        let groupInformation = try await fetchGroupInformation(group: updatedGroup)
-                        combinedGroups[existingIndex] = groupInformation
-                        LogD("GroupListViewModel: \(#function) Group information fetched Successfully.")
-                    } catch {
-                        LogE("GroupListViewModel: \(#function) Failed to fetch group information: \(error).")
-                        showToastForError()
-                    }
-                }
-            }
-        }
     }
 
     private func processGroup(group: Groups, isNewGroup: Bool) async {

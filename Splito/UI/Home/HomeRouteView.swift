@@ -62,5 +62,8 @@ struct HomeRouteView: View {
                 viewModel.switchToActivityLog(activityId: activityId)
             }
         }
+        .onOpenURL { url in
+            viewModel.handleDeepLink(url: url)
+        }
     }
 }

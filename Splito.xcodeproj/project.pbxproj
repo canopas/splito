@@ -86,7 +86,6 @@
 		D8B4A8A82C9AF3A500E734AE /* banner.png in Resources */ = {isa = PBXBuildFile; fileRef = D8B4A8972C9AF3A500E734AE /* banner.png */; };
 		D8B4A8A92C9AF3A500E734AE /* AppStore.png in Resources */ = {isa = PBXBuildFile; fileRef = D8B4A8962C9AF3A500E734AE /* AppStore.png */; };
 		D8B4A8AE2C9AF3A500E734AE /* SplitoCover.png in Resources */ = {isa = PBXBuildFile; fileRef = D8B4A89F2C9AF3A500E734AE /* SplitoCover.png */; };
-		D8BDB84A2D099DB400E46119 /* InviteMember.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8462D099DB400E46119 /* InviteMember.png */; };
 		D8BDB84B2D099DB400E46119 /* AddExpense.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB83F2D099DB400E46119 /* AddExpense.png */; };
 		D8BDB84C2D099DB400E46119 /* ActivityLogs.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB83E2D099DB400E46119 /* ActivityLogs.png */; };
 		D8BDB84D2D099DB400E46119 /* ExpenseDetail.png in Resources */ = {isa = PBXBuildFile; fileRef = D8BDB8402D099DB400E46119 /* ExpenseDetail.png */; };
@@ -511,8 +510,8 @@
 				D85E86E62BB2E189002EDF76 /* ExpenseRouteView.swift */,
 				D85E86DF2BAB06A3002EDF76 /* AddExpenseView.swift */,
 				D85E86E22BAB06D9002EDF76 /* AddExpenseViewModel.swift */,
-				D85E86F02BB41CBA002EDF76 /* Detail Selection */,
 				D856C7302BCFD2080008A341 /* Expense Detail */,
+				D85E86F02BB41CBA002EDF76 /* Detail Selection */,
 				210CC0392CF6DA7F0035682E /* Note */,
 			);
 			path = Expense;
@@ -883,7 +882,6 @@
 				D8B4A8A92C9AF3A500E734AE /* AppStore.png in Resources */,
 				D8619A832CA28417006618D6 /* GoogleService-Info.plist in Resources */,
 				D8B4A8AE2C9AF3A500E734AE /* SplitoCover.png in Resources */,
-				D8BDB84A2D099DB400E46119 /* InviteMember.png in Resources */,
 				D8BDB84B2D099DB400E46119 /* AddExpense.png in Resources */,
 				D8BDB84C2D099DB400E46119 /* ActivityLogs.png in Resources */,
 				D8BDB84D2D099DB400E46119 /* ExpenseDetail.png in Resources */,

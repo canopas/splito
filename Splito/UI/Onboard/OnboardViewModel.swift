@@ -29,14 +29,14 @@ class OnboardViewModel: BaseViewModel, ObservableObject {
 
     func handleGetStartedBtnVisibility(isLastIndex: Bool) {
         if isLastIndex {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
                 withAnimation {
-                    self.showGetStartedButton = true
+                    self?.showGetStartedButton = true
                 }
             }
         } else {
-            withAnimation {
-                showGetStartedButton = false
+            withAnimation { [weak self] in
+                self?.showGetStartedButton = false
             }
         }
     }

@@ -18,51 +18,51 @@ struct CreateGroupView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
-            ScrollView {
-                VStack(spacing: 0) {
-                    VSpacer(40)
-
-                    AddGroupImageView(showImagePickerOptions: $viewModel.showImagePickerOptions, image: viewModel.profileImage,
-                                      imageUrl: viewModel.profileImageUrl, handleProfileTap: viewModel.handleProfileTap,
-                                      handleActionSelection: viewModel.handleActionSelection(_:))
-
-                    VSpacer(30)
-
-                    AddGroupNameView(groupName: $viewModel.groupName)
-                        .focused($isFocused)
-
-                    Spacer(minLength: 130)
+            VStack(alignment: .center, spacing: 0) {
+                ScrollView {
+                    VStack(spacing: 0) {
+                        VSpacer(40)
+                        
+                        AddGroupImageView(showImagePickerOptions: $viewModel.showImagePickerOptions,
+                                          image: viewModel.profileImage, imageUrl: viewModel.profileImageUrl,
+                                          handleProfileTap: viewModel.handleProfileTap,
+                                          handleActionSelection: viewModel.handleActionSelection(_:))
+                        
+                        VSpacer(30)
+                        
+                        AddGroupNameView(groupName: $viewModel.groupName)
+                            .focused($isFocused)
+                        
+                        Spacer(minLength: 130)
+                    }
+                    .padding(.horizontal, 16)
                 }
+                .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
+                
+                PrimaryButton(text: viewModel.group != nil ? "Save" : "Create", isEnabled: viewModel.groupName.count >= 3, showLoader: viewModel.showLoader, onClick: {
+                    Task {
+                        let isSucceed = await viewModel.handleDoneAction()
+                        if isSucceed {
+                            dismiss()
+                        } else {
+                            viewModel.showSaveFailedToast()
+                        }
+                    }
+                })
+                .padding(.bottom, 20)
                 .padding(.horizontal, 16)
             }
-            .scrollIndicators(.hidden)
-            .scrollBounceBehavior(.basedOnSize)
-
-            PrimaryButton(text: viewModel.group != nil ? "Save" : "Create", isEnabled: viewModel.groupName.count >= 3, showLoader: viewModel.showLoader, onClick: {
-                Task {
-                    let isSucceed = await viewModel.handleDoneAction()
-                    if isSucceed {
-                        dismiss()
-                    } else {
-                        viewModel.showSaveFailedToast()
-                    }
-                }
-            })
-            .padding(.bottom, 20)
-            .padding(.horizontal, 16)
+            .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+            .frame(maxWidth: .infinity, alignment: .center)
         }
-        .onAppear {
-            isFocused = true
-        }
+        .task { isFocused = true }
+        .onDisappear { isFocused = false }
+        .onTapGesture { isFocused = false }
+        .toolbarRole(.editor)
+        .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-        .frame(maxWidth: .infinity, alignment: .center)
-        .background(surfaceColor)
-        .onTapGesture {
-            isFocused = false
-        }
-        .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 NavigationTitleTextView(text: viewModel.group == nil ? "Create a group" : "Edit group")

@@ -30,16 +30,16 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     }
 
     func fetchInitialViewData() {
-        Task {
-            await fetchGroupDetails()
-            await fetchGroupMembers()
+        Task { [weak self] in
+            await self?.fetchGroupDetails()
+            await self?.fetchGroupMembers()
         }
     }
 
     // MARK: - Data Loading
     func fetchGroupDetails() async {
         do {
-            self.group = try await groupRepository.fetchGroupBy(id: groupId)
+            group = try await groupRepository.fetchGroupBy(id: groupId)
             calculateMemberPayableAmount()
             viewState = .initial
             LogD("GroupSettleUpViewModel: \(#function) Group fetched successfully.")

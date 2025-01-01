@@ -27,4 +27,8 @@ public struct Constants {
     public static var shareAppURL: String {
         return "https://apps.apple.com/in/app/splito/id6477442217"
     }
+
+    public static var groupBaseUrl: String {
+        return "splito://groups/"
+    }
 }
