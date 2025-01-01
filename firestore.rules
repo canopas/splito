@@ -3,6 +3,15 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
   
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Allow access to all comments subcollections
+    match /{path=**}/expenses/{id} {
+      allow read, write;
+    }
+    
   	function isAuthorized() {
     	return request.auth != null ;
   	}

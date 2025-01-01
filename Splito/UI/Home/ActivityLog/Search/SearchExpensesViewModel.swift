@@ -69,8 +69,6 @@ class SearchExpensesViewModel: BaseViewModel, ObservableObject {
             await combineMemberWithExpense(expenses: result.expenses.uniqued())
             hasMoreExpenses = !(result.expenses.count < self.EXPENSES_LIMIT)
             LogD("SearchExpensesViewModel: \(#function) Expenses fetched successfully.")
-
-            print("xxx \(expenses.count)")
         } catch {
             LogE("SearchExpensesViewModel: \(#function) Failed to fetch expenses: \(error).")
             handleServiceError()
