@@ -22,24 +22,24 @@ struct CreateGroupView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         VSpacer(40)
-                        
+
                         AddGroupImageView(showImagePickerOptions: $viewModel.showImagePickerOptions,
                                           image: viewModel.profileImage, imageUrl: viewModel.profileImageUrl,
                                           handleProfileTap: viewModel.handleProfileTap,
                                           handleActionSelection: viewModel.handleActionSelection(_:))
-                        
+
                         VSpacer(30)
-                        
+
                         AddGroupNameView(groupName: $viewModel.groupName)
                             .focused($isFocused)
-                        
+
                         Spacer(minLength: 130)
                     }
                     .padding(.horizontal, 16)
                 }
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
-                
+
                 PrimaryButton(text: viewModel.group != nil ? "Save" : "Create", isEnabled: viewModel.groupName.count >= 3, showLoader: viewModel.showLoader, onClick: {
                     Task {
                         let isSucceed = await viewModel.handleDoneAction()

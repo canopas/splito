@@ -94,22 +94,22 @@ public struct JoinMemberTextInputView: View {
             .multilineTextAlignment(.center)
             .textContentType(.oneTimeCode)
             .autocorrectionDisabled()
+            .autocapitalization(.allCharacters)
             .onChange(of: text) { newValue in
                 // Restrict the length of text
                 if newValue.count > CODE_TOTAL_CHARACTERS {
-                    text = String(newValue.prefix(CODE_TOTAL_CHARACTERS))
+                    text = String(newValue.prefix(CODE_TOTAL_CHARACTERS)).uppercased()
                     return
                 }
 
                 // Validate input characters by allowing only alphanumeric
-                text = newValue.filter { $0.isLetter || $0.isNumber }
+                text = newValue.filter { $0.isLetter || $0.isNumber }.uppercased()
 
                 if newValue.count == CODE_TOTAL_CHARACTERS {
                     onCodeChange()
                     isFocused.wrappedValue = false
                 }
             }
-            .textInputAutocapitalization(.characters)
             .onAppear {
                 isFocused.wrappedValue = true
             }
