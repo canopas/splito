@@ -110,9 +110,10 @@ public class ExpenseStore: ObservableObject {
         return (userExpenses, lastFetchedDocument)
     }
 
-    func fetchExpensesOfAllGroups(limit: Int, lastDocument: DocumentSnapshot?) async throws -> (expenses: [Expense], lastDocument: DocumentSnapshot?) {
+    func fetchExpensesOfAllGroups(userId: String, limit: Int, lastDocument: DocumentSnapshot?) async throws -> (expenses: [Expense], lastDocument: DocumentSnapshot?) {
         // Query to fetch expenses from all groups using collectionGroup
         var query = database.collectionGroup("expenses")
+            .whereField("split_to", arrayContains: userId)
             .whereField("is_active", isEqualTo: true)
             .order(by: "date", descending: true)
             .limit(to: limit)

@@ -33,8 +33,7 @@ service cloud.firestore {
     
     // For Groups Collection
     match /groups/{groupId} {
-    	allow read: if isAuthorized() &&
-      				   resource.data.members.hasAny([request.auth.uid]);
+    	allow read: if true;
       
       allow create: if isAuthorized() &&
       				   isCurrentUser(request.resource.data.created_by);
@@ -52,7 +51,7 @@ service cloud.firestore {
     
     // For Expenses Collection
     match /groups/{groupId}/expenses/{expenseId} {
-      	allow read: if isAuthorized();
+      	allow read: if true;
         
       	allow create: if isCurrentUser(request.resource.data.added_by) &&
         				 isUserPartOfGroup(groupId);

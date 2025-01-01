@@ -52,7 +52,7 @@ class SearchExpensesViewModel: BaseViewModel, ObservableObject {
 
     // MARK: - Data Loading
     private func fetchExpensesOfAllGroups() async {
-        guard hasMoreExpenses else {
+        guard let userId = preference.user?.id, hasMoreExpenses else {
             viewState = .noExpense
             return
         }
@@ -62,7 +62,7 @@ class SearchExpensesViewModel: BaseViewModel, ObservableObject {
         }
 
         do {
-            let result = try await expenseRepository.fetchExpensesOfAllGroups(limit: EXPENSES_LIMIT, lastDocument: lastDocument)
+            let result = try await expenseRepository.fetchExpensesOfAllGroups(userId: userId, limit: EXPENSES_LIMIT, lastDocument: lastDocument)
             self.expenses = lastDocument == nil ? result.expenses.uniqued() : (expenses + result.expenses.uniqued())
             lastDocument = result.lastDocument
 
