@@ -140,13 +140,13 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         alert = .init(title: "Delete payment",
                       message: "Are you sure you want to delete this payment?",
                       positiveBtnTitle: "Ok",
-                      positiveBtnAction: {
+                      positiveBtnAction: { [weak self] in
                         Task {
-                            await self.deleteTransaction(transaction: transaction)
+                            await self?.deleteTransaction(transaction: transaction)
                         }
                       },
                       negativeBtnTitle: "Cancel",
-                      negativeBtnAction: { self.showAlert = false })
+                      negativeBtnAction: { [weak self] in self?.showAlert = false })
     }
 
     private func deleteTransaction(transaction: Transactions) async {
@@ -158,6 +158,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         do {
             let updatedTransaction = try await transactionRepository.deleteTransaction(group: group, transaction: transaction,
                                                                                        payer: payer, receiver: receiver)
+            NotificationCenter.default.post(name: .deleteTransaction, object: updatedTransaction)
             await updateGroupMemberBalance(transaction: updatedTransaction, updateType: .Delete)
             LogD("GroupTransactionListViewModel: \(#function) Payment deleted successfully.")
         } catch {
@@ -173,8 +174,8 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
         }
 
         if !group.members.contains(transaction.payerId) || !group.members.contains(transaction.receiverId) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.showAlertFor(message: "This payment involves a person who has left the group, and thus it can no longer be deleted. If you wish to change this payment, you must first add that person back to your group.")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                self?.showAlertFor(message: "This payment involves a person who has left the group, and thus it can no longer be deleted. If you wish to change this payment, you must first add that person back to your group.")
             }
             return false
         }
@@ -194,7 +195,7 @@ class GroupTransactionListViewModel: BaseViewModel, ObservableObject {
             group.updatedAt = Timestamp()
             group.updatedBy = userId
             try await groupRepository.updateGroup(group: group, type: .none)
-            NotificationCenter.default.post(name: .deleteTransaction, object: transaction)
+            NotificationCenter.default.post(name: .updateGroup, object: group)
             LogD("GroupTransactionListViewModel: \(#function) Member balance updated successfully.")
         } catch {
             LogE("GroupTransactionListViewModel: \(#function) Failed to update member balance for payment \(transactionId): \(error).")

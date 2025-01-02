@@ -52,7 +52,7 @@ class UserStore: ObservableObject {
         }
     }
 
-    func fetchLatestUserBy(id: String) -> AsyncStream<AppUser?> {
+    func streamLatestUserBy(id: String) -> AsyncStream<AppUser?> {
         AsyncStream { continuation in
             let listener = usersCollection.document(id).addSnapshotListener { snapshot, error in
                 if let error {
@@ -63,7 +63,7 @@ class UserStore: ObservableObject {
 
                 guard let snapshot else {
                     LogE("UserStore: \(#function) Snapshot is nil for requested user.")
-                    continuation.finish()
+                    continuation.yield(nil)
                     return
                 }
 

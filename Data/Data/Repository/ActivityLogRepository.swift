@@ -11,8 +11,8 @@ public class ActivityLogRepository: ObservableObject {
 
     @Inject private var store: ActivityLogStore
 
-    public func fetchLatestActivityLogs(userId: String) -> AsyncStream<[ActivityLog]?> {
-        store.fetchLatestActivityLogs(userId: userId)
+    public func streamLatestActivityLogs(userId: String) -> AsyncStream<[ActivityLog]?> {
+        store.streamLatestActivityLogs(userId: userId)
     }
 
     public func addActivityLog(userId: String, activity: ActivityLog) async throws {

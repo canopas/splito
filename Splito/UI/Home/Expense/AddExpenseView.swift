@@ -41,15 +41,14 @@ struct AddExpenseView: View {
                                        handleActionSelection: viewModel.handleActionSelection(_:))
             }
         }
+        .task { focusedField = .expenseName }
+        .onDisappear { focusedField = nil }
         .background(surfaceColor)
         .scrollDismissesKeyboard(.immediately)
         .navigationTitle(viewModel.expenseId == nil ? "Add expense" : "Edit expense")
         .navigationBarTitleDisplayMode(.inline)
         .toastView(toast: $viewModel.toast)
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .onAppear {
-            focusedField = .expenseName
-        }
         .sheet(isPresented: $viewModel.showGroupSelection) {
             NavigationStack {
                 SelectGroupView(viewModel: SelectGroupViewModel(selectedGroup: viewModel.selectedGroup,
@@ -167,17 +166,15 @@ private struct ExpenseDetailRow: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 if field == .expenseName {
-                    TextField("Enter a description", text: $name)
-                        .font(.subTitle2())
-                        .foregroundStyle(primaryText)
-                        .keyboardType(.default)
-                        .tint(primaryColor)
-                        .focused(focusedField, equals: field)
-                        .textInputAutocapitalization(.sentences)
-                        .submitLabel(.next)
-                        .onSubmit {
-                            focusedField.wrappedValue = .amount
-                        }
+                    TextField("Enter a description", text: $name, onCommit: {
+                        focusedField.wrappedValue = .amount
+                    })
+                    .font(.subTitle2())
+                    .tint(primaryColor)
+                    .foregroundStyle(primaryText)
+                    .focused(focusedField, equals: field)
+                    .textInputAutocapitalization(.sentences)
+                    .submitLabel(.next)
                 } else {
                     HStack(spacing: 16) {
                         Text(inputValue.localized)

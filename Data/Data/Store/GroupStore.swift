@@ -44,6 +44,37 @@ class GroupStore: ObservableObject {
         }
     }
 
+    func streamLatestGroupBy(id: String) -> AsyncStream<Groups?> {
+        AsyncStream { continuation in
+            let listener = groupReference.document(id).addSnapshotListener { snapshot, error in
+                if let error {
+                    LogE("GroupStore: \(#function) Error fetching document: \(error).")
+                    continuation.finish()
+                    return
+                }
+
+                guard let snapshot else {
+                    LogE("GroupStore: \(#function) Snapshot is nil for requested Group.")
+                    continuation.yield(nil)
+                    return
+                }
+
+                do {
+                    let group = try snapshot.data(as: Groups.self)
+                    continuation.yield(group)
+                } catch {
+                    LogE("GroupStore: \(#function) Error decoding Group data: \(error).")
+                    continuation.finish()
+                }
+            }
+
+            // Clean up: Remove listener when the stream is cancelled
+            continuation.onTermination = { _ in
+                listener.remove()
+            }
+        }
+    }
+
     func fetchGroupsBy(userId: String, limit: Int, lastDocument: DocumentSnapshot?) async throws -> (data: [Groups], lastDocument: DocumentSnapshot?) {
         var query = groupReference
             .whereField("is_active", isEqualTo: true)

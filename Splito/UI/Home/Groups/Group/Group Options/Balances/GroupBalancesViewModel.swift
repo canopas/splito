@@ -39,8 +39,8 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     }
 
     func fetchInitialBalancesData() {
-        Task {
-            await fetchGroupWithMembers()
+        Task { [weak self] in
+            await self?.fetchGroupWithMembers()
         }
     }
 
@@ -102,7 +102,8 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     }
 
     private func sortMemberBalances(memberBalances: [MembersCombinedBalance]) {
-        guard let userId = preference.user?.id, let userIndex = memberBalances.firstIndex(where: { $0.id == userId }) else {
+        guard let userId = preference.user?.id,
+              let userIndex = memberBalances.firstIndex(where: { $0.id == userId }) else {
             viewState = .initial
             return
         }
@@ -152,8 +153,8 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
     @objc private func handleAddTransaction(notification: Notification) {
         showToastFor(toast: .init(type: .success, title: "Success", message: "Payment made successfully."))
-        Task {
-            await fetchGroupWithMembers()
+        Task { [weak self] in
+            await self?.fetchGroupWithMembers()
         }
     }
 
