@@ -172,12 +172,14 @@ extension AddExpenseViewModel {
                 let payerIds = Array(self.selectedPayers.keys.prefix(2))
                 let user1 = await self.fetchUserData(for: payerIds[0])
                 let user2 = await self.fetchUserData(for: payerIds[1])
-                if let user1, let user2 {
+                if let user1, let user2, let currentUser = preference.user {
+                    let user1Name = user1.id == currentUser.id ? "You" : user1.nameWithLastInitial
+                    let user2Name = user2.id == currentUser.id ? "You" : user2.nameWithLastInitial
                     if self.selectedPayers.count == 2 {
-                        self.payerName = "\(user1.nameWithLastInitial) and \(user2.nameWithLastInitial)"
+                        self.payerName = "\(user1Name) and \(user2Name)"
                     } else {
-                        let remainingCount = self.selectedPayers.count - 2
-                        self.payerName = "\(user1.nameWithLastInitial), \(user2.nameWithLastInitial) and +\(remainingCount)"
+                        let remainingPayersCount = self.selectedPayers.count - 2
+                        self.payerName = "\(user1Name), \(user2Name) and +\(remainingPayersCount)"
                     }
                 }
             }

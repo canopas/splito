@@ -58,6 +58,7 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
     // MARK: - User Actions
     func handlePayerSelection(userId: String) {
         selectedPayers = [userId: amount]
+        onPayerSelection(selectedPayers)
     }
 
     func handleMultiplePayerTap() {
@@ -66,13 +67,8 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
                                             message: "Please enter a cost for your expense first!"))
             return
         }
-
         router?.push(.ChooseMultiplePayerView(groupId: groupId, selectedPayers: selectedPayers,
                                               amount: amount, onPayerSelection: onPayerSelection))
-    }
-
-    func handleSaveBtnTap() {
-        onPayerSelection(selectedPayers)
     }
 
     // MARK: - Error Handling
