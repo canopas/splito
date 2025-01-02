@@ -48,9 +48,13 @@ struct GroupHomeView: View {
                 }
             }
         }
+        .onTapGestureForced {
+            UIApplication.shared.endEditing()
+        }
         .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .center)
         .background(surfaceColor)
+        .toastView(toast: $viewModel.toast)
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .onDisappear {
             if viewModel.showSearchBar {
@@ -68,7 +72,18 @@ struct GroupHomeView: View {
                 .ignoresSafeArea(.keyboard)
             }
         }
-        .toastView(toast: $viewModel.toast)
+        .toolbarRole(.editor)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                NavigationTitleTextView(text: viewModel.group?.name ?? "")
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                ToolbarButtonView(systemImageName: "magnifyingglass", onClick: viewModel.handleSearchOptionTap)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                ToolbarButtonView(systemImageName: "gearshape", onClick: viewModel.handleSettingsOptionTap)
+            }
+        }
         .fullScreenCover(isPresented: $viewModel.showAddExpenseSheet) {
             ExpenseRouteView(selectedGroupId: viewModel.groupId)
         }
@@ -106,18 +121,6 @@ struct GroupHomeView: View {
                 .modifier(BottomSheetHeightModifier(height: $sheetHeight))
                 .presentationDetents([.height(sheetHeight)])
                 .presentationCornerRadius(24)
-        }
-        .toolbarRole(.editor)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                NavigationTitleTextView(text: viewModel.group?.name ?? "")
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                ToolbarButtonView(systemImageName: "magnifyingglass", onClick: viewModel.handleSearchOptionTap)
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                ToolbarButtonView(systemImageName: "gearshape", onClick: viewModel.handleSettingsOptionTap)
-            }
         }
     }
 }
