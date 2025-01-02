@@ -547,13 +547,13 @@
     "No members in your selected group." : {
 
     },
-    "No payments yet!" : {
-
-    },
     "No results found for \"%@\"!" : {
 
     },
     "No results were found that match your search criteria." : {
+
+    },
+    "No settlements yet!" : {
 
     },
     "No unsettled bills yet!" : {
@@ -602,9 +602,6 @@
       "extractionState" : "manual"
     },
     "Payment made successfully." : {
-      "extractionState" : "manual"
-    },
-    "Payments" : {
       "extractionState" : "manual"
     },
     "Payments made" : {
@@ -720,6 +717,9 @@
     },
     "settled up" : {
 
+    },
+    "Settlements" : {
+      "extractionState" : "manual"
     },
     "Share App" : {
       "extractionState" : "manual"

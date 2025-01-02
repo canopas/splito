@@ -21,7 +21,7 @@ public struct NavigationTitleTextView: View {
     }
 
     public var body: some View {
-        Text(text)
+        Text(text.localized)
             .font(font)
             .foregroundStyle(foregroundColor)
     }

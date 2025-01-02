@@ -45,6 +45,7 @@ struct ChoosePayerView: View {
                             )
                             .onTapGestureForced {
                                 viewModel.handlePayerSelection(userId: user.id)
+                                dismiss()
                             }
                         }
 
@@ -58,13 +59,6 @@ struct ChoosePayerView: View {
                 }
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
-
-                PrimaryButton(text: "Save", isEnabled: !viewModel.selectedPayers.isEmpty, onClick: {
-                    viewModel.handleSaveBtnTap()
-                    dismiss()
-                })
-                .padding([.bottom, .horizontal], 16)
-                .padding(.top, 8)
             }
         }
         .background(surfaceColor)

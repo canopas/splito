@@ -329,7 +329,7 @@
 			path = ActivityLog;
 			sourceTree = "<group>";
 		};
-		2156A8AE2C24064400CFAB64 /* Transactions */ = {
+		2156A8AE2C24064400CFAB64 /* Settlements */ = {
 			isa = PBXGroup;
 			children = (
 				2156A8AF2C24069800CFAB64 /* GroupTransactionsRouteView.swift */,
@@ -337,7 +337,7 @@
 				21B1C09B2C1C5A040098B4FD /* GroupTransactionListViewModel.swift */,
 				2177692E2C206678009B3B37 /* Transaction Detail */,
 			);
-			path = Transactions;
+			path = Settlements;
 			sourceTree = "<group>";
 		};
 		2177692E2C206678009B3B37 /* Transaction Detail */ = {
@@ -410,7 +410,7 @@
 			isa = PBXGroup;
 			children = (
 				D83344562C0DD03B00CD9F05 /* Settle up */,
-				2156A8AE2C24064400CFAB64 /* Transactions */,
+				2156A8AE2C24064400CFAB64 /* Settlements */,
 				D83344552C0DD02F00CD9F05 /* Balances */,
 				D833445F2C0EF1D300CD9F05 /* Totals */,
 			);
