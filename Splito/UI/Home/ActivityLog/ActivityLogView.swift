@@ -41,6 +41,14 @@ struct ActivityLogView: View {
                     .font(.Header2())
                     .foregroundStyle(primaryText)
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                ToolbarButtonView(systemImageName: "magnifyingglass", onClick: viewModel.handleSearchButtonTap)
+            }
+        }
+        .fullScreenCover(isPresented: $viewModel.showSearchSheet) {
+            NavigationStack {
+                SearchExpensesView(viewModel: SearchExpensesViewModel(router: viewModel.router))
+            }
         }
     }
 }

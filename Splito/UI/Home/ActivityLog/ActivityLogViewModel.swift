@@ -22,9 +22,10 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var activityLogs: [ActivityLog] = []
     @Published private(set) var filteredLogs: [String: [ActivityLog]] = [:]
 
+    @Published var showSearchSheet: Bool = false
     @Published private(set) var hasMoreLogs: Bool = true
 
-    private let router: Router<AppRoute>
+    let router: Router<AppRoute>
     private var lastDocument: DocumentSnapshot?
     private var task: Task<Void, Never>?  // Reference to the current asynchronous task that fetches logs
 
@@ -131,6 +132,10 @@ class ActivityLogViewModel: BaseViewModel, ObservableObject {
         case .transactionAdded, .transactionUpdated, .transactionDeleted, .transactionRestored:
             router.push(.TransactionDetailView(transactionId: activity.activityId, groupId: activity.groupId))
         }
+    }
+
+    func handleSearchButtonTap() {
+        showSearchSheet = true
     }
 
     // MARK: - Error Handling

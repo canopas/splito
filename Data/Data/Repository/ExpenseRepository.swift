@@ -164,4 +164,8 @@ public class ExpenseRepository: ObservableObject {
     public func fetchExpenseBy(groupId: String, expenseId: String) async throws -> Expense {
         return try await store.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
     }
+
+    public func fetchExpensesOfAllGroups(userId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) async throws -> (expenses: [Expense], lastDocument: DocumentSnapshot?) {
+        return try await store.fetchExpensesOfAllGroups(userId: userId, limit: limit, lastDocument: lastDocument)
+    }
 }
