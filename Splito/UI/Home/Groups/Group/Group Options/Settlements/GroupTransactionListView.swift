@@ -38,7 +38,7 @@ struct GroupTransactionListView: View {
         .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                NavigationTitleTextView(text: "Payments")
+                NavigationTitleTextView(text: "Settlements")
             }
         }
     }
@@ -251,7 +251,7 @@ private struct EmptyTransactionView: View {
                 .frame(width: geometry.size.width * 0.5, height: geometry.size.width * 0.4)
                 .padding(.bottom, 40)
 
-            Text("No payments yet!")
+            Text("No settlements yet!")
                 .font(.Header1())
                 .foregroundStyle(primaryText)
                 .multilineTextAlignment(.center)
