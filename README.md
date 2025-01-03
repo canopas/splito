@@ -38,7 +38,7 @@ Splito is currently in active development, with exciting new features planned:
 - **Public Contribution Poll:** Allow group members to vote 🗳️ on contributions for events or shared purchases.
 
 <details>
-  <summary> How to Use Splito </summary>
+  <summary><b> How to Use Splito </b></summary>
 
   ## How to Use Splito
   
@@ -105,26 +105,65 @@ Splito is currently in active development, with exciting new features planned:
   </tr>
 </table>
 
-## Requirements ✅
+## Project Setup ⚙️
+
 Make sure you have the latest stable version of Xcode installed. Then, you can clone this repository to Xcode.
 
-To run Splito locally, you'll need:
-- iOS (version 16.4 or higher)
-- Xcode (version 15.4 or higher)
+### Notes 📝 
+- If you're contributing to the project, make sure to create your own Firebase project and follow the steps above to configure the required files.
+- Ensure that you update the `GoogleService-Info.plist` and `Secrets.xcconfig` file with your own Firebase project values to build and run the app successfully.
+- Sensitive data such as `REVERSE_CLIENT_ID` and other keys are not included in the repository for security purposes.
 
-<details>
-  <summary> Firebase Setup </summary>
+To clone and run the Splito project locally, please follow these steps:
 
-## Firebase Setup 🚀
+### 1. Requirements ✅
+- **Xcode:** Version 15.4 or higher.
+- **iOS:** Version 16.4 or higher.
+- **Firebase:** A Firebase project set up in the [Firebase Console](https://console.firebase.google.com).
 
-To enable Firebase services, you will need to create a new project in the Firebase Console. Use the app bundle ID value specified in the project setting in Xcode. Once the project is created, you will need to add the GoogleService-Info.plist file to the project. For more information, refer to the [Firebase documentation](https://firebase.google.com/docs/ios/setup).
+### 2. Creating the Config Settings File 🛠️
+- Create a `Secrets.xcconfig` File.
+- Add the following configuration values to a new file named `Secrets.xcconfig` in the Splito directory:
 
-Splito uses the following Firebase services, Make sure you enable them in your Firebase project:
+```
+// APP INFO
+app_name = Splito
+app_bundle = com.*****.splito // as per your choice.
+app_version_name = 1.0.0
+app_version_code = 1000000
+```
 
-- Authentication (Phone, Google and Apple login)
-- Firestore (To store user data)
+### 3. Firebase Setup 🚀
 
-</details>
+- **Create a Firebase Project:**
+  - Go to the Firebase Console.
+  - Create a new project and configure it with the same bundle ID used in the project.
+
+- **Enable Firebase Services:**
+  - Authentication (Phone, Google, and Apple login).
+  - Firestore (For storing user data).
+ 
+- **Download `GoogleService-Info.plist`:**
+  - After setting up Firebase, download the `GoogleService-Info.plist` file from the Firebase Console.
+  - Add this file to the project directory under `Splito/Plist/GoogleService-Info.plist`.
+
+### 4. Configuring Reverse Client ID 🔑
+
+- **Set Up Google Login:**
+  - Obtain the `REVERSE_CLIENT_ID` from your Firebase project's Google Sign-In setup.
+  - Add this value to the `Secrets.xcconfig` file in the following format:
+
+```
+  GOOGLE_REVERSE_CLIENT_ID = com.googleusercontent.apps.************-********.....
+```
+
+- **Reference in `Info.plist`:**
+- The project is configured to use environment variables for sensitive data.
+- The `REVERSE_CLIENT_ID` is dynamically added to `Info.plist` during the build process.
+
+### 5. Environment Variable for Deployment 🌐
+- The `Secrets.xcconfig` file and `GoogleService-Info.plist` are base64-encoded and stored securely in GitHub secrets for CI/CD purposes.
+- During deployment, these files are decoded and added to the project.
 
 ## Tech stack 📚
 Splito utilizes the latest iOS technologies and adheres to industry best practices. Below is the current tech stack used in the development process:
