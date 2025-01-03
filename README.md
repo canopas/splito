@@ -164,6 +164,7 @@ app_version_code = 1000000
 ### 5. Environment Variable for Deployment 🌐
 - The `Secrets.xcconfig` file and `GoogleService-Info.plist` are base64-encoded and stored securely in GitHub secrets for CI/CD purposes.
 - During deployment, these files are decoded and added to the project.
+- For more detail, you can check this [deployment script](https://github.com/canopas/splito/blob/main/.github/workflows/Deploy.yml).
 
 ## Tech stack 📚
 Splito utilizes the latest iOS technologies and adheres to industry best practices. Below is the current tech stack used in the development process:
