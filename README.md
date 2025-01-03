@@ -158,8 +158,8 @@ app_version_code = 1000000
 ```
 
 - **Reference in `Info.plist`:**
-- The project is configured to use environment variables for sensitive data.
-- The `REVERSE_CLIENT_ID` is dynamically added to `Info.plist` during the build process.
+  - The project is configured to use environment variables for sensitive data.
+  - The `REVERSE_CLIENT_ID` is dynamically added to `Info.plist` during the build process.
 
 ### 5. Environment Variable for Deployment 🌐
 - The `Secrets.xcconfig` file and `GoogleService-Info.plist` are base64-encoded and stored securely in GitHub secrets for CI/CD purposes.
