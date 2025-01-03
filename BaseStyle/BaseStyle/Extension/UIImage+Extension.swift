@@ -8,6 +8,12 @@
 import UIKit
 
 public extension UIImage {
+    var jpegRepresentationData: Data? {
+        self.jpegData(compressionQuality: 1.0)
+    }
+}
+
+public extension UIImage {
     func resizeImageIfNeededWhilePreservingAspectRatio(maxWidth: CGFloat = 1920, maxHeight: CGFloat = 1080) -> UIImage {
         if size.width < maxWidth && size.height < maxHeight { return self }
 

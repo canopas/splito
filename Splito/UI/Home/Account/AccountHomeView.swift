@@ -26,7 +26,7 @@ struct AccountHomeView: View {
                             .frame(height: 1)
                             .background(dividerColor)
 
-                        AccountStayInTouchSectionView(onContactTap: viewModel.onContactUsTap,
+                        AccountStayInTouchSectionView(onContactTap: viewModel.onContactSupportTap,
                                                       onRateAppTap: viewModel.onRateAppTap,
                                                       onShareAppTap: viewModel.onShareAppTap)
 
@@ -57,9 +57,6 @@ struct AccountHomeView: View {
         .background(surfaceColor)
         .toastView(toast: $viewModel.toast)
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
-        .sheet(isPresented: $viewModel.showShareSheet) {
-            MailComposeView(logFilePath: viewModel.logFilePath, showToast: viewModel.showMailSendToast)
-        }
         .sheet(isPresented: $viewModel.showShareAppSheet) {
             ShareSheetView(activityItems: [Constants.shareAppURL]) { isCompleted in
                 if isCompleted {
@@ -117,7 +114,7 @@ private struct AccountStayInTouchSectionView: View {
 
             VSpacer(16)
 
-            AccountItemCellView(optionText: "Contact Us", onClick: onContactTap)
+            AccountItemCellView(optionText: "Contact Support", onClick: onContactTap)
 
             AccountItemCellView(optionText: "Rate Splito", onClick: onRateAppTap)
 

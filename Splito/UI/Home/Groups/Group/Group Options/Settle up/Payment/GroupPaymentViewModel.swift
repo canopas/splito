@@ -175,6 +175,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                 self?.paymentImage = nil
                 self?.paymentImageUrl = nil
             }
+        case .removeAll: break
         }
     }
 

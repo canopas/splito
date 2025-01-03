@@ -44,7 +44,7 @@ public class UserRepository: ObservableObject {
     }
 
     private func uploadImage(imageData: Data, user: AppUser) async throws -> AppUser {
-        let imageURL = try await storageManager.uploadImage(for: .user, id: user.id, imageData: imageData)
+        let imageURL = try await storageManager.uploadAttachment(for: .user, id: user.id, attachmentData: imageData)
         var newUser = user
         newUser.imageUrl = imageURL
         return try await updateUser(user: newUser)
@@ -61,7 +61,7 @@ public class UserRepository: ObservableObject {
         if let currentUrl = user.imageUrl, newImageUrl == nil {
             newUser.imageUrl = newImageUrl
 
-            _ = try await storageManager.deleteImage(imageUrl: currentUrl)
+            _ = try await storageManager.deleteAttachment(attachmentUrl: currentUrl)
             return try await performImageAction(imageData: imageData, user: newUser)
         } else {
             return try await performImageAction(imageData: imageData, user: newUser)

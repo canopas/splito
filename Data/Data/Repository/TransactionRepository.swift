@@ -56,7 +56,7 @@ public class TransactionRepository: ObservableObject {
             updatedTransaction.imageUrl = uploadedImageUrl
         } else if let currentUrl = updatedTransaction.imageUrl, newImageUrl == nil {
             // If there's a current image URL and we want to remove it, delete the image and set imageUrl empty
-            try await storageManager.deleteImage(imageUrl: currentUrl)
+            try await storageManager.deleteAttachment(attachmentUrl: currentUrl)
             updatedTransaction.imageUrl = ""
         } else if let newImageUrl {
             // If a new image URL is explicitly passed, update it
@@ -71,7 +71,7 @@ public class TransactionRepository: ObservableObject {
 
     private func uploadImage(imageData: Data, transaction: Transactions) async throws -> String {
         guard let transactionId = transaction.id else { return "" }
-        return try await storageManager.uploadImage(for: .payment, id: transactionId, imageData: imageData) ?? ""
+        return try await storageManager.uploadAttachment(for: .payment, id: transactionId, attachmentData: imageData) ?? ""
     }
 
     private func hasTransactionChanged(_ transaction: Transactions, oldTransaction: Transactions) -> Bool {

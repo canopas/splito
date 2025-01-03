@@ -6,20 +6,15 @@
 //
 
 import Data
-import MessageUI
 import BaseStyle
+import UIKit
 
 class AccountHomeViewModel: BaseViewModel, ObservableObject {
 
     @Inject var preference: SplitoPreference
-    @Inject private var ddLoggerProvider: DDLoggerProvider
 
     @Published var currentState: ViewState = .initial
-
-    @Published var logFilePath: URL?
-    @Published var showShareSheet = false
     @Published var showShareAppSheet = false
-    @Published var showMailToast = false
 
     private let router: Router<AppRoute>
 
@@ -32,21 +27,8 @@ class AccountHomeViewModel: BaseViewModel, ObservableObject {
         router.push(.ProfileView)
     }
 
-    func onContactUsTap() {
-        guard MFMailComposeViewController.canSendMail() else {
-            showToastFor(toast: ToastPrompt(type: .warning, title: "Warning", message: "Your device cannot send email."))
-            showMailToast = true
-            return
-        }
-        let logger = ddLoggerProvider.provideLogger()
-        logger.removeAllZipLogs()
-        logFilePath = logger.zipLogs()
-        showShareSheet = true
-    }
-
-    func showMailSendToast() {
-        showToastFor(toast: ToastPrompt(type: .success, title: "Success", message: "Email sent successfully!"))
-        showMailToast = true
+    func onContactSupportTap() {
+        router.push(.FeedbackView)
     }
 
     func onRateAppTap() {

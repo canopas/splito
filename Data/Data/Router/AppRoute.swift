@@ -47,6 +47,7 @@ public enum AppRoute: Hashable {
 
     // MARK: - Account Tab
     case AccountHomeView
+    case FeedbackView
 
     var key: String {
         switch self {
@@ -103,6 +104,8 @@ public enum AppRoute: Hashable {
 
         case .AccountHomeView:
             "accountHomeView"
+        case .FeedbackView:
+            "feedbackView"
         }
     }
 

@@ -99,7 +99,7 @@ private struct DecoratedProfileImageView: View {
             UserProfileImageView(image: $profileImage, profileImageUrl: profileImageUrl, size: (80, 80),
                                  showOverlay: true, handleProfileTap: handleProfileTap)
             .confirmationDialog("", isPresented: $showImagePickerOption, titleVisibility: .hidden) {
-                ImagePickerOptionsView(image: profileImage, imageUrl: profileImageUrl, handleActionSelection: handleActionSelection)
+                MediaPickerOptionsView(image: profileImage, imageUrl: profileImageUrl, handleActionSelection: handleActionSelection)
             }
         }
     }
