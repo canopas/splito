@@ -57,9 +57,12 @@ struct GroupExpenseListView: View {
                                         ForEach(viewModel.groupExpenses[month] ?? [], id: \.expense.id) { expense in
                                             GroupExpenseItemView(expenseWithUser: expense,
                                                                  isLastItem: expense.expense == (viewModel.groupExpenses[month] ?? []).last?.expense)
-                                            .onTouchGesture {
-                                                viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
-                                            }
+                                            .contentShape(Rectangle())
+                                            .highPriorityGesture(
+                                                TapGesture().onEnded {
+                                                    viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
+                                                }
+                                            )
                                             .id(expense.expense.id)
                                             .swipeActions {
                                                 Button {

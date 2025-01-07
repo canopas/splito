@@ -60,7 +60,8 @@ public class ExpenseStore: ObservableObject {
         return (expenses, snapshot.documents.last)
     }
 
-    func fetchExpensesOfAllGroups(userId: String, activeGroupIds: [String], limit: Int, lastDocument: DocumentSnapshot?) async throws -> (expenses: [Expense], lastDocument: DocumentSnapshot?) {
+    func fetchExpensesOfAllGroups(userId: String, activeGroupIds: [String], limit: Int,
+                                  lastDocument: DocumentSnapshot?) async throws -> (expenses: [Expense], lastDocument: DocumentSnapshot?) {
 
         var allExpenses: [Expense] = []
         var remainingLimit = limit
