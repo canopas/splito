@@ -373,10 +373,12 @@ extension AddExpenseViewModel {
     }
 
     private func handleAddExpenseAction(userId: String, group: Groups) async -> Bool {
-        let expense = Expense(name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
-                              date: Timestamp(date: expenseDate), paidBy: selectedPayers, addedBy: userId,
-                              note: expenseNote, splitTo: splitData.map({ $0.key }), splitType: splitType,
-                              splitData: splitData)
+        guard let groupId else { return false }
+        let splitTo = splitData.map { $0.key }
+        let participants = Array(Set(splitTo + selectedPayers.keys))
+        let expense = Expense(groupId: groupId, name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
+                              date: Timestamp(date: expenseDate), addedBy: userId, note: expenseNote, splitType: splitType,
+                              splitTo: splitTo, splitData: splitData, paidBy: selectedPayers, participants: participants)
         return await addExpense(group: group, expense: expense)
     }
 
@@ -405,7 +407,10 @@ extension AddExpenseViewModel {
     }
 
     private func handleUpdateExpenseAction(userId: String, group: Groups, expense: Expense) async -> Bool {
+        guard let groupId = group.id else { return false }
+
         var newExpense = expense
+        newExpense.groupId = groupId
         newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing)
         newExpense.amount = expenseAmount
         newExpense.date = Timestamp(date: expenseDate)
@@ -419,9 +424,12 @@ extension AddExpenseViewModel {
             newExpense.paidBy = selectedPayers
         }
 
-        newExpense.splitType = splitType
-        newExpense.splitTo = splitData.map({ $0.key })
+        newExpense.splitTo = splitData.map { $0.key }
         newExpense.splitData = splitData
+        newExpense.splitType = splitType
+
+        let participants = Array(Set(newExpense.splitTo + newExpense.paidBy.keys))
+        newExpense.participants = participants
 
         return await updateExpense(group: group, expense: newExpense, oldExpense: expense)
     }
@@ -490,10 +498,5 @@ extension AddExpenseViewModel {
     enum ViewState {
         case initial
         case loading
-    }
-
-    enum AddExpenseField {
-        case expenseName
-        case amount
     }
 }

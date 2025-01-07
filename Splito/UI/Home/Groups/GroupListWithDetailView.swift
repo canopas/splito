@@ -41,13 +41,11 @@ struct GroupListWithDetailView: View {
 
                                 if group.group.id == viewModel.filteredGroups.last?.group.id && viewModel.hasMoreGroups {
                                     ProgressView()
-                                        .onAppear {
-                                            viewModel.loadMoreGroups()
-                                        }
+                                        .onAppear { viewModel.loadMoreGroups() }
                                 }
                             }
 
-                            VSpacer(30)
+                            VSpacer(34)
                         }
                     }
                     .id("groupList")
@@ -57,6 +55,8 @@ struct GroupListWithDetailView: View {
                                       perform: viewModel.manageScrollToTopBtnVisibility(offset:))
                     })
                 }
+                .scrollBounceBehavior(.basedOnSize)
+                .refreshable { viewModel.fetchGroupsInitialData() }
                 .overlay(alignment: .bottomTrailing) {
                     if viewModel.showScrollToTopBtn {
                         ScrollToTopButton {
@@ -64,10 +64,6 @@ struct GroupListWithDetailView: View {
                         }
                         .padding([.trailing, .bottom], 16)
                     }
-                }
-                .scrollBounceBehavior(.automatic)
-                .refreshable {
-                    viewModel.fetchGroupsInitialData(needToReload: true)
                 }
             }
         }

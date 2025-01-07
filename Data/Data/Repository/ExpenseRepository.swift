@@ -41,7 +41,8 @@ public class ExpenseRepository: ObservableObject {
         return try await updateExpense(group: group, expense: updatedExpense, oldExpense: expense, type: .expenseDeleted)
     }
 
-    public func updateExpenseWithImage(imageData: Data?, newImageUrl: String?, group: Groups, expense: (new: Expense, old: Expense), type: ActivityType) async throws -> Expense {
+    public func updateExpenseWithImage(imageData: Data?, newImageUrl: String?, group: Groups,
+                                       expense: (new: Expense, old: Expense), type: ActivityType) async throws -> Expense {
         var updatedExpense = expense.new
 
         // If image data is provided, upload the new image and update the imageUrl
@@ -157,11 +158,20 @@ public class ExpenseRepository: ObservableObject {
         return nil
     }
 
-    public func fetchExpensesBy(groupId: String, limit: Int = 10, lastDocument: DocumentSnapshot? = nil) async throws -> (expenses: [Expense], lastDocument: DocumentSnapshot?) {
+    public func fetchExpensesBy(groupId: String, limit: Int = 10,
+                                lastDocument: DocumentSnapshot? = nil) async throws -> (expenses: [Expense],
+                                                                                        lastDocument: DocumentSnapshot?) {
         return try await store.fetchExpensesBy(groupId: groupId, limit: limit, lastDocument: lastDocument)
     }
 
     public func fetchExpenseBy(groupId: String, expenseId: String) async throws -> Expense {
         return try await store.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
+    }
+
+    public func fetchExpensesOfAllGroups(userId: String, activeGroupIds: [String], limit: Int = 10,
+                                         lastDocument: DocumentSnapshot? = nil) async throws -> (expenses: [Expense],
+                                                                                                 lastDocument: DocumentSnapshot?) {
+        return try await store.fetchExpensesOfAllGroups(userId: userId, activeGroupIds: activeGroupIds,
+                                                        limit: limit, lastDocument: lastDocument)
     }
 }
