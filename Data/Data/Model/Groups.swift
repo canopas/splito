@@ -12,17 +12,17 @@ public struct Groups: Codable, Identifiable {
     @DocumentID public var id: String? // Automatically generated ID by Firestore
 
     public var name: String
-    public var type: GroupType
+    public var type: GroupType? = .splitExpense
     public var createdBy: String
     public var updatedBy: String?
     public var imageUrl: String?
     public var members: [String]
-    public var initialBalance: Double // for fund type group only
+    public var initialBalance: Double? = 0 // for fund type group only
     public var balances: [GroupMemberBalance]
     public let createdAt: Timestamp
     public var updatedAt: Timestamp
     public var hasExpenses: Bool
-    public var defaultCurrency: String
+    public var defaultCurrency: String? = "INR"
     public var isActive: Bool
 
     public init(name: String, type: GroupType = .splitExpense, createdBy: String, updatedBy: String? = nil,

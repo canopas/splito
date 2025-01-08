@@ -84,7 +84,9 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
                 return
             }
             users.append(user)
-            calculateFixedAmountForMember(memberId: memberId)
+            if let splitAmount = calculateFixedAmountForMember(memberId: memberId) {
+                fixedAmounts[memberId] = splitAmount
+            }
         }
 
         self.groupMembers = users
@@ -92,7 +94,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         self.viewState = .initial
     }
 
-    func fetchMemberData(for memberId: String) async -> AppUser? {
+    private func fetchMemberData(for memberId: String) async -> AppUser? {
         do {
             let member = try await userRepository.fetchUserBy(userID: memberId)
             LogD("ExpenseSplitOptionsViewModel: \(#function) Member fetched successfully.")
@@ -104,21 +106,22 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func calculateFixedAmountForMember(memberId: String) {
+    func calculateFixedAmountForMember(memberId: String) -> Double? {
         switch selectedTab {
         case .equally:
             if selectedMembers.contains(memberId) {
-                fixedAmounts[memberId] = calculateEqualSplitAmount(memberId: memberId, amount: expenseAmount, splitTo: selectedMembers)
+                return calculateEqualSplitAmount(memberId: memberId, amount: expenseAmount, splitTo: selectedMembers)
             }
         case .fixedAmount:
-            break
+            return fixedAmounts[memberId]
         case .percentage:
-            fixedAmounts[memberId] = calculatePercentageSplitAmount(memberId: memberId, amount: expenseAmount,
-                                                                    splitTo: selectedMembers, splitData: percentages)
+            return calculatePercentageSplitAmount(memberId: memberId, amount: expenseAmount,
+                                                  splitTo: percentages.map({ $0.key }), splitData: percentages)
         case .shares:
-            fixedAmounts[memberId] = calculateSharesSplitAmount(memberId: memberId, amount: expenseAmount,
-                                                                splitTo: selectedMembers, splitData: shares)
+            return calculateSharesSplitAmount(memberId: memberId, amount: expenseAmount,
+                                              splitTo: shares.map({ $0.key }), splitData: shares)
         }
+        return nil
     }
 
     // MARK: - User Actions
