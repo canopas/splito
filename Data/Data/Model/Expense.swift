@@ -11,7 +11,7 @@ public struct Expense: Codable, Hashable, Identifiable {
 
     public var id: String? // Automatically generated ID by Firestore
 
-    public var groupId: String? = ""
+    public var groupId: String?
     public var name: String
     public var amount: Double
     public var category: String? = "General"
