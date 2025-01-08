@@ -90,7 +90,9 @@ public class ExpenseStore: ObservableObject {
 
             let expenses = snapshot.documents.compactMap { document in
                 do {
-                    return try document.data(as: Expense.self)
+                    var expense = try document.data(as: Expense.self)
+                    expense.groupId = expense.groupId == nil ? document.reference.parent.parent?.documentID : expense.groupId
+                    return expense
                 } catch {
                     LogE("ExpenseStore: \(#function) Error decoding expense from document \(document.documentID): \(error.localizedDescription)")
                     return nil

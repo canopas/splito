@@ -279,13 +279,14 @@ extension GroupListViewModel {
     }
 
     func handleGroupItemTap(_ group: Groups, isTapped: Bool = true) {
+        selectedGroup = group
         if isTapped {
             onSearchBarCancelBtnTap()
             if let id = group.id {
                 router.push(.GroupHomeView(groupId: id))
             }
         } else {
-            handleGroupItemLongPress(group)
+            showActionSheet = true
         }
     }
 
@@ -326,11 +327,6 @@ extension GroupListViewModel {
 
     func manageScrollToTopBtnVisibility(offset: CGFloat) {
         showScrollToTopBtn = offset < 0
-    }
-
-    func handleGroupItemLongPress(_ group: Groups) {
-        selectedGroup = group
-        showActionSheet = true
     }
 
     func handleOptionSelection(with selection: OptionList) {

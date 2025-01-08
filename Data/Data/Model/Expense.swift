@@ -11,11 +11,11 @@ public struct Expense: Codable, Hashable, Identifiable {
 
     public var id: String? // Automatically generated ID by Firestore
 
-    public var groupId: String
+    public var groupId: String?
     public var name: String
     public var amount: Double
-    public var currencyCode: String
-    public var category: String
+    public var category: String? = "General"
+    public var currencyCode: String? = "INR"
     public var date: Timestamp
     public let addedBy: String
     public var updatedAt: Timestamp?
@@ -26,19 +26,19 @@ public struct Expense: Codable, Hashable, Identifiable {
     public var splitTo: [String] // Reference to user ids involved in the split
     public var splitData: [String: Double]? // User Id with the split amount based on the split type
     public var paidBy: [String: Double] // [userId: paid amount]
-    public var comments: [Comments]
-    public var participants: [String] // List of user ids, Used for searching expenses by user
+    public var comments: [Comments]? = [] // List of comments for the expense
+    public var participants: [String]? = [] // List of user ids, Used for searching expenses by user
     public var isActive: Bool
 
-    public init(groupId: String, name: String, amount: Double, currencyCode: String = "INR", category: String  = "General",
+    public init(groupId: String, name: String, amount: Double, category: String  = "General", currencyCode: String = "INR",
                 date: Timestamp, addedBy: String, updatedAt: Timestamp? = nil, updatedBy: String? = nil, note: String? = nil,
                 imageUrl: String? = nil, splitType: SplitType, splitTo: [String], splitData: [String: Double]? = nil,
                 paidBy: [String: Double], comments: [Comments] = [], participants: [String], isActive: Bool = true) {
         self.groupId = groupId
         self.name = name
         self.amount = amount
-        self.currencyCode = currencyCode
         self.category = category
+        self.currencyCode = currencyCode
         self.date = date
         self.addedBy = addedBy
         self.updatedAt = updatedAt

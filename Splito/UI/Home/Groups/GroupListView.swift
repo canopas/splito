@@ -117,7 +117,7 @@ struct GroupListView: View {
                 .presentationCornerRadius(24)
         }
         .fullScreenCover(isPresented: $viewModel.showAddExpenseSheet) {
-            ExpenseRouteView()
+            ExpenseRouteView(selectedGroupId: viewModel.selectedGroup?.id)
         }
         .fullScreenCover(isPresented: $viewModel.showCreateGroupSheet) {
             NavigationStack {

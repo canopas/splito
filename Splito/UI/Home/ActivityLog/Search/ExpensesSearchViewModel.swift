@@ -2,7 +2,7 @@
 //  ExpensesSearchViewModel.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 30/12/24.
+//  Created by Amisha Italiya on 30/12/24.
 //
 
 import Data
@@ -169,18 +169,16 @@ class ExpensesSearchViewModel: BaseViewModel, ObservableObject {
     }
 
     func fetchGroupBalance() {
-        withAnimation(.easeOut) { [weak self] in
+        withAnimation { [weak self] in
             guard let self else { return }
-            DispatchQueue.main.async {
-                self.viewState = self.expenses.isEmpty ? .noExpense : .hasExpense
-            }
+            self.viewState = self.expenses.isEmpty ? .noExpense : .hasExpense
         }
     }
 
     // MARK: - User Actions
     func handleExpenseItemTap(expense: Expense) {
-        if let expenseId = expense.id {
-            router.push(.ExpenseDetailView(groupId: expense.groupId, expenseId: expenseId))
+        if let expenseId = expense.id, let groupId = expense.groupId {
+            router.push(.ExpenseDetailView(groupId: groupId, expenseId: expenseId))
         }
     }
 
