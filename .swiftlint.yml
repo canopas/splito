@@ -13,5 +13,5 @@ disabled_rules: # rule identifiers to exclude from running
   - non_optional_string_data_conversion
   
 file_length:
-  warning: 500
-  error: 550
+  warning: 400
+  error: 500

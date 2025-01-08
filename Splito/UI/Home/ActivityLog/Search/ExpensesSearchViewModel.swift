@@ -13,17 +13,15 @@ class ExpensesSearchViewModel: BaseViewModel, ObservableObject {
 
     private let EXPENSES_LIMIT = 10
 
-    @Published private(set) var viewState: ViewState = .loading
-
     @Inject private var preference: SplitoPreference
     @Inject var expenseRepository: ExpenseRepository
     @Inject private var groupRepository: GroupRepository
 
-    @Published private(set) var hasMoreExpenses: Bool = true
-
     @Published var expenses: [Expense] = []
     @Published var expensesWithUser: [ExpenseWithUser] = []
-    @Published private(set) var groupExpenses: [String: [ExpenseWithUser]] = [:]
+    @Published var viewState: ViewState = .loading
+    @Published var groupExpenses: [String: [ExpenseWithUser]] = [:]
+    @Published private(set) var hasMoreExpenses: Bool = true
 
     @Published var searchedExpense: String = "" {
         didSet {
@@ -171,8 +169,11 @@ class ExpensesSearchViewModel: BaseViewModel, ObservableObject {
     }
 
     func fetchGroupBalance() {
-        withAnimation(.easeOut) {
-            viewState = expenses.isEmpty ? .noExpense : .hasExpense
+        withAnimation(.easeOut) { [weak self] in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                self.viewState = self.expenses.isEmpty ? .noExpense : .hasExpense
+            }
         }
     }
 

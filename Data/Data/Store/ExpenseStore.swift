@@ -67,8 +67,8 @@ public class ExpenseStore: ObservableObject {
         var remainingLimit = limit
         var lastDocumentId = lastDocument
 
-        // Split the activeGroupIds into chunks of 10
-        let chunks = activeGroupIds.chunked(into: 10)
+        // Split the activeGroupIds into chunks of 30
+        let chunks = activeGroupIds.chunked(into: 30)
 
         for chunk in chunks {
             if remainingLimit == 0 { break }
