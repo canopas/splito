@@ -57,9 +57,12 @@ struct GroupExpenseListView: View {
                                         ForEach(viewModel.groupExpenses[month] ?? [], id: \.expense.id) { expense in
                                             GroupExpenseItemView(expenseWithUser: expense,
                                                                  isLastItem: expense.expense == (viewModel.groupExpenses[month] ?? []).last?.expense)
-                                            .onTouchGesture {
-                                                viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
-                                            }
+                                            .contentShape(Rectangle())
+                                            .highPriorityGesture(
+                                                TapGesture().onEnded {
+                                                    viewModel.handleExpenseItemTap(expenseId: expense.expense.id ?? "")
+                                                }
+                                            )
                                             .id(expense.expense.id)
                                             .swipeActions {
                                                 Button {
@@ -90,8 +93,10 @@ struct GroupExpenseListView: View {
                                         .onAppear(perform: viewModel.loadMoreExpenses)
                                         .padding(.vertical, 8)
                                 }
+
+                                VSpacer(40)
                             } else if viewModel.groupExpenses.isEmpty && viewModel.showSearchBar {
-                                ExpenseNotFoundView(geometry: geometry, searchedExpense: viewModel.searchedExpense)
+                                ExpenseNotFoundView(minHeight: geometry.size.height - 280, searchedExpense: viewModel.searchedExpense)
                             }
                         }
                         .listRowSeparator(.hidden)
@@ -126,7 +131,7 @@ struct GroupExpenseListView: View {
     }
 }
 
-private struct GroupExpenseItemView: View {
+struct GroupExpenseItemView: View {
 
     @Inject var preference: SplitoPreference
 
@@ -363,9 +368,9 @@ private struct GroupExpenseMemberOweView: View {
     }
 }
 
-private struct ExpenseNotFoundView: View {
+struct ExpenseNotFoundView: View {
 
-    let geometry: GeometryProxy
+    let minHeight: CGFloat
     let searchedExpense: String
 
     var body: some View {
@@ -383,6 +388,6 @@ private struct ExpenseNotFoundView: View {
         .multilineTextAlignment(.center)
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, alignment: .center)
-        .frame(minHeight: geometry.size.height - 280, maxHeight: .infinity, alignment: .center)
+        .frame(minHeight: minHeight, maxHeight: .infinity, alignment: .center)
     }
 }

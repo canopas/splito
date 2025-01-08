@@ -12,44 +12,59 @@ public struct Groups: Codable, Identifiable {
     @DocumentID public var id: String? // Automatically generated ID by Firestore
 
     public var name: String
+    public var type: GroupType
     public var createdBy: String
     public var updatedBy: String?
     public var imageUrl: String?
     public var members: [String]
+    public var initialBalance: Double // for fund type group only
     public var balances: [GroupMemberBalance]
     public let createdAt: Timestamp
     public var updatedAt: Timestamp
     public var hasExpenses: Bool
+    public var defaultCurrency: String
     public var isActive: Bool
 
-    public init(name: String, createdBy: String, updatedBy: String? = nil, imageUrl: String? = nil,
-                members: [String], balances: [GroupMemberBalance], createdAt: Timestamp = Timestamp(),
-                updatedAt: Timestamp = Timestamp(), hasExpenses: Bool = false, isActive: Bool = true) {
+    public init(name: String, type: GroupType = .splitExpense, createdBy: String, updatedBy: String? = nil,
+                imageUrl: String? = nil, members: [String], initialBalance: Double = 0.0, balances: [GroupMemberBalance],
+                createdAt: Timestamp = Timestamp(), updatedAt: Timestamp = Timestamp(), hasExpenses: Bool = false,
+                currencyCode: String = "INR", isActive: Bool = true) {
         self.name = name
+        self.type = type
         self.createdBy = createdBy
         self.updatedBy = updatedBy
-        self.members = members
-        self.balances = balances
         self.imageUrl = imageUrl
+        self.members = members
+        self.initialBalance = initialBalance
+        self.balances = balances
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.hasExpenses = hasExpenses
+        self.defaultCurrency = currencyCode
         self.isActive = isActive
     }
 
     enum CodingKeys: String, CodingKey {
         case id
         case name
+        case type
         case createdBy = "created_by"
         case updatedBy = "updated_by"
         case members
         case balances
+        case initialBalance = "initial_balance"
         case imageUrl = "image_url"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
         case hasExpenses = "has_expenses"
+        case defaultCurrency = "default_currency"
         case isActive = "is_active"
     }
+}
+
+public enum GroupType: String, Codable {
+    case splitExpense = "split_expense"
+    case fund = "fund"
 }
 
 public struct GroupMemberBalance: Codable {

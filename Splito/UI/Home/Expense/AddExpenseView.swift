@@ -9,12 +9,17 @@ import SwiftUI
 import BaseStyle
 import Data
 
+private enum AddExpenseField {
+    case expenseName
+    case amount
+}
+
 struct AddExpenseView: View {
     @Environment(\.dismiss) var dismiss
 
     @StateObject var viewModel: AddExpenseViewModel
 
-    @FocusState private var focusedField: AddExpenseViewModel.AddExpenseField?
+    @FocusState private var focusedField: AddExpenseField?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -117,7 +122,7 @@ private struct ExpenseInfoView: View {
 
     @ObservedObject var viewModel: AddExpenseViewModel
 
-    var focusedField: FocusState<AddExpenseViewModel.AddExpenseField?>.Binding
+    var focusedField: FocusState<AddExpenseField?>.Binding
 
     @FocusState var isAmountFocused: Bool
 
@@ -149,12 +154,12 @@ private struct ExpenseInfoView: View {
 private struct ExpenseDetailRow: View {
 
     @Binding var name: String
-    var focusedField: FocusState<AddExpenseViewModel.AddExpenseField?>.Binding
+    var focusedField: FocusState<AddExpenseField?>.Binding
 
     let subtitle: String
     var inputValue: String = ""
     var showButton: Bool = false
-    var field: AddExpenseViewModel.AddExpenseField?
+    var field: AddExpenseField?
 
     var onTap: (() -> Void)?
 

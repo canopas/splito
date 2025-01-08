@@ -71,6 +71,7 @@ struct GroupListView: View {
         }
         .background(surfaceColor)
         .onDisappear { isFocused = false }
+        .onAppear { viewModel.refreshLoadedGroupsDetails() }
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)

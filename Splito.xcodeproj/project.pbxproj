@@ -27,6 +27,8 @@
 		21BA6D4A2C3BB63B0020ED04 /* ChooseMultiplePayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D492C3BB63B0020ED04 /* ChooseMultiplePayerView.swift */; };
 		21BA6D4D2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D4C2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift */; };
 		21BA6D4F2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D4E2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift */; };
+		21D4A2062D22CDD000C11322 /* ExpensesSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D4A2052D22CDD000C11322 /* ExpensesSearchView.swift */; };
+		21D4A2082D22CDF900C11322 /* ExpensesSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D4A2072D22CDF900C11322 /* ExpensesSearchViewModel.swift */; };
 		21D8CF3F2CFF080300463E4D /* EmailLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8CF3E2CFF080300463E4D /* EmailLoginView.swift */; };
 		21D8CF412CFF080F00463E4D /* EmailLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8CF402CFF080F00463E4D /* EmailLoginViewModel.swift */; };
 		21F27BDE2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F27BDD2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift */; };
@@ -60,6 +62,7 @@
 		D86BB33F2C05ED9D00463E6C /* MainRouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BB33E2C05ED9D00463E6C /* MainRouteViewModel.swift */; };
 		D88721452B9B2C78009DC5BE /* GroupListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721442B9B2C78009DC5BE /* GroupListView.swift */; };
 		D88721472B9B2C97009DC5BE /* GroupListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */; };
+		D888EA722D2BB41F0003284B /* ExpensesSearchRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D888EA712D2BB4180003284B /* ExpensesSearchRouteView.swift */; };
 		D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D889F5B82B7A521F008C6A43 /* SplashView.storyboard */; };
 		D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89684442B722D3400D5F721 /* SplitoApp.swift */; };
 		D89684492B722D3700D5F721 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D89684482B722D3700D5F721 /* Assets.xcassets */; };
@@ -173,6 +176,8 @@
 		21BA6D492C3BB63B0020ED04 /* ChooseMultiplePayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseMultiplePayerView.swift; sourceTree = "<group>"; };
 		21BA6D4C2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseMultiplePayerViewModel.swift; sourceTree = "<group>"; };
 		21BA6D4E2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoosePayerRouteView.swift; sourceTree = "<group>"; };
+		21D4A2052D22CDD000C11322 /* ExpensesSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesSearchView.swift; sourceTree = "<group>"; };
+		21D4A2072D22CDF900C11322 /* ExpensesSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesSearchViewModel.swift; sourceTree = "<group>"; };
 		21D8CF3E2CFF080300463E4D /* EmailLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLoginView.swift; sourceTree = "<group>"; };
 		21D8CF402CFF080F00463E4D /* EmailLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLoginViewModel.swift; sourceTree = "<group>"; };
 		21F27BDD2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseSplitOptionsTabView.swift; sourceTree = "<group>"; };
@@ -216,6 +221,7 @@
 		D86BB33E2C05ED9D00463E6C /* MainRouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainRouteViewModel.swift; sourceTree = "<group>"; };
 		D88721442B9B2C78009DC5BE /* GroupListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListView.swift; sourceTree = "<group>"; };
 		D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListViewModel.swift; sourceTree = "<group>"; };
+		D888EA712D2BB4180003284B /* ExpensesSearchRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesSearchRouteView.swift; sourceTree = "<group>"; };
 		D889F5B82B7A521F008C6A43 /* SplashView.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SplashView.storyboard; sourceTree = "<group>"; };
 		D89684412B722D3400D5F721 /* Splito.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Splito.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89684442B722D3400D5F721 /* SplitoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitoApp.swift; sourceTree = "<group>"; };
@@ -325,6 +331,7 @@
 				21559CAB2CBD25B30039F127 /* ActivityLogRouteView.swift */,
 				21559CA52CBD20FB0039F127 /* ActivityLogView.swift */,
 				21559CA82CBD211F0039F127 /* ActivityLogViewModel.swift */,
+				217E2F792D23D19F0085EB20 /* Search */,
 			);
 			path = ActivityLog;
 			sourceTree = "<group>";
@@ -347,6 +354,16 @@
 				2177692C2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift */,
 			);
 			path = "Transaction Detail";
+			sourceTree = "<group>";
+		};
+		217E2F792D23D19F0085EB20 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				D888EA712D2BB4180003284B /* ExpensesSearchRouteView.swift */,
+				21D4A2052D22CDD000C11322 /* ExpensesSearchView.swift */,
+				21D4A2072D22CDF900C11322 /* ExpensesSearchViewModel.swift */,
+			);
+			path = Search;
 			sourceTree = "<group>";
 		};
 		21BA6D4B2C3BB64B0020ED04 /* Payer */ = {
@@ -1044,6 +1061,7 @@
 				D8D14A692BA3133500F45FF2 /* OnboardRouteView.swift in Sources */,
 				21BA6D4A2C3BB63B0020ED04 /* ChooseMultiplePayerView.swift in Sources */,
 				D89DBE1F2B87327400E5F1BD /* SignInWithAppleDelegate.swift in Sources */,
+				D888EA722D2BB41F0003284B /* ExpensesSearchRouteView.swift in Sources */,
 				D83344712C0F2D7D00CD9F05 /* GroupPaymentViewModel.swift in Sources */,
 				21BA6D4D2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift in Sources */,
 				D85E86EF2BB41B9F002EDF76 /* SelectGroupViewModel.swift in Sources */,
@@ -1071,6 +1089,7 @@
 				D8D14A562BA189EC00F45FF2 /* JoinMemberView.swift in Sources */,
 				D89C933D2BC020B200FACD16 /* AccountHomeViewModel.swift in Sources */,
 				D8E244BD2B98444900C6C82A /* CreateGroupViewModel.swift in Sources */,
+				21D4A2062D22CDD000C11322 /* ExpensesSearchView.swift in Sources */,
 				D83344632C0EF1FA00CD9F05 /* GroupTotalsViewModel.swift in Sources */,
 				D8AC26F32B84B12800CEAAD3 /* OnboardView.swift in Sources */,
 				D8D6C3A02B79F8110023CF08 /* AppDelegate.swift in Sources */,
@@ -1092,6 +1111,7 @@
 				D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */,
 				21B1C09C2C1C5A050098B4FD /* GroupTransactionListViewModel.swift in Sources */,
 				214CF8492C2977E10044C188 /* CalculateExpensesFunctions.swift in Sources */,
+				21D4A2082D22CDF900C11322 /* ExpensesSearchViewModel.swift in Sources */,
 				213BA0602C0F465000116130 /* GroupSettleUpRouteView.swift in Sources */,
 				D8AC26F72B84B12800CEAAD3 /* LoginView.swift in Sources */,
 				210CC0382CF6DA7A0035682E /* AddNoteView.swift in Sources */,

@@ -11,52 +11,68 @@ public struct Expense: Codable, Hashable, Identifiable {
 
     public var id: String? // Automatically generated ID by Firestore
 
+    public var groupId: String
     public var name: String
     public var amount: Double
+    public var currencyCode: String
+    public var category: String
     public var date: Timestamp
-    public var updatedAt: Timestamp?
-    public var paidBy: [String: Double]
     public let addedBy: String
+    public var updatedAt: Timestamp?
     public var updatedBy: String?
     public var note: String?
     public var imageUrl: String?
-    public var splitTo: [String] // Reference to user ids involved in the split
     public var splitType: SplitType
-    public var splitData: [String: Double]? // Use this to store percentage or share data
+    public var splitTo: [String] // Reference to user ids involved in the split
+    public var splitData: [String: Double]? // User Id with the split amount based on the split type
+    public var paidBy: [String: Double] // [userId: paid amount]
+    public var comments: [Comments]
+    public var participants: [String] // List of user ids, Used for searching expenses by user
     public var isActive: Bool
 
-    public init(name: String, amount: Double, date: Timestamp, updatedAt: Timestamp? = nil, paidBy: [String: Double],
-                addedBy: String, updatedBy: String? = nil, note: String? = nil, imageUrl: String? = nil, splitTo: [String],
-                splitType: SplitType = .equally, splitData: [String: Double]? = [:], isActive: Bool = true) {
+    public init(groupId: String, name: String, amount: Double, currencyCode: String = "INR", category: String  = "General",
+                date: Timestamp, addedBy: String, updatedAt: Timestamp? = nil, updatedBy: String? = nil, note: String? = nil,
+                imageUrl: String? = nil, splitType: SplitType, splitTo: [String], splitData: [String: Double]? = nil,
+                paidBy: [String: Double], comments: [Comments] = [], participants: [String], isActive: Bool = true) {
+        self.groupId = groupId
         self.name = name
         self.amount = amount
+        self.currencyCode = currencyCode
+        self.category = category
         self.date = date
-        self.updatedAt = updatedAt
-        self.paidBy = paidBy
         self.addedBy = addedBy
+        self.updatedAt = updatedAt
         self.updatedBy = updatedBy
         self.note = note
         self.imageUrl = imageUrl
-        self.splitTo = splitTo
         self.splitType = splitType
+        self.splitTo = splitTo
         self.splitData = splitData
+        self.paidBy = paidBy
+        self.comments = comments
+        self.participants = participants
         self.isActive = isActive
     }
 
     enum CodingKeys: String, CodingKey {
         case id
+        case groupId = "group_id"
         case name
         case amount
+        case currencyCode = "currency_code"
+        case category
         case date
-        case updatedAt = "updated_at"
-        case paidBy = "paid_by"
         case addedBy = "added_by"
+        case updatedAt = "updated_at"
         case updatedBy = "updated_by"
-        case note = "note"
+        case note
         case imageUrl = "image_url"
-        case splitTo = "split_to"
         case splitType = "split_type"
+        case splitTo = "split_to"
         case splitData = "split_data"
+        case paidBy = "paid_by"
+        case comments
+        case participants
         case isActive = "is_active"
     }
 
@@ -64,6 +80,13 @@ public struct Expense: Codable, Hashable, Identifiable {
     public var formattedAmount: String {
         return amount.formattedCurrency
     }
+}
+
+public struct Comments: Codable, Hashable {
+    public var id: String
+    public var comment: String
+    public var commentedBy: String
+    public var commentedAt: Timestamp
 }
 
 extension Expense {

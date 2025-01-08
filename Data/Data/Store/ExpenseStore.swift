@@ -59,4 +59,46 @@ public class ExpenseStore: ObservableObject {
 
         return (expenses, snapshot.documents.last)
     }
+
+    func fetchExpensesOfAllGroups(userId: String, activeGroupIds: [String], limit: Int,
+                                  lastDocument: DocumentSnapshot?) async throws -> (expenses: [Expense], lastDocument: DocumentSnapshot?) {
+
+        var allExpenses: [Expense] = []
+        var remainingLimit = limit
+        var lastDocumentId = lastDocument
+
+        // Split the activeGroupIds into chunks of 30
+        let chunks = activeGroupIds.chunked(into: 30)
+
+        for chunk in chunks {
+            if remainingLimit == 0 { break }
+
+            var query = database.collectionGroup(SUB_COLLECTION_NAME)
+                .whereField("group_id", in: chunk)
+                .whereField("is_active", isEqualTo: true)
+                .whereField("participants", arrayContains: userId)
+                .order(by: "date", descending: true)
+                .limit(to: remainingLimit)
+
+            if let lastDocumentId {
+                query = query.start(afterDocument: lastDocumentId)
+            }
+
+            let snapshot = try await query.getDocuments(source: .server)
+            lastDocumentId = snapshot.documents.last
+            remainingLimit -= snapshot.documents.count
+
+            let expenses = snapshot.documents.compactMap { document in
+                do {
+                    return try document.data(as: Expense.self)
+                } catch {
+                    LogE("ExpenseStore: \(#function) Error decoding expense from document \(document.documentID): \(error.localizedDescription)")
+                    return nil
+                }
+            }
+            allExpenses.append(contentsOf: expenses)
+        }
+
+        return (allExpenses, lastDocumentId)
+    }
 }

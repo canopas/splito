@@ -92,4 +92,16 @@ class GroupStore: ObservableObject {
     func fetchGroupBy(id: String) async throws -> Groups? {
         return try await groupReference.document(id).getDocument(as: Groups.self, source: .server)
     }
+
+    func fetchUsersActiveGroups(userId: String) async throws -> [Groups] {
+        let query = groupReference
+            .whereField("is_active", isEqualTo: true)
+            .whereField("members", arrayContains: userId)
+
+        let snapshot = try await query.getDocuments(source: .server).documents
+
+        return try snapshot.map({ document in
+            try document.data(as: Groups.self)
+        })
+    }
 }

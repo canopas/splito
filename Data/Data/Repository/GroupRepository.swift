@@ -197,6 +197,10 @@ public class GroupRepository: ObservableObject {
         try await store.fetchGroupsBy(userId: userId, limit: limit, lastDocument: lastDocument)
     }
 
+    public func fetchUsersActiveGroups(userId: String) async throws -> [Groups] {
+        try await store.fetchUsersActiveGroups(userId: userId)
+    }
+
     public func fetchMemberBy(memberId: String) async throws -> AppUser? {
         try await userRepository.fetchUserBy(userID: memberId)
     }
