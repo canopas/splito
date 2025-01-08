@@ -88,13 +88,15 @@ public class ExpenseStore: ObservableObject {
             lastDocumentId = snapshot.documents.last
             remainingLimit -= snapshot.documents.count
 
-            do {
-                let expenses = try snapshot.documents.map { try $0.data(as: Expense.self) }
-                allExpenses.append(contentsOf: expenses)
-            } catch {
-                LogE("ExpenseStore: \(#function) Error decoding expense: \(error.localizedDescription)")
-                break
+            let expenses = snapshot.documents.compactMap { document in
+                do {
+                    return try document.data(as: Expense.self)
+                } catch {
+                    LogE("ExpenseStore: \(#function) Error decoding expense from document \(document.documentID): \(error.localizedDescription)")
+                    return nil
+                }
             }
+            allExpenses.append(contentsOf: expenses)
         }
 
         return (allExpenses, lastDocumentId)
