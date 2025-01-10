@@ -37,9 +37,7 @@ struct ActivityLogView: View {
         .alertView.alert(isPresented: $viewModel.showAlert, alertStruct: viewModel.alert)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text("Activity")
-                    .font(.Header2())
-                    .foregroundStyle(primaryText)
+                NavigationTitleTextView(text: "Activity")
             }
             ToolbarItem(placement: .topBarTrailing) {
                 ToolbarButtonView(systemImageName: "magnifyingglass", onClick: viewModel.handleSearchButtonTap)

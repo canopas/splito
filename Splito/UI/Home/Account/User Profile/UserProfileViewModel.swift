@@ -107,6 +107,7 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
         case .remove:
             profileImage = nil
             profileImageUrl = nil
+        case .removeAll: break
         }
     }
 

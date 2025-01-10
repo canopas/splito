@@ -21,6 +21,8 @@ struct AccountRouteView: View {
             case .AccountHomeView:
                 AccountHomeView(viewModel: AccountHomeViewModel(router: appRoute))
                     .onAppear { isTabBarVisible = true }
+            case .FeedbackView:
+                FeedbackView(viewModel: FeedbackViewModel(router: appRoute))
             case .ProfileView:
                 UserProfileView(viewModel: UserProfileViewModel(router: appRoute, isOpenFromOnboard: false, onDismiss: nil))
                     .onAppear { isTabBarVisible = false }

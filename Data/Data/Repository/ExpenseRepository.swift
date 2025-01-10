@@ -51,7 +51,7 @@ public class ExpenseRepository: ObservableObject {
             updatedExpense.imageUrl = uploadedImageUrl
         } else if let currentUrl = updatedExpense.imageUrl, newImageUrl == nil {
             // If there's a current image URL and we want to remove it, delete the image and set imageUrl empty
-            try await storageManager.deleteImage(imageUrl: currentUrl)
+            try await storageManager.deleteAttachment(attachmentUrl: currentUrl)
             updatedExpense.imageUrl = ""
         } else if let newImageUrl {
             // If a new image URL is explicitly passed, update it
@@ -64,7 +64,7 @@ public class ExpenseRepository: ObservableObject {
 
     private func uploadImage(imageData: Data, expense: Expense) async throws -> String {
         guard let expenseId = expense.id else { return "" }
-        return try await storageManager.uploadImage(for: .expense, id: expenseId, imageData: imageData) ?? ""
+        return try await storageManager.uploadAttachment(for: .expense, id: expenseId, attachmentData: imageData) ?? ""
     }
 
     private func hasExpenseChanged(_ expense: Expense, oldExpense: Expense) -> Bool {

@@ -39,3 +39,10 @@ public extension UIImage {
         }
     }
 }
+
+// Converts the UIImage to JPEG data with the highest quality
+public extension UIImage {
+    var jpegRepresentationData: Data? {
+        self.jpegData(compressionQuality: 1.0)
+    }
+}

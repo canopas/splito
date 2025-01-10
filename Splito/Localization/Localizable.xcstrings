@@ -165,6 +165,9 @@
     "Add an expense to get this party started." : {
       "extractionState" : "manual"
     },
+    "Add attachment" : {
+
+    },
     "Add expense" : {
 
     },
@@ -271,13 +274,10 @@
     "Choose date" : {
       "extractionState" : "manual"
     },
-    "Choose from Library" : {
+    "Choose mode\nPlease choose your preferred mode to includes attachment with feedback" : {
 
     },
     "Contact Support" : {
-      "extractionState" : "manual"
-    },
-    "Contact Us" : {
       "extractionState" : "manual"
     },
     "Continue your journey" : {
@@ -329,9 +329,6 @@
       "extractionState" : "manual"
     },
     "Email sent" : {
-      "extractionState" : "manual"
-    },
-    "Email sent successfully!" : {
       "extractionState" : "manual"
     },
     "Enter a description" : {
@@ -508,6 +505,9 @@
     "Looks like there are no outstanding settlements in any of your groups yet." : {
 
     },
+    "Maximum %@ attachments allowed." : {
+      "extractionState" : "manual"
+    },
     "min ago" : {
       "extractionState" : "manual"
     },
@@ -652,9 +652,6 @@
     "recorded a payment from" : {
       "extractionState" : "manual"
     },
-    "Remove" : {
-
-    },
     "Remove from group" : {
 
     },
@@ -790,11 +787,14 @@
     "Stay In Touch" : {
 
     },
+    "Submit" : {
+      "extractionState" : "manual"
+    },
     "Success" : {
       "extractionState" : "manual"
     },
-    "Take a picture" : {
-
+    "Thanks! your feedback has been recorded." : {
+      "extractionState" : "manual"
     },
     "The amounts do not add up to the total cost of %@. You are %@ by %@." : {
       "extractionState" : "manual"
@@ -823,6 +823,9 @@
     "The group associated with this payment has been deleted, so it cannot be restored." : {
       "extractionState" : "manual"
     },
+    "The image size exceeds the maximum allowed limit. Please select a smaller image." : {
+      "extractionState" : "manual"
+    },
     "The payment values do not add up to the total cost of ₹ %@. You are short by ₹ %@." : {
       "extractionState" : "manual"
     },
@@ -833,6 +836,9 @@
       "extractionState" : "manual"
     },
     "The total of everyone's paid shares (₹%@) is different than the total cost (₹%@)" : {
+      "extractionState" : "manual"
+    },
+    "The video size exceeds the maximum allowed limit. Please select a smaller video." : {
       "extractionState" : "manual"
     },
     "There are no groups available to search." : {
@@ -888,6 +894,9 @@
     },
     "Time to settle up! Track shared expenses and split them in seconds." : {
       "extractionState" : "manual"
+    },
+    "Title" : {
+
     },
     "to" : {
       "extractionState" : "manual"
@@ -1017,9 +1026,6 @@
     },
     "Your %@ spending" : {
 
-    },
-    "Your device cannot send email." : {
-      "extractionState" : "manual"
     },
     "Your first name must be at least 3 characters long." : {
       "extractionState" : "manual"

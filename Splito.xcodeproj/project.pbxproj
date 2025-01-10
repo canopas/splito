@@ -17,6 +17,8 @@
 		21559CA92CBD211F0039F127 /* ActivityLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CA82CBD211F0039F127 /* ActivityLogViewModel.swift */; };
 		21559CAC2CBD25B30039F127 /* ActivityLogRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CAB2CBD25B30039F127 /* ActivityLogRouteView.swift */; };
 		2156A8B02C24069800CFAB64 /* GroupTransactionsRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2156A8AF2C24069800CFAB64 /* GroupTransactionsRouteView.swift */; };
+		2163D3A92D265A7D004B4F20 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2163D3A82D265A7D004B4F20 /* FeedbackView.swift */; };
+		2163D3AB2D265A8C004B4F20 /* FeedbackViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2163D3AA2D265A8C004B4F20 /* FeedbackViewModel.swift */; };
 		217620482C50DD6300FED0D4 /* GroupListWithDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 217620472C50DD6300FED0D4 /* GroupListWithDetailView.swift */; };
 		2177692B2C203160009B3B37 /* GroupTransactionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2177692A2C203160009B3B37 /* GroupTransactionDetailView.swift */; };
 		2177692D2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2177692C2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift */; };
@@ -165,6 +167,8 @@
 		21559CA82CBD211F0039F127 /* ActivityLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLogViewModel.swift; sourceTree = "<group>"; };
 		21559CAB2CBD25B30039F127 /* ActivityLogRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLogRouteView.swift; sourceTree = "<group>"; };
 		2156A8AF2C24069800CFAB64 /* GroupTransactionsRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionsRouteView.swift; sourceTree = "<group>"; };
+		2163D3A82D265A7D004B4F20 /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackView.swift; sourceTree = "<group>"; };
+		2163D3AA2D265A8C004B4F20 /* FeedbackViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackViewModel.swift; sourceTree = "<group>"; };
 		217620472C50DD6300FED0D4 /* GroupListWithDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListWithDetailView.swift; sourceTree = "<group>"; };
 		2177692A2C203160009B3B37 /* GroupTransactionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionDetailView.swift; sourceTree = "<group>"; };
 		2177692C2C20316B009B3B37 /* GroupTransactionDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTransactionDetailViewModel.swift; sourceTree = "<group>"; };
@@ -345,6 +349,15 @@
 				2177692E2C206678009B3B37 /* Transaction Detail */,
 			);
 			path = Settlements;
+			sourceTree = "<group>";
+		};
+		2163D3AC2D265A90004B4F20 /* Feedback */ = {
+			isa = PBXGroup;
+			children = (
+				2163D3A82D265A7D004B4F20 /* FeedbackView.swift */,
+				2163D3AA2D265A8C004B4F20 /* FeedbackViewModel.swift */,
+			);
+			path = Feedback;
 			sourceTree = "<group>";
 		};
 		2177692E2C206678009B3B37 /* Transaction Detail */ = {
@@ -664,6 +677,7 @@
 				D89DBE5E2B8DE98600E5F1BD /* AccountRouteView.swift */,
 				D89C933A2BC0204100FACD16 /* AccountHomeView.swift */,
 				D89C933C2BC020B200FACD16 /* AccountHomeViewModel.swift */,
+				2163D3AC2D265A90004B4F20 /* Feedback */,
 				D8D14A632BA2DD5C00F45FF2 /* User Profile */,
 			);
 			path = Account;
@@ -1117,10 +1131,12 @@
 				210CC0382CF6DA7A0035682E /* AddNoteView.swift in Sources */,
 				D8CD952E2BD65F4500407B47 /* ExpenseSplitOptionsViewModel.swift in Sources */,
 				D85E86E32BAB06D9002EDF76 /* AddExpenseViewModel.swift in Sources */,
+				2163D3AB2D265A8C004B4F20 /* FeedbackViewModel.swift in Sources */,
 				D8A7CA702BA484370014EC67 /* GroupSettingView.swift in Sources */,
 				D8A7CA722BA486250014EC67 /* GroupSettingViewModel.swift in Sources */,
 				D833445A2C0DD08400CD9F05 /* GroupSettleUpViewModel.swift in Sources */,
 				D85E86EB2BB3FD59002EDF76 /* ChoosePayerViewModel.swift in Sources */,
+				2163D3A92D265A7D004B4F20 /* FeedbackView.swift in Sources */,
 				21B1C09A2C1C59F10098B4FD /* GroupTransactionListView.swift in Sources */,
 				D89DBE5B2B8DE97000E5F1BD /* GroupRouteView.swift in Sources */,
 				D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */,
