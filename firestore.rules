@@ -45,16 +45,14 @@ service cloud.firestore {
     // For Groups Collection
     match /groups/{groupId} {
       allow read: if isAuthorized() &&
-                     resource.data.members.hasAny([request.auth.uid]);
+                  resource.data.members.hasAny([request.auth.uid]);
       
       allow create: if isAuthorized() &&
-      				      isCurrentUser(request.resource.data.created_by);
+      		    isCurrentUser(request.resource.data.created_by);
       
       allow update: if isAuthorized() &&
-                    (resource.data.members.hasAny([request.auth.uid]) ||
-                      (!resource.data.members.hasAny([request.auth.uid]) && 
-                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(["members"])
-                      )
+                    (!resource.data.members.hasAny([request.auth.uid]) &&
+			request.resource.data.diff(resource.data).affectedKeys().hasOnly(["members"])
                     )
                     || request.resource.data.keys().hasAny(["updated_at", "updated_by"]);
       
