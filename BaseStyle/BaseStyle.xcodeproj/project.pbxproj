@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		211BCF222D2C071A001F4679 /* MultiMediaSelectionPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 211BCF212D2C071A001F4679 /* MultiMediaSelectionPickerView.swift */; };
 		213A1F2A2C52335D00BF9800 /* CheckmarkButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213A1F292C52335D00BF9800 /* CheckmarkButton.swift */; };
 		213F377E2C416C9C00972316 /* ScrollToTopButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213F377D2C416C9C00972316 /* ScrollToTopButton.swift */; };
+		2163D3B82D27B2FD004B4F20 /* MediaPickerOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2163D3B72D27B2FD004B4F20 /* MediaPickerOptionsView.swift */; };
 		217620462C4F7CE700FED0D4 /* BackButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 217620452C4F7CE700FED0D4 /* BackButton.swift */; };
 		2176204A2C521EDF00FED0D4 /* RadioButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 217620492C521EDF00FED0D4 /* RadioButton.swift */; };
 		219F43D92CCA4A7000729C67 /* RestoreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 219F43D82CCA4A7000729C67 /* RestoreButton.swift */; };
@@ -27,7 +29,6 @@
 		D8302D9C2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8302D9B2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift */; };
 		D887213F2B99992A009DC5BE /* LoaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D887213E2B99992A009DC5BE /* LoaderViewModel.swift */; };
 		D89C933F2BC3C0F800FACD16 /* ForwardIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89C933E2BC3C0F800FACD16 /* ForwardIcon.swift */; };
-		D89C93462BC42DE500FACD16 /* MailComposeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89C93452BC42DE500FACD16 /* MailComposeView.swift */; };
 		D89DBE332B888F2D00E5F1BD /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE322B888F2D00E5F1BD /* SearchBar.swift */; };
 		D89DBE352B88A05F00E5F1BD /* UIApplication+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE342B88A05F00E5F1BD /* UIApplication+Extension.swift */; };
 		D89DBE3E2B8C67CE00E5F1BD /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89DBE3D2B8C67CE00E5F1BD /* String+Extension.swift */; };
@@ -69,8 +70,10 @@
 
 /* Begin PBXFileReference section */
 		174198EE4AF2FC82DADEB060 /* Pods_BaseStyle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BaseStyle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		211BCF212D2C071A001F4679 /* MultiMediaSelectionPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiMediaSelectionPickerView.swift; sourceTree = "<group>"; };
 		213A1F292C52335D00BF9800 /* CheckmarkButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckmarkButton.swift; sourceTree = "<group>"; };
 		213F377D2C416C9C00972316 /* ScrollToTopButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollToTopButton.swift; sourceTree = "<group>"; };
+		2163D3B72D27B2FD004B4F20 /* MediaPickerOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerOptionsView.swift; sourceTree = "<group>"; };
 		217620452C4F7CE700FED0D4 /* BackButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButton.swift; sourceTree = "<group>"; };
 		217620492C521EDF00FED0D4 /* RadioButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioButton.swift; sourceTree = "<group>"; };
 		219F43D82CCA4A7000729C67 /* RestoreButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreButton.swift; sourceTree = "<group>"; };
@@ -90,7 +93,6 @@
 		D8302D9B2B9EE1D2005ACA13 /* PrimaryFloatingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryFloatingButton.swift; sourceTree = "<group>"; };
 		D887213E2B99992A009DC5BE /* LoaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoaderViewModel.swift; path = BaseStyle/Views/LoaderViewModel.swift; sourceTree = SOURCE_ROOT; };
 		D89C933E2BC3C0F800FACD16 /* ForwardIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForwardIcon.swift; sourceTree = "<group>"; };
-		D89C93452BC42DE500FACD16 /* MailComposeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailComposeView.swift; sourceTree = "<group>"; };
 		D89DBE322B888F2D00E5F1BD /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		D89DBE342B88A05F00E5F1BD /* UIApplication+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+Extension.swift"; sourceTree = "<group>"; };
 		D89DBE3D2B8C67CE00E5F1BD /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
@@ -303,9 +305,10 @@
 				D89DBE322B888F2D00E5F1BD /* SearchBar.swift */,
 				D8D42AAF2B872E44009B345D /* LoaderView.swift */,
 				D8D14A4F2BA090F000F45FF2 /* ShareSheetView.swift */,
-				D89C93452BC42DE500FACD16 /* MailComposeView.swift */,
 				D82174BD2BBAD86D00DB42C3 /* ProfileImageView.swift */,
 				D8E244C02B986CD800C6C82A /* ImagePickerView.swift */,
+				211BCF212D2C071A001F4679 /* MultiMediaSelectionPickerView.swift */,
+				2163D3B72D27B2FD004B4F20 /* MediaPickerOptionsView.swift */,
 			);
 			path = CustomUI;
 			sourceTree = "<group>";
@@ -515,12 +518,13 @@
 				D8D42AAC2B872A7C009B345D /* ToastView.swift in Sources */,
 				217620462C4F7CE700FED0D4 /* BackButton.swift in Sources */,
 				D8EB5E952CF8B12B005B68D9 /* ZoomableImageView.swift in Sources */,
+				211BCF222D2C071A001F4679 /* MultiMediaSelectionPickerView.swift in Sources */,
 				D8D42A952B85F8A2009B345D /* Bundle+Extension.swift in Sources */,
 				21D26E232CA199630090488B /* CapsuleButton.swift in Sources */,
-				D89C93462BC42DE500FACD16 /* MailComposeView.swift in Sources */,
 				213A1F2A2C52335D00BF9800 /* CheckmarkButton.swift in Sources */,
 				D8E244C12B986CD800C6C82A /* ImagePickerView.swift in Sources */,
 				D8D42A862B85D08F009B345D /* Font+Extension.swift in Sources */,
+				2163D3B82D27B2FD004B4F20 /* MediaPickerOptionsView.swift in Sources */,
 				D8EB0ED82CAD8C9F00AC6A44 /* ErrorView.swift in Sources */,
 				D8D42A992B870961009B345D /* AlertPrompt.swift in Sources */,
 				2176204A2C521EDF00FED0D4 /* RadioButton.swift in Sources */,

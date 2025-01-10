@@ -14,6 +14,7 @@ public class StorageManager: ObservableObject {
         case group
         case expense
         case payment
+        case feedback
 
         var pathName: String {
             switch self {
@@ -25,42 +26,58 @@ public class StorageManager: ObservableObject {
                 "expense_images"
             case .payment:
                 "payment_images"
+            case .feedback:
+                "feedback_attachments"
+            }
+        }
+    }
+
+    public enum AttachmentType {
+        case image
+        case video
+
+        var contentType: String {
+            switch self {
+            case .image:
+                return "image/jpg"
+            case .video:
+                return "video/mp4"
             }
         }
     }
 
     private let storage = Storage.storage()
 
-    public func uploadImage(for storeType: ImageStoreType, id: String, imageData: Data) async throws -> String? {
+    public func uploadAttachment(for storeType: ImageStoreType, id: String, attachmentData: Data, attachmentType: AttachmentType = .image) async throws -> String? {
         let storageRef = storage.reference(withPath: "/\(storeType.pathName)/\(id)")
 
         let metadata = StorageMetadata()
-        metadata.contentType = "image/jpg"
+        metadata.contentType = attachmentType.contentType
 
         do {
-            // Upload the image data asynchronously
-            _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
+            // Upload the attachment data asynchronously
+            _ = try await storageRef.putDataAsync(attachmentData, metadata: metadata)
 
             // Retrieve the download URL asynchronously
-            let imageUrl = try await storageRef.downloadURL().absoluteString
-            LogD("StorageManager: \(#function) Image successfully uploaded to Firebase.")
-            return imageUrl
+            let attachmentUrl = try await storageRef.downloadURL().absoluteString
+            LogD("StorageManager: \(#function) Attachment successfully uploaded to Firebase.")
+            return attachmentUrl
         } catch {
-            LogE("StorageManager: \(#function) Failed to upload image: \(error).")
+            LogE("StorageManager: \(#function) Failed to upload attachment: \(error).")
             throw error
         }
     }
 
     public func updateImage(for type: ImageStoreType, id: String, url: String, imageData: Data) async throws -> String? {
-        try await deleteImage(imageUrl: url)
+        try await deleteAttachment(attachmentUrl: url)
 
         // Upload the new image asynchronously
-        return try await uploadImage(for: type, id: id, imageData: imageData)
+        return try await uploadAttachment(for: type, id: id, attachmentData: imageData)
     }
 
-    public func deleteImage(imageUrl: String) async throws {
+    public func deleteAttachment(attachmentUrl: String) async throws {
         do {
-            let storageRef = storage.reference(forURL: imageUrl)
+            let storageRef = storage.reference(forURL: attachmentUrl)
             try await storageRef.delete()
             LogD("StorageManager: \(#function) Image deleted successfully.")
         } catch {

@@ -33,4 +33,5 @@ public let disableText = Color.disableText
 public let inverseDisableText = Color.inverseDisableText
 
 public let secondaryText = Color.secondaryText
+public let secondaryLightText = Color.secondaryLightText
 public let lowestText = Color.lowestText

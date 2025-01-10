@@ -58,7 +58,7 @@ public class GroupRepository: ObservableObject {
             updatedGroup.imageUrl = uploadedImageUrl
         } else if let currentUrl = group.imageUrl, newImageUrl == nil {
             // If there's a current image URL and we want to remove it, delete the image and set imageUrl empty
-            try await storageManager.deleteImage(imageUrl: currentUrl)
+            try await storageManager.deleteAttachment(attachmentUrl: currentUrl)
             updatedGroup.imageUrl = ""
         } else if let newImageUrl = newImageUrl {
             // If a new image URL is explicitly passed, update it
@@ -83,7 +83,7 @@ public class GroupRepository: ObservableObject {
         guard let groupId = group.id else { return "" }
 
         // Upload the image and get the image URL
-        return try await storageManager.uploadImage(for: .group, id: groupId, imageData: imageData) ?? ""
+        return try await storageManager.uploadAttachment(for: .group, id: groupId, attachmentData: imageData) ?? ""
     }
 
     public func addMemberToGroup(groupId: String, memberId: String) async throws {

@@ -211,10 +211,11 @@ extension AddExpenseViewModel {
             sourceTypeIsCamera = false
             showImagePicker = true
         case .remove:
-            withAnimation {
-                expenseImage = nil
-                expenseImageUrl = nil
+            withAnimation { [weak self] in
+                self?.expenseImage = nil
+                self?.expenseImageUrl = nil
             }
+        case .removeAll: break
         }
     }
 

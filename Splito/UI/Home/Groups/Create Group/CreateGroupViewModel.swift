@@ -6,7 +6,6 @@
 //
 
 import Data
-import UIKit
 import BaseStyle
 import AVFoundation
 import FirebaseFirestore
@@ -79,6 +78,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         case .remove:
             profileImage = nil
             profileImageUrl = nil
+        case .removeAll: break
         }
     }
 
@@ -150,11 +150,4 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
         let imageData = resizedImage?.jpegData(compressionQuality: 0.2)
         return imageData
     }
-}
-
-// MARK: - Image Picker Action sheet
-enum ActionsOfSheet {
-    case camera
-    case gallery
-    case remove
 }

@@ -61,6 +61,10 @@ public class AppAssembly: Assembly {
             TransactionStore.init()
         }.inObjectScope(.container)
 
+        container.register(FeedbackStore.self) { _ in
+            FeedbackStore.init()
+        }.inObjectScope(.container)
+
         // MARK: - Repositories
 
         container.register(UserRepository.self) { _ in
@@ -85,6 +89,10 @@ public class AppAssembly: Assembly {
 
         container.register(TransactionRepository.self) { _ in
             TransactionRepository.init()
+        }.inObjectScope(.container)
+
+        container.register(FeedbackRepository.self) { _ in
+            FeedbackRepository.init()
         }.inObjectScope(.container)
 
         container.register(DeepLinkManager.self) { _ in

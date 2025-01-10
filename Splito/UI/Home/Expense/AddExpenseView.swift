@@ -232,7 +232,7 @@ struct AddNoteImageFooterView: View {
 
             ImageAttachmentView(image: image, imageUrl: imageUrl, handleImageBtnTap: handleImageTap)
                 .confirmationDialog("", isPresented: $showImagePickerOptions, titleVisibility: .hidden) {
-                    ImagePickerOptionsView(image: image, imageUrl: imageUrl, handleActionSelection: handleActionSelection)
+                    MediaPickerOptionsView(image: image, imageUrl: imageUrl, handleActionSelection: handleActionSelection)
                 }
 
             NoteButtonView(isNoteEmpty: isNoteEmpty, handleNoteBtnTap: handleNoteBtnTap)

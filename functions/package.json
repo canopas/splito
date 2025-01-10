@@ -16,6 +16,8 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "@aws-sdk/client-ses": "^3.721.0",
+    "dotenv": "^16.4.7",
     "firebase-admin": "^12.7.0",
     "firebase-functions": "^6.2.0",
     "lodash": "^4.17.21"

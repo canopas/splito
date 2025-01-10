@@ -11,6 +11,10 @@
 		21559CA42CBD05570039F127 /* ActivityLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CA32CBD05570039F127 /* ActivityLog.swift */; };
 		21559CAE2CBD2AED0039F127 /* ActivityLogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CAD2CBD2AED0039F127 /* ActivityLogStore.swift */; };
 		21559CB02CBD2B400039F127 /* ActivityLogRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21559CAF2CBD2B400039F127 /* ActivityLogRepository.swift */; };
+		2163D3B02D265C25004B4F20 /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2163D3AF2D265C25004B4F20 /* Feedback.swift */; };
+		2163D3B22D265CF9004B4F20 /* DeviceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2163D3B12D265CF9004B4F20 /* DeviceInfo.swift */; };
+		2163D3B42D269E17004B4F20 /* FeedbackStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2163D3B32D269E17004B4F20 /* FeedbackStore.swift */; };
+		2163D3B62D269E2A004B4F20 /* FeedbackRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2163D3B52D269E2A004B4F20 /* FeedbackRepository.swift */; };
 		21CF56512D1E804000B47A6D /* DeepLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21CF56502D1E804000B47A6D /* DeepLinkManager.swift */; };
 		21D8D0832C0857F10061B365 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8D0822C0857F10061B365 /* Constants.swift */; };
 		64E499C5CFAEA368EC21313F /* Pods_DataTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */; };
@@ -71,6 +75,10 @@
 		21559CA32CBD05570039F127 /* ActivityLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLog.swift; sourceTree = "<group>"; };
 		21559CAD2CBD2AED0039F127 /* ActivityLogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLogStore.swift; sourceTree = "<group>"; };
 		21559CAF2CBD2B400039F127 /* ActivityLogRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLogRepository.swift; sourceTree = "<group>"; };
+		2163D3AF2D265C25004B4F20 /* Feedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feedback.swift; sourceTree = "<group>"; };
+		2163D3B12D265CF9004B4F20 /* DeviceInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceInfo.swift; sourceTree = "<group>"; };
+		2163D3B32D269E17004B4F20 /* FeedbackStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackStore.swift; sourceTree = "<group>"; };
+		2163D3B52D269E2A004B4F20 /* FeedbackRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackRepository.swift; sourceTree = "<group>"; };
 		21CF56502D1E804000B47A6D /* DeepLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkManager.swift; sourceTree = "<group>"; };
 		21D8D0822C0857F10061B365 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		5B14CF1A2EEF27479BF50566 /* Pods-DataTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DataTests.debug.xcconfig"; path = "Target Support Files/Pods-DataTests/Pods-DataTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -180,6 +188,7 @@
 				D8CF5A242C199ADB0014E3AD /* TransactionRepository.swift */,
 				21559CAF2CBD2B400039F127 /* ActivityLogRepository.swift */,
 				D8D14A532BA092F400F45FF2 /* ShareCodeRepository.swift */,
+				2163D3B52D269E2A004B4F20 /* FeedbackRepository.swift */,
 			);
 			path = Repository;
 			sourceTree = "<group>";
@@ -193,6 +202,7 @@
 				D8CF5A202C1986250014E3AD /* Transaction.swift */,
 				21559CA32CBD05570039F127 /* ActivityLog.swift */,
 				D8D14A512BA0917D00F45FF2 /* SharedCode.swift */,
+				2163D3AF2D265C25004B4F20 /* Feedback.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -202,6 +212,7 @@
 			children = (
 				D89DBE2A2B88817E00E5F1BD /* JSONUtils.swift */,
 				21D8D0822C0857F10061B365 /* Constants.swift */,
+				2163D3B12D265CF9004B4F20 /* DeviceInfo.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -231,9 +242,9 @@
 				D8A7CA7F2BA867F80014EC67 /* String+Extension.swift */,
 				D89C934D2BC694C200FACD16 /* Double+Extension.swift */,
 				D826C0DE2BDA95C900AAA449 /* Timestamp+Extension.swift */,
+				213D0CC92C89DBC800D65C73 /* Notification+Extension.swift */,
 				D8613F672BFDECC4008BD53D /* Query+Extension.swift */,
 				D83D72EB2C8B23FB007BAAA9 /* DocumentReference+Extension.swift */,
-				213D0CC92C89DBC800D65C73 /* Notification+Extension.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -248,6 +259,7 @@
 				D8CF5A222C1989630014E3AD /* TransactionStore.swift */,
 				21559CAD2CBD2AED0039F127 /* ActivityLogStore.swift */,
 				D8A7CA7A2BA5B6AC0014EC67 /* ShareCodeStore.swift */,
+				2163D3B32D269E17004B4F20 /* FeedbackStore.swift */,
 			);
 			path = Store;
 			sourceTree = "<group>";
@@ -533,10 +545,12 @@
 				21CF56512D1E804000B47A6D /* DeepLinkManager.swift in Sources */,
 				D865F8AE2BD7CB0B0084BD36 /* Array+Extension.swift in Sources */,
 				21559CB02CBD2B400039F127 /* ActivityLogRepository.swift in Sources */,
+				2163D3B22D265CF9004B4F20 /* DeviceInfo.swift in Sources */,
 				D89DBE2B2B88817E00E5F1BD /* JSONUtils.swift in Sources */,
 				21559CA42CBD05570039F127 /* ActivityLog.swift in Sources */,
 				D8A7CA802BA867F80014EC67 /* String+Extension.swift in Sources */,
 				D89BC2802D1C3DB200CDE86B /* DateTimeHelper.swift in Sources */,
+				2163D3B02D265C25004B4F20 /* Feedback.swift in Sources */,
 				213D0CCA2C89DBC800D65C73 /* Notification+Extension.swift in Sources */,
 				D895F2282CA297B900C2E4EB /* NetworkManager.swift in Sources */,
 				D8910E382BB6D1D300877CE0 /* ExpenseStore.swift in Sources */,
@@ -544,6 +558,7 @@
 				D83D72EC2C8B23FB007BAAA9 /* DocumentReference+Extension.swift in Sources */,
 				D89C934C2BC68D9000FACD16 /* Date+Extension.swift in Sources */,
 				D826C0DF2BDA95C900AAA449 /* Timestamp+Extension.swift in Sources */,
+				2163D3B62D269E2A004B4F20 /* FeedbackRepository.swift in Sources */,
 				D83B15092B999789004A5F4F /* GroupRepository.swift in Sources */,
 				D89DBE532B8DC9F700E5F1BD /* AppRoute.swift in Sources */,
 				D8A7CA752BA5AB670014EC67 /* UserStore.swift in Sources */,
@@ -555,6 +570,7 @@
 				D89DBE1D2B872F0B00E5F1BD /* NonceGenerator.swift in Sources */,
 				D85E86DE2BAB0292002EDF76 /* Expense.swift in Sources */,
 				D8D42AA92B872726009B345D /* DDLogProvider.swift in Sources */,
+				2163D3B42D269E17004B4F20 /* FeedbackStore.swift in Sources */,
 				21559CAE2CBD2AED0039F127 /* ActivityLogStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

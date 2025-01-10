@@ -120,29 +120,8 @@ private struct AddGroupImageView: View {
         .padding(.horizontal, 16)
         .onTapGesture(perform: handleProfileTap)
         .confirmationDialog("", isPresented: $showImagePickerOptions, titleVisibility: .hidden) {
-            ImagePickerOptionsView(image: image, imageUrl: imageUrl, handleActionSelection: handleActionSelection)
-        }
-    }
-}
-
-struct ImagePickerOptionsView: View {
-
-    let image: UIImage?
-    let imageUrl: String?
-
-    let handleActionSelection: (ActionsOfSheet) -> Void
-
-    var body: some View {
-        Button("Take a picture") {
-            handleActionSelection(.camera)
-        }
-        Button("Choose from Library") {
-            handleActionSelection(.gallery)
-        }
-        if image != nil || (imageUrl != nil && !(imageUrl?.isEmpty ?? false)) {
-            Button("Remove", role: .destructive) {
-                handleActionSelection(.remove)
-            }
+            MediaPickerOptionsView(image: image, imageUrl: imageUrl,
+                                   handleActionSelection: handleActionSelection)
         }
     }
 }
