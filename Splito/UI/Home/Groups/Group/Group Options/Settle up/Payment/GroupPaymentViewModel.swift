@@ -236,6 +236,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         if let transaction {
             var newTransaction = transaction
             newTransaction.amount = amount
+            newTransaction.currencyCode = "INR"
             newTransaction.date = .init(date: paymentDate)
             newTransaction.payerId = payerId
             newTransaction.receiverId = receiverId
@@ -246,9 +247,9 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
             return await updateTransaction(transaction: newTransaction, oldTransaction: transaction)
         } else {
-            let transaction = Transactions(payerId: payerId, receiverId: receiverId, addedBy: userId,
-                                           note: paymentNote, reason: paymentReason,
-                                           amount: amount, date: .init(date: paymentDate))
+            let transaction = Transactions(payerId: payerId, receiverId: receiverId, date: .init(date: paymentDate),
+                                           addedBy: userId, amount: amount, currencyCode: "INR", note: paymentNote,
+                                           reason: paymentReason)
             return await addTransaction(transaction: transaction)
         }
     }

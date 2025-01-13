@@ -85,6 +85,15 @@ public struct GroupMemberBalance: Codable {
     }
 }
 
+// public struct GroupMemberBalance: Codable {
+//    public let id: String /// Member Id
+//    public var balanceByCurrency: [String: GroupCurrencyBalance] /// Currency wise member balance
+// }
+// public struct GroupCurrencyBalance: Codable {
+//    public var balance: Double
+//    public var totalSummary: [GroupTotalSummary]
+// }
+
 public struct GroupTotalSummary: Codable {
     public var year: Int
     public var month: Int
@@ -94,6 +103,12 @@ public struct GroupTotalSummary: Codable {
         self.year = year
         self.month = month
         self.summary = summary
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case year
+        case month
+        case summary
     }
 }
 
@@ -139,7 +154,8 @@ public struct GroupInformation {
     public let members: [AppUser]
     public let hasExpenses: Bool
 
-    public init(group: Groups, userBalance: Double, memberOweAmount: [String: Double], members: [AppUser], hasExpenses: Bool) {
+    public init(group: Groups, userBalance: Double, memberOweAmount: [String: Double],
+                members: [AppUser], hasExpenses: Bool) {
         self.group = group
         self.userBalance = userBalance
         self.memberOweAmount = memberOweAmount
