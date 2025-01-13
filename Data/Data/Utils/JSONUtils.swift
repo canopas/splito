@@ -16,8 +16,10 @@ public struct JSONUtils {
                 let jsonData = try decoder.decode(T.self, from: data)
                 return jsonData
             } catch {
-                LogE("JSONUtils: \(#function) error - \(error).")
+                LogE("Error decoding JSON file: \(fileName), error: \(error)")
             }
+        } else {
+            LogE("JSON file not found: \(fileName)")
         }
         return nil
     }

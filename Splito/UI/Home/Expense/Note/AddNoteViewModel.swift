@@ -24,7 +24,7 @@ class AddNoteViewModel: BaseViewModel, ObservableObject {
     private let payment: Transactions?
     private let handleSaveNoteTap: ((_ note: String, _ reason: String?) -> Void)?
 
-    init(group: Groups?, expense: Expense? = nil, payment: Transactions? = nil, note: String,
+    init(group: Groups?, expense: Expense? = nil, note: String, payment: Transactions? = nil,
          paymentReason: String? = nil, handleSaveNoteTap: ((_ note: String, _ reason: String?) -> Void)? = nil) {
         self.group = group
         self.expense = expense

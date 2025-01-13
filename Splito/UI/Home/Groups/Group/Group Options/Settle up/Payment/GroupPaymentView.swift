@@ -61,7 +61,8 @@ struct GroupPaymentView: View {
 
                             VSpacer(16)
 
-                            AmountRowView(amount: $viewModel.amount, isAmountFocused: $isAmountFocused, subtitle: "Enter amount")
+//                            AddAmountView(amount: $viewModel.amount, selectedCurrency: <#T##Currency#>,
+//                                          showCurrencyPicker: <#T##Bool#>, isAmountFocused: $isAmountFocused)
 
                             Spacer(minLength: 40)
                         }
@@ -113,64 +114,12 @@ struct GroupPaymentView: View {
         }
         .sheet(isPresented: $viewModel.showAddNoteEditor) {
             NavigationStack {
-                AddNoteView(viewModel: AddNoteViewModel(group: viewModel.group, payment: viewModel.transaction,
-                                                        note: viewModel.paymentNote,
+                AddNoteView(viewModel: AddNoteViewModel(group: viewModel.group, note: viewModel.paymentNote,
+                                                        payment: viewModel.transaction,
                                                         paymentReason: viewModel.paymentReason,
                                                         handleSaveNoteTap: viewModel.handleNoteSaveBtnTap(note:reason:)))
             }
         }
-    }
-}
-
-struct AmountRowView: View {
-
-    @Binding var amount: Double
-    var isAmountFocused: FocusState<Bool>.Binding
-
-    let subtitle: String
-
-    @State private var amountString: String = ""
-
-    var body: some View {
-        VStack(alignment: .center, spacing: 24) {
-            Text(subtitle.localized)
-                .font(.subTitle1())
-                .foregroundStyle(primaryText)
-                .tracking(-0.2)
-
-            TextField(" ₹ 0.00", text: $amountString)
-                .keyboardType(.decimalPad)
-                .font(.Header1())
-                .tint(primaryColor)
-                .foregroundStyle(amountString.isEmpty ? outlineColor : primaryText)
-                .focused(isAmountFocused)
-                .multilineTextAlignment(.center)
-                .autocorrectionDisabled()
-                .onChange(of: amountString) { newValue in
-                    formatAmount(newValue: newValue)
-                }
-                .onAppear {
-                    amountString = amount == 0 ? "" : String(format: "₹ %.2f", amount)
-                }
-        }
-        .padding(16)
-        .overlay {
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(outlineColor, lineWidth: 1)
-        }
-    }
-
-    private func formatAmount(newValue: String) {
-        // Remove the "₹" symbol and whitespace to process the numeric value
-        let numericInput = newValue.replacingOccurrences(of: "₹", with: "").trimmingCharacters(in: .whitespaces)
-        if let value = Double(numericInput) {
-            amount = value
-        } else {
-            amount = 0
-        }
-
-        // Update amountString to include "₹" prefix
-        amountString = numericInput.isEmpty ? "" : "₹ " + numericInput
     }
 }
 

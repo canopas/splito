@@ -118,7 +118,7 @@ private struct ExpenseHeaderView: View {
                     .font(.subTitle2())
                     .foregroundStyle(primaryText)
 
-                Text(viewModel.expense?.formattedAmount ?? "₹ 0")
+                Text(viewModel.expense?.formattedAmount ?? "0")
                     .font(.Header3())
                     .foregroundStyle(primaryText)
 

@@ -38,9 +38,11 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published var showPayerSelection = false
     @Published var showImagePickerOptions = false
     @Published var showSplitTypeSelection = false
+    @Published var showCurrencyPicker = false
     @Published private(set) var showLoader = false
     @Published private(set) var sourceTypeIsCamera = false
 
+    @Published var selectedCurrency: Currency
     @Published var selectedGroup: Groups?
     @Published private(set) var expense: Expense?
     @Published private(set) var viewState: ViewState = .initial
@@ -54,6 +56,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         self.expenseId = expenseId
+        self.selectedCurrency = Currency.getCurrentLocalCurrency()
         super.init()
         loadInitialData()
     }
@@ -98,6 +101,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 selectedGroup = group
                 groupMembers = group.members
                 selectedMembers = group.members
+                selectedCurrency = Currency.getCurrencyOfCode(group.defaultCurrency ?? "INR")
             }
             LogD("AddExpenseViewModel: \(#function) Group fetched successfully.")
         } catch {
@@ -305,12 +309,8 @@ extension AddExpenseViewModel {
     }
 
     private func validateMembersInGroup(group: Groups, expense: Expense) -> Bool {
-        for payer in expense.paidBy where !group.members.contains(payer.key) {
-            return false
-        }
-        for memberId in expense.splitTo where !group.members.contains(memberId) {
-            return false
-        }
+        for payer in expense.paidBy where !group.members.contains(payer.key) { return false }
+        for memberId in expense.splitTo where !group.members.contains(memberId) { return false }
         return true
     }
 }
@@ -384,9 +384,7 @@ extension AddExpenseViewModel {
             let expenseInfo: [String: Any] = ["groupId": groupId, "expense": newExpense]
             NotificationCenter.default.post(name: .addExpense, object: nil, userInfo: expenseInfo)
 
-            if !group.hasExpenses {
-                selectedGroup?.hasExpenses = true
-            }
+            if !group.hasExpenses { selectedGroup?.hasExpenses = true }
             await updateGroupMemberBalance(expense: newExpense, updateType: .Add)
 
             showLoader = false

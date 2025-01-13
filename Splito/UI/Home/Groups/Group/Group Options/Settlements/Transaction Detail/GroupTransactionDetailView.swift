@@ -103,8 +103,9 @@ struct GroupTransactionDetailView: View {
         }
         .fullScreenCover(isPresented: $viewModel.showAddNoteEditor) {
             NavigationStack {
-                AddNoteView(viewModel: AddNoteViewModel(group: viewModel.group, payment: viewModel.transaction,
-                                                        note: viewModel.paymentNote, paymentReason: viewModel.paymentReason))
+                AddNoteView(viewModel: AddNoteViewModel(group: viewModel.group, note: viewModel.paymentNote,
+                                                        payment: viewModel.transaction,
+                                                        paymentReason: viewModel.paymentReason))
             }
         }
         .navigationDestination(isPresented: $showImageDisplayView) {
@@ -221,7 +222,7 @@ private struct TransactionSummaryView: View {
                     .padding(.bottom, 8)
             }
 
-            Text(amount?.formattedCurrency ?? "₹ 0")
+            Text(amount?.formattedCurrency ?? "0")
                 .font(.Header2())
                 .foregroundStyle(primaryText)
 

@@ -7,21 +7,35 @@
 
 import Foundation
 
-public struct Currency: Codable {
+public struct Currency: Decodable, Hashable {
     public let code: String
     public let name: String
     public let symbol: String
     public let region: String
 
-    private static func getCurrencies() -> [Currency] {
-        let allCurrencies = JSONUtils.readJSONFromFile(fileName: "Currencies", type: [Currency].self, bundle: .baseBundle) ?? []
+    public init(code: String, name: String, symbol: String, region: String) {
+        self.code = code
+        self.name = name
+        self.symbol = symbol
+        self.region = region
+    }
+
+    public static func getAllCurrencies() -> [Currency] {
+        let allCurrencies = JSONUtils.readJSONFromFile(fileName: "Currencies", type: [Currency].self, bundle: .dataBundle) ?? []
         return allCurrencies
     }
 
+    public static func getCurrencyOfCode(_ code: String) -> Currency {
+        let allCurrencies = getAllCurrencies()
+        let currency = allCurrencies.first(where: { $0.code == code }) ?? Currency(code: "INR", name: "Indian Rupee", symbol: "₹", region: "IN")
+        return currency
+    }
+
     public static func getCurrentLocalCurrency() -> Currency {
-        let allCurrencies = getCurrencies()
+        let allCurrencies = getAllCurrencies()
         let currentLocal = Locale.current.region?.identifier
-        return allCurrencies.first(where: { $0.region == currentLocal }) ??
+        let currency = allCurrencies.first(where: { $0.region == currentLocal }) ??
             (allCurrencies.first ?? Currency(code: "INR", name: "Indian Rupee", symbol: "₹", region: "IN"))
+        return currency
     }
 }

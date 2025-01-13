@@ -97,6 +97,11 @@ struct AddExpenseView: View {
             ImagePickerView(cropOption: .square, sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
                             image: $viewModel.expenseImage, isPresented: $viewModel.showImagePicker)
         }
+        .sheet(isPresented: $viewModel.showCurrencyPicker) {
+            let currencies = Currency.getAllCurrencies()
+            CurrencyPickerView(currencies: currencies, selectedCurrency: $viewModel.selectedCurrency,
+                               isPresented: $viewModel.showCurrencyPicker)
+        }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 CancelButton()
@@ -135,7 +140,8 @@ private struct ExpenseInfoView: View {
             ExpenseDetailRow(name: $viewModel.expenseName, focusedField: focusedField,
                              subtitle: "Description", field: .expenseName)
 
-            AmountRowView(amount: $viewModel.expenseAmount, isAmountFocused: $isAmountFocused, subtitle: "Amount")
+            AddAmountView(amount: $viewModel.expenseAmount, showCurrencyPicker: $viewModel.showCurrencyPicker,
+                          selectedCurrencyCode: viewModel.selectedCurrency.symbol, isAmountFocused: $isAmountFocused)
                 .focused(focusedField, equals: .amount)
 
             HStack(alignment: .top, spacing: 16) {
