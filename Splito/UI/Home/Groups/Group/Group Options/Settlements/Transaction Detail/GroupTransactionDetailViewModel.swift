@@ -20,7 +20,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     @Published var comment: String = ""
     @Published var latestCommentId: String?
-    
+
     @Published var paymentNote: String = ""
     @Published var paymentReason: String?
 
@@ -37,7 +37,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     let groupId: String
     let transactionId: String
-    
+
     var group: Groups?
     let router: Router<AppRoute>
     private var lastDocument: DocumentSnapshot?

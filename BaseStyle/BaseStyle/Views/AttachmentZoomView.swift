@@ -26,7 +26,7 @@ public struct AttachmentContainerView: View {
     }
 
     public var body: some View {
-        ZStack {
+        HStack {
             if let image {
                 Image(uiImage: image)
                     .resizable()

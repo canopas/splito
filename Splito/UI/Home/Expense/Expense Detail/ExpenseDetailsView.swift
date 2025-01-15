@@ -36,7 +36,6 @@ struct ExpenseDetailsView: View {
 
                                     AttachmentContainerView(showImageDisplayView: $showImageDisplayView, imageUrl: imageUrl)
                                         .frame(height: 140)
-                                        .frame(maxWidth: .infinity)
                                         .cornerRadius(12)
                                         .padding(.horizontal, 16)
                                 }

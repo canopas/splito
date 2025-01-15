@@ -37,7 +37,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     var groupId: String
     var expenseId: String
-    
+
     var group: Groups?
     let router: Router<AppRoute>
     private var lastDocument: DocumentSnapshot?
