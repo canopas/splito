@@ -28,6 +28,7 @@ struct ActivityLogContext {
     var group: Groups?
     var expense: Expense?
     var transaction: Transactions?
+    var comment: String?
     let type: ActivityType
     var memberId: String?
     var currentUser: AppUser?

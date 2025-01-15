@@ -61,6 +61,10 @@ public class AppAssembly: Assembly {
             TransactionStore.init()
         }.inObjectScope(.container)
 
+        container.register(CommentStore.self) { _ in
+            CommentStore.init()
+        }.inObjectScope(.container)
+
         container.register(FeedbackStore.self) { _ in
             FeedbackStore.init()
         }.inObjectScope(.container)
@@ -89,6 +93,10 @@ public class AppAssembly: Assembly {
 
         container.register(TransactionRepository.self) { _ in
             TransactionRepository.init()
+        }.inObjectScope(.container)
+
+        container.register(CommentRepository.self) { _ in
+            CommentRepository.init()
         }.inObjectScope(.container)
 
         container.register(FeedbackRepository.self) { _ in

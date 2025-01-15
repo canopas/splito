@@ -10,26 +10,37 @@ import FirebaseFirestore
 
 class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
+    private let COMMENT_LIMIT = 10
+
     @Inject private var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
+    @Inject private var commentRepository: CommentRepository
     @Inject private var transactionRepository: TransactionRepository
 
+    @Published var comment: String = ""
+    @Published var latestCommentId: String?
+    
     @Published var paymentNote: String = ""
     @Published var paymentReason: String?
 
     @Published private(set) var transaction: Transactions?
+    @Published private(set) var comments: [Comment] = []
     @Published private(set) var transactionUsersData: [AppUser] = []
 
     @Published private(set) var viewState: ViewState = .loading
 
+    @Published var showLoader: Bool = false
     @Published var showAddNoteEditor = false
     @Published var showEditTransactionSheet = false
+    @Published private(set) var hasMoreComments: Bool = true
 
-    var group: Groups?
-    let router: Router<AppRoute>
     let groupId: String
     let transactionId: String
+    
+    var group: Groups?
+    let router: Router<AppRoute>
+    private var lastDocument: DocumentSnapshot?
 
     init(router: Router<AppRoute>, groupId: String, transactionId: String) {
         self.router = router
@@ -46,6 +57,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         Task {
             await fetchGroup()
             await fetchTransaction()
+            await fetchComments()
         }
     }
 
@@ -53,7 +65,6 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     private func fetchGroup() async {
         do {
             group = try await groupRepository.fetchGroupBy(id: groupId)
-            viewState = .initial
             LogD("GroupTransactionDetailViewModel: \(#function) Group fetched successfully.")
         } catch {
             LogE("GroupTransactionDetailViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
@@ -61,12 +72,10 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func fetchTransaction() async {
+    private func fetchTransaction() async {
         do {
-            viewState = .loading
             self.transaction = try await transactionRepository.fetchTransactionBy(groupId: groupId, transactionId: transactionId)
             await setTransactionUsersData()
-            self.viewState = .initial
             LogD("GroupTransactionDetailViewModel: \(#function) Payment fetched successfully.")
         } catch {
             LogE("GroupTransactionDetailViewModel: \(#function) Failed to fetch payment \(transactionId): \(error).")
@@ -115,6 +124,47 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    private func fetchComments() async {
+        guard hasMoreComments else {
+            self.viewState = .initial
+            return
+        }
+
+        do {
+            let result = try await commentRepository.fetchCommentsBy(groupId: groupId, parentId: transactionId, limit: COMMENT_LIMIT,
+                                                                     lastDocument: lastDocument, isForExpenseComment: false)
+            comments = lastDocument == nil ? result.data : (comments + result.data)
+            await updateTransactionUsersData()
+            hasMoreComments = !(result.data.count < COMMENT_LIMIT)
+            lastDocument = result.lastDocument
+            viewState = .initial
+            LogD("GroupTransactionDetailViewModel: \(#function) comments fetched successfully.")
+        } catch {
+            LogE("GroupTransactionDetailViewModel: \(#function) Failed to fetch comments: \(error).")
+            handleErrorState()
+        }
+    }
+
+    private func updateTransactionUsersData() async {
+        let commentedByUserIDs = Set(comments.map { $0.commentedBy })
+        let transactionUserIDs = Set(transactionUsersData.map { $0.id })
+        let missingUserIDs = commentedByUserIDs.subtracting(transactionUserIDs)
+
+        if !missingUserIDs.isEmpty {
+            for userId in missingUserIDs {
+                if let user = await self.fetchUserData(for: userId) {
+                    transactionUsersData.append(user)
+                }
+            }
+        }
+    }
+
+    func loadMoreComments() {
+        Task {
+            await fetchComments()
+        }
+    }
+
     func getMemberDataBy(id: String) -> AppUser? {
         return transactionUsersData.first(where: { $0.id == id })
     }
@@ -131,6 +181,50 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         showEditTransactionSheet = true
     }
 
+    func onSendCommentBtnTap() {
+        guard let transaction, let group, let userId = preference.user?.id,
+              transaction.isActive && group.isActive && group.members.contains(userId) else {
+            showAlertFor(title: "Error",
+                         message: "You do not have permission to add a comment on this payment, Sorry!")
+            return
+        }
+
+        addComment()
+    }
+
+    private func addComment() {
+        guard let transaction, let group, let transactionId = transaction.id, let userId = preference.user?.id,
+              let payer = transactionUsersData.first(where: { $0.id == transaction.payerId }),
+              let receiver = transactionUsersData.first(where: { $0.id == transaction.receiverId }) else {
+            LogE("GroupTransactionDetailViewModel: \(#function) Missing required data for adding comment.")
+            return
+        }
+
+        Task { [weak self] in
+            do {
+                self?.showLoader = true
+                let comment = Comment(parentId: transactionId,
+                                      comment: self?.comment.trimming(spaces: .leadingAndTrailing) ?? "",
+                                      commentedBy: userId)
+                let addedComment = try await self?.commentRepository.addComment(group: group, transaction: transaction,
+                                                                                members: (payer, receiver), comment: comment)
+
+                if let addedComment {
+                    self?.comments.insert(addedComment, at: 0)
+                    self?.latestCommentId = addedComment.id
+                    self?.comment = ""
+                    await self?.updateTransactionUsersData()
+                }
+                self?.showLoader = false
+                LogD("GroupTransactionDetailViewModel: \(#function) Payment comment added successfully.")
+            } catch {
+                self?.showLoader = false
+                LogE("GroupTransactionDetailViewModel: \(#function) Failed to add payment comment: \(error).")
+                self?.showToastForError()
+            }
+        }
+    }
+
     func handleRestoreButtonAction() {
         showAlert = true
         alert = .init(title: "Restore payment",
@@ -141,21 +235,17 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                       negativeBtnAction: { [weak self] in self?.showAlert = false })
     }
 
-    func restoreTransaction() {
+    private func restoreTransaction() {
         guard let group, group.isActive else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                 self?.showAlertFor(title: "Error",
-                                  message: "The group associated with this payment has been deleted, so it cannot be restored.")
+                                   message: "The group associated with this payment has been deleted, so it cannot be restored.")
             }
             return
         }
 
-        guard validateUserPermission(operationText: "restored", action: "restored"), validateGroupMembers(action: "restored") else { return }
-
-        guard var transaction else {
-            LogE("GroupTransactionDetailViewModel: \(#function) transaction not found.")
-            return
-        }
+        guard var transaction, validateUserPermission(operationText: "restored", action: "restored"),
+              validateGroupMembers(action: "restored") else { return }
 
         Task { [weak self] in
             guard let self, let userId = preference.user?.id, let payer = getMemberDataBy(id: transaction.payerId),
@@ -201,7 +291,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             do {
                 self.viewState = .loading
                 self.transaction = try await self.transactionRepository.deleteTransaction(group: group, transaction: transaction,
-                                                                                     payer: payer, receiver: receiver)
+                                                                                          payer: payer, receiver: receiver)
                 NotificationCenter.default.post(name: .deleteTransaction, object: self.transaction)
                 await self.updateGroupMemberBalance(updateType: .Delete)
 
@@ -236,7 +326,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         guard let userId = preference.user?.id, let group, group.members.contains(userId) else {
             DispatchQueue.main.async { [weak self] in
                 self?.showAlertFor(title: "Error",
-                                  message: "This payment could not be \(operationText). You do not have permission to \(action) this payment, Sorry!")
+                                   message: "This payment could not be \(operationText). You do not have permission to \(action) this payment, Sorry!")
             }
             return false
         }
@@ -278,6 +368,15 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
             viewState = .noInternet
         } else {
             viewState = .somethingWentWrong
+        }
+    }
+
+    private func handleErrorState() {
+        if lastDocument == nil {
+            handleServiceError()
+        } else {
+            viewState = .initial
+            showToastForError()
         }
     }
 }

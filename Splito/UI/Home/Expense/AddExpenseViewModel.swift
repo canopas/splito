@@ -83,8 +83,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         do {
             viewState = .loading
             let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
-            await updateViewModelFieldsWithExpense(expense: expense)
             await fetchAndUpdateGroupData(groupId: groupId)
+            await updateViewModelFieldsWithExpense(expense: expense)
             viewState = .initial
             LogD("AddExpenseViewModel: \(#function) Expense details with members fetched successfully.")
         } catch {
