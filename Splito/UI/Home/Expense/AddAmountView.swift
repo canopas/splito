@@ -15,12 +15,12 @@ struct AddAmountView: View {
 
     @State private var amountString: String = ""
 
-    var selectedCurrencyCode: String
+    var selectedCurrencySymbol: String
     var isAmountFocused: FocusState<Bool>.Binding
 
     var body: some View {
         HStack(spacing: 8) {
-            Text(selectedCurrencyCode)
+            Text(selectedCurrencySymbol)
                 .font(.Header3())
                 .foregroundStyle(primaryText)
                 .padding(.vertical, 6)

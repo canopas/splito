@@ -141,7 +141,7 @@ private struct ExpenseInfoView: View {
                              subtitle: "Description", field: .expenseName)
 
             AddAmountView(amount: $viewModel.expenseAmount, showCurrencyPicker: $viewModel.showCurrencyPicker,
-                          selectedCurrencyCode: viewModel.selectedCurrency.symbol, isAmountFocused: $isAmountFocused)
+                          selectedCurrencySymbol: viewModel.selectedCurrency.symbol, isAmountFocused: $isAmountFocused)
                 .focused(focusedField, equals: .amount)
 
             HStack(alignment: .top, spacing: 16) {

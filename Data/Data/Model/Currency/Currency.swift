@@ -25,7 +25,7 @@ public struct Currency: Decodable, Hashable {
         return allCurrencies
     }
 
-    public static func getCurrencyOfCode(_ code: String) -> Currency {
+    public static func getCurrencyFromCode(_ code: String) -> Currency {
         let allCurrencies = getAllCurrencies()
         let currency = allCurrencies.first(where: { $0.code == code }) ?? Currency(code: "INR", name: "Indian Rupee", symbol: "₹", region: "IN")
         return currency

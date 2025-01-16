@@ -22,7 +22,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     @Published var amount: Double = 0
     @Published var paymentDate = Date()
     @Published var paymentImage: UIImage?
-
     @Published var paymentNote: String = ""
     @Published var paymentReason: String = ""
     @Published private(set) var paymentImageUrl: String?
@@ -30,9 +29,11 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     @Published var showImagePicker = false
     @Published var showAddNoteEditor = false
     @Published var showImagePickerOptions = false
+    @Published var showCurrencyPicker = false
     @Published private(set) var showLoader: Bool = false
     @Published private(set) var sourceTypeIsCamera = false
 
+    @Published var selectedCurrency: Currency
     @Published private(set) var payer: AppUser?
     @Published private(set) var receiver: AppUser?
     @Published private(set) var viewState: ViewState = .loading
@@ -64,7 +65,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         self.payerId = payerId
         self.receiverId = receiverId
         self.transactionId = transactionId
-
+        self.selectedCurrency = Currency.getCurrentLocalCurrency()
         super.init()
 
         fetchInitialViewData()
@@ -74,8 +75,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         Task { [weak self] in
             await self?.fetchGroup()
             await self?.fetchTransaction()
-            await self?.getPayerUserDetail()
-            await self?.getPayableUserDetail()
+            await self?.getPaymentUsersData()
         }
     }
 
@@ -91,8 +91,8 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     private func fetchGroup() async {
         do {
-            self.group = try await groupRepository.fetchGroupBy(id: groupId)
-            self.viewState = .initial
+            group = try await groupRepository.fetchGroupBy(id: groupId)
+            selectedCurrency = Currency.getCurrencyFromCode(group?.defaultCurrency ?? "INR")
             LogD("GroupPaymentViewModel: \(#function) Group fetched successfully.")
         } catch {
             LogE("GroupPaymentViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
@@ -104,15 +104,14 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         guard let transactionId else { return }
 
         do {
-            viewState = .loading
             transaction = try await transactionRepository.fetchTransactionBy(groupId: groupId,
-                                                                                  transactionId: transactionId)
+                                                                             transactionId: transactionId)
             paymentDate = transaction?.date.dateValue() ?? Date.now
             paymentNote = transaction?.note ?? ""
             paymentImageUrl = transaction?.imageUrl
             paymentReason = transaction?.reason ?? ""
-
-            viewState = .initial
+            let defaultCurrency = group?.defaultCurrency ?? "INR"
+            selectedCurrency = Currency.getCurrencyFromCode(transaction?.currencyCode ?? defaultCurrency)
             LogD("GroupPaymentViewModel: \(#function) Payment fetched successfully.")
         } catch {
             LogE("GroupPaymentViewModel: \(#function) Failed to fetch payment \(transactionId): \(error).")
@@ -120,26 +119,15 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func getPayerUserDetail() async {
+    private func getPaymentUsersData() async {
         do {
-            viewState = .loading
-            payer = try await userRepository.fetchUserBy(userID: payerId)
+            let users = try await userRepository.fetchUsersBy(userIds: [payerId, receiverId])
+            payer = users.first(where: { $0.id == payerId })
+            receiver = users.first(where: { $0.id == receiverId })
             viewState = .initial
-            LogD("GroupPaymentViewModel: \(#function) Payer fetched successfully.")
+            LogD("GroupPaymentViewModel: \(#function) users data fetched successfully.")
         } catch {
             LogE("GroupPaymentViewModel: \(#function) Failed to fetch payer \(payerId): \(error).")
-            handleServiceError()
-        }
-    }
-
-    private func getPayableUserDetail() async {
-        do {
-            viewState = .loading
-            receiver = try await userRepository.fetchUserBy(userID: receiverId)
-            viewState = .initial
-            LogD("GroupPaymentViewModel: \(#function) Payable fetched successfully.")
-        } catch {
-            LogE("GroupPaymentViewModel: \(#function) Failed to fetch payable \(receiverId): \(error).")
             handleServiceError()
         }
     }
@@ -236,7 +224,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         if let transaction {
             var newTransaction = transaction
             newTransaction.amount = amount
-            newTransaction.currencyCode = "INR"
             newTransaction.date = .init(date: paymentDate)
             newTransaction.payerId = payerId
             newTransaction.receiverId = receiverId
@@ -244,12 +231,12 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             newTransaction.updatedBy = userId
             newTransaction.note = paymentNote
             newTransaction.reason = paymentReason
-
+            newTransaction.currencyCode = selectedCurrency.code
             return await updateTransaction(transaction: newTransaction, oldTransaction: transaction)
         } else {
             let transaction = Transactions(payerId: payerId, receiverId: receiverId, date: .init(date: paymentDate),
-                                           addedBy: userId, amount: amount, currencyCode: "INR", note: paymentNote,
-                                           reason: paymentReason)
+                                           addedBy: userId, amount: amount, currencyCode: selectedCurrency.code,
+                                           note: paymentNote, reason: paymentReason)
             return await addTransaction(transaction: transaction)
         }
     }
@@ -266,7 +253,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
                                                                               members: (payer, receiver), imageData: getImageData())
             NotificationCenter.default.post(name: .addTransaction, object: self.transaction)
             await updateGroupMemberBalance(updateType: .Add)
-
             showLoader = false
             LogD("GroupPaymentViewModel: \(#function) Payment added successfully.")
             return true
@@ -287,7 +273,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
         do {
             showLoader = true
-
             self.transaction = try await transactionRepository.updateTransactionWithImage(imageData: getImageData(), newImageUrl: paymentImageUrl, group: group, transaction: (transaction, oldTransaction), members: (payer, receiver))
 
             defer {

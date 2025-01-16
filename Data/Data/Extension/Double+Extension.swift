@@ -20,6 +20,19 @@ public extension Double {
         }
     }
 
+    func formattedCurrencyWithSign(_ sign: String) -> String {
+        let amount: String
+        let formatter = NumberFormatter()
+        formatter.locale = Locale.current
+
+        if let formattedAmount = formatter.string(from: NSNumber(value: self)) {
+            amount = formattedAmount
+        } else {
+            amount = String(format: "%.2f", self.rounded())  // Fallback to a basic decimal format
+        }
+        return sign + " " + amount
+    }
+
     var formattedCurrencyWithSign: String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency

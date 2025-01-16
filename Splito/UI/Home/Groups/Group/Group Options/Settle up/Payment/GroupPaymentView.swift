@@ -61,8 +61,8 @@ struct GroupPaymentView: View {
 
                             VSpacer(16)
 
-//                            AddAmountView(amount: $viewModel.amount, selectedCurrency: <#T##Currency#>,
-//                                          showCurrencyPicker: <#T##Bool#>, isAmountFocused: $isAmountFocused)
+                            AddAmountView(amount: $viewModel.amount, showCurrencyPicker: $viewModel.showCurrencyPicker,
+                                          selectedCurrencySymbol: viewModel.selectedCurrency.symbol, isAmountFocused: $isAmountFocused)
 
                             Spacer(minLength: 40)
                         }
@@ -111,6 +111,11 @@ struct GroupPaymentView: View {
         .sheet(isPresented: $viewModel.showImagePicker) {
             ImagePickerView(cropOption: .square, sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
                             image: $viewModel.paymentImage, isPresented: $viewModel.showImagePicker)
+        }
+        .sheet(isPresented: $viewModel.showCurrencyPicker) {
+            let currencies = Currency.getAllCurrencies()
+            CurrencyPickerView(currencies: currencies, selectedCurrency: $viewModel.selectedCurrency,
+                               isPresented: $viewModel.showCurrencyPicker)
         }
         .sheet(isPresented: $viewModel.showAddNoteEditor) {
             NavigationStack {
