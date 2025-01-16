@@ -219,7 +219,6 @@ struct EmptyStateView: View {
             .frame(minHeight: minHeight ?? geometry.size.height - 50, maxHeight: .infinity, alignment: .center)
         }
         .scrollIndicators(.hidden)
-        .scrollBounceBehavior(.basedOnSize)
     }
 }
 

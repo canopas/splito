@@ -19,7 +19,7 @@ struct AddAmountView: View {
     var isAmountFocused: FocusState<Bool>.Binding
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 8) {
             Text(selectedCurrencyCode)
                 .font(.Header3())
                 .foregroundStyle(primaryText)
@@ -38,7 +38,7 @@ struct AddAmountView: View {
                 .autocorrectionDisabled()
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.center)
-                .foregroundStyle(amountString.isEmpty ? outlineColor : primaryText)
+                .tint(amountString.isEmpty ? outlineColor : primaryText)
                 .onChange(of: amountString) { newValue in
                     formatAmount(newValue: newValue)
                 }
@@ -56,11 +56,7 @@ struct AddAmountView: View {
 
     private func formatAmount(newValue: String) {
         let numericInput = newValue.trimmingCharacters(in: .whitespaces)
-        if let value = Double(numericInput) {
-            amount = value
-        } else {
-            amount = 0
-        }
         amountString = numericInput.isEmpty ? "" : numericInput
+        amount = Double(numericInput) ?? 0
     }
 }

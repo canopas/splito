@@ -21,9 +21,11 @@ struct CurrencyPickerView: View {
     @FocusState private var isFocused: Bool
 
     private var filteredCurrencies: [Currency] {
-        currencies.filter { currency in
-            searchedCurrency.isEmpty ? true : currency.name.lowercased().contains(searchedCurrency.lowercased()) ||
-            currency.code.lowercased().contains(searchedCurrency.lowercased())
+        guard !searchedCurrency.isEmpty else { return currencies }
+        return currencies.filter { currency in
+            currency.name.lowercased().contains(searchedCurrency.lowercased()) ||
+            currency.code.lowercased().contains(searchedCurrency.lowercased()) ||
+            currency.symbol.lowercased().contains(searchedCurrency.lowercased())
         }
     }
 
@@ -51,7 +53,7 @@ struct CurrencyPickerView: View {
             if filteredCurrencies.isEmpty {
                 CurrencyNotFoundView(searchedCurrency: searchedCurrency)
             } else {
-                List(currencies, id: \.self) { currency in
+                List(filteredCurrencies, id: \.self) { currency in
                     CurrencyCellView(currency: currency) {
                         selectedCurrency = currency
                         isPresented = false

@@ -77,6 +77,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         viewState = .loading
         await fetchAndUpdateGroupData(groupId: groupId)
         selectedPayers = [userId: expenseAmount]
+        selectedCurrency = Currency.getCurrencyOfCode(selectedGroup?.defaultCurrency ?? "INR")
         viewState = .initial
         LogD("AddExpenseViewModel: \(#function) Group fetched successfully.")
     }
@@ -101,7 +102,6 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
                 selectedGroup = group
                 groupMembers = group.members
                 selectedMembers = group.members
-                selectedCurrency = Currency.getCurrencyOfCode(group.defaultCurrency ?? "INR")
             }
             LogD("AddExpenseViewModel: \(#function) Group fetched successfully.")
         } catch {
@@ -118,6 +118,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         selectedPayers = expense.paidBy
         expenseImageUrl = expense.imageUrl
         expenseNote = expense.note ?? ""
+        let defaultCurrency = selectedGroup?.defaultCurrency ?? "INR"
+        selectedCurrency = Currency.getCurrencyOfCode(expense.currencyCode ?? defaultCurrency)
         if let splitData = expense.splitData {
             self.splitData = splitData
         }
@@ -241,10 +243,8 @@ extension AddExpenseViewModel {
                 }
                 self?.showAlert = false
             }))
-        case .authorized:
-            authorized()
-        default:
-            return
+        case .authorized: authorized()
+        default: return
         }
     }
 
@@ -370,7 +370,8 @@ extension AddExpenseViewModel {
         guard let groupId else { return false }
         let splitTo = splitData.map { $0.key }
         let participants = Array(Set(splitTo + selectedPayers.keys))
-        let expense = Expense(groupId: groupId, name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
+        let expense = Expense(groupId: groupId, name: expenseName.trimming(spaces: .leadingAndTrailing),
+                              amount: expenseAmount, currencyCode: selectedCurrency.code,
                               date: Timestamp(date: expenseDate), addedBy: userId, note: expenseNote, splitType: splitType,
                               splitTo: splitTo, splitData: splitData, paidBy: selectedPayers, participants: participants)
         return await addExpense(group: group, expense: expense)
@@ -400,7 +401,6 @@ extension AddExpenseViewModel {
 
     private func handleUpdateExpenseAction(userId: String, group: Groups, expense: Expense) async -> Bool {
         guard let groupId = group.id else { return false }
-
         var newExpense = expense
         newExpense.groupId = groupId
         newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing)
@@ -409,6 +409,7 @@ extension AddExpenseViewModel {
         newExpense.updatedAt = Timestamp()
         newExpense.updatedBy = userId
         newExpense.note = expenseNote
+        newExpense.currencyCode = selectedCurrency.code
 
         if selectedPayers.count == 1, let payerId = selectedPayers.keys.first {
             newExpense.paidBy = [payerId: expenseAmount]
@@ -422,13 +423,11 @@ extension AddExpenseViewModel {
 
         let participants = Array(Set(newExpense.splitTo + newExpense.paidBy.keys))
         newExpense.participants = participants
-
         return await updateExpense(group: group, expense: newExpense, oldExpense: expense)
     }
 
     private func updateExpense(group: Groups, expense: Expense, oldExpense: Expense) async -> Bool {
         guard validateMembersInGroup(group: group, expense: expense), let expenseId else { return false }
-
         do {
             showLoader = true
             let updatedExpense = try await expenseRepository.updateExpenseWithImage(imageData: getImageData(),

@@ -55,7 +55,6 @@ struct GroupListWithDetailView: View {
                                       perform: viewModel.manageScrollToTopBtnVisibility(offset:))
                     })
                 }
-                .scrollBounceBehavior(.basedOnSize)
                 .refreshable { viewModel.fetchGroupsInitialData() }
                 .overlay(alignment: .bottomTrailing) {
                     if viewModel.showScrollToTopBtn {

@@ -224,7 +224,6 @@ private struct NoGroupsState: View {
                 .frame(minHeight: geometry.size.height - 100, maxHeight: .infinity, alignment: .center)
             }
             .scrollIndicators(.hidden)
-            .scrollBounceBehavior(.basedOnSize)
         }
     }
 }
