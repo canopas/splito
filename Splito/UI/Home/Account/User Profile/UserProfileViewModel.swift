@@ -122,7 +122,6 @@ public class UserProfileViewModel: BaseViewModel, ObservableObject {
             showAlertFor(title: "Whoops!", message: validationError)
             return
         }
-
         guard let user = preference.user else { return }
 
         var newUser = user
@@ -284,13 +283,10 @@ extension UserProfileViewModel {
         switch appUser.loginType {
         case .Apple:
             handleAppleLogin(completion: completion)
-
         case .Google:
             handleGoogleLogin(completion: completion)
-
         case .Email:
             handleEmailLogin(completion: completion)
-
         default: break
         }
     }

@@ -2,7 +2,7 @@
 //  ExpensesSearchView.swift
 //  Splito
 //
-//  Created by Nirali Sonani on 30/12/24.
+//  Created by Amisha Italiya on 30/12/24.
 //
 
 import SwiftUI

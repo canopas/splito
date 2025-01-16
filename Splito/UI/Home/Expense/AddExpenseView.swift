@@ -39,10 +39,11 @@ struct AddExpenseView: View {
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
 
-                AddNoteImageFooterView(date: $viewModel.expenseDate, showImagePickerOptions: $viewModel.showImagePickerOptions,
-                                       image: viewModel.expenseImage, imageUrl: viewModel.expenseImageUrl,
-                                       isNoteEmpty: viewModel.expenseNote.isEmpty, handleNoteBtnTap: viewModel.handleNoteBtnTap,
-                                       handleImageTap: viewModel.handleExpenseImageTap,
+                AddNoteImageFooterView(date: $viewModel.expenseDate, showImageDisplayView: $viewModel.showImageDisplayView,
+                                       showImagePickerOptions: $viewModel.showImagePickerOptions, image: viewModel.expenseImage,
+                                       imageUrl: viewModel.expenseImageUrl, isNoteEmpty: viewModel.expenseNote.isEmpty,
+                                       handleNoteBtnTap: viewModel.handleNoteBtnTap, handleCameraTap: viewModel.handleCameraTap,
+                                       handleAttachmentTap: viewModel.handleAttachmentTap,
                                        handleActionSelection: viewModel.handleActionSelection(_:))
             }
         }
@@ -210,6 +211,7 @@ private struct ExpenseDetailRow: View {
 struct AddNoteImageFooterView: View {
 
     @Binding var date: Date
+    @Binding var showImageDisplayView: Bool
     @Binding var showImagePickerOptions: Bool
 
     let image: UIImage?
@@ -217,7 +219,8 @@ struct AddNoteImageFooterView: View {
     let isNoteEmpty: Bool
 
     let handleNoteBtnTap: (() -> Void)
-    let handleImageTap: (() -> Void)
+    let handleCameraTap: (() -> Void)
+    let handleAttachmentTap: (() -> Void)
     let handleActionSelection: ((ActionsOfSheet) -> Void)
 
     var body: some View {
@@ -230,10 +233,11 @@ struct AddNoteImageFooterView: View {
 
             DatePickerView(date: $date)
 
-            ImageAttachmentView(image: image, imageUrl: imageUrl, handleImageBtnTap: handleImageTap)
-                .confirmationDialog("", isPresented: $showImagePickerOptions, titleVisibility: .hidden) {
-                    MediaPickerOptionsView(image: image, imageUrl: imageUrl, handleActionSelection: handleActionSelection)
-                }
+            ImageAttachmentView(showImageDisplayView: $showImageDisplayView, image: image, imageUrl: imageUrl,
+                                handleCameraTap: handleCameraTap, handleAttachmentTap: handleAttachmentTap)
+            .confirmationDialog("", isPresented: $showImagePickerOptions, titleVisibility: .hidden) {
+                MediaPickerOptionsView(image: image, imageUrl: imageUrl, handleActionSelection: handleActionSelection)
+            }
 
             NoteButtonView(isNoteEmpty: isNoteEmpty, handleNoteBtnTap: handleNoteBtnTap)
         }
@@ -244,19 +248,21 @@ struct AddNoteImageFooterView: View {
 
 private struct ImageAttachmentView: View {
 
+    @Binding var showImageDisplayView: Bool
+
     let image: UIImage?
     let imageUrl: String?
 
-    let handleImageBtnTap: (() -> Void)
-
-    @State private var showImageDisplayView = false
+    let handleCameraTap: (() -> Void)
+    let handleAttachmentTap: (() -> Void)
 
     var body: some View {
         HStack(spacing: 0) {
             if image != nil || (imageUrl != nil && !(imageUrl?.isEmpty ?? false)) {
-                AttachmentContainerView(showImageDisplayView: $showImageDisplayView, image: image, imageUrl: imageUrl)
+                AttachmentContainerView(image: image, imageUrl: imageUrl)
                     .frame(width: 24, height: 24)
-                    .cornerRadius(4)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .onTapGestureForced(perform: handleAttachmentTap)
                     .padding(.leading, 8)
                     .padding(.vertical, 4)
             }
@@ -267,7 +273,7 @@ private struct ImageAttachmentView: View {
                 .frame(width: 24, height: 24)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
-                .onTouchGesture(handleImageBtnTap)
+                .onTouchGesture(handleCameraTap)
         }
         .background(container2Color)
         .cornerRadius(8)

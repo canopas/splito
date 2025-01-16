@@ -44,8 +44,7 @@ service cloud.firestore {
     
     // For Groups Collection
     match /groups/{groupId} {
-      allow read: if isAuthorized() &&
-                  resource.data.members.hasAny([request.auth.uid]);
+      allow read: if isAuthorized();
       
       allow create: if isAuthorized() &&
       		    isCurrentUser(request.resource.data.created_by);
@@ -72,6 +71,13 @@ service cloud.firestore {
       	allow delete: if isUserPartOfGroup(groupId);
     }
     
+    // For Expenses Comments Collection
+    match /groups/{groupId}/expenses/{expenseId}/expenses_comments/{commentId} {
+        allow read: if isAuthorized() && isUserPartOfGroup(groupId);
+        
+        allow create: if isAuthorized() && isUserPartOfGroup(groupId);
+    }
+    
     // For Transactions Collection
     match /groups/{groupId}/transactions/{transactionId} {
         allow read: if isAuthorized();
@@ -85,6 +91,13 @@ service cloud.firestore {
                       isMemberPartOfGroup(groupId, request.resource.data.receiver_id);
                       
       	allow delete: if isUserPartOfGroup(groupId);
+    }
+    
+    // For Transactions Comments Collection
+    match /groups/{groupId}/transactions/{transactionId}/transactions_comments/{commentId} {
+        allow read: if isAuthorized() && isUserPartOfGroup(groupId);
+        
+        allow create: if isAuthorized() && isUserPartOfGroup(groupId);
     }
     
     // For Feedback Collection

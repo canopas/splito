@@ -6,31 +6,42 @@
 //
 
 import Data
-import SwiftUI
 import BaseStyle
 import FirebaseFirestore
 
 class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
+    private let COMMENT_LIMIT = 10
+
     @Inject var preference: SplitoPreference
     @Inject private var userRepository: UserRepository
     @Inject private var groupRepository: GroupRepository
     @Inject private var expenseRepository: ExpenseRepository
+    @Inject private var commentRepository: CommentRepository
 
     @Published private(set) var expense: Expense?
+    @Published private(set) var comments: [Comment] = []
     @Published private(set) var expenseUsersData: [AppUser] = []
+
     @Published private(set) var viewState: ViewState = .loading
 
+    @Published var comment: String = ""
+    @Published var latestCommentId: String?
     @Published var expenseNote: String = ""
     @Published private(set) var groupImageUrl: String = ""
 
+    @Published var showLoader: Bool = false
     @Published var showAddNoteEditor = false
+    @Published var showImageDisplayView = false
     @Published var showEditExpenseSheet = false
+    @Published private(set) var hasMoreComments: Bool = true
 
-    var group: Groups?
     var groupId: String
     var expenseId: String
+
+    var group: Groups?
     let router: Router<AppRoute>
+    private var lastDocument: DocumentSnapshot?
 
     init(router: Router<AppRoute>, groupId: String, expenseId: String) {
         self.router = router
@@ -38,15 +49,16 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         self.expenseId = expenseId
         super.init()
 
-        fetchGroupAndExpenseData()
+        fetchInitialViewData()
         NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedExpense(notification:)),
                                                name: .updateExpense, object: nil)
     }
 
-    func fetchGroupAndExpenseData() {
+    func fetchInitialViewData() {
         Task {
             await fetchGroup()
             await fetchExpense()
+            await fetchComments()
         }
     }
 
@@ -57,7 +69,6 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             if let imageUrl = group?.imageUrl {
                 groupImageUrl = imageUrl
             }
-            viewState = .initial
             LogD("ExpenseDetailsViewModel: \(#function) Group fetched successfully.")
         } catch {
             LogE("ExpenseDetailsViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
@@ -65,12 +76,10 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func fetchExpense() async {
+    private func fetchExpense() async {
         do {
-            viewState = .loading
             let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
             await processExpense(expense: expense)
-            viewState = .initial
             LogD("ExpenseDetailsViewModel: \(#function) Expense fetched successfully.")
         } catch {
             LogE("ExpenseDetailsViewModel: \(#function) Failed to fetch expense \(expenseId): \(error).")
@@ -78,7 +87,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func processExpense(expense: Expense) async {
+    private func processExpense(expense: Expense) async {
         var userData: [AppUser] = []
 
         var members = expense.splitTo
@@ -98,7 +107,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         self.expenseUsersData = userData
     }
 
-    func fetchUserData(for userId: String) async -> AppUser? {
+    private func fetchUserData(for userId: String) async -> AppUser? {
         do {
             let member = try await userRepository.fetchUserBy(userID: userId)
             LogD("ExpenseDetailsViewModel: \(#function) Member fetched successfully.")
@@ -111,15 +120,101 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    private func fetchComments() async {
+        guard hasMoreComments else {
+            viewState = .initial
+            return
+        }
+
+        do {
+            let result = try await commentRepository.fetchCommentsBy(groupId: groupId, parentId: expenseId,
+                                                                     limit: COMMENT_LIMIT, lastDocument: lastDocument)
+            comments = lastDocument == nil ? result.data : (comments + result.data)
+            await updateExpenseUsersData()
+            hasMoreComments = !(result.data.count < COMMENT_LIMIT)
+            lastDocument = result.lastDocument
+            viewState = .initial
+            LogD("ExpenseDetailsViewModel: \(#function) comments fetched successfully.")
+        } catch {
+            LogE("ExpenseDetailsViewModel: \(#function) Failed to fetch comments: \(error).")
+            handleErrorState()
+        }
+    }
+
+    private func updateExpenseUsersData() async {
+        let commentedByUserIDs = Set(comments.map { $0.commentedBy })
+        let expenseUserIDs = Set(expenseUsersData.map { $0.id })
+        let missingUserIDs = commentedByUserIDs.subtracting(expenseUserIDs)
+
+        if !missingUserIDs.isEmpty {
+            for userId in missingUserIDs {
+                if let user = await self.fetchUserData(for: userId) {
+                    expenseUsersData.append(user)
+                }
+            }
+        }
+    }
+
+    func loadMoreComments() {
+        Task {
+            await fetchComments()
+        }
+    }
+
     // MARK: - User Actions
     func getMemberDataBy(id: String) -> AppUser? {
         return expenseUsersData.first(where: { $0.id == id })
+    }
+
+    func handleAttachmentTap() {
+        showImageDisplayView = true
     }
 
     func handleNoteTap() {
         guard let expense, expense.isActive, let userId = preference.user?.id,
               let group, group.members.contains(userId) else { return }
         showAddNoteEditor = true
+    }
+
+    func onSendCommentBtnTap() {
+        guard let expense, let group, let userId = preference.user?.id,
+              expense.isActive && group.isActive && group.members.contains(userId) else {
+            showAlertFor(title: "Error",
+                         message: "You do not have permission to add a comment on this expense, Sorry!")
+            return
+        }
+
+        addComment()
+    }
+
+    private func addComment() {
+        guard let expense, let group, let expenseId = expense.id, let userId = preference.user?.id else {
+            LogE("ExpenseDetailsViewModel: \(#function) Missing required data for adding comment.")
+            return
+        }
+
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                self.showLoader = true
+                let comment = Comment(parentId: expenseId, comment: self.comment.trimming(spaces: .leadingAndTrailing), commentedBy: userId)
+                let newComment = try await self.commentRepository.addComment(group: group,
+                                                                             expense: expense, comment: comment,
+                                                                             existingCommenterIds: self.comments.map { $0.commentedBy })
+                if let newComment {
+                    self.comments.insert(newComment, at: 0)
+                    self.latestCommentId = newComment.id
+                    self.comment = ""
+                    await self.updateExpenseUsersData()
+                }
+                self.showLoader = false
+                LogD("ExpenseDetailsViewModel: \(#function) Expense comment added successfully.")
+            } catch {
+                self.showLoader = false
+                LogE("ExpenseDetailsViewModel: \(#function) Failed to add expense comment: \(error).")
+                self.showToastForError()
+            }
+        }
     }
 
     func handleEditBtnAction() {
@@ -138,11 +233,11 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
                       negativeBtnAction: { [weak self] in self?.showAlert = false })
     }
 
-    func restoreExpense() {
+    private func restoreExpense() {
         guard let group, group.isActive else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                 self?.showAlertFor(title: "Error",
-                                  message: "The group associated with this expense has been deleted, so it cannot be restored.")
+                                   message: "The group associated with this expense has been deleted, so it cannot be restored.")
             }
             return
         }
@@ -229,7 +324,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         guard let userId = preference.user?.id, let group, group.members.contains(userId) else {
             DispatchQueue.main.async { [weak self] in
                 self?.showAlertFor(title: "Error",
-                                  message: "This expense could not be \(operationText). You do not have permission to \(action) this expense, Sorry!")
+                                   message: "This expense could not be \(operationText). You do not have permission to \(action) this expense, Sorry!")
             }
             return false
         }
@@ -266,11 +361,8 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     @objc private func getUpdatedExpense(notification: Notification) {
         guard let updatedExpense = notification.object as? Expense else { return }
-
-        viewState = .loading
-        Task {
-            await processExpense(expense: updatedExpense)
-            viewState = .initial
+        Task { [weak self] in
+            await self?.processExpense(expense: updatedExpense)
         }
     }
 
@@ -280,6 +372,15 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
             viewState = .noInternet
         } else {
             viewState = .somethingWentWrong
+        }
+    }
+
+    private func handleErrorState() {
+        if lastDocument == nil {
+            handleServiceError()
+        } else {
+            viewState = .initial
+            showToastForError()
         }
     }
 }

@@ -26,14 +26,13 @@ public struct Expense: Codable, Hashable, Identifiable {
     public var splitTo: [String] // Reference to user ids involved in the split
     public var splitData: [String: Double]? // User Id with the split amount based on the split type
     public var paidBy: [String: Double] // [userId: paid amount]
-    public var comments: [Comments]? = [] // List of comments for the expense
     public var participants: [String]? = [] // List of user ids, Used for searching expenses by user
     public var isActive: Bool
 
     public init(groupId: String, name: String, amount: Double, category: String  = "General", currencyCode: String = "INR",
                 date: Timestamp, addedBy: String, updatedAt: Timestamp? = nil, updatedBy: String? = nil, note: String? = nil,
                 imageUrl: String? = nil, splitType: SplitType, splitTo: [String], splitData: [String: Double]? = nil,
-                paidBy: [String: Double], comments: [Comments] = [], participants: [String], isActive: Bool = true) {
+                paidBy: [String: Double], participants: [String], isActive: Bool = true) {
         self.groupId = groupId
         self.name = name
         self.amount = amount
@@ -49,7 +48,6 @@ public struct Expense: Codable, Hashable, Identifiable {
         self.splitTo = splitTo
         self.splitData = splitData
         self.paidBy = paidBy
-        self.comments = comments
         self.participants = participants
         self.isActive = isActive
     }
@@ -71,7 +69,6 @@ public struct Expense: Codable, Hashable, Identifiable {
         case splitTo = "split_to"
         case splitData = "split_data"
         case paidBy = "paid_by"
-        case comments
         case participants
         case isActive = "is_active"
     }
@@ -80,13 +77,6 @@ public struct Expense: Codable, Hashable, Identifiable {
     public var formattedAmount: String {
         return amount.formattedCurrency
     }
-}
-
-public struct Comments: Codable, Hashable {
-    public var id: String
-    public var comment: String
-    public var commentedBy: String
-    public var commentedAt: Timestamp
 }
 
 extension Expense {

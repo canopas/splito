@@ -2,7 +2,7 @@
 //  FeedbackStore.swift
 //  Data
 //
-//  Created by Nirali Sonani on 02/01/25.
+//  Created by Amisha Italiya on 02/01/25.
 //
 
 import FirebaseFirestore

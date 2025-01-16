@@ -16,8 +16,10 @@
 		219F43D92CCA4A7000729C67 /* RestoreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 219F43D82CCA4A7000729C67 /* RestoreButton.swift */; };
 		21BEF8A52C637E4900FBC9CF /* NavigationBarTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BEF8A42C637E4900FBC9CF /* NavigationBarTopView.swift */; };
 		21BEF8A72C6399BA00FBC9CF /* BottomSheetHeightModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BEF8A62C6399BA00FBC9CF /* BottomSheetHeightModifier.swift */; };
+		21C9A7D82D355870006C84CE /* CommentTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21C9A7D72D355870006C84CE /* CommentTextFieldView.swift */; };
 		21D26E232CA199630090488B /* CapsuleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D26E222CA199610090488B /* CapsuleButton.swift */; };
 		21D614792CAD527D00779F1E /* NavigationTitleTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D614782CAD527D00779F1E /* NavigationTitleTextView.swift */; };
+		21F41AFA2D30110C00D37DBB /* SectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F41AF92D30110C00D37DBB /* SectionHeaderView.swift */; };
 		5DAEE93D2D2208132D031984 /* Pods_BaseStyleTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4AFAF996FB5C233D40D81D5 /* Pods_BaseStyleTests.framework */; };
 		A40018A9B957803B8105BEA5 /* Pods_BaseStyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 174198EE4AF2FC82DADEB060 /* Pods_BaseStyle.framework */; };
 		D82174BE2BBAD86D00DB42C3 /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82174BD2BBAD86D00DB42C3 /* ProfileImageView.swift */; };
@@ -79,8 +81,10 @@
 		219F43D82CCA4A7000729C67 /* RestoreButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreButton.swift; sourceTree = "<group>"; };
 		21BEF8A42C637E4900FBC9CF /* NavigationBarTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarTopView.swift; sourceTree = "<group>"; };
 		21BEF8A62C6399BA00FBC9CF /* BottomSheetHeightModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetHeightModifier.swift; sourceTree = "<group>"; };
+		21C9A7D72D355870006C84CE /* CommentTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentTextFieldView.swift; sourceTree = "<group>"; };
 		21D26E222CA199610090488B /* CapsuleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapsuleButton.swift; sourceTree = "<group>"; };
 		21D614782CAD527D00779F1E /* NavigationTitleTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationTitleTextView.swift; sourceTree = "<group>"; };
+		21F41AF92D30110C00D37DBB /* SectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeaderView.swift; sourceTree = "<group>"; };
 		2CE85328C46B183FC3F074A3 /* Pods-BaseStyle.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyle.release.xcconfig"; path = "Target Support Files/Pods-BaseStyle/Pods-BaseStyle.release.xcconfig"; sourceTree = "<group>"; };
 		5BDB5B9B63CFD771230CD759 /* Pods-BaseStyleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyleTests.release.xcconfig"; path = "Target Support Files/Pods-BaseStyleTests/Pods-BaseStyleTests.release.xcconfig"; sourceTree = "<group>"; };
 		CC9EC1F1C0A5A0821118E6CA /* Pods-BaseStyleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BaseStyleTests.debug.xcconfig"; path = "Target Support Files/Pods-BaseStyleTests/Pods-BaseStyleTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -275,6 +279,8 @@
 				219F43D82CCA4A7000729C67 /* RestoreButton.swift */,
 				D8EB5E942CF8B12B005B68D9 /* ZoomableImageView.swift */,
 				D8FFD5C62CF44DBC009A0667 /* AttachmentZoomView.swift */,
+				21F41AF92D30110C00D37DBB /* SectionHeaderView.swift */,
+				21C9A7D72D355870006C84CE /* CommentTextFieldView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -511,6 +517,7 @@
 				21BEF8A52C637E4900FBC9CF /* NavigationBarTopView.swift in Sources */,
 				D8D42A832B85D07C009B345D /* View+Extension.swift in Sources */,
 				D89DBE3E2B8C67CE00E5F1BD /* String+Extension.swift in Sources */,
+				21C9A7D82D355870006C84CE /* CommentTextFieldView.swift in Sources */,
 				D8E244C32B986D4F00C6C82A /* UIImage+Extension.swift in Sources */,
 				D8D42A822B85D07C009B345D /* PrimaryButton.swift in Sources */,
 				21BEF8A72C6399BA00FBC9CF /* BottomSheetHeightModifier.swift in Sources */,
@@ -536,6 +543,7 @@
 				D8D14A502BA090F000F45FF2 /* ShareSheetView.swift in Sources */,
 				D8E244B52B972AD200C6C82A /* EmptyRouteView.swift in Sources */,
 				D8D42A842B85D07C009B345D /* Spacers.swift in Sources */,
+				21F41AFA2D30110C00D37DBB /* SectionHeaderView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

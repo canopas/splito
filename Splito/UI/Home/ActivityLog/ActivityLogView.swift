@@ -172,6 +172,8 @@ private struct ActivityListCellView: View {
             return .activityGroupIcon
         case .expenseAdded, .expenseUpdated, .expenseDeleted, .expenseRestored:
             return .expenseIcon
+        case .expenseCommentAdded, .transactionCommentAdded:
+            return .commentIcon
         case .transactionAdded, .transactionUpdated, .transactionDeleted, .transactionRestored:
             return .transactionIcon
         }
@@ -179,7 +181,7 @@ private struct ActivityListCellView: View {
 
     private func getLogSubdescription() -> String {
         switch activityLog.type {
-        case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupRestored, .groupMemberRemoved, .groupMemberLeft, .none:
+        case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupRestored, .groupMemberRemoved, .groupMemberLeft, .expenseCommentAdded, .transactionCommentAdded, .none:
             return ""
         case .expenseAdded, .expenseUpdated, .expenseDeleted, .expenseRestored:
             let action = (amount > 0 ? "get back" : "owe")
@@ -196,17 +198,21 @@ private struct ActivityLogDescriptionView: View {
     let activityLog: ActivityLog
 
     let type: ActivityType
+    let expenseName: String
+    let comment: String
     let payerName: String
-    var receiverName: String
-    var paymentReason: String?
+    let receiverName: String
+    let paymentReason: String?
     let groupName: String
-    var oldGroupName: String
+    let oldGroupName: String
     let actionUserName: String
-    var removedMemberName: String
+    let removedMemberName: String
 
     init(activityLog: ActivityLog) {
         self.activityLog = activityLog
         self.type = activityLog.type
+        self.expenseName = activityLog.expenseName ?? "Expense"
+        self.comment = activityLog.comment ?? "unknown"
         self.payerName = activityLog.payerName ?? "Someone"
         self.receiverName = activityLog.receiverName ?? "Someone"
         self.paymentReason = activityLog.paymentReason
@@ -242,10 +248,14 @@ private struct ActivityLogDescriptionView: View {
             memberRemovedDescription()
         case .expenseAdded, .expenseUpdated, .expenseDeleted, .expenseRestored:
             expenseActivityDescription()
+        case .expenseCommentAdded:
+            expenseCommentAddedDescription()
         case .transactionAdded:
             transactionAddedDescription()
         case .transactionUpdated, .transactionDeleted, .transactionRestored:
             transactionDescription(action: (type == .transactionUpdated) ? "updated" : (type == .transactionDeleted) ? "deleted" : "restored")
+        case .transactionCommentAdded:
+            transactionCommentAddedDescription()
         }
     }
 
@@ -275,8 +285,14 @@ private struct ActivityLogDescriptionView: View {
     @ViewBuilder
     private func expenseActivityDescription() -> some View {
         let action = (type == .expenseAdded) ? "added" : (type == .expenseUpdated) ? "updated" : (type == .expenseDeleted) ? "deleted" : "restored"
-        highlightedText(actionUserName) + disabledText(" \(action)") + highlightedText(" \"\(activityLog.expenseName ?? "")\"") +
+        highlightedText(actionUserName) + disabledText(" \(action)") + highlightedText(" \"\(expenseName)\"") +
         disabledText(" in") + highlightedText(" \"\(groupName)\".")
+    }
+
+    @ViewBuilder
+    private func expenseCommentAddedDescription() -> some View {
+        highlightedText(actionUserName) + disabledText(" commented on") + highlightedText(" \"\(expenseName)\"") +
+        disabledText(" in") + highlightedText(" \"\(groupName)\":") + disabledText(" \"\(comment)\".")
     }
 
     @ViewBuilder
@@ -313,6 +329,13 @@ private struct ActivityLogDescriptionView: View {
             highlightedText(actionUserName) + disabledText(" \(action) a payment from ") + highlightedText(payerName) +
             disabledText(" to ") + highlightedText(receiverName) + disabledText(" in") + highlightedText(" \"\(groupName)\".")
         }
+    }
+
+    @ViewBuilder
+    private func transactionCommentAddedDescription() -> some View {
+        let reason = paymentReason.flatMap { $0.isEmpty ? nil : $0 } ?? "Payment"
+        highlightedText(actionUserName) + disabledText(" commented on") + highlightedText(" \"\(reason)\"") +
+        disabledText(" in") + highlightedText(" \"\(groupName)\":") + disabledText(" \"\(comment)\".")
     }
 
     private func highlightedText(_ text: String) -> Text {
