@@ -16,7 +16,7 @@ public struct Transactions: Codable, Hashable, Identifiable {
     public var date: Timestamp
     public let addedBy: String
     public var amount: Double
-    public var currencyCode: String? = "INR"
+    public var currencyCode: String? = Currency.defaultCurrency.code
     public var updatedBy: String?
     public var note: String?
     public var reason: String?
@@ -25,8 +25,8 @@ public struct Transactions: Codable, Hashable, Identifiable {
     public var isActive: Bool
 
     public init(payerId: String, receiverId: String, date: Timestamp, addedBy: String, amount: Double,
-                currencyCode: String? = "INR", updatedBy: String? = nil, note: String? = nil, reason: String? = nil,
-                imageUrl: String? = nil, updatedAt: Timestamp? = nil, isActive: Bool = true) {
+                currencyCode: String? = Currency.defaultCurrency.code, updatedBy: String? = nil, note: String? = nil,
+                reason: String? = nil, imageUrl: String? = nil, updatedAt: Timestamp? = nil, isActive: Bool = true) {
         self.payerId = payerId
         self.receiverId = receiverId
         self.date = date

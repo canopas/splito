@@ -13,9 +13,6 @@
     " %@ settled up" : {
 
     },
-    " ₹ 0.00" : {
-
-    },
     " commented on" : {
       "extractionState" : "manual"
     },
@@ -550,7 +547,7 @@
     "no balance" : {
 
     },
-    "No country found for \"%@\"!" : {
+    "No currency found for \"%@\"!" : {
 
     },
     "No email address" : {

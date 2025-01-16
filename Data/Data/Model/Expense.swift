@@ -15,7 +15,7 @@ public struct Expense: Codable, Hashable, Identifiable {
     public var name: String
     public var amount: Double
     public var category: String? = "General"
-    public var currencyCode: String? = "INR"
+    public var currencyCode: String? = Currency.defaultCurrency.code
     public var date: Timestamp
     public let addedBy: String
     public var updatedAt: Timestamp?
@@ -29,10 +29,11 @@ public struct Expense: Codable, Hashable, Identifiable {
     public var participants: [String]? = [] // List of user ids, Used for searching expenses by user
     public var isActive: Bool
 
-    public init(groupId: String, name: String, amount: Double, category: String  = "General", currencyCode: String = "INR",
-                date: Timestamp, addedBy: String, updatedAt: Timestamp? = nil, updatedBy: String? = nil, note: String? = nil,
-                imageUrl: String? = nil, splitType: SplitType, splitTo: [String], splitData: [String: Double]? = nil,
-                paidBy: [String: Double], participants: [String], isActive: Bool = true) {
+    public init(groupId: String, name: String, amount: Double, category: String  = "General",
+                currencyCode: String = Currency.defaultCurrency.code, date: Timestamp, addedBy: String,
+                updatedAt: Timestamp? = nil, updatedBy: String? = nil, note: String? = nil, imageUrl: String? = nil,
+                splitType: SplitType, splitTo: [String], splitData: [String: Double]? = nil, paidBy: [String: Double],
+                participants: [String], isActive: Bool = true) {
         self.groupId = groupId
         self.name = name
         self.amount = amount

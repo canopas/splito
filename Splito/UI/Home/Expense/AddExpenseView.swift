@@ -99,8 +99,7 @@ struct AddExpenseView: View {
                             image: $viewModel.expenseImage, isPresented: $viewModel.showImagePicker)
         }
         .sheet(isPresented: $viewModel.showCurrencyPicker) {
-            let currencies = Currency.getAllCurrencies()
-            CurrencyPickerView(currencies: currencies, selectedCurrency: $viewModel.selectedCurrency,
+            CurrencyPickerView(selectedCurrency: $viewModel.selectedCurrency,
                                isPresented: $viewModel.showCurrencyPicker)
         }
         .toolbar {

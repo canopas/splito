@@ -22,13 +22,13 @@ public struct Groups: Codable, Identifiable {
     public let createdAt: Timestamp
     public var updatedAt: Timestamp
     public var hasExpenses: Bool
-    public var defaultCurrency: String? = "INR"
+    public var defaultCurrency: String? = Currency.defaultCurrency.code
     public var isActive: Bool
 
     public init(name: String, type: GroupType = .splitExpense, createdBy: String, updatedBy: String? = nil,
                 imageUrl: String? = nil, members: [String], initialBalance: Double = 0.0, balances: [GroupMemberBalance],
                 createdAt: Timestamp = Timestamp(), updatedAt: Timestamp = Timestamp(), hasExpenses: Bool = false,
-                currencyCode: String = "INR", isActive: Bool = true) {
+                currencyCode: String = Currency.defaultCurrency.code, isActive: Bool = true) {
         self.name = name
         self.type = type
         self.createdBy = createdBy

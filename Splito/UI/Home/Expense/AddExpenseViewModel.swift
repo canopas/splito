@@ -78,7 +78,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         viewState = .loading
         await fetchAndUpdateGroupData(groupId: groupId)
         selectedPayers = [userId: expenseAmount]
-        selectedCurrency = Currency.getCurrencyFromCode(selectedGroup?.defaultCurrency ?? "INR")
+        selectedCurrency = Currency.getCurrencyFromCode(selectedGroup?.defaultCurrency)
         viewState = .initial
         LogD("AddExpenseViewModel: \(#function) Group fetched successfully.")
     }
@@ -119,8 +119,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         selectedPayers = expense.paidBy
         expenseImageUrl = expense.imageUrl
         expenseNote = expense.note ?? ""
-        let defaultCurrency = selectedGroup?.defaultCurrency ?? "INR"
-        selectedCurrency = Currency.getCurrencyFromCode(expense.currencyCode ?? defaultCurrency)
+        selectedCurrency = Currency.getCurrencyFromCode(expense.currencyCode ?? selectedGroup?.defaultCurrency)
         if let splitData = expense.splitData {
             self.splitData = splitData
         }

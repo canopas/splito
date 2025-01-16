@@ -13,6 +13,8 @@ public struct Currency: Decodable, Hashable {
     public let symbol: String
     public let region: String
 
+    public static var defaultCurrency = Currency(code: "INR", name: "Indian Rupee", symbol: "₹", region: "IN")
+
     public init(code: String, name: String, symbol: String, region: String) {
         self.code = code
         self.name = name
@@ -25,9 +27,9 @@ public struct Currency: Decodable, Hashable {
         return allCurrencies
     }
 
-    public static func getCurrencyFromCode(_ code: String) -> Currency {
+    public static func getCurrencyFromCode(_ code: String?) -> Currency {
         let allCurrencies = getAllCurrencies()
-        let currency = allCurrencies.first(where: { $0.code == code }) ?? Currency(code: "INR", name: "Indian Rupee", symbol: "₹", region: "IN")
+        let currency = allCurrencies.first(where: { $0.code == code }) ?? defaultCurrency
         return currency
     }
 
@@ -35,7 +37,7 @@ public struct Currency: Decodable, Hashable {
         let allCurrencies = getAllCurrencies()
         let currentLocal = Locale.current.region?.identifier
         let currency = allCurrencies.first(where: { $0.region == currentLocal }) ??
-            (allCurrencies.first ?? Currency(code: "INR", name: "Indian Rupee", symbol: "₹", region: "IN"))
+            (allCurrencies.first ?? defaultCurrency)
         return currency
     }
 }

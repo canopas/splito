@@ -13,7 +13,6 @@ struct CurrencyPickerView: View {
 
     @Environment(\.dismiss) var dismiss
 
-    var currencies: [Currency]
     @Binding var selectedCurrency: Currency
     @Binding var isPresented: Bool
 
@@ -21,6 +20,7 @@ struct CurrencyPickerView: View {
     @FocusState private var isFocused: Bool
 
     private var filteredCurrencies: [Currency] {
+        let currencies = Currency.getAllCurrencies()
         guard !searchedCurrency.isEmpty else { return currencies }
         return currencies.filter { currency in
             currency.name.lowercased().contains(searchedCurrency.lowercased()) ||
@@ -74,7 +74,7 @@ private struct CurrencyNotFoundView: View {
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
-            Text("No country found for \"\(searchedCurrency)\"!")
+            Text("No currency found for \"\(searchedCurrency)\"!")
                 .font(.subTitle1())
                 .foregroundStyle(disableText)
                 .padding(.bottom, 60)

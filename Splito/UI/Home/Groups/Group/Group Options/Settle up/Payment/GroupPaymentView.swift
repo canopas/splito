@@ -112,8 +112,7 @@ struct GroupPaymentView: View {
                             image: $viewModel.paymentImage, isPresented: $viewModel.showImagePicker)
         }
         .sheet(isPresented: $viewModel.showCurrencyPicker) {
-            let currencies = Currency.getAllCurrencies()
-            CurrencyPickerView(currencies: currencies, selectedCurrency: $viewModel.selectedCurrency,
+            CurrencyPickerView(selectedCurrency: $viewModel.selectedCurrency,
                                isPresented: $viewModel.showCurrencyPicker)
         }
         .sheet(isPresented: $viewModel.showAddNoteEditor) {

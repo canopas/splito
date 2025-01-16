@@ -68,7 +68,6 @@
 		D88721452B9B2C78009DC5BE /* GroupListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721442B9B2C78009DC5BE /* GroupListView.swift */; };
 		D88721472B9B2C97009DC5BE /* GroupListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */; };
 		D888EA722D2BB41F0003284B /* ExpensesSearchRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D888EA712D2BB4180003284B /* ExpensesSearchRouteView.swift */; };
-		D888EA752D3141460003284B /* Currencies.json in Resources */ = {isa = PBXBuildFile; fileRef = D888EA742D31413C0003284B /* Currencies.json */; };
 		D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D889F5B82B7A521F008C6A43 /* SplashView.storyboard */; };
 		D89684452B722D3400D5F721 /* SplitoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89684442B722D3400D5F721 /* SplitoApp.swift */; };
 		D89684492B722D3700D5F721 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D89684482B722D3700D5F721 /* Assets.xcassets */; };
@@ -233,7 +232,6 @@
 		D88721442B9B2C78009DC5BE /* GroupListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListView.swift; sourceTree = "<group>"; };
 		D88721462B9B2C97009DC5BE /* GroupListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListViewModel.swift; sourceTree = "<group>"; };
 		D888EA712D2BB4180003284B /* ExpensesSearchRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesSearchRouteView.swift; sourceTree = "<group>"; };
-		D888EA742D31413C0003284B /* Currencies.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Currencies.json; sourceTree = "<group>"; };
 		D889F5B82B7A521F008C6A43 /* SplashView.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SplashView.storyboard; sourceTree = "<group>"; };
 		D89684412B722D3400D5F721 /* Splito.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Splito.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89684442B722D3400D5F721 /* SplitoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitoApp.swift; sourceTree = "<group>"; };
@@ -671,7 +669,6 @@
 			children = (
 				D89684482B722D3700D5F721 /* Assets.xcassets */,
 				D889F5B82B7A521F008C6A43 /* SplashView.storyboard */,
-				D888EA742D31413C0003284B /* Currencies.json */,
 			);
 			path = Resource;
 			sourceTree = "<group>";
@@ -924,7 +921,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D888EA752D3141460003284B /* Currencies.json in Resources */,
 				D896844C2B722D3700D5F721 /* Preview Assets.xcassets in Resources */,
 				D89684492B722D3700D5F721 /* Assets.xcassets in Resources */,
 				D889F5B92B7A521F008C6A43 /* SplashView.storyboard in Resources */,
