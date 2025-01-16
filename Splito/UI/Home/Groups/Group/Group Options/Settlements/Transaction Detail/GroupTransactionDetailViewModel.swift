@@ -32,6 +32,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
 
     @Published var showLoader: Bool = false
     @Published var showAddNoteEditor = false
+    @Published var showImageDisplayView = false
     @Published var showEditTransactionSheet = false
     @Published private(set) var hasMoreComments: Bool = true
 
@@ -170,6 +171,10 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - User Actions
+    func handleAttachmentTap() {
+        showImageDisplayView = true
+    }
+
     func handleNoteTap() {
         guard let transaction, transaction.isActive, let userId = preference.user?.id,
               let group, group.members.contains(userId) else { return }
@@ -201,26 +206,28 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         }
 
         Task { [weak self] in
+            guard let self else { return }
             do {
-                self?.showLoader = true
+                self.showLoader = true
                 let comment = Comment(parentId: transactionId,
-                                      comment: self?.comment.trimming(spaces: .leadingAndTrailing) ?? "",
+                                      comment: self.comment.trimming(spaces: .leadingAndTrailing),
                                       commentedBy: userId)
-                let addedComment = try await self?.commentRepository.addComment(group: group, transaction: transaction,
-                                                                                members: (payer, receiver), comment: comment)
+                let addedComment = try await self.commentRepository.addComment(group: group, transaction: transaction,
+                                                                               members: (payer, receiver), comment: comment,
+                                                                               existingCommenterIds: self.comments.map { $0.commentedBy })
 
                 if let addedComment {
-                    self?.comments.insert(addedComment, at: 0)
-                    self?.latestCommentId = addedComment.id
-                    self?.comment = ""
-                    await self?.updateTransactionUsersData()
+                    self.comments.insert(addedComment, at: 0)
+                    self.latestCommentId = addedComment.id
+                    self.comment = ""
+                    await self.updateTransactionUsersData()
                 }
-                self?.showLoader = false
+                self.showLoader = false
                 LogD("GroupTransactionDetailViewModel: \(#function) Payment comment added successfully.")
             } catch {
-                self?.showLoader = false
+                self.showLoader = false
                 LogE("GroupTransactionDetailViewModel: \(#function) Failed to add payment comment: \(error).")
-                self?.showToastForError()
+                self.showToastForError()
             }
         }
     }

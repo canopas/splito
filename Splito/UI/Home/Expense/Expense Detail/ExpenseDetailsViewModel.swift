@@ -32,6 +32,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
 
     @Published var showLoader: Bool = false
     @Published var showAddNoteEditor = false
+    @Published var showImageDisplayView = false
     @Published var showEditExpenseSheet = false
     @Published private(set) var hasMoreComments: Bool = true
 
@@ -165,6 +166,10 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         return expenseUsersData.first(where: { $0.id == id })
     }
 
+    func handleAttachmentTap() {
+        showImageDisplayView = true
+    }
+
     func handleNoteTap() {
         guard let expense, expense.isActive, let userId = preference.user?.id,
               let group, group.members.contains(userId) else { return }
@@ -189,23 +194,25 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
         }
 
         Task { [weak self] in
+            guard let self else { return }
             do {
-                self?.showLoader = true
-                let comment = Comment(parentId: expenseId, comment: self?.comment.trimming(spaces: .leadingAndTrailing) ?? "", commentedBy: userId)
-                let newComment = try await self?.commentRepository.addComment(group: group, expense: expense, comment: comment)
-
+                self.showLoader = true
+                let comment = Comment(parentId: expenseId, comment: self.comment.trimming(spaces: .leadingAndTrailing), commentedBy: userId)
+                let newComment = try await self.commentRepository.addComment(group: group,
+                                                                             expense: expense, comment: comment,
+                                                                             existingCommenterIds: self.comments.map { $0.commentedBy })
                 if let newComment {
-                    self?.comments.insert(newComment, at: 0)
-                    self?.latestCommentId = newComment.id
-                    self?.comment = ""
-                    await self?.updateExpenseUsersData()
+                    self.comments.insert(newComment, at: 0)
+                    self.latestCommentId = newComment.id
+                    self.comment = ""
+                    await self.updateExpenseUsersData()
                 }
-                self?.showLoader = false
+                self.showLoader = false
                 LogD("ExpenseDetailsViewModel: \(#function) Expense comment added successfully.")
             } catch {
-                self?.showLoader = false
+                self.showLoader = false
                 LogE("ExpenseDetailsViewModel: \(#function) Failed to add expense comment: \(error).")
-                self?.showToastForError()
+                self.showToastForError()
             }
         }
     }

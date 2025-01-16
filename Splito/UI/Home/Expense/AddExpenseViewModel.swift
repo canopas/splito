@@ -36,6 +36,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published var showAddNoteEditor = false
     @Published var showGroupSelection = false
     @Published var showPayerSelection = false
+    @Published var showImageDisplayView = false
     @Published var showImagePickerOptions = false
     @Published var showSplitTypeSelection = false
     @Published private(set) var showLoader = false
@@ -186,7 +187,11 @@ extension AddExpenseViewModel {
         showGroupSelection = expenseId == nil
     }
 
-    func handleExpenseImageTap() {
+    func handleAttachmentTap() {
+        showImageDisplayView = true
+    }
+
+    func handleCameraTap() {
         UIApplication.shared.endEditing()
         showImagePickerOptions = true
     }
@@ -421,9 +426,7 @@ extension AddExpenseViewModel {
         newExpense.splitTo = splitData.map { $0.key }
         newExpense.splitData = splitData
         newExpense.splitType = splitType
-
-        let participants = Array(Set(newExpense.splitTo + newExpense.paidBy.keys))
-        newExpense.participants = participants
+        newExpense.participants = Array(Set(newExpense.splitTo + newExpense.paidBy.keys))
 
         return await updateExpense(group: group, expense: newExpense, oldExpense: expense)
     }

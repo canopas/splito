@@ -26,9 +26,10 @@ class CommentStore: ObservableObject {
             .collection(isForExpenseComment ? EXPENSES_COMMENTS_COLLECTION : TRANSACTIONS_COMMENTS_COLLECTION)
     }
 
-    func addComment(groupId: String, parentId: String, comment: Comment, isForExpenseComment: Bool = true) async throws -> Comment? {
-        let documentRef = commentReference(groupId: groupId, parentId: parentId, isForExpenseComment: isForExpenseComment).document()
-
+    func addComment(groupId: String, parentId: String, comment: Comment,
+                    isForExpenseComment: Bool = true) async throws -> Comment? {
+        let documentRef = commentReference(groupId: groupId, parentId: parentId,
+                                           isForExpenseComment: isForExpenseComment).document()
         var newComment = comment
         newComment.id = documentRef.documentID
 
@@ -42,8 +43,11 @@ class CommentStore: ObservableObject {
         return newComment
     }
 
-    func fetchCommentsBy(groupId: String, parentId: String, limit: Int, lastDocument: DocumentSnapshot?, isForExpenseComment: Bool = true) async throws -> (data: [Comment], lastDocument: DocumentSnapshot?) {
-        var query = commentReference(groupId: groupId, parentId: parentId, isForExpenseComment: isForExpenseComment)
+    func fetchCommentsBy(groupId: String, parentId: String, limit: Int, lastDocument: DocumentSnapshot?,
+                         isForExpenseComment: Bool = true) async throws -> (data: [Comment],
+                                                                            lastDocument: DocumentSnapshot?) {
+        var query = commentReference(groupId: groupId, parentId: parentId,
+                                     isForExpenseComment: isForExpenseComment)
             .order(by: "commented_at", descending: true)
             .limit(to: limit)
 

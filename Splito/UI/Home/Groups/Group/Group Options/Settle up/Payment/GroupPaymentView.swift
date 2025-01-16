@@ -70,13 +70,12 @@ struct GroupPaymentView: View {
                     .scrollIndicators(.hidden)
                     .scrollBounceBehavior(.basedOnSize)
 
-                    AddNoteImageFooterView(date: $viewModel.paymentDate,
-                                           showImagePickerOptions: $viewModel.showImagePickerOptions,
-                                           image: viewModel.paymentImage, imageUrl: viewModel.paymentImageUrl,
-                                           isNoteEmpty: (viewModel.paymentNote.isEmpty &&
-                                                         viewModel.paymentReason.isEmpty),
-                                           handleNoteBtnTap: viewModel.handleNoteBtnTap,
-                                           handleImageTap: viewModel.handlePaymentImageTap,
+                    AddNoteImageFooterView(date: $viewModel.paymentDate, showImageDisplayView: $viewModel.showImageDisplayView,
+                                           showImagePickerOptions: $viewModel.showImagePickerOptions, image: viewModel.paymentImage,
+                                           imageUrl: viewModel.paymentImageUrl,
+                                           isNoteEmpty: (viewModel.paymentNote.isEmpty && viewModel.paymentReason.isEmpty),
+                                           handleNoteBtnTap: viewModel.handleNoteBtnTap, handleCameraTap: viewModel.handleCameraTap,
+                                           handleAttachmentTap: viewModel.handleAttachmentTap,
                                            handleActionSelection: viewModel.handleActionSelection(_:))
                 }
             }

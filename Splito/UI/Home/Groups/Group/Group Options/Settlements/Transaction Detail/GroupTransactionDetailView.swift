@@ -14,7 +14,6 @@ struct GroupTransactionDetailView: View {
     @StateObject var viewModel: GroupTransactionDetailViewModel
 
     @FocusState var isFocused: Bool
-    @State private var showImageDisplayView = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -42,9 +41,10 @@ struct GroupTransactionDetailView: View {
                                     VStack(spacing: 12) {
                                         SectionHeaderView(text: "Attachment")
 
-                                        AttachmentContainerView(showImageDisplayView: $showImageDisplayView, imageUrl: imageUrl)
+                                        AttachmentContainerView(imageUrl: imageUrl)
                                             .frame(height: 140)
-                                            .cornerRadius(12)
+                                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                                            .onTapGestureForced(perform: viewModel.handleAttachmentTap)
                                             .padding(.horizontal, 16)
                                     }
                                     .padding(.top, 24)
@@ -126,7 +126,7 @@ struct GroupTransactionDetailView: View {
                                                         note: viewModel.paymentNote, paymentReason: viewModel.paymentReason))
             }
         }
-        .navigationDestination(isPresented: $showImageDisplayView) {
+        .navigationDestination(isPresented: $viewModel.showImageDisplayView) {
             if let imageUrl = viewModel.transaction?.imageUrl, !imageUrl.isEmpty {
                 AttachmentZoomView(imageUrl: imageUrl)
             }

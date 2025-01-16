@@ -12,25 +12,21 @@ import Kingfisher
 
 public struct AttachmentContainerView: View {
 
-    @Binding var showImageDisplayView: Bool
-
     var image: UIImage?
     var imageUrl: String?
 
     @Namespace private var animationNamespace
 
-    public init(showImageDisplayView: Binding<Bool>, image: UIImage? = nil, imageUrl: String? = nil) {
-        self._showImageDisplayView = showImageDisplayView
+    public init(image: UIImage? = nil, imageUrl: String? = nil) {
         self.image = image
         self.imageUrl = imageUrl
     }
 
     public var body: some View {
-        HStack {
+        ZStack {
             if let image {
                 Image(uiImage: image)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
             } else if let imageUrl, let url = URL(string: imageUrl) {
                 KFImage(url)
                     .placeholder { _ in
@@ -39,13 +35,10 @@ public struct AttachmentContainerView: View {
                     .setProcessor(DownsamplingImageProcessor(size: UIScreen.main.bounds.size)) // Downsample to fit screen size
                     .cacheMemoryOnly()
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
             }
         }
+        .aspectRatio(contentMode: .fill)
         .matchedGeometryEffect(id: "image", in: animationNamespace)
-        .onTapGestureForced {
-            showImageDisplayView = true
-        }
     }
 }
 

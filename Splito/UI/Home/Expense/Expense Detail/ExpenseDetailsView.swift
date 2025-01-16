@@ -14,7 +14,6 @@ struct ExpenseDetailsView: View {
     @StateObject var viewModel: ExpenseDetailsViewModel
 
     @FocusState var isFocused: Bool
-    @State private var showImageDisplayView = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -34,9 +33,10 @@ struct ExpenseDetailsView: View {
                                 VStack(spacing: 12) {
                                     SectionHeaderView(text: "Attachment")
 
-                                    AttachmentContainerView(showImageDisplayView: $showImageDisplayView, imageUrl: imageUrl)
+                                    AttachmentContainerView(imageUrl: imageUrl)
                                         .frame(height: 140)
-                                        .cornerRadius(12)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                        .onTapGestureForced(perform: viewModel.handleAttachmentTap)
                                         .padding(.horizontal, 16)
                                 }
                                 .padding(.top, 8)
@@ -112,7 +112,7 @@ struct ExpenseDetailsView: View {
                 }
             }
         }
-        .navigationDestination(isPresented: $showImageDisplayView) {
+        .navigationDestination(isPresented: $viewModel.showImageDisplayView) {
             if let imageUrl = viewModel.expense?.imageUrl, !imageUrl.isEmpty {
                 AttachmentZoomView(imageUrl: imageUrl)
             }
