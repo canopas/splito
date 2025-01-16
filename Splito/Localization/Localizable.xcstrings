@@ -13,6 +13,12 @@
     " %@ settled up" : {
 
     },
+    " ₹ 0.00" : {
+
+    },
+    " commented on" : {
+      "extractionState" : "manual"
+    },
     " from the group" : {
       "extractionState" : "manual"
     },
@@ -23,6 +29,9 @@
 
     },
     " removed " : {
+      "extractionState" : "manual"
+    },
+    " to" : {
       "extractionState" : "manual"
     },
     " to %@" : {
@@ -120,6 +129,9 @@
     "%lld people" : {
 
     },
+    "•" : {
+
+    },
     "₹ %@ of %@" : {
       "extractionState" : "manual"
     },
@@ -211,6 +223,9 @@
     "Ana borrows $10 from Bob" : {
 
     },
+    "and changed the cover photo." : {
+      "extractionState" : "manual"
+    },
     "Apologies, we were not able to complete the authentication process. Please try again later." : {
       "extractionState" : "manual"
     },
@@ -241,8 +256,8 @@
     "Are you sure you want to sign out?" : {
       "extractionState" : "manual"
     },
-    "Attachment:" : {
-
+    "Attachment" : {
+      "extractionState" : "manual"
     },
     "Authentication failed" : {
       "extractionState" : "manual"
@@ -276,6 +291,9 @@
     },
     "Choose mode\nPlease choose your preferred mode to includes attachment with feedback" : {
 
+    },
+    "Comments" : {
+      "extractionState" : "manual"
     },
     "Contact Support" : {
       "extractionState" : "manual"
@@ -389,6 +407,9 @@
       "extractionState" : "manual"
     },
     "First Name" : {
+      "extractionState" : "manual"
+    },
+    "for" : {
       "extractionState" : "manual"
     },
     "Forgot password?" : {
@@ -565,8 +586,8 @@
     "not involved" : {
 
     },
-    "Note:" : {
-
+    "Note" : {
+      "extractionState" : "manual"
     },
     "Ok" : {
       "extractionState" : "manual"
@@ -986,6 +1007,12 @@
       "extractionState" : "manual"
     },
     "You can't remove %@ from this group because they have outstanding debts with other group members. Please make sure all of %@'s debts have been settle up, and try again." : {
+      "extractionState" : "manual"
+    },
+    "You do not have permission to add a comment on this expense, Sorry!" : {
+      "extractionState" : "manual"
+    },
+    "You do not have permission to add a comment on this payment, Sorry!" : {
       "extractionState" : "manual"
     },
     "You do not owe anything" : {

@@ -36,13 +36,14 @@ interface ActivityData {
   type: 'group_created' | 'group_updated' | 'group_deleted' | 'group_restored' |
         'group_name_updated' | 'group_image_updated' | 'group_member_left' |
         'group_member_removed' | 'expense_added' | 'expense_updated' |
-        'expense_deleted' | 'expense_restored' | 'transaction_added' |
-        'transaction_updated' | 'transaction_deleted' | 'transaction_restored';
+        'expense_deleted' | 'expense_restored' | 'expense_comment_added' | 'transaction_added' |
+        'transaction_updated' | 'transaction_deleted' | 'transaction_restored' | 'transaction_comment_added';
   action_user_name: string;
   group_name: string;
   previous_group_name?: string;
   removed_member_name?: string;
   expense_name?: string;
+  comment?: string;
   payer_name?: string;
   receiver_name?: string
   payment_reason?: string
@@ -85,6 +86,7 @@ function generateNotificationMessage(activityData: ActivityData) {
   const amount = activityData.amount ?? 0;
   const amountMessage = generateAmountMessage(amount);
   const expenseName = activityData.expense_name ?? messages.unknown;
+  const comment = activityData.comment ?? messages.unknown;
   const actionUserName = activityData.action_user_name;
   const payerName = capitalizeFirstLetter(activityData.payer_name ?? messages.someone);
   const receiverName = activityData.receiver_name ?? messages.someone;
@@ -129,6 +131,9 @@ function generateNotificationMessage(activityData: ActivityData) {
     case 'expense_restored':
       return messages.expense_restored.replace("{expenseName}", expenseName).replace("{amountMessage}", amountMessage);
 
+    case 'expense_comment_added':
+      return messages.expense_comment_added.replace("{actionUserName}", actionUserName).replace("{expenseName}", expenseName).replace("{groupName}", groupName).replace("{comment}", comment);
+
     case 'transaction_added':
       return getTransactionMessage("transaction_added_with_reason", "transaction_added", payerName, receiverName, amount, paymentReason);
 
@@ -140,6 +145,9 @@ function generateNotificationMessage(activityData: ActivityData) {
 
     case 'transaction_restored':
       return getTransactionMessage("transaction_restored_with_reason", "transaction_restored", payerName, receiverName, amount, paymentReason);
+
+    case 'transaction_comment_added':
+      return messages.transaction_comment_added.replace("{actionUserName}", actionUserName).replace("{paymentReason}", paymentReason || messages.payment).replace("{groupName}", groupName).replace("{comment}", comment);
 
     default:
       return messages.new_activity;

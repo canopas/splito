@@ -36,6 +36,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published var showAddNoteEditor = false
     @Published var showGroupSelection = false
     @Published var showPayerSelection = false
+    @Published var showImageDisplayView = false
     @Published var showImagePickerOptions = false
     @Published var showSplitTypeSelection = false
     @Published var showCurrencyPicker = false
@@ -87,8 +88,8 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         do {
             viewState = .loading
             let expense = try await expenseRepository.fetchExpenseBy(groupId: groupId, expenseId: expenseId)
-            await updateViewModelFieldsWithExpense(expense: expense)
             await fetchAndUpdateGroupData(groupId: groupId)
+            await updateViewModelFieldsWithExpense(expense: expense)
             viewState = .initial
             LogD("AddExpenseViewModel: \(#function) Expense details with members fetched successfully.")
         } catch {
@@ -192,7 +193,11 @@ extension AddExpenseViewModel {
         showGroupSelection = expenseId == nil
     }
 
-    func handleExpenseImageTap() {
+    func handleAttachmentTap() {
+        showImageDisplayView = true
+    }
+
+    func handleCameraTap() {
         UIApplication.shared.endEditing()
         showImagePickerOptions = true
     }
@@ -420,6 +425,7 @@ extension AddExpenseViewModel {
         newExpense.splitTo = splitData.map { $0.key }
         newExpense.splitData = splitData
         newExpense.splitType = splitType
+        newExpense.participants = Array(Set(newExpense.splitTo + newExpense.paidBy.keys))
 
         let participants = Array(Set(newExpense.splitTo + newExpense.paidBy.keys))
         newExpense.participants = participants

@@ -28,6 +28,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
 
     @Published var showImagePicker = false
     @Published var showAddNoteEditor = false
+    @Published var showImageDisplayView = false
     @Published var showImagePickerOptions = false
     @Published var showCurrencyPicker = false
     @Published private(set) var showLoader: Bool = false
@@ -143,7 +144,11 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
         self.paymentReason = reason ?? ""
     }
 
-    func handlePaymentImageTap() {
+    func handleAttachmentTap() {
+        showImageDisplayView = true
+    }
+
+    func handleCameraTap() {
         UIApplication.shared.endEditing()
         showImagePickerOptions = true
     }

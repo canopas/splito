@@ -17,6 +17,9 @@
 		2163D3B62D269E2A004B4F20 /* FeedbackRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2163D3B52D269E2A004B4F20 /* FeedbackRepository.swift */; };
 		21CF56512D1E804000B47A6D /* DeepLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21CF56502D1E804000B47A6D /* DeepLinkManager.swift */; };
 		21D8D0832C0857F10061B365 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8D0822C0857F10061B365 /* Constants.swift */; };
+		21F41AFC2D312C6500D37DBB /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F41AFB2D312C6500D37DBB /* Comment.swift */; };
+		21F41AFE2D312EDE00D37DBB /* CommentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F41AFD2D312EDE00D37DBB /* CommentStore.swift */; };
+		21F41B002D31311A00D37DBB /* CommentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F41AFF2D31311A00D37DBB /* CommentRepository.swift */; };
 		64E499C5CFAEA368EC21313F /* Pods_DataTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1571EA0A08D442FEF7C09424 /* Pods_DataTests.framework */; };
 		7EF3A291581F7EA20CB1042D /* Pods_Data.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E91B3E23688435064A60C0C4 /* Pods_Data.framework */; };
 		D81C61532D3542600044A1E6 /* Bundle+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81C61522D3542600044A1E6 /* Bundle+Extension.swift */; };
@@ -84,6 +87,9 @@
 		2163D3B52D269E2A004B4F20 /* FeedbackRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackRepository.swift; sourceTree = "<group>"; };
 		21CF56502D1E804000B47A6D /* DeepLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkManager.swift; sourceTree = "<group>"; };
 		21D8D0822C0857F10061B365 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		21F41AFB2D312C6500D37DBB /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
+		21F41AFD2D312EDE00D37DBB /* CommentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentStore.swift; sourceTree = "<group>"; };
+		21F41AFF2D31311A00D37DBB /* CommentRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentRepository.swift; sourceTree = "<group>"; };
 		5B14CF1A2EEF27479BF50566 /* Pods-DataTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DataTests.debug.xcconfig"; path = "Target Support Files/Pods-DataTests/Pods-DataTests.debug.xcconfig"; sourceTree = "<group>"; };
 		803094012FE4C155F2A347B6 /* Pods-DataTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DataTests.release.xcconfig"; path = "Target Support Files/Pods-DataTests/Pods-DataTests.release.xcconfig"; sourceTree = "<group>"; };
 		BED6C37AA3F8FD2A6350DE1C /* Pods-Data.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Data.debug.xcconfig"; path = "Target Support Files/Pods-Data/Pods-Data.debug.xcconfig"; sourceTree = "<group>"; };
@@ -192,6 +198,7 @@
 				D83B15082B999789004A5F4F /* GroupRepository.swift */,
 				D85E86E42BAB088F002EDF76 /* ExpenseRepository.swift */,
 				D8CF5A242C199ADB0014E3AD /* TransactionRepository.swift */,
+				21F41AFF2D31311A00D37DBB /* CommentRepository.swift */,
 				21559CAF2CBD2B400039F127 /* ActivityLogRepository.swift */,
 				D8D14A532BA092F400F45FF2 /* ShareCodeRepository.swift */,
 				2163D3B52D269E2A004B4F20 /* FeedbackRepository.swift */,
@@ -216,6 +223,7 @@
 				D83B15042B9996C0004A5F4F /* Groups.swift */,
 				D85E86DD2BAB0292002EDF76 /* Expense.swift */,
 				D8CF5A202C1986250014E3AD /* Transaction.swift */,
+				21F41AFB2D312C6500D37DBB /* Comment.swift */,
 				21559CA32CBD05570039F127 /* ActivityLog.swift */,
 				D8D14A512BA0917D00F45FF2 /* SharedCode.swift */,
 				2163D3AF2D265C25004B4F20 /* Feedback.swift */,
@@ -274,6 +282,7 @@
 				D8A7CA762BA5AB800014EC67 /* GroupStore.swift */,
 				D8910E372BB6D1D300877CE0 /* ExpenseStore.swift */,
 				D8CF5A222C1989630014E3AD /* TransactionStore.swift */,
+				21F41AFD2D312EDE00D37DBB /* CommentStore.swift */,
 				21559CAD2CBD2AED0039F127 /* ActivityLogStore.swift */,
 				D8A7CA7A2BA5B6AC0014EC67 /* ShareCodeStore.swift */,
 				2163D3B32D269E17004B4F20 /* FeedbackStore.swift */,
@@ -546,9 +555,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8CF5A232C1989640014E3AD /* TransactionStore.swift in Sources */,
+				21F41AFC2D312C6500D37DBB /* Comment.swift in Sources */,
 				D88721432B99F133009DC5BE /* StorageManager.swift in Sources */,
 				D89DBE4A2B8CBEAE00E5F1BD /* ServiceError.swift in Sources */,
 				D8613F682BFDECC4008BD53D /* Query+Extension.swift in Sources */,
+				21F41B002D31311A00D37DBB /* CommentRepository.swift in Sources */,
 				D89DBE482B8CBE4C00E5F1BD /* AppUser.swift in Sources */,
 				D8D14A522BA0917D00F45FF2 /* SharedCode.swift in Sources */,
 				D89DBE462B8CBE0F00E5F1BD /* UserRepository.swift in Sources */,
@@ -560,6 +571,7 @@
 				21D8D0832C0857F10061B365 /* Constants.swift in Sources */,
 				D888EA772D314D180003284B /* Currency.swift in Sources */,
 				D8AC25C12B7F38D300CEAAD3 /* Injector.swift in Sources */,
+				21F41AFE2D312EDE00D37DBB /* CommentStore.swift in Sources */,
 				D8D14A542BA092F500F45FF2 /* ShareCodeRepository.swift in Sources */,
 				D8A7CA7B2BA5B6AC0014EC67 /* ShareCodeStore.swift in Sources */,
 				21CF56512D1E804000B47A6D /* DeepLinkManager.swift in Sources */,

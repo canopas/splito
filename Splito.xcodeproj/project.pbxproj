@@ -29,6 +29,7 @@
 		21BA6D4A2C3BB63B0020ED04 /* ChooseMultiplePayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D492C3BB63B0020ED04 /* ChooseMultiplePayerView.swift */; };
 		21BA6D4D2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D4C2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift */; };
 		21BA6D4F2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BA6D4E2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift */; };
+		21C9A7D62D3557F5006C84CE /* CommentListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21C9A7D52D3557F5006C84CE /* CommentListView.swift */; };
 		21D4A2062D22CDD000C11322 /* ExpensesSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D4A2052D22CDD000C11322 /* ExpensesSearchView.swift */; };
 		21D4A2082D22CDF900C11322 /* ExpensesSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D4A2072D22CDF900C11322 /* ExpensesSearchViewModel.swift */; };
 		21D8CF3F2CFF080300463E4D /* EmailLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8CF3E2CFF080300463E4D /* EmailLoginView.swift */; };
@@ -183,6 +184,7 @@
 		21BA6D492C3BB63B0020ED04 /* ChooseMultiplePayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseMultiplePayerView.swift; sourceTree = "<group>"; };
 		21BA6D4C2C3BB6AD0020ED04 /* ChooseMultiplePayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseMultiplePayerViewModel.swift; sourceTree = "<group>"; };
 		21BA6D4E2C3BBB1B0020ED04 /* ChoosePayerRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoosePayerRouteView.swift; sourceTree = "<group>"; };
+		21C9A7D52D3557F5006C84CE /* CommentListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentListView.swift; sourceTree = "<group>"; };
 		21D4A2052D22CDD000C11322 /* ExpensesSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesSearchView.swift; sourceTree = "<group>"; };
 		21D4A2072D22CDF900C11322 /* ExpensesSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesSearchViewModel.swift; sourceTree = "<group>"; };
 		21D8CF3E2CFF080300463E4D /* EmailLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLoginView.swift; sourceTree = "<group>"; };
@@ -397,6 +399,14 @@
 			path = Payer;
 			sourceTree = "<group>";
 		};
+		21C9A7D42D3557D5006C84CE /* Comments */ = {
+			isa = PBXGroup;
+			children = (
+				21C9A7D52D3557F5006C84CE /* CommentListView.swift */,
+			);
+			path = Comments;
+			sourceTree = "<group>";
+		};
 		21D8CF3D2CFF07E800463E4D /* EmailLogin */ = {
 			isa = PBXGroup;
 			children = (
@@ -536,6 +546,7 @@
 			children = (
 				D856C7312BCFD21C0008A341 /* ExpenseDetailsView.swift */,
 				D856C7332BCFD2260008A341 /* ExpenseDetailsViewModel.swift */,
+				21C9A7D42D3557D5006C84CE /* Comments */,
 			);
 			path = "Expense Detail";
 			sourceTree = "<group>";
@@ -1148,6 +1159,7 @@
 				D85E86EB2BB3FD59002EDF76 /* ChoosePayerViewModel.swift in Sources */,
 				D81C61512D353EB70044A1E6 /* CurrencyPickerView.swift in Sources */,
 				2163D3A92D265A7D004B4F20 /* FeedbackView.swift in Sources */,
+				21C9A7D62D3557F5006C84CE /* CommentListView.swift in Sources */,
 				21B1C09A2C1C59F10098B4FD /* GroupTransactionListView.swift in Sources */,
 				D89DBE5B2B8DE97000E5F1BD /* GroupRouteView.swift in Sources */,
 				D8AC27152B84B73000CEAAD3 /* PageControl.swift in Sources */,

@@ -13,49 +13,61 @@ struct ExpenseDetailsView: View {
 
     @StateObject var viewModel: ExpenseDetailsViewModel
 
-    @State private var showImageDisplayView = false
+    @FocusState var isFocused: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
-                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchGroupAndExpenseData)
+                ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchInitialViewData)
             } else if case .loading = viewModel.viewState {
                 LoaderView()
             } else {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        ExpenseHeaderView(viewModel: viewModel)
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 0) {
+                            ExpenseHeaderView(viewModel: viewModel)
 
-                        ExpenseInfoView(viewModel: viewModel)
+                            ExpenseInfoView(viewModel: viewModel)
 
-                        if let imageUrl = viewModel.expense?.imageUrl, !imageUrl.isEmpty {
-                            VStack(spacing: 8) {
-                                Text("Attachment:")
-                                    .font(.subTitle3())
-                                    .foregroundStyle(disableText)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            if let imageUrl = viewModel.expense?.imageUrl, !imageUrl.isEmpty {
+                                VStack(spacing: 12) {
+                                    SectionHeaderView(text: "Attachment")
 
-                                AttachmentContainerView(showImageDisplayView: $showImageDisplayView, imageUrl: imageUrl)
-                                    .frame(height: 140)
-                                    .frame(maxWidth: .infinity)
-                                    .cornerRadius(12)
+                                    AttachmentContainerView(imageUrl: imageUrl)
+                                        .frame(height: 140)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                        .onTapGestureForced(perform: viewModel.handleAttachmentTap)
+                                        .padding(.horizontal, 16)
+                                }
+                                .padding(.top, 8)
                             }
-                            .padding(.top, 4)
-                        }
 
-                        if let note = viewModel.expense?.note, !note.isEmpty {
-                            NoteContainerView(note: note, handleNoteTap: viewModel.handleNoteTap)
-                                .padding(.top, 16)
-                        }
+                            if let note = viewModel.expense?.note, !note.isEmpty {
+                                NoteContainerView(note: note, handleNoteTap: {
+                                    isFocused = false
+                                    viewModel.handleNoteTap()
+                                })
+                            }
 
-                        VSpacer(24)
+                            VSpacer(24)
+
+                            CommentListView(comments: viewModel.comments, membersData: viewModel.expenseUsersData,
+                                            hasMoreComments: viewModel.hasMoreComments, loadMoreComments: viewModel.loadMoreComments)
+                        }
+                        .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
+                        .frame(maxWidth: .infinity, alignment: .center)
                     }
-                    .padding(.horizontal, 16)
-                    .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
-                    .frame(maxWidth: .infinity, alignment: .center)
+                    .onChange(of: viewModel.latestCommentId) { commentId in
+                        if let addedCommentId = commentId {
+                            withAnimation {
+                                proxy.scrollTo(addedCommentId)
+                            }
+                        }
+                    }
                 }
-                .scrollIndicators(.hidden)
-                .scrollBounceBehavior(.basedOnSize)
+
+                CommentTextFieldView(comment: $viewModel.comment, showLoader: $viewModel.showLoader,
+                                     isFocused: $isFocused, onSendCommentBtnTap: viewModel.onSendCommentBtnTap)
             }
         }
         .background(surfaceColor)
@@ -79,22 +91,34 @@ struct ExpenseDetailsView: View {
             if viewModel.viewState != .loading {
                 if (viewModel.expense?.isActive ?? false) && (viewModel.group?.isActive ?? false) {
                     ToolbarItem(placement: .topBarTrailing) {
-                        ToolbarButtonView(imageIcon: .binIcon, onClick: viewModel.handleDeleteButtonAction)
+                        ToolbarButtonView(imageIcon: .binIcon) {
+                            isFocused = false
+                            viewModel.handleDeleteButtonAction()
+                        }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        ToolbarButtonView(imageIcon: .editPencilIcon, onClick: viewModel.handleEditBtnAction)
+                        ToolbarButtonView(imageIcon: .editPencilIcon) {
+                            isFocused = false
+                            viewModel.handleEditBtnAction()
+                        }
                     }
                 } else {
                     ToolbarItem(placement: .topBarTrailing) {
-                        RestoreButton(onClick: viewModel.handleRestoreButtonAction)
+                        RestoreButton {
+                            isFocused = false
+                            viewModel.handleRestoreButtonAction()
+                        }
                     }
                 }
             }
         }
-        .navigationDestination(isPresented: $showImageDisplayView) {
+        .navigationDestination(isPresented: $viewModel.showImageDisplayView) {
             if let imageUrl = viewModel.expense?.imageUrl, !imageUrl.isEmpty {
                 AttachmentZoomView(imageUrl: imageUrl)
             }
+        }
+        .onTapGesture {
+            isFocused = false
         }
     }
 }
@@ -102,7 +126,7 @@ struct ExpenseDetailsView: View {
 @MainActor
 private struct ExpenseHeaderView: View {
 
-    let viewModel: ExpenseDetailsViewModel
+    @ObservedObject var viewModel: ExpenseDetailsViewModel
 
     var username: String {
         let user = viewModel.getMemberDataBy(id: viewModel.expense?.addedBy ?? "")
@@ -133,6 +157,7 @@ private struct ExpenseHeaderView: View {
         .background(container2Color)
         .cornerRadius(12)
         .padding(.top, 24)
+        .padding(.horizontal, 16)
     }
 }
 
@@ -140,7 +165,7 @@ private struct ExpenseHeaderView: View {
 private struct ExpenseInfoView: View {
     let SUB_IMAGE_HEIGHT: CGFloat = 24
 
-    let viewModel: ExpenseDetailsViewModel
+    @ObservedObject var viewModel: ExpenseDetailsViewModel
 
     var expense: Expense? {
         viewModel.expense
@@ -206,6 +231,7 @@ private struct ExpenseInfoView: View {
             .foregroundStyle(disableText)
         }
         .padding(.top, 24)
+        .padding(.horizontal, 16)
     }
 }
 
@@ -216,11 +242,8 @@ struct NoteContainerView: View {
     let handleNoteTap: (() -> Void)
 
     var body: some View {
-        VStack(spacing: 8) {
-            Text("Note:")
-                .font(.subTitle3())
-                .foregroundStyle(disableText)
-                .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 12) {
+            SectionHeaderView(text: "Note")
 
             Text(note)
                 .font(.subTitle2())
@@ -231,6 +254,8 @@ struct NoteContainerView: View {
                 .background(containerColor)
                 .cornerRadius(12)
                 .onTapGestureForced(perform: handleNoteTap)
+                .padding(.horizontal, 16)
         }
+        .padding(.top, 24)
     }
 }

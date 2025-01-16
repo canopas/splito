@@ -13,7 +13,7 @@ struct GroupTransactionDetailView: View {
 
     @StateObject var viewModel: GroupTransactionDetailViewModel
 
-    @State private var showImageDisplayView = false
+    @FocusState var isFocused: Bool
 
     var body: some View {
         GeometryReader { geometry in
@@ -23,44 +23,54 @@ struct GroupTransactionDetailView: View {
                 } else if case .loading = viewModel.viewState {
                     LoaderView()
                 } else {
-                    ScrollView {
-                        VStack(alignment: .center, spacing: 0) {
-                            VSpacer(16)
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            VStack(alignment: .center, spacing: 0) {
+                                VSpacer(16)
 
-                            TransactionInfoView(geometry: geometry, viewModel: viewModel)
+                                TransactionInfoView(geometry: geometry, viewModel: viewModel)
 
-                            Text("This payment was noted using the \"record a payment\" feature, No money has been transferred.")
-                                .font(.caption1())
-                                .foregroundStyle(disableText)
-                                .multilineTextAlignment(.center)
-                                .padding(.top, 24)
+                                Text("This payment was noted using the \"record a payment\" feature, No money has been transferred.")
+                                    .font(.caption1())
+                                    .foregroundStyle(disableText)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.top, 24)
+                                    .padding(.horizontal, 16)
 
-                            if let imageUrl = viewModel.transaction?.imageUrl, !imageUrl.isEmpty {
-                                VStack(spacing: 8) {
-                                    Text("Attachment:")
-                                        .font(.subTitle3())
-                                        .foregroundStyle(disableText)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                if let imageUrl = viewModel.transaction?.imageUrl, !imageUrl.isEmpty {
+                                    VStack(spacing: 12) {
+                                        SectionHeaderView(text: "Attachment")
 
-                                    AttachmentContainerView(showImageDisplayView: $showImageDisplayView, imageUrl: imageUrl)
-                                        .frame(height: 140)
-                                        .frame(maxWidth: .infinity)
-                                        .cornerRadius(12)
+                                        AttachmentContainerView(imageUrl: imageUrl)
+                                            .frame(height: 140)
+                                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                                            .onTapGestureForced(perform: viewModel.handleAttachmentTap)
+                                            .padding(.horizontal, 16)
+                                    }
+                                    .padding(.top, 24)
                                 }
-                                .padding(.top, 16)
-                            }
 
-                            if let note = viewModel.transaction?.note, !note.isEmpty {
-                                NoteContainerView(note: note, handleNoteTap: viewModel.handleNoteTap)
-                                    .padding(.top, 16)
-                            }
+                                if let note = viewModel.transaction?.note, !note.isEmpty {
+                                    NoteContainerView(note: note, handleNoteTap: viewModel.handleNoteTap)
+                                }
 
-                            VSpacer(24)
+                                VSpacer(24)
+
+                                CommentListView(comments: viewModel.comments, membersData: viewModel.transactionUsersData,
+                                                hasMoreComments: viewModel.hasMoreComments, loadMoreComments: viewModel.loadMoreComments)
+                            }
                         }
-                        .padding(.horizontal, 16)
+                        .onChange(of: viewModel.latestCommentId) { commentId in
+                            if let addedCommentId = commentId {
+                                withAnimation {
+                                    proxy.scrollTo(addedCommentId)
+                                }
+                            }
+                        }
                     }
-                    .scrollIndicators(.hidden)
-                    .scrollBounceBehavior(.basedOnSize)
+
+                    CommentTextFieldView(comment: $viewModel.comment, showLoader: $viewModel.showLoader,
+                                         isFocused: $isFocused, onSendCommentBtnTap: viewModel.onSendCommentBtnTap)
                 }
             }
             .frame(maxWidth: isIpad ? 600 : nil, alignment: .center)
@@ -89,14 +99,23 @@ struct GroupTransactionDetailView: View {
             if viewModel.viewState != .loading {
                 if (viewModel.transaction?.isActive ?? false) && (viewModel.group?.isActive ?? false) {
                     ToolbarItem(placement: .topBarTrailing) {
-                        ToolbarButtonView(imageIcon: .binIcon, onClick: viewModel.handleDeleteBtnAction)
+                        ToolbarButtonView(imageIcon: .binIcon) {
+                            isFocused = false
+                            viewModel.handleDeleteBtnAction()
+                        }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        ToolbarButtonView(imageIcon: .editPencilIcon, onClick: viewModel.handleEditBtnAction)
+                        ToolbarButtonView(imageIcon: .editPencilIcon) {
+                            isFocused = false
+                            viewModel.handleEditBtnAction()
+                        }
                     }
                 } else {
                     ToolbarItem(placement: .topBarTrailing) {
-                        RestoreButton(onClick: viewModel.handleRestoreButtonAction)
+                        RestoreButton {
+                            isFocused = false
+                            viewModel.handleRestoreButtonAction()
+                        }
                     }
                 }
             }
@@ -108,10 +127,13 @@ struct GroupTransactionDetailView: View {
                                                         paymentReason: viewModel.paymentReason))
             }
         }
-        .navigationDestination(isPresented: $showImageDisplayView) {
+        .navigationDestination(isPresented: $viewModel.showImageDisplayView) {
             if let imageUrl = viewModel.transaction?.imageUrl, !imageUrl.isEmpty {
                 AttachmentZoomView(imageUrl: imageUrl)
             }
+        }
+        .onTapGesture {
+            isFocused = false
         }
     }
 }
@@ -171,6 +193,7 @@ private struct TransactionInfoView: View {
                                    receiverName: receiverName, addedUserName: addedUserName)
         }
         .multilineTextAlignment(.center)
+        .padding(.horizontal, 16)
     }
 }
 
