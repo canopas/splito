@@ -255,7 +255,7 @@ private struct GroupExpenseHeaderView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if viewModel.overallOwingAmount == 0 {
+            if viewModel.overallOwingAmount.values.reduce(0, +) == 0 {
                 VStack(alignment: .center, spacing: 16) {
                     Image(.tickmarkIcon)
                         .resizable()
@@ -278,10 +278,12 @@ private struct GroupExpenseHeaderView: View {
                     .background(dividerColor)
 
                 VStack(alignment: .leading, spacing: 12) {
-                    ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
-                        let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
-                        GroupExpenseMemberOweView(name: name, amount: amount,
-                                                  handleSimplifyInfoSheet: viewModel.handleSimplifyInfoSheet)
+                    ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (_, memberOweAmounts) in
+                        ForEach(memberOweAmounts.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
+                            let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
+                            GroupExpenseMemberOweView(name: name, amount: amount,
+                                                      handleSimplifyInfoSheet: viewModel.handleSimplifyInfoSheet)
+                        }
                     }
                 }.padding(16)
             }
@@ -299,14 +301,15 @@ private struct GroupExpenseHeaderOverallView: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
-            let isDue = viewModel.overallOwingAmount < 0
+            let (owedText, owedAmounts) = calculateOwedText(from: viewModel.overallOwingAmount)
+            let isDue = viewModel.overallOwingAmount.values.reduce(0, +) < 0
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("You \(isDue ? "owe overall" : "are overall owed")")
+                Text(owedText)
                     .font(.body3())
                     .foregroundStyle(disableText)
 
-                Text("\(abs(viewModel.overallOwingAmount).formattedCurrency)")
+                Text(owedAmounts)
                     .font(.body1())
                     .foregroundStyle(isDue ? errorColor : successColor)
             }
@@ -330,6 +333,22 @@ private struct GroupExpenseHeaderOverallView: View {
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(16)
         }
+    }
+
+    /// Helper function to calculate owed/owed text and amounts
+    private func calculateOwedText(from balances: [String: Double]) -> (String, String) {
+        // Separate positive and negative balances
+        let owedAmounts = balances.filter { $0.value < 0 }
+            .map { "\($0.key) \(abs($0.value).formattedCurrency)" }
+            .joined(separator: " + ")
+        let owedText = !owedAmounts.isEmpty ? "You owe \(owedAmounts)" : "You are owed"
+
+        let owedByYou = balances.filter { $0.value > 0 }
+            .map { "\($0.key) \(abs($0.value).formattedCurrency)" }
+            .joined(separator: " + ")
+
+        let messagePrefix = balances.values.reduce(0, +) < 0 ? "are owed" : "owe"
+        return ("You \(messagePrefix) ", "\(owedAmounts)")
     }
 }
 

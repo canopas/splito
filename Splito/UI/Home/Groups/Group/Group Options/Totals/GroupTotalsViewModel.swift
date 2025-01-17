@@ -66,7 +66,8 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
         case .thisYear:
             summaries = getTotalSummaryForCurrentYear()
         case .all:
-            summaries = group.balances.first(where: { $0.id == userId })?.totalSummary ?? []
+            let groupBalance = group.balances.first(where: { $0.id == userId })?.balanceByCurrency ?? [:]
+            summaries = groupBalance["INR"]?.totalSummary ?? []
         }
 
         summaryData = GroupMemberSummary(
@@ -85,7 +86,8 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
             return []
         }
         let currentYear = Calendar.current.component(.year, from: Date())
-        return group.balances.first(where: { $0.id == user.id })?.totalSummary.filter {
+        let groupBalance = group.balances.first(where: { $0.id == user.id })?.balanceByCurrency ?? [:]
+        return groupBalance["INR"]?.totalSummary.filter {
             $0.year == currentYear
         } ?? []
     }

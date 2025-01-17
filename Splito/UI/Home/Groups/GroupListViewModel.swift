@@ -49,11 +49,15 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         case .all:
             return searchedGroup.isEmpty ? combinedGroups : combinedGroups.filter { $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         case .settled:
-            return searchedGroup.isEmpty ? combinedGroups.filter { $0.userBalance == 0 } : combinedGroups.filter { $0.userBalance == 0 &&
-                $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
+            return searchedGroup.isEmpty
+                ? combinedGroups.filter { $0.userBalance.values.reduce(0, +) == 0 }
+                : combinedGroups.filter { $0.userBalance.values.reduce(0, +) == 0 &&
+                    $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         case .unsettled:
-            return searchedGroup.isEmpty ? combinedGroups.filter { $0.userBalance != 0 } : combinedGroups.filter { $0.userBalance != 0 &&
-                $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
+            return searchedGroup.isEmpty
+                ? combinedGroups.filter { $0.userBalance.values.reduce(0, +) != 0 }
+                : combinedGroups.filter { $0.userBalance.values.reduce(0, +) != 0 &&
+                    $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         }
     }
 
@@ -238,11 +242,16 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         return groupMembers
     }
 
-    private func getMembersBalance(group: Groups, memberId: String) -> Double {
+    private func getMembersBalance(group: Groups, memberId: String) -> [String: Double] {
+        var memberBalance: [String: Double] = [:]
         if let index = group.balances.firstIndex(where: { $0.id == memberId }) {
-            return group.balances[index].balance
+            let groupMemberBalance = group.balances[index].balanceByCurrency
+            for (currency, groupBalance) in groupMemberBalance {
+                memberBalance[currency] = groupBalance.balance
+            }
+            return memberBalance
         }
-        return 0
+        return [:]
     }
 
     private func fetchGroup(groupId: String) async -> Groups? {
@@ -292,8 +301,8 @@ extension GroupListViewModel {
 
     func handleSearchBarTap() {
         if (combinedGroups.isEmpty) ||
-            (selectedTab == .unsettled && combinedGroups.filter({ $0.userBalance != 0 }).isEmpty) ||
-            (selectedTab == .settled && combinedGroups.filter({ $0.userBalance == 0 }).isEmpty) {
+            (selectedTab == .unsettled && combinedGroups.filter({ $0.userBalance.values.reduce(0, +) != 0 }).isEmpty) ||
+            (selectedTab == .settled && combinedGroups.filter({ $0.userBalance.values.reduce(0, +) == 0 }).isEmpty) {
             showToastFor(toast: .init(type: .info, title: "No groups yet", message: "There are no groups available to search."))
         } else {
             withAnimation {
@@ -314,8 +323,8 @@ extension GroupListViewModel {
 
     func handleTabItemSelection(_ selection: GroupListTabType) {
         guard case .hasGroup = groupListState else { return }
-        let settledGroups = combinedGroups.filter { $0.userBalance == 0 }
-        let unsettledGroups = combinedGroups.filter { $0.userBalance != 0 }
+        let settledGroups = combinedGroups.filter { $0.userBalance.values.reduce(0, +) == 0 }
+        let unsettledGroups = combinedGroups.filter { $0.userBalance.values.reduce(0, +) != 0 }
 
         withAnimation(.easeInOut(duration: 0.3)) {
             selectedTab = selection

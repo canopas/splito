@@ -22,8 +22,12 @@ public struct Groups: Codable, Identifiable {
     public let createdAt: Timestamp
     public var updatedAt: Timestamp
     public var hasExpenses: Bool
-    public var defaultCurrency: String? = Currency.defaultCurrency.code
+    private var defaultCurrency: String? = Currency.defaultCurrency.code
     public var isActive: Bool
+
+    public var defaultCurrencyCode: String {
+        defaultCurrency ?? Currency.defaultCurrency.code
+    }
 
     public init(name: String, type: GroupType = .splitExpense, createdBy: String, updatedBy: String? = nil,
                 imageUrl: String? = nil, members: [String], initialBalance: Double = 0.0, balances: [GroupMemberBalance],
@@ -69,30 +73,33 @@ public enum GroupType: String, Codable {
 
 public struct GroupMemberBalance: Codable {
     public let id: String /// Member Id
+    public var balanceByCurrency: [String: GroupCurrencyBalance] /// Currency wise member balance
+
+    public init(id: String, balanceByCurrency: [String: GroupCurrencyBalance]) {
+        self.id = id
+        self.balanceByCurrency = balanceByCurrency
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case balanceByCurrency = "balance_by_currency"
+    }
+}
+
+public struct GroupCurrencyBalance: Codable {
     public var balance: Double
     public var totalSummary: [GroupTotalSummary]
 
-    public init(id: String, balance: Double, totalSummary: [GroupTotalSummary]) {
-        self.id = id
+    public init(balance: Double, totalSummary: [GroupTotalSummary]) {
         self.balance = balance
         self.totalSummary = totalSummary
     }
 
     enum CodingKeys: String, CodingKey {
-        case id
         case balance
         case totalSummary = "total_summary"
     }
 }
-
-// public struct GroupMemberBalance: Codable {
-//    public let id: String /// Member Id
-//    public var balanceByCurrency: [String: GroupCurrencyBalance] /// Currency wise member balance
-// }
-// public struct GroupCurrencyBalance: Codable {
-//    public var balance: Double
-//    public var totalSummary: [GroupTotalSummary]
-// }
 
 public struct GroupTotalSummary: Codable {
     public var year: Int
@@ -149,12 +156,12 @@ public struct GroupMemberSummary: Codable {
 // MARK: - To show group and expense together
 public struct GroupInformation {
     public let group: Groups
-    public let userBalance: Double
-    public let memberOweAmount: [String: Double]
+    public let userBalance: [String: Double]
+    public let memberOweAmount: [String: [String: Double]]
     public let members: [AppUser]
     public let hasExpenses: Bool
 
-    public init(group: Groups, userBalance: Double, memberOweAmount: [String: Double],
+    public init(group: Groups, userBalance: [String: Double], memberOweAmount: [String: [String: Double]],
                 members: [AppUser], hasExpenses: Bool) {
         self.group = group
         self.userBalance = userBalance

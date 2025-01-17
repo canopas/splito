@@ -88,18 +88,18 @@ private struct GroupMembersListView: View {
                     return name1 < name2
                 }
 
-            ForEach(sortedMembers, id: \.key) { memberId, owingAmount in
-                if let member = viewModel.getMemberDataBy(id: memberId) {
-                    GroupMemberCellView(member: member, amount: owingAmount)
-                        .onTouchGesture {
-                            viewModel.onMemberTap(memberId: member.id, amount: owingAmount)
-                        }
-
-                    Divider()
-                        .frame(height: 1)
-                        .background(dividerColor)
-                }
-            }
+//            ForEach(sortedMembers, id: \.key) { memberId, owingAmount in
+//                if let member = viewModel.getMemberDataBy(id: memberId) {
+//                    GroupMemberCellView(member: member, amount: owingAmount)
+//                        .onTouchGesture {
+//                            viewModel.onMemberTap(memberId: member.id, amount: owingAmount)
+//                        }
+//
+//                    Divider()
+//                        .frame(height: 1)
+//                        .background(dividerColor)
+//                }
+//            }
         }
     }
 }

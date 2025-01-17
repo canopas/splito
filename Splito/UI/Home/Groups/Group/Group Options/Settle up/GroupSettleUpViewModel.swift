@@ -14,7 +14,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
 
     @Published private(set) var viewState: ViewState = .loading
-    @Published private(set) var memberOwingAmount: [String: Double] = [:]
+    @Published private(set) var memberOwingAmount: [String: [String: Double]] = [:] /// [currencyCode: [memberId: balance]]
 
     private var group: Groups?
     private var members: [AppUser] = []
@@ -76,17 +76,28 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Helper Methods
-    func getMembersBalance(memberId: String) -> Double {
+    func getMembersBalance(memberId: String) -> [String: Double] {
         guard let group else {
             LogE("GroupSettingViewModel: \(#function) group not found.")
-            return 0
+            return [:]
         }
 
-        if let index = group.balances.firstIndex(where: { $0.id == memberId }) {
-            return group.balances[index].balance
+        guard let memberBalance = group.balances.first(where: { $0.id == memberId })?.balanceByCurrency else {
+            LogE("GroupSettingViewModel: \(#function) Member's balance not found from balances.")
+            return [:]
         }
 
-        return 0
+        var filteredBalances: [String: Double] = [:]
+        for (currency, balanceInfo) in memberBalance {
+            if balanceInfo.balance == 0 { continue }
+            filteredBalances[currency] = balanceInfo.balance
+        }
+
+        if filteredBalances.isEmpty { // If no non-zero balances, fallback to original data
+            return memberBalance.mapValues { $0.balance }
+        }
+
+        return [:]
     }
 
     func getMemberDataBy(id: String) -> AppUser? {

@@ -20,8 +20,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Inject private var transactionRepository: TransactionRepository
 
     @Published private(set) var groupId: String
-    @Published private(set) var overallOwingAmount: Double = 0.0
     @Published private(set) var currentMonthSpending: Double = 0.0
+    @Published private(set) var overallOwingAmount: [String: Double] = [:]
 
     @Published var group: Groups?
     @Published var groupState: GroupState = .loading
@@ -29,8 +29,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var expenses: [Expense] = []
     @Published var expensesWithUser: [ExpenseWithUser] = []
     @Published var transactionsCount: Int = 0
-    @Published private(set) var memberOwingAmount: [String: Double] = [:]
     @Published private(set) var groupExpenses: [String: [ExpenseWithUser]] = [:]
+    @Published private(set) var memberOwingAmount: [String: [String: Double]] = [:]
 
     @Published var showSettleUpSheet = false
     @Published var showBalancesSheet = false
@@ -280,7 +280,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         memberOwingAmount = Splito.calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
         withAnimation(.easeOut) {
-            overallOwingAmount = group.balances.first(where: { $0.id == userId })?.balance ?? 0.0
+            let balance = group.balances.first(where: { $0.id == userId })?.balanceByCurrency ?? [:]
+            for (currency, groupBalance) in balance {
+                overallOwingAmount[currency] = groupBalance.balance
+            }
             setGroupViewState()
         }
     }

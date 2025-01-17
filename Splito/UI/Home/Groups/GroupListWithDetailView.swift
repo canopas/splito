@@ -86,7 +86,7 @@ private struct GroupListCellView: View {
         self.isLastGroup = isLastGroup
         self.group = group
         self.viewModel = viewModel
-        self._showInfo = State(initialValue: isFirstGroup && group.userBalance != 0)
+        self._showInfo = State(initialValue: isFirstGroup && group.userBalance.values.reduce(0, +) != 0)
     }
 
     var body: some View {
@@ -106,9 +106,11 @@ private struct GroupListCellView: View {
 
                 Spacer(minLength: 8)
 
+                let defaultCurrency = group.group.defaultCurrencyCode
+                let userBalance = group.userBalance[defaultCurrency] ?? group.userBalance.first?.value ?? 0
                 VStack(alignment: .trailing, spacing: 0) {
-                    let isBorrowed = group.userBalance < 0
-                    if group.userBalance == 0 {
+                    let isBorrowed = group.userBalance.values.reduce(0, +) < 0
+                    if group.userBalance.values.reduce(0, +) == 0 {
                         Text(group.group.hasExpenses ? "settled up" : "no expense")
                             .font(.caption1())
                             .foregroundStyle(disableText)
@@ -116,14 +118,17 @@ private struct GroupListCellView: View {
                     } else {
                         Text(isBorrowed ? "you owe" : "you are owed")
                             .font(.caption1())
-                        Text(group.userBalance.formattedCurrency)
+
+                        let currency = group.userBalance[defaultCurrency] == nil ? group.userBalance.first?.key : defaultCurrency
+                        let currencySymbol = Currency.getCurrencyFromCode(currency).symbol
+                        Text("\(currencySymbol) \(userBalance.formattedCurrency)")
                             .font(.body1())
                     }
                 }
                 .lineLimit(1)
-                .foregroundStyle(group.userBalance < 0 ? errorColor : successColor)
+                .foregroundStyle(group.userBalance.values.reduce(0, +) < 0 ? errorColor : successColor)
 
-                if group.userBalance != 0 {
+                if userBalance != 0 {
                     GroupExpandBtnView(showInfo: $showInfo, isFirstGroup: isFirstGroup)
                 }
             }
@@ -134,9 +139,11 @@ private struct GroupListCellView: View {
                     HSpacer(56) // width of image size for padding
 
                     VStack(alignment: .leading, spacing: 8) {
-                        ForEach(group.memberOweAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
-                            let name = viewModel.getMemberData(from: group.members, of: memberId)?.nameWithLastInitial ?? "Unknown"
-                            GroupExpenseMemberOweView(name: name, amount: amount)
+                        ForEach(group.memberOweAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (_, memberOweAmount) in
+                            ForEach(memberOweAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
+                                let name = viewModel.getMemberData(from: group.members, of: memberId)?.nameWithLastInitial ?? "Unknown"
+                                GroupExpenseMemberOweView(name: name, amount: amount)
+                            }
                         }
                     }
                     .padding(.horizontal, 16)

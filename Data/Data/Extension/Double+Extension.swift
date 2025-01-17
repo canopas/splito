@@ -10,7 +10,6 @@ import Foundation
 public extension Double {
     var formattedCurrency: String {
         let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
         formatter.locale = Locale.current
 
         if let formattedAmount = formatter.string(from: NSNumber(value: self)) {
@@ -35,7 +34,6 @@ public extension Double {
 
     var formattedCurrencyWithSign: String {
         let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
         formatter.locale = Locale.current
 
         if let formattedAmount = formatter.string(from: NSNumber(value: self)) {
