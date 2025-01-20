@@ -188,7 +188,9 @@ private struct TransactionInfoView: View {
             .background(container2Color)
             .cornerRadius(16)
 
-            TransactionSummaryView(date: viewModel.transaction?.date.dateValue(), amount: viewModel.transaction?.amount,
+            TransactionSummaryView(date: viewModel.transaction?.date.dateValue(),
+                                   amount: viewModel.transaction?.amount,
+                                   currency: viewModel.transaction?.currencyCode,
                                    reason: viewModel.paymentReason, payerName: payerName,
                                    receiverName: receiverName, addedUserName: addedUserName)
         }
@@ -224,6 +226,7 @@ private struct TransactionSummaryView: View {
 
     let date: Date?
     let amount: Double?
+    let currency: String?
     let reason: String?
     let payerName: String
     let receiverName: String
@@ -245,7 +248,7 @@ private struct TransactionSummaryView: View {
                     .padding(.bottom, 8)
             }
 
-            Text(amount?.formattedCurrency ?? "0")
+            Text(amount?.formattedCurrencyWithSign(currency) ?? 0.0.formattedCurrencyWithSign(currency))
                 .font(.Header2())
                 .foregroundStyle(primaryText)
 

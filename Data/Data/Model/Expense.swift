@@ -76,7 +76,7 @@ public struct Expense: Codable, Hashable, Identifiable {
 
     // Calculated properties for better UI representation
     public var formattedAmount: String {
-        return amount.formattedCurrency
+        return amount.formattedCurrencyWithSign(currencyCode)
     }
 }
 

@@ -120,8 +120,7 @@ private struct GroupListCellView: View {
                             .font(.caption1())
 
                         let currency = group.userBalance[defaultCurrency] == nil ? group.userBalance.first?.key : defaultCurrency
-                        let currencySymbol = Currency.getCurrencyFromCode(currency).symbol
-                        Text("\(currencySymbol) \(userBalance.formattedCurrency)")
+                        Text(userBalance.formattedCurrencyWithSign(currency))
                             .font(.body1())
                     }
                 }
@@ -197,7 +196,7 @@ private struct GroupExpenseMemberOweView: View {
             Group {
                 Text("\(name.localized) owes you ")
                     .foregroundColor(disableText)
-                + Text("\(amount.formattedCurrency)")
+                + Text("\(amount.formattedCurrencyWithSign())")
                     .foregroundColor(successColor)
             }
             .font(.body3())
@@ -205,7 +204,7 @@ private struct GroupExpenseMemberOweView: View {
             Group {
                 Text("You owe \(name.localized) ")
                     .foregroundColor(disableText)
-                + Text("\(amount.formattedCurrency)")
+                + Text("\(amount.formattedCurrencyWithSign())")
                     .foregroundColor(errorColor)
             }
             .font(.body3())

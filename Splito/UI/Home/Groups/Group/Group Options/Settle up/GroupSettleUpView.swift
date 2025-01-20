@@ -76,9 +76,12 @@ private struct GroupMembersListView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             let sortedMembers = viewModel.memberOwingAmount
-                .sorted { (member1, member2) -> Bool in
-                    guard let member1Data = viewModel.getMemberDataBy(id: member1.key),
-                          let member2Data = viewModel.getMemberDataBy(id: member2.key) else {
+                .flatMap { currency, balances in
+                    balances.map { (currency: currency, memberId: $0.key, balance: $0.value) }
+                }
+                .sorted { (entry1, entry2) -> Bool in
+                    guard let member1Data = viewModel.getMemberDataBy(id: entry1.memberId),
+                          let member2Data = viewModel.getMemberDataBy(id: entry2.memberId) else {
                         return false
                     }
 
@@ -88,18 +91,18 @@ private struct GroupMembersListView: View {
                     return name1 < name2
                 }
 
-//            ForEach(sortedMembers, id: \.key) { memberId, owingAmount in
-//                if let member = viewModel.getMemberDataBy(id: memberId) {
-//                    GroupMemberCellView(member: member, amount: owingAmount)
-//                        .onTouchGesture {
-//                            viewModel.onMemberTap(memberId: member.id, amount: owingAmount)
-//                        }
-//
-//                    Divider()
-//                        .frame(height: 1)
-//                        .background(dividerColor)
-//                }
-//            }
+            ForEach(sortedMembers, id: \.memberId) { entry in
+                if let member = viewModel.getMemberDataBy(id: entry.memberId) {
+                    GroupMemberCellView(member: member, amount: entry.balance, currencyCode: entry.currency)
+                    .onTouchGesture {
+                        viewModel.onMemberTap(memberId: entry.memberId, amount: entry.balance)
+                    }
+
+                    Divider()
+                        .frame(height: 1)
+                        .background(dividerColor)
+                }
+            }
         }
     }
 }
@@ -108,6 +111,7 @@ private struct GroupMemberCellView: View {
 
     let member: AppUser
     let amount: Double
+    let currencyCode: String
 
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
@@ -125,7 +129,7 @@ private struct GroupMemberCellView: View {
                 Text(isBorrowed ? "you owe" : "owes you")
                     .font(.caption1())
 
-                Text(amount.formattedCurrency)
+                Text(amount.formattedCurrencyWithSign(currencyCode))
                     .font(.body1())
             }
             .lineLimit(1)

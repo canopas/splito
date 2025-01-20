@@ -103,13 +103,14 @@ private struct GroupBalanceItemView: View {
                         }
                         .foregroundStyle(primaryText)
                     } else {
+                        let currency = memberBalance.totalOwedAmount.keys.first
                         Group {
                             Text(name)
                                 .font(.subTitle2())
 
                             + Text(" \(owesOrGetsBack.localized) ")
 
-                            + Text(totalOwed.formattedCurrency)
+                            + Text(totalOwed.formattedCurrencyWithSign(currency))
                                 .foregroundColor(hasDue ? errorColor : successColor)
 
                             + Text(" in total")
@@ -178,7 +179,7 @@ private struct GroupBalanceItemMemberView: View {
 
                                 Group {
                                     Text("\(owedMemberName.capitalized) \(owesText.localized) ")
-                                    + Text(amount.formattedCurrency)
+                                    + Text(amount.formattedCurrencyWithSign(currency))
                                         .foregroundColor(hasDue ? errorColor : successColor)
                                     + Text(" in \(currency.localized) to \(owesMemberName)")
                                 }
@@ -191,7 +192,8 @@ private struct GroupBalanceItemMemberView: View {
                                     let oweText = ((hasDue ? id : memberId) == preference.user?.id) ? "owe" :
                                     (memberId == preference.user?.id || id == preference.user?.id) ? "owes" : ""
                                     reminderText = generateReminderText(owedMemberName: owedMemberName, owesText: oweText,
-                                                                        amount: amount, owesMemberName: owesMemberName)
+                                                                        amount: amount, currency: currency,
+                                                                        owesMemberName: owesMemberName)
                                     showShareReminderSheet = true
                                 },
                                 handleSettleUpTap: {
@@ -215,8 +217,9 @@ private struct GroupBalanceItemMemberView: View {
         }
     }
 
-    private func generateReminderText(owedMemberName: String, owesText: String, amount: Double, owesMemberName: String) -> String {
-        let formattedAmount = amount.formattedCurrency
+    private func generateReminderText(owedMemberName: String, owesText: String, amount: Double,
+                                      currency: String, owesMemberName: String) -> String {
+        let formattedAmount = amount.formattedCurrencyWithSign(currency)
         let groupName = viewModel.group?.name ?? ""
         let deepLink = "\(Constants.groupBaseUrl)\(viewModel.groupId)"
 

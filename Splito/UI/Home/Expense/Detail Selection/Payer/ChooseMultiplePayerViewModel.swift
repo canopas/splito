@@ -77,7 +77,7 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
             let differenceAmount = totalAmount < expenseAmount ? (expenseAmount - totalAmount) : (totalAmount - expenseAmount)
 
             showAlertFor(title: "Whoops!",
-                         message: "The payment values do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
+                         message: "The payment values do not add up to the total cost of \(expenseAmount.formattedCurrencyWithSign()). You are \(amountDescription) by \(differenceAmount.formattedCurrencyWithSign()).")
             return
         }
 

@@ -185,7 +185,8 @@ private struct TransactionItemView: View {
 
                     Spacer()
 
-                    Text("\(transactionWithUser.transaction.amount.formattedCurrency)")
+                    let currencyCode = transactionWithUser.transaction.currencyCode
+                    Text("\(transactionWithUser.transaction.amount.formattedCurrencyWithSign(currencyCode))")
                         .font(.subTitle2())
                         .foregroundStyle(transactionWithUser.payer?.id == preference.user?.id ? successColor : transactionWithUser.receiver?.id == preference.user?.id ? errorColor : primaryText)
                 }

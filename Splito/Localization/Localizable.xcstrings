@@ -50,16 +50,6 @@
     "%@" : {
 
     },
-    "%@ %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ %2$@"
-          }
-        }
-      }
-    },
     "%@ %@ " : {
       "localizations" : {
         "en" : {
@@ -139,6 +129,9 @@
     },
     "%@% of 100%" : {
       "extractionState" : "manual"
+    },
+    "%lf" : {
+
     },
     "%lld people" : {
 
@@ -608,9 +601,6 @@
     },
     "over" : {
       "extractionState" : "manual"
-    },
-    "Overall, %@  " : {
-
     },
     "owe" : {
       "extractionState" : "manual"

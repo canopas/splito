@@ -164,24 +164,47 @@ private struct GroupListTabBarView: View {
 
 private struct GroupListHeaderView: View {
 
-    let totalOweAmount: Double
+    let totalOweAmount: [String: Double]
 
     var body: some View {
         HStack(spacing: 0) {
-            if totalOweAmount == 0 {
+            if totalOweAmount.values.reduce(0, +) == 0 {
                 Text("You are all settle up!")
                     .font(.Header3())
                     .foregroundStyle(primaryText)
             } else {
-                let isOwed = totalOweAmount < 0
+                let owedAmounts = totalOweAmount.filter { $0.value < 0 }
+                let owedToYouAmounts = totalOweAmount.filter { $0.value > 0 }
+
+                var oweAmountText: String {
+                    var amountText: [String] = []
+                    for (currency, amount) in owedAmounts {
+                        let currency = Currency.getCurrencyFromCode(currency).symbol
+                        amountText.append("\(currency) \(abs(amount))")
+                    }
+                    return amountText.joined(separator: " + ")
+                }
+
+                var oweToYouAmountText: String {
+                    var amountText: [String] = []
+                    for (currency, amount) in owedToYouAmounts {
+                        let currency = Currency.getCurrencyFromCode(currency).symbol
+                        amountText.append("\(currency) \(abs(amount))")
+                    }
+                    return amountText.joined(separator: " + ")
+                }
+
+//                let owedTexts = owedAmounts.map { "\(currencySymbol(for: $0.key)) \(abs($0.value))" }
+//                let youOweText = owedTexts.joined(separator: " + ")
+
                 HStack(spacing: 0) {
-                    Text("Overall, \(isOwed ? "you owe" : "you are owed")  ")
-                        .foregroundStyle(primaryText)
-
-                    Spacer()
-
-                    Text("\(totalOweAmount.formattedCurrency)")
-                        .foregroundStyle(isOwed ? errorColor : successColor)
+//                    Text("Overall, \(isOwed ? "you owe" : "you are owed")  ")
+//                        .foregroundStyle(primaryText)
+//
+//                    Spacer()
+//
+//                    Text("\(totalOweAmount.formattedCurrency)")
+//                        .foregroundStyle(isOwed ? errorColor : successColor)
                 }
                 .font(.Header3())
             }

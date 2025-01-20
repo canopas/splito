@@ -202,6 +202,7 @@ private struct ExpenseInfoView: View {
                     let owes = viewModel.preference.user?.id == userData.id ? "owe" : "owes"
                     let memberName = viewModel.preference.user?.id == userData.id ? "You" : userData.nameWithLastInitial
 
+                    let currencyCode = expense?.currencyCode
                     let paidAmount = expense?.paidBy[userData.id] ?? 0.0
                     let splitAmount = viewModel.getSplitAmount(for: userData.id)
 
@@ -210,9 +211,9 @@ private struct ExpenseInfoView: View {
                             MemberProfileImageView(imageUrl: userData.imageUrl, height: SUB_IMAGE_HEIGHT, scaleEffect: 0.6)
 
                             if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
-                                Text("\(memberName.localized) paid \(paidAmount.formattedCurrency) and \(owes.localized) \(splitAmount)")
+                                Text("\(memberName.localized) paid \(paidAmount.formattedCurrencyWithSign(currencyCode)) and \(owes.localized) \(splitAmount)")
                             } else {
-                                Text("\(memberName.localized) paid \(paidAmount.formattedCurrency)")
+                                Text("\(memberName.localized) paid \(paidAmount.formattedCurrencyWithSign(currencyCode))")
                             }
                         } else if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
                             MemberProfileImageView(imageUrl: userData.imageUrl, height: SUB_IMAGE_HEIGHT, scaleEffect: 0.6)

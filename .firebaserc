@@ -1,6 +1,7 @@
 {
   "projects": {
-    "default": "splito-canoaps"
+    "default": "splito-canoaps",
+    "splito": "splito-canoaps"
   },
   "targets": {},
   "etags": {

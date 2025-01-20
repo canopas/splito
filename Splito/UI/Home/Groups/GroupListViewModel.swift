@@ -24,7 +24,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     @Published var selectedGroup: Groups?
     @Published var searchedGroup: String = ""
-    @Published private(set) var totalOweAmount: Double = 0.0
+    @Published private(set) var totalOweAmount: [String: Double] = [:]
     @Published private(set) var combinedGroups: [GroupInformation] = []
 
     @Published var showActionSheet = false
@@ -94,7 +94,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        totalOweAmount = preference.user?.totalOweAmount ?? 0
+        totalOweAmount = preference.user?.totalOweAmount ?? [:]
         let userStream = userRepository.streamLatestUserBy(userID: userId)
 
         for await user in userStream {
@@ -145,7 +145,8 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         Task { [weak self] in
             guard let self, let userId = preference.user?.id else { return }
             do {
-                let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: combinedGroups.count)
+                let limit = combinedGroups.isEmpty ? self.GROUPS_LIMIT : combinedGroups.count
+                let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: limit)
                 let freshGroups = try await self.processNewGroups(newGroups: result.data)
 
                 if freshGroups.count != self.combinedGroups.count {
