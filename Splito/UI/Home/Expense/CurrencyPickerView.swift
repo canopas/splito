@@ -16,11 +16,15 @@ struct CurrencyPickerView: View {
     @Binding var selectedCurrency: Currency
     @Binding var isPresented: Bool
 
+    var isForTotalsTab: Bool = false
+    var supportedCurrencies: [String] = Currency.getAllCurrencies().map { $0.code }
+
     @State private var searchedCurrency: String = ""
     @FocusState private var isFocused: Bool
 
     private var filteredCurrencies: [Currency] {
-        let currencies = Currency.getAllCurrencies()
+        // Get all currencies and filter based on availability and search text
+        let currencies = Currency.getAllCurrencies().filter { supportedCurrencies.contains($0.code) }
         guard !searchedCurrency.isEmpty else { return currencies }
         return currencies.filter { currency in
             currency.name.lowercased().contains(searchedCurrency.lowercased()) ||
@@ -31,37 +35,50 @@ struct CurrencyPickerView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            VStack(spacing: 16) {
-                NavigationBarTopView(title: "Select Currency", leadingButton: EmptyView(),
-                                     trailingButton: DismissButton(padding: (0, 0), foregroundColor: primaryText,
-                                                                   onDismissAction: { dismiss() })
-                                        .fontWeight(.regular)
-                )
+            VSpacer(24)
 
-                SearchBar(text: $searchedCurrency, isFocused: $isFocused, placeholder: "Search")
-                    .padding(.vertical, -7)
-                    .padding(.horizontal, 3)
-                    .overlay(content: {
-                        RoundedRectangle(cornerRadius: 12).stroke(outlineColor, lineWidth: 1)
-                    })
-                    .focused($isFocused)
-                    .onAppear { isFocused = true }
+            SearchBar(text: $searchedCurrency, isFocused: $isFocused, placeholder: "Search currency")
+                .padding(.vertical, -7)
+                .padding(.horizontal, 3)
+                .overlay(content: {
+                    RoundedRectangle(cornerRadius: 12).stroke(outlineColor, lineWidth: 1)
+                })
+                .focused($isFocused)
+                .onAppear { isFocused = true }
+                .padding(.horizontal, 16)
+
+            VSpacer(4)
+            
+            if isForTotalsTab {
+                Text("Supported currencies")
+                    .font(.subTitle3())
+                    .foregroundStyle(disableText)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 8)
+                    .padding(.top, 24)
             }
-            .padding(.bottom, 20)
-            .padding(.horizontal, 16)
 
             if filteredCurrencies.isEmpty {
                 CurrencyNotFoundView(searchedCurrency: searchedCurrency)
             } else {
                 List(filteredCurrencies, id: \.self) { currency in
-                    CurrencyCellView(currency: currency) {
+                    CurrencyCellView(currency: currency, isLastCurrency: filteredCurrencies.last == currency) {
                         selectedCurrency = currency
                         isPresented = false
                     }
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets())
+                    .listRowBackground(surfaceColor)
                 }
                 .listStyle(.plain)
+            }
+        }
+        .background(surfaceColor)
+        .toolbarRole(.editor)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                NavigationTitleTextView(text: "Choose a currency")
             }
         }
     }
@@ -72,12 +89,13 @@ private struct CurrencyNotFoundView: View {
     let searchedCurrency: String
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .center, spacing: 0) {
             Spacer()
             Text("No currency found for \"\(searchedCurrency)\"!")
                 .font(.subTitle1())
                 .foregroundStyle(disableText)
                 .padding(.bottom, 60)
+                .padding(.horizontal, 16)
             Spacer()
         }
         .onTapGestureForced {
@@ -89,25 +107,31 @@ private struct CurrencyNotFoundView: View {
 private struct CurrencyCellView: View {
 
     let currency: Currency
+    let isLastCurrency: Bool
+
     let onCellSelect: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 10) {
-                Text(currency.symbol)
-                    .font(.Header4())
-                    .frame(width: 50)
+            HStack(spacing: 0) {
+                Text(currency.name + "(\(currency.symbol))")
+                    .font(.subTitle2())
+                    .foregroundStyle(primaryText)
 
-                Text(currency.name)
-                    .font(.body1(16))
+                Spacer()
+
+                Text(currency.code)
+                    .font(.body1())
+                    .foregroundStyle(disableText)
             }
-            .padding(.horizontal, 10)
-            .foregroundStyle(primaryText)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 20)
 
-            Divider()
-                .frame(height: 1)
-                .background(dividerColor)
-                .padding(.vertical, 14)
+            if !isLastCurrency {
+                Divider()
+                    .frame(height: 1)
+                    .background(dividerColor)
+            }
         }
         .contentShape(Rectangle())
         .onTouchGesture { onCellSelect() }

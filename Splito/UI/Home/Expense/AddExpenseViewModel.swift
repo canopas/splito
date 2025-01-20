@@ -462,10 +462,10 @@ extension AddExpenseViewModel {
     }
 
     private func hasExpenseChanged(_ expense: Expense, oldExpense: Expense) -> Bool {
-        return oldExpense.amount != expense.amount || oldExpense.paidBy != expense.paidBy ||
-        oldExpense.splitTo != expense.splitTo || oldExpense.splitType != expense.splitType ||
-        oldExpense.splitData != expense.splitData || oldExpense.isActive != expense.isActive ||
-        oldExpense.date != expense.date
+        return oldExpense.amount != expense.amount || oldExpense.currencyCode != expense.currencyCode ||
+        oldExpense.paidBy != expense.paidBy || oldExpense.splitTo != expense.splitTo ||
+        oldExpense.splitType != expense.splitType || oldExpense.splitData != expense.splitData ||
+        oldExpense.isActive != expense.isActive || oldExpense.date != expense.date
     }
 
     private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {

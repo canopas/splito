@@ -305,9 +305,7 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     }
 
     private func hasTransactionChanged(_ transaction: Transactions, oldTransaction: Transactions) -> Bool {
-        return oldTransaction.payerId != transaction.payerId || oldTransaction.receiverId != transaction.receiverId ||
-        oldTransaction.amount != transaction.amount || oldTransaction.isActive != transaction.isActive ||
-        oldTransaction.date != transaction.date
+        return oldTransaction.payerId != transaction.payerId || oldTransaction.receiverId != transaction.receiverId || oldTransaction.amount != transaction.amount || oldTransaction.currencyCode != transaction.currencyCode || oldTransaction.isActive != transaction.isActive || oldTransaction.date != transaction.date
     }
 
     private func updateGroupMemberBalance(updateType: TransactionUpdateType) async {

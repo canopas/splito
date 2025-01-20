@@ -21,7 +21,28 @@ struct GroupTotalsView: View {
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        VSpacer(12)
+                        HStack(alignment: .center, spacing: 0) {
+                            if let groupName = viewModel.group?.name {
+                                Text(groupName)
+                                    .font(.Header4())
+                                    .foregroundStyle(primaryText)
+                            }
+
+                            Spacer()
+
+                            Text(viewModel.selectedCurrency.code)
+                                .font(.buttonText())
+                                .foregroundStyle(primaryLightText)
+                                .padding(.vertical, 6)
+                                .padding(.horizontal, 16)
+                                .background(primaryColor)
+                                .clipShape(RoundedRectangle(cornerRadius: 23))
+                                .onTouchGesture {
+                                    viewModel.showCurrencyPicker = true
+                                }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.top, 16)
 
                         GroupTotalTabView(selectedTab: viewModel.selectedTab,
                                           onSelect: viewModel.handleTabItemSelection(_:))
@@ -42,6 +63,12 @@ struct GroupTotalsView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 NavigationTitleTextView(text: "Group spending summary")
+            }
+        }
+        .fullScreenCover(isPresented: $viewModel.showCurrencyPicker) {
+            NavigationStack {
+                CurrencyPickerView(selectedCurrency: $viewModel.selectedCurrency, isPresented: $viewModel.showCurrencyPicker,
+                                   isForTotalsTab: true, supportedCurrencies: viewModel.supportedCurrency)
             }
         }
     }
@@ -88,13 +115,21 @@ private struct GroupTotalSummaryView: View {
     var body: some View {
         VStack(spacing: 0) {
             if let summaryData = viewModel.summaryData {
-                GroupSummaryAmountView(text: "Total group spending", amount: summaryData.groupTotalSpending)
-                GroupSummaryAmountView(text: "Total you paid for", amount: summaryData.totalPaidAmount)
-                GroupSummaryAmountView(text: "Your total share", amount: summaryData.totalShare, fontColor: errorColor)
-                GroupSummaryAmountView(text: "Payments made", amount: summaryData.paidAmount)
-                GroupSummaryAmountView(text: "Payments received", amount: summaryData.receivedAmount, fontColor: errorColor)
+                let currencySymbol = viewModel.selectedCurrency.symbol
+
+                GroupSummaryAmountView(text: "Total group spending", amount: summaryData.groupTotalSpending,
+                                       currencySymbol: currencySymbol)
+                GroupSummaryAmountView(text: "Total you paid for", amount: summaryData.totalPaidAmount,
+                                       currencySymbol: currencySymbol)
+                GroupSummaryAmountView(text: "Your total share", amount: summaryData.totalShare,
+                                       fontColor: errorColor, currencySymbol: currencySymbol)
+                GroupSummaryAmountView(text: "Payments made", amount: summaryData.paidAmount,
+                                       currencySymbol: currencySymbol)
+                GroupSummaryAmountView(text: "Payments received", amount: summaryData.receivedAmount,
+                                       fontColor: errorColor, currencySymbol: currencySymbol)
                 GroupSummaryAmountView(text: "Total change in balance", amount: summaryData.changeInBalance,
-                                       fontColor: (summaryData.changeInBalance < 0 ? errorColor : successColor), isLast: true)
+                                       fontColor: (summaryData.changeInBalance < 0 ? errorColor : successColor),
+                                       isLast: true, currencySymbol: currencySymbol)
             }
         }
     }
@@ -104,14 +139,16 @@ private struct GroupSummaryAmountView: View {
 
     let text: String
     let amount: Double
-    var fontColor: Color
-    var isLast: Bool
+    let fontColor: Color
+    let isLast: Bool
+    let currencySymbol: String
 
-    init(text: String, amount: Double, fontColor: Color = successColor, isLast: Bool = false) {
+    init(text: String, amount: Double, fontColor: Color = successColor, isLast: Bool = false, currencySymbol: String) {
         self.text = text
         self.amount = amount
         self.fontColor = fontColor
         self.isLast = isLast
+        self.currencySymbol = currencySymbol
     }
 
     var body: some View {
@@ -122,7 +159,7 @@ private struct GroupSummaryAmountView: View {
 
             Spacer()
 
-            Text("\(amount)")
+            Text(amount.formattedCurrencyWithSign(currencySymbol))
                 .font(.body1())
                 .foregroundStyle(amount == 0 ? lowestText : fontColor)
         }

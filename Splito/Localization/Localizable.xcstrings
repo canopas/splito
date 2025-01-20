@@ -133,9 +133,6 @@
     "%@% of 100%" : {
       "extractionState" : "manual"
     },
-    "%lf" : {
-
-    },
     "%lld people" : {
 
     },
@@ -294,6 +291,9 @@
 
     },
     "changed the cover photo for" : {
+      "extractionState" : "manual"
+    },
+    "Choose a currency" : {
       "extractionState" : "manual"
     },
     "Choose date" : {
@@ -829,6 +829,9 @@
     },
     "Success" : {
       "extractionState" : "manual"
+    },
+    "Supported currencies" : {
+
     },
     "Thanks! your feedback has been recorded." : {
       "extractionState" : "manual"

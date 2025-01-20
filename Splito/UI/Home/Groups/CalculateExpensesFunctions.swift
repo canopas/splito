@@ -140,6 +140,10 @@ public func getUpdatedMemberBalanceFor(expense: Expense, group: Groups, updateTy
 
         // Check if the member already has an entry in the member balance array
         if let index = memberBalance.firstIndex(where: { $0.id == member }) {
+            if memberBalance[index].balanceByCurrency[currency] == nil {
+                memberBalance[index].balanceByCurrency[currency] = GroupCurrencyBalance(balance: 0.0, totalSummary: [])
+            }
+
             switch updateType {
             case .Add:
                 memberBalance[index].balanceByCurrency[currency]?.balance += newSplitAmount
@@ -162,9 +166,10 @@ public func getUpdatedMemberBalanceFor(expense: Expense, group: Groups, updateTy
 
             case .Update(let oldExpense):
                 let oldSplitAmount = oldExpense.getTotalSplitAmountOf(member: member)
+                let oldCurrency = oldExpense.currencyCode ?? Currency.defaultCurrency.code
 
                 // Update the old date's summary by reversing the old expense values
-                let groupTotalSummary = memberBalance[index].balanceByCurrency[currency]?.totalSummary ?? []
+                let groupTotalSummary = memberBalance[index].balanceByCurrency[oldCurrency]?.totalSummary ?? []
                 if let oldSummaryIndex = getLatestSummaryIndex(totalSummary: groupTotalSummary,
                                                                date: oldExpense.date.dateValue()) {
                     var oldSummary = groupTotalSummary[oldSummaryIndex].summary
@@ -173,7 +178,7 @@ public func getUpdatedMemberBalanceFor(expense: Expense, group: Groups, updateTy
                     oldSummary.totalShare -= abs(oldSplitAmount)
                     oldSummary.changeInBalance = (oldSummary.totalPaidAmount - oldSummary.totalShare) - oldSummary.receivedAmount + oldSummary.paidAmount
 
-                    memberBalance[index].balanceByCurrency[currency]?.totalSummary[oldSummaryIndex].summary = oldSummary
+                    memberBalance[index].balanceByCurrency[oldCurrency]?.totalSummary[oldSummaryIndex].summary = oldSummary
                 }
 
                 let oldCalculatedSplitAmount = oldExpense.getCalculatedSplitAmountOf(member: member)
@@ -256,6 +261,10 @@ public func getUpdatedMemberBalanceFor(transaction: Transactions, group: Groups,
 
     // For payer
     if let payerIndex = memberBalance.firstIndex(where: { $0.id == payerId }) {
+        if memberBalance[payerIndex].balanceByCurrency[currency] == nil {
+            memberBalance[payerIndex].balanceByCurrency[currency] = GroupCurrencyBalance(balance: 0.0, totalSummary: [])
+        }
+
         switch updateType {
         case .Add:
             memberBalance[payerIndex].balanceByCurrency[currency]?.balance += amount
@@ -280,16 +289,17 @@ public func getUpdatedMemberBalanceFor(transaction: Transactions, group: Groups,
             let oldAmount = oldTransaction.amount
             let oldTransactionDate = oldTransaction.date.dateValue()
             let oldPayerId = oldTransaction.payerId
+            let oldCurrency = oldTransaction.currencyCode ?? Currency.defaultCurrency.code
 
             // Handle payer role switch: Update the old payer's balance and summary
             if let oldPayerIndex = memberBalance.firstIndex(where: { $0.id == oldPayerId }) {
                 memberBalance[oldPayerIndex].balanceByCurrency[currency]?.balance -= oldAmount
-                let groupTotalSummary = memberBalance[oldPayerIndex].balanceByCurrency[currency]?.totalSummary ?? []
+                let groupTotalSummary = memberBalance[oldPayerIndex].balanceByCurrency[oldCurrency]?.totalSummary ?? []
                 if let oldSummaryIndex = getLatestSummaryIndex(totalSummary: groupTotalSummary, date: oldTransactionDate) {
                     var oldSummary = groupTotalSummary[oldSummaryIndex].summary
                     oldSummary.paidAmount -= oldAmount
                     oldSummary.changeInBalance = (oldSummary.totalPaidAmount - oldSummary.totalShare) - oldSummary.receivedAmount + oldSummary.paidAmount
-                    memberBalance[oldPayerIndex].balanceByCurrency[currency]?.totalSummary[oldSummaryIndex].summary = oldSummary
+                    memberBalance[oldPayerIndex].balanceByCurrency[oldCurrency]?.totalSummary[oldSummaryIndex].summary = oldSummary
                 }
             }
 
@@ -337,6 +347,10 @@ public func getUpdatedMemberBalanceFor(transaction: Transactions, group: Groups,
 
     // For receiver
     if let receiverIndex = memberBalance.firstIndex(where: { $0.id == receiverId }) {
+        if memberBalance[receiverIndex].balanceByCurrency[currency] == nil {
+            memberBalance[receiverIndex].balanceByCurrency[currency] = GroupCurrencyBalance(balance: 0.0, totalSummary: [])
+        }
+
         switch updateType {
         case .Add:
             memberBalance[receiverIndex].balanceByCurrency[currency]?.balance -= amount
@@ -361,16 +375,17 @@ public func getUpdatedMemberBalanceFor(transaction: Transactions, group: Groups,
             let oldAmount = oldTransaction.amount
             let oldTransactionDate = oldTransaction.date.dateValue()
             let oldReceiverId = oldTransaction.receiverId
+            let oldCurrency = oldTransaction.currencyCode ?? Currency.defaultCurrency.code
 
             // Handle receiver role switch: Update the old receiver's balance and summary
             if let oldReceiverIndex = memberBalance.firstIndex(where: { $0.id == oldReceiverId }) {
                 memberBalance[oldReceiverIndex].balanceByCurrency[currency]?.balance += oldAmount
-                let groupTotalSummary = memberBalance[oldReceiverIndex].balanceByCurrency[currency]?.totalSummary ?? []
+                let groupTotalSummary = memberBalance[oldReceiverIndex].balanceByCurrency[oldCurrency]?.totalSummary ?? []
                 if let oldSummaryIndex = getLatestSummaryIndex(totalSummary: groupTotalSummary, date: oldTransactionDate) {
                     var oldSummary = groupTotalSummary[oldSummaryIndex].summary
                     oldSummary.receivedAmount -= oldAmount
                     oldSummary.changeInBalance = (oldSummary.totalPaidAmount - oldSummary.totalShare) - oldSummary.receivedAmount + oldSummary.paidAmount
-                    memberBalance[oldReceiverIndex].balanceByCurrency[currency]?.totalSummary[oldSummaryIndex].summary = oldSummary
+                    memberBalance[oldReceiverIndex].balanceByCurrency[oldCurrency]?.totalSummary[oldSummaryIndex].summary = oldSummary
                 }
             }
 

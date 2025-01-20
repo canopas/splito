@@ -111,9 +111,11 @@ struct GroupPaymentView: View {
             ImagePickerView(cropOption: .square, sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
                             image: $viewModel.paymentImage, isPresented: $viewModel.showImagePicker)
         }
-        .sheet(isPresented: $viewModel.showCurrencyPicker) {
-            CurrencyPickerView(selectedCurrency: $viewModel.selectedCurrency,
-                               isPresented: $viewModel.showCurrencyPicker)
+        .fullScreenCover(isPresented: $viewModel.showCurrencyPicker) {
+            NavigationStack {
+                CurrencyPickerView(selectedCurrency: $viewModel.selectedCurrency,
+                                   isPresented: $viewModel.showCurrencyPicker)
+            }
         }
         .sheet(isPresented: $viewModel.showAddNoteEditor) {
             NavigationStack {
