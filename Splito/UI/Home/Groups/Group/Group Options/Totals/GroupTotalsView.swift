@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BaseStyle
+import Data
 
 struct GroupTotalsView: View {
 
@@ -68,7 +69,7 @@ struct GroupTotalsView: View {
         .fullScreenCover(isPresented: $viewModel.showCurrencyPicker) {
             NavigationStack {
                 CurrencyPickerView(selectedCurrency: $viewModel.selectedCurrency, isPresented: $viewModel.showCurrencyPicker,
-                                   isForTotalsTab: true, supportedCurrencies: viewModel.supportedCurrency)
+                                   supportedCurrencies: viewModel.supportedCurrencies)
             }
         }
     }

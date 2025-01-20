@@ -18,7 +18,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var summaryData: GroupMemberSummary?
 
     @Published var showCurrencyPicker = false
-    @Published var supportedCurrency: [String] = [Currency.defaultCurrency.code]
+    @Published var supportedCurrencies: [Currency] = [Currency.defaultCurrency]
     @Published var selectedCurrency: Currency = Currency.getCurrentLocalCurrency() {
         didSet {
             filterDataForSelectedTab()  // Recalculate data when currency changes
@@ -44,20 +44,26 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     private func fetchGroup() async {
         do {
             group = try await groupRepository.fetchGroupBy(id: groupId)
-
-            // Extract supported currencies from group data
-            if let userId = preference.user?.id,
-               let balanceByCurrency = group?.balances.first(where: { $0.id == userId })?.balanceByCurrency {
-                let currencies = Set(balanceByCurrency.keys) // Extract all unique currency
-                supportedCurrency = Array(currencies)
-            }
-
+            updateSupportedCurrencies()
             filterDataForSelectedTab()
             viewState = .initial
             LogD("GroupTotalsViewModel: \(#function) Group fetched successfully.")
         } catch {
             LogE("GroupTotalsViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             handleServiceError()
+        }
+    }
+
+    private func updateSupportedCurrencies() {
+        guard let userId = preference.user?.id,
+              let currencies = group?.balances.first(where: { $0.id == userId })?.balanceByCurrency.keys else {
+            viewState = .initial
+            return
+        }
+
+        supportedCurrencies = Currency.getAllCurrencies().filter { Array(Set(currencies)).contains($0.code) }  // Extract all unique currency
+        if !supportedCurrencies.contains(selectedCurrency) {
+            selectedCurrency = Currency.defaultCurrency
         }
     }
 

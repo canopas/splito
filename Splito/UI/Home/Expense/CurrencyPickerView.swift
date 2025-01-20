@@ -16,15 +16,15 @@ struct CurrencyPickerView: View {
     @Binding var selectedCurrency: Currency
     @Binding var isPresented: Bool
 
-    var isForTotalsTab: Bool = false
-    var supportedCurrencies: [String] = Currency.getAllCurrencies().map { $0.code }
+    var supportedCurrencies: [Currency] = []
 
     @State private var searchedCurrency: String = ""
     @FocusState private var isFocused: Bool
 
     private var filteredCurrencies: [Currency] {
         // Get all currencies and filter based on availability and search text
-        let currencies = Currency.getAllCurrencies().filter { supportedCurrencies.contains($0.code) }
+        let currencies = supportedCurrencies.isEmpty ? Currency.getAllCurrencies() : supportedCurrencies
+
         guard !searchedCurrency.isEmpty else { return currencies }
         return currencies.filter { currency in
             currency.name.lowercased().contains(searchedCurrency.lowercased()) ||
@@ -48,8 +48,8 @@ struct CurrencyPickerView: View {
                 .padding(.horizontal, 16)
 
             VSpacer(4)
-            
-            if isForTotalsTab {
+
+            if !supportedCurrencies.isEmpty {
                 Text("Supported currencies")
                     .font(.subTitle3())
                     .foregroundStyle(disableText)
