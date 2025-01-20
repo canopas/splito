@@ -301,18 +301,38 @@ private struct GroupExpenseHeaderOverallView: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
-            let (owedText, owedAmounts) = calculateOwedText(from: viewModel.overallOwingAmount)
-            let isDue = viewModel.overallOwingAmount.values.reduce(0, +) < 0
+            let owedAmounts = viewModel.overallOwingAmount.filter { $0.value < 0 }
+            let owedToYouAmounts = viewModel.overallOwingAmount.filter { $0.value > 0 }
+
+            var oweAmountText: String {
+                owedAmounts.map { (currency, amount) in
+                    let currencySymbol = Currency.getCurrencyFromCode(currency).symbol
+                    return "\(currencySymbol) \(abs(amount))"
+                }
+                .joined(separator: " + ")
+            }
+
+            var oweToYouAmountText: String {
+                owedToYouAmounts.map { (currency, amount) in
+                    let currencySymbol = Currency.getCurrencyFromCode(currency).symbol
+                    return "\(currencySymbol) \(abs(amount))"
+                }
+                .joined(separator: " + ")
+            }
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(owedText)
-                    .font(.body3())
-                    .foregroundStyle(disableText)
-
-                Text(owedAmounts)
-                    .font(.body1())
-                    .foregroundStyle(isDue ? errorColor : successColor)
+                if !owedToYouAmounts.isEmpty {
+                    Text("You are owed ")
+                    + Text(oweToYouAmountText)
+                        .foregroundColor(successColor)
+                }
+                if !owedAmounts.isEmpty {
+                    Text("You owe ")
+                    + Text(oweAmountText)
+                        .foregroundColor(errorColor)
+                }
             }
+            .font(.body3())
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(16)
 
@@ -328,27 +348,11 @@ private struct GroupExpenseHeaderOverallView: View {
 
                 Text("\(abs(viewModel.currentMonthSpending).formattedCurrencyWithSign())")
                     .font(.body1())
-                    .foregroundStyle(primaryText)
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(16)
         }
-    }
-
-    /// Helper function to calculate owed/owed text and amounts
-    private func calculateOwedText(from balances: [String: Double]) -> (String, String) {
-        // Separate positive and negative balances
-        let owedAmounts = balances.filter { $0.value < 0 }
-            .map { "\($0.key) \(abs($0.value).formattedCurrencyWithSign())" }
-            .joined(separator: " + ")
-        let owedText = !owedAmounts.isEmpty ? "You owe \(owedAmounts)" : "You are owed"
-
-        let owedByYou = balances.filter { $0.value > 0 }
-            .map { "\($0.key) \(abs($0.value).formattedCurrencyWithSign())" }
-            .joined(separator: " + ")
-
-        let messagePrefix = balances.values.reduce(0, +) < 0 ? "are owed" : "owe"
-        return ("You \(messagePrefix) ", "\(owedAmounts)")
+        .foregroundStyle(primaryText)
     }
 }
 

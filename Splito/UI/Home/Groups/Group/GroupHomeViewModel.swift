@@ -21,7 +21,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var groupId: String
     @Published private(set) var currentMonthSpending: Double = 0.0
-    @Published private(set) var overallOwingAmount: [String: Double] = [:]
+    @Published private(set) var overallOwingAmount: [String: Double] = [:] /// [currencyCode: balance]
 
     @Published var group: Groups?
     @Published var groupState: GroupState = .loading

@@ -171,45 +171,52 @@ private struct GroupListHeaderView: View {
             if totalOweAmount.values.reduce(0, +) == 0 {
                 Text("You are all settle up!")
                     .font(.Header3())
-                    .foregroundStyle(primaryText)
+
+                Spacer()
             } else {
                 let owedAmounts = totalOweAmount.filter { $0.value < 0 }
                 let owedToYouAmounts = totalOweAmount.filter { $0.value > 0 }
 
                 var oweAmountText: String {
-                    var amountText: [String] = []
-                    for (currency, amount) in owedAmounts {
-                        let currency = Currency.getCurrencyFromCode(currency).symbol
-                        amountText.append("\(currency) \(abs(amount))")
+                    owedAmounts.map { (currency, amount) in
+                        let currencySymbol = Currency.getCurrencyFromCode(currency).symbol
+                        return "\(currencySymbol) \(abs(amount))"
                     }
-                    return amountText.joined(separator: " + ")
+                    .joined(separator: " + ")
                 }
 
                 var oweToYouAmountText: String {
-                    var amountText: [String] = []
-                    for (currency, amount) in owedToYouAmounts {
-                        let currency = Currency.getCurrencyFromCode(currency).symbol
-                        amountText.append("\(currency) \(abs(amount))")
+                    owedToYouAmounts.map { (currency, amount) in
+                        let currencySymbol = Currency.getCurrencyFromCode(currency).symbol
+                        return "\(currencySymbol) \(abs(amount))"
                     }
-                    return amountText.joined(separator: " + ")
+                    .joined(separator: " + ")
                 }
 
-//                let owedTexts = owedAmounts.map { "\(currencySymbol(for: $0.key)) \(abs($0.value))" }
-//                let youOweText = owedTexts.joined(separator: " + ")
-
-                HStack(spacing: 0) {
-//                    Text("Overall, \(isOwed ? "you owe" : "you are owed")  ")
-//                        .foregroundStyle(primaryText)
-//
-//                    Spacer()
-//
-//                    Text("\(totalOweAmount.formattedCurrency)")
-//                        .foregroundStyle(isOwed ? errorColor : successColor)
+                if !owedAmounts.isEmpty && !owedToYouAmounts.isEmpty {
+                    Text("Overall, you owe ")
+                    + Text(oweAmountText)
+                        .foregroundColor(errorColor)
+                    + Text(" and you are owed ")
+                    + Text(oweToYouAmountText)
+                        .foregroundColor(successColor)
+                } else if !owedAmounts.isEmpty {
+                    Text("Overall, you owe ")
+                    + Text(oweAmountText)
+                        .foregroundColor(errorColor)
+                } else if !owedToYouAmounts.isEmpty {
+                    Text("Overall, you are owed ")
+                    + Text(oweToYouAmountText)
+                        .foregroundColor(successColor)
+                } else {
+                    Text("You are all settle up!")
                 }
-                .font(.Header3())
+
+                Spacer()
             }
-            Spacer()
         }
+        .font(.Header3())
+        .foregroundStyle(primaryText)
         .padding(.horizontal, 12)
     }
 }

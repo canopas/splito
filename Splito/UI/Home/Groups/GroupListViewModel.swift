@@ -245,14 +245,17 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     private func getMembersBalance(group: Groups, memberId: String) -> [String: Double] {
         var memberBalance: [String: Double] = [:]
-        if let index = group.balances.firstIndex(where: { $0.id == memberId }) {
-            let groupMemberBalance = group.balances[index].balanceByCurrency
-            for (currency, groupBalance) in groupMemberBalance {
-                memberBalance[currency] = groupBalance.balance
-            }
-            return memberBalance
+
+        guard let index = group.balances.firstIndex(where: { $0.id == memberId }) else {
+            print("GroupListViewModel: \(#function) Member not found from group balances.")
+            return [:]
         }
-        return [:]
+
+        let groupMemberBalance = group.balances[index].balanceByCurrency
+        for (currency, groupBalance) in groupMemberBalance {
+            memberBalance[currency] = groupBalance.balance
+        }
+        return memberBalance
     }
 
     private func fetchGroup(groupId: String) async -> Groups? {

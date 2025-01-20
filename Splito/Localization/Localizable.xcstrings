@@ -13,6 +13,9 @@
     " %@ settled up" : {
 
     },
+    " and you are owed " : {
+
+    },
     " commented on" : {
       "extractionState" : "manual"
     },
@@ -602,6 +605,12 @@
     "over" : {
       "extractionState" : "manual"
     },
+    "Overall, you are owed " : {
+
+    },
+    "Overall, you owe " : {
+
+    },
     "owe" : {
       "extractionState" : "manual"
     },
@@ -998,6 +1007,9 @@
     "you are owed" : {
 
     },
+    "You are owed " : {
+
+    },
     "you borrowed" : {
 
     },
@@ -1038,6 +1050,9 @@
       "extractionState" : "manual"
     },
     "you owe" : {
+
+    },
+    "You owe " : {
 
     },
     "You owe %@ " : {
