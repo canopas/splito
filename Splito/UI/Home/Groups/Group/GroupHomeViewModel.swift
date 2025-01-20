@@ -20,8 +20,8 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Inject private var transactionRepository: TransactionRepository
 
     @Published private(set) var groupId: String
-    @Published private(set) var currentMonthSpending: Double = 0.0
     @Published private(set) var overallOwingAmount: [String: Double] = [:] /// [currencyCode: balance]
+    @Published private(set) var currentMonthSpending: [String: Double] = [:] /// [currencyCode: totalSpending]
 
     @Published var group: Groups?
     @Published var groupState: GroupState = .loading
@@ -97,7 +97,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
             self.group = group
             let groupTotalSummary = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
-            currentMonthSpending = groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }
+            currentMonthSpending = ["INR": groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }]
 
             await withTaskGroup(of: Void.self) { groupTask in
                 for member in group.members where member != preference.user?.id {
@@ -126,7 +126,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
                 self.group = group
                 let groupTotalSummary = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
-                self.currentMonthSpending = groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }
+                self.currentMonthSpending = ["INR": groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }]
 
                 await withTaskGroup(of: Void.self) { taskGroup in
                     for member in group.members where member != self.preference.user?.id {

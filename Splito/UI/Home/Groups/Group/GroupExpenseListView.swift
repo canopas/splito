@@ -346,8 +346,14 @@ private struct GroupExpenseHeaderOverallView: View {
                     .foregroundStyle(disableText)
                     .multilineTextAlignment(.trailing)
 
-                Text("\(abs(viewModel.currentMonthSpending).formattedCurrencyWithSign())")
+                let spendingText = viewModel.currentMonthSpending.map { (currency, amount) in
+                    abs(amount).formattedCurrencyWithSign(currency)
+                }.joined(separator: " + ")
+
+                Text(spendingText)
                     .font(.body1())
+
+                Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(16)
