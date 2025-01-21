@@ -362,7 +362,8 @@ extension GroupHomeViewModel {
         var section = escapeCSV("Expenses") + "\n"
         for expense in expenses {
             let date = expense.date.dateValue().numericDate
-            var row = "\(escapeCSV(date)), \(escapeCSV(expense.name)), \(escapeCSV(expense.category ?? "General")), \(expense.amount), \(escapeCSV(expense.currencyCode ?? "INR"))"
+            let currency = expense.currencyCode ?? Currency.defaultCurrency.code
+            var row = "\(escapeCSV(date)), \(escapeCSV(expense.name)), \(escapeCSV(expense.category ?? "General")), \(expense.amount), \(escapeCSV(currency))"
 
             // Add owe amounts for each member
             for member in allMemberIDs {
@@ -381,7 +382,8 @@ extension GroupHomeViewModel {
             let payer = getMemberDataBy(id: payment.payerId)?.nameWithLastInitial ?? "Unknown"
             let receiver = getMemberDataBy(id: payment.receiverId)?.nameWithLastInitial ?? "Unknown"
             let description = "\(escapeCSV(payer)) paid \(escapeCSV(receiver))"
-            var row = "\(escapeCSV(date)), \(description), Payment, \(payment.amount), INR"
+            let currency = payment.currencyCode ?? Currency.defaultCurrency.code
+            var row = "\(escapeCSV(date)), \(description), Payment, \(payment.amount), \(currency)"
 
             // Add paid amount for payer & receiver
             for member in allMemberIDs {
@@ -395,15 +397,26 @@ extension GroupHomeViewModel {
 
     private func createTotalBalanceSection(group: Groups, allMemberIDs: Set<String>) -> String {
         let date = Date()
-        var section = "\(escapeCSV(date.numericDate)), Total balance, , , INR"
+        var section = ""
 
-        for member in allMemberIDs {
-            if let memberBalance = group.balances.first(where: { $0.id == member }) {
-                section += ", \(memberBalance.balance)"
-            } else {
-                section += ", 0.00"  // Add 0 if no balance is found
+        let allCurrencies = Set(group.balances.flatMap { $0.balanceByCurrency.keys })
+
+        // Generate rows for each currency
+        for currency in allCurrencies {
+            var row = "\(escapeCSV(date.numericDate)), Total balance, , , \(currency)"
+
+            // Iterate over each member and append their balance for the current currency
+            for member in allMemberIDs {
+                if let memberBalance = group.balances.first(where: { $0.id == member })?.balanceByCurrency[currency] {
+                    row += ", \(memberBalance.balance)"
+                } else {
+                    row += ", 0.00"  // Add 0.00 if no balance is found for the currency
+                }
             }
+
+            // Append the row to the section
+            section += row + "\n"
         }
-        return section + "\n"
+        return section
     }
 }

@@ -296,9 +296,6 @@
     "changed the cover photo for" : {
       "extractionState" : "manual"
     },
-    "Choose a currency" : {
-      "extractionState" : "manual"
-    },
     "Choose date" : {
       "extractionState" : "manual"
     },
@@ -563,13 +560,14 @@
     "no balance" : {
 
     },
+    "No currency found for \"%@\"!" : {
+
+    },
     "No Data" : {
       "extractionState" : "manual"
     },
     "No data found for selected time period. Try a different time period." : {
       "extractionState" : "manual"
-    "No currency found for \"%@\"!" : {
-
     },
     "No email address" : {
       "extractionState" : "manual"
