@@ -19,11 +19,13 @@ struct GroupExpenseListView: View {
         GeometryReader { geometry in
             ScrollViewReader { scrollProxy in
                 VStack(alignment: .leading, spacing: 0) {
-                    GroupOptionsListView(isSettleUpEnable: (!viewModel.memberOwingAmount.isEmpty && viewModel.group?.members.count ?? 1 > 1),
-                                         onSettleUpTap: viewModel.handleSettleUpBtnTap,
+                    GroupOptionsListView(showExportOptions: $viewModel.showExportOptions,
+                                         showShareReportSheet: $viewModel.showShareReportSheet, groupReportUrl: viewModel.groupReportUrl,
+                                         isSettleUpEnable: (!viewModel.memberOwingAmount.isEmpty && viewModel.group?.members.count ?? 1 > 1),
+                                         onExportTap: viewModel.handleExportBtnTap, onTotalsTap: viewModel.handleTotalBtnTap,
+                                         onBalanceTap: viewModel.handleBalancesBtnTap, onSettleUpTap: viewModel.handleSettleUpBtnTap,
                                          onTransactionsTap: viewModel.handleTransactionsBtnTap,
-                                         onBalanceTap: viewModel.handleBalancesBtnTap,
-                                         onTotalsTap: viewModel.handleTotalBtnTap)
+                                         handleExportOptionSelection: viewModel.handleExportOptionSelection(option:))
 
                     if viewModel.showSearchBar {
                         SearchBar(text: $viewModel.searchedExpense, isFocused: isFocused, placeholder: "Search expenses")

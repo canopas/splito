@@ -14,8 +14,7 @@ public class CommentRepository {
     @Inject private var activityLogRepository: ActivityLogRepository
 
     public func addComment(group: Groups, expense: Expense? = nil, transaction: Transactions? = nil,
-                           members: (payer: AppUser, receiver: AppUser)? = nil, comment: Comment,
-                           existingCommenterIds: [String]) async throws -> Comment? {
+                           comment: Comment, existingCommenterIds: [String]) async throws -> Comment? {
         guard let groupId = group.id else { return nil }
 
         let addedComment = try await store.addComment(groupId: groupId,
@@ -24,14 +23,13 @@ public class CommentRepository {
 
         try await addActivityLogsInParallel(group: group, expense: expense,
                                             transaction: transaction, comment: comment.comment,
-                                            existingCommenterIds: existingCommenterIds, members: members)
+                                            existingCommenterIds: existingCommenterIds)
         return addedComment
     }
 
     /// Add activity logs for all involved users asynchronously and in parallel
     private func addActivityLogsInParallel(group: Groups, expense: Expense? = nil, transaction: Transactions? = nil,
-                                           comment: String, existingCommenterIds: [String],
-                                           members: (payer: AppUser, receiver: AppUser)? = nil) async throws {
+                                           comment: String, existingCommenterIds: [String]) async throws {
         guard let user = preference.user else { return }
 
         var errors: [Error] = []
@@ -43,7 +41,7 @@ public class CommentRepository {
                 taskGroup.addTask { [weak self] in
                     guard let self else { return nil }
                     let context = createActivityLogContext(expense: expense, transaction: transaction, group: group,
-                                                           comment: comment, memberId: memberId, members: members)
+                                                           comment: comment, memberId: memberId)
                     return await self.addActivityLog(context: context)
                 }
             }
@@ -82,25 +80,17 @@ public class CommentRepository {
 
     /// Create ActivityLogContext for expense or transaction
     private func createActivityLogContext(expense: Expense? = nil, transaction: Transactions? = nil,
-                                          group: Groups, comment: String, memberId: String,
-                                          members: (payer: AppUser, receiver: AppUser)? = nil) -> ActivityLogContext? {
+                                          group: Groups, comment: String, memberId: String) -> ActivityLogContext? {
         guard let user = preference.user else { return nil }
         var context: ActivityLogContext?
 
         if let expense {
             context = ActivityLogContext(group: group, expense: expense, comment: comment,
                                          type: .expenseCommentAdded, memberId: memberId, currentUser: user)
-        } else if let transaction, let members {
-            let payerName = (user.id == transaction.payerId && memberId == transaction.payerId) ?
-            (user.id == transaction.addedBy ? "You" : "you") :
-            (memberId == transaction.payerId) ? "you" : members.payer.nameWithLastInitial
-            
-            let receiverName = (memberId == transaction.receiverId) ? "you" : (memberId == transaction.receiverId) ? "you" : members.receiver.nameWithLastInitial
-
+        } else if let transaction {
             context = ActivityLogContext(group: group, transaction: transaction, comment: comment,
                                          type: .transactionCommentAdded, memberId: memberId,
-                                         currentUser: user, payerName: payerName, receiverName: receiverName,
-                                         paymentReason: transaction.reason)
+                                         currentUser: user, paymentReason: transaction.reason)
         }
 
         return context

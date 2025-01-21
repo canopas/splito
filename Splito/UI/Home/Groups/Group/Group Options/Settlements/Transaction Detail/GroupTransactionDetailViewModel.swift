@@ -198,9 +198,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     }
 
     private func addComment() {
-        guard let transaction, let group, let transactionId = transaction.id, let userId = preference.user?.id,
-              let payer = transactionUsersData.first(where: { $0.id == transaction.payerId }),
-              let receiver = transactionUsersData.first(where: { $0.id == transaction.receiverId }) else {
+        guard let transaction, let group, let transactionId = transaction.id, let userId = preference.user?.id else {
             LogE("GroupTransactionDetailViewModel: \(#function) Missing required data for adding comment.")
             return
         }
@@ -212,8 +210,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
                 let comment = Comment(parentId: transactionId,
                                       comment: self.comment.trimming(spaces: .leadingAndTrailing),
                                       commentedBy: userId)
-                let addedComment = try await self.commentRepository.addComment(group: group, transaction: transaction,
-                                                                               members: (payer, receiver), comment: comment,
+                let addedComment = try await self.commentRepository.addComment(group: group, transaction: transaction, comment: comment,
                                                                                existingCommenterIds: self.comments.map { $0.commentedBy })
 
                 if let addedComment {
