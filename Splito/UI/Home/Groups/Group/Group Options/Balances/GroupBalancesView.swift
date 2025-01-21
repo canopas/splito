@@ -55,7 +55,8 @@ struct GroupBalancesView: View {
                         router: viewModel.router, transactionId: nil,
                         groupId: viewModel.groupId, payerId: viewModel.payerId ?? "",
                         receiverId: viewModel.receiverId ?? "",
-                        amount: viewModel.amount ?? 0
+                        amount: viewModel.amount ?? 0,
+                        currency: viewModel.amountCurrency ?? "INR"
                     )
                 )
             }
@@ -87,12 +88,10 @@ private struct GroupBalanceItemView: View {
         VStack(alignment: .leading, spacing: 20) {
             HStack(spacing: 16) {
                 let totalOwed = memberBalance.totalOwedAmount.reduce(0) { $0 + $1.value }
+                let name = viewModel.getMemberName(id: memberBalance.id, needFullName: true)
+
                 HStack(spacing: 16) {
                     MemberProfileImageView(imageUrl: imageUrl)
-
-                    let hasDue = totalOwed < 0
-                    let name = viewModel.getMemberName(id: memberBalance.id, needFullName: true)
-                    let owesOrGetsBack = hasDue ? (memberBalance.id == preference.user?.id ? "owe" : "owes") : (memberBalance.id == preference.user?.id ? "get back" : "gets back")
 
                     if totalOwed == 0 {
                         Group {
@@ -103,17 +102,39 @@ private struct GroupBalanceItemView: View {
                         }
                         .foregroundStyle(primaryText)
                     } else {
-                        let currency = memberBalance.totalOwedAmount.keys.first
-                        Group {
-                            Text(name)
-                                .font(.subTitle2())
+                        let positiveAmounts = memberBalance.totalOwedAmount.filter { $0.value > 0 }
+                        let negativeAmounts = memberBalance.totalOwedAmount.filter { $0.value < 0 }
 
-                            + Text(" \(owesOrGetsBack.localized) ")
+                        let positiveText = positiveAmounts.map { currency, amount in
+                            amount.formattedCurrencyWithSign(currency)
+                        }.joined(separator: " + ")
 
-                            + Text(totalOwed.formattedCurrencyWithSign(currency))
-                                .foregroundColor(hasDue ? errorColor : successColor)
+                        let negativeText = negativeAmounts.map { currency, amount in
+                            abs(amount).formattedCurrencyWithSign(currency) // Use `abs` for positive display
+                        }.joined(separator: " + ")
 
-                            + Text(" in total")
+                        VStack(alignment: .leading, spacing: 0) {
+                            if !positiveAmounts.isEmpty {
+                                let getBackText = (memberBalance.id == preference.user?.id) ? "get back" : "gets back"
+                                Text("\(name) \(getBackText) ")
+                                    .font(.subTitle2())
+
+                                + Text(positiveText)
+                                    .foregroundColor(successColor)
+
+                                + Text(" in total")
+                            }
+
+                            if !negativeAmounts.isEmpty {
+                                let oweText = (memberBalance.id == preference.user?.id) ? "owe" : "owes"
+                                Text("\(name) \(oweText) ")
+                                    .font(.subTitle2())
+
+                                + Text(negativeText)
+                                    .foregroundColor(errorColor)
+
+                                + Text(" in total")
+                            }
                         }
                         .lineSpacing(4)
                         .font(.body1())
@@ -181,7 +202,7 @@ private struct GroupBalanceItemMemberView: View {
                                     Text("\(owedMemberName.capitalized) \(owesText.localized) ")
                                     + Text(amount.formattedCurrencyWithSign(currency))
                                         .foregroundColor(hasDue ? errorColor : successColor)
-                                    + Text(" in \(currency.localized) to \(owesMemberName)")
+                                    + Text(" to \(owesMemberName)")
                                 }
                                 .font(.body3())
                                 .foregroundStyle(disableText)
@@ -198,7 +219,8 @@ private struct GroupBalanceItemMemberView: View {
                                 },
                                 handleSettleUpTap: {
                                     viewModel.handleSettleUpTap(payerId: hasDue ? id : memberId,
-                                                                receiverId: hasDue ? memberId : id, amount: amount)
+                                                                receiverId: hasDue ? memberId : id,
+                                                                amount: amount, currency: currency)
                                 }
                             )
                         }

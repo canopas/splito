@@ -29,9 +29,12 @@ struct GroupSettleUpRouteView: View {
             case .GroupWhoGettingPaidView(let groupId, let payerId):
                 GroupWhoGettingPaidView(viewModel: GroupWhoGettingPaidViewModel(router: appRoute, groupId: groupId, payerId: payerId))
 
-            case .GroupPaymentView(let transactionId, let groupId, let payerId, let receiverId, let amount):
-                GroupPaymentView(viewModel: GroupPaymentViewModel(router: appRoute, transactionId: transactionId, groupId: groupId,
-                                                                  payerId: payerId, receiverId: receiverId, amount: amount))
+            case .GroupPaymentView(let transactionId, let groupId, let payerId, let receiverId,
+                                   let amount, let currency):
+                GroupPaymentView(viewModel: GroupPaymentViewModel(router: appRoute, transactionId: transactionId,
+                                                                  groupId: groupId, payerId: payerId,
+                                                                  receiverId: receiverId, amount: amount,
+                                                                  currency: currency))
             default:
                 EmptyRouteView(routeName: self)
             }

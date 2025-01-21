@@ -7,9 +7,6 @@
     " (Admin)" : {
 
     },
-    " %@ " : {
-
-    },
     " %@ settled up" : {
 
     },
@@ -25,16 +22,6 @@
     " in" : {
       "extractionState" : "manual"
     },
-    " in %@ to %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : " in %1$@ to %2$@"
-          }
-        }
-      }
-    },
     " in total" : {
 
     },
@@ -43,6 +30,9 @@
     },
     " to" : {
       "extractionState" : "manual"
+    },
+    " to %@" : {
+
     },
     " updated the group name from" : {
       "extractionState" : "manual"

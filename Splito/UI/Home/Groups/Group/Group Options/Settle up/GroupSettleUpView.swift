@@ -76,9 +76,6 @@ private struct GroupMembersListView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             let sortedMembers = viewModel.memberOwingAmount
-                .flatMap { currency, balances in
-                    balances.map { (currency: currency, memberId: $0.key, balance: $0.value) }
-                }
                 .sorted { (entry1, entry2) -> Bool in
                     guard let member1Data = viewModel.getMemberDataBy(id: entry1.memberId),
                           let member2Data = viewModel.getMemberDataBy(id: entry2.memberId) else {
@@ -91,12 +88,12 @@ private struct GroupMembersListView: View {
                     return name1 < name2
                 }
 
-            ForEach(sortedMembers, id: \.memberId) { entry in
-                if let member = viewModel.getMemberDataBy(id: entry.memberId) {
-                    GroupMemberCellView(member: member, amount: entry.balance, currencyCode: entry.currency)
-                    .onTouchGesture {
-                        viewModel.onMemberTap(memberId: entry.memberId, amount: entry.balance)
-                    }
+            ForEach(sortedMembers, id: \.id) { memberBalance in
+                if let member = viewModel.getMemberDataBy(id: memberBalance.memberId) {
+                    GroupMemberCellView(member: member, memberBalance: memberBalance)
+                        .onTouchGesture {
+                            viewModel.onMemberTap(memberBalance: memberBalance)
+                        }
 
                     Divider()
                         .frame(height: 1)
@@ -110,8 +107,7 @@ private struct GroupMembersListView: View {
 private struct GroupMemberCellView: View {
 
     let member: AppUser
-    let amount: Double
-    let currencyCode: String
+    let memberBalance: CombineMemberOwingAmount
 
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
@@ -124,12 +120,12 @@ private struct GroupMemberCellView: View {
 
             Spacer()
 
-            let isBorrowed = amount < 0
+            let isBorrowed = memberBalance.balance < 0
             VStack(alignment: .trailing, spacing: 4) {
                 Text(isBorrowed ? "you owe" : "owes you")
                     .font(.caption1())
 
-                Text(amount.formattedCurrencyWithSign(currencyCode))
+                Text(abs(memberBalance.balance).formattedCurrencyWithSign(memberBalance.currencyCode))
                     .font(.body1())
             }
             .lineLimit(1)

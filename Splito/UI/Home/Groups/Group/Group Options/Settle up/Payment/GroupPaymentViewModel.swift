@@ -59,16 +59,15 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     }
 
     init(router: Router<AppRoute>, transactionId: String?, groupId: String,
-         payerId: String, receiverId: String, amount: Double) {
+         payerId: String, receiverId: String, amount: Double, currency: String) {
         self.router = router
         self.amount = abs(amount)
         self.groupId = groupId
         self.payerId = payerId
         self.receiverId = receiverId
         self.transactionId = transactionId
-        self.selectedCurrency = Currency.getCurrentLocalCurrency()
+        self.selectedCurrency = Currency.getCurrencyFromCode(currency)
         super.init()
-
         fetchInitialViewData()
     }
 

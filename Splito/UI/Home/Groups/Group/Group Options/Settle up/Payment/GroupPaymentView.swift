@@ -63,6 +63,9 @@ struct GroupPaymentView: View {
 
                             AddAmountView(amount: $viewModel.amount, showCurrencyPicker: $viewModel.showCurrencyPicker,
                                           selectedCurrencySymbol: viewModel.selectedCurrency.symbol, isAmountFocused: $isAmountFocused)
+                            .onAppear {
+                                print("XXX --- CUrren: \(viewModel.selectedCurrency)")
+                            }
 
                             Spacer(minLength: 40)
                         }

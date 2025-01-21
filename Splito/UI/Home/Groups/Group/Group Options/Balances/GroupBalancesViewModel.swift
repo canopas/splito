@@ -23,6 +23,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     @Published var payerId: String?
     @Published var receiverId: String?
     @Published var amount: Double?
+    @Published var amountCurrency: String?
 
     private var groupMemberData: [AppUser] = []
     let router: Router<AppRoute>
@@ -47,7 +48,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     func fetchGroupWithMembers() async {
         do {
-            self.group = try await groupRepository.fetchGroupBy(id: groupId)
+            group = try await groupRepository.fetchGroupBy(id: groupId)
             guard let group else {
                 viewState = .initial
                 return
@@ -72,42 +73,46 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
         let filteredBalances = group.balances.filter { group.members.contains($0.id) }
 
-        let memberBalances = filteredBalances.flatMap { balance in
-            balance.balanceByCurrency.map { (currency, balanceDetails) in
-                // Create a combined balance for each currency
-                MembersCombinedBalance(id: balance.id, totalOwedAmount: [currency: balanceDetails.balance],
-                                       balances: [currency: [balance.id: balanceDetails.balance]])
+        let memberBalances = filteredBalances.map { balance in
+            var totalOwedAmount: [String: Double] = [:]
+            var balances: [String: [String: Double]] = [:]
+
+            for (currency, balanceDetails) in balance.balanceByCurrency {
+                totalOwedAmount[currency] = balanceDetails.balance
+                balances[currency, default: [:]][balance.id] = balanceDetails.balance
             }
+
+            return MembersCombinedBalance(id: balance.id, totalOwedAmount: totalOwedAmount, balances: balances)
         }
 
         // Calculate settlements between group members
         let settlements = calculateSettlements(balances: filteredBalances)
 
-        // Merge settlements with member balances
-        let combinedBalances = settlements.reduce(into: memberBalances) { balances, settlement in
-            // Find sender and receiver indices in the balances list
-            if let senderIndex = balances.firstIndex(where: { $0.id == settlement.sender }),
-               let receiverIndex = balances.firstIndex(where: { $0.id == settlement.receiver }) {
-
-                // Handle sender's balance update
-                if balances[senderIndex].balances[settlement.currency] != nil {
-                    // If currency balance exists for sender, subtract the settlement amount
-                    balances[senderIndex].balances[settlement.currency]?[settlement.receiver, default: 0.0] -= settlement.amount
-                } else {
-                    // If no balance exists, initialize the currency balance for the sender
-                    balances[senderIndex].balances[settlement.currency] = [settlement.receiver: -settlement.amount]
-                }
-
-                // Handle receiver's balance update
-                if balances[receiverIndex].balances[settlement.currency] != nil {
-                    balances[receiverIndex].balances[settlement.currency]?[settlement.sender, default: 0.0] += settlement.amount
-                } else {
-                    balances[receiverIndex].balances[settlement.currency] = [settlement.sender: settlement.amount]
-                }
+        // Merge settlements into member balances
+        var combinedBalances = memberBalances
+        for settlement in settlements {
+            guard let senderIndex = combinedBalances.firstIndex(where: { $0.id == settlement.sender }),
+                  let receiverIndex = combinedBalances.firstIndex(where: { $0.id == settlement.receiver }) else {
+                continue
             }
+
+            combinedBalances[senderIndex].balances[settlement.currency, default: [:]][settlement.receiver] = -settlement.amount
+            combinedBalances[receiverIndex].balances[settlement.currency, default: [:]][settlement.sender] = settlement.amount
         }
 
-        self.sortMemberBalances(memberBalances: combinedBalances)
+        // Remove self-referencing balances
+        combinedBalances = combinedBalances.map { memberBalance in
+            var filteredBalances: [String: [String: Double]] = [:]
+            for (currency, balanceDetails) in memberBalance.balances {
+                filteredBalances[currency] = balanceDetails.filter { $0.key != memberBalance.id }
+            }
+
+            return MembersCombinedBalance(id: memberBalance.id, isExpanded: memberBalance.isExpanded,
+                                          totalOwedAmount: memberBalance.totalOwedAmount,
+                                          balances: filteredBalances)
+        }
+
+        sortMemberBalances(memberBalances: combinedBalances)
     }
 
     private func sortMemberBalances(memberBalances: [MembersCombinedBalance]) {
@@ -153,10 +158,11 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func handleSettleUpTap(payerId: String, receiverId: String, amount: Double) {
+    func handleSettleUpTap(payerId: String, receiverId: String, amount: Double, currency: String) {
         self.payerId = payerId
         self.receiverId = receiverId
         self.amount = amount
+        self.amountCurrency = currency
         showSettleUpSheet = true
     }
 
@@ -179,10 +185,10 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
 // MARK: - Struct to hold combined expense and user owe amount
 struct MembersCombinedBalance {
-    let id: String
+    let id: String /// member id
     var isExpanded: Bool = false
-    var totalOwedAmount: [String: Double] = [:]
-    var balances: [String: [String: Double]] = [:]
+    var totalOwedAmount: [String: Double] = [:] /// [currency: amount]
+    var balances: [String: [String: Double]] = [:] /// [currency: [memberId: amount]]
 }
 
 // MARK: - View States

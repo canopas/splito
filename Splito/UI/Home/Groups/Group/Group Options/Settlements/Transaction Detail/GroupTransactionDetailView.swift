@@ -86,7 +86,8 @@ struct GroupTransactionDetailView: View {
                         router: viewModel.router, transactionId: viewModel.transactionId,
                         groupId: viewModel.groupId, payerId: viewModel.transaction?.payerId ?? "",
                         receiverId: viewModel.transaction?.receiverId ?? "",
-                        amount: viewModel.transaction?.amount ?? 0
+                        amount: viewModel.transaction?.amount ?? 0,
+                        currency: viewModel.amountCurrency
                     )
                 )
             }

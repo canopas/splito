@@ -14,7 +14,7 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     @Inject private var groupRepository: GroupRepository
 
     @Published private(set) var viewState: ViewState = .loading
-    @Published private(set) var memberOwingAmount: [String: [String: Double]] = [:] /// [currencyCode: [memberId: balance]]
+    @Published private(set) var memberOwingAmount: [CombineMemberOwingAmount] = []
 
     private var group: Groups?
     private var members: [AppUser] = []
@@ -54,7 +54,10 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
             viewState = .initial
             return
         }
-        memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
+        let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
+        self.memberOwingAmount = memberOwingAmount.flatMap { (currency, balance) in
+            balance.map { CombineMemberOwingAmount(memberId: $0.key, balance: $0.value, currencyCode: currency) }
+        }
     }
 
     private func fetchGroupMembers() async {
@@ -76,30 +79,6 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
     }
 
     // MARK: - Helper Methods
-    func getMembersBalance(memberId: String) -> [String: Double] {
-        guard let group else {
-            LogE("GroupSettingViewModel: \(#function) group not found.")
-            return [:]
-        }
-
-        guard let memberBalance = group.balances.first(where: { $0.id == memberId })?.balanceByCurrency else {
-            LogE("GroupSettingViewModel: \(#function) Member's balance not found from balances.")
-            return [:]
-        }
-
-        var filteredBalances: [String: Double] = [:]
-        for (currency, balanceInfo) in memberBalance {
-            if balanceInfo.balance == 0 { continue }
-            filteredBalances[currency] = balanceInfo.balance
-        }
-
-        if filteredBalances.isEmpty { // If no non-zero balances, fallback to original data
-            return memberBalance.mapValues { $0.balance }
-        }
-
-        return [:]
-    }
-
     func getMemberDataBy(id: String) -> AppUser? {
         members.first(where: { $0.id == id })
     }
@@ -109,12 +88,13 @@ class GroupSettleUpViewModel: BaseViewModel, ObservableObject {
         router?.push(.GroupWhoIsPayingView(groupId: groupId, isPaymentSettled: false))
     }
 
-    func onMemberTap(memberId: String, amount: Double) {
+    func onMemberTap(memberBalance: CombineMemberOwingAmount) {
         guard let userId = self.preference.user?.id else { return }
-        let (payerId, receiverId) = amount < 0 ? (userId, memberId) : (memberId, userId)
+        let (payerId, receiverId) = memberBalance.balance < 0 ? (userId, memberBalance.memberId) : (memberBalance.memberId, userId)
 
         router?.push(.GroupPaymentView(transactionId: nil, groupId: groupId,
-                                       payerId: payerId, receiverId: receiverId, amount: amount))
+                                       payerId: payerId, receiverId: receiverId, amount: memberBalance.balance,
+                                       currency: memberBalance.currencyCode))
     }
 
     // MARK: - Error Handling
@@ -135,4 +115,11 @@ extension GroupSettleUpViewModel {
         case noInternet
         case somethingWentWrong
     }
+}
+
+struct CombineMemberOwingAmount: Hashable {
+    let id = UUID()
+    let memberId: String
+    let balance: Double
+    let currencyCode: String
 }
