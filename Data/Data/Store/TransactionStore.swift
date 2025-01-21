@@ -56,6 +56,23 @@ public class TransactionStore: ObservableObject {
         return (transactions, snapshot.documents.last)
     }
 
+    func fetchTransactions(groupId: String, startDate: Date?, endDate: Date) async throws -> [Transactions] {
+        let query = transactionReference(groupId: groupId)
+            .whereField("is_active", isEqualTo: true)
+
+        if let startDate {
+            query
+                .whereField("date", isGreaterThanOrEqualTo: Timestamp(date: startDate))
+                .whereField("date", isLessThanOrEqualTo: Timestamp(date: endDate))
+        } else {
+            query
+                .order(by: "date", descending: false)
+        }
+        return try await query.getDocuments(source: .server).documents.map { document in
+            try document.data(as: Transactions.self)
+        }
+    }
+
     func fetchTransactionsBy(groupId: String, transactionId: String) async throws -> Transactions {
         try await transactionReference(groupId: groupId)
             .document(transactionId)

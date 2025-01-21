@@ -60,6 +60,23 @@ public class ExpenseStore: ObservableObject {
         return (expenses, snapshot.documents.last)
     }
 
+    func fetchExpenses(groupId: String, startDate: Date?, endDate: Date) async throws -> [Expense] {
+        let query = expenseReference(groupId: groupId)
+            .whereField("is_active", isEqualTo: true)
+
+        if let startDate {
+            query
+                .whereField("date", isGreaterThanOrEqualTo: Timestamp(date: startDate))
+                .whereField("date", isLessThanOrEqualTo: Timestamp(date: endDate))
+        } else {
+            query
+                .order(by: "date", descending: false)
+        }
+        return try await query.getDocuments(source: .server).documents.map { document in
+            try document.data(as: Expense.self)
+        }
+    }
+
     func fetchExpensesOfAllGroups(userId: String, activeGroupIds: [String], limit: Int,
                                   lastDocument: DocumentSnapshot?) async throws -> (expenses: [Expense], lastDocument: DocumentSnapshot?) {
 
