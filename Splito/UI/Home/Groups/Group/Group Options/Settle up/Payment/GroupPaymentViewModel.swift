@@ -92,7 +92,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
     private func fetchGroup() async {
         do {
             group = try await groupRepository.fetchGroupBy(id: groupId)
-            selectedCurrency = Currency.getCurrencyFromCode(group?.defaultCurrencyCode)
             LogD("GroupPaymentViewModel: \(#function) Group fetched successfully.")
         } catch {
             LogE("GroupPaymentViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
@@ -110,7 +109,6 @@ class GroupPaymentViewModel: BaseViewModel, ObservableObject {
             paymentNote = transaction?.note ?? ""
             paymentImageUrl = transaction?.imageUrl
             paymentReason = transaction?.reason ?? ""
-            selectedCurrency = Currency.getCurrencyFromCode(transaction?.currencyCode ?? group?.defaultCurrencyCode)
             LogD("GroupPaymentViewModel: \(#function) Payment fetched successfully.")
         } catch {
             LogE("GroupPaymentViewModel: \(#function) Failed to fetch payment \(transactionId): \(error).")

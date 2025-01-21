@@ -20,7 +20,8 @@ struct GroupPaymentView: View {
         GeometryReader { geometry in
             VStack(alignment: .center, spacing: 0) {
                 if .noInternet == viewModel.viewState || .somethingWentWrong == viewModel.viewState {
-                    ErrorView(isForNoInternet: viewModel.viewState == .noInternet, onClick: viewModel.fetchInitialViewData)
+                    ErrorView(isForNoInternet: viewModel.viewState == .noInternet,
+                              onClick: viewModel.fetchInitialViewData)
                 } else if case .loading = viewModel.viewState {
                     LoaderView()
                 } else {
@@ -30,7 +31,8 @@ struct GroupPaymentView: View {
 
                             VStack(alignment: .center, spacing: 16) {
                                 HStack(alignment: .center, spacing: 24) {
-                                    ProfileCardView(name: viewModel.payerName, imageUrl: viewModel.payer?.imageUrl, geometry: geometry)
+                                    ProfileCardView(name: viewModel.payerName,
+                                                    imageUrl: viewModel.payer?.imageUrl, geometry: geometry)
 
                                     Button {
                                         viewModel.switchPayerAndReceiver()
@@ -41,7 +43,8 @@ struct GroupPaymentView: View {
                                             .frame(width: 42, height: 42)
                                     }
 
-                                    ProfileCardView(name: viewModel.payableName, imageUrl: viewModel.receiver?.imageUrl, geometry: geometry)
+                                    ProfileCardView(name: viewModel.payableName,
+                                                    imageUrl: viewModel.receiver?.imageUrl, geometry: geometry)
                                 }
 
                                 Divider()
@@ -62,10 +65,8 @@ struct GroupPaymentView: View {
                             VSpacer(16)
 
                             AddAmountView(amount: $viewModel.amount, showCurrencyPicker: $viewModel.showCurrencyPicker,
-                                          selectedCurrencySymbol: viewModel.selectedCurrency.symbol, isAmountFocused: $isAmountFocused)
-                            .onAppear {
-                                print("XXX --- CUrren: \(viewModel.selectedCurrency)")
-                            }
+                                          selectedCurrencySymbol: viewModel.selectedCurrency.symbol,
+                                          isAmountFocused: $isAmountFocused)
 
                             Spacer(minLength: 40)
                         }
@@ -75,10 +76,12 @@ struct GroupPaymentView: View {
                     .scrollBounceBehavior(.basedOnSize)
 
                     AddNoteImageFooterView(date: $viewModel.paymentDate, showImageDisplayView: $viewModel.showImageDisplayView,
-                                           showImagePickerOptions: $viewModel.showImagePickerOptions, image: viewModel.paymentImage,
+                                           showImagePickerOptions: $viewModel.showImagePickerOptions,
+                                           image: viewModel.paymentImage,
                                            imageUrl: viewModel.paymentImageUrl,
                                            isNoteEmpty: (viewModel.paymentNote.isEmpty && viewModel.paymentReason.isEmpty),
-                                           handleNoteBtnTap: viewModel.handleNoteBtnTap, handleCameraTap: viewModel.handleCameraTap,
+                                           handleNoteBtnTap: viewModel.handleNoteBtnTap,
+                                           handleCameraTap: viewModel.handleCameraTap,
                                            handleAttachmentTap: viewModel.handleAttachmentTap,
                                            handleActionSelection: viewModel.handleActionSelection(_:))
                 }
