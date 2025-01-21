@@ -66,6 +66,7 @@ struct AddExpenseView: View {
                 ChoosePayerRouteView(appRoute: .init(
                     root: .ChoosePayerView(groupId: viewModel.selectedGroup?.id ?? "",
                                            amount: viewModel.expenseAmount,
+                                           currency: viewModel.selectedCurrency.code,
                                            selectedPayer: viewModel.selectedPayers,
                                            onPayerSelection: viewModel.handlePayerSelection(payers:)))) {
                                                viewModel.showPayerSelection = false
@@ -77,7 +78,8 @@ struct AddExpenseView: View {
                 ExpenseSplitOptionsView(
                     viewModel:
                         ExpenseSplitOptionsViewModel(
-                            amount: viewModel.expenseAmount, splitType: viewModel.splitType, splitData: viewModel.splitData,
+                            amount: viewModel.expenseAmount, selectedCurrency: viewModel.selectedCurrency.code,
+                            splitType: viewModel.splitType, splitData: viewModel.splitData,
                             members: viewModel.groupMembers, selectedMembers: viewModel.selectedMembers,
                             handleSplitTypeSelection: viewModel.handleSplitTypeSelectionAction(splitData:splitType:)
                         )

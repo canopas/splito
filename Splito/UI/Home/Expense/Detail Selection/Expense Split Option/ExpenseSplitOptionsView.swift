@@ -70,13 +70,15 @@ private struct SplitOptionsBottomView: View {
     var body: some View {
         switch viewModel.selectedTab {
         case .equally:
-            BottomInfoCardView(title: "\(viewModel.splitAmount.formattedCurrencyWithSign())/person",
+            let selectedCurrency = viewModel.selectedCurrency
+            BottomInfoCardView(title: "\(viewModel.splitAmount.formattedCurrencyWithSign(selectedCurrency))/person",
                                value: "\(viewModel.selectedMembers.count) people",
                                memberCount: viewModel.selectedMembers.count, isAllSelected: viewModel.isAllSelected,
                                isForEqualSplit: true, onAllBtnTap: viewModel.handleAllBtnAction)
         case .fixedAmount:
-            BottomInfoCardView(title: "\(viewModel.totalFixedAmount.formattedCurrencyWithSign()) of \(viewModel.expenseAmount.formattedCurrencyWithSign())",
-                               value: "\((viewModel.expenseAmount - viewModel.totalFixedAmount).formattedCurrencyWithSign()) left")
+            let selectedCurrency = viewModel.selectedCurrency
+            BottomInfoCardView(title: "\(viewModel.totalFixedAmount.formattedCurrencyWithSign(selectedCurrency)) of \(viewModel.expenseAmount.formattedCurrencyWithSign(selectedCurrency))",
+                               value: "\((viewModel.expenseAmount - viewModel.totalFixedAmount).formattedCurrencyWithSign(selectedCurrency)) left")
         case .percentage:
             BottomInfoCardView(title: "\(String(format: "%.0f", viewModel.totalPercentage))% of 100%",
                                value: "\(String(format: "%.0f", 100 - viewModel.totalPercentage))% left")

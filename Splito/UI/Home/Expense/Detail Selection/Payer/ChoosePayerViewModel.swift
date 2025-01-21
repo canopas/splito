@@ -18,13 +18,16 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
     @Published var currentViewState: ViewState = .loading
     @Published private(set) var amount: Double = 0
 
+    var amountCurrency: String
     var onPayerSelection: (([String: Double]) -> Void)
     private let router: Router<AppRoute>?
 
-    init(router: Router<AppRoute>?, groupId: String, amount: Double, selectedPayers: [String: Double], onPayerSelection: @escaping (([String: Double]) -> Void)) {
+    init(router: Router<AppRoute>?, groupId: String, amount: Double, amountCurrency: String,
+         selectedPayers: [String: Double], onPayerSelection: @escaping (([String: Double]) -> Void)) {
         self.router = router
         self.groupId = groupId
         self.amount = amount
+        self.amountCurrency = amountCurrency
         self.selectedPayers = selectedPayers
         self.onPayerSelection = onPayerSelection
         super.init()
@@ -68,7 +71,8 @@ class ChoosePayerViewModel: BaseViewModel, ObservableObject {
             return
         }
         router?.push(.ChooseMultiplePayerView(groupId: groupId, selectedPayers: selectedPayers,
-                                              amount: amount, onPayerSelection: onPayerSelection))
+                                              amount: amount, currency: amountCurrency,
+                                              onPayerSelection: onPayerSelection))
     }
 
     // MARK: - Error Handling

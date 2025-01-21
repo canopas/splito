@@ -139,15 +139,16 @@ private struct FixedAmountView: View {
 
     var body: some View {
         VStack(spacing: 16) {
+            let currencySymbol = Currency.getCurrencyFromCode(viewModel.selectedCurrency).symbol
             ForEach(viewModel.groupMembers, id: \.id) { member in
                 MemberCellView(
                     value: Binding(
                         get: { viewModel.fixedAmounts[member.id] ?? 0 },
                         set: { viewModel.updateFixedAmount(for: member.id, amount: $0) }
                     ),
-                    member: member, suffixText: "₹",
+                    member: member, suffixText: currencySymbol,
                     formatString: "%.2f", isLastCell: member == viewModel.groupMembers.last,
-                    expenseAmount: viewModel.expenseAmount,
+                    expenseAmount: viewModel.expenseAmount, amountCurrency: viewModel.selectedCurrency,
                     inputFieldWidth: 70,
                     onChange: { amount in
                         viewModel.updateFixedAmount(for: member.id, amount: amount)
@@ -174,7 +175,7 @@ private struct PercentageView: View {
                     member: member, suffixText: "%",
                     isLastCell: member == viewModel.groupMembers.last,
                     splitAmount: viewModel.calculateFixedAmountForMember(memberId: member.id),
-                    expenseAmount: viewModel.expenseAmount,
+                    expenseAmount: viewModel.expenseAmount, amountCurrency: viewModel.selectedCurrency,
                     onChange: { percentage in
                         viewModel.updatePercentage(for: member.id, percentage: percentage)
                     }
@@ -200,7 +201,7 @@ private struct ShareView: View {
                     member: member, suffixText: "shares",
                     isLastCell: member == viewModel.groupMembers.last,
                     splitAmount: viewModel.calculateFixedAmountForMember(memberId: member.id),
-                    expenseAmount: viewModel.expenseAmount,
+                    expenseAmount: viewModel.expenseAmount, amountCurrency: viewModel.selectedCurrency,
                     onChange: { share in
                         viewModel.updateShare(for: member.id, share: share)
                     }
@@ -224,13 +225,14 @@ struct MemberCellView: View {
 
     var splitAmount: Double?
     var expenseAmount: Double
+    var amountCurrency: String
     var inputFieldWidth: Double
 
     let onChange: (Double) -> Void
 
     @State private var textValue: String
 
-    init(value: Binding<Double>, member: AppUser, suffixText: String, formatString: String = "%.0f", isLastCell: Bool, splitAmount: Double? = nil, expenseAmount: Double, inputFieldWidth: Double = 40, onChange: @escaping (Double) -> Void) {
+    init(value: Binding<Double>, member: AppUser, suffixText: String, formatString: String = "%.0f", isLastCell: Bool, splitAmount: Double? = nil, expenseAmount: Double, amountCurrency: String, inputFieldWidth: Double = 40, onChange: @escaping (Double) -> Void) {
         self._value = value
         self.member = member
         self.suffixText = suffixText
@@ -238,6 +240,7 @@ struct MemberCellView: View {
         self.isLastCell = isLastCell
         self.splitAmount = splitAmount
         self.expenseAmount = expenseAmount
+        self.amountCurrency = amountCurrency
         self.inputFieldWidth = inputFieldWidth
         self.onChange = onChange
         self._textValue = State(initialValue: value.wrappedValue == 0.0 ? "" : String(format: formatString, value.wrappedValue))
@@ -254,7 +257,7 @@ struct MemberCellView: View {
                         .foregroundStyle(primaryText)
 
                     if let splitAmount {
-                        Text(splitAmount.formattedCurrencyWithSign())
+                        Text(splitAmount.formattedCurrencyWithSign(amountCurrency))
                             .font(.body3(12))
                             .foregroundStyle(disableText)
                     }

@@ -92,6 +92,9 @@
     "%@ and %@" : {
       "extractionState" : "manual"
     },
+    "%@ of %@" : {
+      "extractionState" : "manual"
+    },
     "%@ owes you " : {
 
     },
@@ -151,9 +154,6 @@
     },
     "•" : {
 
-    },
-    "₹ %@ of %@" : {
-      "extractionState" : "manual"
     },
     "0" : {
 
@@ -879,7 +879,7 @@
     "The image size exceeds the maximum allowed limit. Please select a smaller image." : {
       "extractionState" : "manual"
     },
-    "The payment values do not add up to the total cost of ₹ %@. You are short by ₹ %@." : {
+    "The payment values do not add up to the total cost of %@. You are short by %@." : {
       "extractionState" : "manual"
     },
     "The shares do not add up to 100%. You are %@ by %@%" : {
@@ -888,7 +888,7 @@
     "The total amount paid by the selected payer does not match the expense amount. Please adjust the payment distribution." : {
       "extractionState" : "manual"
     },
-    "The total of everyone's paid shares (₹%@) is different than the total cost (₹%@)" : {
+    "The total of everyone's paid shares (%@) is different than the total cost (%@)" : {
       "extractionState" : "manual"
     },
     "The video size exceeds the maximum allowed limit. Please select a smaller video." : {

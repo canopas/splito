@@ -141,8 +141,8 @@ private struct ActivityListCellView: View {
             VStack(alignment: .leading, spacing: 4) {
                 ActivityLogDescriptionView(activityLog: activityLog)
 
-                if !getLogSubdescription().isEmpty {
-                    Text(getLogSubdescription().localized)
+                if !getLogSubDescription().isEmpty {
+                    Text(getLogSubDescription().localized)
                         .font(.caption1())
                         .foregroundColor(amount > 0 ? successColor : amount < 0 ? errorColor : disableText)
                         .strikethrough(amount != 0 && (activityLog.type == .expenseDeleted || activityLog.type == .transactionDeleted))
@@ -179,16 +179,16 @@ private struct ActivityListCellView: View {
         }
     }
 
-    private func getLogSubdescription() -> String {
+    private func getLogSubDescription() -> String {
         switch activityLog.type {
         case .groupCreated, .groupUpdated, .groupNameUpdated, .groupImageUpdated, .groupDeleted, .groupRestored, .groupMemberRemoved, .groupMemberLeft, .expenseCommentAdded, .transactionCommentAdded, .none:
             return ""
         case .expenseAdded, .expenseUpdated, .expenseDeleted, .expenseRestored:
             let action = (amount > 0 ? "get back" : "owe")
-            return (amount == 0) ? "You do not owe anything" : "You \(action) \(amount.formattedCurrencyWithSign())"
+            return (amount == 0) ? "You do not owe anything" : "You \(action) \(amount.formattedCurrencyWithSign(activityLog.amountCurrency))"
         case .transactionAdded, .transactionUpdated, .transactionDeleted, .transactionRestored:
             let action = (amount > 0 ? "paid" : "received")
-            return (amount == 0) ? "You do not owe anything" : "You \(action) \(amount.formattedCurrencyWithSign())"
+            return (amount == 0) ? "You do not owe anything" : "You \(action) \(amount.formattedCurrencyWithSign(activityLog.amountCurrency))"
         }
     }
 }

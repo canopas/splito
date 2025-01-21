@@ -9,7 +9,7 @@ import Foundation
 
 public extension Double {
 
-    func formattedCurrencyWithSign(_ code: String? = nil) -> String {
+    func formattedCurrencyWithSign(_ code: String?) -> String {
         let amount: String
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
