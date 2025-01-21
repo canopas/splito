@@ -157,6 +157,10 @@ public class TransactionRepository: ObservableObject {
         try await store.fetchTransactionsBy(groupId: groupId, limit: limit, lastDocument: lastDocument)
     }
 
+    public func fetchTransactions(groupId: String, startDate: Date?, endDate: Date) async throws -> [Transactions] {
+        try await store.fetchTransactions(groupId: groupId, startDate: startDate, endDate: endDate)
+    }
+
     public func fetchTransactionBy(groupId: String, transactionId: String) async throws -> Transactions {
         try await store.fetchTransactionsBy(groupId: groupId, transactionId: transactionId)
     }

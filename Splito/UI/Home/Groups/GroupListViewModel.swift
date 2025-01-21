@@ -145,7 +145,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         Task { [weak self] in
             guard let self, let userId = preference.user?.id else { return }
             do {
-                let limit = combinedGroups.isEmpty ? self.GROUPS_LIMIT : combinedGroups.count
+                let limit = self.combinedGroups.isEmpty ? self.GROUPS_LIMIT : self.combinedGroups.count
                 let result = try await groupRepository.fetchGroupsBy(userId: userId, limit: limit)
                 let freshGroups = try await self.processNewGroups(newGroups: result.data)
 

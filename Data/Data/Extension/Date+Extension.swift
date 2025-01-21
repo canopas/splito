@@ -30,6 +30,13 @@ public extension Date {
         return dateFormatter.string(from: self)
     }
 
+    // 13-12-2001
+    var numericDate: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd-MM-yyyy"
+        return dateFormatter.string(from: self)
+    }
+
     var millisecondsSince1970: Int {
         Int((self.timeIntervalSince1970 * 1000.0).rounded())
     }

@@ -416,6 +416,9 @@
     "Expense deleted successfully" : {
       "extractionState" : "manual"
     },
+    "Failed to generate group report. Please try again." : {
+      "extractionState" : "manual"
+    },
     "Failed to save note." : {
       "extractionState" : "manual"
     },
@@ -497,9 +500,6 @@
     "Join group" : {
 
     },
-    "Key" : {
-      "extractionState" : "manual"
-    },
     "Last Name" : {
       "extractionState" : "manual"
     },
@@ -563,6 +563,11 @@
     "no balance" : {
 
     },
+    "No Data" : {
+      "extractionState" : "manual"
+    },
+    "No data found for selected time period. Try a different time period." : {
+      "extractionState" : "manual"
     "No currency found for \"%@\"!" : {
 
     },

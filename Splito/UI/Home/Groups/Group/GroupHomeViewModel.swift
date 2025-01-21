@@ -13,17 +13,19 @@ import FirebaseFirestore
 class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     private let EXPENSES_LIMIT = 10
+    let GROUP_REPORT_FILE_NAME = "Splito group report \(Date().shortDate).csv"
 
     @Inject var preference: SplitoPreference
     @Inject var groupRepository: GroupRepository
     @Inject var expenseRepository: ExpenseRepository
-    @Inject private var transactionRepository: TransactionRepository
+    @Inject var transactionRepository: TransactionRepository
 
+    @Published var group: Groups?
+    @Published var groupReportUrl: URL?
     @Published private(set) var groupId: String
     @Published private(set) var overallOwingAmount: [String: Double] = [:] /// [currencyCode: balance]
     @Published private(set) var currentMonthSpending: [String: Double] = [:] /// [currencyCode: totalSpending]
 
-    @Published var group: Groups?
     @Published var groupState: GroupState = .loading
 
     @Published var expenses: [Expense] = []
@@ -32,16 +34,17 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var groupExpenses: [String: [ExpenseWithUser]] = [:]
     @Published private(set) var memberOwingAmount: [String: [String: Double]] = [:]
 
+    @Published var showSearchBar = false
     @Published var showSettleUpSheet = false
     @Published var showBalancesSheet = false
+    @Published var showExportOptions = false
+    @Published var showScrollToTopBtn = false
     @Published var showGroupTotalSheet = false
     @Published var showAddExpenseSheet = false
+    @Published var showShareReportSheet = false
     @Published var showTransactionsSheet = false
     @Published var showSimplifyInfoSheet = false
     @Published var showInviteMemberSheet = false
-
-    @Published var showSearchBar = false
-    @Published var showScrollToTopBtn = false
 
     @Published var searchedExpense: String = "" {
         didSet {
@@ -56,6 +59,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     var groupMembers: [AppUser] = []
     private var lastDocument: DocumentSnapshot?
     var groupTask: Task<Void, Never>? // To manage the lifecycle of the async stream
+    var exportTask: Task<Void, Never>? // Reference to hold the current export task
 
     init(router: Router<AppRoute>, groupId: String) {
         self.router = router
@@ -333,5 +337,26 @@ extension GroupHomeViewModel {
         case memberNotInGroup
         case noInternet
         case somethingWentWrong
+    }
+}
+
+// MARK: - Export Options
+enum ExportOptions: Int, CaseIterable {
+
+    case month, threeMonths, sixMonths, year, all
+
+    var option: String {
+        switch self {
+        case .month:
+            return "Month"
+        case .threeMonths:
+            return "Three months"
+        case .sixMonths:
+            return "Six months"
+        case .year:
+            return "Year"
+        case .all:
+            return "All"
+        }
     }
 }

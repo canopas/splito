@@ -60,6 +60,42 @@ extension GroupHomeViewModel {
         onSearchBarCancelBtnTap()
     }
 
+    func handleExportBtnTap() {
+        showExportOptions = true
+    }
+
+    func handleExportOptionSelection(option: ExportOptions) {
+        let startDate = getStartDate(exportOption: option)
+        let today = Date()
+
+        exportTask?.cancel()
+        exportTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                let expenses = try await self.expenseRepository.fetchExpenses(groupId: self.groupId, startDate: startDate, endDate: today)
+                let transactions = try await self.transactionRepository.fetchTransactions(groupId: self.groupId, startDate: startDate, endDate: today)
+                LogD("GroupHomeViewModel: \(#function) Expenses/payments fetched successfully.")
+
+                if expenses.isEmpty && transactions.isEmpty {
+                    self.showToastFor(toast: ToastPrompt(type: .info, title: "No Data", message: "No data found for selected time period. Try a different time period."))
+                    return
+                }
+
+                if let reportURL = await self.generateCSVReport(expenses: expenses, payments: transactions) {
+                    groupReportUrl = reportURL
+                    showShareReportSheet = true
+                } else {
+                    showShareReportSheet = false
+                    self.showToastFor(toast: ToastPrompt(type: .error, title: "Error",
+                                                         message: "Failed to generate group report. Please try again."))
+                }
+            } catch {
+                LogE("GroupHomeViewModel: \(#function) Failed to fetch Expenses/transactions: \(error).")
+                self.showToastForError()
+            }
+        }
+    }
+
     func handleSimplifyInfoSheet() {
         UIApplication.shared.endEditing()
         showSimplifyInfoSheet = true
@@ -248,5 +284,126 @@ extension GroupHomeViewModel {
     @objc func handleUpdateGroup(notification: Notification) {
         guard let updatedGroup = notification.object as? Groups else { return }
         group?.name = updatedGroup.name
+    }
+}
+
+// MARK: - Helper methods for generate report for export
+extension GroupHomeViewModel {
+    private func getStartDate(exportOption: ExportOptions) -> Date? {
+        let today = Date()
+        let calendar = Calendar.current
+
+        switch exportOption {
+        case .month:
+            return calendar.date(byAdding: .month, value: -1, to: today) ?? today
+        case .threeMonths:
+            return calendar.date(byAdding: .month, value: -3, to: today) ?? today
+        case .sixMonths:
+            return calendar.date(byAdding: .month, value: -6, to: today) ?? today
+        case .year:
+            return calendar.date(byAdding: .year, value: -1, to: today) ?? today
+        case .all:
+            return nil
+        }
+    }
+
+    private func generateCSVReport(expenses: [Expense], payments: [Transactions]) async -> URL? {
+        guard let group else { return nil }
+
+        // Gather all member IDs from group, expenses & payments
+        var allMemberIDs = Set(group.members)
+        allMemberIDs.formUnion(expenses.flatMap { $0.participants ?? $0.splitTo + $0.paidBy.keys })
+        allMemberIDs.formUnion(payments.flatMap { [$0.payerId, $0.receiverId] })
+
+        // Fetch member names including removed ones
+        var memberNames: [String] = []
+        for id in allMemberIDs {
+            let user = await fetchMemberData(for: id)
+            let name = user?.nameWithLastInitial ?? "Unknown"
+            memberNames.append(escapeCSV(!group.members.contains(id) ? "\(name) (Removed)" : name))
+        }
+
+        var csvContent = ""
+        let headers = ["Date", "Description", "Category", "Cost", "Currency"]
+            .map(escapeCSV)
+            .joined(separator: ",")
+        let header = headers + "," + memberNames.joined(separator: ",") + "\n\n"
+
+        csvContent += header
+        if !expenses.isEmpty {
+            csvContent += createExpensesSection(expenses: expenses, allMemberIDs: allMemberIDs)
+        }
+        if !payments.isEmpty {
+            csvContent += createSettlementsSection(payments: payments, allMemberIDs: allMemberIDs, group: group)
+        }
+        csvContent += createTotalBalanceSection(group: group, allMemberIDs: allMemberIDs)
+
+        do {
+            let filePath = FileManager.default.temporaryDirectory.appendingPathComponent(GROUP_REPORT_FILE_NAME)
+            try FileManager.default.createDirectory(at: filePath.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try csvContent.write(to: filePath, atomically: true, encoding: .utf8)
+            return filePath
+        } catch {
+            LogE("GroupHomeViewModel: \(#function) Failed to write CSV file: \(error)")
+            return nil
+        }
+    }
+
+    // Helper function to escape CSV text
+    private func escapeCSV(_ text: String) -> String {
+        // If text contains comma, quote, or newline, wrap in quotes and escape existing quotes
+        if text.contains(",") || text.contains("\"") || text.contains("\n") {
+            return "\"\(text.replacingOccurrences(of: "\"", with: "\"\""))\""
+        }
+        return text
+    }
+
+    private func createExpensesSection(expenses: [Expense], allMemberIDs: Set<String>) -> String {
+        var section = escapeCSV("Expenses") + "\n"
+        for expense in expenses {
+            let date = expense.date.dateValue().numericDate
+            var row = "\(escapeCSV(date)), \(escapeCSV(expense.name)), \(escapeCSV(expense.category ?? "General")), \(expense.amount), \(escapeCSV(expense.currencyCode ?? "INR"))"
+
+            // Add owe amounts for each member
+            for member in allMemberIDs {
+                let oweAmount = expense.getCalculatedSplitAmountOf(member: member)
+                row += ", \(oweAmount)"
+            }
+            section += row + "\n"
+        }
+        return section + "\n"
+    }
+
+    private func createSettlementsSection(payments: [Transactions], allMemberIDs: Set<String>, group: Groups) -> String {
+        var section = escapeCSV("Settlements") + "\n"
+        for payment in payments {
+            let date = payment.date.dateValue().numericDate
+            let payer = getMemberDataBy(id: payment.payerId)?.nameWithLastInitial ?? "Unknown"
+            let receiver = getMemberDataBy(id: payment.receiverId)?.nameWithLastInitial ?? "Unknown"
+            let description = "\(escapeCSV(payer)) paid \(escapeCSV(receiver))"
+            var row = "\(escapeCSV(date)), \(description), Payment, \(payment.amount), INR"
+
+            // Add paid amount for payer & receiver
+            for member in allMemberIDs {
+                let amount = member == payment.payerId ? payment.amount : (member == payment.receiverId) ? -payment.amount : 0.00
+                row += ", \(amount)"
+            }
+            section += row + "\n"
+        }
+        return section + "\n"
+    }
+
+    private func createTotalBalanceSection(group: Groups, allMemberIDs: Set<String>) -> String {
+        let date = Date()
+        var section = "\(escapeCSV(date.numericDate)), Total balance, , , INR"
+
+        for member in allMemberIDs {
+            if let memberBalance = group.balances.first(where: { $0.id == member }) {
+                section += ", \(memberBalance.balance)"
+            } else {
+                section += ", 0.00"  // Add 0 if no balance is found
+            }
+        }
+        return section + "\n"
     }
 }

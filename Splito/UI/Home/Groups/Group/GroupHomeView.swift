@@ -127,12 +127,18 @@ struct GroupHomeView: View {
 
 struct GroupOptionsListView: View {
 
-    var isSettleUpEnable: Bool
+    @Binding var showExportOptions: Bool
+    @Binding var showShareReportSheet: Bool
 
+    let groupReportUrl: URL?
+    let isSettleUpEnable: Bool
+
+    let onExportTap: () -> Void
+    let onTotalsTap: () -> Void
+    let onBalanceTap: () -> Void
     let onSettleUpTap: () -> Void
     let onTransactionsTap: () -> Void
-    let onBalanceTap: () -> Void
-    let onTotalsTap: () -> Void
+    let handleExportOptionSelection: (_ option: ExportOptions) -> Void
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -144,9 +150,28 @@ struct GroupOptionsListView: View {
                 GroupOptionsButtonView(text: "Balances", onTap: onBalanceTap)
 
                 GroupOptionsButtonView(text: "Totals", onTap: onTotalsTap)
+
+                GroupOptionsButtonView(text: "Export", onTap: onExportTap)
+                    .confirmationDialog("", isPresented: $showExportOptions, titleVisibility: .hidden) {
+                        ForEach(ExportOptions.allCases, id: \.self) { option in
+                            Button(option.option.localized) {
+                                showExportOptions = false
+                                handleExportOptionSelection(option)
+                            }
+                        }
+                    }
             }
             .padding([.horizontal, .bottom], 16)
             .padding(.top, 24)
+        }
+        .sheet(isPresented: $showShareReportSheet) {
+            if let reportUrl = groupReportUrl {
+                ShareSheetView(activityItems: [reportUrl]) { isCompleted in
+                    if isCompleted {
+                        showShareReportSheet = false
+                    }
+                }
+            }
         }
     }
 }
