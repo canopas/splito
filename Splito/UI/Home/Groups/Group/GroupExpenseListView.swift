@@ -278,10 +278,10 @@ private struct GroupExpenseHeaderView: View {
                     .background(dividerColor)
 
                 VStack(alignment: .leading, spacing: 12) {
-                    ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (_, memberOweAmounts) in
+                    ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (currency, memberOweAmounts) in
                         ForEach(memberOweAmounts.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
                             let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
-                            GroupExpenseMemberOweView(name: name, amount: amount,
+                            GroupExpenseMemberOweView(name: name, amount: amount, currency: currency,
                                                       handleSimplifyInfoSheet: viewModel.handleSimplifyInfoSheet)
                         }
                     }
@@ -366,6 +366,7 @@ private struct GroupExpenseMemberOweView: View {
 
     let name: String
     let amount: Double
+    let currency: String
     let handleSimplifyInfoSheet: () -> Void
 
     var body: some View {
@@ -374,7 +375,7 @@ private struct GroupExpenseMemberOweView: View {
                 Group {
                     Text("\(name.localized) owes you ")
                         .foregroundColor(disableText)
-                    + Text("\(amount.formattedCurrencyWithSign())")
+                    + Text(amount.formattedCurrencyWithSign(currency))
                         .foregroundColor(successColor)
                 }
                 .font(.body3())
@@ -382,7 +383,7 @@ private struct GroupExpenseMemberOweView: View {
                 Group {
                     Text("You owe \(name.localized) ")
                         .foregroundColor(disableText)
-                    + Text("\(amount.formattedCurrencyWithSign())")
+                    + Text(amount.formattedCurrencyWithSign(currency))
                         .foregroundColor(errorColor)
                 }.font(.body3())
             }

@@ -122,6 +122,9 @@ private struct GroupListCellView: View {
                         let currency = group.userBalance[defaultCurrency] == nil ? group.userBalance.first?.key : defaultCurrency
                         Text(userBalance.formattedCurrencyWithSign(currency))
                             .font(.body1())
+                        + Text(group.userBalance.count > 1 ? "*" : "")
+                            .font(.body1())
+                            .baselineOffset(1)
                     }
                 }
                 .lineLimit(1)
@@ -138,10 +141,10 @@ private struct GroupListCellView: View {
                     HSpacer(56) // width of image size for padding
 
                     VStack(alignment: .leading, spacing: 8) {
-                        ForEach(group.memberOweAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (_, memberOweAmount) in
+                        ForEach(group.memberOweAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (currency, memberOweAmount) in
                             ForEach(memberOweAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
                                 let name = viewModel.getMemberData(from: group.members, of: memberId)?.nameWithLastInitial ?? "Unknown"
-                                GroupExpenseMemberOweView(name: name, amount: amount)
+                                GroupExpenseMemberOweView(name: name, amount: amount, currency: currency)
                             }
                         }
                     }
@@ -190,13 +193,14 @@ private struct GroupExpenseMemberOweView: View {
 
     let name: String
     let amount: Double
+    let currency: String
 
     var body: some View {
         if amount > 0 {
             Group {
                 Text("\(name.localized) owes you ")
                     .foregroundColor(disableText)
-                + Text("\(amount.formattedCurrencyWithSign())")
+                + Text(amount.formattedCurrencyWithSign(currency))
                     .foregroundColor(successColor)
             }
             .font(.body3())
@@ -204,7 +208,7 @@ private struct GroupExpenseMemberOweView: View {
             Group {
                 Text("You owe \(name.localized) ")
                     .foregroundColor(disableText)
-                + Text("\(amount.formattedCurrencyWithSign())")
+                + Text(amount.formattedCurrencyWithSign(currency))
                     .foregroundColor(errorColor)
             }
             .font(.body3())

@@ -212,7 +212,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         let memberBalance = getMembersBalance(group: group, memberId: userId)
         let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
         let members = try await fetchMembersDataBy(memberIds: group.members)
-
         return GroupInformation(group: group, userBalance: memberBalance, memberOweAmount: memberOwingAmount,
                                 members: members, hasExpenses: true)
     }
@@ -344,13 +343,12 @@ extension GroupListViewModel {
 
     func handleOptionSelection(with selection: OptionList) {
         showActionSheet = false
-        guard let group = selectedGroup else { return }
-
+        guard let selectedGroup else { return }
         switch selection {
         case .editGroup:
             showCreateGroupSheet = true
         case .deleteGroup:
-            handleDeleteGroupTap(group: group)
+            handleDeleteGroupTap(group: selectedGroup)
         }
     }
 
@@ -371,7 +369,6 @@ extension GroupListViewModel {
 
     private func deleteGroup(group: Groups?) async {
         guard let group, let groupId = group.id else { return }
-
         do {
             try await groupRepository.deleteGroup(group: group)
             NotificationCenter.default.post(name: .deleteGroup, object: group)
@@ -384,7 +381,6 @@ extension GroupListViewModel {
 
     @objc private func handleJoinGroup(notification: Notification) {
         guard let joinedGroupId = notification.object as? String else { return }
-
         if self.combinedGroups.contains(where: { $0.group.id == joinedGroupId }) { return }
         Task {
             if let group = await fetchGroup(groupId: joinedGroupId) {
@@ -395,7 +391,6 @@ extension GroupListViewModel {
 
     @objc private func handleAddGroup(notification: Notification) {
         guard let addedGroup = notification.object as? Groups else { return }
-
         // Check if the group already exists in combinedGroups
         if combinedGroups.contains(where: { $0.group.id == addedGroup.id }) { return }
         Task {

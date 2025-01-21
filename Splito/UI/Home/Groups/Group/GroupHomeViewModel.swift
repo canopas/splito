@@ -96,8 +96,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }
 
             self.group = group
-            let groupTotalSummary = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
-            currentMonthSpending = ["INR": groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }]
+            currentMonthSpending = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
+                .mapValues { summaries in
+                    summaries.reduce(0) { $0 + $1.summary.totalShare }
+                }
 
             await withTaskGroup(of: Void.self) { groupTask in
                 for member in group.members where member != preference.user?.id {
@@ -125,8 +127,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 }
 
                 self.group = group
-                let groupTotalSummary = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
-                self.currentMonthSpending = ["INR": groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }]
+                self.currentMonthSpending = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
+                    .mapValues { summaries in
+                        summaries.reduce(0) { $0 + $1.summary.totalShare }
+                    }
 
                 await withTaskGroup(of: Void.self) { taskGroup in
                     for member in group.members where member != self.preference.user?.id {

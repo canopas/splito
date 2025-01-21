@@ -50,8 +50,21 @@
     "\"Simplify debts\" is ENABLED in this group. This feature shuffles \"who owes who\" to minimize repayments. For example:" : {
 
     },
+    "*" : {
+
+    },
     "%@" : {
 
+    },
+    "%@ (%@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ (%2$@)"
+          }
+        }
+      }
     },
     "%@ %@ " : {
       "localizations" : {

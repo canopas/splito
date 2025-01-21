@@ -251,7 +251,7 @@ private struct GroupMemberCellView: View {
                 let currency = firstBalance.key
                 let amount = firstBalance.value
                 let isBorrowed = amount < 0
-                VStack(alignment: .trailing, spacing: 4) {
+                VStack(alignment: .trailing, spacing: 2) {
                     if amount == 0 {
                         Text("settled up")
                             .font(.caption1())
@@ -262,6 +262,9 @@ private struct GroupMemberCellView: View {
 
                         Text(amount.formattedCurrencyWithSign(currency))
                             .font(.body1())
+                        + Text(balance.count > 1 ? "*" : "")
+                            .font(.body1())
+                            .baselineOffset(1)
                     }
                 }
                 .lineLimit(1)

@@ -92,7 +92,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
             filteredBalances[currency] = balanceInfo.balance
         }
 
-        if filteredBalances.isEmpty { // If no non-zero balances, fallback to original data
+        if !filteredBalances.isEmpty { // If no non-zero balances, fallback to original data
             return memberBalance.mapValues { $0.balance }
         }
 

@@ -114,7 +114,7 @@ private struct CurrencyCellView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 0) {
-                Text(currency.name + "(\(currency.symbol))")
+                Text("\(currency.name) (\(currency.symbol))")
                     .font(.subTitle2())
                     .foregroundStyle(primaryText)
 

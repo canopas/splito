@@ -440,15 +440,22 @@ public func getUpdatedMemberBalanceFor(transaction: Transactions, group: Groups,
 }
 
 // Filtered group total summary data for current month
-public func getTotalSummaryForCurrentMonth(group: Groups?, userId: String?) -> [GroupTotalSummary] {
-    guard let userId, let group else { return [] }
+public func getTotalSummaryForCurrentMonth(group: Groups?, userId: String?) -> [String: [GroupTotalSummary]] {
+    guard let userId, let group else { return [:] }
 
     let currentMonth = Calendar.current.component(.month, from: Date())
     let currentYear = Calendar.current.component(.year, from: Date())
 
-    let currency = group.defaultCurrencyCode
-    let totalGroupSummary = group.balances.first(where: { $0.id == userId })?.balanceByCurrency[currency]?.totalSummary ?? []
-    return totalGroupSummary.filter {
-        $0.month == currentMonth && $0.year == currentYear
+    // Find the user's balanceByCurrency data
+    guard let balanceByCurrency = group.balances.first(where: { $0.id == userId })?.balanceByCurrency else { return [:] }
+
+    // Iterate through each currency and filter the summary for the current month and year
+    var summaryByCurrency: [String: [GroupTotalSummary]] = [:]
+    for (currency, groupCurrencyBalance) in balanceByCurrency {
+        let filteredSummary = groupCurrencyBalance.totalSummary.filter {
+            $0.month == currentMonth && $0.year == currentYear
+        }
+        summaryByCurrency[currency] = filteredSummary
     }
+    return summaryByCurrency
 }

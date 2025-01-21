@@ -81,19 +81,24 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        let summaries: [GroupTotalSummary]
+        let summaries: [String: [GroupTotalSummary]]
         switch selectedTab {
         case .thisMonth:
             summaries = getTotalSummaryForCurrentMonth(group: group, userId: userId)
         case .thisYear:
             summaries = getTotalSummaryForCurrentYear()
         case .all:
-            let groupBalance = group.balances.first(where: { $0.id == userId })?.balanceByCurrency[selectedCurrency.code]
-            summaries = groupBalance?.totalSummary ?? []
+            summaries = group.balances
+                .first(where: { $0.id == userId })?
+                .balanceByCurrency
+                .mapValues { $0.totalSummary } ?? [:]
         }
 
-        // Calculate summary data for selected tab and currency
-        summaryData = summaries.reduce(into: GroupMemberSummary(
+        // Filter the summaries to include only the selected currency
+        let selectedCurrencySummaries = summaries[selectedCurrency.code] ?? []
+
+        // Calculate summary data for the selected tab and selected currency
+        summaryData = selectedCurrencySummaries.reduce(into: GroupMemberSummary(
             groupTotalSpending: 0.00, totalPaidAmount: 0.00, totalShare: 0.00,
             paidAmount: 0.00, receivedAmount: 0.00, changeInBalance: 0.00
         )) { result, summary in
@@ -107,16 +112,19 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    private func getTotalSummaryForCurrentYear() -> [GroupTotalSummary] {
+    private func getTotalSummaryForCurrentYear() -> [String: [GroupTotalSummary]] {
         guard let userId = preference.user?.id, let group else {
             viewState = .initial
-            return []
+            return [:]
         }
+
         let currentYear = Calendar.current.component(.year, from: Date())
-        let groupBalance = group.balances.first(where: { $0.id == userId })?.balanceByCurrency[selectedCurrency.code]
-        return groupBalance?.totalSummary.filter {
-            $0.year == currentYear
-        } ?? []
+        return group.balances
+            .first(where: { $0.id == userId })?
+            .balanceByCurrency
+            .mapValues { balance in
+                balance.totalSummary.filter { $0.year == currentYear }
+            } ?? [:]
     }
 
     // MARK: - Error Handling
