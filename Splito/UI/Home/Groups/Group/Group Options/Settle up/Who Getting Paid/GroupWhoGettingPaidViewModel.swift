@@ -19,7 +19,7 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var selectedMemberId: String?
 
     private let groupId: String
-    private var currency: String = "INR"
+    private var currency = Currency.defaultCurrency.code
     private let router: Router<AppRoute>?
 
     init(router: Router<AppRoute>? = nil, groupId: String, payerId: String) {

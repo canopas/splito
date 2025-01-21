@@ -56,7 +56,7 @@ struct GroupBalancesView: View {
                         groupId: viewModel.groupId, payerId: viewModel.payerId ?? "",
                         receiverId: viewModel.receiverId ?? "",
                         amount: viewModel.amount ?? 0,
-                        currency: viewModel.amountCurrency ?? "INR"
+                        currency: viewModel.amountCurrency ?? Currency.defaultCurrency.code
                     )
                 )
             }

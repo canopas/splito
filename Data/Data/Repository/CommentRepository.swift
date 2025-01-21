@@ -95,7 +95,7 @@ public class CommentRepository {
             (user.id == transaction.addedBy ? "You" : "you") :
             (memberId == transaction.payerId) ? "you" : members.payer.nameWithLastInitial
 
-            let receiverName = (memberId == transaction.receiverId) ? "you" : (memberId == transaction.receiverId) ? "you" : members.receiver.nameWithLastInitial
+            let receiverName = (memberId == transaction.receiverId) ? "you" : members.receiver.nameWithLastInitial
 
             context = ActivityLogContext(group: group, transaction: transaction, comment: comment,
                                          type: .transactionCommentAdded, memberId: memberId,

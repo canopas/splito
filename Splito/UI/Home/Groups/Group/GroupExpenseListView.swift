@@ -255,7 +255,7 @@ private struct GroupExpenseHeaderView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if viewModel.overallOwingAmount.values.reduce(0, +) == 0 {
+            if viewModel.overallOwingAmount.allSatisfy({ $0.value == 0 }) {
                 VStack(alignment: .center, spacing: 16) {
                     Image(.tickmarkIcon)
                         .resizable()

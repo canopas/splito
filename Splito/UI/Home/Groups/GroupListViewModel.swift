@@ -50,13 +50,13 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             return searchedGroup.isEmpty ? combinedGroups : combinedGroups.filter { $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         case .settled:
             return searchedGroup.isEmpty
-                ? combinedGroups.filter { $0.userBalance.values.reduce(0, +) == 0 }
-                : combinedGroups.filter { $0.userBalance.values.reduce(0, +) == 0 &&
+            ? combinedGroups.filter { $0.userBalance.allSatisfy { $0.value == 0 }}
+            : combinedGroups.filter { $0.userBalance.allSatisfy { $0.value == 0 } &&
                     $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         case .unsettled:
             return searchedGroup.isEmpty
-                ? combinedGroups.filter { $0.userBalance.values.reduce(0, +) != 0 }
-                : combinedGroups.filter { $0.userBalance.values.reduce(0, +) != 0 &&
+            ? combinedGroups.filter { $0.userBalance.allSatisfy { $0.value != 0 }}
+            : combinedGroups.filter { $0.userBalance.allSatisfy { $0.value != 0 } &&
                     $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         }
     }
@@ -304,8 +304,10 @@ extension GroupListViewModel {
 
     func handleSearchBarTap() {
         if (combinedGroups.isEmpty) ||
-            (selectedTab == .unsettled && combinedGroups.filter({ $0.userBalance.values.reduce(0, +) != 0 }).isEmpty) ||
-            (selectedTab == .settled && combinedGroups.filter({ $0.userBalance.values.reduce(0, +) == 0 }).isEmpty) {
+            (selectedTab == .unsettled &&
+             combinedGroups.filter({ $0.userBalance.allSatisfy { $0.value != 0 } }).isEmpty) ||
+            (selectedTab == .settled &&
+             combinedGroups.filter({ $0.userBalance.allSatisfy { $0.value == 0 } }).isEmpty) {
             showToastFor(toast: .init(type: .info, title: "No groups yet", message: "There are no groups available to search."))
         } else {
             withAnimation {
@@ -326,8 +328,8 @@ extension GroupListViewModel {
 
     func handleTabItemSelection(_ selection: GroupListTabType) {
         guard case .hasGroup = groupListState else { return }
-        let settledGroups = combinedGroups.filter { $0.userBalance.values.reduce(0, +) == 0 }
-        let unsettledGroups = combinedGroups.filter { $0.userBalance.values.reduce(0, +) != 0 }
+        let settledGroups = combinedGroups.filter { $0.userBalance.allSatisfy { $0.value == 0 } }
+        let unsettledGroups = combinedGroups.filter { $0.userBalance.allSatisfy { $0.value != 0 } }
 
         withAnimation(.easeInOut(duration: 0.3)) {
             selectedTab = selection

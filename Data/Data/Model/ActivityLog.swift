@@ -30,7 +30,7 @@ public struct ActivityLog: Codable, Identifiable, Hashable {
     public let receiverName: String?
     public let paymentReason: String?
     public let amount: Double?
-    public var amountCurrency: String? = "INR"
+    public var amountCurrency: String? = Currency.defaultCurrency.code
 
     public init(type: ActivityType, groupId: String, activityId: String, groupName: String, actionUserName: String,
                 recordedOn: Timestamp, previousGroupName: String? = nil, removedMemberName: String? = nil,

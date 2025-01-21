@@ -168,7 +168,7 @@ private struct GroupListHeaderView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            if totalOweAmount.values.reduce(0, +) == 0 {
+            if totalOweAmount.allSatisfy({ $0.value == 0 }) {
                 Text("You are all settle up!")
                     .font(.Header3())
 

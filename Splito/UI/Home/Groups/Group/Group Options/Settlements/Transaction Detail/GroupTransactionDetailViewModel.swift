@@ -48,7 +48,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         self.transactionId = transactionId
-        self.amountCurrency = group?.defaultCurrencyCode ?? "INR"
+        self.amountCurrency = "INR"
         super.init()
 
         NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedTransaction(notification:)), name: .updateTransaction, object: nil)

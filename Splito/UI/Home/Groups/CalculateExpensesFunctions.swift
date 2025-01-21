@@ -94,8 +94,9 @@ func calculateSettlements(balances: [GroupMemberBalance]) -> [Settlement] {
             debtors[j].1 = round(debtAmt * 100) / 100
 
             // Move the index forward if someone's balance is settled
-            if creditors[i].1 == 0 { i += 1 }
-            if debtors[j].1 == 0 { j += 1 }
+            let epsilon = 1e-10
+            if abs(creditors[i].1) < epsilon { i += 1 }
+            if abs(debtors[j].1) < epsilon { j += 1 }
         }
     }
 
@@ -146,6 +147,9 @@ public func getUpdatedMemberBalanceFor(expense: Expense, group: Groups, updateTy
 
             switch updateType {
             case .Add:
+                if memberBalance[index].balanceByCurrency[currency] == nil {
+                    memberBalance[index].balanceByCurrency[currency] = GroupCurrencyBalance(balance: 0.0, totalSummary: [])
+                }
                 memberBalance[index].balanceByCurrency[currency]?.balance += newSplitAmount
 
                 // Update the corresponding total summary if it exists for the expense date

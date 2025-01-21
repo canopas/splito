@@ -125,7 +125,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         var sortedMembers = memberBalances
 
         var userBalance = sortedMembers.remove(at: userIndex)
-        userBalance.isExpanded = userBalance.totalOwedAmount.values.reduce(0, +) != 0
+        userBalance.isExpanded = !userBalance.totalOwedAmount.values.allSatisfy { $0 == 0 }
         sortedMembers.insert(userBalance, at: 0)
 
         sortedMembers.sort { member1, member2 in

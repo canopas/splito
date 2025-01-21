@@ -123,14 +123,14 @@ private struct GroupTotalSummaryView: View {
                 GroupSummaryAmountView(text: "Total you paid for", amount: summaryData.totalPaidAmount,
                                        currencySymbol: currencySymbol)
                 GroupSummaryAmountView(text: "Your total share", amount: summaryData.totalShare,
-                                       fontColor: errorColor, currencySymbol: currencySymbol)
+                                       currencySymbol: currencySymbol, fontColor: errorColor)
                 GroupSummaryAmountView(text: "Payments made", amount: summaryData.paidAmount,
                                        currencySymbol: currencySymbol)
                 GroupSummaryAmountView(text: "Payments received", amount: summaryData.receivedAmount,
-                                       fontColor: errorColor, currencySymbol: currencySymbol)
+                                       currencySymbol: currencySymbol, fontColor: errorColor)
                 GroupSummaryAmountView(text: "Total change in balance", amount: summaryData.changeInBalance,
-                                       fontColor: (summaryData.changeInBalance < 0 ? errorColor : successColor),
-                                       isLast: true, currencySymbol: currencySymbol)
+                                       currencySymbol: currencySymbol, fontColor: (summaryData.changeInBalance < 0 ? errorColor : successColor),
+                                       isLast: true)
             }
         }
     }
@@ -140,16 +140,16 @@ private struct GroupSummaryAmountView: View {
 
     let text: String
     let amount: Double
+    let currencySymbol: String
     let fontColor: Color
     let isLast: Bool
-    let currencySymbol: String
 
-    init(text: String, amount: Double, fontColor: Color = successColor, isLast: Bool = false, currencySymbol: String) {
+    init(text: String, amount: Double, currencySymbol: String, fontColor: Color = successColor, isLast: Bool = false) {
         self.text = text
         self.amount = amount
+        self.currencySymbol = currencySymbol
         self.fontColor = fontColor
         self.isLast = isLast
-        self.currencySymbol = currencySymbol
     }
 
     var body: some View {
