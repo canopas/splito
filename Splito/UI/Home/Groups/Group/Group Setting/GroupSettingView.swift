@@ -128,7 +128,7 @@ private struct GroupMembersView: View {
                 LazyVStack(spacing: 20) {
                     ForEach(viewModel.members) { member in
                         let balance = viewModel.getMembersBalance(memberId: member.id)
-                        GroupMemberCellView(member: member, amount: balance,
+                        GroupMemberCellView(member: member, balance: balance,
                                             isAdmin: member.id == viewModel.group?.createdBy)
                         .onTouchGesture {
                             viewModel.handleMemberTap(member: member)
@@ -201,7 +201,7 @@ private struct GroupMemberCellView: View {
     @Inject var preference: SplitoPreference
 
     let member: AppUser
-    let amount: Double
+    let balance: [String: Double]
     let isAdmin: Bool
 
     private var userName: String {
@@ -247,22 +247,29 @@ private struct GroupMemberCellView: View {
 
             Spacer()
 
-            let isBorrowed = amount < 0
-            VStack(alignment: .trailing, spacing: 4) {
-                if amount == 0 {
-                    Text("settled up")
-                        .font(.caption1())
-                        .foregroundStyle(disableText)
-                } else {
-                    Text(isBorrowed ? "owes" : "gets back")
-                        .font(.caption1())
+            if let firstBalance = balance.first {
+                let currency = firstBalance.key
+                let amount = firstBalance.value
+                let isBorrowed = amount < 0
+                VStack(alignment: .trailing, spacing: 2) {
+                    if amount == 0 {
+                        Text("settled up")
+                            .font(.caption1())
+                            .foregroundStyle(disableText)
+                    } else {
+                        Text(isBorrowed ? "owes" : "gets back")
+                            .font(.caption1())
 
-                    Text(amount.formattedCurrency)
-                        .font(.body1())
+                        Text(amount.formattedCurrencyWithSign(currency))
+                            .font(.body1())
+                        + Text(balance.count > 1 ? "*" : "")
+                            .font(.body1())
+                            .baselineOffset(1)
+                    }
                 }
+                .lineLimit(1)
+                .foregroundStyle(isBorrowed ? errorColor : successColor)
             }
-            .lineLimit(1)
-            .foregroundStyle(isBorrowed ? errorColor : successColor)
         }
     }
 }

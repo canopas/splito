@@ -5,6 +5,7 @@
 //  Created by Amisha Italiya on 08/07/24.
 //
 
+import Data
 import SwiftUI
 import BaseStyle
 
@@ -45,8 +46,9 @@ struct ChooseMultiplePayerView: View {
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
 
-                BottomInfoCardView(title: "\(viewModel.totalAmount.formattedCurrency) of \(viewModel.expenseAmount.formattedCurrency)",
-                                   value: "\((viewModel.expenseAmount - viewModel.totalAmount).formattedCurrencyWithSign) left")
+                let currency = viewModel.amountCurrency
+                BottomInfoCardView(title: "\(viewModel.totalAmount.formattedCurrencyWithSign(currency)) of \(viewModel.expenseAmount.formattedCurrencyWithSign(currency))",
+                                   value: "\((viewModel.expenseAmount - viewModel.totalAmount).formattedCurrencyWithSign(currency)) left")
             }
         }
         .background(surfaceColor)
@@ -66,16 +68,17 @@ private struct EnterPaidAmountsView: View {
 
     var body: some View {
         VStack(spacing: 16) {
+            let currencySymbol = Currency.getCurrencyFromCode(viewModel.amountCurrency).symbol
             ForEach(viewModel.groupMembers, id: \.id) { member in
                 MemberCellView(
                     value: Binding(
                         get: { viewModel.membersAmount[member.id] ?? 0 },
                         set: { viewModel.updateAmount(for: member.id, amount: $0) }
                     ),
-                    member: member, suffixText: "₹",
+                    member: member, suffixText: currencySymbol,
                     formatString: "%.2f",
                     isLastCell: member == viewModel.groupMembers.last,
-                    expenseAmount: viewModel.totalAmount,
+                    expenseAmount: viewModel.totalAmount, amountCurrency: viewModel.amountCurrency,
                     inputFieldWidth: 70,
                     onChange: { amount in
                         viewModel.updateAmount(for: member.id, amount: amount)

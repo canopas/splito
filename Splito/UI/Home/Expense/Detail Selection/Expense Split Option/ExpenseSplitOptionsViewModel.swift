@@ -35,6 +35,8 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    let selectedCurrency: String
+
     var isAllSelected: Bool {
         members.count == selectedMembers.count
     }
@@ -42,10 +44,11 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
     private var members: [String] = []
     private var handleSplitTypeSelection: ((_ splitData: [String: Double], _ splitType: SplitType) -> Void)
 
-    init(amount: Double, splitType: SplitType = .equally,
+    init(amount: Double, selectedCurrency: String, splitType: SplitType = .equally,
          splitData: [String: Double], members: [String], selectedMembers: [String],
          handleSplitTypeSelection: @escaping ((_ splitData: [String: Double], _ splitType: SplitType) -> Void)) {
         self.expenseAmount = amount
+        self.selectedCurrency = selectedCurrency
         self.selectedTab = splitType
         self.members = members
         self.selectedMembers = selectedMembers
@@ -187,7 +190,7 @@ class ExpenseSplitOptionsViewModel: BaseViewModel, ObservableObject {
                 let amountDescription = totalFixedAmount < expenseAmount ? "short" : "over"
                 let differenceAmount = totalFixedAmount < expenseAmount ? (expenseAmount - totalFixedAmount) : (totalFixedAmount - expenseAmount)
 
-                showAlertFor(title: "Whoops!", message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
+                showAlertFor(title: "Whoops!", message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrencyWithSign(selectedCurrency)). You are \(amountDescription) by \(differenceAmount.formattedCurrencyWithSign(selectedCurrency)).")
                 return completion(false)
             }
         case .percentage:

@@ -23,6 +23,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     @Published var payerId: String?
     @Published var receiverId: String?
     @Published var amount: Double?
+    @Published var amountCurrency: String?
 
     private var groupMemberData: [AppUser] = []
     let router: Router<AppRoute>
@@ -47,7 +48,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
     // MARK: - Data Loading
     func fetchGroupWithMembers() async {
         do {
-            self.group = try await groupRepository.fetchGroupBy(id: groupId)
+            group = try await groupRepository.fetchGroupBy(id: groupId)
             guard let group else {
                 viewState = .initial
                 return
@@ -72,33 +73,46 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
         let filteredBalances = group.balances.filter { group.members.contains($0.id) }
 
-        let memberBalances = filteredBalances.map {
-            MembersCombinedBalance(id: $0.id, totalOwedAmount: $0.balance)
-        }
+        let memberBalances = filteredBalances.map { balance in
+            var totalOwedAmount: [String: Double] = [:]
+            var balances: [String: [String: Double]] = [:]
 
-        // Create group member balances for settlements
-        let groupMemberBalances = filteredBalances.map {
-            GroupMemberBalance(id: $0.id, balance: $0.balance, totalSummary: $0.totalSummary)
+            for (currency, balanceDetails) in balance.balanceByCurrency {
+                totalOwedAmount[currency] = balanceDetails.balance
+                balances[currency, default: [:]][balance.id] = balanceDetails.balance
+            }
+
+            return MembersCombinedBalance(id: balance.id, totalOwedAmount: totalOwedAmount, balances: balances)
         }
 
         // Calculate settlements between group members
-        let settlements = calculateSettlements(balances: groupMemberBalances)
+        let settlements = calculateSettlements(balances: filteredBalances)
 
-        // Merge settlements with member balances
-        let combinedBalances = settlements.reduce(into: memberBalances) { balances, settlement in
-            let senderIndex = balances.firstIndex { $0.id == settlement.sender }
-            let receiverIndex = balances.firstIndex { $0.id == settlement.receiver }
-
-            if let senderIndex = senderIndex {
-                balances[senderIndex].balances[settlement.receiver, default: 0.0] -= settlement.amount
+        // Merge settlements into member balances
+        var combinedBalances = memberBalances
+        for settlement in settlements {
+            guard let senderIndex = combinedBalances.firstIndex(where: { $0.id == settlement.sender }),
+                  let receiverIndex = combinedBalances.firstIndex(where: { $0.id == settlement.receiver }) else {
+                continue
             }
 
-            if let receiverIndex = receiverIndex {
-                balances[receiverIndex].balances[settlement.sender, default: 0.0] += settlement.amount
-            }
+            combinedBalances[senderIndex].balances[settlement.currency, default: [:]][settlement.receiver] = -settlement.amount
+            combinedBalances[receiverIndex].balances[settlement.currency, default: [:]][settlement.sender] = settlement.amount
         }
 
-        self.sortMemberBalances(memberBalances: combinedBalances)
+        // Remove self-referencing balances
+        combinedBalances = combinedBalances.map { memberBalance in
+            var filteredBalances: [String: [String: Double]] = [:]
+            for (currency, balanceDetails) in memberBalance.balances {
+                filteredBalances[currency] = balanceDetails.filter { $0.key != memberBalance.id }
+            }
+
+            return MembersCombinedBalance(id: memberBalance.id, isExpanded: memberBalance.isExpanded,
+                                          totalOwedAmount: memberBalance.totalOwedAmount,
+                                          balances: filteredBalances)
+        }
+
+        sortMemberBalances(memberBalances: combinedBalances)
     }
 
     private func sortMemberBalances(memberBalances: [MembersCombinedBalance]) {
@@ -111,7 +125,7 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         var sortedMembers = memberBalances
 
         var userBalance = sortedMembers.remove(at: userIndex)
-        userBalance.isExpanded = userBalance.totalOwedAmount != 0
+        userBalance.isExpanded = !userBalance.totalOwedAmount.values.allSatisfy { $0 == 0 }
         sortedMembers.insert(userBalance, at: 0)
 
         sortedMembers.sort { member1, member2 in
@@ -144,10 +158,11 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
         }
     }
 
-    func handleSettleUpTap(payerId: String, receiverId: String, amount: Double) {
+    func handleSettleUpTap(payerId: String, receiverId: String, amount: Double, currency: String) {
         self.payerId = payerId
         self.receiverId = receiverId
         self.amount = amount
+        self.amountCurrency = currency
         showSettleUpSheet = true
     }
 
@@ -170,10 +185,10 @@ class GroupBalancesViewModel: BaseViewModel, ObservableObject {
 
 // MARK: - Struct to hold combined expense and user owe amount
 struct MembersCombinedBalance {
-    let id: String
+    let id: String /// member id
     var isExpanded: Bool = false
-    var totalOwedAmount: Double = 0
-    var balances: [String: Double] = [:]
+    var totalOwedAmount: [String: Double] = [:] /// [currency: amount]
+    var balances: [String: [String: Double]] = [:] /// [currency: [memberId: amount]]
 }
 
 // MARK: - View States

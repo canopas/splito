@@ -55,7 +55,8 @@ struct GroupBalancesView: View {
                         router: viewModel.router, transactionId: nil,
                         groupId: viewModel.groupId, payerId: viewModel.payerId ?? "",
                         receiverId: viewModel.receiverId ?? "",
-                        amount: viewModel.amount ?? 0
+                        amount: viewModel.amount ?? 0,
+                        currency: viewModel.amountCurrency ?? Currency.defaultCurrency.code
                     )
                 )
             }
@@ -86,14 +87,13 @@ private struct GroupBalanceItemView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack(spacing: 16) {
+                let totalOwed = memberBalance.totalOwedAmount.reduce(0) { $0 + $1.value }
+                let name = viewModel.getMemberName(id: memberBalance.id, needFullName: true)
+
                 HStack(spacing: 16) {
                     MemberProfileImageView(imageUrl: imageUrl)
 
-                    let hasDue = memberBalance.totalOwedAmount < 0
-                    let name = viewModel.getMemberName(id: memberBalance.id, needFullName: true)
-                    let owesOrGetsBack = hasDue ? (memberBalance.id == preference.user?.id ? "owe" : "owes") : (memberBalance.id == preference.user?.id ? "get back" : "gets back")
-
-                    if memberBalance.totalOwedAmount == 0 {
+                    if totalOwed == 0 {
                         Group {
                             Text(name)
                                 .font(.subTitle2())
@@ -102,16 +102,39 @@ private struct GroupBalanceItemView: View {
                         }
                         .foregroundStyle(primaryText)
                     } else {
-                        Group {
-                            Text(name)
-                                .font(.subTitle2())
+                        let positiveAmounts = memberBalance.totalOwedAmount.filter { $0.value > 0 }
+                        let negativeAmounts = memberBalance.totalOwedAmount.filter { $0.value < 0 }
 
-                            + Text(" \(owesOrGetsBack.localized) ")
+                        let positiveText = positiveAmounts.map { currency, amount in
+                            amount.formattedCurrencyWithSign(currency)
+                        }.joined(separator: " + ")
 
-                            + Text(memberBalance.totalOwedAmount.formattedCurrency)
-                                .foregroundColor(hasDue ? errorColor : successColor)
+                        let negativeText = negativeAmounts.map { currency, amount in
+                            abs(amount).formattedCurrencyWithSign(currency) // Use `abs` for positive display
+                        }.joined(separator: " + ")
 
-                            + Text(" in total")
+                        VStack(alignment: .leading, spacing: 0) {
+                            if !positiveAmounts.isEmpty {
+                                let getBackText = (memberBalance.id == preference.user?.id) ? "get back" : "gets back"
+                                Text("\(name) \(getBackText) ")
+                                    .font(.subTitle2())
+
+                                + Text(positiveText)
+                                    .foregroundColor(successColor)
+
+                                + Text(" in total")
+                            }
+
+                            if !negativeAmounts.isEmpty {
+                                let oweText = (memberBalance.id == preference.user?.id) ? "owe" : "owes"
+                                Text("\(name) \(oweText) ")
+                                    .font(.subTitle2())
+
+                                + Text(negativeText)
+                                    .foregroundColor(errorColor)
+
+                                + Text(" in total")
+                            }
                         }
                         .lineSpacing(4)
                         .font(.body1())
@@ -120,7 +143,7 @@ private struct GroupBalanceItemView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                if memberBalance.totalOwedAmount != 0 {
+                if totalOwed != 0 {
                     ScrollToTopButton(
                         icon: "chevron.down", iconColor: primaryText, bgColor: container2Color,
                         showWithAnimation: true, size: (10, 7), isFirstGroupCell: memberBalance.isExpanded,
@@ -152,7 +175,7 @@ private struct GroupBalanceItemMemberView: View {
     @Inject private var preference: SplitoPreference
 
     let id: String
-    let balances: [String: Double]
+    let balances: [String: [String: Double]]
     let viewModel: GroupBalancesViewModel
 
     @State private var showShareReminderSheet = false
@@ -163,41 +186,44 @@ private struct GroupBalanceItemMemberView: View {
             HSpacer(32)
 
             VStack(alignment: .leading, spacing: 12) {
-                ForEach(balances.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
-                    let hasDue = amount < 0
-                    let imageUrl = viewModel.getMemberImage(id: memberId)
-                    let owesMemberName = viewModel.getMemberName(id: hasDue ? memberId : id)
-                    let owedMemberName = viewModel.getMemberName(id: hasDue ? id : memberId)
-                    let owesText = ((hasDue ? id : memberId) == preference.user?.id) ? "owe" : "owes"
+                ForEach(balances.sorted(by: { $0.key < $1.key }), id: \.key) { (currency, memberBalances) in
+                    ForEach(memberBalances.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
+                        let hasDue = amount < 0
+                        let imageUrl = viewModel.getMemberImage(id: memberId)
+                        let owesMemberName = viewModel.getMemberName(id: hasDue ? memberId : id)
+                        let owedMemberName = viewModel.getMemberName(id: hasDue ? id : memberId)
+                        let owesText = ((hasDue ? id : memberId) == preference.user?.id) ? "owe" : "owes"
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack(alignment: .center, spacing: 16) {
-                            MemberProfileImageView(imageUrl: imageUrl, height: SUB_IMAGE_HEIGHT, scaleEffect: 0.6)
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(alignment: .center, spacing: 16) {
+                                MemberProfileImageView(imageUrl: imageUrl, height: SUB_IMAGE_HEIGHT, scaleEffect: 0.6)
 
-                            Group {
-                                Text("\(owedMemberName.capitalized) \(owesText.localized) ")
-
-                                + Text(amount.formattedCurrency)
-                                    .foregroundColor(hasDue ? errorColor : successColor)
-
-                                + Text(" to \(owesMemberName)")
+                                Group {
+                                    Text("\(owedMemberName.capitalized) \(owesText.localized) ")
+                                    + Text(amount.formattedCurrencyWithSign(currency))
+                                        .foregroundColor(hasDue ? errorColor : successColor)
+                                    + Text(" to \(owesMemberName)")
+                                }
+                                .font(.body3())
+                                .foregroundStyle(disableText)
                             }
-                            .font(.body3())
-                            .foregroundStyle(disableText)
+
+                            RemindAndSettleBtnView(
+                                handleRemindTap: {
+                                    let oweText = ((hasDue ? id : memberId) == preference.user?.id) ? "owe" :
+                                    (memberId == preference.user?.id || id == preference.user?.id) ? "owes" : ""
+                                    reminderText = generateReminderText(owedMemberName: owedMemberName, owesText: oweText,
+                                                                        amount: amount, currency: currency,
+                                                                        owesMemberName: owesMemberName)
+                                    showShareReminderSheet = true
+                                },
+                                handleSettleUpTap: {
+                                    viewModel.handleSettleUpTap(payerId: hasDue ? id : memberId,
+                                                                receiverId: hasDue ? memberId : id,
+                                                                amount: amount, currency: currency)
+                                }
+                            )
                         }
-
-                        RemindAndSettleBtnView(
-                            handleRemindTap: {
-                                let oweText = ((hasDue ? id : memberId) == preference.user?.id) ? "owe" :
-                                              (memberId == preference.user?.id || id == preference.user?.id) ? "owes" : ""
-                                reminderText = generateReminderText(owedMemberName: owedMemberName, owesText: oweText,
-                                                                    amount: amount, owesMemberName: owesMemberName)
-                                showShareReminderSheet = true
-                            }, handleSettleUpTap: {
-                                viewModel.handleSettleUpTap(payerId: hasDue ? id : memberId,
-                                                            receiverId: hasDue ? memberId : id, amount: amount)
-                            }
-                        )
                     }
                 }
             }
@@ -213,8 +239,9 @@ private struct GroupBalanceItemMemberView: View {
         }
     }
 
-    private func generateReminderText(owedMemberName: String, owesText: String, amount: Double, owesMemberName: String) -> String {
-        let formattedAmount = amount.formattedCurrency
+    private func generateReminderText(owedMemberName: String, owesText: String, amount: Double,
+                                      currency: String, owesMemberName: String) -> String {
+        let formattedAmount = amount.formattedCurrencyWithSign(currency)
         let groupName = viewModel.group?.name ?? ""
         let deepLink = "\(Constants.groupBaseUrl)\(viewModel.groupId)"
 

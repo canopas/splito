@@ -19,6 +19,7 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var selectedMemberId: String?
 
     private let groupId: String
+    private var currency = Currency.defaultCurrency.code
     private let router: Router<AppRoute>?
 
     init(router: Router<AppRoute>? = nil, groupId: String, payerId: String) {
@@ -42,6 +43,7 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
                 viewState = .initial
                 return
             }
+            self.currency = group.defaultCurrencyCode
             self.members = try await groupRepository.fetchMembersBy(memberIds: group.members)
             viewState = .initial
             LogD("GroupWhoGettingPaidViewModel: \(#function) Group with members fetched successfully.")
@@ -53,7 +55,8 @@ class GroupWhoGettingPaidViewModel: BaseViewModel, ObservableObject {
 
     func onMemberTap(memberId: String) {
         selectedMemberId = memberId
-        router?.push(.GroupPaymentView(transactionId: nil, groupId: groupId, payerId: payerId, receiverId: memberId, amount: 0))
+        router?.push(.GroupPaymentView(transactionId: nil, groupId: groupId, payerId: payerId,
+                                       receiverId: memberId, amount: 0, currency: currency))
     }
 
     // MARK: - Error Handling

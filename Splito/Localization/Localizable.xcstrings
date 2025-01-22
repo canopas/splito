@@ -7,13 +7,10 @@
     " (Admin)" : {
 
     },
-    " %@ " : {
-
-    },
     " %@ settled up" : {
 
     },
-    " ₹ 0.00" : {
+    " and you are owed " : {
 
     },
     " commented on" : {
@@ -43,8 +40,21 @@
     "\"Simplify debts\" is ENABLED in this group. This feature shuffles \"who owes who\" to minimize repayments. For example:" : {
 
     },
+    "*" : {
+
+    },
     "%@" : {
 
+    },
+    "%@ (%@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ (%2$@)"
+          }
+        }
+      }
     },
     "%@ %@ " : {
       "localizations" : {
@@ -70,6 +80,9 @@
       "extractionState" : "manual"
     },
     "%@ and %@" : {
+      "extractionState" : "manual"
+    },
+    "%@ of %@" : {
       "extractionState" : "manual"
     },
     "%@ owes you " : {
@@ -132,10 +145,10 @@
     "•" : {
 
     },
-    "₹ %@ of %@" : {
-      "extractionState" : "manual"
-    },
     "0" : {
+
+    },
+    "0.00" : {
 
     },
     "1.23" : {
@@ -547,6 +560,9 @@
     "no balance" : {
 
     },
+    "No currency found for \"%@\"!" : {
+
+    },
     "No Data" : {
       "extractionState" : "manual"
     },
@@ -595,7 +611,10 @@
     "over" : {
       "extractionState" : "manual"
     },
-    "Overall, %@  " : {
+    "Overall, you are owed " : {
+
+    },
+    "Overall, you owe " : {
 
     },
     "owe" : {
@@ -817,6 +836,9 @@
     "Success" : {
       "extractionState" : "manual"
     },
+    "Supported currencies" : {
+
+    },
     "Thanks! your feedback has been recorded." : {
       "extractionState" : "manual"
     },
@@ -850,7 +872,7 @@
     "The image size exceeds the maximum allowed limit. Please select a smaller image." : {
       "extractionState" : "manual"
     },
-    "The payment values do not add up to the total cost of ₹ %@. You are short by ₹ %@." : {
+    "The payment values do not add up to the total cost of %@. You are short by %@." : {
       "extractionState" : "manual"
     },
     "The shares do not add up to 100%. You are %@ by %@%" : {
@@ -859,7 +881,7 @@
     "The total amount paid by the selected payer does not match the expense amount. Please adjust the payment distribution." : {
       "extractionState" : "manual"
     },
-    "The total of everyone's paid shares (₹%@) is different than the total cost (₹%@)" : {
+    "The total of everyone's paid shares (%@) is different than the total cost (%@)" : {
       "extractionState" : "manual"
     },
     "The video size exceeds the maximum allowed limit. Please select a smaller video." : {
@@ -979,9 +1001,6 @@
     "You" : {
       "extractionState" : "manual"
     },
-    "You %@" : {
-
-    },
     "You are all settle up!" : {
 
     },
@@ -995,6 +1014,9 @@
 
     },
     "you are owed" : {
+
+    },
+    "You are owed " : {
 
     },
     "you borrowed" : {
@@ -1037,6 +1059,9 @@
       "extractionState" : "manual"
     },
     "you owe" : {
+
+    },
+    "You owe " : {
 
     },
     "You owe %@ " : {

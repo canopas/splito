@@ -121,14 +121,17 @@ public class CommentRepository {
             let amount = expense.getCalculatedSplitAmountOf(member: memberId)
             return ActivityLog(type: context.type, groupId: groupId, activityId: expenseId, groupName: group.name,
                                actionUserName: actionUserName, recordedOn: Timestamp(date: Date()),
-                               expenseName: expense.name, comment: context.comment, amount: amount)
+                               expenseName: expense.name, comment: context.comment, amount: amount,
+                               amountCurrency: expense.currencyCode)
 
         } else if let transaction = context.transaction, let transactionId = transaction.id {
             let amount = (memberId == transaction.payerId) ? transaction.amount : (memberId == transaction.receiverId) ? -transaction.amount : 0
             return ActivityLog(type: context.type, groupId: groupId, activityId: transactionId,
                                groupName: context.group?.name ?? "", actionUserName: actionUserName,
-                               recordedOn: Timestamp(date: Date()), comment: context.comment, payerName: context.payerName,
-                               receiverName: context.receiverName, paymentReason: context.paymentReason, amount: amount)
+                               recordedOn: Timestamp(date: Date()), comment: context.comment,
+                               payerName: context.payerName, receiverName: context.receiverName,
+                               paymentReason: context.paymentReason, amount: amount,
+                               amountCurrency: transaction.currencyCode)
         }
         return nil
     }

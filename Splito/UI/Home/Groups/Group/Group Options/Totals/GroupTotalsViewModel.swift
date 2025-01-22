@@ -17,7 +17,15 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     @Published private(set) var selectedTab: DateRangeTabType = .thisMonth
     @Published private(set) var summaryData: GroupMemberSummary?
 
-    private var group: Groups?
+    @Published var showCurrencyPicker = false
+    @Published var supportedCurrencies: [Currency] = [Currency.defaultCurrency]
+    @Published var selectedCurrency: Currency = Currency.getCurrentLocalCurrency() {
+        didSet {
+            filterDataForSelectedTab()  // Recalculate data when currency changes
+        }
+    }
+
+    var group: Groups?
     private let groupId: String
 
     init(groupId: String) {
@@ -36,12 +44,26 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
     private func fetchGroup() async {
         do {
             group = try await groupRepository.fetchGroupBy(id: groupId)
+            updateSupportedCurrencies()
             filterDataForSelectedTab()
             viewState = .initial
             LogD("GroupTotalsViewModel: \(#function) Group fetched successfully.")
         } catch {
             LogE("GroupTotalsViewModel: \(#function) Failed to fetch group \(groupId): \(error).")
             handleServiceError()
+        }
+    }
+
+    private func updateSupportedCurrencies() {
+        guard let userId = preference.user?.id,
+              let currencies = group?.balances.first(where: { $0.id == userId })?.balanceByCurrency.keys else {
+            viewState = .initial
+            return
+        }
+
+        supportedCurrencies = Currency.getAllCurrencies().filter { Array(Set(currencies)).contains($0.code) }  // Extract all unique currency
+        if !supportedCurrencies.contains(selectedCurrency) {
+            selectedCurrency = Currency.defaultCurrency
         }
     }
 
@@ -59,35 +81,50 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        let summaries: [GroupTotalSummary]
+        let summaries: [String: [GroupTotalSummary]]
         switch selectedTab {
         case .thisMonth:
             summaries = getTotalSummaryForCurrentMonth(group: group, userId: userId)
         case .thisYear:
             summaries = getTotalSummaryForCurrentYear()
         case .all:
-            summaries = group.balances.first(where: { $0.id == userId })?.totalSummary ?? []
+            summaries = group.balances
+                .first(where: { $0.id == userId })?
+                .balanceByCurrency
+                .mapValues { $0.totalSummary } ?? [:]
         }
 
-        summaryData = GroupMemberSummary(
-            groupTotalSpending: summaries.reduce(0) { $0 + $1.summary.groupTotalSpending },
-            totalPaidAmount: summaries.reduce(0) { $0 + $1.summary.totalPaidAmount },
-            totalShare: summaries.reduce(0) { $0 + $1.summary.totalShare },
-            paidAmount: summaries.reduce(0) { $0 + $1.summary.paidAmount },
-            receivedAmount: summaries.reduce(0) { $0 + $1.summary.receivedAmount },
-            changeInBalance: summaries.reduce(0) { $0 + $1.summary.changeInBalance }
-        )
+        // Filter the summaries to include only the selected currency
+        let selectedCurrencySummaries = summaries[selectedCurrency.code] ?? []
+
+        // Calculate summary data for the selected tab and selected currency
+        summaryData = selectedCurrencySummaries.reduce(into: GroupMemberSummary(
+            groupTotalSpending: 0.00, totalPaidAmount: 0.00, totalShare: 0.00,
+            paidAmount: 0.00, receivedAmount: 0.00, changeInBalance: 0.00
+        )) { result, summary in
+            let currencySummary = summary.summary
+            result.groupTotalSpending += currencySummary.groupTotalSpending
+            result.totalPaidAmount += currencySummary.totalPaidAmount
+            result.totalShare += currencySummary.totalShare
+            result.paidAmount += currencySummary.paidAmount
+            result.receivedAmount += currencySummary.receivedAmount
+            result.changeInBalance += currencySummary.changeInBalance
+        }
     }
 
-    private func getTotalSummaryForCurrentYear() -> [GroupTotalSummary] {
-        guard let user = preference.user, let group else {
+    private func getTotalSummaryForCurrentYear() -> [String: [GroupTotalSummary]] {
+        guard let userId = preference.user?.id, let group else {
             viewState = .initial
-            return []
+            return [:]
         }
+
         let currentYear = Calendar.current.component(.year, from: Date())
-        return group.balances.first(where: { $0.id == user.id })?.totalSummary.filter {
-            $0.year == currentYear
-        } ?? []
+        return group.balances
+            .first(where: { $0.id == userId })?
+            .balanceByCurrency
+            .mapValues { balance in
+                balance.totalSummary.filter { $0.year == currentYear }
+            } ?? [:]
     }
 
     // MARK: - Error Handling

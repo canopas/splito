@@ -39,9 +39,11 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
     @Published var showImageDisplayView = false
     @Published var showImagePickerOptions = false
     @Published var showSplitTypeSelection = false
+    @Published var showCurrencyPicker = false
     @Published private(set) var showLoader = false
     @Published private(set) var sourceTypeIsCamera = false
 
+    @Published var selectedCurrency: Currency
     @Published var selectedGroup: Groups?
     @Published private(set) var expense: Expense?
     @Published private(set) var viewState: ViewState = .initial
@@ -55,6 +57,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         self.expenseId = expenseId
+        self.selectedCurrency = Currency.getCurrentLocalCurrency()
         super.init()
         loadInitialData()
     }
@@ -75,6 +78,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         viewState = .loading
         await fetchAndUpdateGroupData(groupId: groupId)
         selectedPayers = [userId: expenseAmount]
+        selectedCurrency = Currency.getCurrencyFromCode(selectedGroup?.defaultCurrencyCode)
         viewState = .initial
         LogD("AddExpenseViewModel: \(#function) Group fetched successfully.")
     }
@@ -115,6 +119,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         selectedPayers = expense.paidBy
         expenseImageUrl = expense.imageUrl
         expenseNote = expense.note ?? ""
+        selectedCurrency = Currency.getCurrencyFromCode(expense.currencyCode ?? selectedGroup?.defaultCurrencyCode)
         if let splitData = expense.splitData {
             self.splitData = splitData
         }
@@ -242,10 +247,8 @@ extension AddExpenseViewModel {
                 }
                 self?.showAlert = false
             }))
-        case .authorized:
-            authorized()
-        default:
-            return
+        case .authorized: authorized()
+        default: return
         }
     }
 
@@ -310,12 +313,8 @@ extension AddExpenseViewModel {
     }
 
     private func validateMembersInGroup(group: Groups, expense: Expense) -> Bool {
-        for payer in expense.paidBy where !group.members.contains(payer.key) {
-            return false
-        }
-        for memberId in expense.splitTo where !group.members.contains(memberId) {
-            return false
-        }
+        for payer in expense.paidBy where !group.members.contains(payer.key) { return false }
+        for memberId in expense.splitTo where !group.members.contains(memberId) { return false }
         return true
     }
 }
@@ -357,11 +356,11 @@ extension AddExpenseViewModel {
             let amountDescription = totalSharedAmount < expenseAmount ? "short" : "over"
             let differenceAmount = totalSharedAmount < expenseAmount ? (expenseAmount - totalSharedAmount) : (totalSharedAmount - expenseAmount)
             showAlertFor(title: "Error!",
-                         message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
+                         message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrencyWithSign(selectedCurrency.code)). You are \(amountDescription) by \(differenceAmount.formattedCurrencyWithSign(selectedCurrency.code)).")
             return false
         } else if selectedPayers.count > 1 && totalPaidAmount != expenseAmount {
             showAlertFor(title: "Error",
-                         message: "The total of everyone's paid shares (\(totalPaidAmount.formattedCurrency)) is different than the total cost (\(expenseAmount.formattedCurrency))")
+                         message: "The total of everyone's paid shares (\(totalPaidAmount.formattedCurrencyWithSign(selectedCurrency.code))) is different than the total cost (\(expenseAmount.formattedCurrencyWithSign(selectedCurrency.code)))")
             return false
         } else if selectedPayers.count == 1 && selectedPayers.values.reduce(0, +) != expenseAmount {
             showAlertFor(title: "Error",
@@ -375,7 +374,8 @@ extension AddExpenseViewModel {
         guard let groupId else { return false }
         let splitTo = splitData.map { $0.key }
         let participants = Array(Set(splitTo + selectedPayers.keys))
-        let expense = Expense(groupId: groupId, name: expenseName.trimming(spaces: .leadingAndTrailing), amount: expenseAmount,
+        let expense = Expense(groupId: groupId, name: expenseName.trimming(spaces: .leadingAndTrailing),
+                              amount: expenseAmount, currencyCode: selectedCurrency.code,
                               date: Timestamp(date: expenseDate), addedBy: userId, note: expenseNote, splitType: splitType,
                               splitTo: splitTo, splitData: splitData, paidBy: selectedPayers, participants: participants)
         return await addExpense(group: group, expense: expense)
@@ -389,9 +389,7 @@ extension AddExpenseViewModel {
             let expenseInfo: [String: Any] = ["groupId": groupId, "expense": newExpense]
             NotificationCenter.default.post(name: .addExpense, object: nil, userInfo: expenseInfo)
 
-            if !group.hasExpenses {
-                selectedGroup?.hasExpenses = true
-            }
+            if !group.hasExpenses { selectedGroup?.hasExpenses = true }
             await updateGroupMemberBalance(expense: newExpense, updateType: .Add)
 
             showLoader = false
@@ -407,7 +405,6 @@ extension AddExpenseViewModel {
 
     private func handleUpdateExpenseAction(userId: String, group: Groups, expense: Expense) async -> Bool {
         guard let groupId = group.id else { return false }
-
         var newExpense = expense
         newExpense.groupId = groupId
         newExpense.name = expenseName.trimming(spaces: .leadingAndTrailing)
@@ -416,6 +413,7 @@ extension AddExpenseViewModel {
         newExpense.updatedAt = Timestamp()
         newExpense.updatedBy = userId
         newExpense.note = expenseNote
+        newExpense.currencyCode = selectedCurrency.code
 
         if selectedPayers.count == 1, let payerId = selectedPayers.keys.first {
             newExpense.paidBy = [payerId: expenseAmount]
@@ -428,12 +426,13 @@ extension AddExpenseViewModel {
         newExpense.splitType = splitType
         newExpense.participants = Array(Set(newExpense.splitTo + newExpense.paidBy.keys))
 
+        let participants = Array(Set(newExpense.splitTo + newExpense.paidBy.keys))
+        newExpense.participants = participants
         return await updateExpense(group: group, expense: newExpense, oldExpense: expense)
     }
 
     private func updateExpense(group: Groups, expense: Expense, oldExpense: Expense) async -> Bool {
         guard validateMembersInGroup(group: group, expense: expense), let expenseId else { return false }
-
         do {
             showLoader = true
             let updatedExpense = try await expenseRepository.updateExpenseWithImage(imageData: getImageData(),
@@ -463,10 +462,10 @@ extension AddExpenseViewModel {
     }
 
     private func hasExpenseChanged(_ expense: Expense, oldExpense: Expense) -> Bool {
-        return oldExpense.amount != expense.amount || oldExpense.paidBy != expense.paidBy ||
-        oldExpense.splitTo != expense.splitTo || oldExpense.splitType != expense.splitType ||
-        oldExpense.splitData != expense.splitData || oldExpense.isActive != expense.isActive ||
-        oldExpense.date != expense.date
+        return oldExpense.amount != expense.amount || oldExpense.currencyCode != expense.currencyCode ||
+        oldExpense.paidBy != expense.paidBy || oldExpense.splitTo != expense.splitTo ||
+        oldExpense.splitType != expense.splitType || oldExpense.splitData != expense.splitData ||
+        oldExpense.isActive != expense.isActive || oldExpense.date != expense.date
     }
 
     private func updateGroupMemberBalance(expense: Expense, updateType: ExpenseUpdateType) async {

@@ -23,17 +23,16 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     @Published var group: Groups?
     @Published var groupReportUrl: URL?
     @Published private(set) var groupId: String
-
-    @Published var transactionsCount: Int = 0
-    @Published private(set) var overallOwingAmount: Double = 0.0
-    @Published private(set) var currentMonthSpending: Double = 0.0
+    @Published private(set) var overallOwingAmount: [String: Double] = [:] /// [currencyCode: balance]
+    @Published private(set) var currentMonthSpending: [String: Double] = [:] /// [currencyCode: totalSpending]
 
     @Published var groupState: GroupState = .loading
 
     @Published var expenses: [Expense] = []
     @Published var expensesWithUser: [ExpenseWithUser] = []
-    @Published private(set) var memberOwingAmount: [String: Double] = [:]
+    @Published private(set) var transactionsCount: Int = 0
     @Published private(set) var groupExpenses: [String: [ExpenseWithUser]] = [:]
+    @Published private(set) var memberOwingAmount: [String: [String: Double]] = [:]
 
     @Published var showSearchBar = false
     @Published var showSettleUpSheet = false
@@ -101,8 +100,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }
 
             self.group = group
-            let groupTotalSummary = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
-            currentMonthSpending = groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }
+            currentMonthSpending = getCalculatedCurrentMonthSpending(group: group, userId: self.preference.user?.id)
 
             await withTaskGroup(of: Void.self) { groupTask in
                 for member in group.members where member != preference.user?.id {
@@ -123,16 +121,14 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         let groupStream = groupRepository.streamLatestGroupDataBy(id: groupId)
         Task { [weak self] in
             for await group in groupStream {
-                guard let self else { return }
-                guard let group else {
-                    self.groupState = .noMember
+                guard let self, let group else {
+                    self?.groupState = .noMember
                     return
                 }
 
                 self.group = group
-                let groupTotalSummary = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
-                self.currentMonthSpending = groupTotalSummary.reduce(0) { $0 + $1.summary.totalShare }
-
+                self.currentMonthSpending = getCalculatedCurrentMonthSpending(group: group,
+                                                                              userId: self.preference.user?.id)
                 await withTaskGroup(of: Void.self) { taskGroup in
                     for member in group.members where member != self.preference.user?.id {
                         taskGroup.addTask { [weak self] in
@@ -148,6 +144,13 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 self.isInitialDataLoaded = true
             }
         }
+    }
+
+    private func getCalculatedCurrentMonthSpending(group: Groups, userId: String?) -> [String: Double] {
+        return getTotalSummaryForCurrentMonth(group: group, userId: userId)
+            .mapValues { summaries in
+                summaries.reduce(0) { $0 + $1.summary.totalShare }
+            }
     }
 
     func refetchTransactionsCount() {
@@ -285,7 +288,10 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
         memberOwingAmount = Splito.calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
         withAnimation(.easeOut) {
-            overallOwingAmount = group.balances.first(where: { $0.id == userId })?.balance ?? 0.0
+            let balance = group.balances.first(where: { $0.id == userId })?.balanceByCurrency ?? [:]
+            for (currency, groupBalance) in balance {
+                overallOwingAmount[currency] = groupBalance.balance
+            }
             setGroupViewState()
         }
     }

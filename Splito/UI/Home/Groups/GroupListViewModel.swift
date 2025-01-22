@@ -24,7 +24,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
 
     @Published var selectedGroup: Groups?
     @Published var searchedGroup: String = ""
-    @Published private(set) var totalOweAmount: Double = 0.0
+    @Published private(set) var totalOweAmount: [String: Double] = [:]
     @Published private(set) var combinedGroups: [GroupInformation] = []
 
     @Published var showActionSheet = false
@@ -49,11 +49,15 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         case .all:
             return searchedGroup.isEmpty ? combinedGroups : combinedGroups.filter { $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         case .settled:
-            return searchedGroup.isEmpty ? combinedGroups.filter { $0.userBalance == 0 } : combinedGroups.filter { $0.userBalance == 0 &&
-                $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
+            return searchedGroup.isEmpty
+            ? combinedGroups.filter { $0.userBalance.allSatisfy { $0.value == 0 }}
+            : combinedGroups.filter { $0.userBalance.allSatisfy { $0.value == 0 } &&
+                    $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         case .unsettled:
-            return searchedGroup.isEmpty ? combinedGroups.filter { $0.userBalance != 0 } : combinedGroups.filter { $0.userBalance != 0 &&
-                $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
+            return searchedGroup.isEmpty
+            ? combinedGroups.filter { $0.userBalance.allSatisfy { $0.value != 0 }}
+            : combinedGroups.filter { $0.userBalance.allSatisfy { $0.value != 0 } &&
+                    $0.group.name.localizedCaseInsensitiveContains(searchedGroup) }
         }
     }
 
@@ -90,7 +94,7 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
             return
         }
 
-        totalOweAmount = preference.user?.totalOweAmount ?? 0
+        totalOweAmount = preference.user?.totalOweAmount ?? [:]
         let userStream = userRepository.streamLatestUserBy(userID: userId)
 
         for await user in userStream {
@@ -208,7 +212,6 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         let memberBalance = getMembersBalance(group: group, memberId: userId)
         let memberOwingAmount = calculateExpensesSimplified(userId: userId, memberBalances: group.balances)
         let members = try await fetchMembersDataBy(memberIds: group.members)
-
         return GroupInformation(group: group, userBalance: memberBalance, memberOweAmount: memberOwingAmount,
                                 members: members, hasExpenses: true)
     }
@@ -239,11 +242,19 @@ class GroupListViewModel: BaseViewModel, ObservableObject {
         return groupMembers
     }
 
-    private func getMembersBalance(group: Groups, memberId: String) -> Double {
-        if let index = group.balances.firstIndex(where: { $0.id == memberId }) {
-            return group.balances[index].balance
+    private func getMembersBalance(group: Groups, memberId: String) -> [String: Double] {
+        var memberBalance: [String: Double] = [:]
+
+        guard let index = group.balances.firstIndex(where: { $0.id == memberId }) else {
+            print("GroupListViewModel: \(#function) Member not found from group balances.")
+            return [:]
         }
-        return 0
+
+        let groupMemberBalance = group.balances[index].balanceByCurrency
+        for (currency, groupBalance) in groupMemberBalance {
+            memberBalance[currency] = groupBalance.balance
+        }
+        return memberBalance
     }
 
     private func fetchGroup(groupId: String) async -> Groups? {
@@ -293,8 +304,10 @@ extension GroupListViewModel {
 
     func handleSearchBarTap() {
         if (combinedGroups.isEmpty) ||
-            (selectedTab == .unsettled && combinedGroups.filter({ $0.userBalance != 0 }).isEmpty) ||
-            (selectedTab == .settled && combinedGroups.filter({ $0.userBalance == 0 }).isEmpty) {
+            (selectedTab == .unsettled &&
+             combinedGroups.filter({ $0.userBalance.allSatisfy { $0.value != 0 } }).isEmpty) ||
+            (selectedTab == .settled &&
+             combinedGroups.filter({ $0.userBalance.allSatisfy { $0.value == 0 } }).isEmpty) {
             showToastFor(toast: .init(type: .info, title: "No groups yet", message: "There are no groups available to search."))
         } else {
             withAnimation {
@@ -315,8 +328,8 @@ extension GroupListViewModel {
 
     func handleTabItemSelection(_ selection: GroupListTabType) {
         guard case .hasGroup = groupListState else { return }
-        let settledGroups = combinedGroups.filter { $0.userBalance == 0 }
-        let unsettledGroups = combinedGroups.filter { $0.userBalance != 0 }
+        let settledGroups = combinedGroups.filter { $0.userBalance.allSatisfy { $0.value == 0 } }
+        let unsettledGroups = combinedGroups.filter { $0.userBalance.allSatisfy { $0.value != 0 } }
 
         withAnimation(.easeInOut(duration: 0.3)) {
             selectedTab = selection
@@ -332,13 +345,12 @@ extension GroupListViewModel {
 
     func handleOptionSelection(with selection: OptionList) {
         showActionSheet = false
-        guard let group = selectedGroup else { return }
-
+        guard let selectedGroup else { return }
         switch selection {
         case .editGroup:
             showCreateGroupSheet = true
         case .deleteGroup:
-            handleDeleteGroupTap(group: group)
+            handleDeleteGroupTap(group: selectedGroup)
         }
     }
 
@@ -359,7 +371,6 @@ extension GroupListViewModel {
 
     private func deleteGroup(group: Groups?) async {
         guard let group, let groupId = group.id else { return }
-
         do {
             try await groupRepository.deleteGroup(group: group)
             NotificationCenter.default.post(name: .deleteGroup, object: group)
@@ -372,7 +383,6 @@ extension GroupListViewModel {
 
     @objc private func handleJoinGroup(notification: Notification) {
         guard let joinedGroupId = notification.object as? String else { return }
-
         if self.combinedGroups.contains(where: { $0.group.id == joinedGroupId }) { return }
         Task {
             if let group = await fetchGroup(groupId: joinedGroupId) {
@@ -383,7 +393,6 @@ extension GroupListViewModel {
 
     @objc private func handleAddGroup(notification: Notification) {
         guard let addedGroup = notification.object as? Groups else { return }
-
         // Check if the group already exists in combinedGroups
         if combinedGroups.contains(where: { $0.group.id == addedGroup.id }) { return }
         Task {

@@ -101,9 +101,10 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     private func createGroup() async -> Bool {
         guard let userId = preference.user?.id else { return false }
 
-        let memberBalance = GroupMemberBalance(id: userId, balance: 0, totalSummary: [])
-        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing),
-                           createdBy: userId, members: [userId], balances: [memberBalance])
+        let localCurrency = Currency.getCurrentLocalCurrency().code
+        let memberBalance = GroupMemberBalance(id: userId, balanceByCurrency: [:])
+        let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId,
+                           members: [userId], balances: [memberBalance], currencyCode: localCurrency)
 
         do {
             showLoader = true

@@ -30,11 +30,13 @@ public struct ActivityLog: Codable, Identifiable, Hashable {
     public let receiverName: String?
     public let paymentReason: String?
     public let amount: Double?
+    public var amountCurrency: String? = Currency.defaultCurrency.code
 
     public init(type: ActivityType, groupId: String, activityId: String, groupName: String, actionUserName: String,
                 recordedOn: Timestamp, previousGroupName: String? = nil, removedMemberName: String? = nil,
                 expenseName: String? = nil, comment: String? = nil, payerName: String? = nil,
-                receiverName: String? = nil, paymentReason: String? = nil, amount: Double? = nil) {
+                receiverName: String? = nil, paymentReason: String? = nil, amount: Double? = nil,
+                amountCurrency: String? = nil) {
         self.type = type
         self.groupId = groupId
         self.activityId = activityId
@@ -49,6 +51,7 @@ public struct ActivityLog: Codable, Identifiable, Hashable {
         self.receiverName = receiverName
         self.paymentReason = paymentReason
         self.amount = amount
+        self.amountCurrency = amountCurrency
     }
 
     enum CodingKeys: String, CodingKey {
@@ -67,6 +70,7 @@ public struct ActivityLog: Codable, Identifiable, Hashable {
         case receiverName = "receiver_name"
         case paymentReason = "payment_reason"
         case amount
+        case amountCurrency = "amount_currency"
     }
 }
 

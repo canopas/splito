@@ -36,6 +36,8 @@
 		21D8CF412CFF080F00463E4D /* EmailLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D8CF402CFF080F00463E4D /* EmailLoginViewModel.swift */; };
 		21F27BDE2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F27BDD2C36768D00196D62 /* ExpenseSplitOptionsTabView.swift */; };
 		741540F86E36400CE27B1FAD /* Pods_SplitoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 701193A10871F36C3EDB356C /* Pods_SplitoTests.framework */; };
+		D81C614F2D35141A0044A1E6 /* AddAmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81C614E2D35141A0044A1E6 /* AddAmountView.swift */; };
+		D81C61512D353EB70044A1E6 /* CurrencyPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81C61502D353EB50044A1E6 /* CurrencyPickerView.swift */; };
 		D826C0E22BDBD65600AAA449 /* GroupBalancesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826C0E12BDBD65600AAA449 /* GroupBalancesView.swift */; };
 		D826C0E42BDBD66300AAA449 /* GroupBalancesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826C0E32BDBD66300AAA449 /* GroupBalancesViewModel.swift */; };
 		D8302DA02B9F282F005ACA13 /* InviteMemberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8302D9F2B9F282F005ACA13 /* InviteMemberView.swift */; };
@@ -196,6 +198,8 @@
 		D8015C042B7A47CF0002886A /* Data.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Data.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8015C082B7A47D80002886A /* UI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = UI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D815DFD62BEA26C200C0F862 /* Secrets.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
+		D81C614E2D35141A0044A1E6 /* AddAmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAmountView.swift; sourceTree = "<group>"; };
+		D81C61502D353EB50044A1E6 /* CurrencyPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyPickerView.swift; sourceTree = "<group>"; };
 		D826C0E12BDBD65600AAA449 /* GroupBalancesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBalancesView.swift; sourceTree = "<group>"; };
 		D826C0E32BDBD66300AAA449 /* GroupBalancesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBalancesViewModel.swift; sourceTree = "<group>"; };
 		D8302D9F2B9F282F005ACA13 /* InviteMemberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteMemberView.swift; sourceTree = "<group>"; };
@@ -549,6 +553,8 @@
 			isa = PBXGroup;
 			children = (
 				D85E86E62BB2E189002EDF76 /* ExpenseRouteView.swift */,
+				D81C614E2D35141A0044A1E6 /* AddAmountView.swift */,
+				D81C61502D353EB50044A1E6 /* CurrencyPickerView.swift */,
 				D85E86DF2BAB06A3002EDF76 /* AddExpenseView.swift */,
 				D85E86E22BAB06D9002EDF76 /* AddExpenseViewModel.swift */,
 				D856C7302BCFD2080008A341 /* Expense Detail */,
@@ -1147,6 +1153,7 @@
 				D8A7CA722BA486250014EC67 /* GroupSettingViewModel.swift in Sources */,
 				D833445A2C0DD08400CD9F05 /* GroupSettleUpViewModel.swift in Sources */,
 				D85E86EB2BB3FD59002EDF76 /* ChoosePayerViewModel.swift in Sources */,
+				D81C61512D353EB70044A1E6 /* CurrencyPickerView.swift in Sources */,
 				2163D3A92D265A7D004B4F20 /* FeedbackView.swift in Sources */,
 				21C9A7D62D3557F5006C84CE /* CommentListView.swift in Sources */,
 				21B1C09A2C1C59F10098B4FD /* GroupTransactionListView.swift in Sources */,
@@ -1155,6 +1162,7 @@
 				D8E244BB2B9843A100C6C82A /* CreateGroupView.swift in Sources */,
 				D89DBE422B8CA72700E5F1BD /* HomeRouteView.swift in Sources */,
 				21B1C09E2C1C5AA30098B4FD /* GroupExpenseListView.swift in Sources */,
+				D81C614F2D35141A0044A1E6 /* AddAmountView.swift in Sources */,
 				D8D14A602BA2DCDB00F45FF2 /* UserProfileView.swift in Sources */,
 				21D8CF3F2CFF080300463E4D /* EmailLoginView.swift in Sources */,
 				D88721452B9B2C78009DC5BE /* GroupListView.swift in Sources */,

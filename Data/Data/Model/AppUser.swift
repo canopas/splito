@@ -17,7 +17,7 @@ public struct AppUser: Identifiable, Codable, Hashable, Sendable {
     public var imageUrl: String?
     public var deviceFcmToken: String?
     public var loginType: LoginType
-    public var totalOweAmount: Double
+    public var totalOweAmount: [String: Double]
     public var isActive: Bool
 
     public var fullName: String {
@@ -36,7 +36,7 @@ public struct AppUser: Identifiable, Codable, Hashable, Sendable {
 
     public init(id: String, firstName: String?, lastName: String?, emailId: String?,
                 phoneNumber: String? = nil, imageUrl: String? = nil, deviceFcmToken: String? = nil,
-                loginType: LoginType, totalOweAmount: Double = 0, isActive: Bool = true) {
+                loginType: LoginType, totalOweAmount: [String: Double] = [:], isActive: Bool = true) {
         self.id = id
         self.firstName = firstName
         self.lastName = lastName

@@ -133,9 +133,11 @@ public class TransactionRepository: ObservableObject {
         let actionUserName = (context.memberId == currentUser.id) ? "You" : currentUser.nameWithLastInitial
         let amount: Double = (context.memberId == transaction.payerId) ? transaction.amount : (context.memberId == transaction.receiverId) ? -transaction.amount : 0
 
-        return ActivityLog(type: context.type, groupId: groupId, activityId: transactionId, groupName: context.group?.name ?? "",
-                           actionUserName: actionUserName, recordedOn: Timestamp(date: Date()), payerName: context.payerName,
-                           receiverName: context.receiverName, paymentReason: context.paymentReason, amount: amount)
+        return ActivityLog(type: context.type, groupId: groupId, activityId: transactionId,
+                           groupName: context.group?.name ?? "", actionUserName: actionUserName,
+                           recordedOn: Timestamp(date: Date()), payerName: context.payerName,
+                           receiverName: context.receiverName, paymentReason: context.paymentReason,
+                           amount: amount, amountCurrency: transaction.currencyCode)
     }
 
     private func addActivityLog(context: ActivityLogContext) async -> Error? {

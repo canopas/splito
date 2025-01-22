@@ -226,7 +226,7 @@ struct GroupExpenseItemView: View {
                             Text(isBorrowed ? "you borrowed" : "you lent")
                                 .font(.caption1())
 
-                            Text(amount.formattedCurrency)
+                            Text(amount.formattedCurrencyWithSign(expense.currencyCode))
                                 .font(.body1())
                         } else {
                             Text("not involved")
@@ -257,7 +257,7 @@ private struct GroupExpenseHeaderView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if viewModel.overallOwingAmount == 0 {
+            if viewModel.overallOwingAmount.allSatisfy({ $0.value == 0 }) {
                 VStack(alignment: .center, spacing: 16) {
                     Image(.tickmarkIcon)
                         .resizable()
@@ -280,10 +280,12 @@ private struct GroupExpenseHeaderView: View {
                     .background(dividerColor)
 
                 VStack(alignment: .leading, spacing: 12) {
-                    ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
-                        let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
-                        GroupExpenseMemberOweView(name: name, amount: amount,
-                                                  handleSimplifyInfoSheet: viewModel.handleSimplifyInfoSheet)
+                    ForEach(viewModel.memberOwingAmount.sorted(by: { $0.key < $1.key }), id: \.key) { (currency, memberOweAmounts) in
+                        ForEach(memberOweAmounts.sorted(by: { $0.key < $1.key }), id: \.key) { (memberId, amount) in
+                            let name = viewModel.getMemberDataBy(id: memberId)?.nameWithLastInitial ?? "Unknown"
+                            GroupExpenseMemberOweView(name: name, amount: amount, currency: currency,
+                                                      handleSimplifyInfoSheet: viewModel.handleSimplifyInfoSheet)
+                        }
                     }
                 }.padding(16)
             }
@@ -301,17 +303,38 @@ private struct GroupExpenseHeaderOverallView: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
-            let isDue = viewModel.overallOwingAmount < 0
+            let owedAmounts = viewModel.overallOwingAmount.filter { $0.value < 0 }
+            let owedToYouAmounts = viewModel.overallOwingAmount.filter { $0.value > 0 }
+
+            var oweAmountText: String {
+                owedAmounts.map { (currency, amount) in
+                    let currencySymbol = Currency.getCurrencyFromCode(currency).symbol
+                    return "\(currencySymbol) \(abs(amount))"
+                }
+                .joined(separator: " + ")
+            }
+
+            var oweToYouAmountText: String {
+                owedToYouAmounts.map { (currency, amount) in
+                    let currencySymbol = Currency.getCurrencyFromCode(currency).symbol
+                    return "\(currencySymbol) \(abs(amount))"
+                }
+                .joined(separator: " + ")
+            }
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("You \(isDue ? "owe overall" : "are overall owed")")
-                    .font(.body3())
-                    .foregroundStyle(disableText)
-
-                Text("\(abs(viewModel.overallOwingAmount).formattedCurrency)")
-                    .font(.body1())
-                    .foregroundStyle(isDue ? errorColor : successColor)
+                if !owedToYouAmounts.isEmpty {
+                    Text("You are owed ")
+                    + Text(oweToYouAmountText)
+                        .foregroundColor(successColor)
+                }
+                if !owedAmounts.isEmpty {
+                    Text("You owe ")
+                    + Text(oweAmountText)
+                        .foregroundColor(errorColor)
+                }
             }
+            .font(.body3())
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(16)
 
@@ -325,13 +348,19 @@ private struct GroupExpenseHeaderOverallView: View {
                     .foregroundStyle(disableText)
                     .multilineTextAlignment(.trailing)
 
-                Text("\(abs(viewModel.currentMonthSpending).formattedCurrency)")
+                let spendingText = viewModel.currentMonthSpending.map { (currency, amount) in
+                    abs(amount).formattedCurrencyWithSign(currency)
+                }.joined(separator: " + ")
+
+                Text(spendingText)
                     .font(.body1())
-                    .foregroundStyle(primaryText)
+
+                Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(16)
         }
+        .foregroundStyle(primaryText)
     }
 }
 
@@ -339,6 +368,7 @@ private struct GroupExpenseMemberOweView: View {
 
     let name: String
     let amount: Double
+    let currency: String
     let handleSimplifyInfoSheet: () -> Void
 
     var body: some View {
@@ -347,7 +377,7 @@ private struct GroupExpenseMemberOweView: View {
                 Group {
                     Text("\(name.localized) owes you ")
                         .foregroundColor(disableText)
-                    + Text("\(amount.formattedCurrency)")
+                    + Text(amount.formattedCurrencyWithSign(currency))
                         .foregroundColor(successColor)
                 }
                 .font(.body3())
@@ -355,7 +385,7 @@ private struct GroupExpenseMemberOweView: View {
                 Group {
                     Text("You owe \(name.localized) ")
                         .foregroundColor(disableText)
-                    + Text("\(amount.formattedCurrency)")
+                    + Text(amount.formattedCurrencyWithSign(currency))
                         .foregroundColor(errorColor)
                 }.font(.body3())
             }

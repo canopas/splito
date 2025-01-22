@@ -164,29 +164,59 @@ private struct GroupListTabBarView: View {
 
 private struct GroupListHeaderView: View {
 
-    let totalOweAmount: Double
+    let totalOweAmount: [String: Double]
 
     var body: some View {
         HStack(spacing: 0) {
-            if totalOweAmount == 0 {
+            if totalOweAmount.allSatisfy({ $0.value == 0 }) {
                 Text("You are all settle up!")
                     .font(.Header3())
-                    .foregroundStyle(primaryText)
+
+                Spacer()
             } else {
-                let isOwed = totalOweAmount < 0
-                HStack(spacing: 0) {
-                    Text("Overall, \(isOwed ? "you owe" : "you are owed")  ")
-                        .foregroundStyle(primaryText)
+                let owedAmounts = totalOweAmount.filter { $0.value < 0 }
+                let owedToYouAmounts = totalOweAmount.filter { $0.value > 0 }
 
-                    Spacer()
-
-                    Text("\(totalOweAmount.formattedCurrency)")
-                        .foregroundStyle(isOwed ? errorColor : successColor)
+                var oweAmountText: String {
+                    owedAmounts.map { (currency, amount) in
+                        let currencySymbol = Currency.getCurrencyFromCode(currency).symbol
+                        return "\(currencySymbol) \(abs(amount))"
+                    }
+                    .joined(separator: " + ")
                 }
-                .font(.Header3())
+
+                var oweToYouAmountText: String {
+                    owedToYouAmounts.map { (currency, amount) in
+                        let currencySymbol = Currency.getCurrencyFromCode(currency).symbol
+                        return "\(currencySymbol) \(abs(amount))"
+                    }
+                    .joined(separator: " + ")
+                }
+
+                if !owedAmounts.isEmpty && !owedToYouAmounts.isEmpty {
+                    Text("Overall, you owe ")
+                    + Text(oweAmountText)
+                        .foregroundColor(errorColor)
+                    + Text(" and you are owed ")
+                    + Text(oweToYouAmountText)
+                        .foregroundColor(successColor)
+                } else if !owedAmounts.isEmpty {
+                    Text("Overall, you owe ")
+                    + Text(oweAmountText)
+                        .foregroundColor(errorColor)
+                } else if !owedToYouAmounts.isEmpty {
+                    Text("Overall, you are owed ")
+                    + Text(oweToYouAmountText)
+                        .foregroundColor(successColor)
+                } else {
+                    Text("You are all settle up!")
+                }
+
+                Spacer()
             }
-            Spacer()
         }
+        .font(.Header3())
+        .foregroundStyle(primaryText)
         .padding(.horizontal, 12)
     }
 }
@@ -224,7 +254,6 @@ private struct NoGroupsState: View {
                 .frame(minHeight: geometry.size.height - 100, maxHeight: .infinity, alignment: .center)
             }
             .scrollIndicators(.hidden)
-            .scrollBounceBehavior(.basedOnSize)
         }
     }
 }

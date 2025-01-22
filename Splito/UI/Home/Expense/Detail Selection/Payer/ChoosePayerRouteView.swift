@@ -23,11 +23,20 @@ struct ChoosePayerRouteView: View {
     var body: some View {
         RouterView(router: appRoute) { route in
             switch route {
-            case .ChoosePayerView(let groupId, let amount, let selectedPayer, let onPayerSelection):
-                ChoosePayerView(viewModel: ChoosePayerViewModel(router: appRoute, groupId: groupId, amount: amount, selectedPayers: selectedPayer, onPayerSelection: onPayerSelection))
+            case .ChoosePayerView(let groupId, let amount, let currency, let selectedPayer, let onPayerSelection):
+                ChoosePayerView(
+                    viewModel: ChoosePayerViewModel(
+                        router: appRoute, groupId: groupId, amount: amount, amountCurrency: currency,
+                        selectedPayers: selectedPayer, onPayerSelection: onPayerSelection)
+                )
 
-            case .ChooseMultiplePayerView(let groupId, let selectedPayers, let amount, let onPayerSelection):
-                ChooseMultiplePayerView(viewModel: ChooseMultiplePayerViewModel(groupId: groupId, selectedPayers: selectedPayers, expenseAmount: amount, onPayerSelection: onPayerSelection, dismissChoosePayerFlow: dismissChoosePayerFlow))
+            case .ChooseMultiplePayerView(let groupId, let selectedPayers, let amount, let currency, let onPayerSelection):
+                ChooseMultiplePayerView(
+                    viewModel: ChooseMultiplePayerViewModel(
+                        groupId: groupId, selectedPayers: selectedPayers, expenseAmount: amount,
+                        amountCurrency: currency, onPayerSelection: onPayerSelection,
+                        dismissChoosePayerFlow: dismissChoosePayerFlow)
+                )
 
             default:
                 EmptyRouteView(routeName: self)

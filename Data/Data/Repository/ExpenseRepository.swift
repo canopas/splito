@@ -142,7 +142,7 @@ public class ExpenseRepository: ObservableObject {
 
         return ActivityLog(type: context.type, groupId: groupId, activityId: expenseId, groupName: group.name,
                            actionUserName: actionUserName, recordedOn: Timestamp(date: Date()),
-                           expenseName: expense.name, amount: amount)
+                           expenseName: expense.name, amount: amount, amountCurrency: expense.currencyCode)
     }
 
     private func addActivityLog(context: ActivityLogContext) async -> Error? {

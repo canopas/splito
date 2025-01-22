@@ -24,11 +24,11 @@ struct GroupTransactionsRouteView: View {
                 GroupTransactionListView(viewModel: GroupTransactionListViewModel(router: appRoute, groupId: groupId))
             case .TransactionDetailView(let transactionId, let groupId):
                 GroupTransactionDetailView(viewModel: GroupTransactionDetailViewModel(router: appRoute, groupId: groupId, transactionId: transactionId))
-            case .GroupPaymentView(let transactionId, let groupId, let payerId, let receiverId, let amount):
+            case .GroupPaymentView(let transactionId, let groupId, let payerId, let receiverId, let amount, let currency):
                 GroupPaymentView(
                     viewModel: GroupPaymentViewModel(
                         router: appRoute, transactionId: transactionId, groupId: groupId,
-                        payerId: payerId, receiverId: receiverId, amount: amount
+                        payerId: payerId, receiverId: receiverId, amount: amount, currency: currency
                     )
                 )
             default:

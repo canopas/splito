@@ -32,15 +32,18 @@ public enum AppRoute: Hashable {
     case GroupSettleUpView(groupId: String)
     case GroupWhoIsPayingView(groupId: String, isPaymentSettled: Bool)
     case GroupWhoGettingPaidView(groupId: String, selectedMemberId: String)
-    case GroupPaymentView(transactionId: String?, groupId: String, payerId: String, receiverId: String, amount: Double)
+    case GroupPaymentView(transactionId: String?, groupId: String, payerId: String, receiverId: String,
+                          amount: Double, currency: String)
     case TransactionListView(groupId: String)
     case TransactionDetailView(transactionId: String, groupId: String)
 
     // MARK: - Expense Button
     case AddExpenseView(groupId: String, expenseId: String?)
     case ExpenseDetailView(groupId: String, expenseId: String)
-    case ChoosePayerView(groupId: String, amount: Double, selectedPayer: [String: Double], onPayerSelection: (([String: Double]) -> Void))
-    case ChooseMultiplePayerView(groupId: String, selectedPayers: [String: Double], amount: Double, onPayerSelection: (([String: Double]) -> Void))
+    case ChoosePayerView(groupId: String, amount: Double, currency: String, selectedPayer: [String: Double],
+                         onPayerSelection: (([String: Double]) -> Void))
+    case ChooseMultiplePayerView(groupId: String, selectedPayers: [String: Double], amount: Double,
+                                 currency: String, onPayerSelection: (([String: Double]) -> Void))
 
     // MARK: - Activity Tab
     case ActivityHomeView

@@ -66,6 +66,7 @@ struct AddExpenseView: View {
                 ChoosePayerRouteView(appRoute: .init(
                     root: .ChoosePayerView(groupId: viewModel.selectedGroup?.id ?? "",
                                            amount: viewModel.expenseAmount,
+                                           currency: viewModel.selectedCurrency.code,
                                            selectedPayer: viewModel.selectedPayers,
                                            onPayerSelection: viewModel.handlePayerSelection(payers:)))) {
                                                viewModel.showPayerSelection = false
@@ -77,7 +78,8 @@ struct AddExpenseView: View {
                 ExpenseSplitOptionsView(
                     viewModel:
                         ExpenseSplitOptionsViewModel(
-                            amount: viewModel.expenseAmount, splitType: viewModel.splitType, splitData: viewModel.splitData,
+                            amount: viewModel.expenseAmount, selectedCurrency: viewModel.selectedCurrency.code,
+                            splitType: viewModel.splitType, splitData: viewModel.splitData,
                             members: viewModel.groupMembers, selectedMembers: viewModel.selectedMembers,
                             handleSplitTypeSelection: viewModel.handleSplitTypeSelectionAction(splitData:splitType:)
                         )
@@ -97,6 +99,12 @@ struct AddExpenseView: View {
         .sheet(isPresented: $viewModel.showImagePicker) {
             ImagePickerView(cropOption: .square, sourceType: !viewModel.sourceTypeIsCamera ? .photoLibrary : .camera,
                             image: $viewModel.expenseImage, isPresented: $viewModel.showImagePicker)
+        }
+        .fullScreenCover(isPresented: $viewModel.showCurrencyPicker) {
+            NavigationStack {
+                CurrencyPickerView(selectedCurrency: $viewModel.selectedCurrency,
+                                   isPresented: $viewModel.showCurrencyPicker)
+            }
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -136,7 +144,8 @@ private struct ExpenseInfoView: View {
             ExpenseDetailRow(name: $viewModel.expenseName, focusedField: focusedField,
                              subtitle: "Description", field: .expenseName)
 
-            AmountRowView(amount: $viewModel.expenseAmount, isAmountFocused: $isAmountFocused, subtitle: "Amount")
+            AddAmountView(amount: $viewModel.expenseAmount, showCurrencyPicker: $viewModel.showCurrencyPicker,
+                          selectedCurrencySymbol: viewModel.selectedCurrency.symbol, isAmountFocused: $isAmountFocused)
                 .focused(focusedField, equals: .amount)
 
             HStack(alignment: .top, spacing: 16) {

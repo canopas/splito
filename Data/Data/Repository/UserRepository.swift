@@ -35,6 +35,16 @@ public class UserRepository: ObservableObject {
         try await store.fetchUserBy(id: userID)
     }
 
+    public func fetchUsersBy(userIds: [String]) async throws -> [AppUser] {
+        var users: [AppUser] = []
+        for userId in userIds {
+            let user = try await fetchUserBy(userID: userId)
+            guard let user else { continue }
+            users.append(user)
+        }
+        return users.uniqued()
+    }
+
     public func fetchUserBy(email: String) async throws -> AppUser? {
         try await store.fetchUserBy(email: email)
     }

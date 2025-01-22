@@ -24,14 +24,16 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
 
     @Published private(set) var dismissChoosePayerFlow: () -> Void
 
+    var amountCurrency: String
     var onPayerSelection: (([String: Double]) -> Void)
 
-    init(groupId: String, selectedPayers: [String: Double] = [:], expenseAmount: Double,
+    init(groupId: String, selectedPayers: [String: Double] = [:], expenseAmount: Double, amountCurrency: String,
          onPayerSelection: @escaping (([String: Double]) -> Void), dismissChoosePayerFlow: @escaping () -> Void) {
         self.groupId = groupId
         self.membersAmount = selectedPayers
         self.expenseAmount = expenseAmount
         self.totalAmount = selectedPayers.map { $0.value }.reduce(0, +)
+        self.amountCurrency = amountCurrency
         self.onPayerSelection = onPayerSelection
         self.dismissChoosePayerFlow = dismissChoosePayerFlow
         super.init()
@@ -77,7 +79,7 @@ class ChooseMultiplePayerViewModel: BaseViewModel, ObservableObject {
             let differenceAmount = totalAmount < expenseAmount ? (expenseAmount - totalAmount) : (totalAmount - expenseAmount)
 
             showAlertFor(title: "Whoops!",
-                         message: "The payment values do not add up to the total cost of \(expenseAmount.formattedCurrency). You are \(amountDescription) by \(differenceAmount.formattedCurrency).")
+                         message: "The payment values do not add up to the total cost of \(expenseAmount.formattedCurrencyWithSign(amountCurrency)). You are \(amountDescription) by \(differenceAmount.formattedCurrencyWithSign(amountCurrency)).")
             return
         }
 
