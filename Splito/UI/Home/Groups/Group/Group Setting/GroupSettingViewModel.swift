@@ -166,9 +166,14 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
         }
     }
 
+    private func hasOutstandingBalance(_ memberBalance: [String: Double]) -> Bool {
+        let epsilon = 1e-10
+        return !memberBalance.allSatisfy { abs($0.value) < epsilon }
+    }
+
     private func showRemoveMemberAlert(member: AppUser) {
         let memberBalance = getMembersBalance(memberId: member.id)
-        guard memberBalance.allSatisfy({ $0.value == 0 }) else {
+        guard !hasOutstandingBalance(memberBalance) else {
             memberRemoveType = .remove
             showDebtOutstandingAlert(memberId: member.id)
             return
@@ -182,10 +187,7 @@ class GroupSettingViewModel: BaseViewModel, ObservableObject {
 
     private func showLeaveGroupAlert(member: AppUser) {
         let memberBalance = getMembersBalance(memberId: member.id)
-
-        let epsilon = 1e-10
-        let totalBalance = memberBalance.values.reduce(0, +)
-        guard abs(totalBalance) < epsilon else {
+        guard !hasOutstandingBalance(memberBalance) else {
             memberRemoveType = .leave
             showDebtOutstandingAlert(memberId: member.id)
             return

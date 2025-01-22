@@ -30,7 +30,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
 
     @Published var expenses: [Expense] = []
     @Published var expensesWithUser: [ExpenseWithUser] = []
-    @Published var transactionsCount: Int = 0
+    @Published private(set) var transactionsCount: Int = 0
     @Published private(set) var groupExpenses: [String: [ExpenseWithUser]] = [:]
     @Published private(set) var memberOwingAmount: [String: [String: Double]] = [:]
 
@@ -100,10 +100,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             }
 
             self.group = group
-            currentMonthSpending = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
-                .mapValues { summaries in
-                    summaries.reduce(0) { $0 + $1.summary.totalShare }
-                }
+            currentMonthSpending = getCalculatedCurrentMonthSpending(group: group, userId: self.preference.user?.id)
 
             await withTaskGroup(of: Void.self) { groupTask in
                 for member in group.members where member != preference.user?.id {
@@ -124,18 +121,14 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
         let groupStream = groupRepository.streamLatestGroupDataBy(id: groupId)
         Task { [weak self] in
             for await group in groupStream {
-                guard let self else { return }
-                guard let group else {
-                    self.groupState = .noMember
+                guard let self, let group else {
+                    self?.groupState = .noMember
                     return
                 }
 
                 self.group = group
-                self.currentMonthSpending = getTotalSummaryForCurrentMonth(group: group, userId: self.preference.user?.id)
-                    .mapValues { summaries in
-                        summaries.reduce(0) { $0 + $1.summary.totalShare }
-                    }
-
+                self.currentMonthSpending = getCalculatedCurrentMonthSpending(group: group,
+                                                                              userId: self.preference.user?.id)
                 await withTaskGroup(of: Void.self) { taskGroup in
                     for member in group.members where member != self.preference.user?.id {
                         taskGroup.addTask { [weak self] in
@@ -151,6 +144,13 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
                 self.isInitialDataLoaded = true
             }
         }
+    }
+
+    private func getCalculatedCurrentMonthSpending(group: Groups, userId: String?) -> [String: Double] {
+        return getTotalSummaryForCurrentMonth(group: group, userId: userId)
+            .mapValues { summaries in
+                summaries.reduce(0) { $0 + $1.summary.totalShare }
+            }
     }
 
     func refetchTransactionsCount() {

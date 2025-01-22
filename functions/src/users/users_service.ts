@@ -50,7 +50,14 @@ export const onGroupWrite = onDocumentWritten(
 
         // Optimize Firestore reads by batching user document fetches
         const userDocRefs = balances.map(({ id }) => db.collection('users').doc(id));
-        const userDocs = await db.getAll(...userDocRefs);
+        const userDocs = [];
+        const BATCH_SIZE = 500;
+        
+        for (let i = 0; i < userDocRefs.length; i += BATCH_SIZE) {
+          const batchDocRefs = userDocRefs.slice(i, i + BATCH_SIZE);
+          const batchUserDocs = await db.getAll(...batchDocRefs);
+          userDocs.push(...batchUserDocs);
+        }
 
         // Process each user document
         userDocs.forEach((userDoc, index) => {
