@@ -14,7 +14,7 @@
     {
         "code": "ALL",
         "name": "Albanian Lek",
-        "symbol": "L",
+        "symbol": "Lek",
         "region": "AL"
     },
     {
@@ -44,7 +44,7 @@
     {
         "code": "AUD",
         "name": "Australian Dollar",
-        "symbol": "$",
+        "symbol": "A$",
         "region": "AU"
     },
     {
@@ -68,7 +68,7 @@
     {
         "code": "BBD",
         "name": "Barbadian Dollar",
-        "symbol": "$",
+        "symbol": "Bds$",
         "region": "BB"
     },
     {
@@ -98,13 +98,13 @@
     {
         "code": "BMD",
         "name": "Bermudian Dollar",
-        "symbol": "$",
+        "symbol": "BD$",
         "region": "BM"
     },
     {
         "code": "BND",
         "name": "Brunei Dollar",
-        "symbol": "$",
+        "symbol": "B$",
         "region": "BN"
     },
     {
@@ -122,7 +122,7 @@
     {
         "code": "BSD",
         "name": "Bahamian Dollar",
-        "symbol": "$",
+        "symbol": "B$",
         "region": "BS"
     },
     {
@@ -152,7 +152,7 @@
     {
         "code": "CAD",
         "name": "Canadian Dollar",
-        "symbol": "$",
+        "symbol": "C$",
         "region": "CA"
     },
     {
@@ -170,7 +170,7 @@
     {
         "code": "CLP",
         "name": "Chilean Peso",
-        "symbol": "$",
+        "symbol": "CLP$",
         "region": "CL"
     },
     {
@@ -182,7 +182,7 @@
     {
         "code": "COP",
         "name": "Colombian Peso",
-        "symbol": "$",
+        "symbol": "COL$",
         "region": "CO"
     },
     {
@@ -200,7 +200,7 @@
     {
         "code": "CVE",
         "name": "Cape Verdean Escudo",
-        "symbol": "$",
+        "symbol": "CVE",
         "region": "CV"
     },
     {
@@ -236,7 +236,7 @@
     {
         "code": "EGP",
         "name": "Egyptian Pound",
-        "symbol": "£",
+        "symbol": "E£",
         "region": "EG"
     },
     {
@@ -260,18 +260,18 @@
     {
         "code": "FJD",
         "name": "Fijian Dollar",
-        "symbol": "$",
+        "symbol": "FJ$",
         "region": "FJ"
     },
     {
         "code": "FKP",
         "name": "Falkland Islands Pound",
-        "symbol": "£",
+        "symbol": "FK£",
         "region": "FK"
     },
     {
         "code": "GBP",
-        "name": "British Pound",
+        "name": "British Pound Sterling",
         "symbol": "£",
         "region": "GB"
     },
@@ -284,7 +284,7 @@
     {
         "code": "GHS",
         "name": "Ghanaian Cedi",
-        "symbol": "₵",
+        "symbol": "GH₵",
         "region": "GH"
     },
     {
@@ -314,13 +314,13 @@
     {
         "code": "GYD",
         "name": "Guyanese Dollar",
-        "symbol": "$",
+        "symbol": "G$",
         "region": "GY"
     },
     {
         "code": "HKD",
         "name": "Hong Kong Dollar",
-        "symbol": "$",
+        "symbol": "HK$",
         "region": "HK"
     },
     {
@@ -392,7 +392,7 @@
     {
         "code": "JOD",
         "name": "Jordanian Dinar",
-        "symbol": "د.ا",
+        "symbol": "JD",
         "region": "JO"
     },
     {
@@ -440,13 +440,13 @@
     {
         "code": "KWD",
         "name": "Kuwaiti Dinar",
-        "symbol": "د.ك",
+        "symbol": "KD",
         "region": "KW"
     },
     {
         "code": "KYD",
         "name": "Cayman Islands Dollar",
-        "symbol": "$",
+        "symbol": "CI$",
         "region": "KY"
     },
     {
@@ -464,19 +464,19 @@
     {
         "code": "LBP",
         "name": "Lebanese Pound",
-        "symbol": "ل.ل",
+        "symbol": "L£",
         "region": "LB"
     },
     {
         "code": "LKR",
         "name": "Sri Lankan Rupee",
-        "symbol": "₨",
+        "symbol": "Rs",
         "region": "LK"
     },
     {
         "code": "LRD",
         "name": "Liberian Dollar",
-        "symbol": "$",
+        "symbol": "L$",
         "region": "LR"
     },
     {
@@ -488,13 +488,13 @@
     {
         "code": "LYD",
         "name": "Libyan Dinar",
-        "symbol": "ل.د",
+        "symbol": "LD",
         "region": "LY"
     },
     {
         "code": "MAD",
         "name": "Moroccan Dirham",
-        "symbol": "د.م.",
+        "symbol": "MAD",
         "region": "MA"
     },
     {
@@ -518,7 +518,7 @@
     {
         "code": "MMK",
         "name": "Myanmar Kyat",
-        "symbol": "Ks",
+        "symbol": "K",
         "region": "MM"
     },
     {
@@ -530,7 +530,7 @@
     {
         "code": "MOP",
         "name": "Macanese Pataca",
-        "symbol": "P",
+        "symbol": "MOP$",
         "region": "MO"
     },
     {
@@ -548,7 +548,7 @@
     {
         "code": "MVR",
         "name": "Maldivian Rufiyaa",
-        "symbol": ".ރ",
+        "symbol": "Rf",
         "region": "MV"
     },
     {
@@ -560,7 +560,7 @@
     {
         "code": "MXN",
         "name": "Mexican Peso",
-        "symbol": "$",
+        "symbol": "MX$",
         "region": "MX"
     },
     {
@@ -578,7 +578,7 @@
     {
         "code": "NAD",
         "name": "Namibian Dollar",
-        "symbol": "$",
+        "symbol": "N$",
         "region": "NA"
     },
     {
@@ -608,7 +608,7 @@
     {
         "code": "NZD",
         "name": "New Zealand Dollar",
-        "symbol": "$",
+        "symbol": "NZ$",
         "region": "NZ"
     },
     {
@@ -662,7 +662,7 @@
     {
         "code": "QAR",
         "name": "Qatari Riyal",
-        "symbol": "ر.ق",
+        "symbol": "QR",
         "region": "QA"
     },
     {
@@ -674,7 +674,7 @@
     {
         "code": "RSD",
         "name": "Serbian Dinar",
-        "symbol": "дин.",
+        "symbol": "din",
         "region": "RS"
     },
     {
@@ -692,25 +692,25 @@
     {
         "code": "SAR",
         "name": "Saudi Riyal",
-        "symbol": "ر.س",
+        "symbol": "SR",
         "region": "SA"
     },
     {
         "code": "SBD",
         "name": "Solomon Islands Dollar",
-        "symbol": "$",
+        "symbol": "SI$",
         "region": "SB"
     },
     {
         "code": "SCR",
         "name": "Seychellois Rupee",
-        "symbol": "₨",
+        "symbol": "SR",
         "region": "SC"
     },
     {
         "code": "SDG",
         "name": "Sudanese Pound",
-        "symbol": "ج.س.",
+        "symbol": "SDG",
         "region": "SD"
     },
     {
@@ -722,7 +722,7 @@
     {
         "code": "SGD",
         "name": "Singapore Dollar",
-        "symbol": "$",
+        "symbol": "S$",
         "region": "SG"
     },
     {
@@ -732,7 +732,7 @@
         "region": "SH"
     },
     {
-        "code": "SLL",
+        "code": "SLE",
         "name": "Sierra Leonean Leone",
         "symbol": "Le",
         "region": "SL"
@@ -740,19 +740,19 @@
     {
         "code": "SOS",
         "name": "Somali Shilling",
-        "symbol": "Sh",
+        "symbol": "Sh.So.",
         "region": "SO"
     },
     {
         "code": "SRD",
         "name": "Surinamese Dollar",
-        "symbol": "$",
+        "symbol": "Sr$",
         "region": "SR"
     },
     {
         "code": "SSP",
         "name": "South Sudanese Pound",
-        "symbol": "£",
+        "symbol": "SS£",
         "region": "SS"
     },
     {
@@ -764,13 +764,13 @@
     {
         "code": "SYP",
         "name": "Syrian Pound",
-        "symbol": "£",
+        "symbol": "S£",
         "region": "SY"
     },
     {
         "code": "SZL",
         "name": "Swazi Lilangeni",
-        "symbol": "L",
+        "symbol": "E",
         "region": "SZ"
     },
     {
@@ -782,19 +782,19 @@
     {
         "code": "TJS",
         "name": "Tajikistani Somoni",
-        "symbol": "ЅМ",
+        "symbol": "SM",
         "region": "TJ"
     },
     {
         "code": "TMT",
         "name": "Turkmenistan Manat",
-        "symbol": "m",
+        "symbol": "T",
         "region": "TM"
     },
     {
         "code": "TND",
         "name": "Tunisian Dinar",
-        "symbol": "د.ت",
+        "symbol": "DT",
         "region": "TN"
     },
     {
@@ -812,7 +812,7 @@
     {
         "code": "TTD",
         "name": "Trinidad and Tobago Dollar",
-        "symbol": "$",
+        "symbol": "TT$",
         "region": "TT"
     },
     {
@@ -848,7 +848,7 @@
     {
         "code": "UYU",
         "name": "Uruguayan Peso",
-        "symbol": "$",
+        "symbol": "$U",
         "region": "UY"
     },
     {
@@ -859,8 +859,8 @@
     },
     {
         "code": "VES",
-        "name": "Venezuelan Bolívar Soberano",
-        "symbol": "Bs.",
+        "name": "Venezuelan Bolívar Digital",
+        "symbol": "Bs.D",
         "region": "VE"
     },
     {
@@ -878,7 +878,7 @@
     {
         "code": "WST",
         "name": "Samoan Tālā",
-        "symbol": "T",
+        "symbol": "WS$",
         "region": "WS"
     },
     {
@@ -890,7 +890,7 @@
     {
         "code": "XCD",
         "name": "East Caribbean Dollar",
-        "symbol": "$",
+        "symbol": "EC$",
         "region": "AG"
     },
     {
@@ -908,7 +908,7 @@
     {
         "code": "YER",
         "name": "Yemeni Rial",
-        "symbol": "﷼",
+        "symbol": "YR",
         "region": "YE"
     },
     {
@@ -926,7 +926,7 @@
     {
         "code": "ZWL",
         "name": "Zimbabwean Dollar",
-        "symbol": "$",
+        "symbol": "Z$",
         "region": "ZW"
     }
 ]
