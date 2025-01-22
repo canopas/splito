@@ -179,11 +179,11 @@ public func getUpdatedMemberBalanceFor(expense: Expense, group: Groups, updateTy
                     oldSummary.totalShare -= abs(oldSplitAmount)
                     oldSummary.changeInBalance = (oldSummary.totalPaidAmount - oldSummary.totalShare) - oldSummary.receivedAmount + oldSummary.paidAmount
 
+                    memberBalance[index].balanceByCurrency[oldCurrency]?.balance -= oldSplitAmount
                     memberBalance[index].balanceByCurrency[oldCurrency]?.totalSummary[oldSummaryIndex].summary = oldSummary
                 }
 
-                let oldCalculatedSplitAmount = oldExpense.getCalculatedSplitAmountOf(member: member)
-                memberBalance[index].balanceByCurrency[currency]?.balance += (newSplitAmount - oldCalculatedSplitAmount)
+                memberBalance[index].balanceByCurrency[currency]?.balance += newSplitAmount
 
                 // Update the new date's summary
                 let groupNewTotalSummary = memberBalance[index].balanceByCurrency[currency]?.totalSummary ?? []
