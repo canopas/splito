@@ -142,7 +142,7 @@ private struct GroupBalanceItemView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                if memberBalance.totalOwedAmount.allSatisfy({ $0.value != 0 }) {
+                if memberBalance.totalOwedAmount.contains(where: { $0.value != 0 }) {
                     ScrollToTopButton(
                         icon: "chevron.down", iconColor: primaryText, bgColor: container2Color,
                         showWithAnimation: true, size: (10, 7), isFirstGroupCell: memberBalance.isExpanded,
