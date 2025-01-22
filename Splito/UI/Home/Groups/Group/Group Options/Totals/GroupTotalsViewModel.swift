@@ -19,7 +19,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
 
     @Published var showCurrencyPicker = false
     @Published var supportedCurrencies: [Currency] = [Currency.defaultCurrency]
-    @Published var selectedCurrency: Currency = Currency.getCurrentLocalCurrency() {
+    @Published var selectedCurrency: Currency = Currency.defaultCurrency {
         didSet {
             filterDataForSelectedTab()  // Recalculate data when currency changes
         }
@@ -56,12 +56,22 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
 
     private func updateSupportedCurrencies() {
         guard let userId = preference.user?.id,
-              let currencies = group?.balances.first(where: { $0.id == userId })?.balanceByCurrency.keys else {
+              let balance = group?.balances.first(where: { $0.id == userId }) else {
             viewState = .initial
             return
         }
 
-        supportedCurrencies = Currency.getAllCurrencies().filter { Array(Set(currencies)).contains($0.code) }  // Extract all unique currency
+        // Filter out currencies where totalSummary is empty
+        let filteredCurrencies = balance.balanceByCurrency.filter { (_, currencyBalance) in
+            !currencyBalance.totalSummary.allSatisfy { summary in
+                summary.summary.groupTotalSpending == 0 && summary.summary.totalPaidAmount == 0 &&
+                summary.summary.totalShare == 0 && summary.summary.changeInBalance == 0 &&
+                summary.summary.paidAmount == 0 && summary.summary.receivedAmount == 0
+            }
+        }.map { $0.key }
+
+        supportedCurrencies = Currency.getAllCurrencies().filter { filteredCurrencies.contains($0.code) }  // Extract all unique currency
+
         if !supportedCurrencies.contains(selectedCurrency) {
             selectedCurrency = Currency.defaultCurrency
         }
@@ -125,6 +135,10 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
             .mapValues { balance in
                 balance.totalSummary.filter { $0.year == currentYear }
             } ?? [:]
+    }
+
+    func handleSelectedCurrencyTap() {
+        showCurrencyPicker = true
     }
 
     // MARK: - Error Handling

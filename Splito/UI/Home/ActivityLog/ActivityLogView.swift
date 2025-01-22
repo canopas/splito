@@ -185,10 +185,10 @@ private struct ActivityListCellView: View {
             return ""
         case .expenseAdded, .expenseUpdated, .expenseDeleted, .expenseRestored:
             let action = (amount > 0 ? "get back" : "owe")
-            return (amount == 0) ? "You do not owe anything" : "You \(action) \(amount.formattedCurrencyWithSign(activityLog.amountCurrency))"
+            return (amount == 0) ? "You do not owe anything" : "You \(action) \(amount.formattedCurrency(activityLog.amountCurrency))"
         case .transactionAdded, .transactionUpdated, .transactionDeleted, .transactionRestored:
             let action = (amount > 0 ? "paid" : "received")
-            return (amount == 0) ? "You do not owe anything" : "You \(action) \(amount.formattedCurrencyWithSign(activityLog.amountCurrency))"
+            return (amount == 0) ? "You do not owe anything" : "You \(action) \(amount.formattedCurrency(activityLog.amountCurrency))"
         }
     }
 }

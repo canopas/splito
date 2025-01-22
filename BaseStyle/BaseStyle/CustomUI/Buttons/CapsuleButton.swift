@@ -12,13 +12,17 @@ public struct CapsuleButton: View {
     private let buttonName: String
     private let paddingHr: CGFloat
     private let paddingVr: CGFloat
+    private let cornerRadius: Double
     private let isEnabled: Bool
+
     private let onClick: (() -> Void)?
 
-    public init(buttonName: String, isEnabled: Bool = true, paddingHr: CGFloat = 73, paddingVr: CGFloat = 12, onClick: (() -> Void)?) {
+    public init(buttonName: String, isEnabled: Bool = true, paddingHr: CGFloat = 73,
+                paddingVr: CGFloat = 12, cornerRadius: Double = 12, onClick: (() -> Void)?) {
         self.buttonName = buttonName
         self.paddingHr = paddingHr
         self.paddingVr = paddingVr
+        self.cornerRadius = cornerRadius
         self.isEnabled = isEnabled
         self.onClick = onClick
     }
@@ -37,7 +41,7 @@ public struct CapsuleButton: View {
             .padding(.horizontal, paddingHr)
             .padding(.vertical, paddingVr)
             .background(primaryColor)
-            .cornerRadius(12)
+            .cornerRadius(cornerRadius)
         }
         .buttonStyle(.scale)
         .disabled(!isEnabled)

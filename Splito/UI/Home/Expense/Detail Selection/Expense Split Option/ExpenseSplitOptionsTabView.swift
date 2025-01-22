@@ -257,7 +257,7 @@ struct MemberCellView: View {
                         .foregroundStyle(primaryText)
 
                     if let splitAmount {
-                        Text(splitAmount.formattedCurrencyWithSign(amountCurrency))
+                        Text(splitAmount.formattedCurrency(amountCurrency))
                             .font(.body3(12))
                             .foregroundStyle(disableText)
                     }

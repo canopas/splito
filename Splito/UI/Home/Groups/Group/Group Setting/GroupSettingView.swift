@@ -247,7 +247,7 @@ private struct GroupMemberCellView: View {
 
             Spacer()
 
-            if let firstBalance = balance.first {
+            if let firstBalance = balance.first(where: { $0.value != 0 }) {
                 let currency = firstBalance.key
                 let amount = firstBalance.value
                 let isBorrowed = amount < 0
@@ -260,7 +260,7 @@ private struct GroupMemberCellView: View {
                         Text(isBorrowed ? "owes" : "gets back")
                             .font(.caption1())
 
-                        Text(amount.formattedCurrencyWithSign(currency))
+                        Text(amount.formattedCurrency(currency))
                             .font(.body1())
                         + Text(balance.count > 1 ? "*" : "")
                             .font(.body1())

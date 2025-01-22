@@ -211,9 +211,9 @@ private struct ExpenseInfoView: View {
                             MemberProfileImageView(imageUrl: userData.imageUrl, height: SUB_IMAGE_HEIGHT, scaleEffect: 0.6)
 
                             if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
-                                Text("\(memberName.localized) paid \(paidAmount.formattedCurrencyWithSign(currencyCode)) and \(owes.localized) \(splitAmount)")
+                                Text("\(memberName.localized) paid \(paidAmount.formattedCurrency(currencyCode)) and \(owes.localized) \(splitAmount)")
                             } else {
-                                Text("\(memberName.localized) paid \(paidAmount.formattedCurrencyWithSign(currencyCode))")
+                                Text("\(memberName.localized) paid \(paidAmount.formattedCurrency(currencyCode))")
                             }
                         } else if let splitTo = expense?.splitTo, splitTo.contains(userData.id) {
                             MemberProfileImageView(imageUrl: userData.imageUrl, height: SUB_IMAGE_HEIGHT, scaleEffect: 0.6)

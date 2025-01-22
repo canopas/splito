@@ -31,19 +31,10 @@ struct GroupTotalsView: View {
 
                             Spacer()
 
-                            Text(viewModel.selectedCurrency.code)
-                                .font(.buttonText())
-                                .foregroundStyle(primaryLightText)
-                                .padding(.vertical, 6)
-                                .padding(.horizontal, 16)
-                                .background(primaryColor)
-                                .clipShape(RoundedRectangle(cornerRadius: 23))
-                                .onTouchGesture {
-                                    viewModel.showCurrencyPicker = true
-                                }
+                            CapsuleButton(buttonName: viewModel.selectedCurrency.code, paddingHr: 16, paddingVr: 6,
+                                          cornerRadius: 23, onClick: viewModel.handleSelectedCurrencyTap)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.top, 16)
+                        .padding([.horizontal, .top], 16)
 
                         GroupTotalTabView(selectedTab: viewModel.selectedTab,
                                           onSelect: viewModel.handleTabItemSelection(_:))
@@ -116,21 +107,20 @@ private struct GroupTotalSummaryView: View {
     var body: some View {
         VStack(spacing: 0) {
             if let summaryData = viewModel.summaryData {
-                let currencySymbol = viewModel.selectedCurrency.symbol
+                let currencyCode = viewModel.selectedCurrency.code
 
                 GroupSummaryAmountView(text: "Total group spending", amount: summaryData.groupTotalSpending,
-                                       currencySymbol: currencySymbol)
+                                       currencyCode: currencyCode)
                 GroupSummaryAmountView(text: "Total you paid for", amount: summaryData.totalPaidAmount,
-                                       currencySymbol: currencySymbol)
+                                       currencyCode: currencyCode)
                 GroupSummaryAmountView(text: "Your total share", amount: summaryData.totalShare,
-                                       currencySymbol: currencySymbol, fontColor: errorColor)
+                                       currencyCode: currencyCode, fontColor: errorColor)
                 GroupSummaryAmountView(text: "Payments made", amount: summaryData.paidAmount,
-                                       currencySymbol: currencySymbol)
+                                       currencyCode: currencyCode)
                 GroupSummaryAmountView(text: "Payments received", amount: summaryData.receivedAmount,
-                                       currencySymbol: currencySymbol, fontColor: errorColor)
-                GroupSummaryAmountView(text: "Total change in balance", amount: summaryData.changeInBalance,
-                                       currencySymbol: currencySymbol, fontColor: (summaryData.changeInBalance < 0 ? errorColor : successColor),
-                                       isLast: true)
+                                       currencyCode: currencyCode, fontColor: errorColor)
+                GroupSummaryAmountView(text: "Total change in balance", amount: summaryData.changeInBalance, currencyCode: currencyCode,
+                                       fontColor: (summaryData.changeInBalance < 0 ? errorColor : successColor), isLast: true)
             }
         }
     }
@@ -140,14 +130,14 @@ private struct GroupSummaryAmountView: View {
 
     let text: String
     let amount: Double
-    let currencySymbol: String
+    let currencyCode: String
     let fontColor: Color
     let isLast: Bool
 
-    init(text: String, amount: Double, currencySymbol: String, fontColor: Color = successColor, isLast: Bool = false) {
+    init(text: String, amount: Double, currencyCode: String, fontColor: Color = successColor, isLast: Bool = false) {
         self.text = text
         self.amount = amount
-        self.currencySymbol = currencySymbol
+        self.currencyCode = currencyCode
         self.fontColor = fontColor
         self.isLast = isLast
     }
@@ -160,7 +150,7 @@ private struct GroupSummaryAmountView: View {
 
             Spacer()
 
-            Text(amount.formattedCurrencyWithSign(currencySymbol))
+            Text(amount.formattedCurrency(currencyCode, true))
                 .font(.body1())
                 .foregroundStyle(amount == 0 ? lowestText : fontColor)
         }

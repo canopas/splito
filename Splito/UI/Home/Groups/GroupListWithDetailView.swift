@@ -106,31 +106,35 @@ private struct GroupListCellView: View {
                 Spacer(minLength: 8)
 
                 let defaultCurrency = group.group.defaultCurrencyCode
-                let userBalance = group.userBalance[defaultCurrency] ?? group.userBalance.first?.value ?? 0
-                VStack(alignment: .trailing, spacing: 0) {
-                    let isBorrowed = group.userBalance.allSatisfy { $0.value < 0 }
-                    if group.userBalance.allSatisfy({ $0.value == 0 }) {
-                        Text(group.group.hasExpenses ? "settled up" : "no expense")
-                            .font(.caption1())
-                            .foregroundStyle(disableText)
-                            .padding(.trailing, 4)
-                    } else {
-                        Text(isBorrowed ? "you owe" : "you are owed")
-                            .font(.caption1())
+                let initialBalance = group.userBalance.first(where: { $0.value != 0 })
+                let defaultBalance = group.userBalance.filter { $0.key == defaultCurrency && $0.value != 0 }
+                let userBalance = defaultBalance.isEmpty ? initialBalance : defaultBalance.first
 
-                        let currency = group.userBalance[defaultCurrency] == nil ? group.userBalance.first?.key : defaultCurrency
-                        Text(userBalance.formattedCurrencyWithSign(currency))
-                            .font(.body1())
-                        + Text(group.userBalance.count > 1 ? "*" : "")
-                            .font(.body1())
-                            .baselineOffset(1)
+                if let userBalance {
+                    let isBorrowed = userBalance.value < 0
+                    VStack(alignment: .trailing, spacing: 0) {
+                        if group.userBalance.allSatisfy({ $0.value == 0 }) {
+                            Text(group.group.hasExpenses ? "settled up" : "no expense")
+                                .font(.caption1())
+                                .foregroundStyle(disableText)
+                                .padding(.trailing, 4)
+                        } else {
+                            Text(isBorrowed ? "you owe" : "you are owed")
+                                .font(.caption1())
+
+                            Text(userBalance.value.formattedCurrency(userBalance.key))
+                                .font(.body1())
+                            + Text(group.userBalance.count > 1 ? "*" : "")
+                                .font(.body1())
+                                .baselineOffset(1)
+                        }
                     }
-                }
-                .lineLimit(1)
-                .foregroundStyle(group.userBalance.allSatisfy { $0.value < 0 } ? errorColor : successColor)
+                    .lineLimit(1)
+                    .foregroundStyle(isBorrowed ? errorColor : successColor)
 
-                if userBalance != 0 {
-                    GroupExpandBtnView(showInfo: $showInfo, isFirstGroup: isFirstGroup)
+                    if userBalance.value != 0 {
+                        GroupExpandBtnView(showInfo: $showInfo, isFirstGroup: isFirstGroup)
+                    }
                 }
             }
             .padding(.horizontal, 16)
@@ -202,7 +206,7 @@ private struct GroupExpenseMemberOweView: View {
             Group {
                 Text("\(name.localized) owes you ")
                     .foregroundColor(disableText)
-                + Text(amount.formattedCurrencyWithSign(currency))
+                + Text(amount.formattedCurrency(currency))
                     .foregroundColor(successColor)
             }
             .font(.body3())
@@ -210,7 +214,7 @@ private struct GroupExpenseMemberOweView: View {
             Group {
                 Text("You owe \(name.localized) ")
                     .foregroundColor(disableText)
-                + Text(amount.formattedCurrencyWithSign(currency))
+                + Text(amount.formattedCurrency(currency))
                     .foregroundColor(errorColor)
             }
             .font(.body3())
