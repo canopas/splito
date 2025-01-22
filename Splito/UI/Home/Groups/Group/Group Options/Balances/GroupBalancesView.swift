@@ -105,11 +105,11 @@ private struct GroupBalanceItemView: View {
                         let negativeAmounts = memberBalance.totalOwedAmount.filter { $0.value < 0 }
 
                         let positiveText = positiveAmounts.map { currency, amount in
-                            amount.formattedCurrencyWithSign(currency)
+                            amount.formattedCurrency(currency)
                         }.joined(separator: " + ")
 
                         let negativeText = negativeAmounts.map { currency, amount in
-                            abs(amount).formattedCurrencyWithSign(currency) // Use `abs` for positive display
+                            abs(amount).formattedCurrency(currency) // Use `abs` for positive display
                         }.joined(separator: " + ")
 
                         VStack(alignment: .leading, spacing: 0) {
@@ -199,7 +199,7 @@ private struct GroupBalanceItemMemberView: View {
 
                                 Group {
                                     Text("\(owedMemberName.capitalized) \(owesText.localized) ")
-                                    + Text(amount.formattedCurrencyWithSign(currency))
+                                    + Text(amount.formattedCurrency(currency))
                                         .foregroundColor(hasDue ? errorColor : successColor)
                                     + Text(" to \(owesMemberName)")
                                 }
@@ -240,7 +240,7 @@ private struct GroupBalanceItemMemberView: View {
 
     private func generateReminderText(owedMemberName: String, owesText: String, amount: Double,
                                       currency: String, owesMemberName: String) -> String {
-        let formattedAmount = amount.formattedCurrencyWithSign(currency)
+        let formattedAmount = amount.formattedCurrency(currency)
         let groupName = viewModel.group?.name ?? ""
         let deepLink = "\(Constants.groupBaseUrl)\(viewModel.groupId)"
 

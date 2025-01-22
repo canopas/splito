@@ -125,7 +125,7 @@ private struct GroupMemberCellView: View {
                 Text(isBorrowed ? "you owe" : "owes you")
                     .font(.caption1())
 
-                Text(abs(memberBalance.balance).formattedCurrencyWithSign(memberBalance.currencyCode))
+                Text(abs(memberBalance.balance).formattedCurrency(memberBalance.currencyCode))
                     .font(.body1())
             }
             .lineLimit(1)

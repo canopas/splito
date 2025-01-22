@@ -356,7 +356,7 @@ class ExpenseDetailsViewModel: BaseViewModel, ObservableObject {
     func getSplitAmount(for member: String) -> String {
         guard let expense else { return "" }
         let finalAmount = expense.getTotalSplitAmountOf(member: member)
-        return finalAmount.formattedCurrencyWithSign(expense.currencyCode)
+        return finalAmount.formattedCurrency(expense.currencyCode)
     }
 
     @objc private func getUpdatedExpense(notification: Notification) {

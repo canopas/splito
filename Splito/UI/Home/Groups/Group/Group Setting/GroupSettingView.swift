@@ -260,7 +260,7 @@ private struct GroupMemberCellView: View {
                         Text(isBorrowed ? "owes" : "gets back")
                             .font(.caption1())
 
-                        Text(amount.formattedCurrencyWithSign(currency))
+                        Text(amount.formattedCurrency(currency))
                             .font(.body1())
                         + Text(balance.count > 1 ? "*" : "")
                             .font(.body1())

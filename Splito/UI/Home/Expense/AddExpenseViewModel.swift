@@ -356,11 +356,11 @@ extension AddExpenseViewModel {
             let amountDescription = totalSharedAmount < expenseAmount ? "short" : "over"
             let differenceAmount = totalSharedAmount < expenseAmount ? (expenseAmount - totalSharedAmount) : (totalSharedAmount - expenseAmount)
             showAlertFor(title: "Error!",
-                         message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrencyWithSign(selectedCurrency.code)). You are \(amountDescription) by \(differenceAmount.formattedCurrencyWithSign(selectedCurrency.code)).")
+                         message: "The amounts do not add up to the total cost of \(expenseAmount.formattedCurrency(selectedCurrency.code)). You are \(amountDescription) by \(differenceAmount.formattedCurrency(selectedCurrency.code)).")
             return false
         } else if selectedPayers.count > 1 && totalPaidAmount != expenseAmount {
             showAlertFor(title: "Error",
-                         message: "The total of everyone's paid shares (\(totalPaidAmount.formattedCurrencyWithSign(selectedCurrency.code))) is different than the total cost (\(expenseAmount.formattedCurrencyWithSign(selectedCurrency.code)))")
+                         message: "The total of everyone's paid shares (\(totalPaidAmount.formattedCurrency(selectedCurrency.code))) is different than the total cost (\(expenseAmount.formattedCurrency(selectedCurrency.code)))")
             return false
         } else if selectedPayers.count == 1 && selectedPayers.values.reduce(0, +) != expenseAmount {
             showAlertFor(title: "Error",

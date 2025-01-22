@@ -249,7 +249,7 @@ private struct TransactionSummaryView: View {
                     .padding(.bottom, 8)
             }
 
-            Text(amount?.formattedCurrencyWithSign(currency) ?? 0.0.formattedCurrencyWithSign(currency))
+            Text(amount?.formattedCurrency(currency) ?? 0.0.formattedCurrency(currency))
                 .font(.Header2())
                 .foregroundStyle(primaryText)
 

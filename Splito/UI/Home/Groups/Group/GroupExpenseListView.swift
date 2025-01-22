@@ -226,7 +226,7 @@ struct GroupExpenseItemView: View {
                             Text(isBorrowed ? "you borrowed" : "you lent")
                                 .font(.caption1())
 
-                            Text(amount.formattedCurrencyWithSign(expense.currencyCode))
+                            Text(amount.formattedCurrency(expense.currencyCode))
                                 .font(.body1())
                         } else {
                             Text("not involved")
@@ -349,7 +349,7 @@ private struct GroupExpenseHeaderOverallView: View {
                     .multilineTextAlignment(.trailing)
 
                 let spendingText = viewModel.currentMonthSpending.map { (currency, amount) in
-                    abs(amount).formattedCurrencyWithSign(currency)
+                    abs(amount).formattedCurrency(currency)
                 }.joined(separator: " + ")
 
                 Text(spendingText)
@@ -377,7 +377,7 @@ private struct GroupExpenseMemberOweView: View {
                 Group {
                     Text("\(name.localized) owes you ")
                         .foregroundColor(disableText)
-                    + Text(amount.formattedCurrencyWithSign(currency))
+                    + Text(amount.formattedCurrency(currency))
                         .foregroundColor(successColor)
                 }
                 .font(.body3())
@@ -385,7 +385,7 @@ private struct GroupExpenseMemberOweView: View {
                 Group {
                     Text("You owe \(name.localized) ")
                         .foregroundColor(disableText)
-                    + Text(amount.formattedCurrencyWithSign(currency))
+                    + Text(amount.formattedCurrency(currency))
                         .foregroundColor(errorColor)
                 }.font(.body3())
             }

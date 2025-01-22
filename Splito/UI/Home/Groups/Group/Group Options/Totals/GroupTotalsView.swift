@@ -160,7 +160,7 @@ private struct GroupSummaryAmountView: View {
 
             Spacer()
 
-            Text(amount.formattedCurrencyWithSign(currencySymbol))
+            Text(amount.formattedCurrency(currencySymbol, true))
                 .font(.body1())
                 .foregroundStyle(amount == 0 ? lowestText : fontColor)
         }

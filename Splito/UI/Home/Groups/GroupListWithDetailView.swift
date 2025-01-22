@@ -122,7 +122,7 @@ private struct GroupListCellView: View {
                             Text(isBorrowed ? "you owe" : "you are owed")
                                 .font(.caption1())
 
-                            Text(userBalance.value.formattedCurrencyWithSign(userBalance.key))
+                            Text(userBalance.value.formattedCurrency(userBalance.key))
                                 .font(.body1())
                             + Text(group.userBalance.count > 1 ? "*" : "")
                                 .font(.body1())
@@ -206,7 +206,7 @@ private struct GroupExpenseMemberOweView: View {
             Group {
                 Text("\(name.localized) owes you ")
                     .foregroundColor(disableText)
-                + Text(amount.formattedCurrencyWithSign(currency))
+                + Text(amount.formattedCurrency(currency))
                     .foregroundColor(successColor)
             }
             .font(.body3())
@@ -214,7 +214,7 @@ private struct GroupExpenseMemberOweView: View {
             Group {
                 Text("You owe \(name.localized) ")
                     .foregroundColor(disableText)
-                + Text(amount.formattedCurrencyWithSign(currency))
+                + Text(amount.formattedCurrency(currency))
                     .foregroundColor(errorColor)
             }
             .font(.body3())

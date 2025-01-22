@@ -9,7 +9,7 @@ import Foundation
 
 public extension Double {
 
-    func formattedCurrencyWithSign(_ code: String?) -> String {
+    func formattedCurrency(_ code: String?, _ showSign: Bool = false) -> String {
         let amount: String
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
@@ -21,17 +21,11 @@ public extension Double {
         }
 
         let currencySymbol = Currency.getCurrencyFromCode(code).symbol
-        return currencySymbol.isEmpty ? amount : (currencySymbol + " " + amount)
-    }
-
-    var formattedCurrency: String {
-        let formatter = NumberFormatter()
-        formatter.locale = Locale.current
-
-        if let formattedAmount = formatter.string(from: NSNumber(value: self)) {
-            return formattedAmount.hasPrefix("-") ? String(formattedAmount.dropFirst()) : formattedAmount
+        if showSign {
+            let sign = self < 0 ? "-" : ""
+            return currencySymbol.isEmpty ? "\(sign)\(amount)" : "\(sign)\(currencySymbol) \(amount)"
         } else {
-            return String(format: "%.2f", self.rounded())  // Fallback to a basic decimal format
+            return currencySymbol.isEmpty ? amount : (currencySymbol + " " + amount)
         }
     }
 
