@@ -23,13 +23,13 @@ Whether it's a group trip 🌍, shared household bills 🏠, or any other collec
 - **Data Restoration:** Recover accidentally deleted data 🔄 with the restoration feature, ensuring nothing important is lost.
 - **Due Payments Reminders:** Get timely notifications 🔔 for unpaid balances to help you stay on top of your financial commitments.
 - **Expense Comments:** Add comments 🗨️ to individual expenses for additional context or notes.
+- **Group Expense Report:** Generate detailed reports 📄 for groups, summarizing spending patterns and balances.
+- **Multiple Currency Support:** Handle expenses and payments with multiple currencies 🌍 for seamless international group usage.
 
 ### Upcoming Features 🚧
 
 Splito is currently in active development, with exciting new features planned:
 
-- **Group Expense Report:** Generate detailed reports 📄 for groups, summarizing spending patterns and balances.
-- **Multiple Currency Support:** Handle expenses and payments with multiple currencies 🌍 for seamless international group usage.
 - **Expense Categories:** Organize expenses into predefined categories 📂 such as food, travel, or utilities for better clarity.
 - **Friends List:** Add and manage a list of friends 👯‍♂️ to streamline group creation and expense tracking.
 - **Custom Filters for Groups:** Apply filters 🔍 to sort and view groups based on specific criteria.
