@@ -19,7 +19,7 @@ class GroupTotalsViewModel: BaseViewModel, ObservableObject {
 
     @Published var showCurrencyPicker = false
     @Published var supportedCurrencies: [Currency] = [Currency.defaultCurrency]
-    @Published var selectedCurrency: Currency = Currency.getCurrentLocalCurrency() {
+    @Published var selectedCurrency: Currency = Currency.defaultCurrency {
         didSet {
             filterDataForSelectedTab()  // Recalculate data when currency changes
         }

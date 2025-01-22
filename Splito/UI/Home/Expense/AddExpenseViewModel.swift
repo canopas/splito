@@ -57,7 +57,7 @@ class AddExpenseViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         self.expenseId = expenseId
-        self.selectedCurrency = Currency.getCurrentLocalCurrency()
+        self.selectedCurrency = Currency.defaultCurrency
         super.init()
         loadInitialData()
     }

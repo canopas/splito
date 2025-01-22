@@ -87,13 +87,12 @@ private struct GroupBalanceItemView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack(spacing: 16) {
-                let totalOwed = memberBalance.totalOwedAmount.reduce(0) { $0 + $1.value }
                 let name = viewModel.getMemberName(id: memberBalance.id, needFullName: true)
 
                 HStack(spacing: 16) {
                     MemberProfileImageView(imageUrl: imageUrl)
 
-                    if totalOwed == 0 {
+                    if memberBalance.totalOwedAmount.allSatisfy({ $0.value == 0 }) {
                         Group {
                             Text(name)
                                 .font(.subTitle2())
@@ -143,7 +142,7 @@ private struct GroupBalanceItemView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                if totalOwed != 0 {
+                if memberBalance.totalOwedAmount.allSatisfy({ $0.value != 0 }) {
                     ScrollToTopButton(
                         icon: "chevron.down", iconColor: primaryText, bgColor: container2Color,
                         showWithAnimation: true, size: (10, 7), isFirstGroupCell: memberBalance.isExpanded,

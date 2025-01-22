@@ -101,7 +101,7 @@ class CreateGroupViewModel: BaseViewModel, ObservableObject {
     private func createGroup() async -> Bool {
         guard let userId = preference.user?.id else { return false }
 
-        let localCurrency = Currency.getCurrentLocalCurrency().code
+        let localCurrency = Currency.defaultCurrency.code
         let memberBalance = GroupMemberBalance(id: userId, balanceByCurrency: [:])
         let group = Groups(name: groupName.trimming(spaces: .leadingAndTrailing), createdBy: userId,
                            members: [userId], balances: [memberBalance], currencyCode: localCurrency)

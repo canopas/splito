@@ -48,7 +48,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
         self.router = router
         self.groupId = groupId
         self.transactionId = transactionId
-        self.amountCurrency = "INR"
+        self.amountCurrency = Currency.defaultCurrency.code
         super.init()
 
         NotificationCenter.default.addObserver(self, selector: #selector(getUpdatedTransaction(notification:)), name: .updateTransaction, object: nil)
@@ -78,7 +78,7 @@ class GroupTransactionDetailViewModel: BaseViewModel, ObservableObject {
     private func fetchTransaction() async {
         do {
             transaction = try await transactionRepository.fetchTransactionBy(groupId: groupId, transactionId: transactionId)
-            amountCurrency = transaction?.currencyCode ?? (group?.defaultCurrencyCode ?? "INR")
+            amountCurrency = transaction?.currencyCode ?? (group?.defaultCurrencyCode ?? Currency.defaultCurrency.code)
             await setTransactionUsersData()
             LogD("GroupTransactionDetailViewModel: \(#function) Payment fetched successfully.")
         } catch {
