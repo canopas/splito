@@ -247,7 +247,7 @@ private struct GroupMemberCellView: View {
 
             Spacer()
 
-            if let firstBalance = balance.first {
+            if let firstBalance = balance.first(where: { $0.value != 0 }) {
                 let currency = firstBalance.key
                 let amount = firstBalance.value
                 let isBorrowed = amount < 0

@@ -17,7 +17,7 @@ public struct AppUser: Identifiable, Codable, Hashable, Sendable {
     public var imageUrl: String?
     public var deviceFcmToken: String?
     public var loginType: LoginType
-    public var totalOweAmount: [String: Double]
+    public var totalOweAmount: [String: Double] /// [currency: balance]
     public var isActive: Bool
 
     public var fullName: String {
