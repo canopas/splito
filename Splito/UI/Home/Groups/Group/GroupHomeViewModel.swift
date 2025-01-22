@@ -151,6 +151,7 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
             .mapValues { summaries in
                 summaries.reduce(0) { $0 + $1.summary.totalShare }
             }
+            .filter({ $0.value != 0 })
     }
 
     func refetchTransactionsCount() {

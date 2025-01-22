@@ -166,8 +166,11 @@ public func getUpdatedMemberBalanceFor(expense: Expense, group: Groups, updateTy
                 }
 
             case .Update(let oldExpense):
-                let oldSplitAmount = oldExpense.getTotalSplitAmountOf(member: member)
+                let oldSplitAmount = oldExpense.getCalculatedSplitAmountOf(member: member)
+                let oldTotalSplitAmount = oldExpense.getTotalSplitAmountOf(member: member)
                 let oldCurrency = oldExpense.currencyCode ?? Currency.defaultCurrency.code
+
+                memberBalance[index].balanceByCurrency[oldCurrency]?.balance -= oldSplitAmount
 
                 // Update the old date's summary by reversing the old expense values
                 let groupOldTotalSummary = memberBalance[index].balanceByCurrency[oldCurrency]?.totalSummary ?? []
@@ -176,10 +179,8 @@ public func getUpdatedMemberBalanceFor(expense: Expense, group: Groups, updateTy
                     var oldSummary = groupOldTotalSummary[oldSummaryIndex].summary
                     oldSummary.groupTotalSpending -= oldExpense.amount
                     oldSummary.totalPaidAmount -= (oldExpense.paidBy[member] ?? 0)
-                    oldSummary.totalShare -= abs(oldSplitAmount)
+                    oldSummary.totalShare -= abs(oldTotalSplitAmount)
                     oldSummary.changeInBalance = (oldSummary.totalPaidAmount - oldSummary.totalShare) - oldSummary.receivedAmount + oldSummary.paidAmount
-
-                    memberBalance[index].balanceByCurrency[oldCurrency]?.balance -= oldSplitAmount
                     memberBalance[index].balanceByCurrency[oldCurrency]?.totalSummary[oldSummaryIndex].summary = oldSummary
                 }
 
