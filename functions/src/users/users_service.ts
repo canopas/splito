@@ -19,14 +19,18 @@ if (admin.apps.length === 0) {
 const db = admin.firestore();
 
 // TypeScript interface for balances in the group document
-interface Balance {
+interface GroupMemberBalance {
   id: string;
+  balance_by_currency: Record<string, GroupCurrencyBalance>;
+}
+
+interface GroupCurrencyBalance {
   balance: number;
 }
-  
+
 // TypeScript interface for user data in the users document
 interface UserData {
-  total_owe_amount?: number;
+  total_owe_amount?: Record<string, number>; // Stores balances by currency
 }
   
 export const onGroupWrite = onDocumentWritten(
@@ -34,59 +38,80 @@ export const onGroupWrite = onDocumentWritten(
   async (event) => {
     try {
       // Extract 'before' and 'after' data from the event
-      const beforeData = event.data?.before?.data() as { balances: Balance[], is_active: boolean } | undefined;
-      const afterData = event.data?.after?.data() as { balances: Balance[], is_active: boolean } | undefined;
-  
+      const beforeData = event.data?.before?.data() as { balances: GroupMemberBalance[], is_active: boolean } | undefined;
+      const afterData = event.data?.after?.data() as { balances: GroupMemberBalance[], is_active: boolean } | undefined;
+
+      // Initialize a Firestore batch to group all write operations
+      const batch = db.batch();
+
+      // Helper function to process balances and update user totals
+      const processBalances = async (balances: GroupMemberBalance[], multiplier: number) => {
+        if (balances.length === 0) return; // Skip if balances are empty
+
+        // Optimize Firestore reads by batching user document fetches
+        const userDocRefs = balances.map(({ id }) => db.collection('users').doc(id));
+        const userDocs = await db.getAll(...userDocRefs);
+
+        // Process each user document
+        userDocs.forEach((userDoc, index) => {
+          if (!userDoc.exists) {
+            logger.warn(`User document does not exist for userId: ${balances[index].id}`);
+            return;
+          }
+
+          const userData = userDoc.data() as UserData;
+          const updatedTotal = { ...userData.total_owe_amount };
+
+          // Iterate over each currency in the balance_by_currency
+          const { balance_by_currency } = balances[index];
+          for (const [currency, currencyBalance] of Object.entries(balance_by_currency)) {
+            const currentBalance = updatedTotal[currency] || 0;
+            updatedTotal[currency] = currentBalance + multiplier * currencyBalance.balance;
+          }
+
+          // Add the update to the batch
+          batch.update(userDocRefs[index], { total_owe_amount: updatedTotal });
+          logger.info(`Updated total_owe_amount for user ${balances[index].id}:`, updatedTotal);
+        });
+      };
+
       // Check if either 'before' or 'after' data is null and exit early if so
       if (!beforeData || !afterData) {
         logger.warn('Either beforeData or afterData is null. Exiting function.');
         return;
       }
 
-      // Initialize a Firestore batch to group all write operations
-      const batch = db.batch();
-
-      // Helper function to process balances and update user totals
-      const processBalances = async (balances: Balance[], multiplier: number) => {
-        for (const { id, balance } of balances) {
-
-          // Get the Firestore document reference for the user
-          const userDocRef = db.collection('users').doc(id);
-          const userDoc = await userDocRef.get();
-
-          // Skip if the user document does not exist
-          if (!userDoc.exists) {
-            logger.warn(`User document does not exist for userId: ${id}`);
-            continue;
-          }
-          
-          // Retrieve user data and calculate the updated total balance
-          const userData = userDoc.data() as UserData;
-          const updatedTotal = (userData.total_owe_amount || 0) + multiplier * balance;
-
-          // Add the update to the batch
-          batch.update(userDocRef, { total_owe_amount: updatedTotal });
-        }
-      };
+      // Handle undefined balances as empty arrays
+      const beforeBalances = beforeData?.balances || [];
+      const afterBalances = afterData?.balances || [];
 
       // Determine the type of change (activation, deactivation, or balance update)
       const isGroupActivated = !beforeData?.is_active && afterData?.is_active;
       const isGroupDeactivated = beforeData?.is_active && !afterData?.is_active;
-      const balancesChanged = beforeData?.balances && afterData?.balances && !_.isEqual(beforeData.balances, afterData.balances);
+      const balancesChanged = !_.isEqual(beforeBalances, afterBalances);
 
       if (isGroupActivated) {
         logger.info('Group activated. Adding balances to user totals.');
-        await processBalances(afterData!.balances || [], 1);
+        await processBalances(afterBalances, 1);
       } else if (isGroupDeactivated) {
         logger.info('Group deactivated. Removing balances from user totals.');
-        await processBalances(beforeData!.balances || [], -1);
-      } else if (balancesChanged && afterData?.is_active) {
+        await processBalances(beforeBalances, -1);
+      } else if (balancesChanged) {
         logger.info('Balances changed. Updating user totals.');
 
         // Calculate the difference between new and old balances for each user
-        const balanceDiffs = afterData.balances.map(({ id, balance }) => {
-          const oldBalance = beforeData.balances.find((b) => b.id === id)?.balance || 0;
-          return { id, balance: balance - oldBalance };
+        const balanceDiffs = afterBalances.map(({ id, balance_by_currency }) => {
+          const oldBalances = beforeBalances.find((b) => b.id === id)?.balance_by_currency || {};
+          const diffs: Record<string, GroupCurrencyBalance> = {};
+
+          for (const currency of new Set([...Object.keys(balance_by_currency), ...Object.keys(oldBalances)])) {
+            const afterCurrencyBalance = balance_by_currency[currency]?.balance || 0;
+            const beforeCurrencyBalance = oldBalances[currency]?.balance || 0;
+            const diff = afterCurrencyBalance - beforeCurrencyBalance;
+            diffs[currency] = { balance: diff };
+          }
+
+          return { id, balance_by_currency: diffs };
         });
 
         // Process the calculated differences
