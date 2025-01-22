@@ -142,7 +142,7 @@ public func getUpdatedMemberBalanceFor(expense: Expense, group: Groups, updateTy
         // Check if the member already has an entry in the member balance array
         if let index = memberBalance.firstIndex(where: { $0.id == member }) {
             if memberBalance[index].balanceByCurrency[currency] == nil {
-                memberBalance[index].balanceByCurrency[currency] = GroupCurrencyBalance(balance: 0.0, totalSummary: [])
+                memberBalance[index].balanceByCurrency[currency] = GroupCurrencyBalance(balance: 0, totalSummary: [])
             }
 
             switch updateType {
@@ -241,7 +241,7 @@ func getInitialGroupSummaryFor(member: String, expense: Expense) -> GroupTotalSu
     let memberSummary = GroupMemberSummary(groupTotalSpending: expense.amount,
                                            totalPaidAmount: expense.paidBy[member] ?? 0,
                                            totalShare: splitAmount, paidAmount: 0, receivedAmount: 0,
-                                           changeInBalance: (expense.paidBy[member] ?? 0.0) - splitAmount)
+                                           changeInBalance: (expense.paidBy[member] ?? 0) - splitAmount)
 
     let totalSummary = GroupTotalSummary(year: expenseYear, month: expenseMonth, summary: memberSummary)
     return totalSummary
@@ -265,7 +265,7 @@ public func getUpdatedMemberBalanceFor(transaction: Transactions, group: Groups,
     // For payer
     if let payerIndex = memberBalance.firstIndex(where: { $0.id == payerId }) {
         if memberBalance[payerIndex].balanceByCurrency[currency] == nil {
-            memberBalance[payerIndex].balanceByCurrency[currency] = GroupCurrencyBalance(balance: 0.0, totalSummary: [])
+            memberBalance[payerIndex].balanceByCurrency[currency] = GroupCurrencyBalance(balance: 0, totalSummary: [])
         }
 
         switch updateType {
@@ -351,7 +351,7 @@ public func getUpdatedMemberBalanceFor(transaction: Transactions, group: Groups,
     // For receiver
     if let receiverIndex = memberBalance.firstIndex(where: { $0.id == receiverId }) {
         if memberBalance[receiverIndex].balanceByCurrency[currency] == nil {
-            memberBalance[receiverIndex].balanceByCurrency[currency] = GroupCurrencyBalance(balance: 0.0, totalSummary: [])
+            memberBalance[receiverIndex].balanceByCurrency[currency] = GroupCurrencyBalance(balance: 0, totalSummary: [])
         }
 
         switch updateType {

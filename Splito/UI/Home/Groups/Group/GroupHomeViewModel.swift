@@ -147,11 +147,12 @@ class GroupHomeViewModel: BaseViewModel, ObservableObject {
     }
 
     private func getCalculatedCurrentMonthSpending(group: Groups, userId: String?) -> [String: Double] {
-        return getTotalSummaryForCurrentMonth(group: group, userId: userId)
+        let currentMonthSpendingAmounts = getTotalSummaryForCurrentMonth(group: group, userId: userId)
             .mapValues { summaries in
                 summaries.reduce(0) { $0 + $1.summary.totalShare }
             }
             .filter({ $0.value != 0 })
+        return currentMonthSpendingAmounts.isEmpty ? [Currency.defaultCurrency.code: 0] : currentMonthSpendingAmounts
     }
 
     func refetchTransactionsCount() {
