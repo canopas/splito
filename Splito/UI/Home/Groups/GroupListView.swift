@@ -179,16 +179,14 @@ private struct GroupListHeaderView: View {
 
                 var oweAmountText: String {
                     owedAmounts.map { (currency, amount) in
-                        let currencySymbol = Currency.getCurrencyFromCode(currency).symbol
-                        return "\(currencySymbol) \(abs(amount))"
+                        return amount.formattedCurrency(currency)
                     }
                     .joined(separator: " + ")
                 }
 
                 var oweToYouAmountText: String {
                     owedToYouAmounts.map { (currency, amount) in
-                        let currencySymbol = Currency.getCurrencyFromCode(currency).symbol
-                        return "\(currencySymbol) \(abs(amount))"
+                        return amount.formattedCurrency(currency)
                     }
                     .joined(separator: " + ")
                 }

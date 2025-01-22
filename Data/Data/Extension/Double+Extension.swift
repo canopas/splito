@@ -13,6 +13,9 @@ public extension Double {
         let amount: String
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
+        formatter.numberStyle = .decimal // Added decimal which includes comma separator
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
 
         if let formattedAmount = formatter.string(from: NSNumber(value: self)) {
             amount = formattedAmount.hasPrefix("-") ? String(formattedAmount.dropFirst()) : formattedAmount
