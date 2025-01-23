@@ -344,7 +344,6 @@ private struct GroupExpenseHeaderOverallView: View {
                 Text("Your \(Date().nameOfMonth.lowercased()) spending")
                     .font(.body3())
                     .foregroundStyle(disableText)
-                    .multilineTextAlignment(.trailing)
 
                 let spendingText = viewModel.currentMonthSpending.map { (currency, amount) in
                     abs(amount).formattedCurrency(currency)
@@ -355,6 +354,7 @@ private struct GroupExpenseHeaderOverallView: View {
 
                 Spacer()
             }
+            .multilineTextAlignment(.trailing)
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(16)
         }

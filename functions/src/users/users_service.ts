@@ -37,12 +37,19 @@ export const onGroupWrite = onDocumentWritten(
   { document: 'groups/{groupId}' },
   async (event) => {
     try {
+      const DEFAULT_CURRENCY = 'INR';
+
       // Extract 'before' and 'after' data from the event
       const beforeData = event.data?.before?.data() as { balances: GroupMemberBalance[], is_active: boolean } | undefined;
       const afterData = event.data?.after?.data() as { balances: GroupMemberBalance[], is_active: boolean } | undefined;
 
       // Initialize a Firestore batch to group all write operations
       const batch = db.batch();
+
+      // Helper function to round currency to 2 decimal places
+      const roundCurrency = (amount: number): number => {
+        return Number(amount.toFixed(2));
+      };
 
       // Helper function to process balances and update user totals
       const processBalances = async (balances: GroupMemberBalance[], multiplier: number) => {
@@ -72,8 +79,14 @@ export const onGroupWrite = onDocumentWritten(
           // Iterate over each currency in the balance_by_currency
           const { balance_by_currency } = balances[index];
           for (const [currency, currencyBalance] of Object.entries(balance_by_currency)) {
-            const currentBalance = updatedTotal[currency] || 0;
-            updatedTotal[currency] = currentBalance + multiplier * currencyBalance.balance;
+            const currencyKey = currency || DEFAULT_CURRENCY;
+            const currentBalance = updatedTotal[currencyKey] || 0;
+            updatedTotal[currencyKey] = roundCurrency(currentBalance + multiplier * currencyBalance.balance);
+          }
+
+          // Ensure at least the default currency is present
+          if (!updatedTotal[DEFAULT_CURRENCY]) {
+            updatedTotal[DEFAULT_CURRENCY] = 0;
           }
 
           // Add the update to the batch
@@ -115,7 +128,7 @@ export const onGroupWrite = onDocumentWritten(
             const afterCurrencyBalance = balance_by_currency[currency]?.balance || 0;
             const beforeCurrencyBalance = oldBalances[currency]?.balance || 0;
             const diff = afterCurrencyBalance - beforeCurrencyBalance;
-            diffs[currency] = { balance: diff };
+            diffs[currency] = { balance: roundCurrency(diff) };
           }
 
           return { id, balance_by_currency: diffs };
