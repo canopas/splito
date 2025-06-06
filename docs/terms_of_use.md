@@ -1,23 +1,19 @@
 Terms of Use
-Effective Date: June 20, 2024
-App Name: Splito
-Developer: Canopas Software LLP
 
-These Terms of Use (“Terms”) govern your use of the Splito mobile application (“App”) developed by Canopas Software LLP (“Canopas,” “we,” or “us”). By accessing or using the App, you agree to be bound by these Terms. If you do not agree with any part of the Terms, you must not use the App.
+Effective Date: June 20, 2024
+
+These Terms of Use govern your use of the Splito mobile application (“App”) developed by Canopas Software LLP. By accessing or using the App, you agree to be bound by these Terms. If you do not agree with any part of the Terms, you must not use the App.
 
 1. License to Use
-Canopas grants you a limited, non-exclusive, non-transferable, revocable license to use the Splito app for personal, non-commercial purposes and in accordance with these Terms.
+Canopas grants you a non-exclusive, revocable license to use the App in accordance with these Terms. You may not:
 
-You agree not to:
-
-Reverse engineer, decompile, or disassemble the App.
-
-Distribute, sublicense, lease, or resell the App.
-
-Use the App in violation of applicable laws or regulations.
+- Modify, disassemble, reverse engineer, or decompile the App.
+- Distribute, sell, rent, lease, or sublicense the App.
+- Use the App for any illegal or unauthorized purpose.
+- Violate any applicable laws or regulations.
 
 2. User Content
-You are solely responsible for the accuracy and legality of any content or data you input or share through the App. By using the App, you grant Canopas a non-exclusive, royalty-free license to use and process your content solely for the purpose of operating and improving the App.
+You are responsible for all content you upload, store, or transmit through the Khelo App. You retain all ownership rights to your User Content. However, by uploading User Content, you grant Canopas a non-exclusive, royalty-free license to use, reproduce, modify, publish, distribute, and translate your User Content in connection with the App and its related services.
 
 3. Subscriptions and In-App Purchases
 Splito may offer optional paid features through auto-renewable subscriptions.
@@ -31,34 +27,36 @@ You can manage or cancel subscriptions through your App Store account settings.
 Prices and features may vary based on your location and plan.
 
 4. Privacy Policy
-Our Privacy Policy explains how we collect, use, and protect your data. By using the App, you also agree to the terms of our Privacy Policy (or insert your own if separate for Splito).
+Our Privacy Policy explains how we collect, use, and protect your data. By using the App, you also agree to the terms of our Privacy Policy.
 
 5. Third-Party Services
-Splito may integrate with third-party tools (e.g., Firebase, payment processors). Your use of such services is subject to the respective third-party terms and conditions.
+The App may integrate with third-party services, such as Firebase. Your use of these services is subject to the terms and conditions of those third parties.
 
 6. Disclaimers
-The App is provided “as is” and “as available” without warranties of any kind. We do not guarantee:
-
-The App will be error-free or uninterrupted.
-
-That defects will be corrected.
-
-That the App will meet your expectations or specific use cases.
+THE APP IS PROVIDED "AS IS" AND WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. CANOPAS DISCLAIMS ALL WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. CANOPAS DOES NOT WARRANT THAT THE APP WILL BE UNINTERRUPTED OR ERROR-FREE, THAT DEFECTS WILL BE CORRECTED, OR THAT THE APP IS FREE OF VIRUSES OR OTHER HARMFUL COMPONENTS.
 
 7. Limitation of Liability
-To the maximum extent permitted by law, Canopas will not be liable for any indirect, incidental, consequential, or punitive damages arising from your use of the App.
+CANOPAS WILL NOT BE LIABLE FOR ANY DAMAGES ARISING OUT OF OR RELATED TO YOUR USE OF THE APP, INCLUDING, BUT NOT LIMITED TO, DIRECT, INDIRECT, INCIDENTAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES.
 
 8. Termination
-We may terminate or suspend your access to the App at any time without prior notice if you violate these Terms.
+Canopas may terminate your access to the App at any time for any reason, with or without notice.
 
-9. Changes to These Terms
-Canopas may revise these Terms at any time. Updated Terms will be posted within the App or at a public URL, and your continued use of the App will indicate acceptance.
+9. Entire Agreement
+
+These Terms constitute the entire agreement between you and Canopas regarding your use of the App.
 
 10. Governing Law
-These Terms are governed by and construed in accordance with the laws of India. Any disputes shall be subject to the exclusive jurisdiction of the courts in Surat, Gujarat.
 
-11. Contact Us
-For questions about these Terms or the App, please contact us at:
+These Terms and Conditions will be governed by and construed in accordance with the laws of India, without regard to its conflict of law provisions.
 
-Email: contact@canopas.com
-Company: Canopas Software LLP
+This clarifies that Indian law applies to any disputes arising from the use of the Khelo app developed by Canopas Software LLP.
+
+11. Changes to the Terms
+
+Canopas may revise these Terms at any time by posting the revised Terms on the App. You are expected to check this page periodically so you are aware of any changes, as they are binding on you.
+
+12. Contact Us
+If you have any questions about these Terms, please contact us at:
+
+* Email: [contact@canopas.com](mailto:contact@canopas.com)
+* Website: [Canopas Software LLP](https://www.canopas.com/)
