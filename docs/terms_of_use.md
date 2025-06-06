@@ -21,15 +21,15 @@ You are responsible for all content you upload, store, or transmit through the S
 
 Splito may offer optional paid features through auto-renewable subscriptions.
 
-* Payment will be charged to your Apple ID account upon confirmation of purchase.
+- Payment will be charged to your Apple ID account upon confirmation of purchase.
 
-* Subscriptions automatically renew unless canceled at least 24 hours before the end of the current billing period.
+- Subscriptions automatically renew unless canceled at least 24 hours before the end of the current billing period.
 
-* You can manage or cancel your subscriptions in your App Store account settings.
+- You can manage or cancel your subscriptions in your App Store account settings.
 
-* Subscription pricing and duration will be clearly displayed within the App.
+- Subscription pricing and duration will be clearly displayed within the App.
 
-* Features available may vary based on your plan and region.
+- Features available may vary based on your plan and region.
 
 #### 4. Privacy Policy
    
@@ -69,5 +69,5 @@ Canopas may revise these Terms at any time by posting the revised Terms on the A
 
 If you have any questions about these Terms, please contact us at:
 
-* Email: [contact@canopas.com](mailto:contact@canopas.com)
-* Website: [Canopas Software LLP](https://www.canopas.com/)
+- Email: [contact@canopas.com](mailto:contact@canopas.com)
+- Website: [Canopas Software LLP](https://www.canopas.com/)
