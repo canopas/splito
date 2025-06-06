@@ -1,6 +1,6 @@
-## Terms & Conditions
+## Splito Terms of Service
 
-**Effective Date: June 20, 2024**
+**Last updated: June 06, 2025**
 
 These Terms & Conditions govern your use of the Splito mobile app, developed by Canopas Software LLP. By downloading and using the App, you agree to be bound by these Terms. If you disagree with any part of these Terms, you may not use the App.
 
