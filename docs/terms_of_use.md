@@ -1,4 +1,4 @@
-## Splito Terms of Service
+## Terms of Service
 
 **Last updated: June 06, 2025**
 
