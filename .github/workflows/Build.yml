@@ -23,7 +23,7 @@ jobs:
         run: /usr/bin/xcodebuild -version
 
       - name: Cache DerivedData
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             DerivedData
@@ -32,7 +32,7 @@ jobs:
             ${{ runner.os }}-derived-data-
           
       - name: Cache CocoaPods
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             Pods
