@@ -69,5 +69,5 @@ Canopas may revise these Terms at any time by posting the revised Terms on the A
 
 If you have any questions about these Terms, please contact us at:
 
-- Email: [contact@canopas.com](mailto:contact@canopas.com)
+- Email: [contact@canopas.com](contact@canopas.com)
 - Website: [Canopas Software LLP](https://www.canopas.com/)
